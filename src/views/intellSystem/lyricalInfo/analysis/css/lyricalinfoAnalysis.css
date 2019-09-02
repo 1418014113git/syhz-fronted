@@ -1,0 +1,125 @@
+.event-nav {
+  margin-left: 50px;
+}
+
+.event-x {
+  width: 100%;
+  margin-top: 0;
+  overflow: hidden;
+}
+
+.eve-pub {
+  box-sizing: border-box;
+  float: left;
+  margin-left: 2%;
+  background-color: rgba(0, 89, 130, 0.7);
+  border: 1px solid #00a0e9;
+  cursor: pointer;
+  position: relative;
+  margin-top: 30px;
+  width: 22.5%;
+}
+
+.state {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 75px;
+  height: 26px;
+  background-color: #00a0e9;
+  color: #FFFFFF;
+  text-align: center;
+  line-height: 26px;
+  border-radius: 0 0 0 26px;
+  text-indent: 5px;
+}
+
+.title-time {
+  width: 100%;
+  background: url(/static/image/lyrivalinfo_images/eve_bj.png) no-repeat top center;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.event-x .title-time > div p:nth-child(1) {
+  color: #bce8fc;
+  font-size: 20px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 99%;
+  margin: 0 auto;
+}
+
+.event-x .title-time > div p:nth-child(2) {
+  color: #FFFFFF;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.event-x .title-time > div {
+  width: 99.99%;
+  height: 60px;
+  text-align: center;
+  font-family: 黑体;
+  margin-top: 100px;
+}
+
+.event-x .sum {
+  font-family: 黑体;
+  color: #FFFFFF;
+  font-size: 16px;
+  text-align: center;
+  margin-top: 25px;
+}
+
+.event-x .sum > span {
+  color: #bce8fc;
+  font-weight: 400;
+}
+
+.mediaTypeListWarp {
+  width: 100%;
+  margin-top: 28px;
+  overflow: hidden;
+}
+
+.mediaTypeListWarp .mediaTypeList {
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.mediaTypeListWarp .mediaTypeList > li {
+  width: 19.5%;
+  height: auto;
+  float: left;
+  text-align: center;
+  font-size: 14px;
+  border-right: 1px solid #e7f0f8;
+}
+
+.mediaTypeListWarp .mediaTypeList > li > span {
+  width: 100%;
+  height: 24px;
+  line-height: 24px;
+  display: inline-block;
+  color: #FFFFFF;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+.mediaTypeListWarp .mediaTypeList>li>span:nth-of-type(2) {
+  width: 100%;
+  height: 28px;
+  line-height: 28px;
+  color: #bce8fc;
+}
+
+.event-x .eve-footer {
+  width: 100%;
+  height: 56px;
+  background-color: #5e98d8;
+  color: #FFFFFF;
+  visibility: hidden;
+  margin-top: 45.65px;
+}

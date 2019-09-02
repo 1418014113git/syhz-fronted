@@ -1,0 +1,208 @@
+<template>
+  <section class="flfgList">
+    <!--工具条-->
+    <div style="text-align: center;">
+      <el-form :inline="true" :model="filters" >
+        <el-col :span="24">
+          <div class="tabsDiv">
+              <el-tabs v-model="activeName" @tab-click="handleClick">
+                <el-tab-pane label="全部" name="0"></el-tab-pane>
+                <el-tab-pane label="食品" name="1"></el-tab-pane>
+                <el-tab-pane label="药品" name="2"></el-tab-pane>
+                <el-tab-pane label="环境" name="3"></el-tab-pane>
+                <el-tab-pane label="综合" name="4"></el-tab-pane>
+              </el-tabs>
+              <el-button type="primary" @click="more" style="position: absolute; margin-top:-50px; margin-left: 270px;">更多</el-button>
+          </div>
+        </el-col>
+        <el-col :span="24" style="padding: 10px 0px;">
+          <div>
+            <el-checkbox-group v-model="checkboxGroup1">
+              <el-checkbox-button label="法律" name="1"></el-checkbox-button>
+              <el-checkbox-button label="行政法规" name="2"></el-checkbox-button>
+              <el-checkbox-button label="地方性行政法规" name="201"></el-checkbox-button>
+              <el-checkbox-button label="部门规章" name="202"></el-checkbox-button>
+              <el-checkbox-button label="司法解释" name="3"></el-checkbox-button>
+              <el-checkbox-button label="其他规范性文件" name="4"></el-checkbox-button>
+            </el-checkbox-group>
+          </div>
+        </el-col>
+        <el-col :span="24" style="padding-bottom: 0;">
+          <el-form-item style="width: 50%;">
+            <el-input size="large" placeholder="在法规中搜索" v-model="filters.word">
+              <el-button slot="append" v-if="$isViewBtn('118001')" v-on:click="query(true)" icon="el-icon-search" style="width: 100px; font-size: 20px; color: #fff; line-height: 30px;background-color: #1e98d2;"></el-button>
+            </el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24" style="padding-bottom: 0;">
+          <el-form-item>
+            <el-radio v-model="filters.category" label="1">按标题检索</el-radio>
+            <el-radio v-model="filters.category" label="2">按正文检索</el-radio>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24" style="padding-bottom: 0;">
+          <el-form-item style="margin-left: 42%">
+            <el-button type="primary" v-if="$isViewBtn('118002')" @click="add" style="padding: 10px 35px;">添加</el-button>
+          </el-form-item>
+        </el-col>
+      </el-form>
+    </div>
+    <el-col :span="24" v-loading="loading">
+      <el-card class="box-card" >
+        <div slot="header">
+          <span>为您检索到：{{ total }} &nbsp;条相关记录</span>
+        </div>
+        <div style="overflow:auto;"   :style="{maxHeight:tableHeight}">
+          <div v-for="item in dataList" :key="item.value" class="lineStyle" @click='detail(item.id)'>
+            <el-col :span="24" style="font-size: 16px; font-weight: bold; cursor: pointer;">{{ item.title }}</el-col>
+            <el-col :span="12" style="color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">颁布机关：{{ item.establishmentOrgan }}</el-col>
+            <el-col :span="12" style="color: #c7c7c7;">颁布日期：{{ $parseTime(item.issueDate, '{y}-{m}-{d}') }}</el-col>
+            <!--<p>{{ item.title }}</p>-->
+            <!--<p><span>发布机构：{{ item.establishmentOrgan }}</span><span>发布时间：{{ item.issueDate }}</span></p>-->
+          </div>
+        </div>
+      </el-card>
+      <el-col :span="24" class="toolbar">
+        <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
+                       :page-size="pageSize" :total="total" :current-page="page" style="float:right;">
+        </el-pagination>
+      </el-col>
+    </el-col>
+  </section>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      filters: {
+        type: '',
+        word: '',
+        category: '1'
+      },
+      checkboxGroup1: [],
+      loading: false,
+      total: 0,
+      page: 1,
+      pageSize: 15,
+      dataList: [],
+      isActive: 0,
+      activeName: '0',
+      activeCategory: '',
+      tableHeight: null,
+      categoryOptions: [
+        { name: '法律', key: '1' },
+        { name: '行政法规', key: '2' },
+        { name: '地方性行政法规', key: '201' },
+        { name: '部门规章', key: '202' },
+        { name: '司法解释', key: '3' },
+        { name: '其他规范性文件', key: '4' }
+      ]
+    }
+  },
+  methods: {
+    more() {
+      window.open('http://10.93.9.163:1011/law/home/begin1.cbs')
+    },
+    handleCurrentChange(val) {
+      this.page = val
+      this.query(false)
+    },
+    handleSizeChange(val) {
+      this.page = 1
+      this.pageSize = val
+      this.query(false)
+    },
+    query(flag) {
+      this.loading = true
+      this.page = flag ? 1 : this.page
+      const para = {
+        pageNum: this.page,
+        content: this.filters.category === '2' ? this.filters.word : '',
+        title: this.filters.category === '1' ? this.filters.word : '',
+        pageSize: this.pageSize
+      }
+      if (this.checkboxGroup1.length > 0) {
+        let a = ''
+        this.checkboxGroup1.forEach(item => {
+          this.categoryOptions.forEach(item1 => {
+            if (item1.name === item) {
+              a += item1.key + ','
+            }
+          })
+        })
+        para.lawCategory = a.substring(0, a.length - 1)
+      }
+      if (this.activeName !== '0') {
+        para.syhFllb = this.activeName
+      }
+      this.$query('laws/list', para).then((response) => {
+        this.loading = false
+        this.dataList = response.data.list
+        this.total = response.data.totalCount
+        this.page = response.data.pageNum
+        this.pageSize = response.data.pageSize
+      }).catch(() => {
+        this.loading = false
+      })
+    },
+    handleClick(tab, event) {
+      this.checkboxGroup1 = []
+      if (tab.name === '9') {
+        this.more()
+      }
+    },
+    detail(id) {
+      if (this.$isViewBtn('118004')) {
+        this.$gotoid('/handlingGuide/flfg/detail', id)
+      }
+    },
+    add() {
+      this.$router.push({ path: '/handlingGuide/flfg/add' })
+    }
+  },
+  mounted() {
+    this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
+    this.query(true)
+    this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+  },
+  activated() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
+    this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
+  }
+
+}
+</script>
+
+<style>
+.flfgList .el-card__body {
+  padding: 10px 1px;
+}
+.flfgList .lineStyle {
+  padding: 5px 50px;
+  border-bottom: 1px dotted #fefefe;
+  display: inline-block;
+  width: 100%;
+}
+.flfgList .lineStyle .el-col {
+  padding: 5px;
+}
+.flfgList .el-input-group__append {
+  background: #0082e6;
+  border: none;
+}
+.flfgList .el-form-item__content {
+  width: 100%;
+}
+.flfgList .tabsDiv {
+  width: 50%;
+  height: auto;
+  margin: 0 auto;
+  position: relative;
+}
+.flfgList .tabsDiv .el-tabs {
+  width: 100%;
+  /* margin: 0 auto; */
+  padding: 0 10px;
+}
+</style>

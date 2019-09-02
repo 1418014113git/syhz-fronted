@@ -1,0 +1,262 @@
+.mesh {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.mesh #chartColumn {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 999;
+}
+
+.mesh-toolbar {
+  height: 62px;
+  width: 0;
+  background-color: rgba(255, 255, 255, 0.25);
+  position: absolute;
+  z-index: 1000;
+  left: 84px;
+  top: 20px;
+  border-radius: 6px;
+  box-shadow: 0 0 2px 1px #04375d;
+  opacity: 0;
+}
+
+.mesh-toolbar > div {
+  display: none;
+}
+
+.mesh-search:first-child {
+  margin-left: 15px;
+}
+
+.mesh-search {
+  margin-top: 12px;
+  margin-left: 10px;
+  max-width: 178px;
+}
+
+.mesh-search .el-select__tags {
+  max-width: 170px !important;
+}
+
+.mesh-search .el-select__tags input {
+  max-width: 190px !important;
+  margin-left: 6px !important;
+  color: #585858 !important;
+}
+
+.mesh-search .el-input__inner {
+  width: 178px;
+  height: 38px !important;
+  border: 0;
+  background-color: #fff;
+  padding: 0 6px !important;
+  color: #585858 !important;
+}
+
+.mesh-search .el-input__suffix-inner i {
+  color: #585858!important;
+}
+
+.mesh-search .el-input input {
+  width: 178px;
+  height: 38px !important;
+  border: 0;
+  background-color: #fff;
+  padding: 0 6px !important;
+  color: #585858 !important;
+}
+
+.mesh-search-btn {
+  padding: 10px !important;
+  background-color: #5caeff !important;
+  background-image: none !important;
+  border: 0 !important;
+  margin-left: 12px;
+  margin-top: 2px;
+}
+
+.mesh-search-btn span {
+  color: #fff !important;
+  padding: 0 18px;
+  line-height: 16px;
+}
+
+.mesh-search-btn-show {
+  background-color: #5caeff !important;
+}
+
+.mesh-search-show {
+}
+
+.mesh-search-show .mesh-search, .mesh-search-btn {
+  animation: myfirst2 2s;
+  -webkit-animation: myfirst2 2s; /* Safari 与 Chrome */
+}
+
+.mesh-search-circle-btn {
+  padding: 12px !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  background-image: none !important;
+  border: 0 !important;
+  position: absolute !important;
+  top: 29px;
+  left: 20px;
+  z-index: 1000;
+}
+
+.mesh-search-circle-btn i {
+  font-size: 20px;
+  color: #fff!important;
+}
+
+.mesh-change-eChart {
+  display: inline-block;
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  text-align: center;
+}
+
+.eChart-circle-change {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 48px;
+  cursor: pointer;
+  bottom: 20px;
+  right: 20px;
+}
+
+.eChart-circle-change:hover {
+  width: 54px!important;
+  height: 54px!important;
+}
+
+.z-index-2 {
+  z-index: 1002;
+  width: 54px;
+  height: 54px;
+}
+
+.z-index-1 {
+  z-index: 1001;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.z-index-0 {
+  z-index: 1000;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.eChart-mesh {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.eChart-ring {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.eChart-time {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.z-index-1-show {
+}
+
+.z-index-0-show {
+}
+
+.eChart-ring img {
+  margin-top: 15%!important;
+}
+
+.eChart-circle-change img {
+  width: 60%;
+  height: 60%;
+  margin-top: 20%;
+}
+
+.node-menu {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 9998;
+}
+
+.cue-mining-show {
+  display: block;
+}
+
+.node-menu-btns {
+  position: absolute;
+  top: 50%;
+  margin-top: -88.5px;
+  left: 50%;
+  display: inline-block;
+  margin-left: -100px;
+  z-index: 9999;
+  width: 250px;
+}
+
+.node-menu-btns > div {
+  width: 100%;
+  position: relative;
+  float: left;
+  text-align: center;
+}
+
+.node-menu-btns > div:last-child {
+  margin-top: 80px;
+}
+
+.node-menu-btn {
+  width: 75px;
+  height: 75px;
+  border-radius: 75px;
+  cursor: pointer;
+  float: left;
+  margin-right: 50px;
+}
+
+.node-menu-detail {
+  background: url("/static/image/chart_images/detail.png");
+}
+
+.node-menu-detail:hover {
+  background: url("/static/image/chart_images/detail_hover.png");
+}
+
+.node-menu-cueMining {
+  background: url("/static/image/chart_images/cue_mining.png");
+}
+
+.node-menu-cueMining:hover {
+  background: url("/static/image/chart_images/cue_mining_hover.png");
+}
+
+.node-menu-cancel {
+  font-size: 14px;
+  color: #fff;
+  font-family: "Microsoft YaHei";
+  background-color: #4a88c5;
+  padding: 5px 25px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: -45px;
+}
+
+.node-menu-cancel:hover {
+  background-color: #5494d2;
+}
+
