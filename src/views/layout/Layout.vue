@@ -10,7 +10,6 @@
 </template>
 
 <script>
-// import { mapGetters } from 'vuex'
 import AppMain from './components/AppMain'
 import Headers from './components/Headers'
 import RightFixed from '../../components/RightFixed'
@@ -66,15 +65,14 @@ export default {
           })
         })
         this.$alert('由于您长时间未操作，请重新登录', '提示', {
-          confirmButtonText: '确定'
-          // callback: action => {
-          //   this.$store.dispatch('FedLogOut').then(() => {
-          //     this.$router.push({
-          //       path: '/login'
-          //     })
-          //     location.reload() // 为了重新实例化vue-router对象 避免bug
-          //   })
-          // }
+          confirmButtonText: '确定',
+          callback: action => {
+            this.$store.dispatch('FedLogOut').then(() => {
+              this.$router.push({
+                path: '/login'
+              })
+            })
+          }
         })
       } else {
         this.lastTime = new Date().getTime() // 如果在30分钟内鼠标移动，则把这次鼠标移动的时间记录覆盖掉之前存的最后一次鼠标移动的时间

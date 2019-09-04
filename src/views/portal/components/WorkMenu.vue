@@ -256,6 +256,21 @@ export default {
       return filterData
     },
     getDealAllMenus(datas) {
+      for (var i = 0; i < datas.length; i++) { // 如果含有三级菜单，则将二级菜单移除。直接显示三级菜单。
+        datas[i].id = Number(datas[i].id)
+        datas[i].parentId = Number(datas[i].parentId)
+        if (datas[i].menuCode.length > 1 && datas[i].menuCode.length <= 4) {
+          for (var j = 0; j < datas.length; j++) {
+            if (datas[i].id === datas[j].parentId) {
+              datas.splice(i, 1)
+              i--
+            }
+          }
+        }
+      }
+      this.getMenuDatas(datas)
+    },
+    getMenuDatas(datas) {
       for (var i = 0; i < datas.length; i++) {
         if (datas[i].menuCode.length > 1) {
           if (datas[i].menuCode.substring(0, 1) === 'A') {
