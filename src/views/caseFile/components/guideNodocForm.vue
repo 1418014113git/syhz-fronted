@@ -117,7 +117,7 @@ export default {
             acptDeptName: this.nowsForm.acptDeptName,
             files: this.nowsForm.files, // 文书附件
             ajbh: this.AJBH,
-            // ajbh: 'J1504296813050800001',
+            // ajbh: 'J6104296813050800001',
             content: this.nowsForm.content
           }
           this.$save('flws/examine', param).then((response) => {
@@ -145,7 +145,7 @@ export default {
       var dept = getSessionDeptSelect()
       for (let index = 0; index < dept.length; index++) {
         const element = dept[index]
-        if (element.depCode === '150000535300' || element.depCode === '150000535400' || element.depCode === '150000535500') {
+        if (element.depCode === '610000535300' || element.depCode === '610000535400' || element.depCode === '610000535500') {
           this.auditDeptData.push(element)
         }
       }

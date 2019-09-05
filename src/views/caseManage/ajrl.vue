@@ -308,32 +308,33 @@ export default {
       ],
       cityList: [
         {
-          label: '西安市', value: '1501', depCode: '150100000000'
+          label: '西安市', value: '6101', depCode: '610100000000'
         }, {
-          label: '铜川市', value: '1502', depCode: '150200000000'
+          label: '铜川市', value: '6102', depCode: '610200000000'
         }, {
-          label: '宝鸡市', value: '1503', depCode: '150300000000'
+          label: '宝鸡市', value: '6103', depCode: '610300000000'
         }, {
-          label: '咸阳市', value: '1504', depCode: '150400000000'
+          label: '咸阳市', value: '6104', depCode: '610400000000'
         }, {
-          label: '渭南市', value: '1505', depCode: '150500000000'
+          label: '渭南市', value: '6105', depCode: '610500000000'
         }, {
-          label: '延安市', value: '1506', depCode: '150600000000'
+          label: '延安市', value: '6106', depCode: '610600000000'
         }, {
-          label: '汉中市', value: '1507', depCode: '150700000000'
+          label: '汉中市', value: '6107', depCode: '610700000000'
         }, {
-          label: '榆林市', value: '1508', depCode: '150800000000'
+          label: '榆林市', value: '6108', depCode: '610800000000'
         }, {
-          label: '安康市', value: '1509', depCode: '150900000000'
+          label: '安康市', value: '6109', depCode: '610900000000'
         }, {
-          label: '商洛市', value: '1522', depCode: '152200000000'
+          label: '商洛市', value: '6110', depCode: '611000000000'
         }, {
-          label: '兴安盟', value: '1522', depCode: '152200000000'
-        }, {
-          label: '锡林郭勒盟', value: '1525', depCode: '152500000000'
-        }, {
-          label: '阿拉善盟', value: '1529', depCode: '152900000000'
+          label: '杨凌区', value: '6111', depCode: '611100000000'
         }
+        // {
+        //   label: '锡林郭勒盟', value: '1525', depCode: '152500000000'
+        // }, {
+        //   label: '阿拉善盟', value: '1529', depCode: '152900000000'
+        // }
       ],
       sel_val1: '',
       sel_val2: '',
@@ -737,7 +738,7 @@ export default {
       this.parentDeptList = getAjrlParentDept(getSessionDeptSelect(), this.curDept.parentDepCode, this.curDept.depCode)
       this.tjnsxjDeptList = getAjrlNSXJ(getSessionDeptSelect(), this.curDept.depCode)
       const s1 = this.curDept.depCode.substring(0, 6)
-      if (s1 === '150000') {
+      if (s1 === '610000') {
         this.upBtn = false
       }
       const s2 = this.curDept.depCode.substring(4, 6)
@@ -751,29 +752,29 @@ export default {
       const arrayTemp = [{
         value: '0000',
         label: '全省',
-        depCode: '150000000000'
+        depCode: '610000000000'
       }]
       for (let i = 0; i < tings.length; i++) {
         const dept = tings[i]
         dept.value = dept.depCode
-        if (dept.depCode === '150000530000') {
+        if (dept.depCode === '610000530000') {
           dept.label = '总队'
           dept.parentCode = ''
           arrayTemp.push(dept)
         }
-        if (dept.depCode === '150000535300') {
+        if (dept.depCode === '610000535300') {
           dept.label = '食品犯罪侦查支队'
-          dept.parentCode = '150000530000'
+          dept.parentCode = '610000530000'
           arrayTemp.push(dept)
         }
-        if (dept.depCode === '150000535400') {
+        if (dept.depCode === '610000535400') {
           dept.label = '药品犯罪侦查支队'
-          dept.parentCode = '150000530000'
+          dept.parentCode = '610000530000'
           arrayTemp.push(dept)
         }
-        if (dept.depCode === '150000535500') {
+        if (dept.depCode === '610000535500') {
           dept.label = '环境犯罪侦查支队'
-          dept.parentCode = '150000530000'
+          dept.parentCode = '610000530000'
           arrayTemp.push(dept)
         }
       }
@@ -786,7 +787,7 @@ export default {
       const reObj = {}
       for (let i = 0; i < this.selectDepList.length; i++) {
         const dept = this.selectDepList[i]
-        if (dept.parentCode === '150000530000') {
+        if (dept.parentCode === '610000530000') {
           this.getShiTree(dept, reObj, shiDeptsArray)
         }
       }
@@ -805,7 +806,7 @@ export default {
     },
     getShiTree(dept, reObj, shiDeptsArray) {
       dept.value = dept.depCode
-      if (dept.depCode.substring(0, 6) === '150600') {
+      if (dept.depCode.substring(0, 6) === '610600') {
         if (dept.depCode.substring(8, 12) === '0000') {
           // 支队
           if (reObj[dept.depCode.substring(0, 6)]) {
@@ -927,7 +928,7 @@ export default {
         this.qsStatus = this.carryParam.type
         this.qsStatusChange(this.qsStatus)
       }
-      if (this.carryParam.deptCode.substring(0, 6) === '150000') {
+      if (this.carryParam.deptCode.substring(0, 6) === '610000') {
         if (this.carryParam.deptLevel === 'first') {
           this.tingOrgCode = [this.carryParam.deptCode]
         } else {
@@ -970,7 +971,7 @@ export default {
 }
 </script>
 <style  rel="stylesheet/scss" lang="scss" >
-.ajrlList{
+.ajrlList {
   .tooltipShow {
     opacity: 1;
   }
@@ -980,9 +981,9 @@ export default {
   .el-cascader--small {
     font-size: 16px;
   }
-  .el-button+.el-button {
-      margin-left: 0px;
-      margin-bottom: 4px;
+  .el-button + .el-button {
+    margin-left: 0px;
+    margin-bottom: 4px;
   }
 }
 </style>

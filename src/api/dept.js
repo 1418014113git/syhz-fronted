@@ -51,7 +51,7 @@ export function getAjrlParentDept(deptList, parentCode, depCode) {
   const arry = []
   for (let i = 0; i < deptList.length; i++) {
     const dept = deptList[i]
-    if (dept.depCode !== depCode && dept.depCode !== '150000532500' && dept.depCode !== '150000533100' && dept.depCode !== '150000000000') {
+    if (dept.depCode !== depCode && dept.depCode !== '610000532500' && dept.depCode !== '610000533100' && dept.depCode !== '610000000000') {
       if (dept.depCode.substr(0, 6) === parentCode.substr(0, 6) || dept.depCode.substr(0, 6) === depCode.substr(0, 6) || getNs(dept.depCode, depCode)) {
         arry.push(dept)
       }
@@ -77,8 +77,8 @@ export function ajrlListDepts(deptList, deptCode) {
   if (level === 1) {
     for (let i = 0; i < deptList.length; i++) {
       const dept = deptList[i]
-      if (dept.depCode === '150000530000' || dept.depCode === '150000535300' || dept.depCode === '150000535400' || dept.depCode === '150000535500') {
-        dept.name = dept.name.replace(/内蒙古自治区公安厅/g, '')
+      if (dept.depCode === '610000530000' || dept.depCode === '610000535300' || dept.depCode === '610000535400' || dept.depCode === '610000535500') {
+        dept.name = dept.name.replace(/陕西省公安厅/g, '')
         arry.push(dept)
       }
     }
@@ -97,10 +97,10 @@ export function ajrlListDepts(deptList, deptCode) {
 // 只查询上级
 export function getParentDept(deptList, deptCode) {
   const arry = []
-  if (deptCode === '150000000000') { // 目前总队只显示总队
+  if (deptCode === '610000000000') { // 目前总队只显示总队
     for (let i = 0; i < deptList.length; i++) {
       const dept = deptList[i]
-      if (dept.depCode === '150000530000') {
+      if (dept.depCode === '610000530000') {
         arry.push(dept)
       }
     }
@@ -117,10 +117,10 @@ export function getParentDept(deptList, deptCode) {
 // 只查询上级
 export function getParentDeptArray(deptList, deptCode) {
   const arry = []
-  if (deptCode === '150000000000') { // 目前总队只显示总队
+  if (deptCode === '610000000000') { // 目前总队只显示总队
     for (let i = 0; i < deptList.length; i++) {
       const dept = deptList[i]
-      if (dept.depCode === '150000530000') {
+      if (dept.depCode === '610000530000') {
         arry.push(dept)
       }
     }
@@ -136,19 +136,21 @@ export function getParentDeptArray(deptList, deptCode) {
 }
 
 function getXj(dept, str2) {
-  if (str2.substring(0, 6) === '150000') {
+  if (str2.substring(0, 6) === '610000') {
     return dept.parentCode === str2
   } else {
     return dept.depCode.substring(0, 4) === str2.substring(0, 4) && dept.depCode.substring(4, 6) !== '00'
   }
 }
+
 function getSj(str1, str2) {
-  if (str2.substring(0, 6) === '150000') {
+  if (str2.substring(0, 6) === '610000') {
     return str1 === str2
   } else {
     return str1.substring(0, 6) === str2.substring(0, 6) && str1.substring(8, 10) === '00'
   }
 }
+
 function getNs(str1, str2) {
   return str1.substring(0, 4) === str2.substring(0, 4) && str1.substring(8, 10) !== '00'
 }
@@ -316,8 +318,8 @@ export function querySonDeptByCity(deptList, cityCode) {
   for (let i = 0; i < deptList.length; i++) {
     const dept = deptList[i]
     if (dept.depCode) {
-      if (cityCode === '150000') {
-        if (dept.depCode.substring(0, 6) === cityCode && dept.depCode !== '150000000000' && dept.depCode !== '150000532500' && dept.depCode !== '150000533100') {
+      if (cityCode === '610000') {
+        if (dept.depCode.substring(0, 6) === cityCode && dept.depCode !== '610000000000' && dept.depCode !== '610000532500' && dept.depCode !== '610000533100') {
           arry.push(dept)
         }
       } else {
