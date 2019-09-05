@@ -8,20 +8,6 @@
       </div>
       <work-menu v-if="isShowMenu"></work-menu>
     </div>
-       <!-- <div class="navmenubg">
-        <img class="yaopan" src="@/assets/portal_images/head_yaopan.png">
-        <img class="guohui" src="@/assets/portal_images/navguohui.png">
-        <img class="navtitle" src="@/assets/portal_images/head_tit.png">
-        <img class="navtitsc" src="@/assets/portal_images/head_jian.png">
-      </div> -->
-      <!-- <show-user></show-user>
-      <nav-menu></nav-menu>
-      <top-message></top-message>
-      <fast-track></fast-track>
-      <div class="cardCount">
-        <card v-for="item in cardData" :col-span="item.span" :title="item.title" :content="item.content" :icon="item.icon" :cls="item.cls"  :key="item.id" :more-btn="item.moreBtn" :more="item.more"></card>
-      </div>
-      <foot></foot> -->
     <import-common-data></import-common-data>
      <foot></foot>
      <online-help></online-help>
@@ -33,23 +19,18 @@ import Card from './components/card'
 import ImportCommonData from './components/ImportCommonData'
 import TopMessage from './components/TopMessage'
 import OnlineHelp from './components/onlineHelp'
-
-// import navMenu from '../../components/navMenu'
 import Foot from './components/foot'
-// import FastTrack from './components/FastTrack'
 import WorkMenu from './components/WorkMenu'
 
 export default {
   name: 'index',
   components: {
     Top,
-    // navMenu,
     Card,
     TopMessage,
     ImportCommonData,
     Foot,
     WorkMenu,
-    // FastTrack
     OnlineHelp
   },
   data() {
@@ -162,7 +143,14 @@ export default {
           })
         })
         this.$alert('由于您长时间未操作，请重新登录', '提示', {
-          confirmButtonText: '确定'
+          confirmButtonText: '确定',
+          callback: action => {
+            this.$store.dispatch('FedLogOut').then(() => {
+              this.$router.push({
+                path: '/login'
+              })
+            })
+          }
         })
       } else {
         this.lastTime = new Date().getTime() // 如果在30分钟内鼠标移动，则把这次鼠标移动的时间记录覆盖掉之前存的最后一次鼠标移动的时间
