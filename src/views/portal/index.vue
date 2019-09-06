@@ -125,9 +125,9 @@ export default {
       var depToken = JSON.parse(sessionStorage.getItem('depToken')) // 获取权限code，前6位是150000时是公安厅，否则是非公安厅
       depToken.forEach(element => {
         var code = element.depCode.substring(0, 6)
-        if (code === '150000') { // 省公安厅
+        if (code === '610000') { // 省公安厅
           this.cardData = this.cardData1
-        } else if (code.substring(0, 2) === '15' && code.substr(code.length - 2) === '00') { // 市
+        } else if (code.substring(0, 2) === '61' && code.substr(code.length - 2) === '00') { // 市
           this.cardData = this.cardData2
         } else { // 旗县
           this.cardData = this.cardData3

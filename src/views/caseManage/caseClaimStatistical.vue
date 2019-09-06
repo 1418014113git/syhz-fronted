@@ -114,7 +114,7 @@
       </el-table-column>
       <el-table-column prop="index" label="序号" width="100">
         <template slot-scope="scope">
-          <span v-if="scope.row.cityCode!=='150000'">{{scope.row.index}}</span>
+          <span v-if="scope.row.cityCode!=='610000'">{{scope.row.index}}</span>
           <span v-else ></span>
         </template>
       </el-table-column>
@@ -189,37 +189,40 @@ export default {
       staticData: [
         {
           cityName: '环食药侦总队',
-          cityCode: '150000'
+          cityCode: '610000'
         }, {
           cityName: '西安市',
-          cityCode: '150100'
+          cityCode: '610100'
         }, {
           cityName: '铜川市',
-          cityCode: '150200'
+          cityCode: '610200'
         }, {
           cityName: '宝鸡市',
-          cityCode: '150300'
+          cityCode: '610300'
         }, {
           cityName: '咸阳市',
-          cityCode: '150400'
+          cityCode: '610400'
         }, {
           cityName: '渭南市',
-          cityCode: '150500'
+          cityCode: '610500'
         }, {
           cityName: '延安市',
-          cityCode: '150600'
+          cityCode: '610600'
         }, {
           cityName: '汉中市',
-          cityCode: '150700'
+          cityCode: '610700'
         }, {
           cityName: '榆林市',
-          cityCode: '150800'
+          cityCode: '610800'
         }, {
           cityName: '安康市',
-          cityCode: '150900'
+          cityCode: '610900'
         }, {
           cityName: '商洛市',
-          cityCode: '152200'
+          cityCode: '611000'
+        }, {
+          cityName: '杨凌区',
+          cityCode: '611100'
         }
       ],
       curFirstLevelId: '', // 当前展开的一级id
@@ -312,7 +315,7 @@ export default {
         this.totalZf += element.forward // 转发
         this.totalCx += element.revoke // 撤销
         this.totalAll += element.total // 案件总数
-        if (this.curDept.depCode.substr(0, 6) === '150000') { // 总队以及内设
+        if (this.curDept.depCode.substr(0, 6) === '610000') { // 总队以及内设
           element.canExpand = true
           element.canClick = true
         } else if (this.curDept.depCode.substr(4, 2) === '00' && element.deptCode && element.deptCode.substr(0, 6) === this.curDept.depCode.substr(0, 6)) { // 市以及内设
@@ -383,7 +386,7 @@ export default {
           for (let index = 0; index < this.subDeptCaseData.length; index++) {
             const element = this.subDeptCaseData[index]
             element.total = element.claimed + element.toClaimed + element.revoke // 6.11 增加“案件总数”，等于已认领+待认领+撤销案件
-            if (this.curDept.depCode.substr(0, 6) === '150000') { // 总队以及内设
+            if (this.curDept.depCode.substr(0, 6) === '610000') { // 总队以及内设
               element.canClickSon = true
             } else if (this.curDept.depCode.substr(4, 2) === '00' && element.cityCode === this.curDept.areaCode) { // 市以及内设
               element.canClickSon = true

@@ -165,7 +165,7 @@ export default {
       }
       // 测试
       // this.detail(1724)
-      // this.detailAjbh('J1529220211111500002')
+      // this.detailAjbh('J1529220211116100002')
     },
     detail(id) {
       this.loading = true

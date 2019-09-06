@@ -1215,7 +1215,7 @@ export default {
       this.QBXSTtotal = 0
       this.JQTtotal = 0
       let requestSign = '' // 省市县的标志
-      if (this.curDept.depCode === '150000') { // 省厅
+      if (this.curDept.depCode === '610000') { // 省厅
         requestSign = 'province'
       } else if (this.curDept.depCode.substring(4, 6) === '00') { // 市
         requestSign = 'city'
@@ -1453,7 +1453,7 @@ export default {
       this.XYRTotal = 0
       this.QBXSTtotal = 0
       let requestSign = '' // 省市县的标志
-      if (this.curDept.depCode === '150000') { // 省厅
+      if (this.curDept.depCode === '610000') { // 省厅
         requestSign = 'province'
       } else if (this.curDept.depCode.substring(4, 6) === '00') { // 市
         requestSign = 'city'

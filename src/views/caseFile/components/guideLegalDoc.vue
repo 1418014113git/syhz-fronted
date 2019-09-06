@@ -93,7 +93,7 @@ export default {
       this.flwsLoading = true
       var param = {
         ajbh: this.AJBH,
-        // ajbh: 'J1504296813050800001',
+        // ajbh: 'J6104296813050800001',
         pageSize: this.pageSizeFlws,
         pageNum: flag ? 1 : this.pageFlws
       }

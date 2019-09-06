@@ -659,7 +659,7 @@ export default {
   },
   mounted() {
     const depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    if (depToken.depCode.substring(0, 6) === '150000') {
+    if (depToken.depCode.substring(0, 6) === '610000') {
       this.isMore = true
     }
     if (this.ajbh) {
