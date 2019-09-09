@@ -371,7 +371,7 @@ export default {
     this.getDepts()
     let deptcode = []
     if (Number(this.dbBean.superviseLevel) === 2 || Number(this.dbBean.superviseLevel) === 3) {
-      deptcode = [15000053]
+      deptcode = [61000053]
     }
     if (Number(this.dbBean.superviseLevel) === 4) {
       deptcode = [this.curDept.parentDepCode.substring(0, 8)]

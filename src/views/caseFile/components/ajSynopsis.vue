@@ -147,14 +147,14 @@ export default {
       curDeptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前用户的部门
       tingDeptData: [
         {
-          code: '150000535300',
-          name: '内蒙古自治区公安厅环境食品药品犯罪侦查总队食品犯罪侦查支队'
+          code: '610000535300',
+          name: '陕西省公安厅环境食品药品犯罪侦查总队食品犯罪侦查支队'
         }, {
-          code: '150000535400',
-          name: '内蒙古自治区公安厅环境食品药品犯罪侦查总队药品犯罪侦查支队'
+          code: '610000535400',
+          name: '陕西省公安厅环境食品药品犯罪侦查总队药品犯罪侦查支队'
         }, {
-          code: '150000535500',
-          name: '内蒙古自治区公安厅环境食品药品犯罪侦查总队环境犯罪侦查支队'
+          code: '610000535500',
+          name: '陕西省公安厅环境食品药品犯罪侦查总队环境犯罪侦查支队'
         }
       ]
     }
@@ -584,7 +584,7 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.ajgg{
+.ajgg {
   .featureImg {
     cursor: pointer;
     margin-top: -4px;

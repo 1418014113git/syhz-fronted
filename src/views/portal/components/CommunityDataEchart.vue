@@ -72,57 +72,62 @@ export default {
       staticData: [
         {
           syhXzqhName: '食药环侦总队',
-          syhXzqh: '150000',
+          syhXzqh: '610000',
           resource: 0,
           total: 0
         }, {
           syhXzqhName: '西安市',
-          syhXzqh: '150100',
+          syhXzqh: '610100',
           resource: 0,
           total: 0
         }, {
           syhXzqhName: '铜川市',
-          syhXzqh: '150200',
+          syhXzqh: '610200',
           resource: 0,
           total: 0
         }, {
           syhXzqhName: '宝鸡市',
-          syhXzqh: '150300',
+          syhXzqh: '610300',
           resource: 0,
           total: 0
         }, {
           syhXzqhName: '咸阳市',
-          syhXzqh: '150400',
+          syhXzqh: '610400',
           resource: 0,
           total: 0
         }, {
           syhXzqhName: '渭南市',
-          syhXzqh: '150500',
+          syhXzqh: '610500',
           resource: 0,
           total: 0
         }, {
           syhXzqhName: '延安市',
-          syhXzqh: '150600',
+          syhXzqh: '610600',
           resource: 0,
           total: 0
         }, {
           syhXzqhName: '汉中市',
-          syhXzqh: '150700',
+          syhXzqh: '610700',
           resource: 0,
           total: 0
         }, {
           syhXzqhName: '榆林市',
-          syhXzqh: '150800',
+          syhXzqh: '610800',
           resource: 0,
           total: 0
         }, {
           syhXzqhName: '安康市',
-          syhXzqh: '150900',
+          syhXzqh: '610900',
           resource: 0,
           total: 0
         }, {
           syhXzqhName: '商洛市',
-          syhXzqh: '152200',
+          syhXzqh: '611000',
+          resource: 0,
+          total: 0
+        }, {
+          syhXzqhName: '杨凌区',
+          syhXzqh: '611100',
           resource: 0,
           total: 0
         }
@@ -241,15 +246,15 @@ export default {
             break
           }
         }
-        if (!isExit && (item.syhXzqh !== '150000')) { // 如果查出来的结果集没有总队，则不往新数组push
+        if (!isExit && (item.syhXzqh !== '610000')) { // 如果查出来的结果集没有总队，则不往新数组push
           diffArr.push(item)
         }
       }
       data = data.concat(diffArr)
-      if (data[0].syhXzqh === '150000') { // 查询结果 第一条是总队
+      if (data[0].syhXzqh === '610000') { // 查询结果 第一条是总队
         for (let m = 0; m < data.length; m++) {
           const element = data[m]
-          if (m === 0 && element.syhXzqh === '150000') {
+          if (m === 0 && element.syhXzqh === '610000') {
             // m.index = '' // 总队 不显示序号
             this.$set(element, 'index', '')
           } else {

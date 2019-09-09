@@ -444,14 +444,14 @@ export default {
       //     this.calculateAll() // 计算总数
       //     for (let index = 0; index < this.wbswData.length; index++) {
       //       const element = this.wbswData[index]
-      //       if (element.yycsmc.indexOf('内蒙古自治区') > -1) { // 网吧营业场所名称
-      //         element.yycsmc = element.yycsmc.replace(/内蒙古自治区/g, '')
+      //       if (element.yycsmc.indexOf('陕西省') > -1) { // 网吧营业场所名称
+      //         element.yycsmc = element.yycsmc.replace(/陕西省/g, '')
       //       }
-      //       if (element.yycsxzqh.indexOf('内蒙古自治区') > -1) { // 营业场所行政区划
-      //         element.yycsxzqh = element.yycsxzqh.replace(/内蒙古自治区/g, '')
+      //       if (element.yycsxzqh.indexOf('陕西省') > -1) { // 营业场所行政区划
+      //         element.yycsxzqh = element.yycsxzqh.replace(/陕西省/g, '')
       //       }
-      //       if (element.yycsdz.indexOf('内蒙古自治区') > -1) { // 地址
-      //         element.yycsdz = element.yycsdz.replace(/内蒙古自治区/g, '')
+      //       if (element.yycsdz.indexOf('陕西省') > -1) { // 地址
+      //         element.yycsdz = element.yycsdz.replace(/陕西省/g, '')
       //       }
       //     }
       //   }
@@ -571,11 +571,11 @@ export default {
       //     this.calculateAll() // 计算总数
       //     for (let index = 0; index < this.ldzsData.length; index++) {
       //       const element = this.ldzsData[index]
-      //       if (element.lgszdxzqhMc.indexOf('内蒙古自治区') > -1) { // 旅店行政区划
-      //         element.lgszdxzqhMc = element.lgszdxzqhMc.replace(/内蒙古自治区/g, '')
+      //       if (element.lgszdxzqhMc.indexOf('陕西省') > -1) { // 旅店行政区划
+      //         element.lgszdxzqhMc = element.lgszdxzqhMc.replace(/陕西省/g, '')
       //       }
-      //       if (element.lgdz.indexOf('内蒙古自治区') > -1) { // 旅店地址
-      //         element.lgdz = element.lgdz.replace(/内蒙古自治区/g, '')
+      //       if (element.lgdz.indexOf('陕西省') > -1) { // 旅店地址
+      //         element.lgdz = element.lgdz.replace(/陕西省/g, '')
       //       }
       //     }
       //   }
@@ -790,7 +790,7 @@ export default {
             'pz': '',
             'zwh': '018F',
             'zjhm': '610111197907130277',
-            'sfdXzqh': '150100',
+            'sfdXzqh': '610100',
             'cxh': '04',
             'djdwGajgjgdm': '',
             'fz': '西安',
@@ -805,7 +805,7 @@ export default {
             'ck': '12',
             'xb': '男',
             'xxzjbh': 'HTCKSPXX201808130627481163',
-            'mddXzqh': '150200',
+            'mddXzqh': '610200',
             'ccrq': '2018-08-13 00:00:00',
             'djrXm': '',
             'xm': '张迪',
