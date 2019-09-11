@@ -177,15 +177,18 @@
       }
     },
     methods: {
-      query(hand) {
-        this.showCYZTECharts(hand)
-        this.showDLFXCharts(hand)
+      query() {
+        this.showCYZTECharts(true)
+        this.showDLFXCharts(true)
       },
       callback() {
         window.history.go(-1)
       },
-      showCYZTECharts: function() {
+      showCYZTECharts: function(hand) {
         const _this = this
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
+        // }
         _this.cyztEChart = eChart.init(document.getElementById('cyztEChart'))
         var option = {
           title: {
@@ -242,8 +245,11 @@
         }
         _this.cyztEChart.setOption(option)
       },
-      showDLFXCharts: function() {
+      showDLFXCharts: function(hand) {
         const _this = this
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
+        // }
         _this.dlfxEChart = eChart.init(document.getElementById('dlfxEChart'))
         var option = {
           title: {
