@@ -142,6 +142,7 @@
         this.$refs.form.validate(valid => {
           if (valid) {
             // console.info(JSON.stringify(this.casezy))
+            this.casezy.logFlag = 1 // 手动点击时，添加埋点参数
             addCaseGuide(this.casezy).then((response) => {
               if (response.data) {
                 this.toList()
@@ -153,6 +154,7 @@
       onEdit() {
         this.$refs.form.validate(valid => {
           if (valid) {
+            this.casezy.logFlag = 1 // 手动点击时，添加埋点参数
             editCaseGuide(this.casezy).then((response) => {
               if (response.data) {
                 this.toList()

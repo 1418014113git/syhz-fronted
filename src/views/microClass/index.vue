@@ -6,7 +6,7 @@
           <el-col :span="4">
             <el-card>
               <ul>
-                <li class="menu" @click="getList('document',1)" :class="active === '0'?'':'activeSpan'">
+                <li class="menu" @click="getList('document',1,true)" :class="active === '0'?'':'activeSpan'">
                   <i class="el-icon-document"></i>
                   <span>培训资料</span>
                 </li>
@@ -15,7 +15,7 @@
                 <!--<li class="menu">环境相关</li>-->
               </ul>
               <ul>
-                <li class="menu" @click="getList('video',1)" :class="active === '0'?'activeSpan':''">
+                <li class="menu" @click="getList('video',1,true)" :class="active === '0'?'activeSpan':''">
                   <i class="el-icon-picture"></i>
                   <span>在线课堂</span>
                 </li>
@@ -148,18 +148,18 @@ export default {
     handleCurrentChange(val) {
       this.page = val
       if (this.active === '0') {
-        this.getList('video')
+        this.getList('video', false, true)
       } else if (this.active === '1') {
-        this.getList('document')
+        this.getList('document', false, true)
       }
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
       if (this.active === '0') {
-        this.getList('video')
+        this.getList('video', true, true)
       } else if (this.active === '1') {
-        this.getList('document')
+        this.getList('document', true, true)
       }
     },
     filterTxt(text) {
@@ -169,7 +169,7 @@ export default {
       }
       return text
     },
-    getList(type, haspage) {
+    getList(type, haspage, hand) {
       // haspage 标志从菜单进第一页
       this.type = type
       if (type === 'video') {
@@ -184,6 +184,9 @@ export default {
       }
       this.loading = true
       this.listData = []
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
       getAttachmentList(para).then((response) => {
         this.loading = false
         if (response.data) {
@@ -307,9 +310,9 @@ export default {
     this.countHeight = document.documentElement.clientHeight - 180 + 'px'
     // console.log(this.uploadvideoAction)
     if (this.$route.query.t) { // 视频播放返回列表
-      this.getList('video')
+      this.getList('video', 1)
     } else {
-      this.getList('document')
+      this.getList('document', 1)
     }
     // this.style.height = window.innerHeight - 200 + 'px'
     // this.style.maxHeight = window.innerHeight - 200 + 'px'

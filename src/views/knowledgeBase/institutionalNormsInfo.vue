@@ -1,21 +1,26 @@
 <template>
-  <el-card class="solid">
-    <div class="notice">{{notice}}</div>
-    <div class="fontFamliy">{{fontFamliy}}</div>
-    <div class="title2">{{title2}}</div>
-    <div class="title3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{title3}}</div>
-    <div class="teCiTongZhi">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{teCiTongZhi}}</div>
-    <div class="time">{{time}}</div>
-    <div class="Title">{{Title}}</div>
-    <div class="text">
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;为了实施可持续发展战略，预防因规划和建设项目实施后对环境造成不良影响，促进经济、社会和环境的协调发展，制定本法<br/><br/>
-  　　&nbsp;&nbsp;<span class="spand">第一条</span>  为了实施可持续发展战略，预防因规划和建设项目实施后对环境造成不良影响，促进经济、社会和环境的协调发展，制定本法。<br/><br/>
-  　　&nbsp;&nbsp;<span class="spand">第二条</span>  本法所称环境影响评价，是指对规划和建设项目实施后可能造成的环境影响进行分析、预测和评估，提出预防或者减轻不良环境影响的对策和措施，进行跟踪监测的方法与制度。<br/><br/>
-  　　&nbsp;&nbsp;<span class="spand">第三条</span>  编制本法第九条所规定的范围内的规划，在中华人民共和国领域和中华人民共和国管辖的其他海域内建设对环境有影响的项目，应当依照本法进行环境影响评价。<br/><br/>
-  　　&nbsp;&nbsp;<span class="spand">第四条</span>  环境影响评价必须客观、公开、公正，综合考虑规划或者建设项目实施后对各种环境因素及其所构成的生态系统可能造成的影响，为决策提供科学依据。<br/><br/>
-  　　&nbsp;&nbsp;<span class="spand">第五条</span>  国家加强环境影响评价的基础数据库和评价指标体系建设，鼓励和支持对环境影响评价的方法、技术规范进行科学研究，建立必要的环境影响评价信息共享制度，提高环境影响评价的科学性。
-    </div>
-  </el-card>
+  <div>
+    <el-row class="dbedit">
+      <img src="@/assets/icon/back.png"  class="goBack" @click="goBack">   <!--返回-->
+    </el-row>
+    <el-card class="solid">
+      <div class="notice">{{notice}}</div>
+      <div class="fontFamliy">{{fontFamliy}}</div>
+      <div class="title2">{{title2}}</div>
+      <div class="title3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{title3}}</div>
+      <div class="teCiTongZhi">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{teCiTongZhi}}</div>
+      <div class="time">{{time}}</div>
+      <div class="Title">{{Title}}</div>
+      <div class="text">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;为了实施可持续发展战略，预防因规划和建设项目实施后对环境造成不良影响，促进经济、社会和环境的协调发展，制定本法<br/><br/>
+    　　&nbsp;&nbsp;<span class="spand">第一条</span>  为了实施可持续发展战略，预防因规划和建设项目实施后对环境造成不良影响，促进经济、社会和环境的协调发展，制定本法。<br/><br/>
+    　　&nbsp;&nbsp;<span class="spand">第二条</span>  本法所称环境影响评价，是指对规划和建设项目实施后可能造成的环境影响进行分析、预测和评估，提出预防或者减轻不良环境影响的对策和措施，进行跟踪监测的方法与制度。<br/><br/>
+    　　&nbsp;&nbsp;<span class="spand">第三条</span>  编制本法第九条所规定的范围内的规划，在中华人民共和国领域和中华人民共和国管辖的其他海域内建设对环境有影响的项目，应当依照本法进行环境影响评价。<br/><br/>
+    　　&nbsp;&nbsp;<span class="spand">第四条</span>  环境影响评价必须客观、公开、公正，综合考虑规划或者建设项目实施后对各种环境因素及其所构成的生态系统可能造成的影响，为决策提供科学依据。<br/><br/>
+    　　&nbsp;&nbsp;<span class="spand">第五条</span>  国家加强环境影响评价的基础数据库和评价指标体系建设，鼓励和支持对环境影响评价的方法、技术规范进行科学研究，建立必要的环境影响评价信息共享制度，提高环境影响评价的科学性。
+      </div>
+    </el-card>
+  </div>
 </template>
 
 <script>
@@ -30,6 +35,11 @@
           teCiTongZhi: '  特此通知。 ',
           time: '二○一九年六月十六日',
           Title: '中华人民共和国环境影响评价法(2018修正) '
+        }
+      },
+      methods: {
+        goBack() {
+          this.$router.back(-1)
         }
       }
     }

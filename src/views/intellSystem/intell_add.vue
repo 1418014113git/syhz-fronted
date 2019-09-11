@@ -216,6 +216,7 @@ export default {
           this.form.TBR = this.curUser.realName
           // 如果存在id就是修改，不存在就添加
           this.loading = true
+          this.form.logFlag = 1 // 手动点击时，添加埋点参数
           if (this.form.id) {
             editAuthenticate(this.form).then((response) => {
               this.loading = false

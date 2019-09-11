@@ -16,7 +16,7 @@
         <!--<el-input v-model="filters.apply_dept_id" clearable placeholder="申请部门" size="small"></el-input>-->
       <!--</el-form-item>-->
       <el-form-item>
-        <el-button type="primary" size="small" v-if="$isViewBtn('100901')" v-on:click="query(true)">查询</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100901')" v-on:click="query(true,true)">查询</el-button>
         <el-button size="small"  @click="clear">重置</el-button>
       </el-form-item>
       <el-form-item>
@@ -163,6 +163,9 @@ export default {
       this.assessLoading = true
       this.listData[this.assessForm.index].assessContent = this.assessForm.content
       const _this = this
+      // const param = { // 手动点击时，添加埋点参数
+      //   logFlag: 1
+      // }
       setTimeout(function() {
         _this.$message({
           message: '综合评价提交成功！',
@@ -187,7 +190,7 @@ export default {
     formatType(row, column) {
       return getAssistLevelText(row.assistType)
     },
-    query(flag) {
+    query(flag, hand) {
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -198,6 +201,9 @@ export default {
         createTime: this.filters.create_time,
         applyDeptId: this.filters.apply_dept_id,
         ajbh: this.ajbh || '' // 案件编号
+      }
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
       }
       getAssistCasePage(para).then((response) => {
         this.listLoading = false
@@ -210,12 +216,12 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.query(false)
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.pageSize = val
       this.page = 1
-      this.query(false)
+      this.query(false, true)
     },
     handleDel(index, row) {
       this.$confirm('确认删除该记录吗?', '提示', {
@@ -261,7 +267,7 @@ export default {
         apply_dept_id: ''
       }
       this.ajbh = ''
-      this.query(true)
+      this.query(true, true)
     },
     toAjDetail(id) {
       // this.$router.push({ path: '/caseManage/detailSyh/' + id })

@@ -29,7 +29,7 @@
                             v-model="searchText" clearable
                             style="width:300px;">
                   </el-input>
-                  <el-button type="primary" @click="query(true)" v-if="$isViewBtn('109002')">搜索</el-button>
+                  <el-button type="primary" @click="query(true,true)" v-if="$isViewBtn('109002')">搜索</el-button>
                 </el-col>
               </el-row>
             </el-card>
@@ -98,21 +98,21 @@
       },
       handleCurrentChange(val) {
         this.search.pageNum = val
-        this.query(false)
+        this.query(false, true)
       },
       handleSizeChange(val) {
         this.search.pageNum = 1
         this.search.pageSize = val
-        this.query(false)
+        this.query(true, true)
       },
       toSearch(val) {
         this.active = val + ''
         this.search.category = val
         this.search.pageNum = 1
         this.search.pageSize = 15
-        this.query(true)
+        this.query(true, true)
       },
-      query(flag) {
+      query(flag, hand) {
         if (this.searchText) {
           this.search.title = this.searchText
           this.search.subject = this.searchText
@@ -121,6 +121,9 @@
           this.search.subject = ''
         }
         this.search.pageNum = flag ? 1 : this.search.pageNum
+        if (hand) { // 手动点击时，添加埋点参数
+          this.search.logFlag = 1
+        }
         getLearningPage(this.search).then((response) => {
           if (response.data) {
             this.listLoading = false

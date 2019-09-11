@@ -31,12 +31,12 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" size="small">查询</el-button>
-            <el-button size="small">重置</el-button>
+            <el-button type="primary" size="small" @click="query">查询</el-button>
+            <el-button size="small" @click="reset">重置</el-button>
           </el-form-item>
         </el-form>
       </el-card>
-      <el-card style="margin-bottom: 10px;">
+      <el-card style="margin-bottom: 10px;" v-loading="listLoading">
         <div :span="20" class="right-layout">
         <div id="cyzt" class="frame right-item" style="min-height: 417px;">
           <div class="header">
@@ -148,11 +148,17 @@
         cyztEChart: null,
         dxfxZXEChart: null,
         dxfxBinEChart: null,
-        data: {}
+        data: {},
+        listLoading: false
       }
     },
     components: {},
     methods: {
+      query() {
+        this.showCYZTECharts(true)
+        this.showDXFXZXECharts(true)
+        this.showDXFXEBinCharts(true)
+      },
       toback() {
         window.history.go(-1)
       },
@@ -168,8 +174,11 @@
         }
         $('.right-layout').animate({ 'scrollTop': top }, 500)
       },
-      showCYZTECharts: function() {
+      showCYZTECharts: function(hand) {
         const _this = this
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
+        // }
         _this.cyztEChart = eChart.init(document.getElementById('cyztEChart'))
         var option = {
           title: {
@@ -226,8 +235,11 @@
         }
         _this.cyztEChart.setOption(option)
       },
-      showDXFXZXECharts: function() {
+      showDXFXZXECharts: function(hand) {
         const _this = this
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
+        // }
         _this.dxfxZXEChart = eChart.init(document.getElementById('dxfxEChartZX'))
         var option = {
           tooltip: {
@@ -291,8 +303,11 @@
         }
         _this.dxfxZXEChart.setOption(option)
       },
-      showDXFXEBinCharts: function() {
+      showDXFXEBinCharts: function(hand) {
         const _this = this
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
+        // }
         _this.dxfxBinEChart = eChart.init(document.getElementById('dxfxEChartBin'))
         var option = {
           tooltip: {
@@ -335,6 +350,16 @@
           ]
         }
         _this.dxfxBinEChart.setOption(option)
+      },
+      reset() {
+        this.data = {
+          time: null,
+          ajzt: '',
+          ryxb: '',
+          province: '',
+          city: ''
+        }
+        this.query()
       }
     },
     created() {

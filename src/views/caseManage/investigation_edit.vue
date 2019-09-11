@@ -345,6 +345,7 @@ export default {
           this.form.partakePerson = this.partakePerson.length > 0 ? JSON.stringify(this.partakePerson) : ''
           this.form.userId = this.curUser.id
           this.form.userName = this.curUser.realName
+          this.form.logFlag = 1 // 手动点击时，添加埋点参数
           this.handleDepts()
           this.handleImg()
           this.eachBean()

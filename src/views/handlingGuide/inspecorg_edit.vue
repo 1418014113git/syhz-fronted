@@ -172,6 +172,7 @@ export default {
       this.form.dz = this.form.DZ
       this.$refs.form.validate(valid => {
         if (valid) {
+          this.form.logFlag = 1 // 手动点击时，添加埋点参数
           this.loading = true
           // 如果存在id就是修改，不存在就添加
           if (this.form.ID) {

@@ -65,7 +65,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" v-if="$isViewBtn('100401')"  @click="query">查询</el-button>
+          <el-button type="primary" v-if="$isViewBtn('100401')"  @click="query(true)">查询</el-button>
           <el-button type="primary" @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
@@ -249,7 +249,7 @@ export default {
       sums[8] = this.$thousSplit(this.totalAll + '')
       return sums
     },
-    query() {
+    query(hand) {
       this.initStaticData()
       this.expandstab = []
       if (this.filters.type === '') {
@@ -268,6 +268,9 @@ export default {
             return false
           }
         }
+      }
+      if (hand) { // 手动点击时，添加埋点参数
+        this.filters.logFlag = 1
       }
       this.totlaYrl = 0 // 已认领合计
       this.totalDrl = 0 // 待认领合计
@@ -449,7 +452,7 @@ export default {
       this.monthDate = '' // 月份
       this.startTime = '' // 开始时间
       this.endTime = '' // 结束时间
-      this.query()
+      this.query(true)
     },
     yearChange(val) { // 按年查询
       this.endDateDisabled = true // 禁用结束时间选择框

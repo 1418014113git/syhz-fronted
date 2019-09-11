@@ -111,6 +111,8 @@ export default {
     },
     handleDialog() {
       this.dialogVisible = true
+      // 请求参数时，添加埋点参数
+      // logFlag = 1
     },
     handleDetail(index, row) {
       this.$router.push({ path: '/inspectIdent/detail/' + row.id })
@@ -122,28 +124,29 @@ export default {
       this.$confirm('确认删除该记录吗?', '提示', {
         type: 'warning'
       }).then(() => {
-        removeAuthenticate({
-          id: row.id
+        removeAuthenticate({ // 手动点击时，添加埋点参数
+          id: row.id,
+          logFlag: 1
         }).then((response) => {
           this.$message({
             message: '删除成功',
             type: 'success'
           })
           this.page = 1
-          this.query()
+          this.query(true)
         })
       })
     },
     handleCurrentChange(currentPage) {
       this.page = currentPage
-      this.query()
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query()
+      this.query(true, true)
     },
-    query() {
+    query(flag, hand) {
       const date = {
         startTime: '',
         endTime: ''
@@ -153,13 +156,16 @@ export default {
         date.endTime = this.filters.createTime[1]
       }
       const para = {
-        pageNum: this.page,
+        pageNum: flag ? 1 : this.page,
         pageSize: this.pageSize,
         curDepId: this.curDept.id,
         applyDeptId: this.filters.applyDeptId,
         startTime: date.startTime,
         endTime: date.endTime,
         ajbh: this.ajbh || '' // 案件编号
+      }
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
       }
       this.listLoading = true
       getAuthenticatePage(para).then((response) => {
@@ -178,14 +184,14 @@ export default {
     },
     search() {
       this.page = 1
-      this.query()
+      this.query(true, true)
     },
     resetSearch() {
       this.filters.applyDeptId = ''
       this.filters.createTime = ''
       this.ajbh = ''
       this.page = 1
-      this.query()
+      this.query(true, true)
     },
     goAdd() {
       this.$router.push({ path: '/inspectIdent/apply/0' })
@@ -246,7 +252,7 @@ export default {
       this.ajbh = this.$route.query.ajbh
     }
     this.initList()
-    this.query()
+    this.query(true)
   },
   activated() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180

@@ -1,6 +1,6 @@
 <template>
   <div class="faqIndex">
-    <el-card style="height: 650px;  margin: auto">
+    <el-card>
       <div slot="header">
         <span>制度列表</span>
       </div>
@@ -10,58 +10,27 @@
             <el-input v-model="infoForm.institutionalName" clearable maxlength="20" placeholder="请输入" class="el-from"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" round icon="el-icon-search">查询</el-button>
+            <el-button type="primary" round icon="el-icon-search" @click="query(true,true)">查询</el-button>
           </el-form-item>
         </el-form>
       </div>
-      <ul>
-        <li @click="click()" class="listyle" with="80%">
-          {{dataOne}}
-        </li>
-        <li @click="click()" class="devstyle" with="10%">
-          2018-07-09
-        </li>
-      </ul>
-      <ul>
-        <li @click="click()" class="listyle" with="80%">
-          {{dateTwo}}
-        </li>
-        <li @click="click()" class="devstyle"with="10%">
-          2018-07-09
-        </li>
-      </ul>
-      <ul>
-        <li @click="click()" class="listyle" with="80%">
-          {{dateThree}}
-        </li>
-        <li @click="click()" class="devstyle"with="10%">
-          2018-07-09
-        </li>
-      </ul>
-      <ul>
-        <li @click="click()" class="listyle" with="80%">
-          {{dateFour}}
-        </li>
-        <li @click="click()" class="devstyle"with="10%">
-          2018-07-09
-        </li>
-      </ul>
-      <ul>
-        <li @click="click()" class="listyle" with="80%">
-          {{dateFive}}
-        </li>
-        <li @click="click()" class="devstyle"with="10%">
-          2018-07-09
-        </li>
-      </ul>
+      <div v-loading="listLoading" :style="{maxHeight:contListHeight}" class="ulWrap">
+        <ul  v-for="(item,index) in list" :key="index" class="ul">
+          <li @click="click()" class="listyle" style="width:80%;">
+            {{item.name}}
+          </li>
+          <li @click="click()" class="" width="10%">
+             {{item.dateTime}}
+          </li>
+        </ul>
+      </div>
     </el-card>
-    <el-pagination
-      :page-sizes="[10, 20]"
-      :page-size="10"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="5"
-      style="text-align: right; margin: auto; margin-top: 10px;">
-    </el-pagination>
+    <!--工具条-->
+    <el-col :span="24" class="toolbar">
+      <el-pagination layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
+                     :page-size="pageSize" :total="total" :current-page="page" style="float:right;">
+      </el-pagination>
+    </el-col>
   </div>
 </template>
 
@@ -77,37 +46,119 @@
         dateFive: '中华人民共和国防沙治沙法(2018修正)',
         infoForm: {
           institutionalName: ''
-        }
+        },
+        list: [
+          {
+            name: '中华人民共和国环境影响评价法(2018修正)',
+            dateTime: '2018-07-09'
+          },
+          {
+            name: '中华人民共和国环境噪声污染防治法(2018修正)',
+            dateTime: '2018-07-09'
+          },
+          {
+            name: '中华人民共和国大气污染防治法(2018修正)',
+            dateTime: '2018-07-09'
+          },
+          {
+            name: '中华人民共和国环境保护税法(2018修正)',
+            dateTime: '2018-07-09'
+          },
+          {
+            name: '中华人民共和国防沙治沙法(2018修正)',
+            dateTime: '2018-07-09'
+          },
+          {
+            name: '中华人民共和国防沙治沙法(2018修正)',
+            dateTime: '2018-07-09'
+          },
+          {
+            name: '中华人民共和国防沙治沙法(2018修正)',
+            dateTime: '2018-07-09'
+          },
+          {
+            name: '中华人民共和国防沙治沙法(2018修正)',
+            dateTime: '2018-07-09'
+          },
+          {
+            name: '中华人民共和国防沙治沙法(2018修正)',
+            dateTime: '2018-07-09'
+          },
+          {
+            name: '中华人民共和国防沙治沙法(2018修正)',
+            dateTime: '2018-07-09'
+          },
+          {
+            name: '中华人民共和国防沙治沙法(2018修正)',
+            dateTime: '2018-07-09'
+          }
+        ],
+        listLoading: false,
+        contListHeight: null,
+        total: 0,
+        page: 1,
+        pageSize: 15
       }
     },
     methods: {
+      query(flag, hand) {
+        // this.listLoading = true
+        // this.infoForm.pageNum = flag ? 1 : this.page
+        // this.infoForm.pageSize = this.pageSize
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   this.infoForm.logFlag = 1
+        // }
+        // this.$query('', this.infoForm).then((res) => {
+        //   this.flwsLoading = false
+        //   if (res.data && res.data.list && res.data.list > 0) {
+        //     this.list = res.data.list
+        //   }
+        // }).catch(() => {
+        //   this.listLoading = false
+        // })
+      },
+      handleCurrentChange(currentPage) {
+        this.page = currentPage
+        this.query(false, true)
+      },
+      handleSizeChange(val) {
+        this.page = 1
+        this.pageSize = val
+        this.query(true, true)
+      },
       click() {
         this.$router.push({
           path: '/knowledgeBase/institutionalNormsInfo'
         })
       }
+    },
+    mounted() {
+      this.contListHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 280 + 'px'
+      this.query(true)
     }
   }
 </script>
 
 <style scoped>
-  .listyle{
-    margin-left: 50px;
-    margin-top: 20px;
-    font-weight: bold;
-    font-size: 14px;
-    color: #FFFFFF;
-    display: inline-block;
+  .ulWrap{
+    overflow: auto;
+  }
+  .ul{
+    display: flex;
+    justify-content: space-around;
+  }
+  .ul li{
+    padding:2px 0;
   }
   .listyle:hover {
     cursor:pointer;
-    color: #9C160C;
+    color: #3da1ff;
     text-decoration: none;
   }
   .devstyle{
     margin-left: 50px;
     margin-top: 20px;
-    font-size: 14px;
+    font-size: 16px;
     float:right;
     margin-right: 50px;
     color: #FFFFFF;
@@ -119,13 +170,11 @@
   }
   .search {
     margin-left: 50px;
-    margin-top: 20px;
-    font-size: 14px;
-    margin-top: 20px;
+    /* font-size: 14px; */
   }
-  .el-from {
+  /* .el-from {
     font-size: 14px;
-  }
+  } */
   .faqIndex .item {
     margin-top: 10px;
   }
