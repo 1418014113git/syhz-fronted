@@ -1047,10 +1047,10 @@ export default {
       this.page = 1 // 切换条件后 页数手动置为1
       this.pageSize = 15 // 切换条件后 条数数手动置为15
       if (this.searchType === '1') {
-        this.querySenior(this.menuCondition) // 高级搜索
+        this.querySenior(this.menuCondition, true) // 高级搜索
       } else {
         if (this.filters.word) { // 查询字段 关键字
-          this.query(this.menuCondition) // 普通搜索
+          this.query(this.menuCondition, true) // 普通搜索
         } else {
           this.$message.error('关键字不能为空')
         }
@@ -1145,18 +1145,18 @@ export default {
     handleCurrentChange(val) {
       this.page = val
       if (this.searchType === '0') {
-        this.query(this.menuCondition) // 普通查询
+        this.query(this.menuCondition, true) // 普通查询
       } else if (this.searchType === '1') {
-        this.querySenior(this.menuCondition) // 高级搜索
+        this.querySenior(this.menuCondition, true) // 高级搜索
       }
     },
     handleSizeChange(val) {
       this.pageSize = val
       this.page = 1
       if (this.searchType === '0') {
-        this.query(this.menuCondition) // 普通查询
+        this.query(this.menuCondition, true) // 普通查询
       } else if (this.searchType === '1') {
-        this.querySenior(this.menuCondition) // 高级搜索
+        this.querySenior(this.menuCondition, true) // 高级搜索
       }
     },
     handleChange(value) {
@@ -1196,7 +1196,7 @@ export default {
         this.loading = false
       })
     },
-    query(menuCondition) { // 普通搜索
+    query(menuCondition, hand) { // 普通搜索
       this.curIndex = ''
       this.curIndex1 = ''
       this.curIndex2 = ''
@@ -1251,6 +1251,9 @@ export default {
         if (para.param.indexOf('-') || para.param.indexOf(':')) { // 时间库里保存的没有横线 冒号 空格
           para.param = para.param.replace(/\s+/g, '').replace(/-/g, '').replace(/:/g, '')
         }
+      }
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
       }
       this.loading = true
       this.$query('personalized', para).then((response) => {
@@ -1422,7 +1425,7 @@ export default {
         this.dataList = [data]
       }
     },
-    querySenior(menuCondition) { // 高级搜索
+    querySenior(menuCondition, hand) { // 高级搜索
       this.curIndex = ''
       this.curIndex1 = ''
       this.curIndex2 = ''
@@ -1553,6 +1556,9 @@ export default {
         }
       }
       para.seniorForm = JSON.stringify(para.seniorForm)
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
       this.$query('itemSearch', para).then((response) => {
         const receiveDate = (new Date()).getTime()
         const responseTimeMs = receiveDate - sendDate

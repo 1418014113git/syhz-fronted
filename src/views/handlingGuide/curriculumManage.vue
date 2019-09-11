@@ -4,27 +4,27 @@
       <el-col :span="22">
         <el-row>
           <el-col :span="4">
-            <el-card style="overflow:auto;" :style="{maxHeight:countHeight}">
+            <el-card>
               <ul>
-                <li class="menu" @click="getList('1')" :class="active === '1'?'activeSpan':''">
+                <li class="menu" @click="getList('1',true,true)" :class="active === '1'?'activeSpan':''">
                   <i class="el-icon-document"></i>
                   <span>食品安全</span>
                 </li>
               </ul>
               <ul>
-                <li class="menu" @click="getList('2')" :class="active === '2'?'activeSpan':''">
+                <li class="menu" @click="getList('2',true,true)" :class="active === '2'?'activeSpan':''">
                   <i class="el-icon-picture"></i>
                   <span>药品安全</span>
                 </li>
               </ul>
               <ul>
-                <li class="menu" @click="getList('3')" :class="active === '3'?'activeSpan':''">
+                <li class="menu" @click="getList('3',true,true)" :class="active === '3'?'activeSpan':''">
                   <i class="el-icon-picture"></i>
                   <span>环境相关</span>
                 </li>
               </ul>
               <ul>
-                <li class="menu" @click="getList('4')" :class="active === '4'?'activeSpan':''">
+                <li class="menu" @click="getList('4',true,true)" :class="active === '4'?'activeSpan':''">
                   <i class="el-icon-picture"></i>
                   <span>食药相关</span>
                 </li>
@@ -33,7 +33,7 @@
           </el-col>
           <el-col :span="18" class="content">
             <el-card>
-              <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;">
+              <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight">
                 <el-table-column type="expand">
                   <template slot-scope="scope">
                     <el-form label-position="left" inline class="demo-table-expand">
@@ -171,9 +171,9 @@
           </el-form>
         </el-col>
       </el-row>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+      <span slot="footer" class="dialog-footer" style="text-align:center;">
         <el-button type="primary" @click="confirmDialog('formDataRef')">确 定</el-button>
+        <el-button @click="dialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
   </section>
@@ -285,17 +285,34 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.getList(this.active)
+      this.getList(this.active, false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.getList(this.active)
+      this.getList(this.active, true, true)
     },
-    getList(type) {
+    getList(type, flag, hand) {
       // haspage 标志从菜单进第一页
       this.active = type
       this.listLoading = true
+      // var param = {
+      //   pageSize: this.pageSize,
+      //   pageNum: flag ? 1 : this.page
+      // }
+      // if (hand) { // 手动点击时，添加埋点参数
+      //   param.logFlag = 1
+      // }
+      // this.$query('', param).then((response) => {
+      //   this.listLoading = false
+      //   if (response.data && response.data.list && response.data.list.length > 0) {
+      //     this.curriculumData = response.data.list
+      //     this.page = response.data.totalCount
+      //     this.pageSize = response.data.pageSize
+      //   }
+      // }).catch(() => {
+      //   this.listLoading = false
+      // })
       if (type === '1') {
         this.curriculumData = [
           { name: '食品安全基础知识', type: '1', time: '30分钟', teacher: '张教授', ranger: '全部', provider: '省厅', status: 1, publish: 1, onlineTime: '2019-04-01 09：00：01', resType: '1' },
@@ -319,6 +336,7 @@ export default {
     confirmDialog(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
+          // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
           this.dialogVisible = false
           this.$message({
             message: '添加成功',
@@ -335,6 +353,7 @@ export default {
       this.dialogVisible = true
     },
     handleRowDel(index, row) {
+      // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
       this.curriculumData.splice(index, index + 1)
     },
     handleRowAudit(index, row) {
@@ -344,6 +363,7 @@ export default {
         type: 'warning'
       }).then(() => {
         row.status = 3
+        // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
         this.$message({
           type: 'success',
           message: '审批成功'
@@ -363,6 +383,7 @@ export default {
         type: 'warning'
       }).then(() => {
         row.publish = 2
+        // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
         this.$message({
           type: 'success',
           message: '发布成功!'
@@ -381,6 +402,7 @@ export default {
         type: 'warning'
       }).then(() => {
         row.publish = 1
+        // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
         this.$message({
           type: 'success',
           message: '下架成功!'
@@ -458,8 +480,8 @@ export default {
     }
   },
   mounted() {
-    this.countHeight = document.documentElement.clientHeight - 180 + 'px'
-    this.getList('1')
+    this.countHeight = document.documentElement.clientHeight - 230
+    this.getList('1', true)
   }
 }
 </script>

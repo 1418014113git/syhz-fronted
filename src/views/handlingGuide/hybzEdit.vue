@@ -293,6 +293,7 @@ export default {
           this.loading = true
           this.casezy.enforcementDate = this.casezy.enforcementDate ? this.$parseTime(this.casezy.enforcementDate, '{y}-{m}-{d}') : ''
           this.casezy.issueDate = this.casezy.issueDate ? this.$parseTime(this.casezy.issueDate, '{y}-{m}-{d}') : ''
+          this.casezy.logFlag = 1 // 手动点击时，添加埋点参数
           if (this.casezy.standardCategory === '1030' || this.casezy.standardCategory === '2040' || this.casezy.standardCategory === '3010') {
             // 选有其他字样
             if (!this.casezy.title) {

@@ -19,14 +19,14 @@
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary">查询</el-button>
+              <el-button type="primary"  @click="query(true,true)">查询</el-button>
               <el-button type="primary" @click="handleDown()">下载选中项</el-button>
               <el-button type="primary" @click="generateReport()">生成报告</el-button>
             </el-form-item>
           </el-form>
         </el-card>
         <el-card>
-          <el-table :data="dataList" style="width: 100%;" max-height="600px">
+          <el-table :data="dataList" v-loading="listLoading" style="width: 100%;" max-height="600px">
             <el-table-column
               type="selection"
               width="55">
@@ -60,6 +60,7 @@
         diquOpt: '',
         dateRand: [],
         dataListType: '',
+        listLoading: false,
         diquList: [{
           value: '陕西省',
           label: '陕西省'
@@ -421,6 +422,26 @@
       }
     },
     methods: {
+      query(flag, hand) {
+        // this.listLoading = true
+        // var param = {
+        //   pageSize: this.pageSize,
+        //   pageNum: flag ? 1 : this.page
+        // }
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   param.logFlag = 1
+        // }
+        // this.$query('', param).then((response) => {
+        //   this.listLoading = false
+        //   if (response.data && response.data.list && response.data.list.length > 0) {
+        //     this.dataList = response.data.list
+        //     this.page = response.data.totalCount
+        //     this.pageSize = response.data.pageSize
+        //   }
+        // }).catch(() => {
+        //   this.listLoading = false
+        // })
+      },
       handleNodeClick(data) {
         this.curTypeValue = data.value
         switch (data.value) {
@@ -452,6 +473,7 @@
         this.$confirm('确认删除该记录吗?', '提示', {
           type: 'warning'
         }).then(() => {
+          // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
           this.$message({
             message: '删除成功',
             type: 'success'

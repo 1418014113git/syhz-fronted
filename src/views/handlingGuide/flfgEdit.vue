@@ -153,6 +153,7 @@
             this.casezy.enforcementDate = this.casezy.enforcementDate ? this.$parseTime(this.casezy.enforcementDate, '{y}-{m}-{d}') : ''
             this.casezy.issueDate = this.casezy.issueDate ? this.$parseTime(this.casezy.issueDate, '{y}-{m}-{d}') : ''
             this.casezy.lawCategoryName = this.getCategoryData(this.casezy.lawCategory)
+            this.casezy.logFlag = 1 // 手动点击时，添加埋点参数
             if (sessionStorage.getItem(this.$route.path)) {
               this.casezy.id = this.id
               this.$update('syhlaws/' + this.id, this.casezy).then(response => {

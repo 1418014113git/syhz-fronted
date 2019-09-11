@@ -122,7 +122,7 @@ export default {
     },
     accessControlModel() { // 模块显示权限控制
       // this.cardData = this.cardData1
-      var depToken = JSON.parse(sessionStorage.getItem('depToken')) // 获取权限code，前6位是150000时是公安厅，否则是非公安厅
+      var depToken = JSON.parse(sessionStorage.getItem('depToken')) // 获取权限code，前6位是610000时是公安厅，否则是非公安厅
       depToken.forEach(element => {
         var code = element.depCode.substring(0, 6)
         if (code === '610000') { // 省公安厅

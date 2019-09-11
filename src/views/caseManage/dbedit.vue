@@ -148,6 +148,7 @@ export default {
     onSubmitEdit() {
       this.$refs.dbForm.validate(valid => {
         if (valid) {
+          this.dbBean.logFlag = 1 // 手动点击时，添加埋点参数
           if (this.dbBean.id) {
             this.handleEdit(0)
           } else {
@@ -159,6 +160,7 @@ export default {
     onSubmit() {
       this.$refs.dbForm.validate(valid => {
         if (valid) {
+          this.dbBean.logFlag = 1 // 手动点击时，添加埋点参数
           if (this.dbBean.id) {
             this.handleEdit(1)
           } else {

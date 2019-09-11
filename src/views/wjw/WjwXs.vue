@@ -32,7 +32,7 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="queryData(true)" v-if="$isViewBtn('113001')">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="queryData(true,true)" v-if="$isViewBtn('113001')">查询</el-button>
         <el-button size="small" @click="clear">重置</el-button>
       </el-form-item>
     </el-form>
@@ -119,16 +119,19 @@
       },
       pageChange(val) {
         this.query.pageNum = val
-        this.queryData(false)
+        this.queryData(false, true)
       },
       handleSizeChange(val) {
         this.query.pageNum = 1
         this.query.pageSize = val
-        this.queryData(false)
+        this.queryData(false, true)
       },
-      queryData(flag) {
+      queryData(flag, hand) {
         this.listLoading = true
         this.query.pageNum = flag ? 1 : this.query.pageNum
+        if (hand) { // 手动点击时，添加埋点参数
+          this.query.logFlag = 1
+        }
         getWjwXsPage(this.query).then((res) => {
           this.listLoading = false
           if (res.code === '000000' && res.data) {
@@ -147,7 +150,7 @@
         }
         this.qsDateRand = []
         this.qfDateRand = []
-        this.queryData(true)
+        this.queryData(true, true)
       },
       handleDetail(row) {
         this.$router.push({

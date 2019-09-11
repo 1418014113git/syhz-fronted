@@ -10,10 +10,10 @@
               </div>
               <div>
                 <ul>
-                  <li class="menu" @click="toSearch(1)" :class="active === '1'?'activeSpan':''">食品安全</li>
-                  <li class="menu" @click="toSearch(2)" :class="active === '2'?'activeSpan':''">药品安全</li>
-                  <li class="menu" @click="toSearch(3)" :class="active === '3'?'activeSpan':''">环境相关</li>
-                  <li class="menu" @click="toSearch(4)" :class="active === '4'?'activeSpan':''">食药相关</li>
+                  <li class="menu" @click="toSearch(1,true,true)" :class="active === '1'?'activeSpan':''">食品安全</li>
+                  <li class="menu" @click="toSearch(2,true,true)" :class="active === '2'?'activeSpan':''">药品安全</li>
+                  <li class="menu" @click="toSearch(3,true,true)" :class="active === '3'?'activeSpan':''">环境相关</li>
+                  <li class="menu" @click="toSearch(4,true,true)" :class="active === '4'?'activeSpan':''">食药相关</li>
                 </ul>
               </div>
             </el-card>
@@ -24,7 +24,7 @@
                 <span style="font-size: 16px;font-weight: bold;">{{ typeLabel[type] }}</span>
                 <div style="display: flex;flex-wrap: nowrap;">
                   <el-input placeholder="请输入查询内容" v-model="searchValue" clearable></el-input>
-                  <el-button style="margin-left:5px;">查询</el-button>
+                  <el-button style="margin-left:5px;" @click="query">查询</el-button>
                 </div>
               </div>
             </el-card>
@@ -95,9 +95,26 @@ export default {
     }
   },
   methods: {
-    toSearch(type) {
+    toSearch(type, flag, hand) {
       this.type = type
       this.listLoading = true
+      // var param = {
+      //   pageSize: this.search.pageSize,
+      //   pageNum: flag ? 1 : this.search.page
+      // }
+      // if (hand) { // 手动点击时，添加埋点参数
+      //   param.logFlag = 1
+      // }
+      // this.$query('', param).then((response) => {
+      //   this.listLoading = false
+      //   if (response.data && response.data.list && response.data.list.length > 0) {
+      //     this.curriculumData = response.data.list
+      //     this.search.page = response.data.totalCount
+      //     this.search.pageSize = response.data.pageSize
+      //   }
+      // }).catch(() => {
+      //   this.listLoading = false
+      // })
       if (type === 1) {
         this.curriculumData = [
           { name: '食品安全基础知识', type: '食品安全', time: '30分钟', teacher: '张教授', content: '食品营养与卫生、食物中毒及预防、食物的微生物污染、虫鼠害防控基础知识等', provider: '省厅', status: 1, publish: 1, onlineTime: '2019-04-01 09：00：01', learnStatus: 3 },
@@ -120,12 +137,21 @@ export default {
       this.total = this.curriculumData.length
       this.listLoading = false
     },
+    query() {
+      // const param = {
+      //   value: this.searchValue,
+      //   type: this.active,
+      //   logFlag: 1 // 手动点击时，添加埋点参数
+      // }
+    },
     handleCurrentChange(val) {
       this.search.pageNum = val
+      this.toSearch(this.active, false, true)
     },
     handleSizeChange(val) {
       this.search.pageNum = 1
       this.search.pageSize = val
+      this.toSearch(this.active, true, true)
     },
     handleLearn(index, row) {
       switch (row.learnStatus) {
@@ -148,7 +174,7 @@ export default {
   },
   mounted() {
     this.countHeight = document.documentElement.clientHeight - 180 + 'px'
-    this.toSearch(1)
+    this.toSearch(1, true)
   }
 }
 </script>

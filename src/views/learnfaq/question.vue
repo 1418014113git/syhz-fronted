@@ -92,6 +92,7 @@
         this.$refs.form.validate(valid => {
           if (valid) {
             this.question.browseNum = 0
+            this.question.logFlag = 1 // 手动点击时，添加埋点参数
             addLearning(this.question).then((response) => {
               if (response.data) {
                 this.$message({

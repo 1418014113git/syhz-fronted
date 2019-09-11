@@ -27,7 +27,7 @@
         <!--</el-cascader>-->
       <!--</el-form-item>-->
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="query(true)"  v-if="$isViewBtn('101001')">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="query(true,true)"  v-if="$isViewBtn('101001')">查询</el-button>
         <el-button size="small" @click="clear">重置</el-button>
       </el-form-item>
       <el-form-item>
@@ -164,6 +164,10 @@ export default {
       this.assessLoading = true
       this.listData[this.assessForm.index].assessContent = this.assessForm.content
       const _this = this
+      // const param = { // 手动点击时，添加埋点参数
+      //   logFlag: 1
+      // }
+
       setTimeout(function() {
         _this.$message({
           message: '综合评价提交成功！',
@@ -186,7 +190,7 @@ export default {
     //     this.filters.deptId = val[val.length - 1]
     //   }
     // },
-    query(flag) {
+    query(flag, hand) {
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = this.filters
@@ -194,6 +198,9 @@ export default {
       para.pageSize = this.pageSize
       para.curDepId = this.curDeptId
       para.ajbh = this.ajbh || '' // 案件编号
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
       getListPage(para).then((response) => {
         this.listLoading = false
         this.listData = response.data.list
@@ -205,12 +212,12 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.query(false)
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query(false)
+      this.query(false, true)
     },
     handleDel(index, row) {
       this.$confirm('确认删除该记录吗?', '提示', {
@@ -218,7 +225,8 @@ export default {
       }).then(() => {
         this.listLoading = true
         const para = {
-          id: row.id
+          id: row.id,
+          logFlag: 1 // 手动点击时，添加埋点参数
         }
         deleteOne(para).then((res) => {
           this.listLoading = false
@@ -258,7 +266,7 @@ export default {
         status: '', title: '', time: '', deptId: ''
       }
       this.ajbh = ''
-      this.query(true)
+      this.query(true, true)
     },
     toback() {
       // this.$router.back(-1)

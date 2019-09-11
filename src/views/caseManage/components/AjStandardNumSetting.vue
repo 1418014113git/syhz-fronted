@@ -128,6 +128,7 @@ export default {
         var param = this.responseSettingData
         param.configValue = JSON.stringify(this.resConfigValue) // 更新后的数据
         param.configKey = this.settingYear // 年份
+        param.logFlag = 1 // 手动点击时，添加埋点参数
         this.$update('standard/save', param).then(response => {
           this.settingLoading = false
           if (response.message !== 'OK') { // 有异常

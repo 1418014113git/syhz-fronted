@@ -272,11 +272,13 @@
         }
       },
       onlySave() {
+        this.form.logFlag = 1 // 手动点击时，添加埋点参数
         addAuthenticate(this.form).then((response) => {
           this.resReturn(response, '申请成功')
         })
       },
       saveFlow() {
+        this.form.logFlag = 1 // 手动点击时，添加埋点参数
         addAuthenticateFlow(this.form).then((response) => {
           this.resReturn(response, '提交成功')
         })
@@ -292,6 +294,7 @@
       },
       onlyUpd() {
         this.form.status = 0
+        this.form.logFlag = 1 // 手动点击时，添加埋点参数
         editAuthenticate(this.form).then((res) => {
           this.resReturn(res, '修改成功')
         })
@@ -299,11 +302,13 @@
       updAndFlow() {
         this.form.skip = 'true'
         this.form.serverId = this.form.id
+        this.form.logFlag = 1 // 手动点击时，添加埋点参数
         addAuthenticateFlow(this.form).then((res) => {
           this.resReturn(res, '修改成功')
         })
       },
       rejectAndFlow() {
+        this.form.logFlag = 1 // 手动点击时，添加埋点参数
         assistreject(this.form).then((res) => {
           this.resReturn(res, '修改成功')
         })

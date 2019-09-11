@@ -22,7 +22,8 @@
         <el-date-picker type="date" placeholder="填报时间" size="small"></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small">查询</el-button>
+        <el-button type="primary" size="small" @click="query(true,true)">查询</el-button>
+        <el-button type="primary" @click="reset">重置</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="list" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
@@ -36,7 +37,7 @@
       <el-table-column prop="type" label="分类" width="140"></el-table-column>
       <el-table-column prop="keyword" label="关键词" width="140"></el-table-column>
       <el-table-column prop="source" label="来源" width="140"></el-table-column>
-      <el-table-column label="要闻链接地址" width="500">
+      <el-table-column label="要闻链接地址" >
         <template slot-scope="scope">
           <p :title="scope.row.linkAddress" class="ellipsis-word">{{scope.row.linkAddress}}</p>
         </template>
@@ -644,22 +645,48 @@
       }
     },
     methods: {
+      query(flag, hand) {
+        // this.listLoading = true
+        // var param = {
+        //   pageSize: this.pageSize,
+        //   pageNum: flag ? 1 : this.page
+        // }
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   param.logFlag = 1
+        // }
+        // this.$query('', param).then((response) => {
+        //   this.listLoading = false
+        //   if (response.data && response.data.list && response.data.list.length > 0) {
+        //     this.list = response.data.list
+        //     this.page = response.data.totalCount
+        //     this.pageSize = response.data.pageSize
+        //   }
+        // }).catch(() => {
+        //   this.listLoading = false
+        // })
+      },
       handleCurrentChange(currentPage) {
         this.page = currentPage
+        this.query(false, true)
       },
       handleSizeChange(val) {
         this.page = 1
         this.pageSize = val
+        this.query(true, true)
       },
       handleEdit() {
         return this.$confirm('提取成功')
       },
       handleDetail(row) {
         this.$router.push({ path: '/internalInfo/internalInfoDetail', query: { row: row }})
+      },
+      reset() {
+        // this.query(true, true)
       }
     },
     mounted() {
-      // this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+      this.query(true)
     }
   }
 </script>

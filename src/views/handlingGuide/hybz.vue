@@ -61,7 +61,7 @@
           <el-col :span="6">
             <el-form-item size="large">
               <el-input placeholder="输入关键字搜索" v-model="filters.word">
-                <el-button slot="append" v-on:click="query(true)" icon="el-icon-search" style="width: 100px; font-size: 17px; color: #fff;" v-if="$isViewBtn('120001')"></el-button>
+                <el-button slot="append" v-on:click="query(true,true)" icon="el-icon-search" style="width: 100px; font-size: 17px; color: #fff;" v-if="$isViewBtn('120001')"></el-button>
               </el-input>
             </el-form-item>
           </el-col>
@@ -76,7 +76,7 @@
         </el-row>
       </el-form>
     </el-col>
-    <el-col :span="24" v-loading="loading">
+    <el-col :span="24">
       <el-card class="box-card" >
         <div slot="header">
           <span>为您检索到：{{ total }} &nbsp;条相关记录</span>
@@ -243,12 +243,12 @@ export default {
   methods: {
     handleCurrentChange(val) {
       this.page = val
-      this.query(false)
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query(false)
+      this.query(true, true)
     },
     hasBatchChange(val) {
       if (val === 1) { // 有批次
@@ -257,7 +257,7 @@ export default {
         this.batchShow = false
       }
     },
-    query(flag) {
+    query(flag, hand) {
       this.loading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -273,6 +273,9 @@ export default {
       para.syhFllb = this.standardCategory[0] ? this.standardCategory[0] : ''
       para.standardCategory = this.standardCategory[1] ? this.standardCategory[1] : ''
       para.varietyCategory = this.standardCategory[2] ? this.standardCategory[2] : ''
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
       this.$query('page/standard', para).then((response) => {
         this.loading = false
         this.dataList = response.data.list

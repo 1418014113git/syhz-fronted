@@ -92,7 +92,7 @@
           <el-input v-model="filters.words" size="small" placeholder="请输入关键词" clearable maxlength="50"></el-input>
         </el-form-item>
         <el-form-item >
-          <el-button type="primary" size="small" v-if="$isViewBtn('100101')" v-on:click="getCase(true)">查询</el-button>
+          <el-button type="primary" size="small" v-if="$isViewBtn('100101')" v-on:click="getCase(true,true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small"  v-on:click="reset()">重置</el-button>
@@ -246,13 +246,13 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.getCase(false)
+      this.getCase(false, true)
     },
     handleSizeChange(val) {
       this.pageSize = val
-      this.getCase(true)
+      this.getCase(true, true)
     },
-    getCase(flag) {
+    getCase(flag, hand) {
       if (this.filters.larqStart === '' && this.filters.larqEnd !== '') { // 开始时间为空,结束时间不为空
         this.$message({
           message: '立案开始时间不能为空', type: 'error'
@@ -337,6 +337,9 @@ export default {
       para.curDeptCode = this.curDept.depCode // 当前登录部门code，必传
       para.pageNum = this.page
       para.pageSize = this.pageSize
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
       this.listLoading = true
       getAJJBXXSYHPage(para).then((response) => {
         this.listLoading = false
@@ -651,7 +654,7 @@ export default {
       this.initAll()
       this.zjhm = '' // 清空身份证号码
       this.zbtjType = '' // 取消统计参数
-      this.getCase(true)
+      this.getCase(true, true)
     },
     resetForm(form) {
       if (this.$refs[form]) {
@@ -702,7 +705,9 @@ export default {
           deptId: this.curDept.id, // 部门id
           deptCode: this.curDept.depCode, // 部门code
           userId: this.curUser.id, // 用户id
-          userName: this.curUser.realName // 用户姓名
+          userName: this.curUser.realName, // 用户姓名
+          // 手动点击时，添加埋点参数
+          logFlag: 1
         }
         this.listLoading = true
         this.$save('batchconfirmnotice', para).then((response) => {

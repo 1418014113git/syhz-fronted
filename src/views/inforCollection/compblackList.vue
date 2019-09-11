@@ -8,7 +8,7 @@
         <el-input size="small" clearable v-model="filters.ZZJGDM" placeholder="组织机构代码" maxlength="30"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-if="$isViewBtn('100201')" v-on:click="query(true)">查询</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100201')" v-on:click="query(true,true)">查询</el-button>
         <el-button size="small"  @click="clear">重置</el-button>
       </el-form-item>
     </el-form>
@@ -98,7 +98,7 @@
       handleAdd: function() {
         this.$router.push({ path: '/inforCollection/add' })
       },
-      query(flag) {
+      query(flag, hand) {
         this.page = flag ? 1 : this.page
         const para = {
           pageNum: this.page,
@@ -111,6 +111,9 @@
           SFNS: this.filters.SFNS,
           BLACK: this.filters.BLACK,
           enable: 0
+        }
+        if (hand) { // 手动点击时，添加埋点参数
+          para.logFlag = 1
         }
         this.listLoading = true
         getBlackListPage(para).then((response) => {
@@ -131,12 +134,12 @@
       },
       handleCurrentChange(val) {
         this.page = val
-        this.query(false)
+        this.query(false, true)
       },
       handleSizeChange(val) {
         this.page = 1
         this.pageSize = val
-        this.query(false)
+        this.query(false, true)
       },
 
       handleDetail: function(index, row) {
@@ -149,7 +152,10 @@
         this.$confirm('确认删除该记录吗?', '提示', {
           type: 'warning'
         }).then(() => {
-          const para = { id: row.id }
+          const para = {
+            id: row.id,
+            logFlag: 1 // 手动点击时，添加埋点参数
+          }
           deleteCompany(para).then((res) => {
             this.listLoading = false
             this.$message({
@@ -179,7 +185,7 @@
         this.filters = {
           DWMC: '', DWXZ: '', DWLB: '', XYLB: '', SFNS: ''
         }
-        this.query(true)
+        this.query(true, true)
       },
       tcode(type) {
         const para = {

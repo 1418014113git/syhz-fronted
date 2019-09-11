@@ -10,7 +10,7 @@
                         placeholder="申请日期" size="small" value-format="yyyy-MM-dd"></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-if="$isViewBtn('100801')"  v-on:click="query(true)">查询</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100801')"  v-on:click="query(true,true)">查询</el-button>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="small"  v-on:click="resetForm">重置</el-button>
@@ -161,7 +161,8 @@ export default {
       }).then(() => {
         this.listLoading = true
         const para = {
-          id: row.id
+          id: row.id,
+          logFlag: 1
         }
         deleteSupervise(para).then((res) => {
           this.listLoading = false
@@ -171,7 +172,7 @@ export default {
               type: 'success'
             })
           }
-          this.query(false)
+          this.query(true)
         })
       }).catch(() => {
         this.listLoading = false
@@ -179,14 +180,14 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.query(false)
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query(false)
+      this.query(false, true)
     },
-    query(flag) {
+    query(flag, hand) {
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = this.filters
@@ -194,6 +195,9 @@ export default {
       para.pageNum = this.page
       para.pageSize = this.pageSize
       para.deptId = this.currentDeptId
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
       getSupervisePage(para).then((response) => {
         this.listLoading = false
         this.dbData = response.data.list
@@ -226,7 +230,7 @@ export default {
         deptName: ''
       }
       this.ajbh = ''
-      this.query(true)
+      this.query(true, true)
     },
     toAjDetail(id) {
       // this.$router.push({ path: '/caseManage/detailSyh/' + id })

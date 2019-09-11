@@ -37,7 +37,7 @@
         {{diaTitle}}
       </div>
       <el-row class="dia-div">
-        <el-form :model="condition" :rules="rules" ref="conditionForm" label-width="100px">
+        <el-form :model="condition" :rules="rules" ref="conditionForm" label-width="110px">
           <el-row>
             <el-form-item label="模型名称：" prop="modelName">
               <el-input v-model="condition.modelName" class="input_w"></el-input>
@@ -185,7 +185,10 @@
         this.fullLoading = true
         if (this.warnModel.id) {
           const para = {
-            id: this.warnModel.id, name: this.warnModel.name, operateValue: JSON.stringify(this.warnModel.value)
+            id: this.warnModel.id,
+            name: this.warnModel.name,
+            operateValue: JSON.stringify(this.warnModel.value),
+            logFlag: 1 // 手动点击时，添加埋点参数
           }
           editSpecialmode(para).then((response) => {
             this.fullLoading = false
@@ -313,7 +316,7 @@
     margin: 55px auto;
   }
   .specialWarn .input_w {
-    width: 200px;
+    width: 222px;
   }
   .specialWarn .dia-padding {
     padding: 5px;

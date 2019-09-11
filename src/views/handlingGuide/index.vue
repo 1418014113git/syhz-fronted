@@ -21,7 +21,7 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" size="small" v-on:click="getList(source,true)" v-if="$isViewBtn('108001')">查询
+            <el-button type="primary" size="small" v-on:click="getList(source,true,true)" v-if="$isViewBtn('108001')">查询
             </el-button>
           </el-form-item>
           <el-form-item>
@@ -124,24 +124,24 @@ export default {
     },
     handleClick(tab, event) {
       this.source = tab.index
-      this.getList(this.source, true)
+      this.getList(this.source, true, true)
     },
     handleChange(val) {
       this.page = val
-      this.getList(this.source, false)
+      this.getList(this.source, false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.getList(this.source, false)
+      this.getList(this.source, true, true)
     },
     resetSearch() {
       this.filters = {
         keyword: '', caseType: '', caseArea: ''
       }
-      this.getList(this.source, true)
+      this.getList(this.source, true, true)
     },
-    getList(source, flag) {
+    getList(source, flag, hand) {
       this.loading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -151,6 +151,9 @@ export default {
         keywords: this.filters.keyword,
         caseType: this.filters.caseType,
         caseArea: this.filters.caseArea
+      }
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
       }
       getCaseGuidePage(para).then((res) => {
         this.alzydata = res.data.list
@@ -180,11 +183,12 @@ export default {
         type: 'warning'
       }).then(() => {
         const para = {
-          id: id
+          id: id,
+          logFlag: 1 // 手动点击时，添加埋点参数
         }
         delCaseGuide(para).then((res) => {
           this.loading = false
-          this.getList(this.source, false)
+          this.getList(this.source, true)
         })
       }).catch(() => {
         this.loading = false

@@ -33,7 +33,7 @@
           <!--</el-select>-->
         <!--</el-form-item>-->
         <el-form-item>
-          <el-button type="primary" size="small" v-if="$isViewBtn('100501')"  v-on:click="getCase(true)">查询</el-button>
+          <el-button type="primary" size="small" v-if="$isViewBtn('100501')"  v-on:click="getCase(true,true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small"  v-on:click="reset">重置</el-button>
@@ -135,18 +135,21 @@
       },
       handleCurrentChange(val) {
         this.page = val
-        this.getCase(false)
+        this.getCase(false, true)
       },
       handleSizeChange(val) {
         this.page = 1
         this.pageSize = val
-        this.getCase(false)
+        this.getCase(false, true)
       },
-      getCase(flag) {
+      getCase(flag, hand) {
         this.page = flag ? 1 : this.page
         const para = this.filters
         para.pageNum = this.page
         para.pageSize = this.pageSize
+        if (hand) { // 手动点击时，添加埋点参数
+          para.logFlag = 1
+        }
         this.listLoading = true
         getAJJBXXBYMODE(para).then((response) => {
           const data = response.data
@@ -185,7 +188,7 @@
           AJMC: '',
           AJBH: ''
         }
-        this.getCase(true)
+        this.getCase(true, true)
       },
       handleAjDetail(index, row) {
         // this.$router.push({

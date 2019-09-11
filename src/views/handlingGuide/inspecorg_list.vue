@@ -88,7 +88,8 @@ export default {
         type: 'warning'
       }).then(() => {
         const para = {
-          id: row.ID
+          id: row.ID,
+          logFlag: 1 // 手动点击时，添加埋点参数
         }
         removeAjCheckOrganization(para).then((response) => {
           this.$message({
@@ -96,21 +97,21 @@ export default {
             type: 'success'
           })
           this.page = 1
-          this.query()
+          this.query(true)
         })
       }).catch(() => {
       })
     },
     handleCurrentChange(currentPage) {
       this.page = currentPage
-      this.query()
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query()
+      this.query(true, true)
     },
-    query() {
+    query(flag, hand) {
       this.filters.province = ''
       this.filters.city = ''
       this.filters.county = ''
@@ -134,7 +135,7 @@ export default {
         }
       }
       const para = {
-        pageNum: this.page,
+        pageNum: flag ? 1 : this.page,
         pageSize: this.pageSize,
         ssxq: '',
         jgmc: this.filters.name,
@@ -146,6 +147,9 @@ export default {
         para.ssxq = this.filters.province + '|' + this.filters.city + '|'
       } else if (this.filters.province) {
         para.ssxq = this.filters.province
+      }
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
       }
       this.listLoading = true
       getAjCheckOrganization(para).then((response) => {
@@ -167,14 +171,14 @@ export default {
     },
     search() {
       this.page = 1
-      this.query()
+      this.query(true, true)
     },
     resetSearch() {
       this.filters = {
         name: '', ywfw: '', citys: []
       }
       this.page = 1
-      this.query()
+      this.query(true, true)
     },
     goAdd() {
       this.$router.push({ path: '/handlingGuide/inspecorgEdit' })
@@ -188,7 +192,7 @@ export default {
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-    this.query()
+    this.query(true)
     this.init()
   }
 }
