@@ -13,7 +13,7 @@ import '@/permission' // permission control
 
 import Attachment from '@/api/attachment'
 import { isResView, isResDisabled } from '@/utils/auth'
-import { isViewBtn, gotoid, closePath, parseTime, handlerDateTime, thousSplit, str2ArrBuf, resetSetItem, drawWaterMark } from '@/utils/public'
+import { isViewBtn, gotoid, closePath, parseTime, handlerDateTime, thousSplit, str2ArrBuf, resetSetItem, drawWaterMark, echartOptionToContent, getLabelByValue, pickerOptionChange } from '@/utils/public'
 import { query, save, update, remove, download, zdryhc } from '@/api/http'
 import { validatePhone, regEnCnNumber, regEnNumber, regNumber, regCn, regEn, regEmail, regQQ, regWx, regAddress } from '@/utils/validate'
 import Watermark from '@/utils/watermark'
@@ -46,6 +46,9 @@ Vue.prototype.$str2ArrBuf = str2ArrBuf
 Vue.prototype.$Watermark = Watermark // 添加水印
 Vue.prototype.$drawWaterMark = drawWaterMark // 页面上画水印
 Vue.prototype.$resetSetItem = resetSetItem
+Vue.prototype.$echartOptionToContent = echartOptionToContent // ecart数据视图自定义
+Vue.prototype.$getLabelByValue = getLabelByValue // 通过value取name
+Vue.prototype.$pickerOptionChange = pickerOptionChange // 开始时间和结束时间 是否可选限制
 
 // Vue.use(ElementUI)
 Vue.use(ElementUI, { size: 'small' }) // 全局配置组件使用small

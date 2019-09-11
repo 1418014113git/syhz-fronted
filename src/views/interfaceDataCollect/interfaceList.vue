@@ -7,7 +7,7 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="queryBoundary(true)">查询</el-button>
+        <el-button type="primary" @click="queryBoundary(true,true)">查询</el-button>
       </el-form-item>
       <el-form-item>
         <el-button type="success"  @click="toAdd">添加</el-button>
@@ -69,22 +69,25 @@ export default {
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.queryBoundary(true)
+      this.queryBoundary(true, true)
     },
     handleCurrentChange(val) {
       this.page = val
-      this.queryBoundary(false)
+      this.queryBoundary(false, true)
     },
     changeTableName(val) {
-      this.queryBoundary(true)
+      this.queryBoundary(true, true)
     },
-    queryBoundary(flag) {
+    queryBoundary(flag, hand) {
       this.loading = true
       this.page = flag ? 1 : this.page
       var param = {
         tableName: this.filterQuery.tableName,
         pageNum: this.page,
         pageSize: this.pageSize
+      }
+      if (hand) {
+        param.logFlag = 1 // 是否写日志
       }
       this.$query('page/border', param).then((response) => {
         this.loading = false

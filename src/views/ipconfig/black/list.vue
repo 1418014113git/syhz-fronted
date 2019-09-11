@@ -3,37 +3,24 @@
     <el-form :inline="true"
              :model="filters">
       <el-form-item label="IP 地址：">
-        <el-input v-model="filters.title"
-                  placeholder="IP 地址"
-                  size="small"></el-input>
+        <el-input v-model="filters.title" placeholder="IP 地址" size="small"></el-input>
       </el-form-item>
       <el-form-item label="分类">
         <el-select v-model="filters.yys"
                    placeholder="请选择">
-          <el-option label="黑名单"
-                     value="0"></el-option>
-          <el-option label="白名单"
-                     value="1"></el-option>
+          <el-option label="黑名单" value="0"></el-option>
+          <el-option label="白名单" value="1"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary"
-                   size="small"
-                   v-on:click="search">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="search">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary"
-                   size="small"
-                   v-on:click="goAdd()">添加</el-button>
+        <el-button type="primary" size="small" v-on:click="goAdd()">添加</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="list"
-              v-loading="listLoading"
-              style="width: 100%;"
-              :max-height="tableHeight">
-      <el-table-column prop="ip"
-                       label="IP地址段"
-                       min-width="8%">
+    <el-table :data="list" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
+      <el-table-column prop="ip" label="IP地址段" min-width="8%">
         <template slot-scope="scope">
           <span>{{getIp(scope.row)}}</span>
         </template>
@@ -43,37 +30,19 @@
                        label="运营商"
                        min-width="8%"></el-table-column>
                        -->
-      <el-table-column prop="adress"
-                       label="所属地"
-                       min-width="6%"></el-table-column>
-
-      <el-table-column label="分类"
-                       min-width="10%">
+      <el-table-column prop="adress" label="所属地" min-width="6%"></el-table-column>
+      <el-table-column label="分类" min-width="10%">
         <template slot-scope="scope">
           <span v-if="String(scope.row.type) === '0'">黑名单</span>
           <span v-if="String(scope.row.type) === '1'">白名单</span>
         </template>
       </el-table-column>
       <!-- <el-table-column prop="views" label="阅读数" sortable min-width="4%"></el-table-column> -->
-      <el-table-column prop="remark"
-                       label="备注"
-                       min-width="10%"></el-table-column>
-      <el-table-column label="操作"
-                       width="200">
+      <el-table-column prop="remark" label="备注" min-width="10%"></el-table-column>
+      <el-table-column label="操作" width="200">
         <template slot-scope="scope">
-
-          <el-button title="编辑"
-                     size="mini"
-                     type="primary"
-                     icon="el-icon-edit"
-                     circle
-                     @click="handleEdit(scope.$index, scope.row)"></el-button>
-          <el-button title="删除"
-                     size="mini"
-                     type="danger"
-                     icon="el-icon-delete"
-                     circle
-                     @click="handleDel(scope.$index, scope.row)"></el-button>
+          <el-button title="编辑" size="mini" type="primary" icon="el-icon-edit" circle @click="handleEdit(scope.$index, scope.row)"></el-button>
+          <el-button title="删除" size="mini" type="danger" icon="el-icon-delete" circle @click="handleDel(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -154,9 +123,13 @@ export default {
       this.pageSize = val
       this.query()
     },
-    query() {
+    query(flag, hand) {
       this.total = 7
       this.pageSize = 15
+      this.page = flag ? 1 : this.page
+      if (hand) {
+        // logFlag = 1
+      }
       this.listLoading = false
       if (this.filters.yys === '0') {
         this.list = [{ 'id': 1, 'ip': '1.80.83.155', 'ipEnd': '1.80.83.255', 'yys': '电信', 'adress': '陕西省西安市', 'type': 0, 'time': '2018-08-07 17:24:21', 'remark': '非法地址' }, { 'id': 1, 'ip': '113.200.39.250', 'ipEnd': '113.200.39.255', 'yys': '联通', 'adress': '陕西省铜川市', 'type': 0, 'time': '2018-08-07 17:24:21', 'remark': '非法地址' }, { 'id': 1, 'ip': '111.18.71.221', 'ipEnd': '111.18.71.255', 'yys': '电信', 'adress': '陕西省宝鸡市', 'type': 0, 'time': '2018-08-07 17:24:21', 'remark': '非法地址' }, { 'id': 1, 'ip': '111.155.100.203', 'ipEnd': '111.155.100.215', 'yys': '联通', 'adress': '陕西省宝鸡市', 'type': 0, 'time': '2018-08-07 17:24:21', 'remark': '非法地址' }, { 'id': 1, 'ip': '61.150.115.245', 'ipEnd': '61.150.115.255', 'yys': '电信', 'adress': '陕西省榆林市', 'type': 0, 'time': '2018-08-07 17:24:21', 'remark': '非法地址' }, { 'id': 1, 'ip': '36.40.191.215', 'ipEnd': '36.40.191.225', 'yys': '电信', 'adress': '陕西省延安市', 'type': 0, 'time': '2018-08-07 17:24:21', 'remark': '非法地址' }, { 'id': 1, 'ip': '	36.45.223.213', 'ipEnd': '36.45.223..225', 'yys': '电信', 'adress': '陕西省西安市', 'type': 0, 'time': '2018-08-07 17:24:21', 'remark': '非法地址' }]
@@ -186,7 +159,7 @@ export default {
     },
     search() {
       this.page = 1
-      this.query()
+      this.query(true, true)
     },
     goAdd() {
       this.$router.push({ path: '/ipconfig/save/' + this.filters.yys })

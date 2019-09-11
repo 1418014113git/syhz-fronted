@@ -29,7 +29,7 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="query(true)" v-if="$isViewBtn('111001')">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="query(true,true)" v-if="$isViewBtn('111001')">查询</el-button>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="small" v-on:click="resultFrom">重置</el-button>
@@ -62,7 +62,7 @@
           <el-button title="编辑" v-if="$isViewBtn('111008') && scope.row.GMSFHM" size="mini" type="primary"
                      icon="el-icon-edit" circle @click="handleEdit(scope.$index, scope.row)"></el-button>
           <el-button title="注销" v-if="$isViewBtn('111009')" size="mini" type="danger" icon="el-icon-delete" circle
-                     @click="handleDel(scope.$index, scope.row)"></el-button>
+                     @click="handleDel(scope.$index, scope.row,true)"></el-button>
           <el-button title="加入黑名单" type="warning" icon="el-icon-plus" circle size="mini" v-if="$isViewBtn('111005')"
                      :disabled="'是' === scope.row.isblackList"
                      @click="blackListEdit(scope.$index, scope.row)"></el-button>
@@ -112,177 +112,183 @@
 </template>
 
 <script>
-  import { getMZSelect } from '@/utils/codetotext'
-  import { getPageList, deletePerson } from '@/api/collect/personCollect'
-  import importexport from '@/api/importexport'
+import { getMZSelect } from '@/utils/codetotext'
+import { getPageList, deletePerson } from '@/api/collect/personCollect'
+import importexport from '@/api/importexport'
 
-  export default {
-    name: 'personnelList',
-    data() {
-      return {
-        getMZSelectList: getMZSelect(), // 民族
-        importAction: importexport.importUrl + '?type=3',
-        exportTemplateUrl: importexport.exportTemplateUrl + '3',
-        exportDataUrl: importexport.exportDataUrl,
-        downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
-        uploadImgs: [],
-        dialogImportVisible: false,
-        filters: {
-          name: '',
-          mzname: '',
-          hyzkname: '',
-          isblackList: ''
-        },
-        total: 0,
-        page: 1,
-        pageSize: 15,
-        scopePageSize: 0,
-        listLoading: false,
-        tasks: [],
-        tableHeight: null
-      }
-    },
-    methods: {
-      otherImport() {
+export default {
+  name: 'personnelList',
+  data() {
+    return {
+      getMZSelectList: getMZSelect(), // 民族
+      importAction: importexport.importUrl + '?type=3',
+      exportTemplateUrl: importexport.exportTemplateUrl + '3',
+      exportDataUrl: importexport.exportDataUrl,
+      downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
+      uploadImgs: [],
+      dialogImportVisible: false,
+      filters: {
+        name: '',
+        mzname: '',
+        hyzkname: '',
+        isblackList: ''
       },
-      excelImport() {
-        this.dialogImportVisible = true
-      },
-      imgSuccess(res, file, fileList) {
-        this.uploadImgs = fileList
-        this.$message({
-          message: '导入成功',
-          type: 'success'
-        })
-      },
-      imgRemove(file, fileList) {
-        this.uploadImgs = fileList
-      },
-      imgBfRemove(file, fileList) {
-        if (file && file.status === 'success') {
-          return this.$confirm('确定移除' + file.name + '？')
-        }
-      },
-      imgPreview(file) {
-        console.log(file)
-      },
-      beforeUpload(file) {
-        var name = file.name.split('.')
-        var arrayLength = name.length
-        var fileType = name[arrayLength - 1]
-        // const reg = /^(image\/jpg)|(image\/jpeg)|(image\/png)|(text\/plain)|(application\/octet-stream)$/
-        const reg = /^(xlsx)$/
-        if (!reg.test(fileType)) {
-          this.$message({
-            message: '上传文件只支持xls、xlsx',
-            type: 'warning'
-          })
-          return false
-        }
-      },
-      handleAdd() {
-        this.$router.push({ path: '/inforCollection/personnelEdit' })
-      },
-      query(flag) {
-        this.listLoading = true
-        this.page = flag ? 1 : this.page
-        const para = {
-          pageNum: this.page,
-          pageSize: this.pageSize,
-          name: this.filters.name,
-          mzname: this.filters.mzname,
-          hyzkname: this.filters.hyzkname,
-          isblackList: this.filters.isblackList
-        }
-        getPageList(para).then(response => {
-          this.listLoading = false
-          this.tasks = response.data.list
-          this.total = response.data.totalCount
-          this.pageSize = response.data.pageSize
-          // this.initDictionary(this.tasks)
-        }).catch(() => {
-          this.listLoading = false
-        })
-      },
-      resultFrom() {
-        this.filters.name = ''
-        this.filters.mzname = ''
-        this.filters.hyzkname = ''
-        this.filters.isblackList = ''
-        this.query(true)
-      },
-      /**
-       * 处理有数字字典的字段
-       * initDictionary(tasks) {
-      if (tasks.length > 0) {
-        tasks.forEach((item, index) => {
-          if (item.XB === '1') {
-            item.XB = '男'
-          } else if (item.XB === '2') {
-            item.XB = '女'
-          } else {
-            item.XB = '其它'
-          }
-        })
-      }
-    },
-       * **/
-      handleCurrentChange(val) {
-        this.page = val
-        this.query(false)
-      },
-      handleSizeChange(val) {
-        this.page = 1
-        this.pageSize = val
-        this.query(false)
-      },
-      handleDetail(index, row) {
-        this.$router.push({
-          path: '/personnelFile/index', query: { cardId: row.GMSFHM }
-        })
-      },
-      handleEdit(index, row) {
-        this.$router.push({
-          path: '/inforCollection/personnelEdit/', query: { id: row.id }
-        })
-      },
-      blackListEdit(index, row) {
-        this.$router.push({
-          path: '/views/inforCollection/personAddBlack', query: { id: row.id, flag: 'add' }
-        })
-      },
-      blackListdelete(index, row) {
-        // this.$router.push({ path: '/views/inforCollection/personAddBlack', query: { id: row.id, flag: 'delete' }
-        this.$router.push({
-          path: '/inforCollection/personRemoveBlackList', query: { id: row.id, flag: 'delete' }
-        })
-      },
-      handleDel(index, row) {
-        this.$confirm('确认删除该记录吗?', '提示', {
-          type: 'warning'
-        }).then(() => {
-          this.listLoading = true
-          const para = { id: row.id }
-          deletePerson(para).then((res) => {
-            this.$message({
-              message: '删除成功',
-              type: 'success'
-            })
-            this.query(false)
-          })
-        }).catch(() => {
-        })
-      }
-    },
-    mounted() {
-      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-      this.query(true)
-    },
-    activated() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
-      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-      this.query(true)
+      total: 0,
+      page: 1,
+      pageSize: 15,
+      scopePageSize: 0,
+      listLoading: false,
+      tasks: [],
+      tableHeight: null
     }
+  },
+  methods: {
+    otherImport() {
+    },
+    excelImport() {
+      this.dialogImportVisible = true
+    },
+    imgSuccess(res, file, fileList) {
+      this.uploadImgs = fileList
+      this.$message({
+        message: '导入成功',
+        type: 'success'
+      })
+    },
+    imgRemove(file, fileList) {
+      this.uploadImgs = fileList
+    },
+    imgBfRemove(file, fileList) {
+      if (file && file.status === 'success') {
+        return this.$confirm('确定移除' + file.name + '？')
+      }
+    },
+    imgPreview(file) {
+      console.log(file)
+    },
+    beforeUpload(file) {
+      var name = file.name.split('.')
+      var arrayLength = name.length
+      var fileType = name[arrayLength - 1]
+      // const reg = /^(image\/jpg)|(image\/jpeg)|(image\/png)|(text\/plain)|(application\/octet-stream)$/
+      const reg = /^(xlsx)$/
+      if (!reg.test(fileType)) {
+        this.$message({
+          message: '上传文件只支持xls、xlsx',
+          type: 'warning'
+        })
+        return false
+      }
+    },
+    handleAdd() {
+      this.$router.push({ path: '/inforCollection/personnelEdit' })
+    },
+    query(flag, hand) {
+      this.listLoading = true
+      this.page = flag ? 1 : this.page
+      const para = {
+        pageNum: this.page,
+        pageSize: this.pageSize,
+        name: this.filters.name,
+        mzname: this.filters.mzname,
+        hyzkname: this.filters.hyzkname,
+        isblackList: this.filters.isblackList
+      }
+      if (hand) {
+        para.logFlag = 1
+      }
+      getPageList(para).then(response => {
+        this.listLoading = false
+        this.tasks = response.data.list
+        this.total = response.data.totalCount
+        this.pageSize = response.data.pageSize
+        // this.initDictionary(this.tasks)
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    resultFrom() {
+      this.filters.name = ''
+      this.filters.mzname = ''
+      this.filters.hyzkname = ''
+      this.filters.isblackList = ''
+      this.query(true, true)
+    },
+    /**
+     * 处理有数字字典的字段
+     * initDictionary(tasks) {
+    if (tasks.length > 0) {
+      tasks.forEach((item, index) => {
+        if (item.XB === '1') {
+          item.XB = '男'
+        } else if (item.XB === '2') {
+          item.XB = '女'
+        } else {
+          item.XB = '其它'
+        }
+      })
+    }
+  },
+     * **/
+    handleCurrentChange(val) {
+      this.page = val
+      this.query(false, true)
+    },
+    handleSizeChange(val) {
+      this.page = 1
+      this.pageSize = val
+      this.query(false, true)
+    },
+    handleDetail(index, row) {
+      this.$router.push({
+        path: '/personnelFile/index', query: { cardId: row.GMSFHM }
+      })
+    },
+    handleEdit(index, row) {
+      this.$router.push({
+        path: '/inforCollection/personnelEdit/', query: { id: row.id }
+      })
+    },
+    blackListEdit(index, row) {
+      this.$router.push({
+        path: '/views/inforCollection/personAddBlack', query: { id: row.id, flag: 'add' }
+      })
+    },
+    blackListdelete(index, row) {
+      // this.$router.push({ path: '/views/inforCollection/personAddBlack', query: { id: row.id, flag: 'delete' }
+      this.$router.push({
+        path: '/inforCollection/personRemoveBlackList', query: { id: row.id, flag: 'delete' }
+      })
+    },
+    handleDel(index, row, hand) {
+      this.$confirm('确认删除该记录吗?', '提示', {
+        type: 'warning'
+      }).then(() => {
+        this.listLoading = true
+        const para = { id: row.id }
+        if (hand) {
+          para.logFlag = 1
+        }
+        deletePerson(para).then((res) => {
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
+          this.query(false)
+        })
+      }).catch(() => {
+      })
+    }
+  },
+  mounted() {
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.query(true)
+  },
+  activated() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.query(true)
   }
+}
 </script>
 
 <style scoped>

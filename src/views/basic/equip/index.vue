@@ -53,123 +53,127 @@
   </section>
 </template>
 <script>
-  import { removeAjCheckOrganization } from '@/api/inspectIdent'
-  import { getCityTree } from '@/api/citys'
-  export default {
-    name: 'list',
-    data() {
-      return {
-        ywfwView: false,
-        filters: {
-          name: '',
-          ywfw: '',
-          citys: []
-        },
-        total: 0,
-        page: 1,
-        pageSize: 15,
-        listLoading: false,
-        list: [],
-        options: [],
-        props: {
-          label: 'cityName',
-          value: 'cityCode'
-        },
-        tableHeight: null
-      }
-    },
-    methods: {
-      handleDetail: function(index, row) {
-        this.$router.push({ path: '/basic/equip/detailArea', query: { id: row.ID, name: row.JGMC }})
+import { removeAjCheckOrganization } from '@/api/inspectIdent'
+import { getCityTree } from '@/api/citys'
+export default {
+  name: 'list',
+  data() {
+    return {
+      ywfwView: false,
+      filters: {
+        name: '',
+        ywfw: '',
+        citys: []
       },
-      handleEdit: function(index, row) {
-        this.$router.push({ path: '/handlingGuide/inspecorgEdit/', query: { id: row.ID }})
+      total: 0,
+      page: 1,
+      pageSize: 15,
+      listLoading: false,
+      list: [],
+      options: [],
+      props: {
+        label: 'cityName',
+        value: 'cityCode'
       },
-      handleDel: function(index, row) {
-        this.$confirm('确认删除该记录吗?', '提示', {
-          type: 'warning'
-        }).then(() => {
-          const para = {
-            id: row.ID
-          }
-          removeAjCheckOrganization(para).then((response) => {
-            this.$message({
-              message: '删除成功',
-              type: 'success'
-            })
-            this.page = 1
-            this.query()
-          })
-        }).catch(() => {
-        })
-      },
-      handleCurrentChange(currentPage) {
-        this.page = currentPage
-        this.query()
-      },
-      handleSizeChange(val) {
-        this.page = 1
-        this.pageSize = val
-        this.query()
-      },
-      query() {
-        var listData = [
-          {
-            'SYH_SJGXSJ': '2019-04-26 17:20:48',
-            'JGMC': '陕西省西安市环境食品药品侦查总队',
-            'SL': 315,
-            'DSL': 181,
-            'TSL': 134,
-            'ZBLX': 1,
-            'ID': '1000',
-            'XZQH': '陕西省西安市'
-          },
-          {
-            'SYH_SJGXSJ': '2019-04-26 17:20:48',
-            'JGMC': '陕西省咸阳市环境食品药品侦查总队',
-            'SL': 27,
-            'DSL': 14,
-            'TSL': 13,
-            'ZBLX': 1,
-            'ID': '10001',
-            'XZQH': '陕西省咸阳市'
-          }
-        ]
-
-        this.total = 4
-        this.pageSize = 15
-        this.list = listData
-        return false
-      },
-      search() {
-        this.page = 1
-        this.query()
-      },
-      resetSearch() {
-        this.filters = {
-          name: '', ywfw: '', citys: []
-        }
-        this.page = 1
-        this.query()
-      },
-      goAdd() {
-        console.log('------go')
-        this.$router.push({ path: '/basic/equip/add' })
-      },
-      init() {
-        getCityTree().then((response) => {
-          const data = response.data
-          this.options = data
-          this.filters.citys = [610000]
-        })
-      }
-    },
-    mounted() {
-      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-      this.query()
-      this.init()
+      tableHeight: null
     }
+  },
+  methods: {
+    handleDetail: function(index, row) {
+      this.$router.push({ path: '/basic/equip/detailArea', query: { id: row.ID, name: row.JGMC }})
+    },
+    handleEdit: function(index, row) {
+      this.$router.push({ path: '/handlingGuide/inspecorgEdit/', query: { id: row.ID }})
+    },
+    handleDel: function(index, row) {
+      this.$confirm('确认删除该记录吗?', '提示', {
+        type: 'warning'
+      }).then(() => {
+        const para = {
+          id: row.ID
+        }
+        removeAjCheckOrganization(para).then((response) => {
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
+          this.page = 1
+          this.query()
+        })
+      }).catch(() => {
+      })
+    },
+    handleCurrentChange(currentPage) {
+      this.page = currentPage
+      this.query()
+    },
+    handleSizeChange(val) {
+      this.page = 1
+      this.pageSize = val
+      this.query()
+    },
+    query(hand) {
+      // var param = {}
+      // if (hand) {
+      //   param.logFlag = 1
+      // }
+      var listData = [
+        {
+          'SYH_SJGXSJ': '2019-04-26 17:20:48',
+          'JGMC': '陕西省西安市环境食品药品侦查总队',
+          'SL': 315,
+          'DSL': 181,
+          'TSL': 134,
+          'ZBLX': 1,
+          'ID': '1000',
+          'XZQH': '陕西省西安市'
+        },
+        {
+          'SYH_SJGXSJ': '2019-04-26 17:20:48',
+          'JGMC': '陕西省咸阳市环境食品药品侦查总队',
+          'SL': 27,
+          'DSL': 14,
+          'TSL': 13,
+          'ZBLX': 1,
+          'ID': '10001',
+          'XZQH': '陕西省咸阳市'
+        }
+      ]
+
+      this.total = 4
+      this.pageSize = 15
+      this.list = listData
+      return false
+    },
+    search() {
+      this.page = 1
+      this.query(true)
+    },
+    resetSearch() {
+      this.filters = {
+        name: '', ywfw: '', citys: []
+      }
+      this.page = 1
+      this.query(true)
+    },
+    goAdd() {
+      console.log('------go')
+      this.$router.push({ path: '/basic/equip/add' })
+    },
+    init() {
+      getCityTree().then((response) => {
+        const data = response.data
+        this.options = data
+        this.filters.citys = [610000]
+      })
+    }
+  },
+  mounted() {
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.query()
+    this.init()
   }
+}
 </script>
 <style scoped>
 </style>

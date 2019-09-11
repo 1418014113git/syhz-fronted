@@ -584,6 +584,7 @@ export default {
           this.baseInfo.HYZKNAME = this.HYZKLable
           this.baseInfo.ZYLBNAME = this.ZYLBLable
           this.baseInfo.XBNAME = this.XBLable
+          this.baseInfo.logFlag = 1 // 是否写日志
           // 用户编辑
           if (this.baseInfo.id) {
             update(this.baseInfo).then(response => {

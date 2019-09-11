@@ -241,17 +241,16 @@ export default {
       this.$refs.sysNoticeSaveForm.validate(valid => {
         if (valid) {
           this.btnLoading = true
-          this.$save('sysnotice', this.notice)
-            .then(res => {
-              this.btnLoading = false
-              if (res.code === '000000') {
-                this.$message({ message: '提交成功', type: 'success' })
-                this.goToList()
-              }
-            })
-            .catch(() => {
-              this.btnLoading = false
-            })
+          this.notice.logFlag = 1 // 是否写日志
+          this.$save('sysnotice', this.notice).then(res => {
+            this.btnLoading = false
+            if (res.code === '000000') {
+              this.$message({ message: '提交成功', type: 'success' })
+              this.goToList()
+            }
+          }).catch(() => {
+            this.btnLoading = false
+          })
         }
       })
     },

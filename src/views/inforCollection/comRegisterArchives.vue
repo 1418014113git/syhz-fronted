@@ -33,7 +33,7 @@
         </el-select>
       </el-form-item> -->
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="query(true)">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="query(true,true)">查询</el-button>
         <el-button size="small" @click="clearFilters">重置</el-button>
       </el-form-item>
       <el-form-item>
@@ -330,6 +330,7 @@ export default {
           formData.append('file', this.fileCon) // 文件
           formData.append('createDept', this.dept.depName) // 创建部门
           formData.append('createName', this.userInfo.realName) // 创建人
+          formData.append('logFlag', 1) // 写日志标志
           const config = {
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -379,7 +380,7 @@ export default {
     handleDetail(row) { // 点击详情
       this.$gotoid('/inforCollection/comRegisterDetail', JSON.stringify(row))
     },
-    query(flag) { // 查询列表
+    query(flag, hand) { // 查询列表
       this.page = flag ? 1 : this.page
       const para = {
         pageNum: this.page,
@@ -389,6 +390,9 @@ export default {
         cardNumber: this.filters.cardNumber,
         phone: this.filters.phone,
         address: this.filters.address
+      }
+      if (hand) {
+        para.logFlag = 1
       }
       this.listLoading = true
       this.$query('page/company', para).then((response) => {
@@ -405,12 +409,12 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.query(false)
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query(false)
+      this.query(false, true)
     },
     handleApplyAudit() { // 申请审核
       this.$confirm('您确定要提交审核吗?', '提示', {
@@ -500,7 +504,7 @@ export default {
       this.filters = {
         name: '', personName: '', cardNumber: '', phone: '', address: ''
       }
-      this.query(true)
+      this.query(true, true)
     },
     tcode(type) {
       const para = {

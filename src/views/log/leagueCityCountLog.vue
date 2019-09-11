@@ -12,7 +12,7 @@
           </div>
         </el-form-item>
         <el-form-item >
-          <el-button type="primary" size="small" v-on:click="getLogList(true)">查询</el-button>
+          <el-button type="primary" size="small" v-on:click="getLogList(true,true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small" v-on:click="reset">重置</el-button>
@@ -35,74 +35,76 @@
 </template>
 
 <script>
-  import { getMsloginlog } from '@/api/log/log.js'
-  export default {
-    name: 'ajList',
-    data() {
-      return {
-        filters: {},
-        logs: [],
-        total: 0,
-        page: 1,
-        pageSize: 15,
-        listLoading: false,
-        dateRand: [],
-        tableHeight: null
-      }
-    },
-    methods: {
-      dateChange(val) {
-        if (val && val.length > 0) {
-          this.filters.startDate = val[0]
-          this.filters.endDate = val[1]
-        } else {
-          this.filters.startDate = ''
-          this.filters.endDate = ''
-        }
-      },
-      handleCurrentChange(val) {
-        this.page = val
-        this.getLogList(false)
-      },
-      handleSizeChange(val) {
-        this.page = 1
-        this.pageSize = val
-        this.getLogList(false)
-      },
-      getLogList(flag) {
-        this.page = flag ? 1 : this.page
-        const para = this.filters
-        para.pageNum = this.page
-        para.pageSize = this.pageSize
-        this.listLoading = true
-        getMsloginlog(para).then((response) => {
-          const data = response.data
-          this.total = data.totalCount
-          this.pageSize = data.pageSize
-          this.logs = data.list
-          this.listLoading = false
-        }).catch(() => {
-          this.listLoading = false
-        })
-      },
-      reset() {
-        this.$refs['filters'].resetFields()
-        this.dateRand = []
-        this.dateChange('')
-        this.getLogList(true)
-      }
-    },
-    mounted() {
-      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-      this.getLogList(true)
+import { getMsloginlog } from '@/api/log/log.js'
+export default {
+  name: 'ajList',
+  data() {
+    return {
+      filters: {},
+      logs: [],
+      total: 0,
+      page: 1,
+      pageSize: 15,
+      listLoading: false,
+      dateRand: [],
+      tableHeight: null
     }
+  },
+  methods: {
+    dateChange(val) {
+      if (val && val.length > 0) {
+        this.filters.startDate = val[0]
+        this.filters.endDate = val[1]
+      } else {
+        this.filters.startDate = ''
+        this.filters.endDate = ''
+      }
+    },
+    handleCurrentChange(val) {
+      this.page = val
+      this.getLogList(false, true)
+    },
+    handleSizeChange(val) {
+      this.page = 1
+      this.pageSize = val
+      this.getLogList(false, true)
+    },
+    getLogList(flag, hand) {
+      this.page = flag ? 1 : this.page
+      const para = this.filters
+      para.pageNum = this.page
+      para.pageSize = this.pageSize
+      if (hand) {
+        para.logFlag = 1 // 是否写日志
+      }
+      this.listLoading = true
+      getMsloginlog(para).then((response) => {
+        const data = response.data
+        this.total = data.totalCount
+        this.pageSize = data.pageSize
+        this.logs = data.list
+        this.listLoading = false
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    reset() {
+      this.$refs['filters'].resetFields()
+      this.dateRand = []
+      this.dateChange('')
+      this.getLogList(true, true)
+    }
+  },
+  mounted() {
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.getLogList(true)
   }
+}
 
 </script>
 
 <style>
-
-  .case .el-date-editor .el-range-separator{
-    padding: 0;
-  }
+.case .el-date-editor .el-range-separator {
+  padding: 0;
+}
 </style>
