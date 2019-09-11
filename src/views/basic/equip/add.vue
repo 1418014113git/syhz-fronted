@@ -152,6 +152,7 @@ export default {
         this.form.gljg = this.form.GLJG
         this.form.jfly = this.form.JFLY
         this.form.dz = this.form.DZ
+        this.form.logFlag = 1 // 是否写日志
         this.$refs.form.validate(valid => {
           if (valid) {
             this.loading = true

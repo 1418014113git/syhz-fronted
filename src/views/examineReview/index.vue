@@ -3,14 +3,14 @@
     <el-col>
       <el-card style="margin-bottom: 10px;">
         <el-form :inline="true" :model="filters">
-          <el-form-item label="按年">
+          <el-form-item label="按年" prop="yearDate">
             <el-date-picker @change="yearChange"
               v-model="yearDate"
               type="year" value-format="yyyy"
               placeholder="选择年">
             </el-date-picker>
           </el-form-item>
-          <el-form-item label="按季度">
+          <el-form-item label="按季度" prop="quarterDate">
             <el-select v-model="quarterDate" placeholder="请选择" @change="quarterChange" clearable>
               <el-option label="1季度" value="1"></el-option>
               <el-option label="2季度" value="2"></el-option>
@@ -18,7 +18,7 @@
               <el-option label="4季度" value="4"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="按月">
+          <el-form-item label="按月" prop="monthDate">
             <el-date-picker @change="monthChange"
               v-model="monthDate"
               type="month"
@@ -38,7 +38,8 @@
             </el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" v-if="$isViewBtn('121001')"  @click="query">查询</el-button>
+            <el-button type="primary" v-if="$isViewBtn('121001')"  @click="query(true)">查询</el-button>
+            <el-button type="primary" v-if="$isViewBtn('121001')"  @click="reset">重置</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -117,7 +118,7 @@ export default {
     }
   },
   methods: {
-    query() {
+    query(hand) {
       for (let j = 0; j < this.tableData.length; j++) {
         for (const key in this.tableData[j]) {
           if (key !== 'cityName') {
@@ -127,6 +128,9 @@ export default {
       }
       this.loading = true
       const para = this.filters
+      if (hand) {
+        para.logFlag = 1 // 是否写日志
+      }
       this.syhTjAj(para)
       // 大要案统计
       this.dyaTjAj(para)
@@ -292,6 +296,10 @@ export default {
           this.filters.endTime = ''
         }
       }
+    },
+    reset() {
+      this.$refs['filters'].resetFields()
+      this.query(true)
     }
   },
   mounted() {

@@ -32,7 +32,7 @@
         </el-form-item>
         -->
         <el-form-item >
-          <el-button type="primary" size="small" v-on:click="getLogList(true)">查询</el-button>
+          <el-button type="primary" size="small" v-on:click="getLogList(true,true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small" v-on:click="reset">重置</el-button>
@@ -169,14 +169,18 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.getLogList(false)
+      this.getLogList(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.getLogList(false)
+      this.getLogList(false, true)
     },
-    getLogList(flag) {
+    getLogList(flag, hand) {
+      // var para = {}
+      // if (hand) {
+      //   para.logFlag = 1 // 是否写日志
+      // }
       var listData = [
         {
           'args': '{deptId=1010, pageSize=5, pageNum=1}',
@@ -428,7 +432,7 @@ export default {
       this.filters.name = ''
       this.dateRand = []
       this.dateChange('')
-      this.getLogList(true)
+      this.getLogList(true, true)
     },
     toPersonManager() {
       // this.$router.push({ path: '/config/restricted' })

@@ -5,7 +5,7 @@
         <el-input size="small" clearable v-model="xm" placeholder="姓名" maxlength="30"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="query(true)">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="query(true,true)">查询</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="list"  v-loading="listLoading" style="width: 100%;" class="statisticCollect">
@@ -53,14 +53,18 @@ export default {
     }
   },
   methods: {
-    getData() {
+    getData(hand) {
       this.listLoading = true
-      getQyGLRY({
+      var param = {
         jgbh: this.bh,
         pageNum: this.pageNum,
         pageSize: this.pageSize,
         XM: this.xm
-      }).then((res) => {
+      }
+      if (hand) {
+        param.logFlag = 1
+      }
+      getQyGLRY(param).then((res) => {
         this.listLoading = false
         if (res.code === '000000') {
           this.list = res.data.list
@@ -75,13 +79,13 @@ export default {
     },
     handleCurrentChange(val) {
       this.pageNum = val
-      this.getData()
+      this.getData(true)
     },
-    query(flag) {
+    query(flag, hand) {
       if (flag) {
         this.pageNum = 1
       }
-      this.getData()
+      this.getData(hand)
     },
     handleDetail(id) {
       this.$router.push({

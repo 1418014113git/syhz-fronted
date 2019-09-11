@@ -16,7 +16,7 @@
         <el-form-item>
           <el-button type="primary"
                      size="small"
-                     v-on:click="searchs()"
+                     v-on:click="searchs"
                      style="font-size:14px;height:30px;">搜应用</el-button>
         </el-form-item>
       </el-row>
@@ -75,42 +75,46 @@ export default {
       oldlist: [],
       listLoading: false
     }
-  }, methods: { searchs() {
-    this.list = []
-    var serchlist = this.lists
-    for (var i = 0; i < serchlist.length; i++) {
-      if (this.filters.word === '') {
-        this.list = this.lists
-      } else if (serchlist[i].name.indexOf(this.filters.word) !== -1) {
-        this.list.push(serchlist[i])
-      }
-    }
-    this.total = this.list.length
-    this.oldlist = this.list
-    this.query()
-  }, handleEdit(row) {
-    this.$router.push({ path: row.url })
-  }, handleSizeChange(val) {
-    this.page = 1
-    this.pageSize = val
-    this.query()
   },
-  handleCurrentChange(currentPage) {
-    this.page = currentPage
-    this.query()
-  },
-  query() {
-    this.list = this.oldlist
-    var newlist = []
-    if (this.total !== 0) {
-      for (var i = (this.page - 1) * this.pageSize; i < this.pageSize * this.page; i++) {
-        if (this.list[i]) {
-          newlist.push(this.list[i])
+  methods: {
+    searchs() {
+      this.list = []
+      var serchlist = this.lists
+      for (var i = 0; i < serchlist.length; i++) {
+        if (this.filters.word === '') {
+          this.list = this.lists
+        } else if (serchlist[i].name.indexOf(this.filters.word) !== -1) {
+          this.list.push(serchlist[i])
         }
       }
+      this.total = this.list.length
+      this.oldlist = this.list
+      this.query()
+    },
+    handleEdit(row) {
+      this.$router.push({ path: row.url })
+    },
+    handleSizeChange(val) {
+      this.page = 1
+      this.pageSize = val
+      this.query()
+    },
+    handleCurrentChange(currentPage) {
+      this.page = currentPage
+      this.query()
+    },
+    query() {
+      this.list = this.oldlist
+      var newlist = []
+      if (this.total !== 0) {
+        for (var i = (this.page - 1) * this.pageSize; i < this.pageSize * this.page; i++) {
+          if (this.list[i]) {
+            newlist.push(this.list[i])
+          }
+        }
+      }
+      this.list = newlist
     }
-    this.list = newlist
-  }
   },
 
   mounted() {

@@ -31,7 +31,7 @@
           </el-select>
         </el-form-item>
         <el-form-item >
-          <el-button type="primary" size="small" v-on:click="getLogList(true)">查询</el-button>
+          <el-button type="primary" size="small" v-on:click="getLogList(true,true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small" v-on:click="reset">重置</el-button>
@@ -41,6 +41,7 @@
 
     <!--列表-->
     <el-table :data="logs" highlight-current-row v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
+      <el-table-column type="index" label="序号" width="56"></el-table-column>
       <el-table-column prop="user_name" label="用户名" min-width="15%"></el-table-column>
       <el-table-column prop="real_name" label="姓名" min-width="15%"></el-table-column>
       <el-table-column label="登录方式" min-width="15%">
@@ -64,88 +65,90 @@
 </template>
 
 <script>
-  import { getLoginPageList } from '@/api/log/log.js'
-  export default {
-    name: 'ajList',
-    data() {
-      return {
-        filters: {
-          userName: '',
-          realName: '',
-          ip: '',
-          loginStatus: '',
-          loginType: ''
-        },
-        logs: [],
-        total: 0,
-        page: 1,
-        pageSize: 15,
-        listLoading: false,
-        dateRand: [],
-        tableHeight: null
-      }
-    },
-    methods: {
-      dateChange(val) {
-        if (val && val.length > 0) {
-          this.filters.startDate = val[0]
-          this.filters.endDate = val[1]
-        } else {
-          this.filters.startDate = ''
-          this.filters.endDate = ''
-        }
+import { getLoginPageList } from '@/api/log/log.js'
+export default {
+  name: 'ajList',
+  data() {
+    return {
+      filters: {
+        userName: '',
+        realName: '',
+        ip: '',
+        loginStatus: '',
+        loginType: ''
       },
-      handleCurrentChange(val) {
-        this.page = val
-        this.getLogList(false)
-      },
-      handleSizeChange(val) {
-        this.page = 1
-        this.pageSize = val
-        this.getLogList(false)
-      },
-      getLogList(flag) {
-        this.page = flag ? 1 : this.page
-        const para = this.filters
-        para.pageNum = this.page
-        para.pageSize = this.pageSize
-        this.listLoading = true
-        getLoginPageList(para).then((response) => {
-          const data = response.data
-          this.total = data.totalCount
-          this.pageSize = data.pageSize
-          this.logs = data.list
-          this.listLoading = false
-        }).catch(() => {
-          this.listLoading = false
-        })
-      },
-      dateFormatStatus(row, column) {
-        return row.login_status === 1 ? '成功' : '失败'
-      },
-      reset() {
-        this.$refs['filters'].resetFields()
-        this.dateRand = []
-        this.dateChange('')
-        this.filters.realName = ''
-        this.filters.userName = ''
-        this.filters.ip = ''
-        this.filters.loginStatus = ''
-        this.filters.loginType = ''
-        this.getLogList(true)
-      }
-    },
-    mounted() {
-      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-      this.getLogList(true)
+      logs: [],
+      total: 0,
+      page: 1,
+      pageSize: 15,
+      listLoading: false,
+      dateRand: [],
+      tableHeight: null
     }
+  },
+  methods: {
+    dateChange(val) {
+      if (val && val.length > 0) {
+        this.filters.startDate = val[0]
+        this.filters.endDate = val[1]
+      } else {
+        this.filters.startDate = ''
+        this.filters.endDate = ''
+      }
+    },
+    handleCurrentChange(val) {
+      this.page = val
+      this.getLogList(false, true)
+    },
+    handleSizeChange(val) {
+      this.page = 1
+      this.pageSize = val
+      this.getLogList(false, true)
+    },
+    getLogList(flag, hand) {
+      this.page = flag ? 1 : this.page
+      const para = this.filters
+      para.pageNum = this.page
+      para.pageSize = this.pageSize
+      if (hand) {
+        para.logFlag = 1
+      }
+      this.listLoading = true
+      getLoginPageList(para).then((response) => {
+        const data = response.data
+        this.total = data.totalCount
+        this.pageSize = data.pageSize
+        this.logs = data.list
+        this.listLoading = false
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    dateFormatStatus(row, column) {
+      return row.login_status === 1 ? '成功' : '失败'
+    },
+    reset() {
+      this.$refs['filters'].resetFields()
+      this.dateRand = []
+      this.dateChange('')
+      this.filters.realName = ''
+      this.filters.userName = ''
+      this.filters.ip = ''
+      this.filters.loginStatus = ''
+      this.filters.loginType = ''
+      this.getLogList(true, true)
+    }
+  },
+  mounted() {
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.getLogList(true)
   }
+}
 
 </script>
 
 <style>
-
-  .case .el-date-editor .el-range-separator{
-    padding: 0;
-  }
+.case .el-date-editor .el-range-separator {
+  padding: 0;
+}
 </style>

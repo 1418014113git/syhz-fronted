@@ -179,12 +179,15 @@ export default {
         }
       })
     },
-    query() {
+    query(hand) {
       const para = {
         pageNum: this.page,
         pageSize: this.pageSize,
         title: this.filters.title,
         noticeOrgId: this.curDept.id
+      }
+      if (hand) {
+        para.logFlag = 1 // 是否写日志
       }
       if (this.type !== '0') {
         para.type = this.type
@@ -206,7 +209,7 @@ export default {
     },
     search() {
       this.page = 1
-      this.query()
+      this.query(true)
     },
     goList() {
       this.$router.push({ path: '/tztg/list' })

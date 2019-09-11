@@ -439,3 +439,60 @@ export function drawWaterMark() {
     this.$Watermark.set(str1, str2, str3, str4Arr[0], str4Arr[1], str4Arr[2], str4Arr[3])
   }
 }
+
+// echart切换为数据视图时自定义
+export function echartOptionToContent(opt) {
+  const axisData = opt.xAxis[0].data // 坐标数据
+  const series = opt.series // 折线图数据
+  let tdHeads = '<td  style="padding: 0 10px">时间</td>' // 表头
+  let tdBodys = '' // 数据
+  series.forEach(function(item) {
+    // 组装表头
+    tdHeads += `<td style="padding: 0 10px">${item.name}</td>`
+  })
+  let table = `<table border="1" style="margin-left:20px;border-collapse:collapse;font-size:14px;text-align:center;width:90%;line-height:30px;"><tbody><tr>${tdHeads} </tr>`
+  for (let i = 0, l = axisData.length; i < l; i++) {
+    for (let j = 0; j < series.length; j++) {
+      // 组装表数据
+      tdBodys += `<td>${series[j].data[i]}</td>`
+    }
+    table += `<tr><td style="padding: 0 10px;">${axisData[i]}</td>${tdBodys}</tr>`
+    tdBodys = ''
+  }
+  table += '</tbody></table>'
+  return table
+}
+
+// 通过value和数组 取当前选中的label
+export function getLabelByValue(value, array) {
+  var result = ''
+  array.forEach(item => {
+    if (item.value === value) {
+      result = item.label
+    }
+  })
+  return result
+}
+
+// 开始时间和结束时间 是否可选限制
+export function pickerOptionChange(val, pickerName, type) {
+  if (type === 'end') {
+    return Object.assign({}, pickerName, {
+      disabledDate: (time) => {
+        return (time.getTime() < new Date(val).getTime() - 86400000) || (time.getTime() > Date.now())
+      }
+    })
+  } else if (type === 'start') {
+    return Object.assign({}, pickerName, {
+      disabledDate: (time) => {
+        return (time.getTime() > new Date(val).getTime()) || (time.getTime() > Date.now())
+      }
+    })
+  } else if (type === 'default') {
+    return Object.assign({}, pickerName, {
+      disabledDate: (time) => {
+        return time.getTime() > Date.now() // 今天之前的时间不可选
+      }
+    })
+  }
+}

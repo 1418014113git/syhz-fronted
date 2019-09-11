@@ -30,7 +30,7 @@
         </el-select>
       </el-form-item> -->
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="query(true)">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="query(true,true)">查询</el-button>
         <el-button size="small" @click="clear">重置</el-button>
       </el-form-item>
       <el-form-item>
@@ -291,7 +291,7 @@ export default {
     handleDetail(row) {
       this.$gotoid('/inforCollection/comPedlarDetail', JSON.stringify(row))
     },
-    query(flag) { // 查询列表
+    query(flag, hand) { // 查询列表
       this.page = flag ? 1 : this.page
       const para = {
         pageNum: this.page,
@@ -301,6 +301,9 @@ export default {
         cardNumber: this.filters.cardNumber,
         phone: this.filters.phone,
         address: this.filters.address
+      }
+      if (hand) {
+        para.logFlag = 1 // 是否写日志
       }
       this.listLoading = true
       this.$query('page/pitchman', para).then((response) => {
@@ -317,12 +320,12 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.query(false)
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query(false)
+      this.query(false, true)
     },
     handleApplyAudit() { // 申请审核
       this.$confirm('您确定要提交审核吗?', '提示', {
@@ -412,7 +415,7 @@ export default {
       this.filters = {
         name: '', personName: '', cardNumber: '', phone: '', address: ''
       }
-      this.query(true)
+      this.query(true, true)
     },
     tcode(type) {
       const para = {
