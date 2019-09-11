@@ -63,7 +63,7 @@
                          :before-upload="beforeUpload">
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                <div class="el-upload__tip" slot="tip">请上传MP4，等视屏文件</div>
+                <div class="el-upload__tip" slot="tip">请上传MP4，等视频文件</div>
               </el-upload>
             </el-form-item>
             <el-form-item label="详情" prop="content">
@@ -192,6 +192,7 @@
         }).catch((e) => {})
       },
       add() {
+        // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
         this.$message({
           type: 'success',
           message: '保存成功'

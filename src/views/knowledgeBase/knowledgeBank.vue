@@ -2,7 +2,7 @@
   <div class="faqIndex">
     <el-row>
       <el-col :span="4" style="padding:5px 15px">
-        <el-card style="height: 568px;">
+        <el-card>
           <div slot="header">
             <span>知识分类</span>
           </div>
@@ -17,7 +17,7 @@
         </el-card>
       </el-col>
 
-      <el-col :span="20" style="padding:5px 15px;" v-loading="listLoading">
+      <el-col :span="20" style="padding:5px 15px;">
         <el-card>
           <el-form :inline="true" :model="infoForm" size="small" label-position="left" label-width="82px">
             <el-form-item label="资料名称:" prop="knowledgeName" class="el-from">
@@ -27,14 +27,13 @@
               <el-input v-model="infoForm.teacher" clearable maxlength="20" placeholder="请输入教师名称" class="el-from"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary">查询</el-button>
+              <el-button type="primary" @click='query(true,true)'>查询</el-button>
               <el-button type="primary" @click="gotoKnowledgeAdd">添加</el-button>
             </el-form-item>
           </el-form>
         </el-card>
-        <div style="overflow:auto;padding-top: 10px" :style="{maxHeight:countHeight}"></div>
-        <el-card >
-          <el-table :data="tableDataKnowledge"  v-loading="false">
+        <el-card style="margin-top:10px;">
+          <el-table :data="tableDataKnowledge"  v-loading="listLoading" :max-height="tableHeight">
             <el-table-column
               align="center"
               prop="index"
@@ -75,13 +74,11 @@
             </el-table-column>
           </el-table>
         </el-card>
-        <el-pagination
-          :page-sizes="[10, 20]"
-          :page-size="10"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="10"
-          style="float:right; margin-top: 10px;">
-        </el-pagination>
+        <el-col :span="24" class="toolbar">
+          <el-pagination  layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
+                        :page-size="pageSize" :total="total" :current-page="page" style="float:right;">
+          </el-pagination>
+        </el-col>
       </el-col>
     </el-row>
   </div>
@@ -92,7 +89,7 @@
       name: 'knowledgeBank', // 知识库管理
       computed: {
         show(enabled) {
-          console.log('1213131313313', enabled)
+          // console.log('1213131313313', enabled)
           this.enabled === '不可读'
         }
       },
@@ -106,6 +103,9 @@
             createTime: '',
             enabled: ''
           },
+          total: 0,
+          page: 1,
+          pageSize: 15,
           dialogAdd: false, // 添加应用弹出框
           listLoading: false,
           countHeight: document.documentElement.clientHeight - 240 + 'px',
@@ -113,6 +113,7 @@
             knowledgeName: '',
             teacher: ''
           },
+          tableHeight: null,
           tableDataKnowledge: [{
             index: '1',
             meansName: '中华人民共和国食品安全法',
@@ -187,14 +188,34 @@
         }
       },
       methods: {
+        query(flag, hand) {
+          // this.listLoading = true
+          // var param = {
+          //   pageSize: this.pageSize,
+          //   pageNum: flag ? 1 : this.page
+          // }
+          // if (hand) { // 手动点击时，添加埋点参数
+          //   param.logFlag = 1
+          // }
+          // this.$query('', param).then((response) => {
+          //   this.listLoading = false
+          //   if (response.data && response.data.list && response.data.list.length > 0) {
+          //     this.tableDataKnowledge = response.data.list
+          //     this.page = response.data.totalCount
+          //     this.pageSize = response.data.pageSize
+          //   }
+          // }).catch(() => {
+          //   this.listLoading = false
+          // })
+        },
         handleCurrentChange(val) {
-          this.search.pageNum = val
-          this.query(false)
+          this.page = val
+          this.query(false, true)
         },
         handleSizeChange(val) {
-          this.search.pageNum = 1
-          this.search.pageSize = val
-          this.query(false)
+          this.page = 1
+          this.pageSize = val
+          this.query(true, true)
         },
         handleExamine() {
           this.$confirm('确认通过?', '提示', {
@@ -202,6 +223,7 @@
             cancelButtonText: '驳回',
             type: 'warning'
           }).then(() => {
+            // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
             this.$message({
               type: 'success',
               message: '审核通过'
@@ -230,6 +252,7 @@
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
+            // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
             this.$message({
               type: 'success',
               message: '删除成功'
@@ -247,6 +270,9 @@
             path: '/knowledgeBase/knowledgeAdd'
           })
         }
+      },
+      mounted() {
+        this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 280
       }
     }
 </script>

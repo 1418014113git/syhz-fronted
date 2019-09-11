@@ -11,7 +11,7 @@
         <el-input v-model="filters.tbdw" auto-complete="off" clearable maxlength="30"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="getChartData" v-if="$isViewBtn('107001')">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="getChartData(true)" v-if="$isViewBtn('107001')">查询</el-button>
       </el-form-item>
     </el-form>
 
@@ -209,7 +209,7 @@
           series: this.seriesData
         })
       },
-      getChartData() {
+      getChartData(hand) {
         this.listLoading = true
         if (!this.setParams()) {
           this.$message({
@@ -219,6 +219,9 @@
         }
         this.seriesData = []
         this.monthData = {}
+        if (hand) { // 手动点击时，添加埋点参数
+          this.filters.logFlag = 1
+        }
         getIntellCountYear(this.filters).then((response) => {
           if (response.code === '000000') {
             this.dataList = response.data

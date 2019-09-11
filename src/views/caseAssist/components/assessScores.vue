@@ -201,6 +201,10 @@
           return
         }
         const _this = this
+
+        // const param = { // 手动点击时，添加埋点参数
+        //   logFlag: 1
+        // }
         setTimeout(function() {
           _this.$message({
             message: '考核打分提交成功！',

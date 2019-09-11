@@ -15,9 +15,9 @@
       </el-form-item>
       <el-form-item label="倾向性：">
         <el-select v-model="qxx" placeholder="请选择">
-          <el-option value="中性" label="中性"></el-option>
-          <el-option value="正面" label="正面"></el-option>
-          <el-option value="负面" label="负面"></el-option>
+          <el-option value="0" label="中性"></el-option>
+          <el-option value="1" label="正面"></el-option>
+          <el-option value="2" label="负面"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="作者：">
@@ -27,7 +27,8 @@
         <el-date-picker type="date" placeholder="填报时间" size="small"></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small">查询</el-button>
+        <el-button type="primary" size="small" @click="query(true,true)">查询</el-button>
+        <el-button size="small"  @click="clear">重置</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="list" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
@@ -64,7 +65,7 @@
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
           <el-button title="提取" size="mini" type="primary" icon="el-icon-plus" circle
-                     @click="handleEdit()"></el-button>
+                     @click="handleEdit(scope.row)"></el-button>
           <el-button title="详情" size="mini" type="primary" icon="el-icon-document" circle
                      @click="handleDetail(scope.row)"></el-button>
         </template>
@@ -84,10 +85,11 @@
     data() {
       return {
         qxx: {},
-        total: 12,
+        total: 0,
         page: 1,
         pageSize: 15,
         listLoading: false,
+        filters: {}, // 查询条件
         list: [{
           tendency: '中性',
           topicName: '地域信息',
@@ -443,23 +445,55 @@
       }
     },
     methods: {
+      query(flag, hand) {
+        // this.listLoading = true
+        // this.page = flag ? 1 : this.page
+        // const para = this.filters
+        // para.pageNum = this.page
+        // para.pageSize = this.pageSize
+        // if (hand) { // 手动点击时，添加埋点参数
+        //    para.logFlag = 1
+        // }
+        // this.$query('', para).then((response) => {
+        //   this.listLoading = false
+        //   this.list = response.data.list
+        //   this.listTotal = response.data.totalCount
+        //   this.pageSize = response.data.pageSize
+        // }).catch(() => {
+        //   this.listLoading = false
+        // })
+      },
       handleCurrentChange(currentPage) {
         this.page = currentPage
+        this.query(false, true)
       },
       handleSizeChange(val) {
         this.page = 1
         this.pageSize = val
+        this.query(false, true)
       },
-      handleEdit() {
-        return this.$confirm('提取成功')
+      handleEdit(row) {
+        // 埋点参数
+        // const param = {
+        //   logFlag: 1,
+        // }
+        this.$message({
+          message: '提取成功', type: 'success'
+        })
       },
       handleDetail(row) {
         this.$router.push({ path: '/lyricalInfo/alarmInfo/detail/', query: { row: row }})
-        console.log(row)
+      },
+      clear() {
+        // this.filters = {
+        //   DWMC: '', DWXZ: '', DWLB: '', XYLB: '', SFNS: ''
+        // }
+        // this.query(true, true)
       }
     },
     mounted() {
-      // this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+      this.query(true)
     }
   }
 </script>

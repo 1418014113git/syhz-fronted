@@ -30,7 +30,7 @@
         <el-col :span="24" style="padding-bottom: 0;">
           <el-form-item style="width: 50%;">
             <el-input size="large" placeholder="在法规中搜索" v-model="filters.word">
-              <el-button slot="append" v-if="$isViewBtn('118001')" v-on:click="query(true)" icon="el-icon-search" style="width: 100px; font-size: 20px; color: #fff; line-height: 30px;background-color: #1e98d2;"></el-button>
+              <el-button slot="append" v-if="$isViewBtn('118001')" v-on:click="query(true,true)" icon="el-icon-search" style="width: 100px; font-size: 20px; color: #fff; line-height: 30px;background-color: #1e98d2;"></el-button>
             </el-input>
           </el-form-item>
         </el-col>
@@ -106,14 +106,14 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.query(false)
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query(false)
+      this.query(true, true)
     },
-    query(flag) {
+    query(flag, hand) {
       this.loading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -135,6 +135,9 @@ export default {
       }
       if (this.activeName !== '0') {
         para.syhFllb = this.activeName
+      }
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
       }
       this.$query('laws/list', para).then((response) => {
         this.loading = false

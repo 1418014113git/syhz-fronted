@@ -2,7 +2,7 @@
   <div class="faqIndex">
     <el-row>
       <el-col :span="4" style="padding:5px 15px">
-        <el-card style=" height: 540px;">
+        <el-card>
           <div slot="header">
             <span>积分规则分类</span>
           </div>
@@ -17,25 +17,26 @@
         </el-card>
       </el-col>
 
-      <el-col :span="20" style="padding:5px 15px;" v-loading="listLoading">
+      <el-col :span="20" style="padding:5px 15px;">
         <el-card>
           <el-form :inline="true" :model="infoForm" size="small" label-position="left" label-width="82px">
             <el-form-item label="规则名称:" prop="knowledgeName" class="el-from">
               <el-input v-model="infoForm.knowledgeName" clearable maxlength="20" placeholder="请输入资料名称" class="el-from"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" >查询</el-button>
+              <el-button type="primary" @click="query(true,true)">查询</el-button>
               <el-button type="primary" @click="gotoKnowledgeAdd">添加</el-button>
             </el-form-item>
           </el-form>
         </el-card>
-        <div style="overflow:auto;padding-top: 10px" :style="{maxHeight:countHeight}"></div>
-        <el-card >
-          <el-table :data="tableDataNum"  v-loading="false">
+        <el-card style="margin-top:10px;">
+          <el-table :data="tableDataNum"  v-loading="listLoading" :max-height="tableHeight">
             <el-table-column
               align="center"
               prop="index"
-              label="序号" >
+              label="序号"
+              width="100"
+              >
             </el-table-column>
             <el-table-column
               align="center"
@@ -62,7 +63,7 @@
               prop="mouthNum"
               label="每月上限">
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" width="160">
               <template slot-scope="scope" align="center">
                 <el-button type="primary" title="详情"  size="mini" icon="el-icon-document" circle @click="handleDetail(scope.$index, scope.row)"></el-button>
                 <el-button title="编辑" size="mini" type="primary" icon="el-icon-edit" circle @click="handleUpdate(scope.$index, scope.row)"></el-button>
@@ -71,13 +72,11 @@
             </el-table-column>
           </el-table>
         </el-card>
-        <el-pagination
-          :page-sizes="[10, 20]"
-          :page-size="10"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="6"
-          style="float:right; margin-top: 10px;">
-        </el-pagination>
+          <el-col :span="24" class="toolbar">
+            <el-pagination  layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
+                          :page-size="pageSize" :total="total" :current-page="page" style="float:right;">
+            </el-pagination>
+          </el-col>
       </el-col>
     </el-row>
   </div>
@@ -88,7 +87,7 @@
     name: 'userIntegral', // 知识库管理
     computed: {
       show(enabled) {
-        console.log('1213131313313', enabled)
+        // console.log('1213131313313', enabled)
         this.enabled === '不可读'
       }
     },
@@ -96,11 +95,11 @@
       return {
         dialogAdd: false, // 添加应用弹出框
         listLoading: false,
-        countHeight: document.documentElement.clientHeight - 240 + 'px',
         infoForm: {
           knowledgeName: '',
           teacher: ''
         },
+        tableHeight: null,
         tableDataNum: [{
           index: '1',
           integralName: '学习超过30分钟',
@@ -148,14 +147,34 @@
       }
     },
     methods: {
+      query(flag, hand) {
+        // this.listLoading = true
+        // var param = {
+        //   pageSize: this.pageSize,
+        //   pageNum: flag ? 1 : this.page
+        // }
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   param.logFlag = 1
+        // }
+        // this.$query('', param).then((response) => {
+        //   this.listLoading = false
+        //   if (response.data && response.data.list && response.data.list.length > 0) {
+        //     this.tableDataKnowledge = response.data.list
+        //     this.page = response.data.totalCount
+        //     this.pageSize = response.data.pageSize
+        //   }
+        // }).catch(() => {
+        //   this.listLoading = false
+        // })
+      },
       handleCurrentChange(val) {
-        this.search.pageNum = val
-        this.query(false)
+        this.page = val
+        this.query(false, true)
       },
       handleSizeChange(val) {
-        this.search.pageNum = 1
-        this.search.pageSize = val
-        this.query(false)
+        this.page = 1
+        this.pageSize = val
+        this.query(true, true)
       },
       handleExamine() {
         this.$confirm('确认通过?', '提示', {
@@ -163,6 +182,7 @@
           cancelButtonText: '驳回',
           type: 'warning'
         }).then(() => {
+          // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
           this.$message({
             type: 'success',
             message: '审核通过'
@@ -196,6 +216,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
           this.$message({
             type: 'success',
             message: '删除成功'
@@ -208,6 +229,9 @@
           })
         })
       }
+    },
+    mounted() {
+      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 280
     }
   }
 </script>

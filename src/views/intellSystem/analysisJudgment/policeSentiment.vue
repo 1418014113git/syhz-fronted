@@ -30,7 +30,8 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">查询</el-button>
+          <el-button type="primary" @click="query">查询</el-button>
+          <el-button size="small" @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -176,6 +177,10 @@
       }
     },
     methods: {
+      query(hand) {
+        this.showCYZTECharts(hand)
+        this.showDLFXCharts(hand)
+      },
       callback() {
         window.history.go(-1)
       },
@@ -299,6 +304,13 @@
           ]
         }
         _this.dlfxEChart.setOption(option)
+      },
+      reset() {
+        this.dateRand = []
+        this.inPersonOpt = ''
+        this.outPersonOpt = ''
+        this.keyWordsOpt = ''
+        this.query()
       }
     },
     mounted() {

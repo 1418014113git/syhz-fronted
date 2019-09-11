@@ -189,6 +189,7 @@
         }).catch((e) => {})
       },
       add() {
+        // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
         this.$message({
           type: 'success',
           message: '保存成功'

@@ -26,7 +26,7 @@
             <el-date-picker  v-model="endTime" placeholder="请先选择开始时间" type="date" :disabled="endDateDisabled" value-format="yyyy-MM-dd" @change="endTimeChange"></el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="query">查询</el-button>
+            <el-button type="primary" @click="query(true)">查询</el-button>
             <el-button type="primary" @click="resetForm">重置</el-button>
             <el-button type="primary" @click="exportToExcel" :disabled="isOnExport">导出</el-button>
             <el-button type="primary" v-if="$isViewBtn('200001')" @click="caseStandardSetting">案件达标数配置</el-button>
@@ -376,11 +376,14 @@ export default {
       this.settingShow = false
       this.query()
     },
-    query() {
+    query(hand) {
       this.tableTit()
       this.tableData = getajzbList()
       this.loading = true
       this.isOnExport = true
+      if (hand) { // 手动点击时，添加埋点参数
+        this.param.logFlag = 1
+      }
       this.$query('statistics/djcl', this.param).then((response) => {
         this.loading = false
         this.isOnExport = false
@@ -897,7 +900,7 @@ export default {
       },
       this.quarterDisabled = true// 禁用季度选择框
       this.endDateDisabled = true // 禁用结束时间选择框
-      this.query()
+      this.query(true)
     },
   },
   mounted() {

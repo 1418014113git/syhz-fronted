@@ -90,7 +90,7 @@
           <!--</el-select>-->
         <!--</el-form-item>-->
         <el-form-item>
-          <el-button type="primary" size="small" v-if="$isViewBtn('100701')" v-on:click="getCase(true)">查询</el-button>
+          <el-button type="primary" size="small" v-if="$isViewBtn('100701')" v-on:click="getCase(true,true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small"  v-on:click="reset()">重置</el-button>
@@ -620,14 +620,14 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.getCase(false)
+      this.getCase(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.getCase(false)
+      this.getCase(false, true)
     },
-    getCase(flag) {
+    getCase(flag, hand) {
       this.page = flag ? 1 : this.page
       const para = JSON.parse(JSON.stringify(this.filters))
       para.slsj = '' // 参数的受理时间置为空，分别用startTime endTime表示
@@ -680,6 +680,9 @@ export default {
         para.endTime = ''
       }
       para.cityCode = this.cityCode
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
       this.listLoading = true
       getAJJBXXETLRLPage(para).then((response) => {
         const data = response.data
@@ -700,7 +703,7 @@ export default {
       this.filters.slsj = []
       this.qsStatusChange('') // 认领状态设置为空
       this.qsStatus = '' // 认领状态设置为空
-      this.initList()
+      this.initList(true)
       // this.getCase(true)
     },
     handleAjDetail(index, row) {
@@ -719,7 +722,7 @@ export default {
         })
       }
     },
-    initList() {
+    initList(hand) {
       this.depLevel = getDeptLevel(this.curDept.depCode)
       if (this.depLevel === 1) {
         this.getTingTree()
@@ -745,7 +748,11 @@ export default {
       if (s2 !== '00') {
         this.downBtn = false
       }
-      this.getCase(true)
+      if (hand) {
+        this.getCase(true, true)
+      } else {
+        this.getCase(true)
+      }
     },
     getTingTree() {
       const tings = ajrlListDepts(getSessionDeptSelect(), this.curDept.depCode)

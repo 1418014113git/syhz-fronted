@@ -20,7 +20,7 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="query(true)" v-if="$isViewBtn('106001')" >查询</el-button>
+        <el-button type="primary" size="small" v-on:click="query(true,true)" v-if="$isViewBtn('106001')" >查询</el-button>
         <el-button size="small" @click="clear">重置</el-button>
       </el-form-item>
       <el-form-item>
@@ -325,12 +325,12 @@ export default {
       this.onRefresList()
     },
     onRefresList() {
-      this.query(true)
+      this.query(true, true)
     },
     handleAdd: function() {
       this.$router.push({ path: '/intellSystem/intellAdd' })
     },
-    query(flag) {
+    query(flag, hand) {
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -344,6 +344,9 @@ export default {
       }
       if (this.filters.XSLX) {
         para.XSLX = this.filters.XSLX
+      }
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
       }
       getIntellListPage(para).then((response) => {
         this.listLoading = false
@@ -361,7 +364,8 @@ export default {
         depCode: this.currentDep.depCode,
         pageNum: this.page2,
         type: 'qbxs',
-        pageSize: this.pageSize2
+        pageSize: this.pageSize2,
+        logFlag: 1 // 手动点击时，添加埋点参数
       }).then((response) => {
         const data = response.data
         this.total2 = data.totalCount
@@ -379,7 +383,8 @@ export default {
         depCode: this.currentDep.depCode,
         pageNum: this.page2,
         type: 'qbxs',
-        pageSize: this.pageSize2
+        pageSize: this.pageSize2,
+        logFlag: 1 // 手动点击时，添加埋点参数
       }).then((response) => {
         const data = response.data
         this.total2 = data.totalCount
@@ -410,12 +415,12 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.query(false)
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query(false)
+      this.query(true, true)
     },
     handleCurrentChange2(val) {
       this.page2 = val
@@ -463,7 +468,7 @@ export default {
         })
       })
       this.isInitCaseData = false
-      getQbxsjBxxCasecIds({ qbxsId: this.qbxsId, category: '1' }).then((response) => {
+      getQbxsjBxxCasecIds({ qbxsId: this.qbxsId, category: '1', logFlag: 1 }).then((response) => {
         const _this = this
         response.data.forEach(function(item) {
           _this.caseIds.push(item.caseId)
@@ -484,7 +489,7 @@ export default {
       this.filters = {
         XSXXBH: '', XSZT: '', TBDW: '', TBSJ: '', STATUS: ''
       }
-      this.query(true)
+      this.query(true, true)
     },
     handlePersonnelEdit() {
       this.$router.push({ path: '/inforCollection/personnelEdit' })
@@ -528,7 +533,8 @@ export default {
         qbxsId: this.qbxsId,
         enable: 1,
         createUserId: a.id,
-        createUserName: a.realName
+        createUserName: a.realName,
+        logFlag: 1 // 手动点击时，添加埋点参数
       }
       editQbxsJbxxCaseRela(para).then((response) => {
         if (response.success === true) {
@@ -547,7 +553,8 @@ export default {
         clueId: id,
         signUserId: this.curUser.id,
         signTime: parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}'),
-        updateUserId: this.curUser.id
+        updateUserId: this.curUser.id,
+        logFlag: 1 // 手动点击时，添加埋点参数
       }).then((res) => {
         if (res.code === '000000') {
           this.$message({
@@ -563,13 +570,14 @@ export default {
         type: 'warning'
       }).then(() => {
         deleteIntell({
-          id: id
+          id: id,
+          logFlag: 1 // 手动点击时，添加埋点参数
         }).then((res) => {
           if (res.code === '000000') {
             this.$message({
               message: '删除成功', type: 'success'
             })
-            this.query(false)
+            this.query(true)
           }
         })
       })
@@ -586,6 +594,7 @@ export default {
       this.clueShareDialog = true
     },
     onSubmit: function() {
+      // logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
       this.$message({
         message: '分享成功',
         type: 'success'

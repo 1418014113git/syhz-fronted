@@ -68,7 +68,10 @@
       toback() {
         window.history.go(-1)
       },
-      initAjlb() { // 初始化案件类别
+      initAjlb(hand) { // 初始化案件类别
+      // if (hand) { // 手动点击时，添加埋点参数
+        //   logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
+        // }
         this.$query('getajlb', {}).then((response) => {
           if (response.data && response.data.length > 0) {
             this.ajlbData = response.data
@@ -77,7 +80,9 @@
         })
       },
       query() {
-
+        this.showCYZTECharts(true)
+        this.showDLFXCharts(true)
+        this.initAjlb(true)
       },
       reset() {
 
@@ -94,8 +99,11 @@
         }
         $('.right-layout').animate({ 'scrollTop': top }, 500)
       },
-      showCYZTECharts: function() {
+      showCYZTECharts: function(hand) {
         const _this = this
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
+        // }
         _this.cyztEChart = eChart.init(document.getElementById('cyztEChart'))
         var option = {
           color: ['#3398DB'],
@@ -146,8 +154,11 @@
         }
         _this.cyztEChart.setOption(option)
       },
-      showDLFXCharts: function() {
+      showDLFXCharts: function(hand) {
         const _this = this
+        // if (hand) { // 手动点击时，添加埋点参数
+        //   logFlag = 1 // 请求接口时，将此参数添加到接口参数中，埋点参数
+        // }
         _this.dlfxEChart = eChart.init(document.getElementById('dlfxEChart'))
         var option = {
           tooltip: {
