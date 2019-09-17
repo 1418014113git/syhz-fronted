@@ -25,7 +25,7 @@
         <div v-if="total > 0">
           <!--左侧列表-->
           <ul class="tztg_ul" v-loading="loading">
-            <li v-for="data in list" @click="detail(data.id)" style="cursor: pointer; display: block">
+            <li v-for="data in list" @click="detail(data.id)" style="cursor: pointer; display: block" :key="data.id">
               <p :title="data.title" class="ellipsis-word"><span style="padding-right: 10px;">◦</span>{{data.title}}</p>
             </li>
           </ul>
@@ -44,7 +44,7 @@
             <h5 style="font-size:18px;">站内信息签收详情</h5>
           </div>
           <ul class="tztgqs_ul">
-            <li v-for="data in tztgsigns" v-if="Number(data.notice_org_id) !== Number(tztg.create_org_id)">
+            <li v-if="Number(data.notice_org_id) !== Number(tztg.create_org_id)" v-for="data in tztgsigns" :key="data.index">
               <label>{{data.notice_org_name}}</label>
               <div>
                 <el-row>
@@ -110,7 +110,7 @@
               <el-row style="margin-top:60px">
                 <el-col :span="24" v-if="uploadImgs.length > 0">
                   <h5 style="margin: 0;">相关下载:</h5>
-                  <a v-for="item in uploadImgs" :href="item.path" style="text-decoration:underline;color: rgb(32, 160, 255);display: block" :download="item.name">{{item.name}}</a>
+                  <a v-for="item in uploadImgs" :href="item.path" style="text-decoration:underline;color: rgb(32, 160, 255);display: block" :download="item.name" :key="item.path">{{item.name}}</a>
                 </el-col>
               </el-row>
             </el-col>
@@ -127,197 +127,196 @@
 </template>
 
 <script>
-  import { getTCode } from '@/api/inforCollection'
-  import {
-    getTztgReceiveListPage,
-    editTztgSign,
-    getTztgSignListPage,
-    getTztgReceive,
-    getTztgCount
-  } from '@/api/notice'
+import { getTCode } from '@/api/inforCollection'
+import {
+  getTztgReceiveListPage,
+  editTztgSign,
+  getTztgSignListPage,
+  getTztgReceive,
+  getTztgCount
+} from '@/api/notice'
 
-  export default {
-    data() {
-      return {
-        uploadImgs: [],
-        filters: {
-          type: '',
-          title: '',
-          category: '1'
-        },
-        tztg: {
-          id: 0,
-          title: '',
-          author: '',
-          updateTime: '',
-          infoSource: '',
-          type: '',
-          views: '',
-          content: '',
-          mtsId: '',
-          isSign: 0
-        },
-        loading: false,
-        total: 0,
-        page: 1,
-        pageSize: 5,
-        list: [],
-        tztgsigns: [],
-        activeName: 'elt0',
-        countNum: [0, 0, 0, 0],
-        currentOrg: '',
+export default {
+  data() {
+    return {
+      uploadImgs: [],
+      filters: {
         type: '',
-        typebList: [],
-        curDept: {},
-        curUser: {}
-      }
-    },
-    methods: {
-      handleClick(tab, event) {
-        this.page = 1
-        this.query()
+        title: '',
+        category: '1'
       },
-      handleCurrentChange(currentPage) {
-        this.page = currentPage
-        this.query()
+      tztg: {
+        id: 0,
+        title: '',
+        author: '',
+        updateTime: '',
+        infoSource: '',
+        type: '',
+        views: '',
+        content: '',
+        mtsId: '',
+        isSign: 0
       },
-      goList() {
-        this.$router.push({ path: '/tztg/list' })
-      },
-      detail(id) {
-        this.signList(id)
-        // 查询详情
-        const para = {
-          id: id, noticeOrgId: this.curDept.id
-        }
-        getTztgReceive(para).then((response) => {
-          if (response.data !== null && response.data.length > 0) {
-            this.tztg = response.data[0]
-            if (typeof (this.tztg.isSign) === 'undefined') {
-              this.tztg.isSign = -1
-            }
-            this.tztg.infoSource = this.tztg.info_source
-            this.tztg.updateTime = this.tztg.update_time
-            if (this.tztg.attachement) {
-              this.uploadImgs = JSON.parse(this.tztg.attachement)
-            } else {
-              this.uploadImgs = []
-            }
-          } else {
-            this.tztg = {}
-          }
-        })
-      },
-      sign(mtsId) {
-        const para = {
-          id: mtsId, signUserId: this.curUser.id, isSign: 1
-        }
-        editTztgSign(para).then((response) => {
-          if (response.success === true) {
-            this.$message({
-              message: '签收成功',
-              type: 'success'
-            })
-            this.count()
-            this.detail(this.tztg.id)
-          }
-        })
-      },
-      signList(noticeId) {
-        const para = {
-          noticeId: noticeId
-        }
-        getTztgSignListPage(para).then((response) => {
-          this.tztgsigns = response.data
-        })
-      },
-      query() {
-        const para = {
-          pageNum: this.page,
-          pageSize: this.pageSize,
-          title: this.filters.title,
-          noticeOrgId: this.curDept.id
-        }
-        if (this.type !== '0') {
-          para.type = this.type
-        }
-        this.loading = true
-        getTztgReceiveListPage(para).then((response) => {
-          const data = response.data
-          this.total = data.totalCount
-          this.list = data.list
-          this.loading = false
-        }).catch(() => {
-          this.loading = false
-        })
-      },
-      search() {
-        this.page = 1
-        this.query()
-      },
-      count() {
-        const para = {
-          orgId: this.curDept.id
-        }
-        getTztgCount(para).then((response) => {
-          if (response.data.length > 0) {
-            this.countNum[0] = response.data[0].oneDay
-            this.countNum[1] = response.data[0].weekDay
-            this.countNum[2] = response.data[0].monthDay
-            this.countNum[3] = response.data[0].totalDay
-          }
-        })
-      },
-      tcode() {
-        getTCode({ codeLx: 'tztglx' }).then((response) => {
-          this.typebList = response.data
-        })
-      },
-      toback() {
-        this.$router.back(-1)
-      }
-    },
-    mounted() {
-      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-      this.detail(this.$route.params.id)
-      this.query()
-      this.count()
-      this.tcode()
+      loading: false,
+      total: 0,
+      page: 1,
+      pageSize: 5,
+      list: [],
+      tztgsigns: [],
+      activeName: 'elt0',
+      countNum: [0, 0, 0, 0],
+      currentOrg: '',
+      type: '',
+      typebList: [],
+      curDept: {},
+      curUser: {}
     }
+  },
+  methods: {
+    handleClick(tab, event) {
+      this.page = 1
+      this.query()
+    },
+    handleCurrentChange(currentPage) {
+      this.page = currentPage
+      this.query()
+    },
+    goList() {
+      this.$router.push({ path: '/tztg/list' })
+    },
+    detail(id) {
+      this.signList(id)
+      // 查询详情
+      const para = {
+        id: id, noticeOrgId: this.curDept.id
+      }
+      getTztgReceive(para).then((response) => {
+        if (response.data !== null && response.data.length > 0) {
+          this.tztg = response.data[0]
+          if (typeof (this.tztg.isSign) === 'undefined') {
+            this.tztg.isSign = -1
+          }
+          this.tztg.infoSource = this.tztg.info_source
+          this.tztg.updateTime = this.tztg.update_time
+          if (this.tztg.attachement) {
+            this.uploadImgs = JSON.parse(this.tztg.attachement)
+          } else {
+            this.uploadImgs = []
+          }
+        } else {
+          this.tztg = {}
+        }
+      })
+    },
+    sign(mtsId) {
+      const para = {
+        id: mtsId, signUserId: this.curUser.id, isSign: 1
+      }
+      editTztgSign(para).then((response) => {
+        if (response.success === true) {
+          this.$message({
+            message: '签收成功',
+            type: 'success'
+          })
+          this.count()
+          this.detail(this.tztg.id)
+        }
+      })
+    },
+    signList(noticeId) {
+      const para = {
+        noticeId: noticeId
+      }
+      getTztgSignListPage(para).then((response) => {
+        this.tztgsigns = response.data
+      })
+    },
+    query() {
+      const para = {
+        pageNum: this.page,
+        pageSize: this.pageSize,
+        title: this.filters.title,
+        noticeOrgId: this.curDept.id
+      }
+      if (this.type !== '0') {
+        para.type = this.type
+      }
+      this.loading = true
+      getTztgReceiveListPage(para).then((response) => {
+        const data = response.data
+        this.total = data.totalCount
+        this.list = data.list
+        this.loading = false
+      }).catch(() => {
+        this.loading = false
+      })
+    },
+    search() {
+      this.page = 1
+      this.query()
+    },
+    count() {
+      const para = {
+        orgId: this.curDept.id
+      }
+      getTztgCount(para).then((response) => {
+        if (response.data.length > 0) {
+          this.countNum[0] = response.data[0].oneDay
+          this.countNum[1] = response.data[0].weekDay
+          this.countNum[2] = response.data[0].monthDay
+          this.countNum[3] = response.data[0].totalDay
+        }
+      })
+    },
+    tcode() {
+      getTCode({ codeLx: 'tztglx' }).then((response) => {
+        this.typebList = response.data
+      })
+    },
+    toback() {
+      this.$router.back(-1)
+    }
+  },
+  mounted() {
+    this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+    this.detail(this.$route.params.id)
+    this.query()
+    this.count()
+    this.tcode()
   }
+}
 </script>
 <style src="@/styles/vue2-editor.scss" lang='scss'></style>
 <style scoped>
-  .tztg_fq_detail .tztg_ul {
-    margin: 0;
-    padding: 0;
-    font-size: 14px;
-    list-style: none;
-  }
+.tztg_fq_detail .tztg_ul {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  list-style: none;
+}
 
-  .tztg_fq_detail .tztg_ul li {
-    padding: 10px 0;
-    justify-content: space-between;
-  }
+.tztg_fq_detail .tztg_ul li {
+  padding: 10px 0;
+  justify-content: space-between;
+}
 
-  .tztg_fq_detail .text_center {
-    text-align: center;
-  }
+.tztg_fq_detail .text_center {
+  text-align: center;
+}
 
-  .tztg_fq_detail .tztgqs_ul {
-    margin: 15px 10px;
-    padding: 0;
-    list-style: none;
-  }
+.tztg_fq_detail .tztgqs_ul {
+  margin: 15px 10px;
+  padding: 0;
+  list-style: none;
+}
 
-  .tztg_fq_detail .tztgqs_ul li {
-    margin-bottom: 20px;
-    justify-content: space-between;
-  }
-  .tztg_fq_detail .el-tabs {
-    background: rgba(0, 89, 130, 0);
-    border: 0;
-  }
-
+.tztg_fq_detail .tztgqs_ul li {
+  margin-bottom: 20px;
+  justify-content: space-between;
+}
+.tztg_fq_detail .el-tabs {
+  background: rgba(0, 89, 130, 0);
+  border: 0;
+}
 </style>

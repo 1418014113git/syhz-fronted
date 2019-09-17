@@ -58,7 +58,7 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="query(true)" v-if="$isViewBtn('110001')">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="query(true,true)" v-if="$isViewBtn('110001')">查询</el-button>
         <el-button size="small" @click="clear">重置</el-button>
       </el-form-item>
       <el-form-item>
@@ -239,7 +239,7 @@ export default {
     handleAdd: function() {
       this.$router.push({ path: '/inforCollection/add' })
     },
-    query(flag) {
+    query(flag, hand) {
       this.page = flag ? 1 : this.page
       const para = {
         pageNum: this.page,
@@ -250,6 +250,9 @@ export default {
         XYLB: this.filters.XYLB,
         SFNS: this.filters.SFNS,
         BLACK: this.filters.BLACK
+      }
+      if (hand) {
+        para.logFlag = 1
       }
       this.listLoading = true
       getListPage(para).then((response) => {
@@ -264,12 +267,12 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.query(false)
+      this.query(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query(false)
+      this.query(false, true)
     },
     handleDetail: function(index, row) {
       this.$router.push({ path: '/inforCollection/detail/' + row.id })
@@ -281,7 +284,7 @@ export default {
       this.$confirm('确认删除该记录吗?', '提示', {
         type: 'warning'
       }).then(() => {
-        const para = { id: row.id }
+        const para = { id: row.id, logFlag: 1 }
         deleteCompany(para).then((res) => {
           this.listLoading = false
           this.$message({
@@ -309,7 +312,7 @@ export default {
       this.filters = {
         DWMC: '', DWXZ: '', DWLB: '', XYLB: '', SFNS: ''
       }
-      this.query(true)
+      this.query(true, true)
     },
     tcode(type) {
       const para = {
@@ -324,7 +327,7 @@ export default {
       })
     },
     dialogClose() {
-      this.query(true)
+      this.query(true, true)
     }
   },
   mounted() {

@@ -255,6 +255,7 @@ export default {
         if (valid) {
           this.enterpriseInfo.DWXZNAME = this.DWXZLable
           this.enterpriseInfo.DJZTNAME = this.DJZTLable
+          this.enterpriseInfo.logFlag = 1 // 是否写日志
           this.enterpriseInfo.ZCRQ = parseTime(this.enterpriseInfo.ZCRQ, '{y}-{m}-{d} {h}:{i}:{s}')
           if (this.$route.params.id) { // 修改
             this.enterpriseInfo.id = this.$route.params.id

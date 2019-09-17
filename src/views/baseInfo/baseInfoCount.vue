@@ -39,124 +39,128 @@
   </section>
 </template>
 <script>
-  import { getCityTree } from '@/api/citys'
-  export default {
-    name: 'list',
-    data() {
-      return {
-        filters: {
-          name: '',
-          ywfw: '',
-          citys: []
-        },
-        startTime: '',
-        endTime: '',
-        total: 0,
-        page: 1,
-        pageSize: 15,
-        listLoading: false,
-        list: [],
-        options: [],
-        props: {
-          label: 'cityName',
-          value: 'cityCode'
-        },
-        tableHeight: null
-      }
-    },
-    methods: {
-      handleDetail: function(index, row) {
-        this.$router.push({ path: '/tztg/detail/' + row.ID })
+import { getCityTree } from '@/api/citys'
+export default {
+  name: 'list',
+  data() {
+    return {
+      filters: {
+        name: '',
+        ywfw: '',
+        citys: []
       },
-      handleEdit: function(index, row) {
-        this.$router.push({ path: '/handlingGuide/inspecorgEdit/', query: { id: row.ID }})
+      startTime: '',
+      endTime: '',
+      total: 0,
+      page: 1,
+      pageSize: 15,
+      listLoading: false,
+      list: [],
+      options: [],
+      props: {
+        label: 'cityName',
+        value: 'cityCode'
       },
-      handleDel: function(index, row) {
-        this.$confirm('确认删除该记录吗?', '提示', {
-          type: 'warning'
-        }).then(() => {
-          // const para = {
-          //   id: row.ID
-          // }
-          this.$message({
-            message: '删除成功',
-            type: 'success'
-          })
-          this.page = 1
-          this.query()
-        }).catch(() => {
-        })
-      },
-      handleCurrentChange(currentPage) {
-        this.page = currentPage
-        this.query()
-      },
-      handleSizeChange(val) {
-        this.page = 1
-        this.pageSize = val
-        this.query()
-      },
-      query() {
-        const array = [{
-          cityName: '西安市', jgnum: 89, rynum: 254, zbnum: 437
-        }, {
-          cityName: '铜川市', jgnum: 45, rynum: 143, zbnum: 378
-        }, {
-          cityName: '宝鸡市', jgnum: 23, rynum: 107, zbnum: 325
-        }, {
-          cityName: '咸阳市', jgnum: 20, rynum: 103, zbnum: 246
-        }, {
-          cityName: '渭南市', jgnum: 57, rynum: 145, zbnum: 534
-        }, {
-          cityName: '延安市', jgnum: 67, rynum: 124, zbnum: 236
-        }, {
-          cityName: '汉中市', jgnum: 46, rynum: 168, zbnum: 345
-        }, {
-          cityName: '榆林市', jgnum: 63, rynum: 178, zbnum: 347
-        }, {
-          cityName: '安康市', jgnum: 45, rynum: 137, zbnum: 234
-        }, {
-          cityName: '商洛市', jgnum: 50, rynum: 156, zbnum: 345
-        }]
-        this.list = array
-      },
-      search() {
-        this.page = 1
-        this.query()
-      },
-      resetSearch() {
-        this.filters = {
-          name: '', ywfw: '', citys: []
-        }
-        this.page = 1
-        this.query()
-      },
-      goAdd() {
-        this.$router.push({ path: '/handlingGuide/inspecorgEdit' })
-      },
-      init() {
-        getCityTree().then((response) => {
-          const data = response.data
-          for (var i = 0; i < data.length; i++) {
-            if (data[i].cityCode === '610000') {
-              this.options = data[i].children
-            }
-          }
-        })
-      }
-    },
-    mounted() {
-      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-      this.query()
-      this.init()
+      tableHeight: null
     }
+  },
+  methods: {
+    handleDetail: function(index, row) {
+      this.$router.push({ path: '/tztg/detail/' + row.ID })
+    },
+    handleEdit: function(index, row) {
+      this.$router.push({ path: '/handlingGuide/inspecorgEdit/', query: { id: row.ID }})
+    },
+    handleDel: function(index, row) {
+      this.$confirm('确认删除该记录吗?', '提示', {
+        type: 'warning'
+      }).then(() => {
+        // const para = {
+        //   id: row.ID
+        // }
+        this.$message({
+          message: '删除成功',
+          type: 'success'
+        })
+        this.page = 1
+        this.query()
+      }).catch(() => {
+      })
+    },
+    handleCurrentChange(currentPage) {
+      this.page = currentPage
+      this.query(true)
+    },
+    handleSizeChange(val) {
+      this.page = 1
+      this.pageSize = val
+      this.query(true)
+    },
+    query(hand) {
+      // var param = {}
+      // if (hand) {
+      //   param.logFlag = 1 // 是否写日志
+      // }
+      const array = [{
+        cityName: '西安市', jgnum: 89, rynum: 254, zbnum: 437
+      }, {
+        cityName: '铜川市', jgnum: 45, rynum: 143, zbnum: 378
+      }, {
+        cityName: '宝鸡市', jgnum: 23, rynum: 107, zbnum: 325
+      }, {
+        cityName: '咸阳市', jgnum: 20, rynum: 103, zbnum: 246
+      }, {
+        cityName: '渭南市', jgnum: 57, rynum: 145, zbnum: 534
+      }, {
+        cityName: '延安市', jgnum: 67, rynum: 124, zbnum: 236
+      }, {
+        cityName: '汉中市', jgnum: 46, rynum: 168, zbnum: 345
+      }, {
+        cityName: '榆林市', jgnum: 63, rynum: 178, zbnum: 347
+      }, {
+        cityName: '安康市', jgnum: 45, rynum: 137, zbnum: 234
+      }, {
+        cityName: '商洛市', jgnum: 50, rynum: 156, zbnum: 345
+      }]
+      this.list = array
+    },
+    search() {
+      this.page = 1
+      this.query(true)
+    },
+    resetSearch() {
+      this.filters = {
+        name: '', ywfw: '', citys: []
+      }
+      this.page = 1
+      this.query(true)
+    },
+    goAdd() {
+      this.$router.push({ path: '/handlingGuide/inspecorgEdit' })
+    },
+    init() {
+      getCityTree().then((response) => {
+        const data = response.data
+        for (var i = 0; i < data.length; i++) {
+          if (data[i].cityCode === '610000') {
+            this.options = data[i].children
+          }
+        }
+      })
+    }
+  },
+  mounted() {
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.query()
+    this.init()
   }
+}
 </script>
 <style scoped>
-  .canClick {
-    cursor: pointer;
-  }
-  .canClick:hover {
-    text-decoration: underline;
-  }
+.canClick {
+  cursor: pointer;
+}
+.canClick:hover {
+  text-decoration: underline;
+}
 </style>

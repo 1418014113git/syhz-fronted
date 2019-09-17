@@ -10,7 +10,7 @@
         <el-input v-model="configQuery.name" placeholder="名称" clearable></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-if="$isViewBtn('100903')" v-on:click="queryData(true)">查询</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100903')" v-on:click="queryData(true,true)">查询</el-button>
         <el-button size="small"  @click="clear">重置</el-button>
       </el-form-item>
       <el-form-item>
@@ -55,186 +55,188 @@
           <el-button @click="handleClose(false)">取 消</el-button>
         </el-form-item>
       </el-form>
-
     </el-dialog>
   </div>
 </template>
-
 <script>
-  export default {
-    name: 'dictList',
-    data() {
-      return {
-        diaTitle: '',
-        codeLxList: [],
-        configQuery: {
-          codeLx: '', name: ''
-        },
-        configBean: {
-          id: '', code: '', name: '', codeLx: '', codeDesc: ''
-        },
-        listData: [],
-        page: 1,
-        total: 0,
-        pageSize: 15,
-        listLoading: false,
-        configLoading: false,
-        dialogVisible: false,
-        tableHeight: null,
-        rules: {
-          code: [{
-            required: true, message: '请输入编号', trigger: 'blur'
-          }],
-          name: [{
-            required: true, message: '请输入名称', trigger: 'blur'
-          }],
-          codeLx: [{
-            required: true, message: '请选择类型', trigger: ['blur', 'change']
-          }]
-        }
+export default {
+  name: 'dictList',
+  data() {
+    return {
+      diaTitle: '',
+      codeLxList: [],
+      configQuery: {
+        codeLx: '', name: ''
+      },
+      configBean: {
+        id: '', code: '', name: '', codeLx: '', codeDesc: ''
+      },
+      listData: [],
+      page: 1,
+      total: 0,
+      pageSize: 15,
+      listLoading: false,
+      configLoading: false,
+      dialogVisible: false,
+      tableHeight: null,
+      rules: {
+        code: [{
+          required: true, message: '请输入编号', trigger: 'blur'
+        }],
+        name: [{
+          required: true, message: '请输入名称', trigger: 'blur'
+        }],
+        codeLx: [{
+          required: true, message: '请选择类型', trigger: ['blur', 'change']
+        }]
       }
-    },
-    methods: {
-      dictChange(val) {
-        for (let i = 0; i < this.codeLxList.length; i++) {
-          const lx = this.codeLxList[i]
-          if (lx.value === val) {
-            this.configBean.codeDesc = lx.label
-            return false
-          }
-        }
-      },
-      handleCurrentChange(val) {
-        this.page = val
-        this.queryData(false)
-      },
-      handleSizeChange(val) {
-        this.page = 1
-        this.pageSize = val
-        this.queryData(false)
-      },
-      queryData(flag) {
-        this.page = flag ? 1 : this.page
-        const para = this.configQuery
-        para.pageNum = this.page
-        para.pageSize = this.pageSize
-        this.listLoading = true
-        this.$query('page/tcpcode', para).then((response) => {
-          this.listLoading = false
-          this.listData = response.data.list
-          this.total = response.data.totalCount
-          this.pageSize = response.data.pageSize
-        }).catch(() => {
-          this.listLoading = false
-        })
-      },
-      clear() {
-        this.configQuery.codeLx = ''
-        this.configQuery.name = ''
-        this.queryData(true)
-      },
-      showAdd() {
-        this.diaTitle = '新增'
-        this.dialogVisible = true
-      },
-      showEdit(row) {
-        this.diaTitle = '修改'
-        this.dialogVisible = true
-        this.configBean.id = row.id
-        this.configBean.code = row.code
-        this.configBean.name = row.codeName
-        this.configBean.codeLx = row.codeLx
-        this.configBean.codeDesc = row.codeDesc
-      },
-      handlerDel(id) {
-        this.$confirm('确认删除该记录吗?', '提示', {
-          type: 'warning'
-        }).then(() => {
-          this.listLoading = true
-          this.$remove('tcpcode/' + id, {}).then((response) => {
-            this.listLoading = false
-            if (response.code === '000000') {
-              this.$message({
-                message: '删除成功', type: 'success'
-              })
-              this.queryData(false)
-              const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-              this.$save('trestrictedperson', {
-                userName: curUser.userName,
-                userId: curUser.id,
-                realName: curUser.realName
-              }).then((response) => {})
-            }
-          })
-        }).catch(() => {
-          this.listLoading = false
-        })
-      },
-      hideDialog(flag) {
-        this.$refs.dictForm.resetFields()
-        this.configBean = {
-          id: '', code: '', name: '', codeLx: '', codeDesc: ''
-        }
-        this.dialogVisible = false
-        if (flag) {
-          this.queryData(false)
-        }
-      },
-      saveConfig() {
-        this.$refs.dictForm.validate(valid => {
-          if (valid) {
-            if (this.configBean.id) {
-              this.handlerEdit()
-            } else {
-              this.handlerSave()
-            }
-          }
-        })
-      },
-      handlerSave() {
-        this.configLoading = true
-        this.$save('tcpcode', this.configBean).then((response) => {
-          this.configLoading = false
-          if (response.code === '000000') {
-            this.handleClose(true)
-          }
-        }).catch(() => {
-          this.configLoading = false
-        })
-      },
-      handlerEdit() {
-        this.configLoading = true
-        this.$update('tcpcode/' + this.configBean.id, this.configBean).then((response) => {
-          this.configLoading = false
-          if (response.code === '000000') {
-            this.handleClose(true)
-          }
-        }).catch(() => {
-          this.configLoading = false
-        })
-      },
-      getCodeLx() {
-        this.$query('tcpcodelxs', {}).then((response) => {
-          if (response.code === '000000') {
-            this.codeLxList = response.data
-            if (this.codeLxList.length > 0) {
-              this.configQuery.codeLx = this.codeLxList[0]['value']
-            }
-            this.queryData(true)
-          }
-        })
-      },
-      handleClose(flag) {
-        this.hideDialog(flag)
-      }
-    },
-    mounted() {
-      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-      this.getCodeLx()
     }
+  },
+  methods: {
+    dictChange(val) {
+      for (let i = 0; i < this.codeLxList.length; i++) {
+        const lx = this.codeLxList[i]
+        if (lx.value === val) {
+          this.configBean.codeDesc = lx.label
+          return false
+        }
+      }
+    },
+    handleCurrentChange(val) {
+      this.page = val
+      this.queryData(false, true)
+    },
+    handleSizeChange(val) {
+      this.page = 1
+      this.pageSize = val
+      this.queryData(false, true)
+    },
+    queryData(flag, hand) {
+      this.page = flag ? 1 : this.page
+      const para = this.configQuery
+      para.pageNum = this.page
+      para.pageSize = this.pageSize
+      if (hand) {
+        para.logFlag = 1 // 是否写日志
+      }
+      this.listLoading = true
+      this.$query('page/tcpcode', para).then((response) => {
+        this.listLoading = false
+        this.listData = response.data.list
+        this.total = response.data.totalCount
+        this.pageSize = response.data.pageSize
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    clear() {
+      this.configQuery.codeLx = ''
+      this.configQuery.name = ''
+      this.queryData(true, true)
+    },
+    showAdd() {
+      this.diaTitle = '新增'
+      this.dialogVisible = true
+    },
+    showEdit(row) {
+      this.diaTitle = '修改'
+      this.dialogVisible = true
+      this.configBean.id = row.id
+      this.configBean.code = row.code
+      this.configBean.name = row.codeName
+      this.configBean.codeLx = row.codeLx
+      this.configBean.codeDesc = row.codeDesc
+    },
+    handlerDel(id) {
+      this.$confirm('确认删除该记录吗?', '提示', {
+        type: 'warning'
+      }).then(() => {
+        this.listLoading = true
+        this.$remove('tcpcode/' + id, { logFlag: 1 }).then((response) => {
+          this.listLoading = false
+          if (response.code === '000000') {
+            this.$message({
+              message: '删除成功', type: 'success'
+            })
+            this.queryData(false)
+            const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+            this.$save('trestrictedperson', {
+              userName: curUser.userName,
+              userId: curUser.id,
+              realName: curUser.realName
+            }).then((response) => { })
+          }
+        })
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    hideDialog(flag) {
+      this.$refs.dictForm.resetFields()
+      this.configBean = {
+        id: '', code: '', name: '', codeLx: '', codeDesc: ''
+      }
+      this.dialogVisible = false
+      if (flag) {
+        this.queryData(false)
+      }
+    },
+    saveConfig() {
+      this.$refs.dictForm.validate(valid => {
+        if (valid) {
+          if (this.configBean.id) {
+            this.handlerEdit()
+          } else {
+            this.handlerSave()
+          }
+        }
+      })
+    },
+    handlerSave() {
+      this.configLoading = true
+      this.configBean.logFlag = 1 // 是否写日志
+      this.$save('tcpcode', this.configBean).then((response) => {
+        this.configLoading = false
+        if (response.code === '000000') {
+          this.handleClose(true)
+        }
+      }).catch(() => {
+        this.configLoading = false
+      })
+    },
+    handlerEdit() {
+      this.configLoading = true
+      this.configBean.logFlag = 1 // 是否写日志
+      this.$update('tcpcode/' + this.configBean.id, this.configBean).then((response) => {
+        this.configLoading = false
+        if (response.code === '000000') {
+          this.handleClose(true)
+        }
+      }).catch(() => {
+        this.configLoading = false
+      })
+    },
+    getCodeLx() {
+      this.$query('tcpcodelxs', {}).then((response) => {
+        if (response.code === '000000') {
+          this.codeLxList = response.data
+          if (this.codeLxList.length > 0) {
+            this.configQuery.codeLx = this.codeLxList[0]['value']
+          }
+          this.queryData(true)
+        }
+      })
+    },
+    handleClose(flag) {
+      this.hideDialog(flag)
+    }
+  },
+  mounted() {
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.getCodeLx()
   }
+}
 </script>
 
 <style scoped>
-
 </style>

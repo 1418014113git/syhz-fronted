@@ -23,7 +23,7 @@
             <el-input v-model="restrictedQuery.realName" clearable placeholder="请输入姓名"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" size="small" v-if="$isViewBtn('100903')" v-on:click="queryData(true)">查询</el-button>
+            <el-button type="primary" size="small" v-if="$isViewBtn('100903')" v-on:click="queryData(true,true)">查询</el-button>
             <el-button size="small"  @click="clear">重置</el-button>
           </el-form-item>
           <el-form-item>
@@ -215,18 +215,21 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.queryData(false)
+      this.queryData(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.queryData(false)
+      this.queryData(false, true)
     },
-    queryData(flag) {
+    queryData(flag, hand) {
       this.page = flag ? 1 : this.page
       const para = this.restrictedQuery
       para.pageNum = this.page
       para.pageSize = this.pageSize
+      if (hand) {
+        para.logFlag = 1 // 是否写日志
+      }
       this.listLoading = true
       var response = { 'success': true, 'code': '000000', 'message': 'OK',
         'data': { 'pageSize': 15, 'pageNum': 1, 'totalCount': 10, 'list': [
@@ -254,7 +257,7 @@ export default {
     clear() {
       this.restrictedQuery.name = ''
       this.restrictedQuery.realName = ''
-      this.queryData(true)
+      this.queryData(true, true)
     },
     showAdd() {
       this.diaTitle = '新增'
@@ -268,7 +271,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        this.$remove('trestrictedper/' + id, {}).then((response) => {
+        this.$remove('trestrictedper/' + id, { logFlag: 1 }).then((response) => {
           this.listLoading = false
           if (response.code === '000000') {
             this.$message({

@@ -10,20 +10,20 @@
             </el-date-picker>
           </div>
         </el-form-item> -->
-        <el-form-item label="操作人：">
+        <el-form-item label="操作人：" prop="name">
           <el-input placeholder="输入名称搜索" v-model="filters.name" clearable></el-input>
         </el-form-item>
-        <el-form-item label="IP地址：">
+        <el-form-item label="IP地址：" prop="ip">
           <el-input placeholder="输入IP地址" v-model="filters.ip" clearable></el-input>
         </el-form-item>
-        <el-form-item label="请求方法：">
+        <el-form-item label="请求方法：" prop="action">
           <el-input placeholder="输入请求方法" v-model="filters.action" clearable></el-input>
         </el-form-item>
-        <el-form-item label="请求参数：">
+        <el-form-item label="请求参数：" prop="query">
           <el-input placeholder="输入请求参数" v-model="filters.query" clearable></el-input>
         </el-form-item>
         <el-form-item >
-          <el-button type="primary" size="small" v-on:click="getLogList(true)">查询</el-button>
+          <el-button type="primary" size="small" v-on:click="getLogList(true,true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small" v-on:click="reset">重置</el-button>
@@ -133,18 +133,21 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.getLogList(false)
+      this.getLogList(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.getLogList(false)
+      this.getLogList(false, true)
     },
-    getLogList(flag) {
+    getLogList(flag, hand) {
       this.page = flag ? 1 : this.page
       const para = this.filters
       para.pageNum = this.page
       para.pageSize = this.pageSize
+      if (hand) {
+        para.logFlag = 1
+      }
       this.listLoading = true
       getPageList(para).then((response) => {
         const data = response.data
@@ -158,10 +161,7 @@ export default {
     },
     reset() {
       this.$refs['filters'].resetFields()
-      this.filters.name = ''
-      this.dateRand = []
-      this.dateChange('')
-      this.getLogList(true)
+      this.getLogList(true, true)
     },
     toPersonManager() {
       // this.$router.push({ path: '/config/restricted' })

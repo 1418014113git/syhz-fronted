@@ -1,38 +1,14 @@
 <template>
   <section class="examNotice">
-    <el-form
-      :inline="true"
-      :model="filterQuery"
-      size="small"
-      label-position="left"
-      label-width="76px"
-    >
+    <el-form :inline="true" :model="filterQuery" size="small" label-position="left" label-width="76px">
       <el-form-item label="关键词" prop="keywords">
-        <el-input
-          @change="changeKeyWords"
-          type="input"
-          clearable
-          v-model="filterQuery.keywords"
-          maxlength="200"
-        ></el-input>
+        <el-input @change="changeKeyWords" type="input" clearable v-model="filterQuery.keywords" maxlength="50" placeholder="请输入"></el-input>
       </el-form-item>
       <el-form-item label="发布人" prop="publishPersonName">
-        <el-input
-          @change="changePublishPersonName"
-          type="input"
-          clearable
-          v-model="filterQuery.publishPersonName"
-          maxlength="200"
-        ></el-input>
+        <el-input @change="changePublishPersonName" type="input" clearable v-model="filterQuery.publishPersonName" maxlength="50" placeholder="请输入"></el-input>
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select
-          @change="onchangeStatus"
-          v-model="filterQuery.status"
-          clearable
-          placeholder="请选择"
-          size="small"
-        >
+        <el-select @change="onchangeStatus" v-model="filterQuery.status" clearable placeholder="请选择" size="small">
           <el-option
             v-for="(item,index) in statusData"
             :value="item.value"
@@ -41,7 +17,6 @@
           ></el-option>
         </el-select>
       </el-form-item>
-
       <el-form-item label="发布日期" prop="publishDate">
         <el-date-picker
           v-model="filterQuery.publishDateStart"
@@ -60,9 +35,8 @@
           @change="onPublishEndDateChange"
         ></el-date-picker>
       </el-form-item>
-
       <el-form-item>
-        <el-button type="primary" @click="querySysNotice(true)">查询</el-button>
+        <el-button type="primary" @click="querySysNotice(true,true)">查询</el-button>
       </el-form-item>
       <el-form-item>
         <el-button type="success" @click="clearForm">重置</el-button>
@@ -177,29 +151,25 @@ export default {
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.querySysNotice(false)
+      this.querySysNotice(false, true)
     },
     handleCurrentChange(val) {
       this.page = val
-      this.querySysNotice(false)
+      this.querySysNotice(false, true)
     },
     changeKeyWords(val) {
-      this.querySysNotice(true)
+      this.querySysNotice(true, true)
     },
     changePublishPersonName(val) {
-      this.querySysNotice(true)
+      this.querySysNotice(true, true)
     },
     onchangeStatus(val) {
-      this.querySysNotice(true)
     },
     onPublishStartDateChange(val) {
-      this.querySysNotice(true)
     },
     onPublishEndDateChange(val) {
-      this.querySysNotice(true)
     },
-
-    querySysNotice(flag) {
+    querySysNotice(flag, hand) {
       if (!this.filterQuery.publishDateStart && this.filterQuery.publishDateEnd) { // 开始时间为空,结束时间不为空
         this.$message({
           message: '开始时间不能为空', type: 'error'
@@ -219,7 +189,6 @@ export default {
           return
         }
       }
-
       this.loading = true
       this.page = flag ? 1 : this.page
       var param = {
@@ -231,24 +200,26 @@ export default {
         pageNum: this.page,
         pageSize: this.pageSize
       }
-      this.$query('page/sysnotice', param)
-        .then(response => {
-          this.loading = false
-          // 去除HTML标签
-          var reg = /<[^<>]+>/g
-          response.data.list.forEach(item => {
-            item.content.replace(reg, '')
-            item.content = item.content.replace(reg, '')
-            item.content = item.content.replace(/&nbsp;/gi, '')
-            item.content = item.content.replace(' ', '')
-          })
-          this.listData = response.data.list
-          this.pageSize = response.data.pageSize
-          this.page = response.data.pageNum
-          this.total = response.data.totalCount
-        }).catch(() => {
-          this.loading = false
+      if (hand) {
+        param.logFlag = 1 // 是否写日志
+      }
+      this.$query('page/sysnotice', param).then(response => {
+        this.loading = false
+        // 去除HTML标签
+        var reg = /<[^<>]+>/g
+        response.data.list.forEach(item => {
+          item.content.replace(reg, '')
+          item.content = item.content.replace(reg, '')
+          item.content = item.content.replace(/&nbsp;/gi, '')
+          item.content = item.content.replace(' ', '')
         })
+        this.listData = response.data.list
+        this.pageSize = response.data.pageSize
+        this.page = response.data.pageNum
+        this.total = response.data.totalCount
+      }).catch(() => {
+        this.loading = false
+      })
     },
     clearForm() {
       this.filterQuery.keywords = ''
@@ -256,7 +227,7 @@ export default {
       this.filterQuery.publishDateStart = ''
       this.filterQuery.publishDateEnd = ''
       this.filterQuery.status = ''
-      this.querySysNotice(true)
+      this.querySysNotice(true, true)
     },
     toAdd() {
       // 添加
@@ -278,18 +249,17 @@ export default {
         status = '1'
       }
       this.$update('sysnotice/' + row.id, {
-        status: status
+        status: status,
+        logFlag: 1 // 是否写日志
+      }).then(res => {
+        this.btnLoading = false
+        if (res.code === '000000') {
+          this.$message({ message: '状态修改成功', type: 'success' })
+          this.querySysNotice(true)
+        }
+      }).catch(() => {
+        this.btnLoading = false
       })
-        .then(res => {
-          this.btnLoading = false
-          if (res.code === '000000') {
-            this.$message({ message: '状态修改成功', type: 'success' })
-            this.querySysNotice(true)
-          }
-        })
-        .catch(() => {
-          this.btnLoading = false
-        })
     }
   },
   components: {},

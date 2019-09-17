@@ -56,6 +56,7 @@ export default {
   methods: {
     submit() { // 提交
       this.btnLoading = true
+      this.notice.logFlag = 1 // 是否写日志
       this.$save('border', this.notice).then((res) => {
         this.btnLoading = false
         if (res.code === '000000') {

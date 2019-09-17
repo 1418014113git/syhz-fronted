@@ -19,7 +19,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="small" v-on:click="queryChecks">查询</el-button>
+          <el-button type="primary" size="small" v-on:click="queryChecks(true,true)">查询</el-button>
           <el-button type="primary" size="small" v-on:click="reset">重置</el-button>
           <el-button type="primary" size="small" v-on:click="exportChecks">Excel导出</el-button>
         </el-form-item>
@@ -66,13 +66,13 @@ export default {
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.queryChecks(true)
+      this.queryChecks(true, true)
     },
     handleCurrentChange(val) {
       this.page = val
-      this.queryChecks(false)
+      this.queryChecks(false, true)
     },
-    queryChecks(flag) {
+    queryChecks(flag, hand) {
       this.page = flag ? 1 : this.page
       if (this.filters.startDate === '' && this.filters.endDate !== '') { // 开始时间为空
         this.$message({
@@ -93,6 +93,9 @@ export default {
       const params = this.filters
       params.pageNum = this.page
       params.pageSize = this.pageSize
+      if (hand) {
+        params.logFlag = 1 // 是否写日志
+      }
       this.$query('syslog/list', params).then((response) => {
         this.listLoading = false
         if (response.code === '000000') {
@@ -134,12 +137,13 @@ export default {
     },
     reset() {
       this.$refs['filters'].resetFields()
+      this.queryChecks(true, true)
     }
 
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-    this.queryChecks()
+    this.queryChecks(true)
   }
 }
 

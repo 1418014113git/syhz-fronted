@@ -24,7 +24,7 @@
         <!--<el-input v-model="filters.create_dept_name" placeholder="发布部门" size="small"></el-input>-->
       <!--</el-form-item>-->
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="query(true)" v-if="$isViewBtn('102001')" >查询</el-button>
+        <el-button type="primary" size="small" v-on:click="query(true,true)" v-if="$isViewBtn('102001')" >查询</el-button>
         <el-button size="small" @click="clear">重置</el-button>
       </el-form-item>
       <el-form-item>
@@ -72,12 +72,12 @@
       </el-table-column>
       <el-table-column label="操作" width="220">
         <template slot-scope="scope">
-          <el-button v-if="validDept(scope.row) && scope.row.bsStatus === '1' && scope.row.bsId" size="mini" type="text" @click="handSign(scope.row.bsId, scope.row.id)">签收</el-button>
+          <el-button v-if="validDept(scope.row) && scope.row.bsStatus === '1' && scope.row.bsId" size="mini" type="text" @click="handSign(scope.row.bsId, scope.row.id,true)">签收</el-button>
           <el-button v-if="scope.row.status !== '0'" size="mini" type="text" @click="toReportSave(scope.row.id)">成果上报</el-button>
           <el-button v-if="scope.row.status !== '0' && $isViewBtn('102004')" size="mini" type="text" @click="reportResult(scope.$index, scope.row)">成果列表</el-button>
           <el-button v-if="$isViewBtn('102005')" type="primary" title="详情" size="mini" icon="el-icon-document" circle @click="handleDetail(scope.$index, scope.row)"></el-button>
           <el-button v-if="scope.row.create_dept_id === curDeptId && scope.row.status === '0' && $isViewBtn('102006')" title="编辑" size="mini" type="primary" icon="el-icon-edit" circle @click="handleEdit(scope.$index, scope.row)"></el-button>
-          <el-button v-if="scope.row.create_dept_id === curDeptId && scope.row.status === '0' && $isViewBtn('102007')" title="删除" size="mini" type="danger" icon="el-icon-delete" circle @click="handleDel(scope.$index, scope.row)"></el-button>
+          <el-button v-if="scope.row.create_dept_id === curDeptId && scope.row.status === '0' && $isViewBtn('102007')" title="删除" size="mini" type="danger" icon="el-icon-delete" circle @click="handleDel(scope.$index, scope.row,true)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -188,7 +188,7 @@ export default {
     handleAdd: function() {
       this.$router.push({ path: '/specialTasks/add/' })
     },
-    query(flag) {
+    query(flag, hand) {
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -212,6 +212,9 @@ export default {
       if (this.filters.qbxs) {
         para.qbxs = this.filters.qbxs
       }
+      if (hand) {
+        para.logFlag = 1
+      }
       taskListPage(para).then((response) => {
         this.listLoading = false
         this.tasks = response.data.list
@@ -223,13 +226,13 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.query(false)
+      this.query(false, true)
     },
 
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.query(false)
+      this.query(false, true)
     },
 
     handleDetail: function(index, row) {
@@ -238,11 +241,14 @@ export default {
     handleEdit: function(index, row) {
       this.$router.push({ path: '/specialTasks/edit/' + row.id })
     },
-    handleDel: function(index, row) {
+    handleDel: function(index, row, hand) {
       this.$confirm('确认删除该记录吗?', '提示', {
         type: 'warning'
       }).then(() => {
         const para = { id: row.id }
+        if (hand) {
+          para.logFlag = 1
+        }
         deleteTask(para).then((res) => {
           this.$message({
             message: '删除成功',
@@ -254,7 +260,7 @@ export default {
 
       })
     },
-    handSign(bsId, id) {
+    handSign(bsId, id, hand) {
       const req = {
         id: bsId,
         signUserId: this.curUser.id,
@@ -266,6 +272,9 @@ export default {
         bizId: id,
         userId: this.curUser.id,
         userName: this.curUser.realName
+      }
+      if (hand) {
+        req.logFlag = 1
       }
       specialTaskAccept(req).then((res) => {
         this.listLoading = false
@@ -291,7 +300,7 @@ export default {
         create_dept_name: ''
       }
       this.ajbh = ''
-      this.query(true)
+      this.query(true, true)
     },
     toback() {
       // this.$router.back(-1)
