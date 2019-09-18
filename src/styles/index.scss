@@ -1430,3 +1430,8 @@ div::-webkit-scrollbar-track {
 }
 //table 表格show-overflow-tooltip 宽度设置
 .el-tooltip__popper{ max-width:50% }
+
+// form表单的级联选择器 三角形图标用官方默认的
+.el-form .el-cascader .el-icon-arrow-down:before {
+  content: "\E603";
+}
