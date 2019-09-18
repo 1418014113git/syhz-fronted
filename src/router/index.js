@@ -252,7 +252,9 @@ export const constantRouterMap = [
       { path: '/educational/edit', component: () => import('@/views/educational/edit'), name: '编辑题库 ' },
       { path: '/handlingGuide/examOnLine', component: () => import('@/views/handlingGuide/examPractice'), name: '网上考试' },
       { path: '/handlingGuide/zsk', component: () => import('@/views/handlingGuide/flfg'), name: '知识库' },
-      { path: '/handlingGuide/trainingOnLine', component: () => import('@/views/microClass/index'), name: '网上培训' }
+      { path: '/handlingGuide/trainingOnLine', component: () => import('@/views/microClass/index'), name: '网上培训' },
+      { path: '/handlingGuide/testbaseManage', component: () => import('@/views/handlingGuide/testbaseManage/index'), name: '题库管理' } // 题库管理--试题模块
+
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
