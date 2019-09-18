@@ -95,8 +95,7 @@ input{
 
 //分页组件距上面表单的距离
 .toolbar{
-  //  margin-top: 2px;
-   margin: 2px 0 12px;
+  margin: 2px 0 12px;
 }
 
 /*element全局样式*/
@@ -1434,4 +1433,37 @@ div::-webkit-scrollbar-track {
 // form表单的级联选择器 三角形图标用官方默认的
 .el-form .el-cascader .el-icon-arrow-down:before {
   content: "\E603";
+}
+// InputNumber 计数器行高设置
+.el-input-number--small {
+  line-height: 23px;
+}
+// form表单必填项 * 号的加在标题后面，将起那么的*号去掉
+.el-form-item.is-required .el-form-item__label:before {
+  content: "";
+  color: #f56c6c;
+  margin-right: 0;
+}
+// form表单必填项 * 号的加在标题后面
+.el-form-item.is-required .el-form-item__label:after {
+  content: "*";
+  color: #f56c6c;
+  margin-left: 5px;
+}
+// form表单标题左对齐
+.el-form-item__label {
+  text-align: left;
+}
+//table 文字位置样式
+.el-table .el-table__header th{
+  text-align: center ;
+}
+.tabC{
+  text-align: center;
+}
+.tabL{
+  text-align: left;
+}
+.tabR{
+  text-align: right;
 }
