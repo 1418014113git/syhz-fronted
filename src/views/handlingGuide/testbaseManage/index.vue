@@ -2,8 +2,8 @@
   <div class="testbaseManage">
     <el-row v-loading="listLoading">
       <!-- 左侧树形结构 -->
-      <el-col class="leftCont" :span="5" :style="{maxHeight:countHeight}">
-          <tree-pub style="height: 380px; overflow-y: auto;"
+      <el-col class="leftCont" :span="5" :style="{height:countHeight}">
+          <tree-pub
             :tree="dataList"
             :isShowBtn="true"
             :isShowRootNode="false"
@@ -17,27 +17,27 @@
       </el-col>
 
       <!-- 右侧列表区 -->
-      <el-col :span="18" class="rightCont">
+      <el-col :span="18" class="rightCont" :style="{height:countHeight}">
         <table-list :menuItemNode="menuItemNode"></table-list>
       </el-col>
     </el-row>
 
      <!--添加/编辑模块弹出层-->
-    <el-dialog :title="title" :visible.sync="isShowdialog">
-        <el-form :model="addForm" :rules="rules" ref="addForm" label-width="130px" class="demo-ruleForm">
-        <el-form-item label="父级模块：" prop="">
-          <el-input  :value="parentName" disabled></el-input>
+    <el-dialog :title="title" :visible.sync="isShowdialog" @close="cancel">
+        <el-form :model="addForm" :rules="rules" ref="moduleForm"  class="from"   label-width="100px">
+        <el-form-item label="父级模块" prop="">
+          <span class="inpW" style="display: inline-block;">{{parentName}}</span>
         </el-form-item>
-        <el-form-item label="模块名称：" prop="moduleName">
-          <el-input v-model.trim="addForm.moduleName"  maxlength="64" placeholder="请输入机构全称" clearable></el-input>
+        <el-form-item label="模块名称" prop="categoryName">
+          <el-input v-model.trim="addForm.categoryName"  maxlength="50" placeholder="" clearable class="inpW"></el-input>
         </el-form-item>
-        <el-form-item label="显示序列：">
-          <el-input-number v-model.trim="addForm.sorted" :min="1" :max="100" label="显示序列"></el-input-number>
+        <el-form-item label="显示序列" prop="sort">
+          <el-input-number v-model.trim="addForm.sort" :min="1" :max="100" label="显示序列"></el-input-number>
         </el-form-item>
       </el-form>
-      <el-row style="padding-left: 130px;">
-        <el-button  @click="cancel">取 消</el-button>
-        <el-button  type="primary" @click="save" :loading="btnLoading">保 存</el-button>
+      <el-row class="tabC">
+        <el-button  @click="cancel" class="cancelBtn">取 消</el-button>
+        <el-button  type="primary" @click="save" :loading="btnLoading" class="saveBtn">保 存</el-button>
       </el-row>
     </el-dialog>
   </div>
@@ -50,11 +50,18 @@ export default {
   data() {
     return {
       addForm: {
-        moduleName: '', // 模块名称
-        sorted: 1 // 排序
+        categoryName: '', // 模块名称
+        parentId: '', // 父模块id
+        sort: 1, // 排序
+        deptCode: JSON.parse(sessionStorage.getItem('depToken'))[0].depCode, // 当前部门code
+        deptName: JSON.parse(sessionStorage.getItem('depToken'))[0].depName, // 当前部门name
+        creator: JSON.parse(sessionStorage.getItem('userInfo')).userName, // 创建人账号
+        delAble: 0, // 是否可删除， 默认传0
+        logFlag: 1 // 埋点参数
       },
-      parentName: '', // 父级模块
-      countHeight: document.documentElement.clientHeight - 150 + 'px',
+      parentId: '', // 父模块id
+      parentName: '', // 父模块名称
+      countHeight: null, // 左侧模块容器的高度
       dataList: [], // 菜单tree数据
       treeItem: {}, // 存储当前被点击的tree节点的数据
       menuItemNode: {}, // 存储点击菜单节点时菜单数据
@@ -62,15 +69,17 @@ export default {
       isShowdialog: false, // 是否显示添加/编辑弹框
       btnLoading: false, // 保存按钮加载进度条
       title: '', // 添加/编辑弹出框标题名称
+      dialogType: 0, // 弹框类型
       rules: {
-        moduleName: [ // 模块名称
+        categoryName: [ // 模块名称
           {
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
-              const reg = /^[A-Za-z0-9\u4e00-\u9fa5]+$/
+              // const reg = /^[A-Za-z0-9\u4e00-\u9fa5]+$/
+              const reg = /[^!@#￥%\^&\*]+$/i
               if (value === '' || value === undefined || value === null) {
                 callback(new Error('请输入模块名称'))
               } else if (!reg.test(value)) {
-                callback(new Error('只能输入汉字、字母、数字'))
+                callback(new Error('输入内容不能包含以下字符：！@#￥%……&*'))
               } else {
                 callback()
               }
@@ -86,75 +95,23 @@ export default {
   },
   methods: {
     init() { // 查询左侧tree数据
-      // const params = {
-
-      // }
-      // this.listLoading = true
-      // this.$query('examsubjectcategory', params).then((response) => {
-      //   this.listLoading = false
-      //   if (response.data && response.data.length > 0) {
-      //     this.dataList = response.data
-      //   }
-      // }).catch(() => {
-      //   this.listLoading = false
-      // })
-      this.dataList = [
-        {
-          'deleteable': '1',
-          'id': 1,
-          'label': '陕西公安厅',
-          'sort': 1,
-          'parentId': -1
-        },
-        {
-          'deleteable': '1',
-          'id': 2,
-          'label': '环境',
-          'sort': 1,
-          'parentId': 1
-        },
-        {
-          'deleteable': '1',
-          'id': 3,
-          'label': '食品',
-          'sort': 2,
-          'parentId': 1
-        },
-        {
-          'deleteable': '1',
-          'id': 4,
-          'label': '药品',
-          'sort': 3,
-          'parentId': 1
-        },
-        {
-          'deleteable': '1',
-          'id': 5,
-          'label': '综合',
-          'sort': 4,
-          'parentId': 1
-        },
-        {
-          'deleteable': '0',
-          'id': 6,
-          'label': '环境分类二 陕西公安厅陕西公安厅陕西公安厅陕西公安厅陕西公安厅陕西公安厅',
-          'sort': 2,
-          'parentId': 2
-        },
-        {
-          'deleteable': '0',
-          'id': 7,
-          'label': '环境分类一',
-          'sort': 1,
-          'parentId': 2
+      this.listLoading = true
+      this.$query('examsubjectcategory', {}).then((response) => {
+        this.listLoading = false
+        if (response.data && response.data.length > 0) {
+          this.dataList = response.data
         }
-      ]
+      }).catch(() => {
+        this.listLoading = false
+      })
     },
     detail() { // 编辑模块时，查询模块信息
-      this.$query('' + this.treeItem.id).then((response) => {
+      this.$query('subjectCategory/' + this.treeItem.id).then((response) => {
         if (response.data) {
-          this.addForm.moduleName = response.data.moduleName
-          this.addForm.sorted = response.data.sorted
+          this.parentName = response.data.parentName
+          this.parentId = response.data.parentId
+          this.addForm.categoryName = response.data.categoryName
+          this.addForm.sort = response.data.sort
         }
       })
     },
@@ -169,19 +126,22 @@ export default {
     },
     add(data) { // 添加模块
       this.title = '添加模块'
-      this.initData()
+      this.dialogType = 1
       this.isShowdialog = true
       this.treeItem = data
       this.parentName = this.treeItem.label
+      this.addForm.parentId = this.treeItem.id
     },
     edit(data, node) { // 编辑模块
+      // 重置表单
       this.title = '编辑模块'
+      this.dialogType = 2
       this.isShowdialog = true
+      this.treeItem = data
       this.parentName = this.treeItem.label
-      // this.detail()
+      this.detail()
     },
     delete(data, node) { // 删除模块
-      console.log('删除', data)
       this.$confirm('如果删除了试题模块，模块下已添加的模块和试题将也会被删除且无法找回，确认是否要删除？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -195,7 +155,7 @@ export default {
           return false
         } else {
           this.loading = true
-          this.$remove('' + data.id).then((response) => {
+          this.$remove('subjectCategory/delete', { id: data.id }).then((response) => {
             this.loading = false
             this.$message({
               message: '删除成功',
@@ -267,16 +227,42 @@ export default {
       }
     },
     save() { // 保存添加的模块
-      this.$refs.addForm.validate(valid => {
+      this.$refs.moduleForm.validate(valid => {
         if (valid) {
           this.btnLoading = true
-          this.$save('', this.addForm).then((response) => {
-            this.btnLoading = false
-            // 关闭弹框
-            this.isShowdialog = true
-          }).catch(() => {
-            this.btnLoading = false
-          })
+          if (this.dialogType === 1) { // 添加
+            this.$save('subjectCategory/save', this.addForm).then((response) => {
+              this.btnLoading = false
+              this.isShowdialog = false // 关闭弹框
+              this.$message({
+                type: 'success',
+                message: '添加成功!'
+              })
+              this.init()
+            }).catch(() => {
+              this.btnLoading = false
+            })
+          } else { // 编辑
+            const param = {
+              id: this.treeItem.id, // 当前模块id
+              categoryName: this.addForm.categoryName, // 模块名称
+              sort: this.addForm.sort, // 排序
+              parentId: this.parentId, // 父模块id
+              delAble: 0,
+              logFlag: 1 // 埋点参数
+            }
+            this.$update('subjectCategory/update', param).then((response) => {
+              this.btnLoading = false
+              this.isShowdialog = false // 关闭弹框
+              this.$message({
+                type: 'success',
+                message: '修改成功!'
+              })
+              this.init()
+            }).catch(() => {
+              this.btnLoading = false
+            })
+          }
         } else {
           this.btnLoading = false
           return false
@@ -288,19 +274,28 @@ export default {
       this.initData()
     },
     initData() { // 初始化弹框信息
-      this.addForm = {
-        moduleName: '', // 模块名称
-        sorted: 1 // 排序
-      }
+      // this.addForm = {
+      //   moduleName: '', // 模块名称
+      //   sorted: 1 // 排序
+      // }
+      this.$nextTick(() => {
+        this.$refs['moduleForm'].resetFields()
+      })
+      // 重置表单
+      // this.resetForm('moduleForm')
+    },
+    resetForm(formName) {
+      // this.$refs[formName].resetFields()
     }
   },
   mounted() {
+    this.countHeight = document.documentElement.clientHeight - 130 + 'px'
     this.init()
   }
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
 .testbaseManage{
   .leftCont {
     margin-right: 10px;
@@ -313,6 +308,18 @@ export default {
   .rightCont{
     width: 78%;
     overflow: hidden;
+    border: 1px solid #00a0e9;
+    background: rgba(0, 89, 130, 0.7);
+    border-radius: 8px;
   }
+  .from{
+    padding-left: 20px;
+  }
+}
+.el-dialog {
+  width: 40%;
+}
+.inpW{
+  width: 90%;
 }
 </style>

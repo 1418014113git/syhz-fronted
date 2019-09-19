@@ -87,8 +87,8 @@ export default {
    height: 100%;
  }
   .main-container{
-    background: #080d24 url('../../assets/portal_images/mainBg.png')no-repeat center;
-    background-size: 100% 100%;
+    // background: #08183c url('../../assets/portal_images/mainBg.png')no-repeat center;
+    // background-size: 100% 100%;
     overflow: hidden;
     padding-bottom: 20px;
   }
