@@ -214,12 +214,6 @@ export const constantRouterMap = [
       { path: '/lyricalInfo/lyricalAnalysisAll', component: () => import('@/views/intellSystem/lyricalinfo/analysisAll/analysisAll'), name: '舆情分析' }, // 舆情分析
       { path: '/internalInfo/internalInfo', component: () => import('@/views/intellSystem/internalInfo/internalInfo_list'), name: '内部资源信息' }, // 内部资源信息
       { path: '/internalInfo/internalInfoDetail', component: () => import('@/views/intellSystem/internalInfo/internalInfo_detail'), name: '内部资源信息详情' }, // 内部资源信息详情页面
-      { path: '/educational/freeSettings', component: () => import('@/views/handlingGuide/educationalFreeSettings_list'), name: '考试管理' },
-      { path: '/handlingGuide/educationalFreeSettings_detail/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_detail'), name: '考试管理详情' },
-      { path: '/handlingGuide/educationalFreeSettings_edit/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_edit'), name: '考试管理编辑' },
-      { path: '/handlingGuide/educationalFreeSettings_setting/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_setting'), name: '设置考题' },
-      { path: '/handlingGuide/educationalFreeSettings_stk/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_stk'), name: '选择考题' },
-      { path: '/handlingGuide/educationalFreeSettings_rule/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_rule'), name: '规则设置' },
       { path: '/educational/achievement', component: () => import('@/views/handlingGuide/exam_list'), name: '考试统计' }, // 考试统计
       { path: '/educational/achievement/:id', component: () => import('@/views/handlingGuide/achievement_list'), name: '成绩管理' }, // 成绩管理
       { path: '/intellSystem/bigPictrue', component: () => import('@/views/intellSystem/bigPictrue'), name: '环食药一张图' },
@@ -248,12 +242,20 @@ export const constantRouterMap = [
       { path: '/knowledgeBase/userIntegralAdd', component: () => import('@/views/knowledgeBase/userIntegralAdd'), name: '积分制添加界面' },
       { path: '/knowledgeBase/userIntegralUpdate', component: () => import('@/views/knowledgeBase/userIntegralUpdate'), name: '积分制界面' },
       { path: '/educational/questionBank', component: () => import('@/views/educational/questionBank'), name: '题库管理 ' },
-      { path: '/educational/add', component: () => import('@/views/educational/add'), name: '新增题库 ' },
-      { path: '/educational/edit', component: () => import('@/views/educational/edit'), name: '编辑题库 ' },
       { path: '/handlingGuide/examOnLine', component: () => import('@/views/handlingGuide/examPractice'), name: '网上考试' },
       { path: '/handlingGuide/zsk', component: () => import('@/views/handlingGuide/flfg'), name: '知识库' },
       { path: '/handlingGuide/trainingOnLine', component: () => import('@/views/microClass/index'), name: '网上培训' },
-      { path: '/handlingGuide/testbaseManage', component: () => import('@/views/handlingGuide/testbaseManage/index'), name: '题库管理' } // 题库管理--试题模块
+      { path: '/handlingGuide/testbaseManage', component: () => import('@/views/handlingGuide/testbaseManage/index'), name: '题库管理' }, // 题库管理--试题模块
+      { path: '/handlingGuide/testbaseManage/detail', component: () => import('@/views/handlingGuide/testbaseManage/detail'), name: '试题详情' },
+      { path: '/handlingGuide/testbaseManage/edit', component: () => import('@/views/handlingGuide/testbaseManage/edit'), name: '编辑试题' },
+      { path: '/handlingGuide/examineManage', component: () => import('@/views/handlingGuide/examineManage/index'), name: '考试管理' },
+      { path: '/handlingGuide/examineManage/add', component: () => import('@/views/handlingGuide/examineManage/add'), name: '添加考试' },
+
+      { path: '/handlingGuide/educationalFreeSettings_detail/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_detail'), name: '考试管理详情' },
+      { path: '/handlingGuide/educationalFreeSettings_edit/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_edit'), name: '考试管理编辑' },
+      { path: '/handlingGuide/educationalFreeSettings_setting/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_setting'), name: '设置考题' },
+      { path: '/handlingGuide/educationalFreeSettings_stk/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_stk'), name: '选择考题' },
+      { path: '/handlingGuide/educationalFreeSettings_rule/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_rule'), name: '规则设置' }
 
     ]
   },
