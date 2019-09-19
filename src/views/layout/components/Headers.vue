@@ -64,8 +64,10 @@ export default {
 .headers {
   width: 100%;
   height: 60px;
-  background: rgba(0, 89, 130, 0.7);
-  border-bottom: 3px solid rgba(0, 160, 233, 0.7);
+  // background: rgba(0, 89, 130, 0.7);
+  background:url('../../../assets/header/navbg.png') no-repeat center center;
+  background-size: 100% 100%;
+  // border-bottom: 3px solid rgba(0, 160, 233, 0.7);
   // color: #bce8fc;
   .logo{
     width: 27.5% !important;
@@ -87,7 +89,7 @@ export default {
       cursor: pointer;
       position: relative;
        .userinfo-inner{
-      color: #fff;
+      color: #bce8fc;
       font-size: 16px;
       display: inline-block;
       margin-top: 20px;

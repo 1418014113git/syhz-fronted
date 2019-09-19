@@ -275,19 +275,26 @@ input{
 }
 .el-dropdown-menu__item:focus,
 .el-dropdown-menu__item:not(.is-disabled):hover {
-  background-color: rgba(188, 232, 252, 0.1);
+  background-color: rgba(188, 232, 252, 0.2);
 }
 
 .el-submenu__title:hover {
-  background-color: rgba(188, 232, 252, 0.1) !important;
+  background-color: rgba(188, 232, 252, 0.2) !important;
 }
 
 
 .el-menu--horizontal .el-menu-item:not(.is-disabled):focus,
 .el-menu--horizontal .el-menu-item:not(.is-disabled):hover {
   color: #004f99;
-  background-color: #044c6d;
+  // background-color: #044c6d;
+  background-color: rgba(188, 232, 252, 0.3);
 }
+
+.el-menu--horizontal .el-menu .el-submenu>.el-submenu__title,
+.el-menu--horizontal .el-menu .el-menu-item {
+    text-shadow: 0 0 2px #fff;
+}
+
 //下拉菜单组件--间隔线
 .el-dropdown-menu__item--divided {
   border-top: 0;
@@ -416,7 +423,8 @@ label {
 }
 .el-input__inner{
   color: #fff;
-  background-color:rgba(0, 89, 130, 0.7);
+  // background-color:rgba(0, 89, 130, 0.7);
+  background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(0, 160, 233, 0.6);
 }
 .el-input--small .el-input__icon {
@@ -520,13 +528,15 @@ label {
   border: 2px solid  rgba(0, 160, 233, 0.7);
   background-color: rgba(0, 89, 130, 0.7);
   .el-button{
-    border-radius: 18px;
-    padding: 5px 26px;
+    // border-radius: 18px;
+    padding: 7px 26px;
+    color: #00a0e9;
   }
   .el-button--primary, .el-button--default{
     background-image:linear-gradient(0deg, rgba(0, 175, 255, 0) 0%, rgba(0, 175, 255, 0) 84%);
   }
   .el-button--primary{
+    color: #fff;
     background-color:rgba(0, 160, 233, 0.6) !important;
     border-color: rgba(0, 160, 233, 0.6) !important;
 
@@ -1453,11 +1463,12 @@ div::-webkit-scrollbar-track {
 // form表单标题左对齐
 .el-form-item__label {
   text-align: left;
+  color: #bce8fc;
 }
 //table 文字位置样式
-.el-table .el-table__header th{
-  text-align: center ;
-}
+// .el-table .el-table__header th{
+//   text-align: center ;
+// }
 .tabC{
   text-align: center;
 }
@@ -1467,3 +1478,17 @@ div::-webkit-scrollbar-track {
 .tabR{
   text-align: right;
 }
+
+// 弹出框左侧和右侧按钮分类添加下面的类
+.cancelBtn,.saveBtn{
+  padding: 7px 25px !important;
+  background-image: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 84%) !important;
+}
+.cancelBtn{ // 左侧按钮
+  color: #00a0e9 !important;
+  background-color: transparent !important;
+}
+.saveBtn{ // 右侧按钮
+  background-color: rgba(0, 160, 233, 0.5);
+}
+
