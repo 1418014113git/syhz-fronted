@@ -138,13 +138,17 @@ export default {
             newMenuData.push(_this.buildChildren(_this, item, _this.tree))
           }
         })
+        newMenuData[0].label = '试题模块'
         var datas = newMenuData[0].children
         datas.forEach(item => {
           if (item.children && item.children.length > 0) {
             item.children.sort((a, b) => a.sort - b.sort) // 升序
+            if (item.children.children && item.children.children.length > 0) {
+              item.children.children.sort((c, d) => c.sort - d.sort) // 升序
+            }
           }
         })
-        this.datas = datas
+        this.datas = newMenuData
       } else {
         this.datas = []
       }
@@ -187,6 +191,9 @@ export default {
   .treeLeftCont {
     color: #dfb408;
   }
+}
+.el-tree-node>.el-tree-node__children{
+  overflow: visible;
 }
 </style>
 
