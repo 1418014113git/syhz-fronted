@@ -6,7 +6,7 @@
     text-color="#bce8fc"
     :default-active="activeIndex">
     <template v-for="item in menuData">
-      <sidebar-item :item="item" :key="item.name"  :menuLength="menuDataLength" style="background-color: transparent;"></sidebar-item>
+      <sidebar-item :item="item" :key="item.name"  :menuLength="menuDataLength" style="background-color: transparent; text-shadow: 0 0 2px #fff;"></sidebar-item>
     </template>
   </el-menu>
 </template>

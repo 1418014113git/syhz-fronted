@@ -5,9 +5,9 @@
     </span>
     <span class='treeBtn' v-if='ISSHOWBTN'>
       <!--带有按钮权限控制方法的-->
-      <el-button  title="添加" class='el-icon-plus' v-if="DATA.deleteable==='1'&& controlBtnAdd(STORE,DATA,NODE)"  type='success' circle  @click.stop="nodeAdd(STORE,DATA,NODE)"></el-button>
+      <el-button  title="添加" class='el-icon-plus' v-if="controlBtnAdd(STORE,DATA,NODE)"  type='success' circle  @click.stop="nodeAdd(STORE,DATA,NODE)"></el-button>
       <el-button  title="编辑" v-if="DATA.deleteable!=='1' && controlBtnEdit(STORE,DATA,NODE)"  class='el-icon-edit-outline' type='warning' circle  @click.stop="nodeEdit(STORE,DATA,NODE)"></el-button>
-      <el-button  title="删除" v-if="DATA.deleteable!=='1' && controlBtnDelete(STORE,DATA,NODE)"  class='el-icon-delete' type='danger' circle  @click.stop="nodeDel(STORE,DATA,NODE)"></el-button>
+      <el-button  title="删除" v-if="DATA.deleteable!=='1' && DATA.hasPaper ===0 && controlBtnDelete(STORE,DATA,NODE)"  class='el-icon-delete' type='danger' circle  @click.stop="nodeDel(STORE,DATA,NODE)"></el-button>
     </span>
   </span>
 </template>
@@ -89,7 +89,7 @@ export default{
     margin-left: 5px;
   }
   .span-ellipsis{
-    max-width: 265px;
+    max-width: 245px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -105,12 +105,12 @@ export default{
 }
 @media screen and (min-width:1368px) and (max-width:1600px){
 	.span-ellipsis{
-    max-width: 130px ;
+    max-width: 182px !important;
   }
 }
 @media only screen and (max-width: 1367px) {
   .span-ellipsis{
-    max-width: 150px !important;
+    max-width: 130px !important;
   }
 }
 </style>
