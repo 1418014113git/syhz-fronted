@@ -1,109 +1,56 @@
 <template>
-  <div>
+  <section class="tk">
     <el-row type="flex" >
       <el-col :span="24">
         <el-row>
-          <el-col :span="4" style="padding:5px 15px">
+          <el-col :span="4">
             <el-card style="height: 700px">
-              <div slot="header">
-                <span>题库分类</span>
-              </div>
-              <div>
-                <el-menu text-color="white" >
-                <el-menu-item index="1" @click="toSearch(1)">
-                  <span  slot="title">食品安全</span>
-                </el-menu-item>
-                <el-menu-item index="2" @click="toSearch(2)">
-                  <span slot="title">环境相关</span>
-                </el-menu-item>
-                <el-menu-item index="3" @click="toSearch(3)">
-                  <span slot="title">药品安全</span>
-                </el-menu-item>
-                <el-menu-item index="4" @click="toSearch(4)">
-                  <span slot="title">食药相关</span>
-                </el-menu-item>
-                </el-menu>
-              </div>
+              <el-tree :data="leftTreeData" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
             </el-card>
           </el-col>
-          <el-col :span="20" style="padding:5px 15px;" v-loading="listLoading" align="center">
-            <el-card>
-              <el-form>
-              <el-row>
-                <el-col :span="10">难易程度：
-                  <el-select v-model="value1" placeholder="请选择难易程度"clearable>
-                    <el-option
-                      v-for="item in options1"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                  </el-select>
-                </el-col>
-                <el-col :span="10">题型：
-                  <el-select v-model="value2" placeholder="请选择题型"clearable>
-                    <el-option
-                      v-for="item in options2"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                  </el-select>
-                  <el-button type="primary" >搜索</el-button>
-                  <el-button type="primary" @click="add()">新增</el-button>
-                </el-col>
-              </el-row>
-              </el-form>
-            </el-card>
-            <div style="overflow:auto;padding-top: 10px" :style="{maxHeight:countHeight}"></div>
-            <el-card >
-            <el-table :data="tableData"  v-loading="false" row-style="height:55px">
-              <el-table-column
-                align="center"
-                prop="no"
-                label="序号"
-                width="70">
-              </el-table-column>
-              <el-table-column
-                align="center"
-                prop="name"
-                label="题干"
-                width="500">
-              </el-table-column>
-              <el-table-column
-                align="center"
-                prop="type"
-                label="题型"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                align="center"
-                prop="grade"
-                label="难易度"
-                width="120">
-              </el-table-column>
-              <el-table-column
-                align="center"
-                prop="date"
-                label="创建日期"
-                width="200">
-              </el-table-column>
-              <el-table-column label="操作"  align="center">
+          <el-col :span="20" style="padding:0 15px;" v-loading="listLoading" align="center">
+            <!-- <el-tabs v-model="activeName" @tab-click="handleClick">
+              <el-tab-pane label="单选类" name="first"></el-tab-pane>
+              <el-tab-pane label="多选类" name="second"></el-tab-pane>
+              <el-tab-pane label="填空类" name="third"></el-tab-pane>
+              <el-tab-pane label="判断类" name="fourth"></el-tab-pane>
+            </el-tabs> -->
+            <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
+              <el-form-item label="试题类型" prop="AJMC">
+                <el-select v-model="filters.tx" placeholder="请选择题型" @change="questionTypeChange">
+                  <el-option v-for="item in txData" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" size="small" @click="add()" icon="el-icon-plus">添加试题</el-button>
+                <a :href="downLoadUrl+'摊位信息模板.xls'"  download="摊位信息模板.xls" style="margin:0 10px;">
+                  <el-button type="primary" icon="el-icon-upload2">模板导出</el-button>
+                </a>
+                <el-button type="primary" @click="importTem('importInfo')" :loading="importLoading" icon="el-icon-download">批量导入</el-button>
+              </el-form-item>
+            </el-form>
+            <!-- <el-card > -->
+            <el-table :data="tableData"  v-loading="false">
+              <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
+              <el-table-column prop="name" label="题目内容"></el-table-column>
+              <el-table-column prop="date" label="更新时间" width="200"></el-table-column>
+              <el-table-column prop="date" label="类型" width="200"></el-table-column>
+              <el-table-column label="操作" width="200">
                 <template slot-scope="scope">
-                  <el-button size="mini"  @click="handleEdit(scope.$index, scope.row)">预览试题</el-button>
-                  <el-button size="mini"  @click="handleUpdQus(scope.$index, scope.row)">修改</el-button>
-                  <el-button  size="mini"  type="danger"  v-if="scope.row.deleteable=='1'"  @click="handleDelete(scope.$index, scope.row)">废除 </el-button>
-                  <el-button  size="mini"  type="danger"  v-if="scope.row.deleteable=='2'"  @click="handleRevord(scope.$index, scope.row)">恢复 </el-button>
+                  <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
+                  <el-button size="mini" circle @click="handleUpdQus(scope.$index, scope.row)" icon="el-icon-edit" title="编辑"></el-button>
+                  <el-button size="mini" circle type="danger" v-if="scope.row.deleteable=='1'" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除"></el-button>
+                  <!-- <el-button size="mini" circle type="danger" v-if="scope.row.deleteable=='1'" @click="handleRevord(scope.$index, scope.row)" title="发布">
+                    <svg-icon icon-class="audit"></svg-icon>
+                  </el-button> -->
                 </template>
               </el-table-column>
             </el-table>
-            </el-card>
-            <el-pagination
-              :page-sizes="[10, 20]"
-              :page-size="10"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="10"
-              style="float:right;">
+            <!-- </el-card> -->
+          </el-col>
+          <el-col :span="20" class="toolbar">
+            <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange"  :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
+                          :page-size="pageSize" :total="total" :current-page="page" style="float:right;">
             </el-pagination>
           </el-col>
         </el-row>
@@ -153,58 +100,107 @@
         </el-dialog>
       </el-col>
     </el-row>
-  </div>
+    <!-- 导入弹框 -->
+    <el-dialog title="导入试题" :visible.sync="dialogImportVisible" size="small" @close="closeDia('importInfo')" class="comDialog">
+      <el-form ref="importInfo" size="small" :model="importInfo" label-width="100px" v-loading="importLoading">
+        <!-- <el-form-item label="文　　件："> -->
+        <el-form-item label="文件：">
+          <input type="file" @change="getFile" clearable name="file" id="excelFile"
+                  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitImportForm('importInfo')" :loading="importLoading">导 入</el-button>
+          <el-button @click="closeDia('importInfo')" :loading="importLoading">返 回</el-button>
+        </el-form-item>
+      </el-form>
+      <!-- <el-dialog width="50%" title="提示信息" :visible.sync="innerErrorInfoVisible" append-to-body>
+        <el-table :data="errorData">
+          <el-table-column prop="number" label="行数" width="100"></el-table-column>
+          <el-table-column prop="des" label="错误信息"></el-table-column>
+        </el-table>
+      </el-dialog> -->
+    </el-dialog>
+  </section>
 </template>
 
 <script>
-  /* eslint-disable no-sequences */
+/* eslint-disable no-sequences */
+import { questionTypeAll } from '@/utils/codetotext'
 
-  import qusAdd from './add'
-  import qusAEdit from './edit'
-  export default {
-    name: 'questionBank',
-    components: {
-      qusAdd,
-      qusAEdit
-    },
-    data() {
-      return {
-        countHeight: document.documentElement.clientHeight - 240 + 'px',
-        dialogVisible: false,
-        detail: {},
-        tableData: [],
-        total: 0,
-        searchText: '',
-        listLoading: false,
-        options1: [{
-          value: '1',
-          label: '简单'
+import qusAdd from './add'
+import qusAEdit from './edit'
+import importexport from '@/api/importexport'
+import axios from 'axios'
+export default {
+  name: 'questionBank',
+  components: {
+    qusAdd,
+    qusAEdit
+  },
+  data() {
+    return {
+      downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
+      leftTreeData: [
+        {
+          label: '一级 1',
+          children: [{
+            label: '二级 1-1',
+            children: [{
+              label: '三级 1-1-1'
+            }]
+          }]
         }, {
-          value: '2',
-          label: '中等'
+          label: '一级 2',
+          children: [{
+            label: '二级 2-1',
+            children: [{
+              label: '三级 2-1-1'
+            }]
+          }, {
+            label: '二级 2-2',
+            children: [{
+              label: '三级 2-2-1'
+            }]
+          }]
         }, {
-          value: '3',
-          label: '困难'
-        }],
-        options2: [{
-          value: '选项1',
-          label: '单选题'
-        }, {
-          value: '选项2',
-          label: '多选题'
-        }, {
-          value: '选项3',
-          label: '判断题'
-        }, {
-          value: '选项4',
-          label: '填空题'
-        }, {
-          value: '选项5',
-          label: '解答题'
-        }],
-        value1: '',
-        value2: '',
-        tableData1: [{
+          label: '一级 3',
+          children: [{
+            label: '二级 3-1',
+            children: [{
+              label: '三级 3-1-1'
+            }]
+          }, {
+            label: '二级 3-2',
+            children: [{
+              label: '三级 3-2-1'
+            }]
+          }]
+        }
+      ],
+      defaultProps: {
+        children: 'children',
+        label: 'label'
+      },
+      activeName: 'first',
+      filters: {},
+      dialogImportVisible: false, // 导入弹框
+      importLoading: false, // 导入弹框loading
+      importInfo: {}, // 导入弹框
+      fileCon: '', // 导入试题内容
+      txData: questionTypeAll('all'),
+      page: 1,
+      pageSize: 15,
+      total: 1,
+      countHeight: document.documentElement.clientHeight - 240 + 'px',
+      dialogVisible: false,
+      detail: {},
+      tableData: [],
+      searchText: '',
+      listLoading: false,
+      value1: '',
+      value2: '',
+      tableData1: [
+        {
           no: '1',
           date: '2019-08-22 14:25',
           name: ' 食物发生腐败变质的最主要原因是（）',
@@ -335,8 +331,9 @@
           realAs: 'A',
           intr: '药品...'
         }
-        ],
-        tableData2: [{
+      ],
+      tableData2: [
+        {
           no: '1',
           date: '2019-08-22 14:25',
           name: ' 酸雨形成的原因是（）进入时，形成酸性降雨',
@@ -467,84 +464,181 @@
           realAs: 'C',
           intr: '煤炭...'
         }
-        ]
-      }
-    },
-    methods: {
-      toSearch(val) {
-        console.log(val)
-        switch (val) {
-          case 1:this.tableData = this.tableData1
-            break
-          case 2:this.tableData = this.tableData2
-            break
-          case 3:this.tableData = this.tableData1
-            break
-          case 4:this.tableData = this.tableData2
-            break
-          default:
-            this.tableData = this.tableData1
-            break
-        }
-      },
-      handleEdit(index, row) {
-        this.detail = row
-        this.dialogVisible = true
-      },
-      handleUpdQus(index, row) {
-        this.$router.push({ path: '/educational/edit/' })
-      },
-      handleDelete(index, row) {
-        this.$confirm('确定要废除吗?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          row.deleteable = '2',
-          this.$message({
-            type: 'success',
-            message: '废除成功'
-          })
-        }).catch(() => {
-          this.loading = false
-          this.$message({
-            type: 'info',
-            message: '已取消'
-          })
-        })
-      },
-      handleRevord(index, row) {
-        this.$confirm('确定要恢复吗?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          row.deleteable = '1',
-          this.$message({
-            type: 'success',
-            message: '恢复成功'
-          })
-        }).catch(() => {
-          this.loading = false
-          this.$message({
-            type: 'info',
-            message: '已取消'
-          })
-        })
-      },
-      cancel() {
-        this.dialogVisible = false
-      },
-      add() {
-        this.$router.push({ path: '/educational/add/' })
-      }
-    },
-    mounted() {
-      this.tableData = this.tableData1
+      ]
     }
+  },
+  methods: {
+    handleNodeClick(data) {
+      console.log(data)
+    },
+    handleClick() {
+
+    },
+    questionTypeChange() {
+
+    },
+    handleCurrentChange(val) {
+      // this.page = val
+      // this.getCase(false, true)
+    },
+    handleSizeChange(val) {
+      // this.page = 1
+      // this.pageSize = val
+      // this.getCase(false, true)
+    },
+    importTem() {
+      this.dialogImportVisible = true
+    },
+    getFile() {
+      if (event.target.files[0]) {
+        this.fileCon = event.target.files[0]
+      } else {
+        this.fileCon = ''
+      }
+    },
+    submitImportForm(formName) { // 导入弹框提交按钮
+      if (this.fileCon === '') {
+        this.$message.warning('请选择要上传的文件！')
+        return false
+      }
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          this.importLoading = true
+          const formData = new FormData()
+          formData.append('file', this.fileCon) // 文件
+          formData.append('createDept', this.dept.depName) // 创建部门
+          formData.append('createName', this.userInfo.realName) // 创建人
+          const config = {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'userId': this.userInfo.id,
+              'userName': this.userInfo.userName
+            }
+          }
+          axios.post(this.ModuleName + 'pitchman/upload', formData, config).then((response) => {
+            this.importLoading = false
+            if (response.data.message !== 'OK') { // 有异常
+              const file = document.getElementById('excelFile')
+              file.value = ''
+              this.$message({
+                message: response.data.message, type: 'error'
+              })
+              this.fileCon = ''
+            } if (response.data.message === 'OK') {
+              if (response.data.data.type === 'success') { // 上传成功
+                this.$message({
+                  message: '保存成功', type: 'success'
+                })
+                this.dialogImportVisible = false
+                this.innerErrorInfoVisible = false
+                this.query(true)
+              } else if (response.data.data.type !== 'success') {
+                this.innerErrorInfoVisible = true
+                var errorInfo = []
+                for (let index = 0; index < response.data.data.list.length; index++) {
+                  const element = JSON.parse(response.data.data.list[index])
+                  errorInfo[index] = { number: element[0], des: element[1] }
+                }
+                this.errorData = errorInfo
+              }
+            }
+          }).catch((response) => {
+            this.importLoading = false
+            this.$message({
+              message: '导入失败', type: 'error'
+            })
+          })
+        }
+      })
+    },
+    closeDia() {
+      const file = document.getElementById('excelFile')
+      if (file) {
+        file.value = ''
+      }
+      this.dialogImportVisible = false
+    },
+    toSearch(val) {
+      console.log(val)
+      switch (val) {
+        case 1: this.tableData = this.tableData1
+          break
+        case 2: this.tableData = this.tableData2
+          break
+        case 3: this.tableData = this.tableData1
+          break
+        case 4: this.tableData = this.tableData2
+          break
+        default:
+          this.tableData = this.tableData1
+          break
+      }
+    },
+    handleEdit(index, row) {
+      this.detail = row
+      this.dialogVisible = true
+    },
+    handleUpdQus(index, row) {
+      this.$router.push({ path: '/educational/edit/' })
+    },
+    handleDelete(index, row) {
+      this.$confirm('确定要废除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        row.deleteable = '2',
+        this.$message({
+          type: 'success',
+          message: '废除成功'
+        })
+      }).catch(() => {
+        this.loading = false
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
+      })
+    },
+    handleRevord(index, row) {
+      this.$confirm('确定要恢复吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        row.deleteable = '1',
+        this.$message({
+          type: 'success',
+          message: '恢复成功'
+        })
+      }).catch(() => {
+        this.loading = false
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        })
+      })
+    },
+    cancel() {
+      this.dialogVisible = false
+    },
+    add() {
+      // this.$router.push({ path: '/educational/add/' })
+    }
+  },
+  mounted() {
+    this.tableData = this.tableData1
   }
+}
 </script>
 
-<style scoped>
-
+<style rel="stylesheet/scss" lang="scss">
+.tk {
+  .el-tabs {
+    padding: 5px 10px;
+  }
+  .el-card__body {
+    padding: 10px;
+  }
+}
 </style>

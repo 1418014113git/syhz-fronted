@@ -1,5 +1,6 @@
 <template>
   <div class="testbaseManage">
+    <!-- 试题管理主页 -->
     <el-row v-loading="listLoading">
       <!-- 左侧树形结构 -->
       <el-col class="leftCont" :span="5" :style="{height:countHeight}">
@@ -296,7 +297,7 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-.testbaseManage{
+.testbaseManage {
   .leftCont {
     margin-right: 10px;
     padding: 10px 0;
@@ -305,21 +306,22 @@ export default {
     background: rgba(0, 89, 130, 0.7);
     border-radius: 8px;
   }
-  .rightCont{
+  .rightCont {
     width: 78%;
     overflow: hidden;
     border: 1px solid #00a0e9;
     background: rgba(0, 89, 130, 0.7);
     border-radius: 8px;
+    padding: 20px;
   }
-  .from{
+  .from {
     padding-left: 20px;
   }
 }
 .el-dialog {
   width: 40%;
 }
-.inpW{
+.inpW {
   width: 90%;
 }
 </style>

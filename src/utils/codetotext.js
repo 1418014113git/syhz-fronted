@@ -1172,3 +1172,39 @@ export function getComArchivesApproveStatus(type) {
   }
 }
 
+// 试题类型
+export function questionTypeAll(all) { // 有参数 包含全部
+  if (all === 'all') {
+    return [{
+      value: '0',
+      label: '全部'
+    }, {
+      value: '1',
+      label: '单选类'
+    }, {
+      value: '2',
+      label: '多选类'
+    }, {
+      value: '3',
+      label: '填空类'
+    }, {
+      value: '4',
+      label: '判断类'
+    }]
+  } else {
+    return [{
+      value: '1',
+      label: '单选类'
+    }, {
+      value: '2',
+      label: '多选类'
+    }, {
+      value: '3',
+      label: '填空类'
+    }, {
+      value: '4',
+      label: '判断类'
+    }]
+  }
+}
+
