@@ -1190,6 +1190,15 @@ export function questionTypeAll(all) { // 有参数 包含全部
     }, {
       value: '4',
       label: '判断类'
+    }, {
+      value: '5',
+      label: '简答类'
+    }, {
+      value: '6',
+      label: '论述类'
+    }, {
+      value: '7',
+      label: '案例分析类'
     }]
   } else {
     return [{
@@ -1204,6 +1213,15 @@ export function questionTypeAll(all) { // 有参数 包含全部
     }, {
       value: '4',
       label: '判断类'
+    }, {
+      value: '5',
+      label: '简答类'
+    }, {
+      value: '6',
+      label: '论述类'
+    }, {
+      value: '7',
+      label: '案例分析类'
     }]
   }
 }
