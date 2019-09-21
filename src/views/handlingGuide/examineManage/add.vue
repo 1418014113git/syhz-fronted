@@ -15,7 +15,7 @@
                 <el-input type="text" size="small" v-model="examForm.examinationName" clearable placeholder="请输入" maxlength="50" style="width:calc(100% - 30px)"></el-input>
               </el-form-item>
               <el-form-item label="开始时间" prop="startDate" class="clearfix">
-                <el-date-picker v-model="examForm.startDate" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间" class="left" style="width:calc(100% - 30px)"></el-date-picker>
+                <el-date-picker v-model="examForm.startDate" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间" class="left" style="width:calc(100% - 50px)"></el-date-picker>
                 <el-tooltip class="right"  effect="dark" content="请选择考试开始时间，只有到了开始时间才能进入考试页面进行考试！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
@@ -60,7 +60,7 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="开放单位" prop="openDepts" class="clearfix">
-                <!-- 可以多选；选择省厅，开放单位是全省；选择地市支队，开放单位是全市支队及区县大队； -->
+                <!-- 可以多选；只能是本单位或者下级单位，无法选择上级及其他单位 -->
                 <el-select v-model="examForm.openDepts" placeholder="请选择题型" multiple class="left" style="width:calc(100% - 30px)">
                   <el-option v-for="item in openDeptsList" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
@@ -68,8 +68,21 @@
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
               </el-form-item>
+              <el-form-item label="阅卷老师" prop="openDepts" class="clearfix">
+                <!-- 可以多选；只能是本单位或者下级单位，无法选择上级及其他单位 -->
+                <el-transfer class="left" style="width:calc(100% - 30px)"
+                  filterable
+                  :filter-method="filterMethod"
+                  filter-placeholder="请输入关键字检索人员"
+                  v-model="examForm.ry"
+                  :data="generateData">
+                </el-transfer>
+                <el-tooltip class="right" effect="dark" content="请选择本次考试主观题的阅卷人员。" placement="top">
+                  <el-button circle><i class="el-icon-question"></i></el-button>
+                </el-tooltip>
+              </el-form-item>
               <el-form-item label="考试须知" class="clearfix" prop="remark">
-                <el-input type="textarea" :rows="2" v-model="examForm.remark" maxlength="1000" placeholder="请输入考试须知" class="left" style="width:calc(100% - 30px)"></el-input>
+                <el-input type="textarea" :rows="2" v-model="examForm.remark" maxlength="1000" placeholder="最多可输入1000文字！" class="left" style="width:calc(100% - 30px)"></el-input>
                 <el-tooltip class="right" effect="dark" content="请填写警员在参加考试时的注意事项，事项内容会在进入考试页面时自动弹出！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
@@ -108,6 +121,11 @@ export default {
       },
       editorHeight: '', // 右侧内容的高度
       value3: 'A',
+      generateData: [],
+      value: [],
+      filterMethod(query, item) {
+        return item.pinyin.indexOf(query) > -1
+      },
       rules: {
         examinationName: {
           required: true, message: '请输入考试名称', trigger: 'blur'
@@ -142,6 +160,21 @@ export default {
   methods: {
     init() {
       // this.openDeptsList
+
+      // this.generateData = _ => {
+      const data = []
+      const cities = ['上海', '北京', '广州', '深圳', '南京', '西安', '成都']
+      const pinyin = ['shanghai', 'beijing', 'guangzhou', 'shenzhen', 'nanjing', 'xian', 'chengdu']
+      cities.forEach((city, index) => {
+        data.push({
+          label: city,
+          key: index,
+          pinyin: pinyin[index]
+        })
+      })
+      this.generateData = data
+      // return data
+      // }
     },
     handleImageAdded(file, Editor, cursorLocation, resetUploader) {
       const formData = new FormData()
@@ -166,14 +199,12 @@ export default {
     examPaperTypeChange(val) { // 试卷类型change，只能选择本单位组织的试卷，其他单位的无法选择
 
     },
-    questionTypeBlur(val) {
-    },
     back() {
       this.$router.back(-1)
     }
   },
   mounted() {
-    // this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
+    this.init()
   },
   watch: {
 
@@ -186,5 +217,11 @@ export default {
   width: 80%;
   min-width: 1200px;
   margin: 0 auto;
+}
+.left {
+  float: left;
+}
+.right {
+  float: right;
 }
 </style>

@@ -17,7 +17,11 @@
     <!--列表-->
     <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
       <el-table-column type="index" label="序号" width="70" class-name="tabC"></el-table-column>
-      <el-table-column prop="subjectName" label="题目内容" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="subjectName" label="题目内容" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-html="scope.row.subjectName" class="spanP"></span>
+        </template>
+      </el-table-column>
       <el-table-column prop="modifyDate" label="更新时间" width="200" class-name="tabC"></el-table-column>
       <el-table-column prop="type" label="类型" width="200" class-name="tabC">
         <template slot-scope="scope">
@@ -51,11 +55,8 @@
     <!-- 导入弹框 -->
     <el-dialog title="试题导入" :visible.sync="dialogImportVisible" size="small" @close="closeDia('importInfo')" class="comDialog">
       <el-form ref="importInfo" size="small" :model="importInfo" label-width="100px" v-loading="importLoading">
-        <el-form-item label="模块" prop="tx">
-          <!-- <el-select v-model="importInfo.mokuai" placeholder="请选择二级模块">
-            <el-option v-for="item in txData" :key="item.value" :label="item.label" :value="item.value"></el-option>
-          </el-select> -->
-          <el-input type="text" size="small" v-model="importInfo.mokuai" clearable placeholder="请输入"></el-input>
+        <el-form-item label="模块" prop="category">
+          <el-cascader :options="mokuaiList" v-model="importInfo.category" :props="props"></el-cascader>
         </el-form-item>
         <el-form-item label="试题文件">
           <input type="file" @change="getFile" clearable name="file" id="excelFile"
@@ -66,12 +67,13 @@
           <el-button type="primary" @click="submitImportForm('importInfo')" :loading="importLoading">导入</el-button>
         </el-form-item>
       </el-form>
-      <!-- <el-dialog width="50%" title="提示信息" :visible.sync="innerErrorInfoVisible" append-to-body>
-        <el-table :data="errorData">
-          <el-table-column prop="number" label="行数" width="100"></el-table-column>
-          <el-table-column prop="des" label="错误信息"></el-table-column>
-        </el-table>
-      </el-dialog> -->
+    </el-dialog>
+    <!-- 导入试题的提示 错误信息 -->
+    <el-dialog width="50%" title="提示信息" :visible.sync="innerErrorInfoVisible" append-to-body>
+      <el-table :data="errorData">
+        <el-table-column prop="number" label="行数" width="100"></el-table-column>
+        <el-table-column prop="des" label="错误信息"></el-table-column>
+      </el-table>
     </el-dialog>
   </section>
 </template>
@@ -84,7 +86,7 @@ import Http from '@/api/http'
 import axios from 'axios'
 export default {
   name: 'list',
-  props: ['menuItemNode'],
+  props: ['menuItemNode', 'dataList'],
   data() {
     return {
       downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
@@ -101,13 +103,20 @@ export default {
       txData: questionTypeAll('all'),
       dialogImportVisible: false, // 导入弹框
       importLoading: false, // 导入弹框loading
-      importInfo: {}, // 导入弹框
+      importInfo: {
+        category: [] // 模块
+      }, // 导入弹框
       fileCon: '', // 导入试题内容
       dialogDetailVisible: false,
       curQuestion: {},
-      userInfo: {}, // 当前用户信息
-      deptInfo: {} // 当前部门信息
-
+      mokuaiList: [],
+      innerErrorInfoVisible: false, // 导入错误信息提示框
+      errorData: [], // 导入错误信息提示
+      props: {
+        value: 'id'
+      },
+      userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
   },
   components: {
@@ -117,6 +126,11 @@ export default {
     menuItemNode: {
       handler: function(val, oldeval) {
         this.queryList(true)
+      }
+    },
+    dataList: {
+      handler: function(val, oldeval) {
+        this.mokuaiList = [val[0]]
       }
     }
   },
@@ -132,18 +146,23 @@ export default {
         pageNum: this.page,
         pageSize: this.pageSize,
         logFlag: 1, // 添加埋点参数
-        // subjectCategoryId: this.menuItemNode.id
-        subjectCategoryId: 1
+        subjectCategoryId: this.menuItemNode.id
+        // subjectCategoryId: 1
       }
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
+      // 加page后报错
       this.$query('questions/list/' + this.filters.tx, para).then((response) => {
         this.listLoading = false
+        // this.tableData = response.data.list
+        // this.total = response.data.totalCount
+        // this.page = response.data.pageNum
+        // this.pageSize = response.data.pageSize
         this.tableData = response.data
         if (this.tableData.length > 0) {
           this.tableData.forEach(element => {
-            if (element.subjectName.indexOf('[]') > 0) {
+            if (element.subjectName.indexOf('[]') > 0) { // 填空题的[] 展示的时候替换为下横线
               element.subjectName = element.subjectName.replace(/\[/g, '__').replace(/\]/g, '__')
             }
           })
@@ -164,25 +183,25 @@ export default {
     handleDetail(index, row) { // 详情
       // this.$router.push({ path: '/handlingGuide/testbaseManage/detail', query: { id: row.id, questionType: row.type }})
       this.dialogDetailVisible = true
-      this.curQuestion = row
+      this.curQuestion = row // 当前选择的问题
     },
-    handleEdit(index, row) { // 编辑
-      var message1 = '该试题已经被抽取到XXXX（试卷名称）试卷中，暂时不能编辑或删除！'
-      // var message2 = '该试题在已结束的考试试卷中有使用，如果修改可能会影响到警员查看以往考试信息！是否继续修改？'
-      var messageText = message1
-      this.$confirm(messageText, '提示', {
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        // showCancelButton: false,
-        type: 'warning'
-      }).then(() => {
-        this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { type: '3' }})
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消'
-        })
-      })
+    handleEdit(index, row) { // 编辑，此处需要判断试题有没有在考试中（未过期、已过期两种）引用
+      // var message1 = '该试题已经被抽取到XXXX（试卷名称）试卷中，暂时不能编辑或删除！'
+      // // var message2 = '该试题在已结束的考试试卷中有使用，如果修改可能会影响到警员查看以往考试信息！是否继续修改？'
+      // var messageText = message1
+      // this.$confirm(messageText, '提示', {
+      //   confirmButtonText: '确认',
+      //   cancelButtonText: '取消',
+      //   // showCancelButton: false,
+      //   type: 'warning'
+      // }).then(() => {
+      this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type }})
+      // }).catch(() => {
+      //   this.$message({
+      //     type: 'info',
+      //     message: '已取消'
+      //   })
+      // })
     },
     handleDelete(index, row) { // 删除
       this.$confirm('确定要删除吗?', '提示', {
@@ -235,7 +254,7 @@ export default {
               'userName': this.userInfo.userName
             }
           }
-          axios.post(this.ModuleName + 'pitchman/upload', formData, config).then((response) => {
+          axios.post(this.ModuleName + 'upload', formData, config).then((response) => {
             this.importLoading = false
             if (response.data.message !== 'OK') { // 有异常
               const file = document.getElementById('excelFile')
@@ -287,21 +306,22 @@ export default {
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
     // this.$refs.filters.offsetHeight
-    console.log(this.tableHeight)
-    this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'))
-    this.deptInfo = JSON.parse(sessionStorage.getItem('depToken'))[0]
     this.queryList(true, true)
   }
 }
 
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
 .testTableList {
   height: 100%;
   .addTestQuestion {
     float: right;
     margin-bottom: 10px;
+  }
+  .spanP p {
+    display: inline-block;
+    margin: 0;
   }
 }
 </style>
