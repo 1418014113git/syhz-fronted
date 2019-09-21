@@ -19,7 +19,7 @@
 
       <!-- 右侧列表区 -->
       <el-col :span="18" class="rightCont" :style="{height:countHeight}">
-        <table-list :menuItemNode="menuItemNode"></table-list>
+        <table-list :menuItemNode="menuItemNode" :dataList="dataList"></table-list>
       </el-col>
     </el-row>
 
