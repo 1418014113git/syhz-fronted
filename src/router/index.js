@@ -250,13 +250,13 @@ export const constantRouterMap = [
       { path: '/handlingGuide/testbaseManage/edit', component: () => import('@/views/handlingGuide/testbaseManage/edit'), name: '编辑试题' },
       { path: '/handlingGuide/examineManage', component: () => import('@/views/handlingGuide/examineManage/index'), name: '考试管理' },
       { path: '/handlingGuide/examineManage/add', component: () => import('@/views/handlingGuide/examineManage/add'), name: '添加考试' },
-
       { path: '/handlingGuide/educationalFreeSettings_detail/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_detail'), name: '考试管理详情' },
       { path: '/handlingGuide/educationalFreeSettings_edit/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_edit'), name: '考试管理编辑' },
       { path: '/handlingGuide/educationalFreeSettings_setting/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_setting'), name: '设置考题' },
       { path: '/handlingGuide/educationalFreeSettings_stk/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_stk'), name: '选择考题' },
-      { path: '/handlingGuide/educationalFreeSettings_rule/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_rule'), name: '规则设置' }
-
+      { path: '/handlingGuide/educationalFreeSettings_rule/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_rule'), name: '规则设置' },
+      { path: '/handlingGuide/examPaperManage', component: () => import('@/views/handlingGuide/examPaperManage/index'), name: '试卷管理' }, // 试卷列表
+      { path: '/handlingGuide/addExamPaper', component: () => import('@/views/handlingGuide/examPaperManage/addExamPaper'), name: '添加试卷' } // 添加试卷
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
