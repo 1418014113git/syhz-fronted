@@ -1,5 +1,5 @@
 <template>
-  <section class="addQuestion">
+  <section class="addExamine">
     <el-row class="spt_report">
       <img src="@/assets/icon/back.png"  class="goBack" @click="back">
     </el-row>
@@ -15,7 +15,7 @@
                 <el-input type="text" size="small" v-model="examForm.examinationName" clearable placeholder="请输入" maxlength="50" style="width:calc(100% - 30px)"></el-input>
               </el-form-item>
               <el-form-item label="开始时间" prop="startDate" class="clearfix">
-                <el-date-picker v-model="examForm.startDate" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间" class="left" style="width:calc(100% - 50px)"></el-date-picker>
+                <el-date-picker v-model="examForm.startDate" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间" class="left" style="width:calc(100% - 30px)"></el-date-picker>
                 <el-tooltip class="right"  effect="dark" content="请选择考试开始时间，只有到了开始时间才能进入考试页面进行考试！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
@@ -68,13 +68,15 @@
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
               </el-form-item>
-              <el-form-item label="阅卷老师" prop="openDepts" class="clearfix">
-                <!-- 可以多选；只能是本单位或者下级单位，无法选择上级及其他单位 -->
+              <el-form-item label="阅卷人员" prop="yjry" class="clearfix">
                 <el-transfer class="left" style="width:calc(100% - 30px)"
                   filterable
                   :filter-method="filterMethod"
                   filter-placeholder="请输入关键字检索人员"
                   v-model="examForm.ry"
+                  :render-content="renderFunc"
+                  :button-texts="['选中', '移除']"
+                  :titles="['人员列表','已选中的人员']"
                   :data="generateData">
                 </el-transfer>
                 <el-tooltip class="right" effect="dark" content="请选择本次考试主观题的阅卷人员。" placement="top">
@@ -123,6 +125,9 @@ export default {
       value3: 'A',
       generateData: [],
       value: [],
+      renderFunc(h, option) {
+        return <span>{option.key} - {option.label}</span>
+      },
       filterMethod(query, item) {
         return item.pinyin.indexOf(query) > -1
       },
@@ -213,15 +218,25 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
+.addExamine {
+  .el-transfer-panel {
+    width: 350px;
+  }
+  .left {
+    float: left;
+  }
+  .right {
+    float: right;
+  }
+  .clearfix:after {
+    clear: both;
+    content: "";
+    display: block;
+  }
+}
 .spt_report {
   width: 80%;
   min-width: 1200px;
   margin: 0 auto;
-}
-.left {
-  float: left;
-}
-.right {
-  float: right;
 }
 </style>

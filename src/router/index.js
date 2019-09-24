@@ -256,7 +256,9 @@ export const constantRouterMap = [
       { path: '/handlingGuide/educationalFreeSettings_stk/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_stk'), name: '选择考题' },
       { path: '/handlingGuide/educationalFreeSettings_rule/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_rule'), name: '规则设置' },
       { path: '/handlingGuide/examPaperManage', component: () => import('@/views/handlingGuide/examPaperManage/index'), name: '试卷管理' }, // 试卷列表
-      { path: '/handlingGuide/addExamPaper', component: () => import('@/views/handlingGuide/examPaperManage/addExamPaper'), name: '添加试卷' } // 添加试卷
+      { path: '/handlingGuide/addExamPaper', component: () => import('@/views/handlingGuide/examPaperManage/addExamPaper'), name: '添加试卷' }, // 添加试卷
+      { path: '/handlingGuide/goOverExamPaper/index', component: () => import('@/views/handlingGuide/goOverExamPaper/index'), name: '阅卷列表' }, // 阅卷列表
+      { path: '/handlingGuide/goOverExamPaper/settingScore', component: () => import('@/views/handlingGuide/goOverExamPaper/settingScore'), name: '阅卷' } // 阅卷
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },

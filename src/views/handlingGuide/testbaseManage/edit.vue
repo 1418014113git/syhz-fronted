@@ -16,29 +16,29 @@
               </el-select>
             </el-form-item>
             <el-form-item label="题目内容" class="clearfix" prop="subjectName">
-              <el-input type="textarea" :rows="2" v-model="questionForm.subjectName"  v-if="questionForm.type!=='3'" @focus="itemFocus('subjectName')"  @change="itemFocus('subjectName')" placeholder="请输入题目内容" maxlength="1000"></el-input>
-              <el-input type="textarea" :rows="2" v-model="questionForm.subjectName"  v-if="questionForm.type==='3'" @focus="itemFocus('subjectName')" @change="itemFocus('subjectName')" placeholder="请输入题目内容" maxlength="1000" class="left" style="width:calc(100% - 30px)"></el-input>
+              <el-input type="textarea" :rows="2" v-model="questionForm.subjectName"  v-if="questionForm.type!=='3'" @focus="itemFocus('subjectName')"  @change="itemFocus('subjectName')" placeholder="请输入题目内容" maxlength="3000"></el-input>
+              <el-input type="textarea" :rows="2" v-model="questionForm.subjectName"  v-if="questionForm.type==='3'" @focus="itemFocus('subjectName')" @change="itemFocus('subjectName')" placeholder="请输入题目内容" maxlength="3000" class="left" style="width:calc(100% - 30px)"></el-input>
               <el-tooltip class="right" v-if="questionForm.type==='3'" effect="dark" content="请将需要的填空内容写在[ ]中，在试题中平台会自动将[]变为一个填空。" placement="top">
                 <el-button circle><i class="el-icon-question"></i></el-button>
               </el-tooltip>
             </el-form-item>
             <el-form-item label="选项A" v-if="questionForm.type==='1' || questionForm.type==='2'" prop="options1">
-              <el-input type="text" size="small" v-model="questionForm.options1" clearable placeholder="请输入"  maxlength="200" @focus="itemFocus('options1')" @change="itemFocus('options1')" ></el-input>
+              <el-input type="text" size="small" v-model="questionForm.options1" clearable placeholder="请输入"  maxlength="3000" @focus="itemFocus('options1')" @change="itemFocus($event,'options1')" ></el-input>
             </el-form-item>
             <el-form-item label="选项B" v-if="questionForm.type==='1' || questionForm.type==='2'" prop="options2">
-              <el-input type="text" size="small" v-model="questionForm.options2" clearable placeholder="请输入"  maxlength="200" @focus="itemFocus('options2')" @change="itemFocus('options2')"></el-input>
+              <el-input type="text" size="small" v-model="questionForm.options2" clearable placeholder="请输入"  maxlength="3000" @focus="itemFocus('options2')" @change="itemFocus('options2')"></el-input>
             </el-form-item>
             <el-form-item label="选项C" v-if="questionForm.type==='1' || questionForm.type==='2'" prop="options3">
-              <el-input type="text" size="small" v-model="questionForm.options3" clearable placeholder="请输入"  maxlength="200" @focus="itemFocus('options3')" @change="itemFocus('options3')"></el-input>
+              <el-input type="text" size="small" v-model="questionForm.options3" clearable placeholder="请输入"  maxlength="3000" @focus="itemFocus('options3')" @change="itemFocus('options3')"></el-input>
             </el-form-item>
             <el-form-item label="选项D" v-if="questionForm.type==='1' || questionForm.type==='2'" prop="options4">
-              <el-input type="text" size="small" v-model="questionForm.options4" clearable placeholder="请输入"  maxlength="200" @focus="itemFocus('options4')" @change="itemFocus('options4')"></el-input>
+              <el-input type="text" size="small" v-model="questionForm.options4" clearable placeholder="请输入"  maxlength="3000" @focus="itemFocus('options4')" @change="itemFocus('options4')"></el-input>
             </el-form-item>
             <el-form-item label="选项E" v-if="questionForm.type==='2'" prop="options5">
-              <el-input type="text" size="small" v-model="questionForm.options5" clearable placeholder="请输入"  maxlength="200" @focus="itemFocus('options5')" @change="itemFocus('options5')"></el-input>
+              <el-input type="text" size="small" v-model="questionForm.options5" clearable placeholder="请输入"  maxlength="3000" @focus="itemFocus('options5')" @change="itemFocus('options5')"></el-input>
             </el-form-item>
             <el-form-item label="选项F" v-if="questionForm.type==='2'" prop="options6">
-              <el-input type="text" size="small" v-model="questionForm.options6" clearable placeholder="请输入"  maxlength="200" @focus="itemFocus('options6')" @change="itemFocus('options6')"></el-input>
+              <el-input type="text" size="small" v-model="questionForm.options6" clearable placeholder="请输入"  maxlength="3000" @focus="itemFocus('options6')" @change="itemFocus('options6')"></el-input>
             </el-form-item>
             <el-form-item label="正确答案" prop="answer" v-if="questionForm.type==='1'">
               <el-radio-group v-model="questionForm.answer">
@@ -71,7 +71,7 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item label="题目解析">
-              <el-input type="textarea" v-model="questionForm.analysis"  @focus="itemFocus('analysis')" @change="itemFocus('analysis')" maxlength="500" clearable placeholder="请输入题目解析"></el-input>
+              <el-input type="textarea" v-model="questionForm.analysis"  @focus="itemFocus('analysis')" @change="itemFocus('analysis')" maxlength="3000" clearable placeholder="请输入题目解析"></el-input>
             </el-form-item>
             <el-form-item label="出处" prop="source">
               <el-input type="text" v-model="questionForm.source" maxlength="100" size="small" clearable placeholder="请输入出处"></el-input>
@@ -83,9 +83,8 @@
         </el-col>
         <!-- 富文本编辑器 -->
         <el-col :span="12" :style="{height:editorHeight}" v-if="carryParam.type!=='1'">
-          <!-- tinymceEdit[answerOptions[answerIndex]]  editorContent-->
           <vue-editor v-model="editorContent" useCustomImageHandler @imageAdded="handleImageAdded"
-                      style="width: 100%; min-width: 500px;height:100%;" @focus="editorFocus" @input="editorChange"></vue-editor>
+                      style="width: 100%; min-width: 500px;height:100%;" @focus="editorFocus" @input="editorChange($event)"></vue-editor>
         </el-col>
         <!-- <el-form-item  align="right">
           <el-upload  class="upload-demo" drag  multiple  :action="action">
@@ -107,16 +106,10 @@
 import { uploadImg } from '@/utils/editorUpload'
 import { questionTypeAll } from '@/utils/codetotext'
 import VueEditor from '@/components/Editor/VueEditor'
-// import Tinymce from '@/components/Tinymce/index'
-// import tinymce from 'tinymce'
-// import Editor from '@tinymce/tinymce-vue'
-// import 'tinymce/themes/silver'
 export default {
   name: 'add',
   components: {
     VueEditor
-    // Tinymce
-    // tinymce, Editor
   },
   data() {
     return {
@@ -126,7 +119,6 @@ export default {
       txData: questionTypeAll(),
       answerOptions: ['subjectName', 'analysis', 'options1', 'options2', 'options3', 'options4', 'options5', 'options6'], // 题干、解析、选项...
       answerIndex: null,
-      focusType: '',
       questionForm: {
         type: '1', // 试题类型
         subjectName: '',
@@ -140,27 +132,11 @@ export default {
         options6: '',
         analysis: ''
       },
-      // 编辑对象
-      tinymceEdit: {
-        subjectName: -1,
-        optionA: 0,
-        optionB: 1,
-        optionC: 2,
-        optionD: 3,
-        answer: 4,
-        analysis: 5
-      },
       editorContent: '', // 富文本编辑器内容
       editorHeight: '', // 右侧内容的高度
       formLoading: false, // 表单的loading
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
-      editorInit: {
-        language_url: '/static/tinymce/zh_CN.js',
-        language: 'zh_CN',
-        skin_url: '/static/tinymce/skins/lightgray',
-        height: 300
-      },
       rules: {
         subjectName: {
           required: true, message: '请输入题目内容', trigger: 'change'
@@ -190,10 +166,6 @@ export default {
     }
   },
   methods: {
-    onContentChange(val) {
-      console.log(val)
-      this.questionForm[this.answerOptions[this.answerIndex]] = val
-    },
     init() {
       if (this.carryParam.questinoId) {
         this.questionForm.type = this.carryParam.questionType + ''
@@ -233,11 +205,25 @@ export default {
     },
     editorFocus() { // 富文本编辑器获取焦点
       if (this.editorContent) {
-        this.questionForm[this.answerOptions[this.answerIndex]] = this.editorContent
+        // this.questionForm[this.answerOptions[this.answerIndex]] = this.editorContent
+        this.editorContent = this.questionForm[this.answerOptions[this.answerIndex]]
+        this.beforeEditorCon = this.editorContent
       }
-      // this.answerIndex = this.answerOptions.indexOf(this.focusType)
+      console.log('focus' + this.editorContent)
     },
     editorChange({ editor, html, text }) {
+      // console.log(editor, html, text)
+      // console.log('change' + this.editorContent)
+      // var _this = this
+      // Object.defineProperty(this.editorContent, {
+      //   get: function() {
+      //     return _this.editorContent
+      //   },
+      //   set: function(newValue) {
+      //     _this.editorContent = newValue
+      //     console.log('set', newValue)
+      //   }
+      // })
       if (this.editorContent) {
         this.questionForm[this.answerOptions[this.answerIndex]] = this.editorContent
       }
@@ -291,7 +277,7 @@ export default {
           // console.log(param)
           if (this.carryParam.questinoId) {
             // 编辑
-            this.$update('question/' + this.carryParam.questinoId, param).then((response) => {
+            this.$update('examquestion/' + this.carryParam.questinoId, param).then((response) => {
               this.formLoading = false
               if (response.code === '000000') {
                 this.$message({
@@ -330,8 +316,6 @@ export default {
       }, 10)
     },
     itemFocus(type) {
-      // this.focusType = type
-      // this.tinymceEdit.optionA = type
       this.editorContent = ''
       this.answerIndex = this.answerOptions.indexOf(type)
       if (this.questionForm[this.answerOptions[this.answerIndex]] && (this.editorContent === '')) {
@@ -339,6 +323,10 @@ export default {
       } else {
         this.questionForm[this.answerOptions[this.answerIndex]] = this.editorContent
       }
+    },
+    itemChanges(val, type) {
+      console.log(val)
+      console.log(type)
     },
     subjectFocus(type) {
       this.editorOptions = '2'
