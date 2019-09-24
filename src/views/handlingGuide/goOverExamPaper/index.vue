@@ -1,45 +1,39 @@
 <template>
   <section class="testTableList">
-    <div class="addTestQuestion">
-      <el-button type="primary" size="small" @click="addTestQuestion" icon="el-icon-plus">添加考试</el-button>
-    </div>
     <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
-      <el-form-item label="考试名称" prop="AJMC">
-        <el-input type="text" size="small" v-model="filters.options1" clearable placeholder="请输入"></el-input>
+      <el-form-item label="单位" prop="AJMC">
+        <el-input type="text" size="small" v-model="filters.options1" clearable placeholder="请输入关键字检索单位"></el-input>
       </el-form-item>
-      <el-form-item label="考试状态" prop="AJMC">
+      <el-form-item label="姓名" prop="AJMC">
+        <el-input type="text" size="small" v-model="filters.options1" clearable placeholder="请输入关键字检索姓名"></el-input>
+      </el-form-item>
+      <el-form-item label="阅卷状态" prop="AJMC">
         <el-select v-model="filters.tx" placeholder="请选择题型" @change="examStatusChange">
           <el-option v-for="item in ksztData" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" @click="queryList(true,true)">查询</el-button>
+        <el-button type="primary" size="small" @click="queryList(true,true)">检索</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
     <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
       <el-table-column type="index" label="序号" width="70" class-name="tabC"></el-table-column>
-      <el-table-column prop="name" label="考试" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="name" label="单位名称" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="name" label="姓名" show-overflow-tooltip></el-table-column>
       <el-table-column prop="date" label="考试时间" width="400" class-name="tabC"></el-table-column>
-      <el-table-column prop="date" label="考试时限" width="200" class-name="tabC"></el-table-column>
-      <el-table-column prop="date" label="允许次数" width="200" class-name="tabC"></el-table-column>
-      <el-table-column prop="type" label="试卷类型" width="200" class-name="tabC">
+      <el-table-column prop="date" label="自动阅卷得分" width="200" class-name="tabC"></el-table-column>
+      <el-table-column prop="date" label="人工阅卷得分" width="200" class-name="tabC"></el-table-column>
+      <el-table-column prop="type" label="阅卷状态" width="200" class-name="tabC">
         <template slot-scope="scope">
           <!-- <el-tag type="success"> -->
             {{$getLabelByValue(scope.row.type, txData)}}
           <!-- </el-tag> -->
         </template>
       </el-table-column>
-      <el-table-column prop="date" label="状态" width="200" class-name="tabC"></el-table-column>
       <el-table-column label="操作" width="200">
         <template slot-scope="scope">
-          <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
-          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑"></el-button>
-          <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除"></el-button>
-          <el-button size="mini" circle type="danger"  @click="handleDelete(scope.$index, scope.row)" title="发布">
-            <svg-icon icon-class="release"></svg-icon>
-          </el-button>
-          <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-view" title="删除"></el-button>
+          <el-button size="mini" circle @click="goOverScore(scope.$index, scope.row)" icon="el-icon-view" title="阅卷"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -54,7 +48,7 @@
 </template>
 
 <script>
-import { examStatus } from '@/utils/codetotext'
+import { goOverPaperStatus } from '@/utils/codetotext'
 import importexport from '@/api/importexport'
 export default {
   props: ['menuItemNode'],
@@ -74,7 +68,7 @@ export default {
       listLoading: false,
       tableHeight: null,
       filters: {},
-      txData: examStatus()
+      txData: goOverPaperStatus() // 阅卷状态
 
     }
   },
@@ -151,8 +145,8 @@ export default {
         })
       })
     },
-    addTestQuestion() { // 添加试题
-      this.$router.push({ path: '/handlingGuide/examineManage/add' })
+    goOverScore() { // 去阅卷
+      this.$router.push({ path: '/handlingGuide/goOverExamPaper/settingScore' })
     },
     importTem() {
       this.dialogImportVisible = true

@@ -19,7 +19,7 @@
           <span v-html="item.point"></span>、<span v-html="item.pointValue" class="spanP"></span>
         </p>
       </el-form-item>
-      <el-form-item label="正确答案" prop="answer">
+      <el-form-item label="正确答案" prop="answer" v-if="questionForm.type===1 || questionForm.type===2|| questionForm.type===3|| questionForm.type===4|| questionForm.type===5">
         {{questionForm.answer}}
       </el-form-item>
       <el-form-item label="题目解析">
