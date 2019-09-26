@@ -330,7 +330,7 @@ input{
   background-color: rgba(188, 232, 252, 0.1);
 }
 .el-select-dropdown__item{
-  color: #fff;
+  color: #bce8fc;
 }
 .el-select-dropdown.is-multiple .el-select-dropdown__item.selected {
   background-color: rgba(188, 232, 252, 0.1);
@@ -416,16 +416,15 @@ label {
 
 //form表单--输入框样式
 .el-form-item__label,.el-input__prefix, .el-input__suffix{
-  color: #fff;
+  color: #bce8fc;
 }
 .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item {
   margin-bottom: 16px;
 }
 .el-input__inner{
   color: #fff;
-  // background-color:rgba(0, 89, 130, 0.7);
   background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(0, 160, 233, 0.6);
+  border: 1px solid #00a0e9;
 }
 .el-input--small .el-input__icon {
   line-height: 27px;
@@ -469,10 +468,10 @@ label {
 
 }
 
-.el-button:focus,
-.el-button:hover {
-  border-color: transparent;
-}
+// .el-button:focus,
+// .el-button:hover {
+//   border-color: transparent;
+// }
 .el-button--mini.is-circle,.el-button--small.is-circle {
     padding: 4px;
 }
@@ -605,11 +604,14 @@ label {
   padding: 0 15px;
   border-bottom: 1px solid rgba(0, 160, 233, 0.6);
 }
-.el-checkbox__inner{
+.el-checkbox__inner,
+.el-checkbox__input.is-disabled .el-checkbox__inner
+{
   border: 1px solid  rgba(0, 160, 233, 0.5);
   background-color: transparent;
   background-image: linear-gradient(0deg,rgba(0, 175, 255, 0.5) 0%,rgba(0, 175, 255, 0.05) 84%);
 }
+
 .el-tree{
   color: #fff;
   background-color: transparent;
@@ -738,13 +740,11 @@ label {
 }
 .el-upload-dragger .el-upload__text,
 .el-upload-dragger .el-icon-upload,
-.el-select .el-input .el-select__caret,
 .el-upload__tip,
 .el-upload-list__item-name,
 .el-upload-list__item-name [class^=el-icon] ,
 .el-dialog__body,
-.el-upload-list__item .el-icon-close,
-.el-dialog__title{
+.el-upload-list__item .el-icon-close{
   color: #fff;
 }
 .el-upload-list__item:hover {
@@ -757,7 +757,7 @@ label {
 }
 
 .el-dialog__headerbtn .el-dialog__close,.el-input-group__append, .el-input-group__prepend  {
-  color: #fff;
+  color: #bce8fc;
 }
 
 // 输入框前的按钮
@@ -1294,14 +1294,14 @@ label {
 }
 
 /*菜单滚动条样式*/
-div::-webkit-scrollbar {
+::-webkit-scrollbar {
   /*滚动条整体样式*/
   width: 8px;
   /*高宽分别对应横竖滚动条的尺寸*/
   height: 8px;
 }
 
-div::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   /*滚动条里面小方块*/
   border-radius: 10px;
   -webkit-box-shadow: inset 0 0 5px rgba(160, 184, 190, 0.3);
@@ -1309,7 +1309,7 @@ div::-webkit-scrollbar-thumb {
   background: rgba(122, 168, 190, 0.3);
 }
 
-div::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   /*滚动条里面轨道*/
   -webkit-box-shadow: inset 0 0 5px rgba(152, 182, 200, 0);
   box-shadow: inset 0 0 5px rgba(152, 182, 200, 0);
@@ -1441,9 +1441,29 @@ div::-webkit-scrollbar-track {
 .el-tooltip__popper{ max-width:50% }
 
 // form表单的级联选择器 三角形图标用官方默认的
-.el-form .el-cascader .el-icon-arrow-down:before {
-  content: "\E603";
+// .el-form .el-cascader .el-icon-arrow-down:before {
+//   content: "\E603";
+// }
+//select框按钮统一和菜单按钮一致，实心三角形
+.el-select .el-icon-arrow-up:before{
+  content: "\E60B";
 }
+.el-select .el-input .el-select__caret {
+  color: #bce8fc;
+  -webkit-transform: rotateZ(0deg);
+  transform: rotateZ(0deg);
+}
+.el-select .el-input .el-select__caret.is-reverse {
+  -webkit-transform: rotateZ(180deg) !important;
+  transform: rotateZ(180deg) !important;
+}
+
+// 下拉框“无数据”文字颜色
+.el-select-dropdown__empty {
+  color: #bce8fc;
+}
+
+
 // InputNumber 计数器行高设置
 .el-input-number--small {
   line-height: 23px;
@@ -1492,3 +1512,43 @@ div::-webkit-scrollbar-track {
   background-color: rgba(0, 160, 233, 0.5);
 }
 
+// dialog框根据UI要求修改
+.el-dialog{
+  padding: 0 10px;
+  border: 2px solid #00a0e9;
+  border-radius: 8px;
+}
+.el-dialog__title{
+  color: #bce8fc;
+}
+.el-dialog__header {
+  padding: 10px 0px 10px 10px;
+  border-bottom: 2px solid #00a0e9;
+}
+.el-dialog__headerbtn {
+  top: 14px;
+}
+.el-dialog__body {
+  padding: 10px 0 15px 0;
+}
+.btnUpLine{
+  padding-top: 15px;
+  border-top: 2px solid #016697;
+}
+
+// 穿梭框样式
+.el-transfer-panel{
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 160, 233, 0.6);
+  color: #fff;
+}
+.el-transfer-panel .el-transfer-panel__header{
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 160, 233, 0.6);
+}
+.el-transfer-panel .el-transfer-panel__header .el-checkbox .el-checkbox__label{
+  color: #fff;
+}
+.el-transfer-panel__item.el-checkbox{
+  color: #fff;
+}

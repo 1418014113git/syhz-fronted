@@ -12,18 +12,18 @@
         <span>{{$getLabelByValue(questionForm.type+'', txData)}}</span>
       </el-form-item>
       <el-form-item label="题目内容" class="clearfix" prop="subjectName">
-        {{questionForm.subjectName}}
+        <span v-html="questionForm.subjectName"></span>
       </el-form-item>
       <el-form-item label="选项" v-if="questionForm.type===1 || questionForm.type===2">
         <p v-for="(item,index) in questionForm.points" :key="index">
-          {{item.point}}、{{item.pointValue}}
+          <span v-html="item.point"></span>、<span v-html="item.pointValue" class="spanP"></span>
         </p>
       </el-form-item>
-      <el-form-item label="正确答案" prop="answer">
+      <el-form-item label="正确答案" prop="answer" v-if="questionForm.type===1 || questionForm.type===2|| questionForm.type===3|| questionForm.type===4|| questionForm.type===5">
         {{questionForm.answer}}
       </el-form-item>
       <el-form-item label="题目解析">
-        {{questionForm.analysis}}
+        <span v-html="questionForm.analysis"></span>
       </el-form-item>
       <el-form-item label="出处" prop="source">
         <el-tag>{{questionForm.source}}</el-tag>

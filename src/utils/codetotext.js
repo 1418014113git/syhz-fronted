@@ -1190,6 +1190,15 @@ export function questionTypeAll(all) { // 有参数 包含全部
     }, {
       value: '4',
       label: '判断类'
+    }, {
+      value: '5',
+      label: '简答类'
+    }, {
+      value: '6',
+      label: '论述类'
+    }, {
+      value: '7',
+      label: '案例分析类'
     }]
   } else {
     return [{
@@ -1204,7 +1213,39 @@ export function questionTypeAll(all) { // 有参数 包含全部
     }, {
       value: '4',
       label: '判断类'
+    }, {
+      value: '5',
+      label: '简答类'
+    }, {
+      value: '6',
+      label: '论述类'
+    }, {
+      value: '7',
+      label: '案例分析类'
     }]
   }
 }
+// 考试状态
+export function examStatus() {
+  return [{
+    value: '0',
+    label: '进行中'
+  }, {
+    value: '1',
+    label: '已结束'
+  }, {
+    value: '2',
+    label: '未开始'
+  }]
+}
 
+// 阅卷状态
+export function goOverPaperStatus() {
+  return [{
+    value: '0',
+    label: '未阅卷'
+  }, {
+    value: '1',
+    label: '已阅卷'
+  }]
+}

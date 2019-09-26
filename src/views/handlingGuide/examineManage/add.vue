@@ -1,5 +1,5 @@
 <template>
-  <section class="addQuestion">
+  <section class="addExamine">
     <el-row class="spt_report">
       <img src="@/assets/icon/back.png"  class="goBack" @click="back">
     </el-row>
@@ -60,7 +60,7 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="开放单位" prop="openDepts" class="clearfix">
-                <!-- 可以多选；选择省厅，开放单位是全省；选择地市支队，开放单位是全市支队及区县大队； -->
+                <!-- 可以多选；只能是本单位或者下级单位，无法选择上级及其他单位 -->
                 <el-select v-model="examForm.openDepts" placeholder="请选择题型" multiple class="left" style="width:calc(100% - 30px)">
                   <el-option v-for="item in openDeptsList" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
@@ -68,8 +68,23 @@
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
               </el-form-item>
+              <el-form-item label="阅卷人员" prop="yjry" class="clearfix">
+                <el-transfer class="left" style="width:calc(100% - 30px)"
+                  filterable
+                  :filter-method="filterMethod"
+                  filter-placeholder="请输入关键字检索人员"
+                  v-model="examForm.ry"
+                  :render-content="renderFunc"
+                  :button-texts="['选中', '移除']"
+                  :titles="['人员列表','已选中的人员']"
+                  :data="generateData">
+                </el-transfer>
+                <el-tooltip class="right" effect="dark" content="请选择本次考试主观题的阅卷人员。" placement="top">
+                  <el-button circle><i class="el-icon-question"></i></el-button>
+                </el-tooltip>
+              </el-form-item>
               <el-form-item label="考试须知" class="clearfix" prop="remark">
-                <el-input type="textarea" :rows="2" v-model="examForm.remark" maxlength="1000" placeholder="请输入考试须知" class="left" style="width:calc(100% - 30px)"></el-input>
+                <el-input type="textarea" :rows="2" v-model="examForm.remark" maxlength="1000" placeholder="最多可输入1000文字！" class="left" style="width:calc(100% - 30px)"></el-input>
                 <el-tooltip class="right" effect="dark" content="请填写警员在参加考试时的注意事项，事项内容会在进入考试页面时自动弹出！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
@@ -108,6 +123,14 @@ export default {
       },
       editorHeight: '', // 右侧内容的高度
       value3: 'A',
+      generateData: [],
+      value: [],
+      renderFunc(h, option) {
+        return <span>{option.key} - {option.label}</span>
+      },
+      filterMethod(query, item) {
+        return item.pinyin.indexOf(query) > -1
+      },
       rules: {
         examinationName: {
           required: true, message: '请输入考试名称', trigger: 'blur'
@@ -142,6 +165,21 @@ export default {
   methods: {
     init() {
       // this.openDeptsList
+
+      // this.generateData = _ => {
+      const data = []
+      const cities = ['上海', '北京', '广州', '深圳', '南京', '西安', '成都']
+      const pinyin = ['shanghai', 'beijing', 'guangzhou', 'shenzhen', 'nanjing', 'xian', 'chengdu']
+      cities.forEach((city, index) => {
+        data.push({
+          label: city,
+          key: index,
+          pinyin: pinyin[index]
+        })
+      })
+      this.generateData = data
+      // return data
+      // }
     },
     handleImageAdded(file, Editor, cursorLocation, resetUploader) {
       const formData = new FormData()
@@ -166,14 +204,12 @@ export default {
     examPaperTypeChange(val) { // 试卷类型change，只能选择本单位组织的试卷，其他单位的无法选择
 
     },
-    questionTypeBlur(val) {
-    },
     back() {
       this.$router.back(-1)
     }
   },
   mounted() {
-    // this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
+    this.init()
   },
   watch: {
 
@@ -182,6 +218,22 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
+.addExamine {
+  .el-transfer-panel {
+    width: 350px;
+  }
+  .left {
+    float: left;
+  }
+  .right {
+    float: right;
+  }
+  .clearfix:after {
+    clear: both;
+    content: "";
+    display: block;
+  }
+}
 .spt_report {
   width: 80%;
   min-width: 1200px;
