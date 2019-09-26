@@ -4,11 +4,11 @@
       <el-button type="primary" size="small" @click="addTestQuestion" icon="el-icon-plus">添加考试</el-button>
     </div>
     <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
-      <el-form-item label="考试名称" prop="AJMC">
-        <el-input type="text" size="small" v-model="filters.options1" clearable placeholder="请输入"></el-input>
+      <el-form-item label="考试名称" prop="examinationName">
+        <el-input type="text" size="small" v-model="filters.examinationName" clearable placeholder="请输入"></el-input>
       </el-form-item>
-      <el-form-item label="考试状态" prop="AJMC">
-        <el-select v-model="filters.tx" placeholder="请选择题型" @change="examStatusChange">
+      <el-form-item label="考试状态" prop="examStatus">
+        <el-select v-model="filters.examStatus" placeholder="请选择" clearable @change="examStatusChange">
           <el-option v-for="item in ksztData" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
@@ -18,25 +18,31 @@
     </el-form>
     <!--列表-->
     <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
-      <el-table-column type="index" label="序号" width="70" class-name="tabC"></el-table-column>
-      <el-table-column prop="name" label="考试" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="date" label="考试时间" width="400" class-name="tabC"></el-table-column>
-      <el-table-column prop="date" label="考试时限" width="200" class-name="tabC"></el-table-column>
-      <el-table-column prop="date" label="允许次数" width="200" class-name="tabC"></el-table-column>
-      <el-table-column prop="type" label="试卷类型" width="200" class-name="tabC">
+      <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
+      <el-table-column prop="examinationName" label="考试" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="date" label="考试时间" width="400" align="center">
         <template slot-scope="scope">
-          <!-- <el-tag type="success"> -->
-            {{$getLabelByValue(scope.row.type, txData)}}
-          <!-- </el-tag> -->
+          {{scope.row.startDate}} ~ {{scope.row.endDate}}
         </template>
       </el-table-column>
-      <el-table-column prop="date" label="状态" width="200" class-name="tabC"></el-table-column>
+      <el-table-column prop="totalDate" label="考试时限" width="140" align="center"></el-table-column>
+      <el-table-column prop="permitNumber" label="允许次数" width="140" align="center"></el-table-column>
+      <el-table-column prop="type" label="试卷类型" width="140" align="center">
+        <template slot-scope="scope">
+          {{$getLabelByValue(scope.row.type+'', paperType)}}
+        </template>
+      </el-table-column>
+      <el-table-column prop="examStatus" label="状态" width="140" align="center">
+        <template slot-scope="scope">
+          {{$getLabelByValue(scope.row.examStatus+'', ksztData)}}
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="200">
         <template slot-scope="scope">
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
           <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑"></el-button>
           <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除"></el-button>
-          <el-button size="mini" circle type="danger"  @click="handleDelete(scope.$index, scope.row)" title="发布">
+          <el-button size="mini" circle type="danger"  @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩">
             <svg-icon icon-class="release"></svg-icon>
           </el-button>
           <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-view" title="删除"></el-button>
@@ -54,28 +60,23 @@
 </template>
 
 <script>
-import { examStatus } from '@/utils/codetotext'
+import { examStatus, examPaperType } from '@/utils/codetotext'
 import importexport from '@/api/importexport'
 export default {
-  props: ['menuItemNode'],
   data() {
     return {
       downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
-      tableData: [
-        { name: '11', date: '2019-01-01 21:01 ~ 2019-01-01 21:01', type: '2' }
-      ], // 列表数据
-      ksztData: [
-        { label: '未过期', value: '1' },
-        { label: '已过期', value: '2' }
-      ],
+      tableData: [], // 列表数据
       total: 0,
       page: 1,
       pageSize: 15,
       listLoading: false,
       tableHeight: null,
       filters: {},
-      txData: examStatus()
-
+      ksztData: examStatus(), // 考试状态
+      paperType: examPaperType(), // 试卷类型
+      userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
   },
   watch: { // 监听state状态变化
@@ -84,64 +85,106 @@ export default {
     examStatusChange(val) {
 
     },
-    queryList(flag) { // 列表数据查询
-      console.log('menuItemNode', JSON.stringify(this.menuItemNode))
-      // this.listLoading = true
-      // this.page = flag ? 1 : this.page
-      // const para = {
-      //   pageNum: this.page,
-      //   pageSize: this.pageSize,
-      //   logFlag: 1, // 添加埋点参数
-      //   id: this.menuItemNode.id
-      // }
-      // this.$query('', para).then((response) => {
-      //   this.listLoading = false
-      //   if (response.data && response.data.length > 0) {
-      //     this.list = response.data.list
-      //   }
-      // }).catch(() => {
-      //   this.listLoading = false
-      // })
+    queryList(flag, hand) { // 列表数据查询
+      this.listLoading = true
+      this.page = flag ? 1 : this.page
+      const para = {
+        pageNum: this.page,
+        pageSize: this.pageSize,
+        logFlag: 1, // 添加埋点参数
+        deptCode: this.deptInfo.depCode,
+        examinationName: this.filters.examinationName || '', // 考试名称
+        examStatus: this.filters.examStatus || '' // 考试状态
+      }
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
+      this.$query('page/examination', para).then((response) => {
+        this.listLoading = false
+        if (response.data && response.data.list.length > 0) {
+          this.tableData = response.data.list
+          this.total = response.data.totalCount
+          this.page = response.data.pageNum
+          this.pageSize = response.data.pageSize
+        } else {
+          this.tableData = []
+        }
+      }).catch(() => {
+        this.listLoading = false
+      })
     },
     handleCurrentChange(val) { // 分页查询
       this.page = val
-      this.queryList(false)
+      this.queryList(false, true)
     },
     handleSizeChange(val) { // 分条查询
       this.pageSize = val
-      this.queryList(true)
+      this.queryList(true, true)
+    },
+    handleDetail(index, row) { // 详情
+      this.$router.push({ path: '/handlingGuide/examineManage/detail', query: { examId: row.id }})
     },
     handleEdit(index, row) { // 编辑
-      var message1 = '该试题已经被抽取到XXXX（试卷名称）试卷中，暂时不能编辑或删除！'
-      // var message2 = '该试题在已结束的考试试卷中有使用，如果修改可能会影响到警员查看以往考试信息！是否继续修改？'
-      var messageText = message1
-      this.$confirm(messageText, '提示', {
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        // showCancelButton: false,
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        })
+      // 检查是否可编辑
+      var para = {
+        id: row.id
+      }
+      this.$query('examination/checkexamination', para).then((response) => {
+        this.listLoading = false
+        if (response.code === '000000') {
+          this.$router.push({ path: '/handlingGuide/examineManage/edit', query: { examId: row.id }})
+        }
       }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
+        this.listLoading = false
       })
-      // this.$router.push({ path: '/handlingGuide/testbaseManage/edit' })
     },
     handleDelete(index, row) { // 删除
+      this.listLoading = true
+      // 检查是否可删除
+      var para = {
+        id: row.id
+      }
+      this.$query('examination/checkexamination', para).then((response) => {
+        this.listLoading = false
+        if (response.code === '000000') {
+          this.deleteExam(row)
+        }
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    deleteExam(row) {
       this.$confirm('确定要删除吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功'
+        this.listLoading = true
+        var para = {
+          id: row.id,
+          delFlag: 1
+        }
+        this.$remove('examination/delete', para).then((response) => {
+          this.listLoading = false
+          if (response.code === '000000') {
+            this.$message({
+              type: 'success',
+              message: '删除成功'
+            })
+            this.queryList(true) // 刷新列表
+          } else {
+            this.$alert(response.message, '提示', {
+              confirmButtonText: '确定',
+              callback: action => {
+                this.$message({
+                  type: 'info',
+                  message: `action: ${action}`
+                })
+              }
+            })
+          }
+        }).catch(() => {
+          this.listLoading = false
         })
       }).catch(() => {
         this.loading = false
@@ -151,8 +194,26 @@ export default {
         })
       })
     },
+    handlePublishScore(index, row) { // 发布成绩
+      var param = {
+        id: row.id,
+        status: 0
+      }
+      this.$update('examination/save', param).then((response) => {
+        if (response.code === '000000') {
+          this.formLoading = true
+          this.loading = false
+          this.$message({
+            type: 'success',
+            message: '发布成功!'
+          })
+        }
+      }).catch(() => {
+        this.formLoading = false
+      })
+    },
     addTestQuestion() { // 添加试题
-      this.$router.push({ path: '/handlingGuide/examineManage/add' })
+      this.$router.push({ path: '/handlingGuide/examineManage/edit' })
     },
     importTem() {
       this.dialogImportVisible = true
@@ -174,7 +235,7 @@ export default {
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - 180
-    // this.query(true)
+    this.queryList(true)
   }
 }
 

@@ -344,10 +344,8 @@ export default {
     this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
     if (this.$route.query) {
       this.carryParam = this.$route.query
-      // console.log(this.carryParam)
       this.init()
     }
-    // tinymce.init({})
   },
   watch: {
 

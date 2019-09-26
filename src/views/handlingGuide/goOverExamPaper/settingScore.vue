@@ -1,23 +1,31 @@
 <template>
-  <section class="testTableList">
+  <section class="setScore">
     <el-card class="box-card">
       <div slot="header" class="clearfix">
-        <div class="score">
-          <span>考试成绩：</span>
-          <span>用时45分32秒，自动阅卷得分</span><span>78</span>分
+        <div class="left">
+          <span class="font_b">考试成绩：</span>
+          <span>用时45分32秒，自动阅卷得分</span><span class="scoreNumber"> 78 </span>分
         </div>
-        <el-button style="float: right; padding: 3px 0" type="text">完成阅卷</el-button>
+        <el-button class="right" size="medium" type="primary" plain icon="el-icon-check">完成阅卷</el-button>
       </div>
       <div>
-        <div>
-          <p>三、简答题（每题10分，共20分）</p>
-          <p>1、简单题的说法大幅度随风倒十分</p>
-          <p>
-            <span>您的答案：</span>就感觉如果
-          </p>
-          <p>
-            <span>解析：</span>咬定青山不放松，立根原在破岩中。千磨万击还坚劲，任尔东西南北风”这首诗是郑燮，是咏松树的
-          </p>
+        <div class="question_wrap">
+          <p class="font_b">三、简答题（每题10分，共20分）</p>
+          <div class="small_question_wrap clearfix">
+            <div class="left">
+              <p>1、简单题的说法大幅度随风倒十分</p>
+              <p>
+                <span class="font_b">您的答案：</span>就感觉如果
+              </p>
+              <p>
+                <span class="font_b">解析：</span>咬定青山不放松，立根原在破岩中。千磨万击还坚劲，任尔东西南北风”这首诗是郑燮，是咏松树的
+              </p>
+            </div>
+            <div class="right" style="">
+              <p class="score_text">得分</p>
+              <el-input type="text" size="small" v-model="score" class="scoreInput"></el-input>
+            </div>
+          </div>
         </div>
       </div>
     </el-card>
@@ -39,6 +47,7 @@ export default {
         { label: '未过期', value: '1' },
         { label: '已过期', value: '2' }
       ],
+      score: '',
       total: 0,
       page: 1,
       pageSize: 15,
@@ -152,11 +161,43 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-.testTableList {
-  height: 100%;
-  .addTestQuestion {
-    float: right;
-    margin-bottom: 10px;
+.setScore {
+  .scoreNumber {
+    font-size: 20px;
+    color: #f72929;
   }
+  .question_wrap p {
+    margin-bottom: 15px;
+  }
+  .small_question_wrap {
+    margin-left: 30px;
+    .left {
+      width: 80%;
+    }
+    .right {
+      width: 100px;
+      text-align: center;
+      border: 1px solid #dedede;
+      .score_text {
+        line-height: 32px;
+        border-bottom: 1px solid #bebebe;
+        margin-bottom: 0px;
+      }
+    }
+  }
+  .font_b {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+.scoreInput .el-input__inner {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  border: none;
+  outline: none;
+  background-color: none;
+  padding: 5px 0;
 }
 </style>
