@@ -1228,13 +1228,13 @@ export function questionTypeAll(all) { // 有参数 包含全部
 // 考试状态
 export function examStatus() {
   return [{
-    value: '0',
+    value: '2',
     label: '进行中'
   }, {
-    value: '1',
+    value: '3',
     label: '已结束'
   }, {
-    value: '2',
+    value: '1',
     label: '未开始'
   }]
 }
@@ -1247,5 +1247,33 @@ export function goOverPaperStatus() {
   }, {
     value: '1',
     label: '已阅卷'
+  }]
+}
+
+// 试卷类型
+export function examPaperType() {
+  return [{
+    value: '1',
+    label: '人工组卷'
+  }, {
+    value: '2',
+    label: '随机组卷'
+  }]
+}
+
+// 分类
+export function systemClassify() {
+  return [{
+    value: '4',
+    label: '环境'
+  }, {
+    value: '1',
+    label: '食品'
+  }, {
+    value: '2',
+    label: '药品'
+  }, {
+    value: '3',
+    label: '综合'
   }]
 }
