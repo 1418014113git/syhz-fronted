@@ -71,6 +71,8 @@ Vue.use(VueKindEditor)
 
 import Navigation from 'vue-navigation'
 Vue.use(Navigation, { router })
+import Print from 'vue-print-nb' // 打印插件
+Vue.use(Print)
 
 new Vue({
   el: '#app',
