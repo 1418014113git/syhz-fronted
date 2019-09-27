@@ -7,7 +7,7 @@
         <el-input v-model.trim="filters.paperName"  maxlength="50" placeholder="" clearable></el-input>
       </el-form-item>
       <el-form-item label="组卷方式" prop="">
-        <el-select  v-model="filters.paperType" size="small" placeholder="请选择">
+        <el-select  v-model="filters.paperType" size="small" placeholder="请选择" @change="paperTypeChange">
           <el-option v-for="item in zjOption" :key="item.label" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
@@ -49,12 +49,12 @@
       </el-table-column>
       <el-table-column label="操作" width="180">
         <template slot-scope="scope">
-          <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="scope.row.fbStatus==='0'"   @click="handleEdit(scope.$index, scope.row)"></el-button>
-          <el-button size="mini" title="发布"  type="primary" icon="el-icon-bell"  circle  v-if="scope.row.fbStatus==='0'" @click="handleRelease(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="scope.row.paperStatus===1"   @click="handleEdit(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="发布"  type="primary" icon="el-icon-bell"  circle  v-if="scope.row.paperStatus===1" @click="handleRelease(scope.$index, scope.row)"></el-button>
           <el-button size="mini" title="预览"  type="primary" circle  @click="preview(scope.$index, scope.row)">
             <svg-icon icon-class="yulan"></svg-icon>
           </el-button>
-          <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete"  circle  v-if="scope.row.fbStatus==='0'" @click="handleDelete(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete"  circle  v-if="scope.row.paperStatus===1" @click="handleDelete(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -147,7 +147,9 @@ export default {
       this.query(true, true)
     },
     handleEdit(index, row) { // 编辑
-
+      this.$router.push({
+        path: '/handlingGuide/editExamPaper', query: { id: row.id, paperType: row.paperType }
+      })
     },
     handleDelete(index, row) { // 删除
       this.$confirm('确定要删除该试卷吗？', '提示', {
@@ -156,7 +158,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        this.$remove('paper/delete', { id: row.id, logFlag: 1 }).then((response) => {
+        this.$update('paper/delete', { id: row.id, logFlag: 1 }).then((response) => {
           this.listLoading = false
           this.$message({
             message: '删除成功',
@@ -186,7 +188,7 @@ export default {
           modifier: JSON.parse(sessionStorage.getItem('userInfo')).userName, // 登录人账号
           logFlag: 1
         }
-        this.$remove('paper/release', param).then((response) => {
+        this.$update('paper/release', param).then((response) => {
           this.listLoading = false
           this.$message({
             message: '发布成功',
@@ -257,6 +259,9 @@ export default {
         endTime: '', // 创建时间 结束
         paperStatus: '' // 发布状态
       }
+      this.query(true, true)
+    },
+    paperTypeChange() { // 组卷方式change
       this.query(true, true)
     }
   },
