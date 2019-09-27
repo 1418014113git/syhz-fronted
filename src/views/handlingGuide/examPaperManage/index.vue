@@ -65,11 +65,19 @@
                      :current-page="page" :total="total" style="float:right;">
       </el-pagination>
     </el-col>
+
+    <!-- 预览试卷 -->
+    <el-dialog title="试题详情" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
+      <preview-paper :curPaper="curPaperData"></preview-paper>
+    </el-dialog>
   </section>
 </template>
 
 <script>
+import { questionTypeAll } from '@/utils/codetotext'
+import previewPaper from './previewPaper'
 export default {
+  name: 'exampaper',
   props: ['menuItemNode'],
   data() {
     return {
@@ -88,6 +96,9 @@ export default {
       endDateDisabled: true, // 结束时间选择框是否禁用
       tableHeight: null,
       list: [], // 列表数据
+      dialogPreviewVisible: false, // 预览试卷的弹框
+      curPaperData: [], // 预览时的试卷内容
+      txData: questionTypeAll(),
       zjOption: [ // 组卷方式
         {
           value: 1,
@@ -109,6 +120,9 @@ export default {
         }
       ]
     }
+  },
+  components: {
+    previewPaper
   },
   methods: {
     query(flag, hand) { // 列表数据查询
@@ -207,7 +221,44 @@ export default {
       })
     },
     preview(index, row) { // 预览试卷
-
+      this.listLoading = true
+      row.id = 2030 // 先写死 数据比较全
+      this.$query('paper/preview/' + row.id, {}).then((response) => {
+        this.listLoading = false
+        if (response.code === '000000') {
+          var data = response.data
+          this.dialogPreviewVisible = true
+          this.dealData(data)
+        }
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    dealData(data) { // 处理预览返回的数据
+      var _this = this
+      var staticArr = ['one', 'two', 'three', 'four', 'five', 'six', 'seven']
+      var titleText = ['一', '二', '三', '四', '五', '六', '七']
+      _this.curPaperData = []
+      for (let index = 0; index < staticArr.length; index++) {
+        var element = staticArr[index]
+        if (data[element]) {
+          data[element].titleCN = titleText[index]
+          if (data[element].data && data[element].data.length > 0 && data[element].data[0].type) {
+            data[element].typeName = _this.$getLabelByValue(data[element].data[0].type + '', _this.txData)
+          } else {
+            data[element].typeName = '无'
+          }
+          if (data[element].data[0].type === 3) { // 填空题，将[] 替换为横线
+            for (let k = 0; k < data[element].data.length; k++) {
+              var tkelement = data[element].data[k]
+              if (tkelement.name.indexOf('[]') > -1) {
+                tkelement.name = tkelement.name.replace(/\[/g, '___').replace(/\]/g, '___')
+              }
+            }
+          }
+          _this.curPaperData.push(data[element])
+        }
+      }
     },
     addExamPaper() { // 添加试卷
       this.$router.push({ path: '/handlingGuide/addExamPaper' })
@@ -273,12 +324,16 @@ export default {
 
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
-.testTableList{
-   height: 100%;
-  .addTestQuestion{
+<style rel="stylesheet/scss" lang="scss">
+.testTableList {
+  height: 100%;
+  .addTestQuestion {
     float: right;
     margin-bottom: 10px;
   }
+}
+.previewDia .el-dialog__body {
+  background: #ffffff;
+  color: #000000;
 }
 </style>
