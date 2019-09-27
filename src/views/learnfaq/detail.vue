@@ -329,7 +329,7 @@
       },
       backtoList() {
         this.$router.push({
-          path: '/learn/index',
+          path: '/micro/trainMaterial',
           query: {
             page: this.$route.query.page,
             pageSize: this.$route.query.pageSize,
