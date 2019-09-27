@@ -16,14 +16,14 @@
     </el-form>
     <!--列表-->
     <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
-      <el-table-column type="index" label="序号" width="70" class-name="tabC"></el-table-column>
+      <el-table-column type="index" label="序号" width="70" class-name="tabC" align="center"></el-table-column>
       <el-table-column prop="subjectName" label="题目内容" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-html="scope.row.subjectName" class="spanP"></span>
         </template>
       </el-table-column>
-      <el-table-column prop="modifyDate" label="更新时间" width="200" class-name="tabC"></el-table-column>
-      <el-table-column prop="type" label="类型" width="200" class-name="tabC">
+      <el-table-column prop="modifyDate" label="更新时间" width="200" align="center"></el-table-column>
+      <el-table-column prop="type" label="类型" width="120" class-name="tabC" align="center">
         <template slot-scope="scope">
           <!-- <el-tag type="success"> -->
             {{$getLabelByValue(scope.row.type+'', txData)}}
@@ -34,7 +34,7 @@
         <template slot-scope="scope">
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
           <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑"></el-button>
-          <el-button size="mini" circle type="danger" v-if="scope.row.deleteable=='1'" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除"></el-button>
+          <el-button size="mini" circle type="danger" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除"></el-button>
           <!-- <el-button size="mini" circle type="danger" v-if="scope.row.deleteable=='1'" @click="handleRevord(scope.$index, scope.row)" title="发布">
             <svg-icon icon-class="audit"></svg-icon>
           </el-button> -->
@@ -49,7 +49,7 @@
       </el-pagination>
     </el-col>
     <!-- 详情弹框 -->
-    <el-dialog title="试题详情" :visible.sync="dialogDetailVisible" size="small" @close="closeDia('detail')" class="comDialog">
+    <el-dialog title="试题详情" :visible.sync="dialogDetailVisible" size="small" @close="closeDia('detail')" class="comDialog" width="50%">
       <question-detail :questionItem="curQuestion"></question-detail>
     </el-dialog>
     <!-- 导入弹框 -->
@@ -71,8 +71,16 @@
     <!-- 导入试题的提示 错误信息 -->
     <el-dialog width="50%" title="提示信息" :visible.sync="innerErrorInfoVisible" append-to-body>
       <el-table :data="errorData">
-        <el-table-column prop="number" label="行数" width="100"></el-table-column>
-        <el-table-column prop="des" label="错误信息"></el-table-column>
+        <el-table-column type="index" label="序号" width="70"></el-table-column>
+        <el-table-column prop="type" label="类型" width="100">
+          <template slot-scope="scope">
+            <!-- <el-tag type="success"> -->
+              {{$getLabelByValue(scope.row.type+'', txData)}}
+            <!-- </el-tag> -->
+          </template>
+        </el-table-column>
+        <el-table-column prop="num" label="行数" width="60"></el-table-column>
+        <el-table-column prop="des" label="错误信息" show-overflow-tooltip></el-table-column>
       </el-table>
     </el-dialog>
   </section>
@@ -98,9 +106,10 @@ export default {
       listLoading: false,
       tableHeight: null,
       filters: {
-        tx: '0'
+        tx: '1'
       },
-      txData: questionTypeAll('all'),
+      // txData: questionTypeAll('all'),
+      txData: questionTypeAll(),
       dialogImportVisible: false, // 导入弹框
       importLoading: false, // 导入弹框loading
       importInfo: {
@@ -146,20 +155,17 @@ export default {
         pageNum: this.page,
         pageSize: this.pageSize,
         logFlag: 1, // 添加埋点参数
-        subjectCategoryId: this.menuItemNode.id
-        // subjectCategoryId: 1
+        subjectCategoryId: this.menuItemNode.id // 试题模块的id
       }
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
-      // 加page后报错
       this.$query('questions/list/' + this.filters.tx, para).then((response) => {
         this.listLoading = false
-        // this.tableData = response.data.list
-        // this.total = response.data.totalCount
-        // this.page = response.data.pageNum
-        // this.pageSize = response.data.pageSize
-        this.tableData = response.data
+        this.tableData = response.data.list
+        this.total = response.data.totalCount
+        this.page = response.data.pageNum
+        this.pageSize = response.data.pageSize
         if (this.tableData.length > 0) {
           this.tableData.forEach(element => {
             if (element.subjectName.indexOf('[]') > 0) { // 填空题的[] 展示的时候替换为下横线
@@ -186,39 +192,120 @@ export default {
       this.curQuestion = row // 当前选择的问题
     },
     handleEdit(index, row) { // 编辑，此处需要判断试题有没有在考试中（未过期、已过期两种）引用
-      // var message1 = '该试题已经被抽取到XXXX（试卷名称）试卷中，暂时不能编辑或删除！'
-      // // var message2 = '该试题在已结束的考试试卷中有使用，如果修改可能会影响到警员查看以往考试信息！是否继续修改？'
-      // var messageText = message1
-      // this.$confirm(messageText, '提示', {
-      //   confirmButtonText: '确认',
-      //   cancelButtonText: '取消',
-      //   // showCancelButton: false,
-      //   type: 'warning'
-      // }).then(() => {
-      this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type }})
-      // }).catch(() => {
-      //   this.$message({
-      //     type: 'info',
-      //     message: '已取消'
-      //   })
-      // })
-    },
-    handleDelete(index, row) { // 删除
-      this.$confirm('确定要删除吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功'
-        })
+      this.listLoading = true
+      var messageText = ''
+      this.$query('questions/checkinpaper?id=' + row.id, {}).then((response) => {
+        if (response.data) {
+          if (response.data.type === '1') { // 考试未过期
+            messageText = '该试题已经被抽取到 “' + response.data.paperName + '” 试卷中，暂时不能编辑！'
+            this.$confirm(messageText, '提示', {
+              confirmButtonText: '知道了',
+              cancelButtonText: '取消',
+              showCancelButton: false,
+              type: 'warning'
+            }).then(() => {
+              this.listLoading = false
+            }).catch(() => {
+              this.listLoading = false
+              this.$message({
+                type: 'info',
+                message: '已取消'
+              })
+            })
+          } if (response.data.type === '2') { // 考试过期
+            messageText = '该试题在已结束的考试试卷中有使用，如果修改可能会影响到警员查看以往考试信息！是否继续修改？'
+            this.$confirm(messageText, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              // showCancelButton: false,
+              type: 'warning'
+            }).then(() => {
+              this.listLoading = false
+              this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type }})
+            }).catch(() => {
+              this.listLoading = false
+              this.$message({
+                type: 'info',
+                message: '已取消'
+              })
+            })
+          }
+        } else { // 未引用到考试
+          this.listLoading = false
+          this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type }})
+        }
       }).catch(() => {
-        this.loading = false
+        this.listLoading = false
         this.$message({
           type: 'info',
-          message: '已取消'
+          message: '请求失败'
         })
+      })
+    },
+    handleDelete(index, row) { // 删除
+      this.listLoading = true
+      var messageText = ''
+      this.$query('questions/checkinpaper?id=' + row.id, {}).then((response) => {
+        if (response.data) {
+          if (response.data.type === '1') { // 考试未过期
+            messageText = '该试题已经被抽取到 “' + response.data.paperName + '” 试卷中，暂时不能删除！'
+            this.$confirm(messageText, '提示', {
+              confirmButtonText: '知道了',
+              cancelButtonText: '取消',
+              showCancelButton: false,
+              type: 'warning'
+            }).then(() => {
+              this.listLoading = false
+            }).catch(() => {
+              this.listLoading = false
+              this.$message({
+                type: 'info',
+                message: '已取消'
+              })
+            })
+          } if (response.data.type === '2') { // 考试过期
+            messageText = '该试题在已结束的考试试卷中有使用，如果修改可能会影响到警员查看以往考试信息！是否继续删除？'
+            this.$confirm(messageText, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              // showCancelButton: false,
+              type: 'warning'
+            }).then(() => {
+              this.removeQuestion(row)
+            }).catch(() => {
+              this.listLoading = false
+              this.$message({
+                type: 'info',
+                message: '已取消'
+              })
+            })
+          }
+        } else { // 未引用到考试
+          this.removeQuestion(row)
+        }
+      }).catch(() => {
+        this.listLoading = false
+        this.$message({
+          type: 'info',
+          message: '请求失败'
+        })
+      })
+    },
+    removeQuestion(row) {
+      var para = {
+        id: row.id,
+        type: row.type
+      }
+      this.$query('questions/deletebyid', para).then((response) => {
+        this.listLoading = false
+        if (response.code === '000000') {
+          this.$message({
+            message: '删除成功', type: 'error'
+          })
+          this.queryList(true, true)
+        }
+      }).catch(() => {
+        this.listLoading = false
       })
     },
     addTestQuestion() { // 添加试题
@@ -245,8 +332,10 @@ export default {
           this.importLoading = true
           const formData = new FormData()
           formData.append('file', this.fileCon) // 文件
-          formData.append('createDept', this.deptInfo.depName) // 创建部门
-          formData.append('createName', this.userInfo.realName) // 创建人
+          formData.append('subjectCategoryId', this.importInfo.category[this.importInfo.category.length - 1]) // 选择的试题模块
+          formData.append('deptCode', this.deptInfo.depCode) // 创建部门
+          formData.append('deptName', this.deptInfo.depName) // 创建部门
+          formData.append('creator', this.userInfo.userName) // 创建人
           const config = {
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -254,7 +343,7 @@ export default {
               'userName': this.userInfo.userName
             }
           }
-          axios.post(this.ModuleName + 'upload', formData, config).then((response) => {
+          axios.post(this.ModuleName + 'exam/examUploadFile', formData, config).then((response) => {
             this.importLoading = false
             if (response.data.message !== 'OK') { // 有异常
               const file = document.getElementById('excelFile')
@@ -264,21 +353,29 @@ export default {
               })
               this.fileCon = ''
             } if (response.data.message === 'OK') {
-              if (response.data.data.type === 'success') { // 上传成功
+              if (response.data.data && response.data.data.length > 0) { // 上传失败
+                this.innerErrorInfoVisible = true
+                var errorInfo = []
+                for (let index = 0; index < response.data.data.length; index++) {
+                  var element = response.data.data[index]
+                  for (const key in element.errors) {
+                    if (element.errors.hasOwnProperty(key)) {
+                      var obj = {}
+                      obj.type = element.type
+                      obj.num = key
+                      obj.des = element.errors[key].join(',')
+                      errorInfo.push(obj)
+                    }
+                  }
+                }
+                this.errorData = errorInfo
+              } else if (response.data.data === null) {
                 this.$message({
                   message: '保存成功', type: 'success'
                 })
                 this.dialogImportVisible = false
                 this.innerErrorInfoVisible = false
                 this.queryList(true)
-              } else if (response.data.data.type !== 'success') {
-                this.innerErrorInfoVisible = true
-                var errorInfo = []
-                for (let index = 0; index < response.data.data.list.length; index++) {
-                  const element = JSON.parse(response.data.data.list[index])
-                  errorInfo[index] = { number: element[0], des: element[1] }
-                }
-                this.errorData = errorInfo
               }
             }
           }).catch((response) => {
@@ -304,14 +401,11 @@ export default {
     }
   },
   mounted() {
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-    // this.$refs.filters.offsetHeight
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 200
     this.queryList(true, true)
   }
 }
-
 </script>
-
 <style rel="stylesheet/scss" lang="scss">
 .testTableList {
   height: 100%;
@@ -322,6 +416,14 @@ export default {
   .spanP p {
     display: inline-block;
     margin: 0;
+    img {
+      width: 120px;
+      height: 80px;
+      margin-left: 20px;
+    }
+  }
+  .toolbar {
+    margin: 10px 0 8px;
   }
 }
 </style>
