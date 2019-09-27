@@ -144,9 +144,9 @@ export const constantRouterMap = [
       { path: '/special/caseByMode', component: () => import('@/views/warlywarning/specialCase'), name: '专题预警模型搜索' },
       { path: '/handlingGuide/inspecorgList', component: () => import('@/views/handlingGuide/inspecorg_list'), name: '检验机构列表' },
       { path: '/handlingGuide/inspecorgEdit', component: () => import('@/views/handlingGuide/inspecorg_edit'), name: '检验机构编辑' },
-      { path: '/learn/index', component: () => import('@/views/learnfaq/index'), name: '疑难解答' },
-      { path: '/learn/detail/:id', component: () => import('@/views/learnfaq/detail'), name: '疑难解答详情' },
-      { path: '/learn/save', component: () => import('@/views/learnfaq/question'), name: '疑难解答提问' },
+      { path: '/micro/trainMaterial', component: () => import('@/views/learnfaq/index'), name: '疑难解答' },
+      { path: '/micro/trainMaterial/detail/:id', component: () => import('@/views/learnfaq/detail'), name: '疑难解答详情' },
+      { path: '/micro/trainMaterial/save', component: () => import('@/views/learnfaq/question'), name: '疑难解答提问' },
       { path: '/specialTasks/specialTasksCount', component: () => import('@/views/specialTasks/specialTasksCount'), name: '专项任务分析展现' },
       { path: '/learn/myqa', component: () => import('@/views/learnfaq/myQA'), name: '我的记录' },
       { path: '/micro/index', component: () => import('@/views/microClass/index'), name: '在线课堂' },
@@ -259,7 +259,9 @@ export const constantRouterMap = [
       { path: '/handlingGuide/examPaperManage', component: () => import('@/views/handlingGuide/examPaperManage/index'), name: '试卷管理' }, // 试卷列表
       { path: '/handlingGuide/addExamPaper', component: () => import('@/views/handlingGuide/examPaperManage/addExamPaper'), name: '添加试卷' }, // 添加试卷
       { path: '/handlingGuide/goOverExamPaper/index', component: () => import('@/views/handlingGuide/goOverExamPaper/index'), name: '阅卷列表' }, // 阅卷列表
-      { path: '/handlingGuide/goOverExamPaper/settingScore', component: () => import('@/views/handlingGuide/goOverExamPaper/settingScore'), name: '阅卷' } // 阅卷
+      { path: '/handlingGuide/goOverExamPaper/settingScore', component: () => import('@/views/handlingGuide/goOverExamPaper/settingScore'), name: '阅卷' }, // 阅卷
+      { path: '/handlingGuide/examTrainingManage/index', component: () => import('@/views/handlingGuide/examTrainingManage/index'), name: '考试练兵列表' }, // 考试练兵
+      { path: '/handlingGuide/examTrainingManage/trainingOnline', component: () => import('@/views/handlingGuide/examTrainingManage/trainingOnline'), name: '在线考试' } // 在线考试
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
