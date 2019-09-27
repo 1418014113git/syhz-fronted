@@ -2,6 +2,7 @@
   <section class="preview">
     <el-row class="clearfix">
       <el-button v-print="'#previewExamPaper'" class="right" type="primary" plain icon="el-icon-printer">打印</el-button>
+      <el-button class="right" type="primary" plain icon="el-icon-check" style="margin-right:10px;">保存</el-button>
     </el-row>
     <div id="previewExamPaper" v-loading="detailLoading">
       <!-- 填空题 -->
@@ -48,8 +49,8 @@ export default {
   watch: { // 监听state状态变化
     curPaper(val) {
       if (val) {
-        this.paperId = val
-        this.queryPaperData()
+        this.paperData = val
+        // this.queryPaperData()
       }
     }
   },
@@ -75,7 +76,7 @@ export default {
         var element = staticArr[index]
         if (this.data[element]) {
           this.data[element].titleCN = titleText[index]
-          if (this.data[element].data[0].type) {
+          if (this.data[element].data && this.data[element].data.length > 0 && this.data[element].data[0].type) {
             this.data[element].typeName = this.$getLabelByValue(this.data[element].data[0].type + '', this.txData)
           } else {
             this.data[element].typeName = '无'
@@ -95,8 +96,8 @@ export default {
   },
   mounted() {
     if (this.curPaper) {
-      this.paperId = this.curPaper
-      this.queryPaperData()
+      this.paperData = this.curPaper
+      // this.queryPaperData()
     }
   }
 }
