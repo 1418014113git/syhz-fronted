@@ -44,7 +44,8 @@
       <el-table-column prop="createDate" label="创建时间" min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="paperStatus" label="发布状态" min-width="100">
         <template slot-scope="scope">
-          <span>{{getfbStatus(scope.row.paperStatus)}}</span>
+          <span v-if="scope.row.paperStatus === 1" style="color:#F56C6C;">{{getfbStatus(scope.row.paperStatus)}}</span>
+          <span v-else-if="scope.row.paperStatus === 2" style="color:#67C23A;">{{getfbStatus(scope.row.paperStatus)}}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="180">

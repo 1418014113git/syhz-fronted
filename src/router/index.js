@@ -262,7 +262,8 @@ export const constantRouterMap = [
       { path: '/handlingGuide/goOverExamPaper/index', component: () => import('@/views/handlingGuide/goOverExamPaper/index'), name: '阅卷列表' }, // 阅卷列表
       { path: '/handlingGuide/goOverExamPaper/settingScore', component: () => import('@/views/handlingGuide/goOverExamPaper/settingScore'), name: '阅卷' }, // 阅卷
       { path: '/handlingGuide/examTrainingManage/index', component: () => import('@/views/handlingGuide/examTrainingManage/index'), name: '考试练兵列表' }, // 考试练兵
-      { path: '/handlingGuide/examTrainingManage/trainingOnline', component: () => import('@/views/handlingGuide/examTrainingManage/trainingOnline'), name: '在线考试' } // 在线考试
+      { path: '/handlingGuide/examTrainingManage/trainingOnline', component: () => import('@/views/handlingGuide/examTrainingManage/trainingOnline'), name: '在线考试' }, // 在线考试
+      { path: '/handlingGuide/examTrainingManage/scoreRanking', component: () => import('@/views/handlingGuide/examTrainingManage/scoreRanking'), name: '成绩排名' } // 成绩排名
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
