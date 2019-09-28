@@ -39,9 +39,9 @@
           </div>
           <el-row>
             <el-col :span="24" style="padding: 15px 10px 0 10px;">
-              <div v-for="(item, index) in helpList" style="display: inline-block">
+              <div v-for="(item, index) in helpList" :key="index" style="display: inline-block">
                 <div style="width: 200px;text-align: center;padding: 0 10px 0 0;">
-                  <img style="width: 100px;cursor: pointer;" :src="item.src" @click="download(item.downloadUrl)"></img>
+                  <img style="width: 100px;cursor: pointer;" :src="item.src" @click="download(item.downloadUrl)" />
                   <div style="margin-top: 10px;">{{ item.describe }}</div>
                 </div>
               </div>
@@ -195,7 +195,7 @@
       // 编辑
       edit(row) {
         this.$router.push({
-          path: '/learn/save/',
+          path: '/micro/trainMaterial/save/',
           query: {
             id: row.id,
             page: this.page,
@@ -239,7 +239,7 @@
       // 详情
       details(id) {
         this.$router.push({
-          path: '/learn/detail/' + id,
+          path: '/micro/trainMaterial/detail/' + id,
           query: {
             page: this.page,
             pageSize: this.pageSize,
@@ -287,7 +287,7 @@
       // 提问
       toQuestion() {
         this.$router.push({
-          path: '/learn/save',
+          path: '/micro/trainMaterial/save',
           query: {
             page: this.page,
             pageSize: this.pageSize,
