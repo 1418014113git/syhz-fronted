@@ -1,5 +1,5 @@
 <template>
-  <div class="checkst">
+  <div class="checkst" v-loading="pageloading">
     <!-- 人工组卷--选择试题 -->
     <el-row>
       <!-- 左侧树形结构 -->
@@ -19,7 +19,7 @@
         <el-form :inline="true"  ref="filters" label-width="84px" style="text-align: left;">
           <el-form-item label="试题类型">
             <el-select v-model="type" placeholder="请选择题型" @change="questionTypeChange">
-              <el-option v-for="item in txData" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              <el-option v-for="item in txData" :key="item.label" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
         </el-form>
@@ -73,12 +73,13 @@ export default {
     },
     alreadyCheck: { // 添加试卷页已经被选择的试题
       type: Array,
-      required: false
+      required: true
     }
   },
   data() {
     return {
-      listLoading: false, // 页面加载进度条
+      pageloading: false, // 页面加载进度条
+      listLoading: false, // 列表加载进度条
       total: 0,
       page: 1,
       pageSize: 15,
@@ -86,6 +87,7 @@ export default {
       listData: [], // 列表数据
       type: '1', // 筛选条件
       checkId: [], // 复选框选中的列表id
+      checkIdRow: [], // 存储当前行被点击选中的项
       checkList: [], // 复选框选中的列表项
       txData: questionTypeAll(),
       tableHeight: null,
@@ -99,13 +101,8 @@ export default {
   watch: { // 监听state状态变化
     alreadyCheck: {
       handler: function(val, oldeval) {
-        if (val.length > 0) {
-          var data = []
-          val.forEach(item => {
-            data.push(item.id)
-          })
-        }
-        this.checkId = data
+        this.checkId = val
+        this.memoryChecked()
       }
     },
     isClear: {
@@ -119,16 +116,16 @@ export default {
   },
   methods: {
     init() { // 查询左侧tree数据
-      this.listLoading = true
+      this.pageloading = true
       this.$query('examsubjectcategory', {}).then((response) => {
-        this.listLoading = false
+        this.pageloading = false
         if (response.data && response.data.length > 0) {
           this.changeData(response.data)
         } else {
           this.noData = true
         }
       }).catch(() => {
-        this.listLoading = false
+        this.pageloading = false
       })
     },
     query(flag, hand) { // 列表数据查询
@@ -156,7 +153,6 @@ export default {
               element.name = element.name.replace(/\[/g, '__').replace(/\]/g, '__')
             }
           })
-
           this.$nextTick(function() {
             this.memoryChecked()
           })
@@ -167,6 +163,10 @@ export default {
       })
     },
     questionTypeChange(val) {
+      this.listData = []
+      this.total = 0
+      this.page = 1
+      this.pageSize = 15
       if (this.menuItemNode.id) {
         this.query(true, true)
       }
@@ -231,12 +231,12 @@ export default {
     },
     // 行选中函数  若有删除，若无添加
     handleselectRow(selection, row) {
-      if (this.checkId[row.id]) {
-        delete this.checkId[row.id]
+      if (this.checkIdRow[row.id]) {
+        delete this.checkIdRow[row.id]
       } else {
-        this.checkId[row.id] = row.id
+        this.checkIdRow[row.id] = row.id
       }
-      console.log('checkId', JSON.stringify((this.checkId)))
+      this.checkId = this.checkIdRow
     },
     // 全选函数  点击全选遍历当页数据若无添加,若是反选则删除(判断是否是全选还是反选)
     handleselectAll(selection) {
@@ -250,59 +250,61 @@ export default {
     },
     // 记忆函数
     memoryChecked() {
-      // if (this.defaultCheck) {
-      //   this.defaultCheck.forEach(row => {
-      //     this.$refs.multipleTable.toggleRowSelection(row)
-      //   })
-      // } else {
-      //   this.$refs.multipleTable.clearSelection()
-      // }
-      this.listData.forEach((item, index) => {
-        if (this.checkId.hasOwnProperty(item.id)) {
-          this.$refs.multipleTable.toggleRowSelection(item, true)
-        } else {
-          this.$refs.multipleTable.toggleRowSelection(item, false)
-        }
-      })
+      if (this.listData.length > 0) {
+        this.listData.forEach((item, index) => {
+          if (this.checkId.indexOf(item.id) !== -1) {
+            this.$refs.multipleTable.toggleRowSelection(item, true)
+          } else {
+            this.$refs.multipleTable.toggleRowSelection(item, false)
+          }
+        })
+      }
     },
     save() { // 保存添加的模块
-      var data = []
-      debugger
+      var checkData = this.$refs.multipleTable.selection // 当前被选中的列表项
       if (this.listData.length > 0) {
-        if (this.checkId.length > 0) {
-          this.listData.forEach((item, index) => {
-            if (this.checkId.indexOf(item.id) > 0) {
-              item.subjectCategoryId = this.menuItemNode.id // 当前的模块id
-              item.subjectCategoryName = this.menuItemNode.label // 当前的模块名称
-              item.questionsId = item.id // 被选中的试题id
-              data.push(item)
-            }
+        if (checkData.length > 0) {
+          checkData.forEach((item, index) => {
+            item.subjectCategoryId = this.menuItemNode.id // 当前的模块id
+            item.subjectCategoryName = this.menuItemNode.label // 当前的模块名称
+            item.questionsId = item.id // 被选中的试题id
           })
-          var datas = { 'type': this.type, 'sort': Number(this.type), 'data': data }
-          this.$emit('checkList', datas)
+          var dataList = { type: this.type, sort: Number(this.type), num: 0, value: 1, desc: '', data: checkData }
+          this.$emit('checkList', dataList)
           this.$emit('stType', this.type)
+          this.$emit('closergDialog', false)
         } else {
-          this.$emit('checkList', { 'type': this.type, 'sort': Number(this.type), 'data': [] })
-          this.$emit('stType', this.type)
           this.$message({
             type: 'error',
             message: '请至少选择一条试题'
           })
         }
       } else {
-        this.$emit('checkList', { 'type': this.type, 'sort': Number(this.type), 'data': [] })
-        this.$emit('stType', this.type)
         this.$message({
           type: 'error',
           message: '当前无可选择的试题'
         })
       }
+    },
+    unique(arr) { // 数组去重
+      for (var i = 0; i < arr.length; i++) {
+        for (var j = i + 1; j < arr.length; j++) {
+          if (arr[i] === arr[j]) { // 第一个等同于第二个，splice方法删除第二个
+            arr.splice(j, 1)
+            j--
+          }
+        }
+      }
+      return arr
     }
   },
   mounted() {
     this.tableHeight = document.querySelector('.rightCont').offsetHeight - 180
     this.init()
   }
+  // activated() {
+  //   this.init()
+  // }
 }
 </script>
 
