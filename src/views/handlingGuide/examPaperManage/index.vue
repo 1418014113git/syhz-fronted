@@ -67,7 +67,7 @@
     </el-col>
 
     <!-- 预览试卷 -->
-    <el-dialog title="试题详情" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
+    <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
       <preview-paper :curPaper="curPaperData"></preview-paper>
     </el-dialog>
   </section>
@@ -222,7 +222,7 @@ export default {
     },
     preview(index, row) { // 预览试卷
       this.listLoading = true
-      row.id = 2030 // 先写死 数据比较全
+      row.id = 2030 // 测试数据
       this.$query('paper/preview/' + row.id, {}).then((response) => {
         this.listLoading = false
         if (response.code === '000000') {
