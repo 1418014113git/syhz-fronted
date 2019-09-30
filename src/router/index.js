@@ -249,7 +249,7 @@ export const constantRouterMap = [
       { path: '/handlingGuide/testbaseManage/detail', component: () => import('@/views/handlingGuide/testbaseManage/detail'), name: '试题详情' },
       { path: '/handlingGuide/testbaseManage/edit', component: () => import('@/views/handlingGuide/testbaseManage/edit'), name: '编辑试题' },
       { path: '/handlingGuide/examineManage', component: () => import('@/views/handlingGuide/examineManage/index'), name: '考试管理' },
-      { path: '/handlingGuide/examineManage/edit', component: () => import('@/views/handlingGuide/examineManage/edit'), name: '添加考试' },
+      { path: '/handlingGuide/examineManage/edit', component: () => import('@/views/handlingGuide/examineManage/edit'), name: '编辑考试' },
       { path: '/handlingGuide/examineManage/detail', component: () => import('@/views/handlingGuide/examineManage/detail'), name: '考试详情' },
       { path: '/handlingGuide/educationalFreeSettings_detail/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_detail'), name: '考试管理详情' },
       { path: '/handlingGuide/educationalFreeSettings_edit/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_edit'), name: '考试管理编辑' },
@@ -262,7 +262,10 @@ export const constantRouterMap = [
       { path: '/handlingGuide/goOverExamPaper/index', component: () => import('@/views/handlingGuide/goOverExamPaper/index'), name: '阅卷列表' }, // 阅卷列表
       { path: '/handlingGuide/goOverExamPaper/settingScore', component: () => import('@/views/handlingGuide/goOverExamPaper/settingScore'), name: '阅卷' }, // 阅卷
       { path: '/handlingGuide/examTrainingManage/index', component: () => import('@/views/handlingGuide/examTrainingManage/index'), name: '考试练兵列表' }, // 考试练兵
-      { path: '/handlingGuide/examTrainingManage/trainingOnline', component: () => import('@/views/handlingGuide/examTrainingManage/trainingOnline'), name: '在线考试' } // 在线考试
+      { path: '/handlingGuide/examTrainingManage/trainingOnline', component: () => import('@/views/handlingGuide/examTrainingManage/trainingOnline'), name: '在线考试' }, // 在线考试
+      { path: '/handlingGuide/examTrainingManage/paperExamed', component: () => import('@/views/handlingGuide/examTrainingManage/paperExamed'), name: '已考试详情' }, // 已考试详情
+      { path: '/handlingGuide/examTrainingManage/scoreRanking', component: () => import('@/views/handlingGuide/examTrainingManage/scoreRanking'), name: '成绩排名' }, // 成绩排名
+      { path: '/handlingGuide/examineManage/statistical', component: () => import('@/views/handlingGuide/examineManage/statistical'), name: '考试统计' } // 考试统计
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },

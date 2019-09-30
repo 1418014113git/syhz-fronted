@@ -64,12 +64,24 @@
                 <el-select v-model="examForm.openDepts" placeholder="请选择开放单位" multiple class="left openWrap" style="width:calc(100% - 30px)">
                   <el-option v-for="item in openDeptsList" :key="item.id" :label="item.deptName" :value="item.id"></el-option>
                 </el-select>
+                <!-- <el-collapse>
+                  <el-collapse-item title="选择部门" name="1">
+                    <div class="dept-tree">
+                      <el-tree class="filter-tree" :data="depData" :props="{children: 'children',label: 'name'}" default-expand-all
+                              ref="depTree1"
+                              highlight-current show-checkbox check-strictly @check-change="checkDeptChange"
+                              :expand-on-click-node="false" node-key="id"
+                              style="margin-top: 5px;">
+                      </el-tree>
+                    </div>
+                  </el-collapse-item>
+                </el-collapse> -->
                 <el-tooltip class="right" effect="dark" content="根据实际情况，选择可以参加本次考试的机构单位！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
               </el-form-item>
               <el-form-item label="阅卷人员" prop="markPeople" class="clearfix">
-                <el-input type="text" v-model="yjry" clearable class="left" style="width:410px;" @keyup.enter.native="filterMarkPeople(yjry)" placeholder="请输入关键字，回车键搜索"></el-input>
+                <el-input type="text" v-model="yjry" clearable class="left" style="width:360px;" @keyup.enter.native="filterMarkPeople(yjry)" placeholder="请输入关键字，回车键搜索"></el-input>
                   <!-- filterable
                   :filter-method="filterMethod" -->
                 <el-transfer class="left" style="width:calc(100% - 30px)"
@@ -106,6 +118,7 @@
 import { uploadImg } from '@/utils/editorUpload'
 import { examPaperType, systemClassify } from '@/utils/codetotext'
 import { regEnCode, regCnCode } from '@/utils/validate'
+// import { getTree } from '@/api/dept'
 
 export default {
   name: 'add',
@@ -169,6 +182,8 @@ export default {
               callback(new Error('请输入考试时限'))
             } else if (reg.test(value)) {
               callback()
+            } else if (Number(value) < 5) {
+              callback(new Error('考试时限需至少大于五分钟'))
             } else {
               callback(new Error('考试时限最多为三位数字'))
             }
@@ -216,6 +231,8 @@ export default {
       this.$query('deptsbyparentdeptcode', { deptCode: this.deptInfo.depCode }, 'upms').then((response) => {
         if (response.code === '000000') {
           this.openDeptsList = response.data
+          // var treeData = getTree(response.data) // 转化成tree
+          // console.log(treeData)
         } else {
           this.openDeptsList = []
         }
@@ -239,17 +256,19 @@ export default {
           var nameArr = [] // 用户名
           var jinghaoArr = [] // 警号
           var deptArr = [] // 所在单位
+          var userIdArr = [] // 用户id
           _this.markPerFormattingOwn = []
           for (let index = 0; index < _this.markPerOwn.length; index++) {
             const element = _this.markPerOwn[index]
             nameArr.push(element.realName)
             jinghaoArr.push(element.userName)
             deptArr.push(element.deptName)
+            userIdArr.push(element.userId)
           }
           nameArr.forEach((name, index) => {
             _this.markPerFormattingOwn.push({
               label: name + '-' + jinghaoArr[index], // 将姓名和警号拼一起 方便查询
-              key: index,
+              key: userIdArr[index],
               dept: deptArr[index]
             })
           })
@@ -257,18 +276,20 @@ export default {
           var nameArrAll = [] // 用户名
           var jinghaoArrAll = [] // 警号
           var deptArrAll = [] // 所在单位
+          var userIdArrAll = [] // 用户id
           _this.markPerFormattingAll = []
           for (let m = 0; m < _this.allSystemPeople.length; m++) {
             const item = _this.allSystemPeople[m]
             nameArrAll.push(item.realName)
             jinghaoArrAll.push(item.userName)
             deptArrAll.push(item.deptName)
+            userIdArrAll.push(item.userId)
           }
           nameArrAll.forEach((name, index) => {
             _this.markPerFormattingAll.push({
-              label: name + '-' + jinghaoArr[index], // 将姓名和警号拼一起 方便查询
-              key: index,
-              dept: deptArr[index]
+              label: name + '-' + jinghaoArrAll[index], // 将姓名和警号拼一起 方便查询
+              key: userIdArrAll[index],
+              dept: deptArrAll[index]
             })
           })
           this.markingPeopleData = _this.markPerFormattingOwn
@@ -297,6 +318,7 @@ export default {
             var element = Number(choosedDepts[index])
             newDeptsArr.push(element)
           }
+          // this.$refs.depTree1.setCheckedKeys(selectedData)
 
           if (response.data.markPeople) { // 阅卷人员
             var choosedPers = response.data.markPeople.split(',')
@@ -345,10 +367,11 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           // console.log(this.questionForm)
-          this.formLoading = true
           var param = JSON.parse(JSON.stringify(this.examForm))
           if (param.openDepts && param.openDepts.length > 0) { // 开放单位
             param.openDepts = param.openDepts.join(',')
+          } else {
+            param.openDepts = ''
           }
           if (param.markPeople && param.markPeople.length > 0) { // 阅卷老师
             param.markPeople = param.markPeople.join(',')
@@ -363,36 +386,36 @@ export default {
             param.creator = this.userInfo.userName
           }
           // console.log(param)
-          // if (this.carryParam.questinoId) {
-          //   // 编辑
-          //   this.$update('examquestion/' + this.carryParam.questinoId, param).then((response) => {
-          //     this.formLoading = false
-          //     if (response.code === '000000') {
-          //       this.$message({
-          //         message: '修改成功', type: 'success'
-          //       })
-          //       this.$router.push({ path: '/handlingGuide/testbaseManage' })
-          //     }
-          //   }).catch(() => {
-          //     this.formLoading = false
-          //   })
-          // } else {
-          // 添加
-          this.$update('examination/save', param).then((response) => {
-            if (response.code === '000000') {
-              this.formLoading = true
-              this.loading = false
-              this.$message({
-                type: 'success',
-                message: '添加成功!'
-              })
-              this.$router.push({ path: '/handlingGuide/examineManage' })
-            }
-          }).catch(() => {
-            this.formLoading = false
-          })
+          this.formLoading = true
+          if (this.carryParam.examId) {
+            // 编辑
+            this.$update('examination/update', param).then((response) => {
+              this.formLoading = false
+              if (response.code === '000000') {
+                this.$message({
+                  message: '修改成功', type: 'success'
+                })
+                this.$router.push({ path: '/handlingGuide/examineManage' })
+              }
+            }).catch(() => {
+              this.formLoading = false
+            })
+          } else {
+            // 添加
+            this.$update('examination/save', param).then((response) => {
+              if (response.code === '000000') {
+                this.formLoading = false
+                this.$message({
+                  type: 'success',
+                  message: '添加成功!'
+                })
+                this.$router.push({ path: '/handlingGuide/examineManage' })
+              }
+            }).catch(() => {
+              this.formLoading = false
+            })
+          }
         }
-        // }
       })
     },
     examPaperTypeChange(val) { // 试卷类型change，只能选择本单位组织的试卷，其他单位的无法选择
@@ -437,7 +460,10 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .addExamine {
   .el-transfer-panel {
-    width: 410px;
+    width: 360px;
+  }
+  .el-transfer__buttons {
+    padding: 0 20px;
   }
   .left {
     float: left;
@@ -449,6 +475,11 @@ export default {
     clear: both;
     content: "";
     display: block;
+  }
+  .dept-tree {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 5px;
   }
 }
 .spt_report {
