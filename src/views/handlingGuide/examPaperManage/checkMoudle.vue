@@ -168,6 +168,17 @@ export default {
         }
       }
     },
+    uniqueList(arr) { // list去重
+      for (var i = 0; i < arr.length; i++) {
+        for (var j = i + 1; j < arr.length; j++) {
+          if (arr[i].id === arr[j].id) { // 第一个等同于第二个，splice方法删除第二个
+            arr.splice(j, 1)
+            j--
+          }
+        }
+      }
+      return arr
+    },
     save() { // 保存添加的模块
       if (this.dataList.length > 0) {
         this.checkList = this.$refs.tree.getCheckedNodes() // 获取所有选中的节点
@@ -188,6 +199,8 @@ export default {
               data.push(item)
             }
           })
+          data = this.uniqueList(data)
+          // console.log('sjcheckList', JSON.stringify(data))
           this.$emit('sjcheckList', data)
           this.$emit('closesjDialog', false)
         } else {
