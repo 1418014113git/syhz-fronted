@@ -28,7 +28,7 @@ import {
   // removeUserInfo
 } from '@/utils/auth'
 import { handleMenu, handleRes, setAppMenus } from '@/utils/menus'
-
+import { getConfig } from '@/api/trainRuleConfig'
 const user = {
   state: {
     token: getToken(),
@@ -41,7 +41,8 @@ const user = {
     departments: getDepToken(), // 部门列表
     menus: getMenuToken(), // 菜单列表
     resources: getResToken(), // 资源列表
-    userId: '' // 当前用户ID
+    userId: '', // 当前用户ID
+    config: []
     // roleCodeList: ['syh_admin']
   },
 
@@ -86,6 +87,9 @@ const user = {
     },
     SET_RES: (state, resources) => {
       state.resources = resources
+    },
+    SET_CONFIG: (state, config) => {
+      state.config = config
     }
   },
 
@@ -222,6 +226,27 @@ const user = {
       return new Promise(resolve => {
         sessionStorage.clear()
         resolve()
+      })
+    },
+    GetConfig({ commit, state }) {
+      const params = {
+        token: state.userToken
+      }
+      return new Promise((resolve, reject) => {
+        getConfig(params).then((response) => {
+          const configObject = {}
+          if (response.data !== null && response.data !== undefined) {
+            for (let i = 0; i < response.data.length; i++) {
+              const item = response.data[i]
+              configObject['ruleType' + item.ruleType] = item
+            }
+          }
+          sessionStorage.setItem('config', JSON.stringify(configObject))
+          commit('SET_CONFIG', configObject) // 资源列表
+          resolve(response)
+        }).catch(error => {
+          reject(error)
+        })
       })
     }
   }
