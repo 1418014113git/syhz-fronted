@@ -4,18 +4,34 @@
     <!--查询条件-->
     <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
       <el-form-item label="单位" prop="deptName">
-        <el-input type="text" size="small" v-model="filters.deptName" clearable placeholder="输入关键字检索单位"></el-input>
+        <!-- <el-input type="text" size="small" v-model="filters.deptName" clearable placeholder="输入关键字检索单位"></el-input> -->
+        <el-tooltip class="item" effect="dark" :content="filters.deptName" placement="top-start" :popper-class="(filters.deptName&&filters.deptName.length>16)?'tooltipShow':'tooltipHide'">
+          <el-autocomplete
+            v-model="filters.deptName"
+            :fetch-suggestions="querySearchAsyncDept"
+            placeholder="输入关键字检索单位"
+            @select="handleSelectDept"
+            clearable
+            class="autoInputW"
+          ></el-autocomplete>
+        </el-tooltip>
       </el-form-item>
       <el-form-item label="姓名" prop="realName">
-        <el-input type="text" size="small" v-model="filters.realName" clearable placeholder="输入关键字检索姓名"></el-input>
+        <!-- <el-input type="text" size="small" v-model="filters.realName" clearable placeholder="输入关键字检索姓名"></el-input> -->
+        <el-autocomplete
+          v-model="filters.realName"
+          :fetch-suggestions="querySearchAsyncName"
+          placeholder="输入关键字检索姓名"
+          @select="handleSelectName"
+        ></el-autocomplete>
       </el-form-item>
       <el-form-item label="阅卷状态" prop="">
-        <el-select v-model="filters.status" placeholder="请选择" @change="examStatusChange">
+        <el-select v-model="filters.status" placeholder="请选择" clearable @change="examStatusChange">
           <el-option v-for="item in txData" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" @click="queryList(true,true)">检索</el-button>
+        <el-button type="primary" size="small" icon="el-icon-search" @click="queryList(true,true)">检索</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
@@ -34,7 +50,7 @@
       </el-table-column>
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
-          <el-button size="mini" circle  :title="scope.row.status === 'start'?'阅卷':'详情'"  @click="goOverScore(scope.$index, scope.row)" icon="el-icon-view"></el-button>
+          <el-button size="mini" circle  :title="scope.row.status === 'start'?'阅卷':'详情'"  :icon="scope.row.status === 'start'?'el-icon-view':'el-icon-document'"  @click="goOverScore(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -65,10 +81,10 @@ export default {
         deptName: '', // 单位名称
         status: '' // 阅卷状态
       },
+      isQueryDept: true, // 是否再次调用检索单位功能
+      isQueryName: true, // 是否再次调用检索姓名功能
       txData: goOverPaperStatus() // 阅卷状态
     }
-  },
-  watch: { // 监听state状态变化
   },
   methods: {
     examStatusChange(val) {
@@ -106,6 +122,67 @@ export default {
     },
     goOverScore(index, row) { // 去阅卷
       this.$gotoid('/handlingGuide/goOverExamPaper/settingScore', JSON.stringify(row))
+    },
+    querySearchAsyncDept(queryString, cb) { // 单位检索
+      if (queryString) {
+        this.isQueryDept = true
+        if (this.isQueryDept) {
+          var param = {
+            name: this.filters.deptName
+          }
+          this.$query('departsearch', param, true).then((response) => {
+            var restaurants = response.data
+            restaurants.forEach(element => {
+              element.value = element.name
+            })
+            var results = queryString ? restaurants.filter(this.createStateFilterDept(queryString)) : restaurants
+            cb(results)
+          })
+        }
+      } else {
+        this.isQueryDept = false
+      }
+    },
+    createStateFilterDept(queryString) {
+      return (state) => {
+        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+      }
+    },
+    querySearchAsyncName(queryString, cb) { // 姓名检索
+      if (queryString) {
+        this.isQueryName = true
+        if (this.isQueryName) {
+          var param = {
+            realName: this.filters.realName
+          }
+          if (this.filters.deptName) {
+            param.deptName = this.filters.deptName
+          }
+          this.$query('userlikename', param, true).then((response) => {
+            var restaurants = response.data
+            restaurants.forEach(element => {
+              element.value = element.realName
+            })
+            var results = queryString ? restaurants.filter(this.createStateFilterName(queryString)) : restaurants
+            cb(results)
+          })
+        }
+      } else {
+        this.isQueryName = false
+      }
+    },
+    createStateFilterName(queryString) {
+      return (state) => {
+        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+      }
+    },
+    handleSelectDept(item) {
+      this.filters.deptName = item.name
+      this.isQueryDept = false
+    },
+    handleSelectName(item) {
+      this.filters.realName = item.realName
+      this.isQueryName = false
     }
   },
   mounted() {
@@ -116,15 +193,37 @@ export default {
     this.queryList(true)
   }
 }
-
 </script>
-
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
 .testTableList {
   height: 100%;
   .addTestQuestion {
     float: right;
     margin-bottom: 10px;
   }
+}
+.el-autocomplete-suggestion {
+  border: 1px solid #00a0e9;
+}
+.el-autocomplete-suggestion__wrap {
+  background-color: #005982 !important;
+  border: 0 !important;
+}
+.el-autocomplete-suggestion li {
+  color: #fff;
+}
+.el-autocomplete-suggestion.is-loading li:hover,
+.el-autocomplete-suggestion li.highlighted,
+.el-autocomplete-suggestion li:hover{
+  background-color: rgba(188, 232, 252, 0.1);
+}
+.autoInputW{
+  width: 300px;
+}
+.tooltipShow {
+  opacity: 1;
+}
+.tooltipHide {
+  opacity: 0;
 }
 </style>
