@@ -19,7 +19,7 @@
       <el-table-column type="index" label="序号" width="70" class-name="tabC" align="center"></el-table-column>
       <el-table-column prop="subjectName" label="题目内容" show-overflow-tooltip>
         <template slot-scope="scope">
-          <span v-html="scope.row.subjectName" class="spanP"></span>
+          <span v-html="scope.row.subjectName" class="richTextWrap"></span>
         </template>
       </el-table-column>
       <el-table-column prop="modifyDate" label="更新时间" width="200" align="center"></el-table-column>
@@ -63,8 +63,8 @@
                   accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
         </el-form-item>
         <el-form-item>
-          <el-button @click="closeDia('importInfo')" :loading="importLoading">取消</el-button>
-          <el-button type="primary" @click="submitImportForm('importInfo')" :loading="importLoading">导入</el-button>
+          <el-button @click="closeDia('importInfo')" class="cancelBtn" :loading="importLoading">取消</el-button>
+          <el-button type="primary" @click="submitImportForm('importInfo')" class="saveBtn" :loading="importLoading">导入</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -264,7 +264,7 @@ export default {
               })
             })
           } if (response.data.type === '2') { // 考试过期
-            messageText = '该试题在已结束的考试试卷中有使用，如果修改可能会影响到警员查看以往考试信息！是否继续删除？'
+            messageText = '该试题在已结束的考试试卷中有使用，如果删除可能会影响到警员查看以往考试信息！是否继续删除？'
             this.$confirm(messageText, '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
@@ -413,17 +413,14 @@ export default {
     float: right;
     margin-bottom: 10px;
   }
-  .spanP p {
-    display: inline-block;
-    margin: 0;
-    img {
-      width: 120px;
-      height: 80px;
-      margin-left: 20px;
-    }
-  }
   .toolbar {
     margin: 10px 0 8px;
   }
+  .el-table p {
+    margin: 0;
+  }
+  // #excelFile {
+  //   background: blue;
+  // }
 }
 </style>
