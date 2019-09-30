@@ -47,6 +47,7 @@
 <script>
 import TreePub from '@/components/TreePub'
 import TableList from './tableList'
+import { regEnCode, regCnCode } from '@/utils/validate'
 export default {
   data() {
     return {
@@ -75,12 +76,12 @@ export default {
         categoryName: [ // 模块名称
           {
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
-              // const reg = /^[A-Za-z0-9\u4e00-\u9fa5]+$/
-              const reg = /[^!@#￥%\^&\*]+$/i
-              if (value === '' || value === undefined || value === null) {
+              if (value === '') {
                 callback(new Error('请输入模块名称'))
-              } else if (!reg.test(value)) {
-                callback(new Error('输入内容不能包含以下字符：！@#￥%……&*'))
+              } else if (regEnCode.test(value)) {
+                callback(new Error('请不要输入特殊字符'))
+              } else if (regCnCode.test(value)) {
+                callback(new Error('请不要输入特殊字符'))
               } else {
                 callback()
               }
@@ -148,15 +149,24 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        if (data.leaf === 1) { // 包含子模块
-          this.$message({
-            type: 'error',
-            message: '该模块包含子模块，不允许删除'
-          })
-          return false
+        var param = {
+          id: data.id
+        }
+        if (data.leaf === 1) { // 包含子模块,则将模块下的所有子模块一起删除。
+          var chidArry = []
+          var idString = ''
+          if (data.children && data.children.length > 0) {
+            var children = data.children
+            children.forEach(item => {
+              chidArry.push(item.id)
+            })
+          }
+          chidArry.push(data.id)
+          idString = chidArry.join(',')
+          param.id = idString
         } else {
           this.loading = true
-          this.$remove('subjectCategory/delete', { id: data.id }).then((response) => {
+          this.$remove('subjectCategory/delete', param).then((response) => {
             this.loading = false
             this.$message({
               message: '删除成功',

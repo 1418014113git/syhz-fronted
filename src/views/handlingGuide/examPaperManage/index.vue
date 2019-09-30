@@ -51,7 +51,9 @@
       <el-table-column label="操作" width="180">
         <template slot-scope="scope">
           <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="scope.row.paperStatus===1"   @click="handleEdit(scope.$index, scope.row)"></el-button>
-          <el-button size="mini" title="发布"  type="primary" icon="el-icon-bell"  circle  v-if="scope.row.paperStatus===1" @click="handleRelease(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="发布"  type="primary"  circle  v-if="scope.row.paperStatus===1" @click="handleRelease(scope.$index, scope.row)">
+            <svg-icon icon-class="release"></svg-icon>
+          </el-button>
           <el-button size="mini" title="预览"  type="primary" circle  @click="preview(scope.$index, scope.row)">
             <svg-icon icon-class="yulan"></svg-icon>
           </el-button>
@@ -223,7 +225,6 @@ export default {
     },
     preview(index, row) { // 预览试卷
       this.listLoading = true
-      row.id = 2030 // 测试数据
       this.$query('paper/preview/' + row.id, {}).then((response) => {
         this.listLoading = false
         if (response.code === '000000') {

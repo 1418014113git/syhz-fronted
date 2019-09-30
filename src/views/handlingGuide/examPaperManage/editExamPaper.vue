@@ -201,6 +201,7 @@ import CheckList from './checkst'
 import CheckMoudle from './checkMoudle'
 import previewPaper from './previewPaper'
 import { questionTypeAll } from '@/utils/codetotext'
+import { regEnCode, regCnCode } from '@/utils/validate'
 export default {
   components: {
     CheckList,
@@ -444,11 +445,12 @@ export default {
         paperName: [ // 试卷名称
           {
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
-              const reg = /[^!@#￥%\^&\*]+$/i
-              if (value === '' || value === undefined || value === null) {
+              if (value === '') {
                 callback(new Error('请输入试卷名称'))
-              } else if (!reg.test(value)) {
-                callback(new Error('输入内容不能包含以下字符：！@#￥%……&*'))
+              } else if (regEnCode.test(value)) {
+                callback(new Error('请不要输入特殊字符'))
+              } else if (regCnCode.test(value)) {
+                callback(new Error('请不要输入特殊字符'))
               } else {
                 callback()
               }
@@ -775,29 +777,39 @@ export default {
               })
               return
             }
-            var modelId = []
-            var cateIds = ''
+            // var modelId = []
+            // var cateIds = ''
             var isSave = false
             this.sjzjList.forEach((item, index) => {
               if (item.data.length > 0 && item.sort && item.num > 0 && item.value > 0 && item.desc) {
                 item.isSave = true
                 isSave = true
-                var data = item.data
-                data.forEach((item, index) => {
-                  modelId.push(item.id)
-                })
+                // var data = item.data
+                // data.forEach((item, index) => {
+                //   modelId.push(item.id)
+                // })
               }
             })
-            if (modelId.length > 0) {
-              modelId = this.unique(modelId) // 去重
-            }
+            // if (modelId.length > 0) {
+            //   // modelId = this.unique(modelId) // 去重
+            // }
             if (isSave) {
-              cateIds = modelId.length > 0 ? modelId.join(',') : ''
+              // cateIds = modelId.length > 0 ? modelId.join(',') : ''
               var sjzjList = this.sjzjList
               sjzjList.forEach((item, index) => {
                 if (!item.isSave) {
                   sjzjList.splice(index, 1)
                 } else {
+                  var modelId = []
+                  var cateIds = ''
+                  var data = item.data
+                  data.forEach((item, index) => {
+                    modelId.push(item.id)
+                  })
+                  if (modelId.length > 0) {
+                    modelId = this.uniqueModelId(modelId) // 去重
+                  }
+                  cateIds = modelId.length > 0 ? modelId.join(',') : ''
                   item.cateIds = cateIds
                   this.delWidthData(item)
                 }
@@ -1134,29 +1146,39 @@ export default {
     sjPreView() { // 随机组卷试卷预览接口
       this.$refs.form.validate(valid => {
         if (valid) {
-          var modelId = []
-          var cateIds = ''
+          // var modelId = []
+          // var cateIds = ''
           var isSave = false
           this.sjzjList.forEach((item, index) => {
             if (item.data.length > 0 && item.sort && item.num > 0 && item.value > 0 && item.desc) {
               item.isSave = true
               isSave = true
-              var data = item.data
-              data.forEach((item, index) => {
-                modelId.push(item.id)
-              })
+              // var data = item.data
+              // data.forEach((item, index) => {
+              //   modelId.push(item.id)
+              // })
             }
           })
-          if (modelId.length > 0) {
-            modelId = this.unique(modelId) // 去重
-          }
+          // if (modelId.length > 0) {
+          //   // modelId = this.unique(modelId) // 去重
+          // }
           if (isSave) {
-            cateIds = modelId.length > 0 ? modelId.join(',') : ''
+            // cateIds = modelId.length > 0 ? modelId.join(',') : ''
             var sjzjList = JSON.parse(JSON.stringify(this.sjzjList))
             sjzjList.forEach((item, index) => {
               if (!item.isSave) {
                 sjzjList.splice(index, 1)
               } else {
+                var modelId = []
+                var cateIds = ''
+                var data = item.data
+                data.forEach((item, index) => {
+                  modelId.push(item.id)
+                })
+                if (modelId.length > 0) {
+                  modelId = this.uniqueModelId(modelId) // 去重
+                }
+                cateIds = modelId.length > 0 ? modelId.join(',') : ''
                 item.cateIds = cateIds
                 this.delWidthData(item)
               }
@@ -1230,6 +1252,17 @@ export default {
           _this.curPaperData.push(data[element])
         }
       }
+    },
+    uniqueModelId(arr) { // 数组去重
+      for (var i = 0; i < arr.length; i++) {
+        for (var j = i + 1; j < arr.length; j++) {
+          if (arr[i] === arr[j]) { // 第一个等同于第二个，splice方法删除第二个
+            arr.splice(j, 1)
+            j--
+          }
+        }
+      }
+      return arr
     }
   },
   activated() {
