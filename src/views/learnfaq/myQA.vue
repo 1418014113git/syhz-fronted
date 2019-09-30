@@ -29,7 +29,7 @@
                     <el-option label="我的提问" value="1"></el-option>
                     <el-option label="我的回答" value="2"></el-option>
                   </el-select>
-                  <el-input placeholder="请输入内容" suffix-icon="el-icon-search"
+                  <el-input placeholder="请输入内容" suffix-icon="el-icon-search" maxlength="500"
                             v-model="searchText"
                             style="width:200px;background-color: #f6f6f6">
                   </el-input>
@@ -66,7 +66,7 @@
                     </el-col>
                   </el-row>
                 </el-card>
-              </template>           
+              </template>
               <el-card v-if="!listData||listData.length===0" style="text-align: center; line-height: 60px; height: 100px;"
                       class="item">
                 暂无数据
@@ -162,12 +162,12 @@
       },
       toQuestion() {
         this.$router.push({
-          path: '/micro/trainMaterial/save'
+          path: '/micro/difficult/save'
         })
       },
       toDetail(id) {
         this.$router.push({
-          path: '/micro/trainMaterial/detail/' + id
+          path: '/micro/difficult/detail/' + id
         })
       },
       changeType(val) {

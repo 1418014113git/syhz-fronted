@@ -187,6 +187,9 @@ export default {
           _this.$store.dispatch('Login', _this.loginForm).then(() => {
             _this.loading = false
             _this.$store.dispatch('GetInfo').then(() => {
+              _this.$store.dispatch('GetConfig').then(() => {
+                _this.addJF()
+              })
               _this.$router.push({ path: '/' })
             })
           }).catch(() => {
@@ -196,6 +199,33 @@ export default {
           console.log('error submit!!')
           return false
         }
+      })
+    },
+    addJF() {
+      // 0登陆 1学习资料 2资料上传 3资料下载 4学习时长
+      const config = JSON.parse(sessionStorage.getItem('config'))
+      const currentTypeConfig = config['ruleType0']
+      const param = this.$setCurrentUser({})
+      const para = {
+        belongSys: '', // 0知识库 1网上培训
+        belongMode: '',
+        belongType: '',
+        tableId: '',
+        branch: currentTypeConfig.oneNumber,
+        maxBranch: currentTypeConfig.maxNumber,
+        fractionType: '0',
+        fractionReckon: '0',
+        fractionTime: this.$parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}'),
+        fractionUserId: param.creationId,
+        fractionUserName: param.creationName,
+        fractionAreaCode: param.areaCode,
+        fractionDeptCode: param.belongDepCode,
+        fractionDeptName: param.belongDepName,
+        creationId: param.creationId,
+        creationName: param.creationName,
+        remark: '获得积分'
+      }
+      this.$save('trainFraction', para).then(response => {
       })
     },
     // PKI登录

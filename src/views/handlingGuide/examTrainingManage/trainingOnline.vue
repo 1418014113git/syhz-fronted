@@ -11,7 +11,7 @@
     <div class="v-modal" tabindex="0" style="z-index: 2000;" v-if="isInstruction||isExamEnd||isExamSubmit||isExamCancel"></div>
     <div class="instructions_wrap" v-if="isInstruction">
       <p>考试须知</p>
-      <p>考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知</p>
+      <p>{{examinationData.remark}}</p>
       <el-button class="right" type="primary" plain @click="closeInstructions">我知道了</el-button>
     </div>
     <div class="exam_end_wrap" v-if="isExamEnd">
@@ -57,22 +57,22 @@
             <!-- 单选题选项 -->
             <div v-if="smallItem.items && smallItem.type===1" class="options_wrap">
               <el-radio-group v-model="answer[smallItem.id]" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
-                <p v-if="smallItem.items.A" class="option_item"><el-radio label="A">A、<span v-html="smallItem.items.A" class="spanP"></span></el-radio></p>
-                <p v-if="smallItem.items.B" class="option_item"><el-radio label="B">B、<span v-html="smallItem.items.B" class="spanP"></span></el-radio></p>
-                <p v-if="smallItem.items.C" class="option_item"><el-radio label="C">C、<span v-html="smallItem.items.C" class="spanP"></span></el-radio></p>
-                <p v-if="smallItem.items.D" class="option_item"><el-radio label="D">D、<span v-html="smallItem.items.D" class="spanP"></span></el-radio></p>
+                <p v-if="smallItem.items.A" class="option_item"><el-radio label="A">A、<span v-html="smallItem.items.A" class="richTextWrap"></span></el-radio></p>
+                <p v-if="smallItem.items.B" class="option_item"><el-radio label="B">B、<span v-html="smallItem.items.B" class="richTextWrap"></span></el-radio></p>
+                <p v-if="smallItem.items.C" class="option_item"><el-radio label="C">C、<span v-html="smallItem.items.C" class="richTextWrap"></span></el-radio></p>
+                <p v-if="smallItem.items.D" class="option_item"><el-radio label="D">D、<span v-html="smallItem.items.D" class="richTextWrap"></span></el-radio></p>
                </el-radio-group>
             </div>
             <!-- 多选题选项 -->
             <div v-if="smallItem.items && smallItem.type===2" class="options_wrap">
               <el-checkbox-group v-model="smallItem.answerr" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event,smallItem.answerr)">
                 <!-- +'-'+smallItem.type+'-'+smallItem.id -->
-                <p v-if="smallItem.items.A" class="option_item"><el-checkbox label="A">A、<span v-html="smallItem.items.A" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.B" class="option_item"><el-checkbox label="B">B、<span v-html="smallItem.items.B" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.C" class="option_item"><el-checkbox label="C">C、<span v-html="smallItem.items.C" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.D" class="option_item"><el-checkbox label="D">D、<span v-html="smallItem.items.D" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.E" class="option_item"><el-checkbox label="E">E、<span v-html="smallItem.items.E" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.F" class="option_item"><el-checkbox label="F">F、<span v-html="smallItem.items.F" class="spanP"></span></el-checkbox></p>
+                <p v-if="smallItem.items.A" class="option_item"><el-checkbox label="A">A、<span v-html="smallItem.items.A" class="richTextWrap"></span></el-checkbox></p>
+                <p v-if="smallItem.items.B" class="option_item"><el-checkbox label="B">B、<span v-html="smallItem.items.B" class="richTextWrap"></span></el-checkbox></p>
+                <p v-if="smallItem.items.C" class="option_item"><el-checkbox label="C">C、<span v-html="smallItem.items.C" class="richTextWrap"></span></el-checkbox></p>
+                <p v-if="smallItem.items.D" class="option_item"><el-checkbox label="D">D、<span v-html="smallItem.items.D" class="richTextWrap"></span></el-checkbox></p>
+                <p v-if="smallItem.items.E" class="option_item"><el-checkbox label="E">E、<span v-html="smallItem.items.E" class="richTextWrap"></span></el-checkbox></p>
+                <p v-if="smallItem.items.F" class="option_item"><el-checkbox label="F">F、<span v-html="smallItem.items.F" class="richTextWrap"></span></el-checkbox></p>
               </el-checkbox-group>
             </div>
             <!-- 填空题 -->
@@ -149,7 +149,8 @@ export default {
       this.saveExamStart() // 开始考试
     },
     closeExamOver() { // 考试结束，(我知道了)
-      this.saveExamStart()
+      this.isExamEnd = false
+      this.$router.back(-1)
     },
     handleCancelExam(type) { // 取消考试 弹框
       this.isExamCancel = false
@@ -350,7 +351,7 @@ export default {
       var ss = allSeconds % 60
       this.mm = mm > 9 ? mm : '0' + mm
       this.ss = ss > 9 ? ss : '0' + ss
-      if ((mm === 3 && ss === 0) || (mm === 2 && ss === 0) || (mm === 1 && ss === 0)) {
+      if ((mm === 5 && ss === 0) || (mm === 3 && ss === 0) || (mm === 1 && ss === 0)) {
         this.$notify.info({
           title: '提示',
           message: '离考试结束还有 ' + mm + ' 分钟，请您尽快检查答卷，以免漏答或错答！如果到时您还未提交，系统将自动为您提交答卷！',
@@ -574,7 +575,7 @@ export default {
       font-size: 16px;
     }
   }
-  .spanP p:nth-child(1) {
+  .richTextWrap p:nth-child(1) {
     display: inline-block;
   }
 }
