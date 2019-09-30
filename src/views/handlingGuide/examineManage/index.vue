@@ -37,15 +37,14 @@
           {{$getLabelByValue(scope.row.examStatus+'', ksztData)}}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200">
+      <el-table-column label="操作" width="180">
         <template slot-scope="scope">
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
-          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑"></el-button>
-          <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除"></el-button>
-          <el-button size="mini" circle type="danger"  @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩">
+          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" :disabled="scope.row.status"></el-button>
+          <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除" :disabled="scope.row.status"></el-button>
+          <el-button size="mini" circle type="danger"  @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩" v-if="!scope.row.status">
             <svg-icon icon-class="release"></svg-icon>
           </el-button>
-          <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-view" title="删除"></el-button>
         </template>
       </el-table-column>
     </el-table>

@@ -8,24 +8,16 @@
       <img src="@/assets/icon/back.png"  class="goBack" @click="back">
     </el-row>
     <!-- 考试须知 -->
-    <div class="v-modal" tabindex="0" style="z-index: 2000;" v-if="isInstruction||isExamEnd||isExamSubmit||isExamCancel"></div>
+    <!-- <div class="v-modal" tabindex="0" style="z-index: 2000;" v-if="isInstruction||isExamEnd||isExamCancel"></div> -->
     <div class="instructions_wrap" v-if="isInstruction">
       <p>考试须知</p>
       <p>考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知</p>
       <el-button class="right" type="primary" plain @click="closeInstructions">我知道了</el-button>
     </div>
     <div class="exam_end_wrap" v-if="isExamEnd">
+      <!-- <p>考试须知</p> -->
       <p>考试时间已结束，系统已为您自动提交！</p>
       <el-button class="right" type="primary" plain @click="closeExamOver">我知道了（{{endTime}}s）</el-button>
-    </div>
-    <!-- 确认提交考试按钮 -->
-    <div class="exam_cancel_wrap" v-if="isExamSubmit">
-      <p>温馨提示</p>
-      <p>{{submitNoticeStr}}</p>
-      <div style="text-align:center;">
-        <el-button plain @click="handleSubmitExam('1')" class="saveBtn">确定</el-button>
-        <el-button plain @click="handleSubmitExam('2')" class="cancelBtn">取消</el-button>
-      </div>
     </div>
     <!-- 取消考试按钮 -->
     <div class="exam_cancel_wrap" v-if="isExamCancel">
@@ -39,10 +31,10 @@
     <!-- 试卷 -->
     <div id="previewExamPaper" v-loading="detailLoading">
       <div class="exam_title_wrap">
-        <p class="exam_title">{{examinationData.paperName}}</p>
+        <p class="exam_title">{{examinationData.examinationName}}</p>
         <p class="exam_subtitle">
-          <span>开始时间：{{startTime}}</span>
-          <span>考试时限：{{examinationData.totalDate}}分钟</span>
+          <span>考试时间：{{examinationData.examStartTime}} ~ {{examinationData.examEndTime}}</span>
+          <span>考试时限：{{examinationData.totalDate}} 分钟</span>
         </p>
       </div>
       <!-- 题型 -->
@@ -56,50 +48,76 @@
             </p>
             <!-- 单选题选项 -->
             <div v-if="smallItem.items && smallItem.type===1" class="options_wrap">
-              <el-radio-group v-model="answer[smallItem.id]" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
+              <!-- <el-radio-group v-model="answer[smallItem.id]" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
                 <p v-if="smallItem.items.A" class="option_item"><el-radio label="A">A、<span v-html="smallItem.items.A" class="spanP"></span></el-radio></p>
                 <p v-if="smallItem.items.B" class="option_item"><el-radio label="B">B、<span v-html="smallItem.items.B" class="spanP"></span></el-radio></p>
                 <p v-if="smallItem.items.C" class="option_item"><el-radio label="C">C、<span v-html="smallItem.items.C" class="spanP"></span></el-radio></p>
                 <p v-if="smallItem.items.D" class="option_item"><el-radio label="D">D、<span v-html="smallItem.items.D" class="spanP"></span></el-radio></p>
-               </el-radio-group>
+               </el-radio-group> -->
+              <p v-if="smallItem.items.A" class="option_item">A、<span v-html="smallItem.items.A" class="spanP"></span></p>
+              <p v-if="smallItem.items.B" class="option_item">B、<span v-html="smallItem.items.B" class="spanP"></span></p>
+              <p v-if="smallItem.items.C" class="option_item">C、<span v-html="smallItem.items.C" class="spanP"></span></p>
+              <p v-if="smallItem.items.D" class="option_item">D、<span v-html="smallItem.items.D" class="spanP"></span></p>
+               <p>您的答案：{{smallItem.answer}}</p>
+               <p>正确答案：{{smallItem.rightAnswer}}</p>
             </div>
             <!-- 多选题选项 -->
             <div v-if="smallItem.items && smallItem.type===2" class="options_wrap">
-              <el-checkbox-group v-model="smallItem.answerr" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event,smallItem.answerr)">
-                <!-- +'-'+smallItem.type+'-'+smallItem.id -->
-                <p v-if="smallItem.items.A" class="option_item"><el-checkbox label="A">A、<span v-html="smallItem.items.A" class="spanP"></span></el-checkbox></p>
+              <!-- <el-checkbox-group v-model="smallItem.answerr" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event,smallItem.answerr)"> -->
+                <!-- <p v-if="smallItem.items.A" class="option_item"><el-checkbox label="A">A、<span v-html="smallItem.items.A" class="spanP"></span></el-checkbox></p>
                 <p v-if="smallItem.items.B" class="option_item"><el-checkbox label="B">B、<span v-html="smallItem.items.B" class="spanP"></span></el-checkbox></p>
                 <p v-if="smallItem.items.C" class="option_item"><el-checkbox label="C">C、<span v-html="smallItem.items.C" class="spanP"></span></el-checkbox></p>
                 <p v-if="smallItem.items.D" class="option_item"><el-checkbox label="D">D、<span v-html="smallItem.items.D" class="spanP"></span></el-checkbox></p>
                 <p v-if="smallItem.items.E" class="option_item"><el-checkbox label="E">E、<span v-html="smallItem.items.E" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.F" class="option_item"><el-checkbox label="F">F、<span v-html="smallItem.items.F" class="spanP"></span></el-checkbox></p>
-              </el-checkbox-group>
+                <p v-if="smallItem.items.F" class="option_item"><el-checkbox label="F">F、<span v-html="smallItem.items.F" class="spanP"></span></el-checkbox></p> -->
+              <!-- </el-checkbox-group> -->
+              <p v-if="smallItem.items.A" class="option_item">A、<span v-html="smallItem.items.A" class="spanP"></span></p>
+              <p v-if="smallItem.items.B" class="option_item">B、<span v-html="smallItem.items.B" class="spanP"></span></p>
+              <p v-if="smallItem.items.C" class="option_item">C、<span v-html="smallItem.items.C" class="spanP"></span></p>
+              <p v-if="smallItem.items.D" class="option_item">D、<span v-html="smallItem.items.D" class="spanP"></span></p>
+              <p v-if="smallItem.items.E" class="option_item">E、<span v-html="smallItem.items.E" class="spanP"></span></p>
+              <p v-if="smallItem.items.F" class="option_item">F、<span v-html="smallItem.items.F" class="spanP"></span></p>
+              <p>您的答案：{{smallItem.answer}}</p>
+              <p>正确答案：{{smallItem.rightAnswer}}</p>
             </div>
             <!-- 填空题 -->
             <!-- {{smallItem.zhi}} -->
             <div v-if="smallItem.type===3" class="options_wrap">
-              <el-input v-for="(tkItem,tkItemIndex) in smallItem.tkInputNum" :key="tkItemIndex" v-model="smallItem.zhi[tkItem.id][tkItemIndex+'p']"
-              @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event,smallItem.zhi,)" placeholder="请输入" maxlength="30" class="tkInput"></el-input>
+              <!-- <el-input v-for="(tkItem,tkItemIndex) in smallItem.tkInputNum" :key="tkItemIndex" v-model="smallItem.zhi[tkItem.id][tkItemIndex+'p']"
+              @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event,smallItem.zhi,)" placeholder="请输入" class="tkInput"></el-input> -->
+              <p>您的答案：{{smallItem.answer}}</p>
+              <p>正确答案：{{smallItem.rightAnswer}}</p>
             </div>
             <!-- 判断题 对错 -->
             <div v-if="smallItem.type===4" class="options_wrap pd_options_wrap">
-              <el-radio-group v-model="answer[smallIndex]" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
-                <span class="option_item"><el-radio label="true">正确</el-radio></span>
-                <span class="option_item"><el-radio label="false">错误</el-radio></span>
-               </el-radio-group>
+              <!-- <el-radio-group v-model="answer[smallIndex]" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)"> -->
+                <!-- <span class="option_item"><el-radio label="true">正确</el-radio></span> -->
+                <!-- <span class="option_item"><el-radio label="false">错误</el-radio></span> -->
+               <!-- </el-radio-group> -->
+               <p>您的答案：{{smallItem.answer==='true'?'✔':'×'}}</p>
+               <p>正确答案：{{smallItem.rightAnswer==='1'?'✔':'×'}}</p>
             </div>
             <!-- 简答题、论述题、案例分析题 -->
-            <el-input v-if="smallItem.type === 5 || smallItem.type === 6 || smallItem.type === 7" type="textarea" :rows="3" v-model="answer[smallItem.id]"
-              @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)" maxlength="500" clearable placeholder="请输入您的答案"></el-input>
+            <div  v-if="smallItem.type === 5 || smallItem.type === 6 || smallItem.type === 7">
+              <!-- <el-input type="textarea" :rows="3" v-model="answer[smallItem.id]"
+                @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)" maxlength="1000" clearable placeholder="请输入您的答案"></el-input> -->
+              <!-- 答案 -->
+              <p>您的答案：{{smallItem.answer}}</p>
+              <p>解析：{{smallItem.analysis}}</p>
+            </div>
           </div>
         </div>
       </div>
-      <div class="exam_bottom_wrap clearfix">
-        <div>
-          <el-button size="medium"  class="cancelBtn" plain @click="lastCancelExam" style="margin-right:20px;" v-loading="detailLoading">取消考试</el-button>
-          <el-button size="medium"  class="saveBtn" plain @click="lastSubmitExam" v-loading="detailLoading">提交答案</el-button>
-        </div>
-        <el-tag type="danger" size="medium" class="right">结束倒计时：{{mm}}分{{ss}}秒</el-tag>
+      <!-- 考试成绩 -->
+      <div class="exam_bottom clearfix">
+        <p class="left">
+          <span class="font_b">考试成绩：</span> 自动阅卷得分 <span class="scoreNumber">{{examinationData.examScore}}</span> 分，人工阅卷得分 <span class="scoreNumber">{{examinationData.examArtificialScore}}</span> 分
+        </p>
+        <p class="right">
+          <span class="font_b">可重考次数： <span class="scoreNumber">{{examinationData.enableNum}}</span> 次</span>
+          <span class="again_exam" @click="handleAgainExam">重新考试</span>
+          <el-button size="mini" circle icon="el-icon-question" title="重新考试会有多个考试成绩，我们将以其中的最高分作为最终的成绩！"></el-button>
+        </p>
       </div>
     </div>
   </section>
@@ -118,7 +136,6 @@ export default {
       isInstruction: false, // 考试须知 弹框
       isExamEnd: false, // 考试结束 弹框
       isExamCancel: false, // 取消考试
-      isExamSubmit: false, // 提交考试
       txData: questionTypeAll(),
       detailLoading: false,
       mm: 0,
@@ -134,8 +151,6 @@ export default {
       examinationData: {},
       recordId: '', // 考试记录id
       startTime: '',
-      doneQuestionNum: 0,
-      submitNoticeStr: '', // 点最后提交试卷时 弹框提示内容
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -146,7 +161,7 @@ export default {
   methods: {
     closeInstructions() { // 考试须知，(我知道了)
       this.isInstruction = false
-      this.saveExamStart() // 开始考试
+      this.saveExamStart()
     },
     closeExamOver() { // 考试结束，(我知道了)
       this.saveExamStart()
@@ -159,28 +174,18 @@ export default {
         // 继续答题
       }
     },
-    handleSubmitExam(type) { // 提交考试的弹框 按钮
-      this.isExamSubmit = false
-      if (type === '1') {
-        this.handleSubmitAnswer('1') // 1表示手动提交答案
-      } else if (type === '2') {
-        // 继续答题
-      }
-    },
+
     queryPaperData() { // 试卷数据查询
       this.detailLoading = true
-      this.$query('exam/' + this.carryParam.examinationId, {}).then((response) => {
+      var examedPara = {
+        userId: this.userInfo.id,
+        recordId: this.carryParam.recordId
+      }
+      this.$query('exam/examPaper/' + this.carryParam.examinationId, examedPara).then((response) => {
         this.detailLoading = false
-        if (response.code === '000000') {
-          this.examinationData = response.data
-          if (this.examinationData.remark) {
-            this.isInstruction = true // 展示考试须知
-          } else {
-            this.saveExamStart() // 提交开始考试的信息
-          }
-          var data = response.data.datas
-          this.dealData(data)
-        }
+        this.examinationData = response.data
+        var data = response.data.datas
+        this.dealData(data)
       }).catch(() => {
         this.detailLoading = false
       })
@@ -227,6 +232,9 @@ export default {
         }
       }
     },
+    handleAgainExam() { // 重新考试
+      this.$router.push({ path: '/handlingGuide/examTrainingManage/trainingOnline', query: { examinationId: this.examinationData.id }})
+    },
     saveExamStart() { // 提交开始考试信息
       this.detailLoading = true
       var param = {
@@ -255,6 +263,7 @@ export default {
       // console.log(questionsId)
       // console.log(answer)
       // console.log(OtherAnswer) // 多选题 填空题 取这个答案
+
       var param = {
         recordId: this.recordId,
         paperId: this.examinationData.paperId, // 试卷id
@@ -287,12 +296,6 @@ export default {
 
       this.$update('exam/saveAnswer', param).then((response) => {
         this.detailLoading = false
-        if (param.answer) { // 计算已答题的数量
-          this.doneQuestionNum++
-        } else {
-          this.doneQuestionNum--
-        }
-        console.log('已答题目数：' + this.doneQuestionNum)
         // if (response.code === '000000') {
         // }
       }).catch(() => {
@@ -303,16 +306,7 @@ export default {
       this.isExamCancel = true
       // console.log(this.curPaperData)
     },
-    lastSubmitExam() { // 页面下方提交答案
-      // 判断是不是所有的题都答了
-      this.isExamSubmit = true // 弹框显示
-      if (this.doneQuestionNum < Number(this.carryParam.questionsCount)) {
-        this.submitNoticeStr = '您还有考试题目没有填写或选择答案，是否需要提交答卷？'
-      } else {
-        this.submitNoticeStr = '确认提交答卷？'
-      }
-    },
-    handleSubmitAnswer(submitType) { // 提交试卷答案
+    lastSubmitExam(submitType) { // 页面下方提交答案
       // 判断是否存在 主观题
       var hasSubjective = false
       for (let index = 0; index < this.curPaperData.length; index++) {
@@ -370,7 +364,7 @@ export default {
       var _this = this
       this.endTime--
       if (this.endTime === 0) { // 交卷
-        this.handleSubmitAnswer('2') // 自动交卷
+        this.lastSubmitExam('2') // 自动交卷
         // return
       } else {
         setTimeout(function() {
@@ -562,16 +556,15 @@ export default {
     }
   }
   // 试卷底部
-  .exam_bottom_wrap {
-    margin-top: 20px;
+  .exam_bottom {
+    padding-top: 20px;
     text-align: center;
-    .el-tag--danger {
-      background-color: rgba(245, 108, 108, 0.1);
-      border-color: #f56c6c;
-      color: #f56c6c;
-      height: 32px;
-      line-height: 32px;
-      font-size: 16px;
+    border-top: 1px solid #dedede;
+    .again_exam {
+      color: #0570db;
+      text-decoration: underline;
+      margin: 0 20px;
+      cursor: pointer;
     }
   }
   .spanP p:nth-child(1) {

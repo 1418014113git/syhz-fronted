@@ -1242,10 +1242,10 @@ export function examStatus() {
 // 阅卷状态
 export function goOverPaperStatus() {
   return [{
-    value: '0',
+    value: 'start',
     label: '未阅卷'
   }, {
-    value: '1',
+    value: 'end',
     label: '已阅卷'
   }]
 }
@@ -1275,5 +1275,31 @@ export function systemClassify() {
   }, {
     value: '3',
     label: '综合'
+  }]
+}
+
+// 试题类型名称
+export function questionTypeName() {
+  return [{
+    value: '1',
+    label: '单选题'
+  }, {
+    value: '2',
+    label: '多选题'
+  }, {
+    value: '3',
+    label: '填空题'
+  }, {
+    value: '4',
+    label: '判断题'
+  }, {
+    value: '5',
+    label: '简答题'
+  }, {
+    value: '6',
+    label: '论述题'
+  }, {
+    value: '7',
+    label: '案例分析题'
   }]
 }

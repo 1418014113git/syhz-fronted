@@ -1,6 +1,6 @@
 <template>
-<!--添加试卷-->
-<div class="addExamPaper">
+<!--编辑试卷-->
+<div class="editExamPaper">
   <el-row class="cardWidth">
     <img src="@/assets/icon/back.png"  class="goBack" @click="goBack">   <!--返回-->
   </el-row>
@@ -9,10 +9,10 @@
       <el-col :span="20" style="margin-bottom:50px;">
         <el-form :model="form" size="small" ref="form" :rules="rules" label-width="110px">
           <el-form-item label="试卷名称" prop="paperName">
-            <el-input v-model.trim="form.paperName"  maxlength="50" placeholder="请输入试卷名称" clearable class="inputW"></el-input>
+            <el-input v-model.trim="form.paperName"  maxlength="50" placeholder="请输入试卷名称" clearable class="inputW" ></el-input>
           </el-form-item>
           <el-form-item label="试卷类型" prop="paperType">
-            <el-select  v-model="form.paperType" size="small" placeholder="请选择" @change="paperChange" class="inputW">
+            <el-select  v-model="form.paperType" size="small" placeholder="请选择" @change="paperChange" class="inputW" :disabled="true">
               <el-option v-for="item in zjOption" :key="item.label" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
@@ -25,12 +25,12 @@
              <!--人工组卷列表-->
             <div v-if="form.paperType==='1'">
               <div v-if="this.rgzjList.length>0">
-                <el-form  :model="form">
+                <el-form  :model="form" :rules="rules">
                   <el-table  :data="rgzjList"   style="width: 100%;"  class="testList">
                     <el-table-column  label="排序" width="180" align="center">
                       <template slot-scope="scope">
                         <el-form-item prop="sort">
-                          <el-input-number v-model.trim="scope.row.sort" :min="1" :max="7" @change="sortChange(scope.row)"></el-input-number>
+                          <el-input-number v-model.trim="scope.row.sort" :min="1" :max="7"  @change="sortChange(scope.row)"></el-input-number>
                         </el-form-item>
                       </template>
                     </el-table-column>
@@ -59,7 +59,8 @@
                       </template>
                     </el-table-column>
                   </el-table>
-                </el-form>
+                  </el-form>
+                  <!-- <div style="display:none" >{{ exitsValrg }}</div> -->
                   <div style="overflow:hidden;">
                     <p style="float:left;">试卷卷面总分 <span class="redText">{{rgzjTotal}}</span> 分</p>
                     <p style="float:right;cursor:pointer;" @click="preview(1)"><svg-icon icon-class="yulan"></svg-icon>试卷预览</p>
@@ -76,7 +77,7 @@
                     <el-table-column  label="排序" min-width="120" align="center">
                       <template slot-scope="scope">
                         <el-form-item prop="sort">
-                          <el-input-number v-model.trim="scope.row.sort" :min="1" :max="7"></el-input-number>
+                          <el-input-number v-model.trim="scope.row.sort" :min="1" :max="7" :disabled="sjdisabled" @change="sortChange(scope.row)"></el-input-number>
                         </el-form-item>
                       </template>
                     </el-table-column>
@@ -93,21 +94,21 @@
                     <el-table-column prop="num" label="题量" min-width="100" align="center">
                       <template slot-scope="scope">
                         <el-form-item prop="num">
-                          <el-input-number v-model.trim="scope.row.num" :min="0" :max="99"  @change="inputChange(scope.$index,scope.row,2)"></el-input-number>
+                          <el-input-number v-model.trim="scope.row.num" :min="0" :max="99"  :disabled="sjdisabled" @change="inputChange(scope.$index,scope.row,2)"></el-input-number>
                         </el-form-item>
                       </template>
                     </el-table-column>
                     <el-table-column  label="每道题分值" min-width="100" align="center">
                     <template slot-scope="scope">
                       <el-form-item prop="value">
-                        <el-input-number v-model.trim="scope.row.value" :min="0" :max="99"  @change="inputChange(scope.$index,scope.row,2)"></el-input-number>
+                        <el-input-number v-model.trim="scope.row.value" :min="0" :max="99" :disabled="sjdisabled"  @change="inputChange(scope.$index,scope.row,2)"></el-input-number>
                       </el-form-item>
                     </template>
                     </el-table-column>
                     <el-table-column  label="说明" min-width="100" align="center">
                       <template slot-scope="scope">
                         <el-form-item prop="">
-                          <el-input v-model="scope.row.desc" type="textarea" placeholder="" maxlength="50"  @change="descinputChange(scope.$index,scope.row,2)"></el-input>
+                          <el-input v-model="scope.row.desc" type="textarea" placeholder="" maxlength="50"  :disabled="sjdisabled" @change="descinputChange(scope.$index,scope.row,2)"></el-input>
                         </el-form-item>
                       </template>
                     </el-table-column>
@@ -168,6 +169,7 @@
     </el-dialog>
   </div>
 
+
   <!--随机组卷试题模块列表 -- 微调时可删除模块列表项-->
   <el-dialog title="选择试题模块" :visible.sync="sjzjstListDialog" @close="closemklist">
     <div>
@@ -175,9 +177,9 @@
         <el-table-column type="index" label="序号" width="70"></el-table-column>
         <el-table-column prop="deptName" label="单位" show-overflow-tooltip></el-table-column>
         <el-table-column prop="label" label="模块" show-overflow-tooltip></el-table-column>
-        <el-table-column label="操作" width="60">
+        <el-table-column label="操作" width="60" v-if="!sjdisabled">
           <template slot-scope="scope">
-            <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete"  circle  @click="handleDeletesj(scope.$index)"></el-button>
+            <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete"  circle   @click="handleDeletesj(scope.$index)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -187,7 +189,7 @@
     </div>
   </el-dialog>
 
-  <!-- 预览试卷 -->
+   <!-- 预览试卷 -->
   <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
     <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit'></preview-paper>
   </el-dialog>
@@ -209,16 +211,14 @@ export default {
     return {
       form: {
         paperName: '', // 试卷名称
-        paperType: '1', // 人工组卷:"1" , 自动组卷:"2"
-        deptCode: JSON.parse(sessionStorage.getItem('depToken'))[0].depCode, // 当前部门code
-        deptName: JSON.parse(sessionStorage.getItem('depToken'))[0].depName, // 当前部门name
-        creator: JSON.parse(sessionStorage.getItem('userInfo')).userName // 创建人账号
+        paperType: '1' // 人工组卷:"1" , 自动组卷:"2"
       },
+      deptCode: JSON.parse(sessionStorage.getItem('depToken'))[0].depCode, // 当前部门code
+      deptName: JSON.parse(sessionStorage.getItem('depToken'))[0].depName, // 当前部门name
+      creator: JSON.parse(sessionStorage.getItem('userInfo')).userName, // 创建人账号
+      sjdisabled: true, // 随机组卷初始化时详细信息不能编辑。除非点击试题模块重新选择试题模块
       isClear: false,
       isClose: false,
-      listLoading: false,
-      isShowSaveBtn: true, // 预览弹框里是否显示保存按钮
-      dialogPreviewVisible: false, // 是否显示预览弹框
       zjOption: [ // 组卷方式
         {
           value: '1',
@@ -229,6 +229,9 @@ export default {
           label: '随机组卷'
         }
       ],
+      isShowSaveBtn: true, // 预览弹框里是否显示保存按钮
+      dialogPreviewVisible: false, // 是否显示预览弹框
+      listLoading: false, // 详情接口请求前的loading
       rgzjDialog: false, // 是否显示人工组卷选择试题弹框
       sjzjDialog: false, // 是否显示随机组卷选择tree结构试题模块弹框
       rgzjstListDialog: false, // 是否显示人工组卷微调试题列表弹框
@@ -372,7 +375,71 @@ export default {
           data: []
         }
       ],
-      sjzjList: [], // 随机组卷
+      sjzjList: [ // 随机组卷
+        // {
+        //   type: '1',
+        //   num: 0,
+        //   value: 0,
+        //   sort: 1,
+        //   desc: '',
+        //   cateIds: '',
+        //   data: []
+        // },
+        // {
+        //   type: '2',
+        //   num: 0,
+        //   value: 0,
+        //   sort: 2,
+        //   desc: '',
+        //   cateIds: '',
+        //   data: []
+        // },
+        // {
+        //   type: '3',
+        //   num: 0,
+        //   value: 0,
+        //   sort: 3,
+        //   desc: '',
+        //   cateIds: '',
+        //   data: []
+        // },
+        // {
+        //   type: '4',
+        //   num: 0,
+        //   value: 0,
+        //   sort: 4,
+        //   desc: '',
+        //   cateIds: '',
+        //   data: []
+        // },
+        // {
+        //   type: '5',
+        //   num: 0,
+        //   value: 0,
+        //   sort: 5,
+        //   desc: '',
+        //   cateIds: '',
+        //   data: []
+        // },
+        // {
+        //   type: '6',
+        //   num: 0,
+        //   value: 0,
+        //   sort: 6,
+        //   desc: '',
+        //   cateIds: '',
+        //   data: []
+        // },
+        // {
+        //   type: '7',
+        //   num: 0,
+        //   value: 0,
+        //   sort: 7,
+        //   desc: '',
+        //   cateIds: '',
+        //   data: []
+        // }
+      ],
       rules: {
         paperName: [ // 试卷名称
           {
@@ -388,54 +455,32 @@ export default {
             }
           }
         ],
-        sort: [ // 序号
-          {
-            required: true, trigger: 'blur', validator: (rule, value, callback) => {
-              if (!value) {
-                callback(new Error('请输入序号'))
-              } else {
-                callback()
-              }
-            }
-          }
-        ],
-        value: [ // 分值
-          {
-            required: true, trigger: 'blur', validator: (rule, value, callback) => {
-              if (!value) {
-                callback(new Error('请输入分值'))
-              } else {
-                callback()
-              }
-            }
-          }
-        ],
         desc: [ // 说明
           {
-            required: true, trigger: 'blur', validator: (rule, value, callback) => {
-              const reg = /[^!@#￥%\^&\*]+$/i
-              if (this.form.paperType === '1') { // 人工组卷
-                this.rgzjList.forEach((item, index) => {
-                  if (!item.desc) {
-                    callback(new Error('请输入题目说明'))
-                  } else if (!reg.test(item.desc)) {
-                    callback(new Error('输入内容不能包含以下字符：！@#￥%……&*'))
-                  } else {
-                    callback()
-                  }
-                })
-              } else { // 随机组卷
-                // this.sjzjList.forEach((item, index) => {
-                //   if (!item.desc) {
-                //     callback(new Error('请输入题目说明'))
-                //   } else if (!reg.test(item.desc)) {
-                //     callback(new Error('输入内容不能包含以下字符：！@#￥%……&*'))
-                //   } else {
-                //     callback()
-                //   }
-                // })
-              }
-            }
+            // required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            //   const reg = /[^!@#￥%\^&\*]+$/i
+            //   if (this.form.paperType === '1') { // 人工组卷
+            //     this.rgzjList.forEach((item, index) => {
+            //       if (!item.desc) {
+            //         callback(new Error('请输入题目说明'))
+            //       } else if (!reg.test(item.desc)) {
+            //         callback(new Error('输入内容不能包含以下字符：！@#￥%……&*'))
+            //       } else {
+            //         callback()
+            //       }
+            //     })
+            //   } else { // 随机组卷
+            //     // this.sjzjList.forEach((item, index) => {
+            //     //   if (!item.desc) {
+            //     //     callback(new Error('请输入题目说明'))
+            //     //   } else if (!reg.test(item.desc)) {
+            //     //     callback(new Error('输入内容不能包含以下字符：！@#￥%……&*'))
+            //     //   } else {
+            //     //     callback()
+            //     //   }
+            //     // })
+            //   }
+            // }
           }
         ],
         paperType: [{ // 试卷类型
@@ -468,6 +513,115 @@ export default {
 
   },
   methods: {
+    query() { // 详情查询
+      var paperType = this.$route.query.paperType + ''
+      this.listLoading = true
+      if (paperType === '1') { // 人工组卷
+        this.$query('paper/' + this.$route.query.id, {}).then((response) => {
+          this.listLoading = false
+          if (response.data) {
+            var data = response.data
+            this.form = data
+            this.form.paperType = this.form.paperType + ''
+            this.deletdyObject(data, 1)
+          }
+        }).catch(() => {
+          this.listLoading = false
+        })
+      } else { // 随机组卷
+        this.$query('paper/' + this.$route.query.id + '?type=auto ', {}).then((response) => {
+          this.listLoading = false
+          if (response.data) {
+            var data = response.data
+            this.form = data
+            this.form.paperType = this.form.paperType + ''
+            this.deletdyObject(data, 2)
+          }
+        }).catch(() => {
+          this.listLoading = false
+        })
+      }
+    },
+    deletdyObject(data, type) {
+      if (data.choices) {
+        data.choices.sort = Number(data.choices.sort)
+        data.choices.type = data.choices.type + ''
+        data.choices.value = Number(data.choices.value)
+        if (type === 1) { // 人工组卷
+          this.rgzjList.push(data.choices)
+        } else { // 随机组卷
+          data.choices.num = Number(data.choices.num)
+          this.sjzjList.push(data.choices)
+        }
+      }
+      if (data.multiSelect) {
+        data.multiSelect.sort = Number(data.multiSelect.sort)
+        data.multiSelect.type = data.multiSelect.type + ''
+        data.multiSelect.value = Number(data.multiSelect.value)
+        if (type === 1) { // 人工组卷
+          this.rgzjList.push(data.multiSelect)
+        } else { // 随机组卷
+          data.multiSelect.num = Number(data.multiSelect.num)
+          this.sjzjList.push(data.multiSelect)
+        }
+      }
+      if (data.fillGap) {
+        data.fillGap.sort = Number(data.fillGap.sort)
+        data.fillGap.type = data.fillGap.type + ''
+        data.fillGap.value = Number(data.fillGap.value)
+        if (type === 1) { // 人工组卷
+          this.rgzjList.push(data.fillGap)
+        } else { // 随机组卷
+          data.fillGap.num = Number(data.fillGap.num)
+          this.sjzjList.push(data.fillGap)
+        }
+      }
+      if (data.judge) {
+        data.judge.sort = Number(data.judge.sort)
+        data.judge.type = data.judge.type + ''
+        data.judge.value = Number(data.judge.value)
+        if (type === 1) { // 人工组卷
+          this.rgzjList.push(data.judge)
+        } else { // 随机组卷
+          data.judge.num = Number(data.judge.num)
+          this.sjzjList.push(data.judge)
+        }
+      }
+      if (data.shortAnswer) {
+        data.shortAnswer.sort = Number(data.shortAnswer.sort)
+        data.shortAnswer.type = data.shortAnswer.type + ''
+        data.shortAnswer.value = Number(data.shortAnswer.value)
+        if (type === 1) { // 人工组卷
+          this.rgzjList.push(data.shortAnswer)
+        } else { // 随机组卷
+          data.shortAnswer.num = Number(data.shortAnswer.num)
+          this.sjzjList.push(data.shortAnswer)
+        }
+      }
+      if (data.discuss) {
+        data.discuss.sort = Number(data.discuss.sort)
+        data.discuss.type = data.discuss.type + ''
+        data.discuss.value = Number(data.discuss.value)
+        if (type === 1) { // 人工组卷
+          this.rgzjList.push(data.discuss)
+        } else { // 随机组卷
+          data.discuss.num = Number(data.discuss.num)
+          this.sjzjList.push(data.discuss)
+        }
+      }
+      if (data.caseAnalysis) {
+        data.caseAnalysis.sort = Number(data.caseAnalysis.sort)
+        data.caseAnalysis.type = data.caseAnalysis.type + ''
+        data.caseAnalysis.value = Number(data.caseAnalysis.value)
+        if (type === 1) { // 人工组卷
+          this.rgzjList.push(data.caseAnalysis)
+        } else { // 随机组卷
+          data.caseAnalysis.num = Number(data.caseAnalysis.num)
+          this.sjzjList.push(data.caseAnalysis)
+        }
+      }
+      this.getRgzjNum(type)
+    },
     checkst() { // 点击试题
       if (this.form.paperType === '1') { // 人工组卷
         this.rgzjDialog = true
@@ -502,35 +656,30 @@ export default {
     goBack() { // 返回
       this.$router.back(-1)
     },
-    sortChange(row) { // 序号发生改变时触发
-      if (!row.sort) {
-        row.sort = 1
-        this.$set(row, 'sort', 1)
-      }
-    },
     inputChange(index, row, type) { // 人工组卷/随机组卷分值输入框change事件
       if (type === 1) { // 人工组卷
         if (!row.value) {
-          var value = 1
-          this.$set(row, 'value', value)
+          this.$set(row, 'value', 1)
         }
         if (!row.num) {
-          var num = 1
-          this.$set(row, 'num', num)
+          this.$set(row, 'num', 1)
         }
       } else { // 随机组卷
         if (!row.value) {
-          var values = 0
-          this.$set(row, 'value', values)
+          this.$set(row, 'value', 0)
         }
         if (!row.num) {
-          var nums = 0
-          this.$set(row, 'num', nums)
+          this.$set(row, 'num', 0)
         }
       }
       var desc = '每题' + row.value + '分，共' + Number(row.num * row.value) + '分。'
       this.$set(row, 'desc', desc)
       this.getTotalScore(type)
+    },
+    sortChange(row) { // 序号发生改变时触发
+      if (!row.sort) {
+        this.$set(row, 'sort', 1)
+      }
     },
     descinputChange(index, row, type) { // 说明输入框发生变化时
       if (!row.desc) {
@@ -574,13 +723,16 @@ export default {
               this.delWidthData(item)
             })
             if (Number(this.rgzjTotal) === 100) {
+              this.form.deptCode = this.deptCode // 当前部门code
+              this.form.deptName = this.deptName // 当前部门name
+              this.form.creator = this.creator // 创建人账号
               this.btnLoading = true
-              this.$save('paper/save', this.form).then((response) => {
+              this.$update('paper/update', this.form).then((response) => {
                 this.btnLoading = false
                 this.isShowdialog = false // 关闭弹框
                 this.$message({
                   type: 'success',
-                  message: '添加成功!'
+                  message: '修改成功!'
                 })
                 this.$router.push({ path: '/handlingGuide/examPaperManage' })
               }).catch(() => {
@@ -592,13 +744,16 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning'
               }).then(() => {
+                this.form.deptCode = this.deptCode // 当前部门code
+                this.form.deptName = this.deptName // 当前部门name
+                this.form.creator = this.creator // 创建人账号
                 this.btnLoading = true
-                this.$save('paper/save', this.form).then((response) => {
+                this.$update('paper/update', this.form).then((response) => {
                   this.btnLoading = false
                   this.isShowdialog = false // 关闭弹框
                   this.$message({
                     type: 'success',
-                    message: '添加成功!'
+                    message: '修改成功!'
                   })
                   this.$router.push({ path: '/handlingGuide/examPaperManage' })
                 }).catch(() => {
@@ -636,7 +791,6 @@ export default {
             if (modelId.length > 0) {
               modelId = this.unique(modelId) // 去重
             }
-            // console.log('modelId', JSON.stringify(modelId))
             if (isSave) {
               cateIds = modelId.length > 0 ? modelId.join(',') : ''
               var sjzjList = this.sjzjList
@@ -649,13 +803,16 @@ export default {
                 }
               })
               if (Number(this.sjzjTotal) === 100) {
+                this.form.deptCode = this.deptCode // 当前部门code
+                this.form.deptName = this.deptName // 当前部门name
+                this.form.creator = this.creator // 创建人账号
                 this.btnLoading = true
-                this.$save('paper/random/save', this.form).then((response) => {
+                this.$update('paper/random/update', this.form).then((response) => {
                   this.btnLoading = false
                   this.isShowdialog = false // 关闭弹框
                   this.$message({
                     type: 'success',
-                    message: '添加成功!'
+                    message: '修改成功!'
                   })
                   this.$router.push({ path: '/handlingGuide/examPaperManage' })
                 }).catch(() => {
@@ -667,13 +824,16 @@ export default {
                   cancelButtonText: '取消',
                   type: 'warning'
                 }).then(() => {
+                  this.form.deptCode = this.deptCode // 当前部门code
+                  this.form.deptName = this.deptName // 当前部门name
+                  this.form.creator = this.creator // 创建人账号
                   this.btnLoading = true
-                  this.$save('paper/random/save', this.form).then((response) => {
+                  this.$update('paper/random/update', this.form).then((response) => {
                     this.btnLoading = false
                     this.isShowdialog = false // 关闭弹框
                     this.$message({
                       type: 'success',
-                      message: '添加成功!'
+                      message: '修改成功!'
                     })
                     this.$router.push({ path: '/handlingGuide/examPaperManage' })
                   }).catch(() => {
@@ -768,6 +928,16 @@ export default {
       // 排序
       _this.sort(_this.rgzjList)
     },
+    // 排序并赋值
+    sort(element) {
+      var _this = this
+      element.sort((a, b) => Number(a.type) - Number(b.type)) // 先按type升序
+      element.forEach((item, index) => {
+        item.sort = Number(index + 1)
+      })
+      _this.rgzjList = element
+      _this.rgzjList = element
+    },
     getRgzjNum(type) { // 获取人工组卷题目数和分数/ 最近组卷总分
       var _this = this
       if (type === 1) {
@@ -782,24 +952,16 @@ export default {
         _this.getTotalScore(type)
       }
     },
-    // 排序并赋值
-    sort(element) {
-      var _this = this
-      element.sort((a, b) => Number(a.type) - Number(b.type)) // 先按type升序
-      element.forEach((item, index) => {
-        item.sort = Number(index + 1)
-      })
-      _this.rgzjList = element
-      // console.log('排序后', JSON.stringify(this.rgzjList))
-    },
     cancel() { // 取消
       this.$router.push({ path: '/handlingGuide/examPaperManage' })
     },
     closergDialog(val) { // 关闭人工组卷选择试题弹框
       this.rgzjDialog = val
+      // this.$refs.form.validate()
     },
     closesjDialog(val) { // 关闭随机组卷选择试题模块弹框
       this.sjzjDialog = val
+      // this.$refs.form.validate()
     },
     rgcloseDialog() { // 人工组卷关闭窗口
       this.isClear = true
@@ -846,7 +1008,6 @@ export default {
       this.getCurStList(2)
     },
     openstlist(zjType, row) { // 点击试题类型，显示微调试题列表
-      // console.log('row', JSON.stringify(row))
       this.CurstType = row.type
       if (zjType === '1') { // 人工组卷
         this.rgzjstListDialog = true
@@ -911,11 +1072,11 @@ export default {
         item.data = this.unique(val) // 去重
         item.desc = '每题' + item.value + '分，共' + Number(item.num * item.value) + '分。' // 说明
       })
+      this.sjdisabled = false
+      // console.log('this.sjzjList', JSON.stringify(this.sjzjList))
     },
     handleDeletesj(index) { // 删除随机组卷微调试题列表里的列表项
-      var vals1 = this.sjzjList // 暂存到临时变量
       this.sjzjStList.splice(index, 1)
-      this.sjzjList = vals1 // 重新赋值
     },
     paperChange(val) {
       this.rgzjList = []
@@ -978,8 +1139,8 @@ export default {
           var isSave = false
           this.sjzjList.forEach((item, index) => {
             if (item.data.length > 0 && item.sort && item.num > 0 && item.value > 0 && item.desc) {
-              isSave = true
               item.isSave = true
+              isSave = true
               var data = item.data
               data.forEach((item, index) => {
                 modelId.push(item.id)
@@ -1000,6 +1161,9 @@ export default {
                 this.delWidthData(item)
               }
             })
+            this.form.deptCode = this.deptCode // 当前部门code
+            this.form.deptName = this.deptName // 当前部门name
+            this.form.creator = this.creator // 创建人账号
             this.listLoading = true
             this.$save('paper/random/preView', this.form).then((response) => {
               this.listLoading = false
@@ -1010,7 +1174,7 @@ export default {
               this.listLoading = false
             })
           } else {
-            this.$alert('请至少填写一条完整的试题信息才能进行预览', '提示', {
+            this.$alert('请至少填写一条完整的试题信息', '提示', {
               type: 'error',
               confirmButtonText: '确定'
             })
@@ -1075,12 +1239,13 @@ export default {
   mounted() {
     this.sjzjTotal = 0
     this.rgzjTotal = 0
+    this.query()
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-.addExamPaper{
+.editExamPaper{
   .cardWidth {
     width: 80%;
     min-width: 1200px;
@@ -1132,7 +1297,6 @@ export default {
   .el-textarea__inner {
     padding: 5px;
   }
-
   .previewDia .el-dialog__body {
     background: #ffffff;
     color: #000000;
