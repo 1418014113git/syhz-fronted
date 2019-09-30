@@ -32,6 +32,7 @@
     "vue-json-excel": "^0.2.98",
     "vue-navigation": "^1.1.4",
     "vue-print-nb": "^1.4.0",
+    "vue-pdf": "^4.0.7",
     "vue-quill-editor": "^3.0.6",
     "vue-router": "3.0.1",
     "vue-video-player": "^5.0.2",
