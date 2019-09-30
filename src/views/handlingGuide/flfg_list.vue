@@ -6,13 +6,12 @@
         <el-col :span="24">
           <div class="tabsDiv">
               <el-tabs v-model="activeName" @tab-click="handleClick">
-                <el-tab-pane label="全部" name="0"></el-tab-pane>
+                <el-tab-pane label="全部" name=""></el-tab-pane>
+                <el-tab-pane label="环境" name="3"></el-tab-pane>
                 <el-tab-pane label="食品" name="1"></el-tab-pane>
                 <el-tab-pane label="药品" name="2"></el-tab-pane>
-                <el-tab-pane label="环境" name="3"></el-tab-pane>
                 <el-tab-pane label="综合" name="4"></el-tab-pane>
               </el-tabs>
-              <el-button type="primary" @click="more" style="position: absolute; margin-top:-50px; margin-left: 270px;">更多</el-button>
           </div>
         </el-col>
         <el-col :span="24" style="padding: 10px 0px;">
@@ -28,23 +27,26 @@
           </div>
         </el-col>
         <el-col :span="24" style="padding-bottom: 0;">
-          <el-form-item style="width: 50%;">
-            <el-input size="large" placeholder="在法规中搜索" v-model="filters.word">
-              <el-button slot="append" v-if="$isViewBtn('118001')" v-on:click="query(true,true)" icon="el-icon-search" style="width: 100px; font-size: 20px; color: #fff; line-height: 30px;background-color: #1e98d2;"></el-button>
+          <el-form-item style="width: 43%; margin-left: 1px; padding-left: 9px;">
+            <el-input size="large" placeholder="在法规中搜索" v-model="filters.search">
+              <el-button slot="append" v-if="$isViewBtn('129001')" v-on:click="query(true,true)" icon="el-icon-search" style="width: 100px; font-size: 20px; color: #fff; line-height: 30px;background-color: #1e98d2;"></el-button>
             </el-input>
           </el-form-item>
-        </el-col>
-        <el-col :span="24" style="padding-bottom: 0;">
           <el-form-item>
-            <el-radio v-model="filters.category" label="1">按标题检索</el-radio>
-            <el-radio v-model="filters.category" label="2">按正文检索</el-radio>
+            <el-button type="primary" v-if="$isViewBtn('129002')" @click="add" style="padding: 12px 35px;">添加</el-button>
           </el-form-item>
         </el-col>
-        <el-col :span="24" style="padding-bottom: 0;">
-          <el-form-item style="margin-left: 42%">
-            <el-button type="primary" v-if="$isViewBtn('118002')" @click="add" style="padding: 10px 35px;">添加</el-button>
-          </el-form-item>
-        </el-col>
+        <!--<el-col :span="24" style="padding-bottom: 0;">-->
+          <!--<el-form-item>-->
+            <!--<el-radio v-model="filters.category" label="1">按标题检索</el-radio>-->
+            <!--<el-radio v-model="filters.category" label="2">按正文检索</el-radio>-->
+          <!--</el-form-item>-->
+        <!--</el-col>-->
+        <!--<el-col :span="24" style="padding-bottom: 0;">-->
+          <!--<el-form-item style="margin-left: 42%">-->
+            <!--<el-button type="primary" v-if="$isViewBtn('118002')" @click="add" style="padding: 10px 35px;">添加</el-button>-->
+          <!--</el-form-item>-->
+        <!--</el-col>-->
       </el-form>
     </div>
     <el-col :span="24" v-loading="loading">
@@ -55,8 +57,8 @@
         <div style="overflow:auto;"   :style="{maxHeight:tableHeight}">
           <div v-for="item in dataList" :key="item.value" class="lineStyle" @click='detail(item.id)'>
             <el-col :span="24" style="font-size: 16px; font-weight: bold; cursor: pointer;">{{ item.title }}</el-col>
-            <el-col :span="12" style="color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">颁布机关：{{ item.establishmentOrgan }}</el-col>
-            <el-col :span="12" style="color: #c7c7c7;">颁布日期：{{ $parseTime(item.issueDate, '{y}-{m}-{d}') }}</el-col>
+            <el-col :span="12" style="color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">颁布机关：{{ item.publishOrgName }}</el-col>
+            <el-col :span="12" style="color: #c7c7c7;">颁布日期：{{ $parseTime(item.publishTime, '{y}-{m}-{d}') }}</el-col>
             <!--<p>{{ item.title }}</p>-->
             <!--<p><span>发布机构：{{ item.establishmentOrgan }}</span><span>发布时间：{{ item.issueDate }}</span></p>-->
           </div>
@@ -77,7 +79,7 @@ export default {
     return {
       filters: {
         type: '',
-        word: '',
+        search: '',
         category: '1'
       },
       checkboxGroup1: [],
@@ -118,8 +120,7 @@ export default {
       this.page = flag ? 1 : this.page
       const para = {
         pageNum: this.page,
-        content: this.filters.category === '2' ? this.filters.word : '',
-        title: this.filters.category === '1' ? this.filters.word : '',
+        search: this.filters.search,
         pageSize: this.pageSize
       }
       if (this.checkboxGroup1.length > 0) {
@@ -131,15 +132,15 @@ export default {
             }
           })
         })
-        para.lawCategory = a.substring(0, a.length - 1)
+        para.category = a.substring(0, a.length - 1)
       }
       if (this.activeName !== '0') {
-        para.syhFllb = this.activeName
+        para.articleType = this.activeName
       }
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
-      this.$query('laws/list', para).then((response) => {
+      this.$update('lawInfo/query', para).then((response) => {
         this.loading = false
         this.dataList = response.data.list
         this.total = response.data.totalCount
@@ -156,8 +157,8 @@ export default {
       }
     },
     detail(id) {
-      if (this.$isViewBtn('118004')) {
-        this.$gotoid('/handlingGuide/flfg/detail', id)
+      if (this.$isViewBtn('129002')) {
+        this.$gotoid('/handlingGuide/flfg/detail', JSON.stringify({ id: id }))
       }
     },
     add() {

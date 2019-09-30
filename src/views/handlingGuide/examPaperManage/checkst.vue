@@ -29,7 +29,7 @@
           <el-table-column type="index" label="序号" width="70" class-name="tabC"></el-table-column>
           <el-table-column prop="name" label="试题内容" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-html="scope.row.name"></span>
+              <span v-html="scope.row.name" class="richTextWrap"></span>
             </template>
           </el-table-column>
         </el-table>
@@ -174,6 +174,7 @@ export default {
     handleNodeClick(data) { // 点击tree节点，获取id，查询对应的菜单详情
       if (data.id) {
         this.menuItemNode = data
+        this.listData = []
         this.query(true, true)
       } else {
         this.menuItemNode = {}
