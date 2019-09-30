@@ -7,11 +7,14 @@
       <div slot="header" class="clearfix">
         <div class="left">
           <span class="font_b">考试成绩：</span>
-          <span>用时{{totalTime}}，自动阅卷得分</span><span class="scoreNumber"> {{zdCore}} </span>分
+          <span>用时{{totalTime}}，</span><span>自动阅卷得分</span><span class="scoreNumber"> {{zdCore}} </span>分
+          <span v-if="yjStatus==='end'">
+            <span>，人工阅卷得分</span><span class="scoreNumber"> {{artScore}} </span>分
+          </span>
         </div>
-        <el-button class="right" size="medium" type="primary" plain icon="el-icon-check"  :loading="btnLoading"  @click="save">完成阅卷</el-button>
+        <el-button class="right" size="medium" type="primary" plain icon="el-icon-check"   v-if="yjStatus==='start'"  @click="save">完成阅卷</el-button>
       </div>
-      <div class="qusestionBox">
+      <div class="qusestionBox" v-if="list.length>0">
         <div class="question_wrap" v-for="(item,index) in list" :key="index">
           <p class="font_b">{{item.titleCN}}、{{item.typeName}}（{{item.desc}}）</p>
           <div class="small_question_wrap clearfix">
@@ -30,16 +33,14 @@
               </div>
               <div class="right" style="">
                 <p class="score_text">得分</p>
-                <el-input type="text" size="small"  v-model="items.yjscore"  maxlength="3" @change="inputChange(items)"></el-input>
+                <el-input type="number" size="small"  v-if="yjStatus==='start'"  v-model="items.yjscore"  maxlength="3"  @change="inputChange(items)" onKeypress="return(/[\d]/.test(String.fromCharCode(event.keyCode)))"></el-input>
+                <el-input type="number" size="small"  v-else  v-model="items.artScore"  maxlength="3"  :disabled="true"></el-input>
               </div>
             </div>
-            <!-- <div class="right" style="">
-              <p class="score_text">得分</p>
-              <el-input type="text" size="small"  v-model="item.score"  @change="inputChange(index,item)"></el-input>
-            </div> -->
           </div>
         </div>
       </div>
+      <div class="noData" v-if="noData">暂无数据</div>
     </el-card>
   </section>
 </template>
@@ -53,10 +54,15 @@ export default {
       tableHeight: null,
       totalTime: '', // 用时
       zdCore: '', // 自动阅卷得分
+      artScore: '', // 人工阅卷得分
       txData: questionTypeName(),
-      yjParam: {}, // 存储改造后的'完成阅卷'参数
       list: [], // 试卷列表
-      creator: JSON.parse(sessionStorage.getItem('userInfo')).userName // 当前登录人账号
+      rowParam: {}, // 列表页传递过来的当前行的数据
+      creator: JSON.parse(sessionStorage.getItem('userInfo')).userName, // 当前登录人账号
+      paperName: '', // 试卷名称
+      paperId: '', // 试卷id
+      yjStatus: '', // 阅卷状态  'start'：未阅卷，'end':已阅卷
+      noData: false
       // ruleForm: {
       //   rules: {
       //     score: [ // 阅卷分值
@@ -76,22 +82,24 @@ export default {
       // }
     }
   },
-  watch: { // 监听state状态变化
-  },
   methods: {
-    query(param) { // 阅卷列表数据查询
-      this.totalTime = param.totalTime
-      this.zdCore = param.score
+    query() { // 阅卷列表数据查询
+      this.totalTime = this.rowParam.totalTime // 总时长
+      this.yjStatus = this.rowParam.status // 阅卷状态
+      this.zdCore = this.rowParam.score // 自动阅卷分数
+      this.artScore = this.rowParam.artScore // 人工阅卷分数
       this.listLoading = true
       const para = {
-        userId: param.userId, // 用户Id
-        recordId: param.recordId, // 考试Id
-        id: param.examId // 试卷Id
+        userId: this.rowParam.userId, // 用户Id
+        recordId: this.rowParam.recordId, // 考试Id
+        id: this.rowParam.examId // 试卷Id
       }
       this.$query('exam/subjectiveQuestions', para).then((response) => {
         this.listLoading = false
         if (response.data) {
           var data = response.data
+          this.paperName = response.data.paperName
+          this.paperId = response.data.paperId
           this.dealData(data)
         }
       }).catch(() => {
@@ -118,39 +126,64 @@ export default {
           this.list.push(data[element])
         }
       }
+      if (this.list.length === 0) {
+        this.noData = true
+      }
       console.log('list', JSON.stringify(this.list))
     },
     inputChange(row) {
       if (Number(row.yjscore) > Number(row.score)) {
-        row.yjscore = Number(row.score)
-        // this.$set(row, 'yjscore', Number(row.score))
+        this.$set(row, 'yjscore', Number(row.score))
+      } else if (Number(row.yjscore) < 0) {
+        this.$set(row, 'yjscore', 0)
       }
       console.log('row', JSON.stringify(row))
     },
     save() { // 完成阅卷
+      var lsData = []
+      this.list.forEach((item, index) => {
+        var datas = item.data
+        datas.forEach((it, i) => {
+          var obj = {
+            answerId: it.answerId,
+            questionsId: it.id,
+            score: it.yjscore + '',
+            type: it.type
+          }
+          lsData.push(obj)
+        })
+      })
+
+      var yjParam = {
+        recordId: this.rowParam.recordId,
+        userId: this.rowParam.userId,
+        paperId: this.paperId,
+        creator: this.creator,
+        data: lsData
+      }
+      var subData = yjParam.data
       var isSumbit = true
-      var subData = this.yjParam.data
       subData.forEach((item, index) => {
         if (!item.score) {
           isSumbit = false
+          this.$alert('还有题目没有打分，不能提交完成阅卷。', '提示', {
+            type: 'error',
+            confirmButtonText: '确定'
+          })
+          return
         }
       })
       if (isSumbit) {
-        this.btnLoading = true
-        this.$update('exam/subjectiveJudge', this.yjParam).then((response) => {
-          this.btnLoading = false
+        this.listLoading = true
+        this.$update('exam/subjectiveJudge', yjParam).then((response) => {
+          this.listLoading = false
           this.$message({
             type: 'success',
             message: '阅卷成功!'
           })
           this.$router.push({ path: '/handlingGuide/goOverExamPaper/index' })
         }).catch(() => {
-          this.btnLoading = false
-        })
-      } else {
-        this.$alert('还有题目没有打分，不能提交完成阅卷。', '提示', {
-          type: 'error',
-          confirmButtonText: '确定'
+          this.listLoading = false
         })
       }
     },
@@ -161,7 +194,8 @@ export default {
   mounted() {
     var param = JSON.parse(sessionStorage.getItem(this.$route.path))
     if (param) {
-      this.query(param)
+      this.rowParam = param
+      this.query()
     }
   }
 }
@@ -185,16 +219,19 @@ export default {
     .right {
       width: 100px;
       text-align: center;
-      border: 1px solid #00a0e9;
       border-bottom: 0;
       .score_text {
         line-height: 32px;
         margin-bottom: 0px;
+        // border: 1px solid #00a0e9;
+         border: 1px solid #000;
+        border-bottom: 0;
       }
     }
   }
   .font_b {
-    color: #ffffff;
+    // color: #ffffff;
+    color: #000;
     font-size: 18px;
     font-weight: bold;
   }
@@ -202,11 +239,31 @@ export default {
     height: 72vh;
     overflow: auto;
   }
+  .el-card {
+    color: #000;
+    background: #fff;
+    border: 1px solid #000;
+    }
   .el-card__header {
     padding: 12px 20px !important;
+    border-bottom: 1px solid #000;
   }
   .el-card__body {
     padding: 20px 8px 20px 20px !important;
+  }
+  .noData{
+    text-align: center;
+  }
+  .el-input__inner {
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #000;
+  }
+  .el-input.is-disabled .el-input__inner {
+    background-color:#fff;
+    border-color: #000;
+    color: #f72929;
+    text-align: center;
   }
 }
 .scoreInput .el-input__inner {
@@ -231,7 +288,7 @@ export default {
     }
     .questionContent {
       float: left;
-      margin-left: 20px;
+      margin-left: 10px;
       p {
         text-indent: 20px;
       }

@@ -241,7 +241,7 @@ export const constantRouterMap = [
       { path: '/knowledgeBase/userIntegral', component: () => import('@/views/knowledgeBase/userIntegral'), name: '用户积分制' },
       { path: '/knowledgeBase/userIntegralAdd', component: () => import('@/views/knowledgeBase/userIntegralAdd'), name: '积分制添加界面' },
       { path: '/knowledgeBase/userIntegralUpdate', component: () => import('@/views/knowledgeBase/userIntegralUpdate'), name: '积分制界面' },
-      { path: '/educational/questionBank', component: () => import('@/views/educational/questionBank'), name: '题库管理 ' },
+      // { path: '/educational/questionBank', component: () => import('@/views/educational/questionBank'), name: '静态题库管理 ' },
       { path: '/handlingGuide/examOnLine', component: () => import('@/views/handlingGuide/examPractice'), name: '网上考试' },
       { path: '/handlingGuide/zsk', component: () => import('@/views/handlingGuide/flfg'), name: '知识库' },
       { path: '/handlingGuide/trainingOnLine', component: () => import('@/views/microClass/index'), name: '网上培训' },
@@ -265,7 +265,7 @@ export const constantRouterMap = [
       { path: '/handlingGuide/examTrainingManage/trainingOnline', component: () => import('@/views/handlingGuide/examTrainingManage/trainingOnline'), name: '在线考试' }, // 在线考试
       { path: '/handlingGuide/examTrainingManage/paperExamed', component: () => import('@/views/handlingGuide/examTrainingManage/paperExamed'), name: '已考试详情' }, // 已考试详情
       { path: '/handlingGuide/examTrainingManage/scoreRanking', component: () => import('@/views/handlingGuide/examTrainingManage/scoreRanking'), name: '成绩排名' }, // 成绩排名
-      { path: '/handlingGuide/examineManage/statistical', component: () => import('@/views/handlingGuide/examineManage/statistical'), name: '考试统计' } // 考试统计
+      { path: '/handlingGuide/examineManage/statistical', component: () => import('@/views/handlingGuide/examineManage/statistical'), name: '在线考试统计' } // 考试统计
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
