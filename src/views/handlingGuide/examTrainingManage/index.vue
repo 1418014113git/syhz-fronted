@@ -237,6 +237,7 @@ export default {
     },
     handlePaperExamed(index, row) { // 考试记录详情
       // 传参 考试id 记录id
+      this.examRecordVisible = false
       this.$router.push({ path: '/handlingGuide/examTrainingManage/paperExamed', query: { examinationId: row.examinationId, recordId: row.id, examedTimes: this.curExam.examinationCount }})
     },
     closeDia() {
