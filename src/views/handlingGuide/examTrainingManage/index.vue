@@ -18,7 +18,7 @@
       <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
       <el-table-column prop="examinationName" label="考试" show-overflow-tooltip class="tabC">
         <template slot-scope="scope">
-          <span v-if="currentExamType==='1'" style="cursor:pointer;" @click="handleExamRecord(scope.row)">{{scope.row.examinationName}}</span>
+          <span v-if="currentExamType==='1'" class="canClick" @click="handleExamRecord(scope.row)">{{scope.row.examinationName}}</span>
           <span v-else>{{scope.row.examinationName}}</span>
         </template>
       </el-table-column>
@@ -31,7 +31,12 @@
         <template slot-scope="scope">
           <el-button size="mini" circle v-if="scope.row.status" :disabled="!scope.row.status" @click="handleRanking(scope.$index, scope.row)" icon="el-icon-tickets" title="排名"></el-button>
           <span v-else>暂未发布</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="status" label="开始考试" width="100" align="center" v-if="currentExamType==='1'" :key=Math.random()>
+        <template slot-scope="scope">
           <el-button size="mini" circle v-if="scope.row.examinationCount < scope.row.permitNumber" @click="handleStartExam(scope.$index, scope.row)" icon="el-icon-caret-right" title="开始考试"></el-button>
+          <span v-else>否</span>
         </template>
       </el-table-column>
       <el-table-column prop="date" label="考试时间" width="400" align="center" v-if="currentExamType==='2'" :key=Math.random()>
@@ -52,22 +57,6 @@
           <el-button size="mini" circle :disabled="scope.row.status !== 1" @click="handleStartExam(scope.$index, scope.row)" icon="el-icon-caret-right" title="开始考试"></el-button>
         </template>
       </el-table-column>
-      <!-- <el-table-column prop="examStatus" label="状态" width="140" align="center">
-        <template slot-scope="scope">
-          {{$getLabelByValue(scope.row.examStatus+'', ksztData)}}
-        </template>
-      </el-table-column> -->
-      <!-- <el-table-column label="操作" width="200">
-        <template slot-scope="scope">
-          <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
-          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑"></el-button>
-          <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除"></el-button>
-          <el-button size="mini" circle type="danger"  @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩">
-            <svg-icon icon-class="release"></svg-icon>
-          </el-button>
-          <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-view" title="删除"></el-button>
-        </template>
-      </el-table-column> -->
     </el-table>
 
     <!--工具条-->
@@ -79,19 +68,15 @@
     <!-- 考试记录弹框 -->
     <el-dialog width="50%" title="考试记录" :visible.sync="examRecordVisible">
       <el-table :data="examRecordData">
-        <el-table-column type="index" label="序号" width="70"></el-table-column>
-        <!-- <el-table-column prop="type" label="类型" width="100">
-          <template slot-scope="scope">
-              {{$getLabelByValue(scope.row.type+'', txData)}}
-          </template>
-        </el-table-column> -->
-        <el-table-column prop="num" label="名称" width="160"></el-table-column>
-        <el-table-column prop="startTime" label="考试时间" width="200"></el-table-column>
-        <el-table-column prop="num" label="考试时长" width="160"></el-table-column>
-        <el-table-column prop="score" label="成绩" width="100"></el-table-column>
+        <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
+        <!-- <el-table-column prop="examSequence" label="名称" width="160"></el-table-column> -->
+        <el-table-column prop="startTime" label="考试时间" width="180" align="center"></el-table-column>
+        <el-table-column prop="totalTime" label="考试时长" width="160" align="center"></el-table-column>
+        <el-table-column prop="score" label="非主观题成绩" width="120" align="center"></el-table-column>
+        <el-table-column prop="artificialScore" label="主观题成绩" width="160" align="center"></el-table-column>
         <el-table-column prop="des" label="操作">
            <template slot-scope="scope">
-            <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
+            <el-button size="mini" circle @click="handlePaperExamed(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -125,6 +110,7 @@ export default {
       paperType: examPaperType(), // 试卷类型
       examRecordVisible: false, // 考试记录弹框
       examRecordData: [], // 考试记录数据
+      curExam: {}, // 当前考试的信息
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -149,7 +135,7 @@ export default {
       this.$router.push({ path: '/handlingGuide/examTrainingManage/scoreRanking', query: { examinationId: row.examinationId, examinationName: row.examinationName }})
     },
     handleStartExam(index, row) { // 开始考试
-      this.$router.push({ path: '/handlingGuide/examTrainingManage/trainingOnline', query: { examinationId: row.examinationId }})
+      this.$router.push({ path: '/handlingGuide/examTrainingManage/trainingOnline', query: { examinationId: row.examinationId, questionsCount: row.questionsCount }})
     },
     queryInit() {
       if (this.currentExamType === '1') {
@@ -228,122 +214,30 @@ export default {
       this.$router.push({ path: '/handlingGuide/examineManage/detail', query: { examId: row.id }})
     },
     handleExamRecord(row) { // 考试记录
+      this.curExam = row // 当前考试的信息
       var para = {
-        // status: '', // end已阅卷 star未阅卷
         userId: this.userInfo.id,
         examId: row.examinationId
       }
       this.listLoading = true
+      var staticSequence = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
       this.$query('exam/examRecord', para).then((response) => {
         this.listLoading = false
         this.examRecordVisible = true
         if (response.code === '000000') {
+          for (let k = 0; k < response.data.length; k++) {
+            var element = response.data[k]
+            element.examSequence = '第' + staticSequence[k] + '次考试'
+          }
           this.examRecordData = response.data
         }
       }).catch(() => {
         this.listLoading = false
       })
     },
-    handleEdit(index, row) { // 编辑
-      // 检查是否可编辑
-      var para = {
-        id: row.id
-      }
-      this.$query('examination/checkexamination', para).then((response) => {
-        this.listLoading = false
-        if (response.code === '000000') {
-          this.$router.push({ path: '/handlingGuide/examineManage/edit', query: { examId: row.id }})
-        }
-      }).catch(() => {
-        this.listLoading = false
-      })
-    },
-    handleDelete(index, row) { // 删除
-      this.listLoading = true
-      // 检查是否可删除
-      var para = {
-        id: row.id
-      }
-      this.$query('examination/checkexamination', para).then((response) => {
-        this.listLoading = false
-        if (response.code === '000000') {
-          this.deleteExam(row)
-        }
-      }).catch(() => {
-        this.listLoading = false
-      })
-    },
-    deleteExam(row) {
-      this.$confirm('确定要删除吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.listLoading = true
-        var para = {
-          id: row.id,
-          delFlag: 1
-        }
-        this.$remove('examination/delete', para).then((response) => {
-          this.listLoading = false
-          if (response.code === '000000') {
-            this.$message({
-              type: 'success',
-              message: '删除成功'
-            })
-            this.queryList(true) // 刷新列表
-          } else {
-            this.$alert(response.message, '提示', {
-              confirmButtonText: '确定',
-              callback: action => {
-                this.$message({
-                  type: 'info',
-                  message: `action: ${action}`
-                })
-              }
-            })
-          }
-        }).catch(() => {
-          this.listLoading = false
-        })
-      }).catch(() => {
-        this.loading = false
-        this.$message({
-          type: 'info',
-          message: '已取消'
-        })
-      })
-    },
-    handlePublishScore(index, row) { // 发布成绩
-      var param = {
-        id: row.id,
-        status: 0
-      }
-      this.$update('examination/save', param).then((response) => {
-        if (response.code === '000000') {
-          this.formLoading = true
-          this.loading = false
-          this.$message({
-            type: 'success',
-            message: '发布成功!'
-          })
-        }
-      }).catch(() => {
-        this.formLoading = false
-      })
-    },
-    addTestQuestion() { // 添加试题
-      this.$router.push({ path: '/handlingGuide/examineManage/edit' })
-    },
-    importTem() {
-      this.dialogImportVisible = true
-    },
-    getFile() {
-      if (event.target.files[0]) {
-        this.fileCon = event.target.files[0]
-      } else {
-        this.fileCon = ''
-      }
+    handlePaperExamed(index, row) { // 考试记录详情
+      // 传参 考试id 记录id
+      this.$router.push({ path: '/handlingGuide/examTrainingManage/paperExamed', query: { examinationId: row.examinationId, recordId: row.id, examedTimes: this.curExam.examinationCount }})
     },
     closeDia() {
       const file = document.getElementById('excelFile')
@@ -361,12 +255,14 @@ export default {
 
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
 .testTableList {
   height: 100%;
-  .addTestQuestion {
-    float: right;
-    margin-bottom: 10px;
+  .canClick {
+    cursor: pointer;
+  }
+  .canClick:hover {
+    text-decoration: underline;
   }
 }
 </style>

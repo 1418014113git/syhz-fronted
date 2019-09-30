@@ -64,6 +64,18 @@
                 <el-select v-model="examForm.openDepts" placeholder="请选择开放单位" multiple class="left openWrap" style="width:calc(100% - 30px)">
                   <el-option v-for="item in openDeptsList" :key="item.id" :label="item.deptName" :value="item.id"></el-option>
                 </el-select>
+                <!-- <el-collapse>
+                  <el-collapse-item title="选择部门" name="1">
+                    <div class="dept-tree">
+                      <el-tree class="filter-tree" :data="depData" :props="{children: 'children',label: 'name'}" default-expand-all
+                              ref="depTree1"
+                              highlight-current show-checkbox check-strictly @check-change="checkDeptChange"
+                              :expand-on-click-node="false" node-key="id"
+                              style="margin-top: 5px;">
+                      </el-tree>
+                    </div>
+                  </el-collapse-item>
+                </el-collapse> -->
                 <el-tooltip class="right" effect="dark" content="根据实际情况，选择可以参加本次考试的机构单位！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
@@ -106,6 +118,7 @@
 import { uploadImg } from '@/utils/editorUpload'
 import { examPaperType, systemClassify } from '@/utils/codetotext'
 import { regEnCode, regCnCode } from '@/utils/validate'
+// import { getTree } from '@/api/dept'
 
 export default {
   name: 'add',
@@ -218,6 +231,8 @@ export default {
       this.$query('deptsbyparentdeptcode', { deptCode: this.deptInfo.depCode }, 'upms').then((response) => {
         if (response.code === '000000') {
           this.openDeptsList = response.data
+          // var treeData = getTree(response.data) // 转化成tree
+          // console.log(treeData)
         } else {
           this.openDeptsList = []
         }
@@ -303,6 +318,7 @@ export default {
             var element = Number(choosedDepts[index])
             newDeptsArr.push(element)
           }
+          // this.$refs.depTree1.setCheckedKeys(selectedData)
 
           if (response.data.markPeople) { // 阅卷人员
             var choosedPers = response.data.markPeople.split(',')
@@ -459,6 +475,11 @@ export default {
     clear: both;
     content: "";
     display: block;
+  }
+  .dept-tree {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 5px;
   }
 }
 .spt_report {
