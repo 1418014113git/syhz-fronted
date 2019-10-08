@@ -10,7 +10,7 @@ const app = {
       { 'name': '基础业务', 'path': '/baseInfoCount/index', 'appcode': 'C', 'icon': '/static/image/portal_images/zxrw.png', 'src': '/static/image/portal_newImg/zxrw.png' },
       { 'name': '刑嫌信息', 'path': '/inforCollection', 'appcode': 'D', 'icon': '/static/image/portal_images/xxcj.png', 'src': '/static/image/portal_newImg/xxcj.png' },
       { 'name': '检验鉴定', 'path': '/inspection', 'appcode': 'E', 'icon': '/static/image/portal_images/jyjd.png', 'src': '/static/image/portal_newImg/jyjd.png' },
-      { 'name': '教育训练', 'path': '/handlingGuide', 'appcode': 'F', 'icon': '/static/image/portal_images/bazy.png', 'src': '/static/image/portal_newImg/bazy.png' },
+      { 'name': '教育训练', 'path': '/handlingGuide/knowLedgeBase', 'appcode': 'F', 'icon': '/static/image/portal_images/bazy.png', 'src': '/static/image/portal_newImg/bazy.png' },
       { 'name': '情报管理', 'path': '/intellSystem', 'appcode': 'G', 'icon': '/static/image/portal_images/qbcj.png', 'src': '/static/image/portal_newImg/qbhcfx.png' }
     ],
     menuIcons: ['xgcx', 'gxhcx', 'afqs', 'gwdqaffx', 'gfhyfx', 'whclgjfx', 'ztajmxfxyc', 'dyatslb', 'gfajlbtj', 'zdrylkgl', 'ajrl', 'ajlb', 'ajdb', 'ajxc',
