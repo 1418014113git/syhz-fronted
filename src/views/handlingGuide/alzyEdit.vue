@@ -44,7 +44,7 @@
               <el-input v-model="lawInfo.keyWord" type="text" size="small" maxlength="50"></el-input>
             </el-form-item>
             <el-form-item label="摘要" prop="abstract">
-              <el-input v-model="lawInfo.abstract" type="textarea" size="small" placeholder="最多可输入500个字符！"></el-input>
+              <el-input v-model="lawInfo.abstract" type="textarea" size="small" maxlength="500" placeholder="最多可输入500个字符！"></el-input>
             </el-form-item>
             <!--<el-form-item label="颁布机关" prop="publishOrgName">-->
               <!--<el-input v-model="lawInfo.publishOrgName" maxlength="50" size="small" ></el-input>-->
