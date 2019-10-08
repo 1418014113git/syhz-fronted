@@ -17,15 +17,21 @@
             </p>
             <!-- 选项 -->
             <div v-if="smallItem.items" class="options_wrap">
-              <span v-if="smallItem.items.A">A、{{smallItem.items.A}}</span>
+              <!-- <span v-if="smallItem.items.A">A、{{smallItem.items.A}}</span>
               <span v-if="smallItem.items.B">B、{{smallItem.items.B}}</span>
               <span v-if="smallItem.items.C">C、{{smallItem.items.C}}</span>
               <span v-if="smallItem.items.D">D、{{smallItem.items.D}}</span>
               <span v-if="smallItem.items.E">E、{{smallItem.items.E}}</span>
-              <span v-if="smallItem.items.F">F、{{smallItem.items.F}}</span>
+              <span v-if="smallItem.items.F">F、{{smallItem.items.F}}</span> -->
+              <p v-if="smallItem.items.A" class="option_item">A、<span v-html="smallItem.items.A" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.B" class="option_item">B、<span v-html="smallItem.items.B" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.C" class="option_item">C、<span v-html="smallItem.items.C" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.D" class="option_item">D、<span v-html="smallItem.items.D" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.E" class="option_item">E、<span v-html="smallItem.items.E" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.F" class="option_item">F、<span v-html="smallItem.items.F" class="richTextWrap"></span></p>
             </div>
             <!-- 判断题 -->
-            <div v-if="smallItem.type === 4">
+            <div v-if="smallItem.type === 4" class="pd_options_wrap">
               <el-radio-group>
                 <span class="option_item"><el-radio label="true">正确</el-radio></span>
                 <span class="option_item"><el-radio label="false">错误</el-radio></span>
@@ -138,10 +144,6 @@ export default {
         margin-bottom: 0px;
       }
     }
-    .option_item {
-      display: inline-block;
-      width: 22%;
-    }
     // 单选框样式
     .el-radio {
       color: #000000;
@@ -166,9 +168,9 @@ export default {
 
   .options_wrap {
     margin: 0 0 8px 10px;
-    span {
+    .pd_options_wrap .option_item {
       display: inline-block;
-      min-width: 22%;
+      width: 22%;
     }
   }
   .question_name {

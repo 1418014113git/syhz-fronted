@@ -398,7 +398,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .addExamine {
   .el-transfer-panel {
-    width: 410px;
+    width: 360px;
   }
   .left {
     float: left;
