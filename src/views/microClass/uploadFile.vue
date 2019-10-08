@@ -16,7 +16,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="内容简介" prop="describe">
-              <el-input v-model="form.describe" type="textarea" size="small" maxlength="500" placeholder="最多可输入500个文字！"></el-input>
+              <el-input v-model="form.describe" type="textarea" size="small" maxlength="500" placeholder="最多可输入500个字符！"></el-input>
             </el-form-item>
             <el-form-item label="封面">
               <el-upload drag
@@ -91,13 +91,14 @@
           describe: [{
             required: false, trigger: 'blur', validator: (rule, value, callback) => {
               if (value !== undefined && value !== null && value !== '' && value.length > 500) {
-                return callback(new Error('内容简介最多可输入500个文字！'))
+                return callback(new Error('内容简介不能超过 500个字符'))
               }
               return callback()
             }
           }]
         },
         nameCheckFlag: true,
+        currentFile: '',
         curUser: {}
       }
     },
@@ -197,9 +198,9 @@
           })
           return false
         }
-        if (file.size / 1024 / 1024 > 500) {
+        if (file.size / 1024 / 1024 > 5) {
           this.$message({
-            message: '图片上传失败！上传图片大小不得超过5M！',
+            message: '文件上传失败！上传文档大小不得超过5M！',
             type: 'error'
           })
           return false
@@ -234,9 +235,9 @@
         if (wordReg.test(file.type) || pdfReg.test(file.type) || pptReg.test(file.type)) {
           this.uploadFileType = '0'
           flag = true
-          if (file.size / 1024 > 500) {
+          if (file.size / 1024 / 1024 > 10) {
             this.$message({
-              message: '文件上传失败！上传文档大小不得超过500K！',
+              message: '文件上传失败！上传文档大小不得超过10M！',
               type: 'error'
             })
             return false
@@ -245,7 +246,7 @@
         if (videoReg.test(file.type)) {
           this.uploadFileType = '1'
           flag = true
-          if (file.size / 1024 / 1024 / 1024 > 500) {
+          if (file.size / 1024 / 1024 / 1024 > 2) {
             this.$message({
               message: '文件上传失败！上传视频大小不得超过2G！',
               type: 'error'
@@ -291,10 +292,10 @@
         const checkFlag = true
         return this.checkEnName(file, checkFlag)
       },
-      async checkEnName(enName) {
+      async checkEnName(file) {
         let flag = true
         // 校验文件名称是否重复
-        const response = await this.$queryAsyns('traincourseonly', { enName: enName, entype: this.uploadFileType })
+        const response = await this.$queryAsyns('traincourseonly', { enName: file.name.substring(0, file.name.lastIndexOf('.')), entype: this.uploadFileType })
         if (response.data.data !== null && response.data.data.length > 0) {
           this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {
             confirmButtonText: '知道了',
@@ -302,9 +303,11 @@
             }
           })
           this.nameCheckFlag = false
+          this.currentFile = file
           flag = false
         } else {
           this.nameCheckFlag = true
+          this.loading = true
           flag = true
         }
         return flag
@@ -312,6 +315,7 @@
       fileError() {
       },
       fileSuccess(response, file, fileList) {
+        this.loading = false
         if (response.code !== '000000') {
           this.$alert(response.message + '， 请重新上传', '提示', {
             confirmButtonText: '确定',
@@ -321,13 +325,21 @@
           })
           return false
         }
+        const enPathOld = response.data
+        let enPathNew = ''
+        const cl = enPathOld.substring(enPathOld.lastIndexOf('.') + 1, enPathOld.length)
+        if (cl === 'docx' || cl === 'doc' || cl === 'ppt' || cl === 'pptx') {
+          enPathNew = enPathOld.substring(0, enPathOld.lastIndexOf('.')) + '.pdf'
+        } else {
+          enPathNew = enPathOld
+        }
         const data = {
           enCode: '1',
           enType: this.uploadFileType,
           enClass: file.name.substring(file.name.lastIndexOf('.'), file.name.length),
           enName: file.name.substring(0, file.name.lastIndexOf('.')),
-          enPath: response.data,
-          enPathOld: response.data,
+          enPath: enPathNew,
+          enPathOld: enPathOld,
           order: this.form.enclosure.length + 1
         }
         this.form.enclosure.push(data)
@@ -351,7 +363,7 @@
         }
       },
       clearErrorFileList() {
-        this.$refs.fileUpload.abort()
+        this.$refs.fileUpload.abort(this.currentFile)
         const elementArr = document.getElementsByClassName('el-upload-list__item')
         for (let i = 0; i < elementArr.length; i++) {
           const element = elementArr[i]

@@ -227,7 +227,7 @@
         this.page = flag ? 1 : this.page
         this.filters.type = this.active
         const para = {
-          title: this.filters.title,
+          title: this.filters.title.trim(),
           type: this.filters.type,
           auditStatus: this.filters.auditStatus,
           creationId: this.filters.creationId,

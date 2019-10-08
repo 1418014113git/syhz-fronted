@@ -240,7 +240,7 @@
         this.page = flag ? 1 : this.page
         this.filters.type = this.active
         const para = {
-          title: this.filters.title,
+          title: this.filters.title.trim(),
           type: this.filters.type,
           auditStatus: this.filters.auditStatus,
           creationId: this.filters.creationId,
@@ -279,7 +279,8 @@
         const para = {
           param: this.filters,
           jumpType: 'knowLedgeBase',
-          id: row.id
+          id: row.id,
+          active: this.active
         }
         if (this.active === '1') {
           this.$gotoid('/handlingGuide/flfg/detail', JSON.stringify(para))
@@ -406,7 +407,6 @@
         const para = {
           crouseId: this.curRowId === '' ? row.id : this.curRowId,
           belongMode: this.active,
-          belongType: row.articleType,
           belongSys: '1'
         }
         this.$query('page/traincrouseauditlog', para).then(response => {
