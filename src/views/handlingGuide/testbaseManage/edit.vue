@@ -184,6 +184,13 @@ export default {
           if (this.questionForm.type === 2) {
             this.questionForm.answerDx = this.questionForm.answer.split(',')
           }
+          if (this.questionForm.type === 4) { // 判断题 答案转化
+            if (this.questionForm.answer === true) {
+              this.questionForm.answer = 1
+            } else {
+              this.questionForm.answer = 2
+            }
+          }
           if (this.questionForm.points) {
             var points = this.questionForm.points
             for (let index = 0; index < points.length; index++) {
@@ -204,6 +211,7 @@ export default {
             }
           }
           this.questionForm.type = this.questionForm.type + '' // type转化为字符串
+          this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
         }).catch(() => {
           this.formLoading = false
           this.tableData = []
