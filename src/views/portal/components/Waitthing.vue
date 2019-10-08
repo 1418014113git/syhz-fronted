@@ -91,6 +91,14 @@ export default {
           this.$router.push({
             path: '/specialTasks'
           })
+        } else if (node.type === '0010') {
+          this.$router.push({
+            path: '/handlingGuide/knowLedgeBase'
+          })
+        } else if (node.type === '0011') {
+          this.$router.push({
+            path: '/micro/trainMaterial'
+          })
         } else {
           this.$router.push({
             path: '/workflow/index/' + node.type
@@ -177,42 +185,57 @@ export default {
       }
       getWorkGroup(para).then((response) => {
         this.listData[0].data = []
-        if (response.data) {
-          for (let i = 0; i < response.data.length; i++) {
-            const data = response.data[i]
-            let text = ''
-            if (data.wd_type === '0001') {
-              text = '--'
+        const param = this.$setCurrentUser({})
+        this.$query('trainworkorderwaitaudit', { belongDeptCode: param.belongDepCode }).then(res => {
+          if (response.data) {
+            for (let i = 0; i < response.data.length; i++) {
+              const data = response.data[i]
+              let text = ''
+              if (data.wd_type === '0001') {
+                text = '--'
+              }
+              if (data.wd_type === '0002') {
+                text = '--'
+              }
+              if (data.wd_type === '0003') {
+                text = '督办待审核'
+              }
+              if (data.wd_type === '0004') {
+                text = '全国性协查待审核'
+              }
+              if (data.wd_type === '0005') {
+                text = '协查待审核'
+              }
+              if (data.wd_type === '0006') {
+                text = '检验鉴定审核'
+              }
+              if (data.wd_type === '0007') {
+                text = '专项任务成果上报'
+              }
+              if (data.wd_type === '0008') {
+                text = '督办结案报告审核'
+              }
+              if (data.wd_type === '0009') {
+                text = '无文书待审核'
+              }
+              this.listData[0].data.push({
+                data_op: text, num: data.num, type: data.wd_type
+              })
             }
-            if (data.wd_type === '0002') {
-              text = '--'
-            }
-            if (data.wd_type === '0003') {
-              text = '督办待审核'
-            }
-            if (data.wd_type === '0004') {
-              text = '全国性协查待审核'
-            }
-            if (data.wd_type === '0005') {
-              text = '协查待审核'
-            }
-            if (data.wd_type === '0006') {
-              text = '检验鉴定审核'
-            }
-            if (data.wd_type === '0007') {
-              text = '专项任务成果上报'
-            }
-            if (data.wd_type === '0008') {
-              text = '督办结案报告审核'
-            }
-            if (data.wd_type === '0009') {
-              text = '无文书待审核'
-            }
-            this.listData[0].data.push({
-              data_op: text, num: data.num, type: data.wd_type
-            })
           }
-        }
+          for (let j = 0; j < res.data.length; j++) {
+            const item = res.data[j]
+            if (item.type === 1) {
+              this.listData[0].data.push({
+                data_op: '知识库待审核', num: item.count, type: '0010'
+              })
+            } else {
+              this.listData[0].data.push({
+                data_op: '培训资料待审核', num: item.count, type: '0011'
+              })
+            }
+          }
+        })
       })
     },
     getAjrl() {

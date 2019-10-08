@@ -77,13 +77,13 @@
               <el-input type="text" v-model="questionForm.source" maxlength="100" size="small" clearable placeholder="请输入出处"></el-input>
             </el-form-item>
             <el-form-item label="次序" prop="sort">
-              <el-input-number v-model="questionForm.sort" :min="1" :max="999"></el-input-number>
+              <el-input-number v-model="questionForm.sort" :min="0" :max="999"></el-input-number>
             </el-form-item>
           </div>
         </el-col>
         <!-- 富文本编辑器 -->
         <el-col :span="12" :style="{height:editorHeight}" v-if="carryParam.type!=='1'">
-          <vue-editor v-model="editorContent" useCustomImageHandler @imageAdded="handleImageAdded"
+          <vue-editor v-model="editorContent" :useCustomImageHandler="false" @imageAdded="handleImageAdded"
                       style="width: 100%; min-width: 500px;height:100%;" @focus="editorFocus" @input="editorChange($event)"></vue-editor>
         </el-col>
         <!-- <el-form-item  align="right">
@@ -121,6 +121,7 @@ export default {
       answerIndex: null,
       questionForm: {
         type: '1', // 试题类型
+        sort: 1,
         subjectName: '',
         answer: '',
         answerDx: [],
@@ -176,7 +177,13 @@ export default {
         }
         this.$query('questions/questionbyid', para).then((response) => {
           this.formLoading = false
+          if (response.data.type === 2) {
+            response.data.answerDx = []
+          }
           this.questionForm = response.data
+          if (this.questionForm.type === 2) {
+            this.questionForm.answerDx = this.questionForm.answer.split(',')
+          }
           if (this.questionForm.points) {
             var points = this.questionForm.points
             for (let index = 0; index < points.length; index++) {
@@ -291,9 +298,8 @@ export default {
           } else {
             // 添加
             this.$save('question', param).then((response) => {
+              this.formLoading = false
               if (response.code === '000000') {
-                this.formLoading = true
-                this.loading = false
                 this.$message({
                   type: 'success',
                   message: '添加成功!'
@@ -344,10 +350,8 @@ export default {
     this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
     if (this.$route.query) {
       this.carryParam = this.$route.query
-      // console.log(this.carryParam)
       this.init()
     }
-    // tinymce.init({})
   },
   watch: {
 

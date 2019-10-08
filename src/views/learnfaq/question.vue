@@ -101,7 +101,7 @@
               })
               return false
             }
-            if (this.question.quType.indexOf(this.sensitiveList[i]) !== -1) {
+            if (this.question.introduction.indexOf(this.sensitiveList[i]) !== -1) {
               this.$alert('具体问题中包含敏感词，请修改后再发表', '警告', {
                 confirmButtonText: '确定'
               })
@@ -176,7 +176,7 @@
       },
       toList() {
         this.$router.push({
-          path: '/learn/index',
+          path: '/micro/difficult',
           query: {
             page: this.$route.query.page,
             pageSize: this.$route.query.pageSize,
