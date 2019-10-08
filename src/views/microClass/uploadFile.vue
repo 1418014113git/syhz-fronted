@@ -446,6 +446,7 @@
             this.detail()
           }
           this.source = param.jumpType
+          this.form.type = param.active
           this.active = param.active
           this.filters = param.param
         }
