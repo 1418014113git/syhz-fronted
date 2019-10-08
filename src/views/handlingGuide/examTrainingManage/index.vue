@@ -7,7 +7,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="考试名称" prop="examinationName">
-        <el-input type="text" size="small" v-model="filters.examinationName" clearable placeholder="请输入"></el-input>
+        <el-input type="text" size="small" v-model.trim="filters.examinationName" clearable placeholder="请输入"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="small" @click="queryInit(true,true)">查询</el-button>

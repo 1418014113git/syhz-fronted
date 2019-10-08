@@ -5,7 +5,7 @@
     </div>
     <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
       <el-form-item label="考试名称" prop="examinationName">
-        <el-input type="text" size="small" v-model="filters.examinationName" clearable placeholder="请输入"></el-input>
+        <el-input type="text" size="small" v-model.trim="filters.examinationName" clearable placeholder="请输入"></el-input>
       </el-form-item>
       <el-form-item label="考试状态" prop="examStatus">
         <el-select v-model="filters.examStatus" placeholder="请选择" clearable @change="examStatusChange">

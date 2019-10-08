@@ -49,34 +49,34 @@
             <!-- 单选题选项 -->
             <div v-if="smallItem.items && smallItem.type===1" class="options_wrap">
               <!-- <el-radio-group v-model="answer[smallItem.id]" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
-                <p v-if="smallItem.items.A" class="option_item"><el-radio label="A">A、<span v-html="smallItem.items.A" class="spanP"></span></el-radio></p>
-                <p v-if="smallItem.items.B" class="option_item"><el-radio label="B">B、<span v-html="smallItem.items.B" class="spanP"></span></el-radio></p>
-                <p v-if="smallItem.items.C" class="option_item"><el-radio label="C">C、<span v-html="smallItem.items.C" class="spanP"></span></el-radio></p>
-                <p v-if="smallItem.items.D" class="option_item"><el-radio label="D">D、<span v-html="smallItem.items.D" class="spanP"></span></el-radio></p>
+                <p v-if="smallItem.items.A" class="option_item"><el-radio label="A">A、<span v-html="smallItem.items.A" class="richTextWrap"></span></el-radio></p>
+                <p v-if="smallItem.items.B" class="option_item"><el-radio label="B">B、<span v-html="smallItem.items.B" class="richTextWrap"></span></el-radio></p>
+                <p v-if="smallItem.items.C" class="option_item"><el-radio label="C">C、<span v-html="smallItem.items.C" class="richTextWrap"></span></el-radio></p>
+                <p v-if="smallItem.items.D" class="option_item"><el-radio label="D">D、<span v-html="smallItem.items.D" class="richTextWrap"></span></el-radio></p>
                </el-radio-group> -->
-              <p v-if="smallItem.items.A" class="option_item">A、<span v-html="smallItem.items.A" class="spanP"></span></p>
-              <p v-if="smallItem.items.B" class="option_item">B、<span v-html="smallItem.items.B" class="spanP"></span></p>
-              <p v-if="smallItem.items.C" class="option_item">C、<span v-html="smallItem.items.C" class="spanP"></span></p>
-              <p v-if="smallItem.items.D" class="option_item">D、<span v-html="smallItem.items.D" class="spanP"></span></p>
+              <p v-if="smallItem.items.A" class="option_item">A、<span v-html="smallItem.items.A" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.B" class="option_item">B、<span v-html="smallItem.items.B" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.C" class="option_item">C、<span v-html="smallItem.items.C" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.D" class="option_item">D、<span v-html="smallItem.items.D" class="richTextWrap"></span></p>
                <p>您的答案：{{smallItem.answer}}</p>
                <p>正确答案：{{smallItem.rightAnswer}}</p>
             </div>
             <!-- 多选题选项 -->
             <div v-if="smallItem.items && smallItem.type===2" class="options_wrap">
               <!-- <el-checkbox-group v-model="smallItem.answerr" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event,smallItem.answerr)"> -->
-                <!-- <p v-if="smallItem.items.A" class="option_item"><el-checkbox label="A">A、<span v-html="smallItem.items.A" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.B" class="option_item"><el-checkbox label="B">B、<span v-html="smallItem.items.B" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.C" class="option_item"><el-checkbox label="C">C、<span v-html="smallItem.items.C" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.D" class="option_item"><el-checkbox label="D">D、<span v-html="smallItem.items.D" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.E" class="option_item"><el-checkbox label="E">E、<span v-html="smallItem.items.E" class="spanP"></span></el-checkbox></p>
-                <p v-if="smallItem.items.F" class="option_item"><el-checkbox label="F">F、<span v-html="smallItem.items.F" class="spanP"></span></el-checkbox></p> -->
+                <!-- <p v-if="smallItem.items.A" class="option_item"><el-checkbox label="A">A、<span v-html="smallItem.items.A" class="richTextWrap"></span></el-checkbox></p>
+                <p v-if="smallItem.items.B" class="option_item"><el-checkbox label="B">B、<span v-html="smallItem.items.B" class="richTextWrap"></span></el-checkbox></p>
+                <p v-if="smallItem.items.C" class="option_item"><el-checkbox label="C">C、<span v-html="smallItem.items.C" class="richTextWrap"></span></el-checkbox></p>
+                <p v-if="smallItem.items.D" class="option_item"><el-checkbox label="D">D、<span v-html="smallItem.items.D" class="richTextWrap"></span></el-checkbox></p>
+                <p v-if="smallItem.items.E" class="option_item"><el-checkbox label="E">E、<span v-html="smallItem.items.E" class="richTextWrap"></span></el-checkbox></p>
+                <p v-if="smallItem.items.F" class="option_item"><el-checkbox label="F">F、<span v-html="smallItem.items.F" class="richTextWrap"></span></el-checkbox></p> -->
               <!-- </el-checkbox-group> -->
-              <p v-if="smallItem.items.A" class="option_item">A、<span v-html="smallItem.items.A" class="spanP"></span></p>
-              <p v-if="smallItem.items.B" class="option_item">B、<span v-html="smallItem.items.B" class="spanP"></span></p>
-              <p v-if="smallItem.items.C" class="option_item">C、<span v-html="smallItem.items.C" class="spanP"></span></p>
-              <p v-if="smallItem.items.D" class="option_item">D、<span v-html="smallItem.items.D" class="spanP"></span></p>
-              <p v-if="smallItem.items.E" class="option_item">E、<span v-html="smallItem.items.E" class="spanP"></span></p>
-              <p v-if="smallItem.items.F" class="option_item">F、<span v-html="smallItem.items.F" class="spanP"></span></p>
+              <p v-if="smallItem.items.A" class="option_item">A、<span v-html="smallItem.items.A" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.B" class="option_item">B、<span v-html="smallItem.items.B" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.C" class="option_item">C、<span v-html="smallItem.items.C" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.D" class="option_item">D、<span v-html="smallItem.items.D" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.E" class="option_item">E、<span v-html="smallItem.items.E" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.F" class="option_item">F、<span v-html="smallItem.items.F" class="richTextWrap"></span></p>
               <p>您的答案：{{smallItem.answer}}</p>
               <p>正确答案：{{smallItem.rightAnswer}}</p>
             </div>
@@ -569,7 +569,7 @@ export default {
       cursor: pointer;
     }
   }
-  .spanP p:nth-child(1) {
+  .richTextWrap p:nth-child(1) {
     display: inline-block;
   }
 }
