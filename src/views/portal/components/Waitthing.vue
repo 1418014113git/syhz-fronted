@@ -91,6 +91,14 @@ export default {
           this.$router.push({
             path: '/specialTasks'
           })
+        } else if (node.type === '0010') {
+          this.$router.push({
+            path: '/handlingGuide/knowLedgeBase'
+          })
+        } else if (node.type === '0011') {
+          this.$router.push({
+            path: '/micro/trainMaterial'
+          })
         } else {
           this.$router.push({
             path: '/workflow/index/' + node.type
@@ -223,7 +231,7 @@ export default {
               })
             } else {
               this.listData[0].data.push({
-                data_op: '培训资料待审核', num: item.count, type: '0010'
+                data_op: '培训资料待审核', num: item.count, type: '0011'
               })
             }
           }
