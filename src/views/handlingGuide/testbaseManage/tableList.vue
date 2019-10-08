@@ -369,7 +369,7 @@ export default {
         this.listLoading = false
         if (response.code === '000000') {
           this.$message({
-            message: '删除成功', type: 'error'
+            message: '删除成功', type: 'success'
           })
           this.queryList(true, true)
         }
