@@ -14,7 +14,7 @@
       </el-form-item>
     </el-form>
     <!--列表-->
-    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
       <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
       <el-table-column prop="examinationName" label="考试" show-overflow-tooltip class="tabC">
         <template slot-scope="scope">
