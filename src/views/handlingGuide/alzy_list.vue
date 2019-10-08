@@ -50,7 +50,7 @@
               <el-tag v-if="item.articleType === 4" type="success">综合</el-tag>
             </el-col>
             <el-col :span="4" style="color: #c7c7c7;">发布日期：{{ $parseTime(item.publishTime, '{y}-{m}-{d}') }}</el-col>
-            <el-col :span="20" style="color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">摘要：{{ item.abstract }}</el-col>
+            <el-col :span="20" style="color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">摘要：{{ item.abstract ? item.abstract : '无' }}</el-col>
           </div>
         </div>
       </el-card>
@@ -140,6 +140,7 @@ export default {
       if (tab.name === '9') {
         this.more()
       }
+      this.query(true)
     },
     detail(id) {
       if (this.$isViewBtn('129303')) {
