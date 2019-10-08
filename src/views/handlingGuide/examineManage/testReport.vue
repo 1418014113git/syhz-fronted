@@ -1,5 +1,5 @@
 <template>
-  <div class="case-claim">
+  <div>
     <el-card style="margin-bottom: 10px;">
       <el-form :inline="true" :model="filterQuery" label-width="84px">
         <el-form-item label="发布单位"  prop="deptRange">
@@ -67,7 +67,7 @@
         </el-table-column>
         <el-table-column label="操作" width="200">
           <template slot-scope="scope">
-            <span v-if="scope.row.totalNum" class="canClick">考试报告</span>
+            <span v-if="scope.row.totalNum">考试报告</span>
             <!-- <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="排名"></el-button> -->
           </template>
         </el-table-column>
@@ -109,18 +109,10 @@
         <el-table-column prop="zNum" label="中" width="100"></el-table-column>
         <el-table-column prop="cNum" label="差" width="100"></el-table-column>
       </el-table>
-      <!-- 饼状图 -->
-      <div class="clearfix" style="margin: 50px 0 80px;">
-        <div id="echartScore" style="width: 49%; min-height: 400px; float:left;"></div>
-        <div id="echartPerNum" style="width: 49%; min-height: 400px; float:right;"></div>
-      </div>
-      <!-- 柱状图 -->
-      <div id="cityStatistical" style="min-height: 400px;"></div>
     </el-card>
   </div>
 </template>
 <script>
-import echarts from 'echarts'
 export default {
   name: 'examinationStatistical',
   data() {
@@ -160,8 +152,6 @@ export default {
       endDateDisabled: true, // 结束时间禁用
       examLoading: false, // 考试统计loading
       cityLoading: false, // 盟市统计loading
-      echartScore: {},
-      echartPerNum: {},
       cityStatistical: {},
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
@@ -367,7 +357,7 @@ export default {
           { value: cNumAll, name: '差' }
         ]
       }
-      this.echartScore = echarts.init(document.getElementById('echartScore'))
+      // this.echartScore = echarts.init(document.getElementById('echartScore'))
       this.echartScore.setOption({
         color: ['#537ff7', '#f46470', '#ffb337', '#23ce7b', '#a257ed', '#fee344', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
         title: {
@@ -432,7 +422,7 @@ export default {
           { value: qkNum, name: '缺考人数' }
         ]
       }
-      this.echartPerNum = echarts.init(document.getElementById('echartPerNum'))
+      // this.echartPerNum = echarts.init(document.getElementById('echartPerNum'))
       this.echartPerNum.setOption({
         color: ['#0ECACA', '#1088F6', '#ffb337', '#23ce7b', '#a257ed', '#fee344', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
         title: {
@@ -489,7 +479,7 @@ export default {
           cityArr.push(arr)
         }
       }
-      this.cityStatistical = echarts.init(document.getElementById('cityStatistical'))
+      // this.cityStatistical = echarts.init(document.getElementById('cityStatistical'))
       this.cityStatistical.setOption({
         title: {
           text: '地市考试分析',
@@ -670,48 +660,8 @@ export default {
   },
   mounted() {
     this.queryExamStatistical() // 考试统计
-    // this.initStaticData()
-    // if (sessionStorage.getItem(this.$route.path)) {
-    //   var carryParam = JSON.parse(sessionStorage.getItem(this.$route.path))
-    //   this.yearDate = carryParam.yearDate || '' // 筛选框的值
-    //   this.quarterDate = carryParam.quarterDate || ''
-    //   this.monthDate = carryParam.monthDate || ''
-    //   this.filters.type = carryParam.queryType || ''
-    //   this.startTime = carryParam.startTime || ''
-    //   this.endTime = carryParam.endTime || ''
-    //   this.yearChange(this.yearDate)
-    //   this.quarterChange(this.quarterDate)
-    //   this.monthChange(this.monthDate)
-    //   if (this.filters.type) {
-    //     this.queryByType(this.filters.type)
-    //   }
-    //   this.startDateChange(this.startTime)
-    //   this.endDateChange(this.endTime)
-    // } else {
-    //   // 需求176 默认查询本年度
-    //   var curYear = new Date().getFullYear() + ''
-    //   this.yearDate = curYear
-    //   this.yearChange(curYear)
-    // }
   }
 }
 </script>
 <style>
-.case-trend .card {
-  margin-bottom: 20px;
-}
-.case-claim .el-table__expanded-cell {
-  width: 500px;
-  margin-left: 100px;
-  padding: 0;
-}
-.canClick {
-  cursor: pointer;
-}
-.canClick:hover {
-  text-decoration: underline;
-}
-.el-table .row-expand-cover .cell .el-table__expand-icon {
-  display: none;
-}
 </style>

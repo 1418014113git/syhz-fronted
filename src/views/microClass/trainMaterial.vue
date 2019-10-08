@@ -227,7 +227,7 @@
         this.page = flag ? 1 : this.page
         this.filters.type = this.active
         const para = {
-          title: this.filters.title,
+          title: this.filters.title.trim(),
           type: this.filters.type,
           auditStatus: this.filters.auditStatus,
           creationId: this.filters.creationId,
@@ -314,6 +314,9 @@
         this.isBatchAudit = false
       },
       executeAudit(auditStatus) {
+        if (auditStatus === '2') {
+          this.auditForm.remark = '审核通过'
+        }
         this.$refs.auditForm.validate(valid => {
           if (valid) {
             // 调用审核接口
