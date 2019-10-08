@@ -720,7 +720,7 @@ export default {
               return
             }
             this.deletelObj()
-            this.rgzjList.sort((a, b) => Number(a.sort) - Number(b.sort)) // 先按type升序
+            this.rgzjList.sort((a, b) => Number(a.sort) - Number(b.sort)) // 升序
             this.rgzjList.forEach((item, index) => {
               this.delWidthData(item)
             })
@@ -777,24 +777,14 @@ export default {
               })
               return
             }
-            // var modelId = []
-            // var cateIds = ''
             var isSave = false
             this.sjzjList.forEach((item, index) => {
               if (item.data.length > 0 && item.sort && item.num > 0 && item.value > 0 && item.desc) {
                 item.isSave = true
                 isSave = true
-                // var data = item.data
-                // data.forEach((item, index) => {
-                //   modelId.push(item.id)
-                // })
               }
             })
-            // if (modelId.length > 0) {
-            //   // modelId = this.unique(modelId) // 去重
-            // }
             if (isSave) {
-              // cateIds = modelId.length > 0 ? modelId.join(',') : ''
               var sjzjList = this.sjzjList
               sjzjList.forEach((item, index) => {
                 if (!item.isSave) {
@@ -1133,6 +1123,7 @@ export default {
     buildData() { // 人工组卷数据组装
       var data = {}
       var rgzjList = this.rgzjList
+      rgzjList.sort((a, b) => Number(a.sort) - Number(b.sort)) // 升序
       rgzjList.forEach((item, index) => {
         this.arrKey.forEach((it, indexs) => {
           if (index === indexs) {
@@ -1146,24 +1137,14 @@ export default {
     sjPreView() { // 随机组卷试卷预览接口
       this.$refs.form.validate(valid => {
         if (valid) {
-          // var modelId = []
-          // var cateIds = ''
           var isSave = false
           this.sjzjList.forEach((item, index) => {
             if (item.data.length > 0 && item.sort && item.num > 0 && item.value > 0 && item.desc) {
               item.isSave = true
               isSave = true
-              // var data = item.data
-              // data.forEach((item, index) => {
-              //   modelId.push(item.id)
-              // })
             }
           })
-          // if (modelId.length > 0) {
-          //   // modelId = this.unique(modelId) // 去重
-          // }
           if (isSave) {
-            // cateIds = modelId.length > 0 ? modelId.join(',') : ''
             var sjzjList = JSON.parse(JSON.stringify(this.sjzjList))
             sjzjList.forEach((item, index) => {
               if (!item.isSave) {
@@ -1330,9 +1311,24 @@ export default {
   .el-textarea__inner {
     padding: 5px;
   }
-  .previewDia .el-dialog__body {
-    background: #ffffff;
-    color: #000000;
+  .previewDia {
+    .el-dialog {
+      background: #ffffff;
+      border: 1px solid #bebebe;
+    }
+    .el-dialog__header {
+      border-bottom: 2px solid #aaaaaa;
+      .el-dialog__title {
+        color: #000000;
+      }
+      .el-dialog__headerbtn .el-dialog__close {
+        color: #000000;
+      }
+    }
+    .el-dialog__body {
+      background: #ffffff;
+      color: #000000;
+    }
   }
 }
 </style>

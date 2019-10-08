@@ -94,6 +94,9 @@ export default {
         }
         return
       }
+      if (key === '/menuItemNode') { // 试题模块 点击模块时记住当前被点击的模块列表信息，点击菜单时清空掉
+        sessionStorage.removeItem('/menuItemNode')
+      }
       this.$router.push({ path: key })
     },
     getAppMenus: function(name, menus) {

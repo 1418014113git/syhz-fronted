@@ -164,19 +164,18 @@ export default {
           chidArry.push(data.id)
           idString = chidArry.join(',')
           param.id = idString
-        } else {
-          this.loading = true
-          this.$remove('subjectCategory/delete', param).then((response) => {
-            this.loading = false
-            this.$message({
-              message: '删除成功',
-              type: 'success'
-            })
-            this.init() // 刷新页面
-          }).catch(() => {
-            this.loading = false
-          })
         }
+        this.loading = true
+        this.$remove('subjectCategory/delete', param).then((response) => {
+          this.loading = false
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
+          this.init() // 刷新页面
+        }).catch(() => {
+          this.loading = false
+        })
       }).catch(() => {
         this.loading = false
         this.$message({
@@ -188,8 +187,10 @@ export default {
     getNode(data, node) { // 点击tree节点，获取id，查询对应的菜单详情
       if (data.id) {
         this.menuItemNode = data
+        sessionStorage.setItem('/menuItemNode', JSON.stringify(this.menuItemNode))
       } else {
         this.menuItemNode = {}
+        sessionStorage.setItem('/menuItemNode', JSON.stringify({}))
       }
     },
     isViewBtnAdd(store, data, node) { // “添加”按钮显隐的权限控制
