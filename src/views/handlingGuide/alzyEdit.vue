@@ -44,7 +44,7 @@
               <el-input v-model="lawInfo.keyWord" type="text" size="small" maxlength="50"></el-input>
             </el-form-item>
             <el-form-item label="摘要" prop="abstract">
-              <el-input v-model="lawInfo.abstract" type="textarea" size="small" placeholder="最多可输入500个文字！"></el-input>
+              <el-input v-model="lawInfo.abstract" type="textarea" size="small" placeholder="最多可输入500个字符！"></el-input>
             </el-form-item>
             <!--<el-form-item label="颁布机关" prop="publishOrgName">-->
               <!--<el-input v-model="lawInfo.publishOrgName" maxlength="50" size="small" ></el-input>-->
@@ -104,7 +104,7 @@
     },
     data() {
       return {
-        showSave: false,
+        showSave: true,
         uploadAction: Attachment.uploadFileUrl,
         id: '',
         callBack: '',
@@ -146,7 +146,7 @@
                 } else if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('标题不能输入特殊字符'))
                 } else if (value.length > 50) {
-                  callback(new Error('标题长度不能超过 50'))
+                  callback(new Error('标题长度不能超过 50个字符'))
                 } else {
                   return this.titleCheckAsyns(callback)
                 }
@@ -156,7 +156,7 @@
           articleType: [{ required: true, message: '请选择类别', trigger: 'change' }],
           category: [{ required: true, message: '请选择分类', trigger: 'change' }],
           source: [{ required: true, message: '请选择来源', trigger: 'change' }],
-          content: [{ max: 40000, message: '内容过长请修改内容', trigger: 'blur' }],
+          content: [{ max: 65000, message: '正文内容长度不能超过 65000个字符', trigger: 'blur' }],
           keyWord: [
             {
               required: false, trigger: 'blur', validator: (rule, value, callback) => {
@@ -168,7 +168,7 @@
                 if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('关键词不能输入特殊字符'))
                 } else if (value.length > 50) {
-                  callback(new Error('关键词长度不能超过 50'))
+                  callback(new Error('关键词长度不能超过 50个字符'))
                 } else {
                   callback()
                 }
@@ -186,7 +186,7 @@
                 if (value.length > 0 && regEnCode.test(value) && regCnCode.test(value)) {
                   callback(new Error('摘要不能输入特殊字符'))
                 } else if (value.length > 500) {
-                  callback(new Error('摘要长度不能超过 500'))
+                  callback(new Error('摘要长度不能超过 500个字符'))
                 } else {
                   callback()
                 }
@@ -375,9 +375,9 @@
         if (wordReg.test(file.type) || pdfReg.test(file.type) || pptReg.test(file.type)) {
           this.uploadFileType = '0'
           flag = true
-          if (file.size / 1024 > 500) {
+          if (file.size / 1024 / 1024 > 10) {
             this.$message({
-              message: '文件上传失败！上传文档大小不得超过500K！',
+              message: '文件上传失败！上传文档大小不得超过10M！',
               type: 'error'
             })
             return false
@@ -386,7 +386,7 @@
         if (videoReg.test(file.type)) {
           this.uploadFileType = '1'
           flag = true
-          if (file.size / 1024 / 1024 / 1024 > 500) {
+          if (file.size / 1024 / 1024 / 1024 > 2) {
             this.$message({
               message: '文件上传失败！上传视频大小不得超过2G！',
               type: 'error'
@@ -455,6 +455,7 @@
           flag = false
         } else {
           this.nameCheckFlag = true
+          this.loading = true
           flag = true
           // this.$refs.fileUpload.submit()
         }
@@ -463,6 +464,7 @@
       fileError() {
       },
       fileSuccess(response, file, fileList) {
+        this.loading = false
         if (response.code !== '000000') {
           this.$alert(response.message + '， 请重新上传', '提示', {
             confirmButtonText: '确定',
@@ -475,7 +477,7 @@
         const enPathOld = response.data
         let enPathNew = ''
         const cl = enPathOld.substring(enPathOld.lastIndexOf('.') + 1, enPathOld.length)
-        if (cl === 'docx' || cl === 'doc') {
+        if (cl === 'docx' || cl === 'doc' || cl === 'ppt' || cl === 'pptx') {
           enPathNew = enPathOld.substring(0, enPathOld.lastIndexOf('.')) + '.pdf'
         } else {
           enPathNew = enPathOld

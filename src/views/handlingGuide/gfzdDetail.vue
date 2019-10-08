@@ -46,7 +46,7 @@
               <img v-if="item.enClass === '.mp4' || item.enClass === '.avi' || item.enClass === '.wmv'" src="/static/image/online/video.jpg">
               <img v-if="item.enClass === '.doc' || item.enClass === '.docx'" src="/static/image/online/word.jpg">
               <img v-if="item.enClass === '.pdf'" src="/static/image/online/pdf.jpg">
-              <img v-if="item.enClass === '.ppt' || item.enClass === '.ppt'" src="/static/image/online/ppt.jpg">
+              <img v-if="item.enClass === '.ppt' || item.enClass === '.pptx'" src="/static/image/online/ppt.jpg">
               <div class="tag">
                 <span v-if="detailData.articleType === 1">食品</span>
                 <span v-if="detailData.articleType === 2">药品</span>
