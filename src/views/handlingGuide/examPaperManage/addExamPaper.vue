@@ -139,14 +139,14 @@
 
   <!--人工组卷试题列表 -- 微调时可删除列表项-->
   <el-dialog title="试题列表" :visible.sync="rgzjstListDialog" @close="closestlist">
-    <div>
-      <el-table :data="rgzjStList"   style="width: 100%;"  class="rgzjStList">
+    <div class="stlbWrap">
+      <el-table :data="rgzjStList"   style="width: 100%;"  class="rgzjStList" max-height="500">
         <el-table-column type="index" label="序号" width="70"></el-table-column>
         <el-table-column prop="deptName" label="单位" show-overflow-tooltip></el-table-column>
         <el-table-column prop="subjectCategoryName" label="模块" show-overflow-tooltip></el-table-column>
         <el-table-column prop="name" label="试题内容" show-overflow-tooltip>
           <template slot-scope="scope">
-            <span v-html="scope.row.name"></span>
+            <span v-html="scope.row.name" class="richTextWrap"></span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="60">
@@ -571,7 +571,7 @@ export default {
               return
             }
             this.deletelObj()
-            this.rgzjList.sort((a, b) => Number(a.sort) - Number(b.sort)) // 先按type升序
+            this.rgzjList.sort((a, b) => Number(a.sort) - Number(b.sort)) // 升序
             this.rgzjList.forEach((item, index) => {
               this.delWidthData(item)
             })
@@ -972,6 +972,7 @@ export default {
     buildData() { // 人工组卷数据组装
       var data = {}
       var rgzjList = this.rgzjList
+      rgzjList.sort((a, b) => Number(a.sort) - Number(b.sort)) // 升序
       rgzjList.forEach((item, index) => {
         this.arrKey.forEach((it, indexs) => {
           if (index === indexs) {
@@ -1144,10 +1145,24 @@ export default {
   .el-textarea__inner {
     padding: 5px;
   }
-
-  .previewDia .el-dialog__body {
-    background: #ffffff;
-    color: #000000;
+ .previewDia {
+    .el-dialog {
+      background: #ffffff;
+      border: 1px solid #bebebe;
+    }
+    .el-dialog__header {
+      border-bottom: 2px solid #aaaaaa;
+      .el-dialog__title {
+        color: #000000;
+      }
+      .el-dialog__headerbtn .el-dialog__close {
+        color: #000000;
+      }
+    }
+    .el-dialog__body {
+      background: #ffffff;
+      color: #000000;
+    }
   }
 }
 </style>

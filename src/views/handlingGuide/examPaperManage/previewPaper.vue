@@ -11,7 +11,7 @@
         <p class="font_b">{{item.titleCN}}、{{item.typeName}}（{{item.desc}}）</p>
         <div class="small_question_wrap clearfix">
           <div v-for="(smallItem,smallIndex) in item.data" :key="smallIndex">
-            <p class="question_name clearfix">
+            <p class="question_name clearfix richTextWrap">
               <span class="samllNum">{{smallIndex+1}}、</span>
               <span v-html="smallItem.name" :class="smallItem.name.indexOf('<p>')>-1?'questionContent':'questionContentNoP'"></span>
             </p>
@@ -23,6 +23,13 @@
               <span v-if="smallItem.items.D">D、{{smallItem.items.D}}</span>
               <span v-if="smallItem.items.E">E、{{smallItem.items.E}}</span>
               <span v-if="smallItem.items.F">F、{{smallItem.items.F}}</span>
+            </div>
+            <!-- 判断题 -->
+            <div v-if="smallItem.type === 4">
+              <el-radio-group>
+                <span class="option_item"><el-radio label="true">正确</el-radio></span>
+                <span class="option_item"><el-radio label="false">错误</el-radio></span>
+               </el-radio-group>
             </div>
           </div>
         </div>
@@ -130,6 +137,25 @@ export default {
         border-bottom: 1px solid #bebebe;
         margin-bottom: 0px;
       }
+    }
+    .option_item {
+      display: inline-block;
+      width: 22%;
+    }
+    // 单选框样式
+    .el-radio {
+      color: #000000;
+    }
+    .el-radio__inner {
+      background: #fff;
+      border: 1px solid #bbbbbb;
+    }
+    .el-radio__input.is-checked .el-radio__inner {
+      border-color: #409eff;
+      background: #409eff;
+    }
+    .el-radio-group {
+      display: initial;
     }
   }
   .font_b {
