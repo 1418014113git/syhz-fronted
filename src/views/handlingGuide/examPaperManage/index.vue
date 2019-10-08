@@ -129,6 +129,7 @@ export default {
   },
   methods: {
     query(flag, hand) { // 列表数据查询
+      this.initData()
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -154,6 +155,11 @@ export default {
       }).catch(() => {
         this.listLoading = false
       })
+    },
+    initData() {
+      this.list = []
+      this.total = 0
+      this.pageSize = 15
     },
     handleCurrentChange(val) { // 分页查询
       this.page = val
@@ -334,8 +340,23 @@ export default {
     margin-bottom: 10px;
   }
 }
-.previewDia .el-dialog__body {
-  background: #ffffff;
-  color: #000000;
-}
+ .previewDia {
+    .el-dialog {
+      background: #ffffff;
+      border: 2px solid #00a0e9;
+    }
+    .el-dialog__header {
+      border-bottom: 2px solid #aaaaaa;
+      .el-dialog__title {
+        color: #000000;
+      }
+      .el-dialog__headerbtn .el-dialog__close {
+        color: #000000;
+      }
+    }
+    .el-dialog__body {
+      background: #ffffff;
+      color: #000000;
+    }
+  }
 </style>
