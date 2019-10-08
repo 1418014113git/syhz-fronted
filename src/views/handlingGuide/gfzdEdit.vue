@@ -171,7 +171,7 @@
           publishTime: [{
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
               if (value === null || value === '') {
-                return callback()
+                callback(new Error('请选择颁布日期'))
               } else if (new Date() < value) {
                 callback(new Error('颁布日期不能大于当前日期'))
               } else {

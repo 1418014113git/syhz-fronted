@@ -314,6 +314,9 @@
         this.isBatchAudit = false
       },
       executeAudit(auditStatus) {
+        if (auditStatus === '2') {
+          this.auditForm.remark = '审核通过'
+        }
         this.$refs.auditForm.validate(valid => {
           if (valid) {
             // 调用审核接口
