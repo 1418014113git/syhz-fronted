@@ -111,7 +111,9 @@
       <!-- 考试成绩 -->
       <div class="exam_bottom clearfix">
         <p class="left">
-          <span class="font_b">考试成绩：</span> 自动阅卷得分 <span class="scoreNumber">{{examinationData.examScore}}</span> 分，人工阅卷得分 <span class="scoreNumber">{{examinationData.examArtificialScore}}</span> 分
+          <!-- <span class="font_b">考试成绩：</span> 自动阅卷得分 <span class="scoreNumber">{{examinationData.examScore}}</span> 分，人工阅卷得分 <span class="scoreNumber">{{examinationData.examArtificialScore}}</span> 分 -->
+          <span class="font_b">考试成绩：</span>
+          <span class="scoreNumber">{{Number(examinationData.examScore) + Number(examinationData.examArtificialScore)}}</span> 分
         </p>
         <p class="right">
           <span class="font_b">可重考次数： <span class="scoreNumber">{{examinationData.enableNum}}</span> 次</span>
