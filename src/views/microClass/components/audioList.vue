@@ -1,0 +1,68 @@
+<template>
+  <section v-loading="loading">
+    <div v-for="item in audioList" :key="item.key" class="file_data_list" @click="handlerClick(item)">
+      <div class="img">
+        <img :src="item.enIcon ? item.enIcon : '/static/image/online/audio.jpg'">
+        <div class="tag">
+          <span v-if="item.type === 1">食品</span>
+          <span v-if="item.type === 2">药品</span>
+          <span v-if="item.type === 3">环境</span>
+          <span v-if="item.type === 4">综合</span>
+          _音频 <span v-if="item.count > 1"> （共{{ item.count}}节）</span>
+        </div>
+      </div>
+      <p class="title">{{ item.count > 1 ? item.title : item.enName }}</p>
+      <div class="time">
+        <span>{{ item.creationName }}</span>
+        <span>{{ item.creationTime }}</span>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script>
+  export default {
+    props: [
+      'data',
+      'dataLoading',
+      'filters'
+    ],
+    data() {
+      return {
+        audioList: this.data,
+        loading: this.dataLoading,
+        commonFilters: this.filters
+      }
+    },
+    watch: {
+      'data': function(arr) {
+        this.audioList = arr
+      },
+      'dataLoading': function(loading) {
+        this.loading = loading
+      },
+      'filters': function(filters) {
+        this.commonFilters = filters
+      }
+    },
+    methods: {
+      handlerClick(row) {
+        const para = {
+          filters: this.commonFilters,
+          enType: '2',
+          jumpType: 'online',
+          id: row.id
+        }
+        this.$gotoid('/micro/audioPlayer', JSON.stringify(para))
+      },
+      setList(arr) {
+        this.videoList = arr
+      }
+    },
+    mounted() {
+    }
+  }
+</script>
+
+<style>
+</style>
