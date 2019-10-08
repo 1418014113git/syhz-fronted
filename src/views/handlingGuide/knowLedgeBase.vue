@@ -20,7 +20,7 @@
                   <el-input placeholder="请输入关键字" v-model="filters.title" maxlength="50" style="width: 222px"></el-input>
                 </el-form-item>
                 <el-form-item label="类别">
-                  <el-select v-model="filters.articleType" placeholder="请选择">
+                  <el-select v-model="filters.articleType" placeholder="请选择" clearable>
                     <el-option label="环境" value="3"></el-option>
                     <el-option label="食品" value="1"></el-option>
                     <el-option label="药品" value="2"></el-option>
@@ -240,7 +240,7 @@
         this.page = flag ? 1 : this.page
         this.filters.type = this.active
         const para = {
-          title: this.filters.title,
+          title: this.filters.title.trim(),
           type: this.filters.type,
           auditStatus: this.filters.auditStatus,
           creationId: this.filters.creationId,
@@ -279,7 +279,8 @@
         const para = {
           param: this.filters,
           jumpType: 'knowLedgeBase',
-          id: row.id
+          id: row.id,
+          active: this.active
         }
         if (this.active === '1') {
           this.$gotoid('/handlingGuide/flfg/detail', JSON.stringify(para))
@@ -343,6 +344,9 @@
         this.isBatchAudit = false
       },
       executeAudit(auditStatus) {
+        if (auditStatus === '2') {
+          this.auditForm.remark = '审核通过'
+        }
         this.$refs.auditForm.validate(valid => {
           if (valid) {
             // 调用审核接口
@@ -406,7 +410,6 @@
         const para = {
           crouseId: this.curRowId === '' ? row.id : this.curRowId,
           belongMode: this.active,
-          belongType: row.articleType,
           belongSys: '1'
         }
         this.$query('page/traincrouseauditlog', para).then(response => {

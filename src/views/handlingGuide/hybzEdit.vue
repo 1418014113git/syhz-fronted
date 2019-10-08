@@ -81,7 +81,7 @@
     },
     data() {
       return {
-        showSave: false,
+        showSave: true,
         uploadAction: Attachment.uploadFileUrl,
         id: '',
         callBack: '',
@@ -122,7 +122,7 @@
                 } else if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('标题不能输入特殊字符'))
                 } else if (value.length > 50) {
-                  callback(new Error('标题长度不能超过 50'))
+                  callback(new Error('标题长度不能超过 50个字符'))
                 } else {
                   return this.titleCheckAsyns(callback)
                 }
@@ -131,7 +131,7 @@
           ],
           articleType: [{ required: true, message: '请选择类别', trigger: 'change' }],
           category: [{ required: true, message: '请选择分类', trigger: 'change' }],
-          content: [{ max: 40000, message: '内容过长请修改内容', trigger: 'blur' }],
+          content: [{ max: 65000, message: '正文内容长度不能超过 65000个字符', trigger: 'blur' }],
           publishOrgName: [
             {
               required: false, trigger: 'blur', validator: (rule, value, callback) => {
@@ -143,7 +143,7 @@
                 if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('颁布机关不能输入特殊字符'))
                 } else if (value.length > 50) {
-                  callback(new Error('颁布机关长度不能超过 50'))
+                  callback(new Error('颁布机关长度不能超过 50个字符'))
                 } else {
                   callback()
                 }
@@ -158,10 +158,10 @@
                 }
                 const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
                 const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
-                if (value.length > 0 && regEnCode.test(value) && regCnCode.test(value)) {
+                if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('颁布文号不能输入特殊字符'))
                 } else if (value.length > 50) {
-                  callback(new Error('颁布文号长度不能超过 50'))
+                  callback(new Error('颁布文号长度不能超过 50个字符'))
                 } else {
                   callback()
                 }
@@ -171,9 +171,9 @@
           publishTime: [{
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
               if (value === null || value === '') {
-                return callback()
+                callback(new Error('请选择颁布日期'))
               } else if (new Date() < value) {
-                callback(new Error('颁布日期不能小于当前日期'))
+                callback(new Error('颁布日期不能大于当前日期'))
               } else {
                 callback()
               }
@@ -184,7 +184,7 @@
               if (value === null || value === '') {
                 return callback()
               } else if (new Date() < value) {
-                callback(new Error('施行日期不能小于当前日期'))
+                callback(new Error('施行日期不能大于当前日期'))
               } else if (new Date(this.lawInfo.publishTime) > value) {
                 callback(new Error('施行日期不能小于颁布日期'))
               } else {
@@ -406,9 +406,9 @@
         if (wordReg.test(file.type) || pdfReg.test(file.type) || pptReg.test(file.type)) {
           this.uploadFileType = '0'
           flag = true
-          if (file.size / 1024 > 500) {
+          if (file.size / 1024 / 1024 > 10) {
             this.$message({
-              message: '文件上传失败！上传文档大小不得超过500K！',
+              message: '文件上传失败！上传文档大小不得超过10M！',
               type: 'error'
             })
             return false
@@ -417,7 +417,7 @@
         if (videoReg.test(file.type)) {
           this.uploadFileType = '1'
           flag = true
-          if (file.size / 1024 / 1024 / 1024 > 500) {
+          if (file.size / 1024 / 1024 / 1024 > 2) {
             this.$message({
               message: '文件上传失败！上传视频大小不得超过2G！',
               type: 'error'
@@ -480,6 +480,7 @@
           flag = false
         } else {
           this.nameCheckFlag = true
+          this.loading = true
           flag = true
         }
         return flag
@@ -487,6 +488,7 @@
       fileError() {
       },
       fileSuccess(response, file, fileList) {
+        this.loading = false
         if (response.code !== '000000') {
           this.$alert(response.message + '， 请重新上传', '提示', {
             confirmButtonText: '确定',
@@ -499,7 +501,7 @@
         const enPathOld = response.data
         let enPathNew = ''
         const cl = enPathOld.substring(enPathOld.lastIndexOf('.') + 1, enPathOld.length)
-        if (cl === 'docx' || cl === 'doc') {
+        if (cl === 'docx' || cl === 'doc' || cl === 'ppt' || cl === 'pptx') {
           enPathNew = enPathOld.substring(0, enPathOld.lastIndexOf('.')) + '.pdf'
         } else {
           enPathNew = enPathOld
