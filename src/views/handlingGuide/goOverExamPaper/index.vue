@@ -1,6 +1,9 @@
 <template>
  <!--阅卷列表-->
   <section class="testTableList">
+    <el-row class="">
+    <img src="@/assets/icon/back.png"  class="goBack" @click="goBack">   <!--返回-->
+  </el-row>
     <!--查询条件-->
     <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
       <el-form-item label="单位" prop="deptName">
@@ -35,14 +38,14 @@
       </el-form-item>
     </el-form>
     <!--列表-->
-    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
-      <el-table-column type="index" label="序号" width="70"></el-table-column>
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
+      <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
       <el-table-column prop="deptName" label="单位名称" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="realName" label="姓名" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="startTime" label="考试时间" width="280"></el-table-column>
-      <el-table-column prop="score" label="自动阅卷得分" width="280"></el-table-column>
-      <el-table-column prop="artScore" label="人工阅卷得分" width="280"></el-table-column>
-      <el-table-column prop="status" label="阅卷状态" width="200">
+      <el-table-column prop="realName" label="姓名" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="startTime" label="考试时间" width="280" align="center"></el-table-column>
+      <el-table-column prop="score" label="自动阅卷得分" width="140" align="center"></el-table-column>
+      <el-table-column prop="artScore" label="人工阅卷得分" width="140" align="center"></el-table-column>
+      <el-table-column prop="status" label="阅卷状态" width="160" align="center">
         <template slot-scope="scope">
           <span v-if="scope.row.status === 'start'" style="color:#F56C6C;">{{$getLabelByValue(scope.row.status, txData)}}</span>
           <span v-else-if="scope.row.status === 'end'" style="color:#67C23A;">{{$getLabelByValue(scope.row.status, txData)}}</span>
@@ -99,7 +102,8 @@ export default {
         logFlag: 1, // 添加埋点参数
         realName: this.filters.realName,
         deptName: this.filters.deptName,
-        status: this.filters.status
+        status: this.filters.status,
+        examId: this.carryParam.examId // 考试的id
       }
       this.$query('exam/subjectiveList', para).then((response) => {
         this.listLoading = false
@@ -107,8 +111,11 @@ export default {
           this.tableData = response.data.list
           this.total = response.data.totalCount
           this.pageSize = response.data.pageSize
+        } else {
+          this.tableData = []
         }
       }).catch(() => {
+        this.tableData = []
         this.listLoading = false
       })
     },
@@ -183,10 +190,16 @@ export default {
     handleSelectName(item) {
       this.filters.realName = item.realName
       this.isQueryName = false
+    },
+    goBack() { // 返回
+      this.$router.back(-1)
     }
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    if (this.$route.query) {
+      this.carryParam = this.$route.query
+    }
     this.queryList(true)
   },
   activated() {
@@ -214,10 +227,10 @@ export default {
 }
 .el-autocomplete-suggestion.is-loading li:hover,
 .el-autocomplete-suggestion li.highlighted,
-.el-autocomplete-suggestion li:hover{
+.el-autocomplete-suggestion li:hover {
   background-color: rgba(188, 232, 252, 0.1);
 }
-.autoInputW{
+.autoInputW {
   width: 300px;
 }
 .tooltipShow {

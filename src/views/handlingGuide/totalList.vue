@@ -29,6 +29,7 @@
                   <el-button type="primary" v-if="$isViewBtn('139006')" @click="query(true)" icon="el-icon-search">查询</el-button>
                 </el-form-item>
               </el-form>
+              <p style="padding: 5px 2px; margin: 10px 0 0 0; font-weight: bold;">发布情况统计</p>
               <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick">
                 <el-table-column type="expand">
                   <template slot-scope="scope">
@@ -49,33 +50,33 @@
                 <el-table-column prop="id" align="center" label="法律法规"></el-table-column>
                 <el-table-column prop="id" align="center" label="行业标准"></el-table-column>
                 <el-table-column prop="id" align="center" label="规范制度"></el-table-column>
-                <el-table-column prop="id" align="center" label="学习人次"></el-table-column>
                 <el-table-column prop="id" align="center" label="案例指引"></el-table-column>
                 <el-table-column prop="id" align="center" label="总数"></el-table-column>
               </el-table>
-              <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick">
+              <p style="padding: 5px 2px; margin: 10px 0 0 0; font-weight: bold;">使用情况统计</p>
+              <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands1" @expand-change="rowClick1">
                 <el-table-column type="expand">
                   <template slot-scope="scope">
                     <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight">
                       <el-table-column prop="" width="128"><template slot-scope="scopeEx"></template></el-table-column>
                       <el-table-column prop="name" align="center" class="left" label="单位"></el-table-column>
-                      <el-table-column prop="id" align="center" label="法律法规"></el-table-column>
-                      <el-table-column prop="id" align="center" label="行业标准"></el-table-column>
-                      <el-table-column prop="id" align="center" label="规范制度"></el-table-column>
-                      <el-table-column prop="id" align="center" label="学习人次"></el-table-column>
-                      <el-table-column prop="id" align="center" label="案例指引"></el-table-column>
-                      <el-table-column prop="id" align="center" label="总数"></el-table-column>
+                      <el-table-column prop="id" align="center" label="发布数量"></el-table-column>
+                      <el-table-column prop="id" align="center" label="审核通过"></el-table-column>
+                      <el-table-column prop="id" align="center" label="审核不通过"></el-table-column>
+                      <el-table-column prop="id" align="center" label="阅读次数"></el-table-column>
+                      <el-table-column prop="id" align="center" label="阅读时长"></el-table-column>
+                      <el-table-column prop="id" align="center" label="下载次数"></el-table-column>
                     </el-table>
                   </template>
                 </el-table-column>
                 <el-table-column type="index" width="80"></el-table-column>
                 <el-table-column prop="name" align="center" class="left" label="地市"></el-table-column>
-                <el-table-column prop="id" align="center" label="法律法规"></el-table-column>
-                <el-table-column prop="id" align="center" label="行业标准"></el-table-column>
-                <el-table-column prop="id" align="center" label="规范制度"></el-table-column>
-                <el-table-column prop="id" align="center" label="学习人次"></el-table-column>
-                <el-table-column prop="id" align="center" label="案例指引"></el-table-column>
-                <el-table-column prop="id" align="center" label="总数"></el-table-column>
+                <el-table-column prop="id" align="center" label="发布数量"></el-table-column>
+                <el-table-column prop="id" align="center" label="审核通过"></el-table-column>
+                <el-table-column prop="id" align="center" label="审核不通过"></el-table-column>
+                <el-table-column prop="id" align="center" label="阅读次数"></el-table-column>
+                <el-table-column prop="id" align="center" label="阅读时长"></el-table-column>
+                <el-table-column prop="id" align="center" label="下载次数"></el-table-column>
               </el-table>
             </el-card>
           </el-col>
@@ -91,6 +92,7 @@
     data() {
       return {
         expands: [],
+        expands1: [],
         filters: {
           type: '',
           belongDepCode: '',
@@ -115,6 +117,13 @@
           this.expands.splice(this.expands.indexOf(row.id), 1)
         } else {
           this.expands.push(row.id)
+        }
+      },
+      rowClick1(row) {
+        if (this.expands1.indexOf(row.id) > -1) {
+          this.expands1.splice(this.expands1.indexOf(row.id), 1)
+        } else {
+          this.expands1.push(row.id)
         }
       },
       arraySpanMethod({ row, column, rowIndex, columnIndex }) {

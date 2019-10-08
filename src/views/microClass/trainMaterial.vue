@@ -102,9 +102,9 @@
       </el-col>
     </el-row>
     <el-dialog title="审核" :visible.sync="auditDialogVisible" :close-on-click-modal="false" class="audit_dialog" @close="closeDialog">
-      <el-form :model="auditForm" ref="auditForm" :rules="auditRules" label-width="87px">
+      <el-form :model="auditForm" ref="auditForm" :rules="auditRules" label-width="100px">
         <el-form-item label="审核意见" prop="remark">
-          <el-input v-model="auditForm.remark" type="textarea" size="small" placeholder="最多可输入500个文字！"></el-input>
+          <el-input v-model="auditForm.remark" type="textarea" maxlength="500" size="small" placeholder="最多可输入500个字符！"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -185,7 +185,7 @@
                 return callback(new Error('请输入审核意见！'))
               }
               if (value.length > 500) {
-                return callback(new Error('审核意见最多可输入500个文字！'))
+                return callback(new Error('审核意见最多可输入500个字符！'))
               }
               return callback()
             }
@@ -227,7 +227,7 @@
         this.page = flag ? 1 : this.page
         this.filters.type = this.active
         const para = {
-          title: this.filters.title,
+          title: this.filters.title.trim(),
           type: this.filters.type,
           auditStatus: this.filters.auditStatus,
           creationId: this.filters.creationId,
@@ -314,6 +314,9 @@
         this.isBatchAudit = false
       },
       executeAudit(auditStatus) {
+        if (auditStatus === '2') {
+          this.auditForm.remark = '审核通过'
+        }
         this.$refs.auditForm.validate(valid => {
           if (valid) {
             // 调用审核接口

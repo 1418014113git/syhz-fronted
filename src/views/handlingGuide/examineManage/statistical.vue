@@ -67,7 +67,7 @@
         </el-table-column>
         <el-table-column label="操作" width="200">
           <template slot-scope="scope">
-            <span v-if="scope.row.totalNum">考试报告</span>
+            <span v-if="scope.row.totalNum" class="canClick">考试报告</span>
             <!-- <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="排名"></el-button> -->
           </template>
         </el-table-column>

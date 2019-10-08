@@ -63,6 +63,10 @@
     methods: {
       setDetail(playerDetail) {
         this.detailData = playerDetail
+        this.detailLoading = true
+        setTimeout(() => {
+          this.detailLoading = false
+        }, 500)
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })

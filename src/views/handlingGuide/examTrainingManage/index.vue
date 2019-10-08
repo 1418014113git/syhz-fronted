@@ -7,14 +7,14 @@
         </el-select>
       </el-form-item>
       <el-form-item label="考试名称" prop="examinationName">
-        <el-input type="text" size="small" v-model="filters.examinationName" clearable placeholder="请输入"></el-input>
+        <el-input type="text" size="small" v-model.trim="filters.examinationName" clearable placeholder="请输入"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="small" @click="queryInit(true,true)">查询</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
-    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
       <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
       <el-table-column prop="examinationName" label="考试" show-overflow-tooltip class="tabC">
         <template slot-scope="scope">

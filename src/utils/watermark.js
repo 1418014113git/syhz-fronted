@@ -34,12 +34,14 @@ const setWatermark = (str1, str2, str3, str4, str5, str6, str7) => {
   cans.fillText('.', can.width / 4.4, can.height / 2.2)
   cans.fillText(str6, can.width / 4, can.height / 2.2)
   cans.fillText('.', can.width / 3.2, can.height / 2.2)
-  if (str7.length === 3) {
-    cans.fillText(str7, can.width / 3, can.height / 2.2)
-  } else if (str7.length === 2) {
-    cans.fillText(str7, can.width / 2.8, can.height / 2.2)
-  } else if (str7.length === 1) {
-    cans.fillText(str7, can.width / 2.7, can.height / 2.2)
+  if (str7) {
+    if (str7.length === 3) {
+      cans.fillText(str7, can.width / 3, can.height / 2.2)
+    } else if (str7.length === 2) {
+      cans.fillText(str7, can.width / 2.8, can.height / 2.2)
+    } else if (str7.length === 1) {
+      cans.fillText(str7, can.width / 2.7, can.height / 2.2)
+    }
   }
 
   const div = document.createElement('div')
