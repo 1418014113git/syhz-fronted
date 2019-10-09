@@ -465,7 +465,14 @@ export default {
         if (file) {
           file.value = ''
         }
+        this.resetForm('importInfo')
+        this.fileCon = ''
         this.dialogImportVisible = false
+      }
+    },
+    resetForm(formName) {
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
       }
     }
   },
