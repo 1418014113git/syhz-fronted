@@ -50,7 +50,7 @@ import { questionTypeAll } from '@/utils/codetotext'
 
 export default {
   name: 'preview',
-  props: ['curPaper', 'isShowSaveBtn', 'previewProSubmit'],
+  props: ['curPaper', 'isShowSaveBtn', 'previewProSubmit', 'zjType'],
   data() {
     return {
       paperData: [], // 试卷数据
@@ -100,16 +100,29 @@ export default {
     },
     save() {
       this.detailLoading = true
-      this.$save('paper/random/preViewSave', this.submitData).then((response) => {
-        this.detailLoading = false
-        this.$message({
-          type: 'success',
-          message: '保存成功!'
+      if (this.zjType && this.zjType === 1) {
+        this.$update('paper/random/update', this.submitData).then((response) => {
+          this.detailLoading = false
+          this.$message({
+            type: 'success',
+            message: '保存成功!'
+          })
+          this.$router.push({ path: '/handlingGuide/examPaperManage' })
+        }).catch(() => {
+          this.detailLoading = false
         })
-        this.$router.push({ path: '/handlingGuide/examPaperManage' })
-      }).catch(() => {
-        this.detailLoading = false
-      })
+      } else {
+        this.$save('paper/random/preViewSave', this.submitData).then((response) => {
+          this.detailLoading = false
+          this.$message({
+            type: 'success',
+            message: '保存成功!'
+          })
+          this.$router.push({ path: '/handlingGuide/examPaperManage' })
+        }).catch(() => {
+          this.detailLoading = false
+        })
+      }
     }
   },
   mounted() {
