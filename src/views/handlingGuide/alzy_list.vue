@@ -148,10 +148,22 @@ export default {
       }
     },
     add() {
-      this.$router.push({ path: '/handlingGuide/alzy/add' })
+      const para = {
+        filters: this.filters,
+        checkboxGroup1: this.checkboxGroup1,
+        activeName: this.activeName
+      }
+      this.$gotoid('/handlingGuide/alzy/add', JSON.stringify(para))
     }
   },
   mounted() {
+    if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
+      const para = JSON.parse(sessionStorage.getItem(this.$route.path))
+      this.filters = para.filters
+      this.checkboxGroup1 = para.checkboxGroup1
+      this.activeName = para.activeName
+      sessionStorage.setItem(this.$route.path, '')
+    }
     this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
     this.query(true)
     this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]

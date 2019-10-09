@@ -99,6 +99,9 @@
         this.$refs.videoPlayer.player.pause() // 暂停
         this.$refs.videoPlayer.player.src(this.playerOptions.sources[0].src) // 重置进度条
       },
+      stopRun() {
+        this.$refs.videoPlayer.player.pause()
+      },
       // listen event
       onPlayerPlay(player) {
         if (this.detailData.flag) {

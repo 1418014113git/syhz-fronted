@@ -342,6 +342,7 @@
         this.auditDialogVisible = false
         this.auditForm = {}
         this.isBatchAudit = false
+        this.$refs.auditForm.resetFields()
       },
       executeAudit(auditStatus) {
         if (auditStatus === '2') {

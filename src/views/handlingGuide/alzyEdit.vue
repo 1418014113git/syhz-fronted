@@ -72,6 +72,7 @@
                          :file-list="enclosureList"
                          :before-upload="fileBeforeUpload"
                          :on-change="uploadCheck"
+                         :limit="5"
                          multiple>
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -109,6 +110,7 @@
         id: '',
         callBack: '',
         active: '',
+        filters: {},
         loading: false,
         currentDep: {},
         lawInfo: {
@@ -232,7 +234,7 @@
       },
       callback() {
         if (this.callBack === '') {
-          this.$router.push('/handlingGuide/alzyList')
+          this.$gotoid('/handlingGuide/alzyList', JSON.stringify(this.filters))
         } else {
           this.$gotoid('/handlingGuide/knowLedgeBase', this.active)
         }
@@ -422,7 +424,7 @@
         //     return false
         //   }
         // } else {
-        if (this.lawInfo.enclosure.length > 5) {
+        if (this.lawInfo.enclosure.length === 5) {
           this.$message({
             message: '最多可一次性上传5个文件！',
             type: 'error'
@@ -544,7 +546,9 @@
           this.callBack = para.jumpType
           this.active = para.active
         }
-        // sessionStorage.setItem(this.$route.path, '')
+        if (para.filters) {
+          this.filters = para
+        }
       }
     }
   }
