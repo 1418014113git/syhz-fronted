@@ -151,6 +151,7 @@ export default {
       allSystemPeople: [], // 系统所有人员
       markPerFormattingOwn: [],
       markPerFormattingAll: [],
+      markPerOwn: [],
       carryParam: {}, // 列表带过来的参数
       yjry: '', // 阅卷人员筛选框
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息

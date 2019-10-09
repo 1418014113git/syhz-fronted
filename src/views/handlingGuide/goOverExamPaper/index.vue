@@ -93,7 +93,13 @@ export default {
     examStatusChange(val) {
       this.queryList(false, true)
     },
+    initData() {
+      this.list = []
+      this.total = 0
+      this.pageSize = 15
+    },
     queryList(flag) { // 列表数据查询
+      this.initData()
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {

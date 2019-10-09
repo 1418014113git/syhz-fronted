@@ -290,7 +290,7 @@ export default {
               type: 'warning'
             }).then(() => {
               this.listLoading = false
-              this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type }})
+              this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type, questionCatrgory: row.subjectCategoryId }})
             }).catch(() => {
               this.listLoading = false
               this.$message({
@@ -301,7 +301,7 @@ export default {
           }
         } else { // 未引用到考试
           this.listLoading = false
-          this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type }})
+          this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type, questionCatrgory: row.subjectCategoryId }})
         }
       }).catch(() => {
         this.listLoading = false
@@ -465,7 +465,14 @@ export default {
         if (file) {
           file.value = ''
         }
+        this.resetForm('importInfo')
+        this.fileCon = ''
         this.dialogImportVisible = false
+      }
+    },
+    resetForm(formName) {
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
       }
     }
   },

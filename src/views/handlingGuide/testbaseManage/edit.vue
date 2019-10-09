@@ -23,7 +23,7 @@
               </el-tooltip>
             </el-form-item>
             <el-form-item label="选项A" v-if="questionForm.type==='1' || questionForm.type==='2'" prop="options1">
-              <el-input type="text" size="small" v-model="questionForm.options1" clearable placeholder="请输入"  maxlength="3000" @focus="itemFocus('options1')" @change="itemFocus($event,'options1')" ></el-input>
+              <el-input type="text" size="small" v-model="questionForm.options1" clearable placeholder="请输入"  maxlength="3000" @focus="itemFocus('options1')" @change="itemFocus('options1')" ></el-input>
             </el-form-item>
             <el-form-item label="选项B" v-if="questionForm.type==='1' || questionForm.type==='2'" prop="options2">
               <el-input type="text" size="small" v-model="questionForm.options2" clearable placeholder="请输入"  maxlength="3000" @focus="itemFocus('options2')" @change="itemFocus('options2')"></el-input>
@@ -184,6 +184,13 @@ export default {
           if (this.questionForm.type === 2) {
             this.questionForm.answerDx = this.questionForm.answer.split(',')
           }
+          if (this.questionForm.type === 4) { // 判断题 答案转化
+            if (this.questionForm.answer === true) {
+              this.questionForm.answer = 1
+            } else {
+              this.questionForm.answer = 2
+            }
+          }
           if (this.questionForm.points) {
             var points = this.questionForm.points
             for (let index = 0; index < points.length; index++) {
@@ -204,6 +211,7 @@ export default {
             }
           }
           this.questionForm.type = this.questionForm.type + '' // type转化为字符串
+          this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
         }).catch(() => {
           this.formLoading = false
           this.tableData = []
@@ -254,7 +262,7 @@ export default {
           // console.log(this.questionForm)
           this.formLoading = true
           var param = JSON.parse(JSON.stringify(this.questionForm))
-          param.subjectCategoryId = this.carryParam.questionCatrgory
+          param.subjectCategoryId = this.carryParam.questionCatrgory // 所在模块
           if (param.answerDx && param.answerDx.length > 0) { // 多选
             param.answer = param.answerDx.join(',')
           }
