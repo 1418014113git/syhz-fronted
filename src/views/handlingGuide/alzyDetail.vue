@@ -215,9 +215,11 @@
         this.audioDialogVisible = false
         if (this.$refs.audioPlayer) {
           this.$refs.audioPlayer.clearTimeInterval()
+          this.$refs.audioPlayer.stopRun()
         }
         if (this.$refs.videoPlayer) {
           this.$refs.videoPlayer.clearTimeInterval()
+          this.$refs.videoPlayer.stopRun()
         }
         if (this.$refs.documentPlayer) {
           this.$refs.documentPlayer.clearTimeInterval()
