@@ -218,6 +218,7 @@ export default {
             type: 'success',
             message: '发布成功!'
           })
+          this.queryList(true) // 刷新列表
         }
       }).catch(() => {
         this.formLoading = false

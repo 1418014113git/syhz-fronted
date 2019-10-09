@@ -229,7 +229,7 @@ export default {
               this.listData[0].data.push({
                 data_op: '知识库待审核', num: item.count, type: '0010'
               })
-            } else {
+            } else if (item.type === 2) {
               this.listData[0].data.push({
                 data_op: '培训资料待审核', num: item.count, type: '0011'
               })

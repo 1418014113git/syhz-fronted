@@ -117,7 +117,8 @@
         </p>
         <p class="right">
           <span class="font_b">可重考次数： <span class="scoreNumber">{{examinationData.enableNum}}</span> 次</span>
-          <span class="again_exam" @click="handleAgainExam">重新考试</span>
+          <span class="again_exam" @click="handleAgainExam" v-if="(examinationData.enableNum > 0) || !(examinationData.unable)">重新考试</span>
+          <span class="again_exam" v-else></span>
           <el-button size="mini" circle icon="el-icon-question" title="重新考试会有多个考试成绩，我们将以其中的最高分作为最终的成绩！"></el-button>
         </p>
       </div>
@@ -533,11 +534,17 @@ export default {
   }
 
   .options_wrap {
-    margin: 0 0 8px 10px;
+    margin: 5px 0 5px 10px;
+    p {
+      margin: 0 0 5px;
+    }
   }
-  .pd_options_wrap .option_item {
-    display: inline-block;
-    width: 22%;
+  .pd_options_wrap {
+    margin: 6px 0 0;
+    .option_item {
+      display: inline-block;
+      width: 22%;
+    }
   }
   .question_name {
     position: relative;
