@@ -18,6 +18,12 @@
           <el-table-column prop="fractionNumber" label="积分数"></el-table-column>
         </el-table>
       </el-row>
+      <el-col :span="24" class="toolbar">
+        <el-pagination layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange"
+                       :page-sizes="[10]" @size-change="handleSizeChange"
+                       :page-size="pageSize" :total="totalCount" :current-page="pageNum" style="float:right;">
+        </el-pagination>
+      </el-col>
     </el-card>
   </div>
 </template>
@@ -27,7 +33,6 @@
     data() {
       return {
         loading: false,
-        monthRecords: [],
         total: {
           systemOrder: 0,
           systemUserCount: 0,
@@ -36,17 +41,32 @@
           dayOrder: 0,
           dayUserCount: 0
         },
-        totalRecords: []
+        totalRecords: [],
+        totalCount: 0,
+        pageSize: 10,
+        pageNum: 1
       }
     },
     methods: {
+      // 页数改变事件
+      handleSizeChange(pageSize) {
+        this.pageSize = pageSize
+        this.queryTotal()
+      },
+      // 页码改变事件
+      handleCurrentChange(current) {
+        this.pageNum = current
+        this.queryTotal()
+      },
       queryTotal() {
         this.loading = true
         const para = this.$setCurrentUser({})
-        this.$query('fractionlog/' + para.creationId, {}).then(response => {
+        this.$query('fractionlog', { id: para.creationId, pageSize: this.pageSize, pageNum: this.pageNum }).then(response => {
           this.total = response.data.fraction
-          this.monthRecords = response.data.monthRank
-          this.totalRecords = response.data.systemRank
+          this.totalRecords = response.data.systemRank.list
+          this.totalCount = response.data.systemRank.totalCount
+          this.pageNum = response.data.systemRank.pageNum
+          this.pageSize = response.data.systemRank.pageSize
           this.dayFraction = response.data.dayFraction
           this.loading = false
         }).catch(() => {

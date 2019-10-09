@@ -43,13 +43,13 @@
         <div v-for="item in dayFraction" :key="item.index">
           <img>
           <span>{{item.ruleName}}</span>
-          <span class="small">{{item.ruleDescribe}}<i>+{{item.oneNumber}}</i></span>
+          <span class="small">{{item.ruleDescribe.replace('*时长', (item.ruleTime / 60 + '分钟'))}}<i>+{{item.oneNumber}}</i></span>
           <div class="progress-bar" :style="item.ruleType === 2 ? 'margin-top: 13px;' : ''">
             <div class="bar has-rotation has-colors red heat-gradient" role="progressbar">
               <div class="bar-face face-position back percentage">
                 <span>{{item.dayFraction}}分/{{item.maxNumber}}分</span>
               </div>
-              <div class="bar-percentage" :style="'width:' + ((item.dayFraction/item.maxNumber).toFixed(0) * 100) + '%' "></div>
+              <div class="bar-percentage" :style="'width:' + ((item.dayFraction/item.maxNumber).toFixed(2) * 100) + '%' "></div>
             </div>
           </div>
           <div class="btn">
@@ -151,10 +151,10 @@
       queryTotal() {
         this.loading = true
         const para = this.$setCurrentUser({})
-        this.$query('fractionlog/' + para.creationId, {}).then(response => {
+        this.$query('fractionlog', { id: para.creationId, pageSize: 5, pageNum: 1 }).then(response => {
           this.total = response.data.fraction
-          this.monthRecords = response.data.monthRank
-          this.totalRecords = response.data.systemRank
+          this.monthRecords = response.data.monthRank.list
+          this.totalRecords = response.data.systemRank.list
           this.dayFraction = response.data.dayFraction
           this.loading = false
         }).catch(() => {

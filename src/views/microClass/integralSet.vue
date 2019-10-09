@@ -14,7 +14,6 @@
                     <el-input v-model="scope.row.ruleTime1" type="number" style="width: 100px;"></el-input>
                   </el-form-item>
                   分钟
-                  {{scope.row.ruleDescribe.split('*').length > 1 ? scope.row.ruleDescribe.split('*')[1] : ''}}
                 </span>
                 <span v-else>{{scope.row.ruleDescribe.replace('*', (scope.row.ruleTime1 + '分钟')) }}</span>
               </template>
@@ -106,7 +105,9 @@
           for (let i = 0; i < data.length; i++) {
             const item = data[i]
             item.ruleId = item.id
-            item.ruleTime1 = item.ruleTime / 60
+            if (item.ruleType === 4) {
+              item.ruleTime1 = item.ruleTime / 60
+            }
           }
           this.ruleForm.ruleList = data
         })
@@ -118,7 +119,14 @@
           flag1 = valid
         })
         if (flag1) {
-          this.$update('trainruleconfig/1', this.ruleForm).then(response => {
+          const data = JSON.parse(JSON.stringify(this.ruleForm))
+          for (let i = 0; i < data.ruleList.length; i++) {
+            const item = data.ruleList[i]
+            if (item.ruleType === 4) {
+              item.ruleTime = item.ruleTime1 * 60
+            }
+          }
+          this.$update('trainruleconfig/1', data).then(response => {
             this.loading = false
             this.$message({
               message: '设置成功',
