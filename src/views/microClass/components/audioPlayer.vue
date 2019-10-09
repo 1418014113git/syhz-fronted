@@ -181,6 +181,10 @@
       clearTimeInterval() {
         clearInterval(this.timeInterval)
       },
+      stopRun() {
+        const audio = document.getElementById('mp3Btn')
+        audio.pause()
+      },
       bindSetTimeOut() {
         setTimeout(() => {
           this.addJF('1')
