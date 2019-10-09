@@ -1555,6 +1555,9 @@ label {
 .richTextWrap {
  display: inline-block;
   margin: 0;
+  p{
+    margin: 0;
+  }
   img {
     width: 120px;
     height: 80px;

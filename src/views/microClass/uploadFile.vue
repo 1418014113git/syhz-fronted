@@ -25,7 +25,7 @@
                 :on-error="pictureError"
                 :on-success="pictureSuccess"
                 :on-remove="pictureRemove"
-                         :file-list="imgList"
+                         :file-list="imgList" :limit="1"
                 >
                 <img v-if="form.enIcon" :src="form.enIcon" class="avatar">
                 <i class="el-icon-upload"></i>
@@ -43,6 +43,7 @@
                 :on-remove="fileRemove"
                 :data="uploadData"
                 :file-list="enclosureList"
+                 :limit="5"
                 multiple>
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -213,6 +214,15 @@
         })
       },
       pictureSuccess(response, file, fileList) {
+        if (response.code !== '000000') {
+          this.$alert(response.message + '， 请重新上传', '提示', {
+            confirmButtonText: '确定',
+            callback: action => {
+              this.clearFileList()
+            }
+          })
+          return false
+        }
         this.form.enIcon = response.data
       },
       pictureRemove(file, fileList) {
@@ -281,7 +291,7 @@
             return false
           }
         } else {
-          if (this.form.enclosure.length > 5) {
+          if (this.form.enclosure.length === 5) {
             this.$message({
               message: '最多可一次性上传5个文件！',
               type: 'error'
