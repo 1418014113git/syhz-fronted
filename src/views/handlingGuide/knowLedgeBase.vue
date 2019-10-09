@@ -110,7 +110,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="executeAudit('3')" class="cancelBtn">不通过</el-button>
-        <el-button type="primary" @click="executeAudit('2')" class="saveBtn">通过</el-button>
+        <el-button type="primary" @click="executeAudit('2')" class="saveBtn" v-loading.fullscreen.lock="loading">通过</el-button>
       </div>
     </el-dialog>
     <el-dialog title="审核记录" :visible.sync="auditListDialogVisible">
@@ -140,6 +140,7 @@
     name: 'knowLedgeBase',
     data() {
       return {
+        loading: false,
         totalData: {
           type1: 0,
           type2: 0,
@@ -345,7 +346,8 @@
         this.$refs.auditForm.resetFields()
       },
       executeAudit(auditStatus) {
-        if (auditStatus === '2') {
+        this.loading = true
+        if (auditStatus === '2' && this.auditForm.remark === '') {
           this.auditForm.remark = '审核通过'
         }
         this.$refs.auditForm.validate(valid => {
@@ -386,10 +388,12 @@
                   message: '审核成功',
                   type: 'success'
                 })
+                this.loading = false
                 this.auditDialogVisible = false
                 this.auditForm = {}
                 this.query()
               }).catch(() => {
+                this.loading = false
               })
             } else {
               this.isBatchAudit = false
@@ -398,12 +402,16 @@
                   message: '审核成功',
                   type: 'success'
                 })
+                this.loading = false
                 this.auditDialogVisible = false
                 this.auditForm = {}
                 this.query()
               }).catch(() => {
+                this.loading = false
               })
             }
+          } else {
+            this.loading = false
           }
         })
       },
