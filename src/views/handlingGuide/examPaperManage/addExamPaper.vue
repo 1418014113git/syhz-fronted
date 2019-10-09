@@ -506,33 +506,40 @@ export default {
     },
     sortChange(row) { // 序号发生改变时触发
       if (!row.sort) {
-        row.sort = 1
-        this.$set(row, 'sort', 1)
+        setTimeout(() => {
+          this.$set(row, 'sort', 1)
+        }, 50)
       }
     },
     inputChange(index, row, type) { // 人工组卷/随机组卷分值输入框change事件
       if (type === 1) { // 人工组卷
         if (!row.value) {
-          var value = 1
-          this.$set(row, 'value', value)
+          setTimeout(() => {
+            this.$set(row, 'value', 1)
+          }, 50)
         }
         if (!row.num) {
-          var num = 1
-          this.$set(row, 'num', num)
+          setTimeout(() => {
+            this.$set(row, 'num', 1)
+          }, 50)
         }
       } else { // 随机组卷
         if (!row.value) {
-          var values = 0
-          this.$set(row, 'value', values)
+          setTimeout(() => {
+            this.$set(row, 'value', 0)
+          }, 50)
         }
         if (!row.num) {
-          var nums = 0
-          this.$set(row, 'num', nums)
+          setTimeout(() => {
+            this.$set(row, 'num', 0)
+          }, 50)
         }
       }
-      var desc = '每题' + row.value + '分，共' + Number(row.num * row.value) + '分。'
-      this.$set(row, 'desc', desc)
-      this.getTotalScore(type)
+      setTimeout(() => {
+        var desc = '每题' + row.value + '分，共' + Number(row.num * row.value) + '分。'
+        this.$set(row, 'desc', desc)
+        this.getTotalScore(type)
+      }, 60)
     },
     descinputChange(index, row, type) { // 说明输入框发生变化时
       if (!row.desc) {
@@ -624,31 +631,37 @@ export default {
             }
             var isSave = false
             this.sjzjList.forEach((item, index) => {
-              if (item.data.length > 0 && item.sort && item.num > 0 && item.value > 0 && item.desc) {
+              if (item.data.length > 0 && item.sort > 0 && item.num > 0 && item.value > 0 && item.desc) {
                 item.isSave = true
                 isSave = true
+              } else {
+                item.isSave = false
               }
             })
             if (isSave) {
-              var sjzjList = this.sjzjList
-              sjzjList.forEach((item, index) => {
-                if (!item.isSave) {
-                  sjzjList.splice(index, 1)
-                } else {
-                  var modelId = []
-                  var cateIds = ''
-                  var data = item.data
-                  data.forEach((item, index) => {
-                    modelId.push(item.id)
-                  })
-                  if (modelId.length > 0) {
-                    modelId = this.uniqueModelId(modelId) // 去重
-                  }
-                  cateIds = modelId.length > 0 ? modelId.join(',') : ''
-                  item.cateIds = cateIds
-                  this.delWidthData(item)
+              var sjzjList = JSON.parse(JSON.stringify(this.sjzjList))
+              var list = []
+              sjzjList.forEach((item, i) => {
+                if (item.isSave) {
+                  list.push(item)
                 }
               })
+              this.deletelObj()
+              list.forEach((item, i) => {
+                var modelId = []
+                var cateIds = ''
+                var data = item.data
+                data.forEach((item, index) => {
+                  modelId.push(item.id)
+                })
+                if (modelId.length > 0) {
+                  modelId = this.uniqueModelId(modelId) // 去重
+                }
+                cateIds = modelId.length > 0 ? modelId.join(',') : ''
+                item.cateIds = cateIds
+                this.delWidthData(item)
+              })
+
               if (Number(this.sjzjTotal) === 100) {
                 this.btnLoading = true
                 this.$save('paper/random/save', this.form).then((response) => {
@@ -791,7 +804,7 @@ export default {
         item.sort = Number(index + 1)
       })
       _this.rgzjList = element
-      // console.log('排序后', JSON.stringify(this.rgzjList))
+      // .log(console'排序后', JSON.stringify(this.rgzjList))
     },
     cancel() { // 取消
       this.$router.push({ path: '/handlingGuide/examPaperManage' })
@@ -988,30 +1001,35 @@ export default {
         if (valid) {
           var isSave = false
           this.sjzjList.forEach((item, index) => {
-            if (item.data.length > 0 && item.sort && item.num > 0 && item.value > 0 && item.desc) {
+            if (item.data.length > 0 && item.sort > 0 && item.num > 0 && item.value > 0 && item.desc) {
               isSave = true
               item.isSave = true
+            } else {
+              item.isSave = false
             }
           })
           if (isSave) {
             var sjzjList = JSON.parse(JSON.stringify(this.sjzjList))
-            sjzjList.forEach((item, index) => {
-              if (!item.isSave) {
-                sjzjList.splice(index, 1)
-              } else {
-                var modelId = []
-                var cateIds = ''
-                var data = item.data
-                data.forEach((item, index) => {
-                  modelId.push(item.id)
-                })
-                if (modelId.length > 0) {
-                  modelId = this.uniqueModelId(modelId) // 去重
-                }
-                cateIds = modelId.length > 0 ? modelId.join(',') : ''
-                item.cateIds = cateIds
-                this.delWidthData(item)
+            var list = []
+            sjzjList.forEach((item, i) => {
+              if (item.isSave) {
+                list.push(item)
               }
+            })
+            this.deletelObj()
+            list.forEach((item, i) => {
+              var modelId = []
+              var cateIds = ''
+              var data = item.data
+              data.forEach((item, index) => {
+                modelId.push(item.id)
+              })
+              if (modelId.length > 0) {
+                modelId = this.uniqueModelId(modelId) // 去重
+              }
+              cateIds = modelId.length > 0 ? modelId.join(',') : ''
+              item.cateIds = cateIds
+              this.delWidthData(item)
             })
             this.listLoading = true
             this.$save('paper/random/preView', this.form).then((response) => {
@@ -1148,7 +1166,7 @@ export default {
  .previewDia {
     .el-dialog {
       background: #ffffff;
-      border: 1px solid #bebebe;
+      border: 2px solid #00a0e9;
     }
     .el-dialog__header {
       border-bottom: 2px solid #aaaaaa;
