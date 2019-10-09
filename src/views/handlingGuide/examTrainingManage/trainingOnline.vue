@@ -39,7 +39,7 @@
     <!-- 试卷 -->
     <div id="previewExamPaper" v-loading="detailLoading">
       <div class="exam_title_wrap">
-        <p class="exam_title">{{examinationData.paperName}}</p>
+        <p class="exam_title">{{examinationData.examinationName}}</p>
         <p class="exam_subtitle">
           <span>开始时间：{{startTime}}</span>
           <span>考试时限：{{examinationData.totalDate}}分钟</span>
