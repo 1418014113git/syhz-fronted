@@ -89,7 +89,7 @@ export default {
       checkId: [], // 复选框选中的列表id
       checkIdRow: [], // 存储当前行被点击选中的项
       checkList: [], // 复选框选中的列表项
-      txData: questionTypeAll(),
+      txData: questionTypeAll('1'),
       tableHeight: null,
       dataList: [], // 菜单tree数据
       btnLoading: false // 保存按钮加载进度条

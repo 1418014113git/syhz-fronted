@@ -130,6 +130,7 @@ export default {
       if (tab.name === '9') {
         this.more()
       }
+      this.query(true)
     },
     detail(id) {
       if (this.$isViewBtn('129203')) {
