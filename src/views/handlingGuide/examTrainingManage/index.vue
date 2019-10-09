@@ -34,8 +34,10 @@
         </template>
       </el-table-column>
       <el-table-column prop="status" label="开始考试" width="100" align="center" v-if="currentExamType==='1'" :key=Math.random()>
+        <!-- 先判断成绩是否发布（已发布的不能开始考试），然后判断是否还有考试的次数 -->
         <template slot-scope="scope">
-          <el-button size="mini" circle v-if="scope.row.examinationCount < scope.row.permitNumber" @click="handleStartExam(scope.$index, scope.row)" icon="el-icon-caret-right" title="开始考试"></el-button>
+          <span v-if="scope.row.status">否</span>
+          <el-button size="mini" circle v-else-if="scope.row.examinationCount < scope.row.permitNumber" @click="handleStartExam(scope.$index, scope.row)" icon="el-icon-caret-right" title="开始考试"></el-button>
           <span v-else>否</span>
         </template>
       </el-table-column>
