@@ -87,9 +87,11 @@
     <div id="tipImg" style="position:absolute; cursor: pointer;" @mouseenter="floatOver()" @mouseleave="floatOut()" @click="floatTipShow">
       <img src="/static/image/login_images/tipmsg.jpg" border="0">
     </div>
-    <el-dialog :visible.sync="tipShow">
-      <float-tip-msg></float-tip-msg>
-    </el-dialog>
+     <div class="floatMsgBox">
+      <el-dialog :visible.sync="tipShow">
+        <float-tip-msg></float-tip-msg>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -723,6 +725,11 @@ export default {
           color: #fff;
         }
       }
+    }
+  }
+  .floatMsgBox{
+    .el-dialog__header {
+      border-bottom: 0;
     }
   }
 }
