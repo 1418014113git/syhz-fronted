@@ -209,26 +209,28 @@ export default {
         if (response.code === '000000') {
           this.allSystemPeople = response.data
           var markPer = []
-          for (let index = 0; index < this.allSystemPeople.length; index++) {
-            var element = this.allSystemPeople[index]
-            if (element.deptCode === this.deptInfo.depCode) {
-              markPer.push(element)
-            }
-          }
-          // markPer = this.allSystemPeople
+          // for (let index = 0; index < this.allSystemPeople.length; index++) {
+          //   var element = this.allSystemPeople[index]
+          //   if (element.deptCode === this.deptInfo.depCode) {
+          //     markPer.push(element)
+          //   }
+          // }
+          markPer = this.allSystemPeople
           var nameArr = [] // 用户名
           var jinghaoArr = [] // 警号
           var deptArr = [] // 所在单位
+          var userIdArr = [] // 用户id
           for (let index = 0; index < markPer.length; index++) {
             const element = markPer[index]
             nameArr.push(element.realName)
             jinghaoArr.push(element.userName)
             deptArr.push(element.deptName)
+            userIdArr.push(element.userId)
           }
           nameArr.forEach((name, index) => {
             this.markingPeopleData.push({
               label: name + '-' + jinghaoArr[index], // 将姓名和警号拼一起 方便查询
-              key: index,
+              key: userIdArr[index],
               dept: deptArr[index],
               disabled: true
             })
