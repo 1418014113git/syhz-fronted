@@ -22,9 +22,9 @@
         差（{{examItem.c}}）人，占比 {{ toPercent(Number(examItem.c)/Number(examItem.totalNum)) }}。
       </p>
       <p class="main_content">地市考试情况如下表所示：</p>
-      <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight" border class="table_th_center">
-        <el-table-column type="index" label="序号" width="60"></el-table-column>
-        <el-table-column prop="areaName" label="地市" width="160" show-overflow-tooltip></el-table-column>
+      <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight" border class="table_th_center" v-loading="listLoading">
+        <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+        <el-table-column prop="areaName" label="地市" align="center" show-overflow-tooltip></el-table-column>
         <el-table-column prop="ykNum" label="应考" width="120" align="center" show-overflow-tooltip></el-table-column>
         <el-table-column prop="skNum" label="实考" width="120" align="center"></el-table-column>
         <el-table-column prop="yNum" label="优" width="100" align="center"></el-table-column>
@@ -90,6 +90,7 @@ export default {
     examItem: {
       handler: function(val, oldeval) {
         // this.queryList(true)
+        this.queryCityStatisticalByExam(this.examItem.examinationId) // 考试统计
       }
     }
   },
@@ -200,41 +201,13 @@ export default {
       })
     },
     queryCityStatisticalByExam(examIdStr) {
-      if (this.filterQuery.type === '') {
-        if (this.filterQuery.startDate === '' && this.filterQuery.endDate !== '') { // 开始时间为空,结束时间不为空
-          this.$message({
-            message: '开始时间不能为空', type: 'error'
-          })
-          return false
-        } else if (this.filterQuery.startDate !== '' && this.filterQuery.endDate === '') { // 选择了开始时间,结束时间为空
-          this.filterQuery.endDate = this.getdate() // 将当前时间赋值给结束时间
-        } else if (this.filterQuery.startDate && this.filterQuery.endDate) { // 开始时间和结束时间均不为空
-          if (new Date(this.filterQuery.startDate).getTime() > new Date(this.filterQuery.endDate).getTime()) {
-            this.$message({
-              message: '结束时间不能小于开始时间', type: 'error'
-            })
-            return false
-          }
-        }
-      }
       // if (hand) { // 手动点击时，添加埋点参数
       //   this.filters.logFlag = 1
       // }
-      var param = {
-        deptRange: this.filterQuery.deptRange || '',
-        startDate: this.filterQuery.startDate || '',
-        endDate: this.filterQuery.endDate || '',
-        examinationName: this.filterQuery.examinationName || '',
-        year: this.filterQuery.type === 'year' ? true : '',
-        quarter: this.filterQuery.type === 'quarter' ? true : '',
-        month: this.filterQuery.type === 'month' ? true : '',
-        pageNum: this.page,
-        pageSize: this.pageSize
-      }
-      this.cityLoading = true
-      this.$query('examination/statisticsOne?examinationId=' + examIdStr, param).then((response) => {
+      this.listLoading = true
+      this.$query('examination/statisticsOne?examinationIds=' + examIdStr, {}).then((response) => {
         if (response.code === '000000') {
-          this.cityLoading = false
+          this.listLoading = false
           this.cityData = response.data
           if (this.cityData.length > 0) {
             // this.showEchart = true
@@ -578,36 +551,15 @@ export default {
       } else {
         this.quarterDisabled = false
       }
-    },
-    linkAjrl(canClick, level, cityCode, deptId, deptCode, type) { // 跳转到案件认领列表
-      if (!canClick) {
-        return false
-      }
-      var param = {
-        origin: 'statistical', // 表示从统计跳转过去的
-        deptLevel: level, // 区分是一级还是二级
-        cityCode: cityCode,
-        deptCode: deptCode, // 当前点击的code
-        curFirstLevelCode: this.curFirstLevelCode, // 展开一级的，有可能展开一级后点一级的跳转 所以不能用这个字段判断
-        type: type, // 待认领...等
-        yearDate: this.yearDate, // 筛选框的值
-        quarterDate: this.quarterDate,
-        monthDate: this.monthDate,
-        queryType: this.filters.type,
-        startTime: this.startTime,
-        endTime: this.endTime,
-        filtStartTime: this.filters.startTime, // 查询的参数，认领页面需要用到
-        filtEndTime: this.filters.endTime
-      }
-      console.log(param)
-      this.$gotoid('/caseManage/ajrl', JSON.stringify(param))
     }
   },
   destroyed() {
     sessionStorage.removeItem('/caseManage/caseClaimStatistical')
   },
   mounted() {
-    this.queryExamStatistical() // 考试统计
+    if (this.examItem && this.examItem.examinationId) {
+      this.queryCityStatisticalByExam(this.examItem.examinationId) // 考试统计
+    }
   }
 }
 </script>
@@ -626,8 +578,7 @@ export default {
   }
   .main_content {
     font-size: 16px;
-    line-height: 30px;
-    text-indent: 26px;
+    text-indent: 20px;
   }
   .el-table {
     background: #ffffff;
@@ -636,12 +587,26 @@ export default {
       background: #ffffff;
       color: #000000;
     }
+    .el-table__body-wrapper tr:nth-child(even) {
+      background-color: transparent;
+    }
   }
   .el-table td,
   .el-table th.is-leaf,
   .el-table th > .cell,
   .el-table__empty-text {
     color: #000000;
+  }
+}
+@media print {
+  // 文章样式
+  .title {
+    font-size: 26px;
+    text-align: center;
+  }
+  .main_content {
+    font-size: 16px;
+    text-indent: 20px;
   }
 }
 </style>
