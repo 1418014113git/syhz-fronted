@@ -12,7 +12,7 @@
         :default-checked-keys="checkId"
         @check-change="handleCheckChange"
         >
-        <span class="span-ellipsis" slot-scope="{data}">
+        <span class="MoudleEllipsis" slot-scope="{data}">
           <span :title="data.label">{{ data.label }}</span>
         </span>
       </el-tree>
@@ -244,7 +244,7 @@ export default {
     color: #fff;
   }
 }
-.span-ellipsis {
+.MoudleEllipsis {
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
