@@ -405,7 +405,7 @@ export default {
         const element = this.curPaperData[index]
         for (let m = 0; m < element.data.length; m++) {
           const item = element.data[m]
-          if (element.type === 1) { // 多选 答案字段answerr
+          if (element.type === 2) { // 多选 答案字段answerr
             if (item.answerr && item.answerr.length > 0) {
               // console.log(item)
             } else {
