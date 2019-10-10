@@ -157,6 +157,8 @@ export default {
           this.list = response.data.list
           this.total = response.data.totalCount
           this.pageSize = response.data.pageSize
+        } else {
+          this.initData()
         }
       }).catch(() => {
         this.listLoading = false
