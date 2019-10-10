@@ -21,8 +21,6 @@ export default {
 
       ajData: [
         { 'id': 1, 'title': '案件1', 'content': 'person' }
-        // { 'id': 2, 'title': '案件2', 'content': '' },
-        // { 'id': 3, 'title': '案件3', 'content': '' }
       ]
     }
   },
