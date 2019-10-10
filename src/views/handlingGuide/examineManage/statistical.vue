@@ -338,7 +338,7 @@ export default {
       this.queryExamStatistical()
     },
     handleSizeChange(val) { // 分条查询
-      alert(val) // 分页查询
+      // alert(val) // 分页查询
       this.pageSize = val
       this.queryExamStatistical()
     },
