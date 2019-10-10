@@ -17,39 +17,46 @@
                     <el-option label="综合" value="4"></el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="发布时间">
-                  <el-date-picker v-model="filters.time" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"> </el-date-picker>
+                <el-form-item>
+                  <el-radio-group v-model="filters.timeType" @change="radioChange">
+                    <el-radio label="1">本年</el-radio>
+                    <el-radio label="2">本季</el-radio>
+                    <el-radio label="3">本月</el-radio>
+                    <el-radio label="4">时间段&nbsp;&nbsp;&nbsp;&nbsp;
+                      <el-date-picker v-if="filters.timeType === '4'" v-model="filters.time" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+                    </el-radio>
+                  </el-radio-group>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" v-if="$isViewBtn('139006')" @click="query(true)" icon="el-icon-search">查询</el-button>
+                  <el-button type="primary" v-if="$isViewBtn('139006')" @click="query()" icon="el-icon-search">查询</el-button>
                 </el-form-item>
               </el-form>
               <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick">
                 <el-table-column type="expand">
                   <template slot-scope="scope">
-                    <el-table :data="curriculumDataList" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight">
+                    <el-table :data="scope.row.curriculumDataList" v-loading="listChildLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight">
                       <el-table-column prop="" width="128">
                         <template slot-scope="scopeEx">
                         </template>
                       </el-table-column>
-                      <el-table-column prop="name" align="center" label="单位"></el-table-column>
-                      <el-table-column prop="id" align="center" label="资料发布数量"></el-table-column>
-                      <el-table-column prop="id" align="center" label="资料审核通过"></el-table-column>
-                      <el-table-column prop="id" align="center" label="资料审核不通过"></el-table-column>
-                      <el-table-column prop="id" align="center" label="学习人次"></el-table-column>
-                      <el-table-column prop="id" align="center" label="学习时长"></el-table-column>
-                      <el-table-column prop="id" align="center" label="下载次数"></el-table-column>
+                      <el-table-column prop="departName" align="center" label="单位"></el-table-column>
+                      <el-table-column prop="id" align="center" width="160" label="资料发布数量"></el-table-column>
+                      <el-table-column prop="id" align="center" width="160" label="资料审核通过"></el-table-column>
+                      <el-table-column prop="id" align="center" width="160" label="资料审核不通过"></el-table-column>
+                      <el-table-column prop="id" align="center" width="160" label="学习人次"></el-table-column>
+                      <el-table-column prop="id" align="center" width="160" label="学习时长"></el-table-column>
+                      <el-table-column prop="id" align="center" width="160" label="下载次数"></el-table-column>
                     </el-table>
                   </template>
                 </el-table-column>
                 <el-table-column type="index" width="80"></el-table-column>
-                <el-table-column prop="name" align="center" label="地市"></el-table-column>
-                <el-table-column prop="id" align="center" label="资料发布数量"></el-table-column>
-                <el-table-column prop="id" align="center" label="资料审核通过"></el-table-column>
-                <el-table-column prop="id" align="center" label="资料审核不通过"></el-table-column>
-                <el-table-column prop="id" align="center" label="学习人次"></el-table-column>
-                <el-table-column prop="id" align="center" label="学习时长"></el-table-column>
-                <el-table-column prop="id" align="center" label="下载次数"></el-table-column>
+                <el-table-column prop="areaName" align="center" label="地市"></el-table-column>
+                <el-table-column prop="id" align="center" width="160" label="资料发布数量"></el-table-column>
+                <el-table-column prop="id" align="center" width="160" label="资料审核通过"></el-table-column>
+                <el-table-column prop="id" align="center" width="160" label="资料审核不通过"></el-table-column>
+                <el-table-column prop="id" align="center" width="160" label="学习人次"></el-table-column>
+                <el-table-column prop="id" align="center" width="160" label="学习时长"></el-table-column>
+                <el-table-column prop="id" align="center" width="160" label="下载次数"></el-table-column>
               </el-table>
             </el-card>
           </el-col>
@@ -66,29 +73,38 @@
       return {
         expands: [],
         filters: {
-          type: '3',
-          belongDepCode: '',
-          creationId: '',
+          title: '',
+          cityCode: '1',
+          type: '',
+          departCode: '',
           time: [],
-          startTime: '',
-          endTime: ''
+          timeType: '1'
         },
         listLoading: false,
-        curriculumData: [{ id: 12, name: '陕西省' }],
-        curriculumDataList: [{ id: 12, name: '陕西省环食药总队' }],
-        value: '',
+        listChildLoading: false,
+        curriculumData: [],
         countHeight: null,
         curDept: {},
         curUser: {},
-        isNormal: false // true 普通民警， false 审核者
+        systemTime: ''
       }
     },
     methods: {
-      rowClick(row) {
-        if (this.expands.indexOf(row.id) > -1) {
-          this.expands.splice(this.expands.indexOf(row.id), 1)
+      radioChange(value) {
+        if (value !== '4') {
+          this.filters.time = []
+        }
+      },
+      rowClick(row, expandedRows) {
+        // if (expandedRows.length) {
+        //   this.expands = []
+        //   this.expands.push(row.departCode)
+        // }
+        if (this.expands.indexOf(row.departCode) > -1) {
+          this.expands.splice(this.expands.indexOf(row.departCode), 1)
         } else {
-          this.expands.push(row.id)
+          this.expands.push(row.departCode)
+          this.query(true, row.departCode)
         }
       },
       arraySpanMethod({ row, column, rowIndex, columnIndex }) {
@@ -99,7 +115,7 @@
         // }
       },
       getRowKeys(row) {
-        return row.id
+        return row.departCode
       },
       getSummaries(param) {
         const { columns, data } = param
@@ -126,42 +142,85 @@
         })
         return sums
       },
-      query() {
-        // this.listLoading = true
-        // const para = {
-        //   title: this.filters.title,
-        //   type: this.filters.type,
-        //   auditStatus: this.filters.auditStatus,
-        //   creationId: this.filters.creationId,
-        //   startTime: this.filters.time ? this.filters.time[0] : '',
-        //   endTime: this.filters.time ? this.filters.time[1] : '',
-        //   auditDeptCode: this.curDept.depCode
-        // }
-        // if (this.isNormal) {
-        //   para.personId = this.curUser.id
-        // }
-        // if (this.filters.belongDepCode === '' || this.filters.belongDepCode === this.curDept.depCode) {
-        //   para.belongDeptCode = this.curDept.depCode
-        // }
-        // this.active = this.filters.type
-        // this.$query('page/traincourseaudit', para).then((response) => {
-        //   this.listLoading = false
-        //   // this.curriculumData = response.data.list
-        //   // this.total = response.data.totalCount
-        //   // this.pageSize = response.data.pageSize
-        // }).catch(() => {
-        //   this.listLoading = false
-        // })
+      query(flag, departCode) {
+        let para = {
+          title: this.filters.title,
+          type: this.filters.type,
+          startTime: this.filters.time ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : '',
+          endTime: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '',
+          cityCode: '1'
+        }
+        if (this.filters.timeType !== '4') {
+          para = this.buildTime(para)
+        }
+        if (flag) {
+          this.listChildLoading = true
+          para.departCode = departCode
+        } else {
+          this.listLoading = true
+        }
+        this.$update('knowledge/queryTrainCrouse', para).then((response) => {
+          if (flag) {
+            this.listChildLoading = false
+            for (let i = 0; i < this.curriculumData.length; i++) {
+              const item = this.curriculumData[i]
+              if (item.departCode === departCode) {
+                item.curriculumDataList = response.data
+              }
+            }
+          } else {
+            this.listLoading = false
+            this.curriculumData = response.data
+          }
+        }).catch(() => {
+          this.listLoading = false
+        })
       },
-      queryChild() {}
+      buildTime(para) {
+        const systemDate = new Date(this.systemTime)
+        let startTime = ''
+        let endTime = ''
+        if (this.filters.timeType === '1') {
+          startTime = systemDate.getFullYear() + '-01-01 00:00:00'
+          const day = new Date(systemDate.getFullYear(), 12, 0)
+          endTime = systemDate.getFullYear() + '-12-' + day.getDate() + ' 23:59:59'
+        }
+        if (this.filters.timeType === '2') {
+          if (systemDate.getMonth() + 1 <= 3) {
+            startTime = systemDate.getFullYear() + '-01-01 00:00:00'
+            endTime = systemDate.getFullYear() + '-03-31 23:59:59'
+          } else if (systemDate.getMonth() + 1 > 3 && systemDate.getMonth() + 1 <= 6) {
+            startTime = systemDate.getFullYear() + '-04-01 00:00:00'
+            endTime = systemDate.getFullYear() + '-06-30 23:59:59'
+          } else if (systemDate.getMonth() + 1 > 6 && systemDate.getMonth() + 1 <= 9) {
+            startTime = systemDate.getFullYear() + '-07-01 00:00:00'
+            endTime = systemDate.getFullYear() + '-09-30 23:59:59'
+          } else if (systemDate.getMonth() + 1 > 9 && systemDate.getMonth() + 1 <= 12) {
+            startTime = systemDate.getFullYear() + '-10-01 00:00:00'
+            endTime = systemDate.getFullYear() + '-12-31 23:59:59'
+          }
+        }
+        if (this.filters.timeType === '3') {
+          startTime = systemDate.getFullYear() + '-' + (systemDate.getMonth() + 1) + '-01 00:00:00'
+          const day = new Date(systemDate.getFullYear(), systemDate.getMonth() + 1, 0)
+          endTime = systemDate.getFullYear() + '-' + (systemDate.getMonth() + 1) + '-' + day.getDate() + ' 23:59:59'
+        }
+        para.startTime = startTime
+        para.endTime = endTime
+        return para
+      },
+      getSysTime() {
+        this.$query('knowledge/queryTime').then(response => {
+          this.systemTime = response.data
+          this.query()
+        })
+      }
     },
     mounted() {
-      this.isNormal = !this.$isViewBtn('139010')
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.countHeight = document.documentElement.clientHeight - 230
-      this.filters.belongDepCode = this.curDept.depCode
-      this.query()
+      this.getSysTime()
     }
   }
 </script>
@@ -202,5 +261,8 @@
   }
   .trainMaterial_totalList .el-table__body-wrapper .el-table__expanded-cell .is-center.left.is-leaf{
     text-align: center !important;
+  }
+  .trainMaterial_totalList .el-table__body tbody > tr:first-child .el-table__expand-column .cell > div{
+    display: none;
   }
 </style>

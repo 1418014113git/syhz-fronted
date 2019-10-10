@@ -160,8 +160,26 @@
       },
       setDetail(playerDetail) {
         this.detailData = playerDetail
-        this.playerOptions.poster = this.detailData.enIcon
+        this.playerOptions.poster = this.src()
         this.playerOptions.sources[0].src = this.detailData.enPath
+      },
+      src() {
+        if (this.detailData.enIcon) {
+          return this.detailData.enIcon
+        } else {
+          if (this.detailData.type === 1) {
+            return '/static/image/online/sp.jpg'
+          }
+          if (this.detailData.type === 2) {
+            return '/static/image/online/yp.jpg'
+          }
+          if (this.detailData.type === 3) {
+            return '/static/image/online/hj.jpg'
+          }
+          if (this.detailData.type === 4) {
+            return '/static/image/online/zh.jpg'
+          }
+        }
       },
       partsClick(id) {
         const para = {
