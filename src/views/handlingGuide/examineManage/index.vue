@@ -198,7 +198,7 @@ export default {
           this.listLoading = false
         })
       }).catch(() => {
-        this.loading = false
+        this.listLoading = false
         this.$message({
           type: 'info',
           message: '已取消'
@@ -210,10 +210,10 @@ export default {
         id: row.id,
         status: 1 // 发布成绩标志字段
       }
+      this.listLoading = true
       this.$update('examination/update', param).then((response) => {
         if (response.code === '000000') {
-          this.formLoading = true
-          this.loading = false
+          this.listLoading = true
           this.$message({
             type: 'success',
             message: '发布成功!'
@@ -221,7 +221,7 @@ export default {
           this.queryList(true) // 刷新列表
         }
       }).catch(() => {
-        this.formLoading = false
+        this.listLoading = false
       })
     },
     addTestQuestion() { // 添加考试
