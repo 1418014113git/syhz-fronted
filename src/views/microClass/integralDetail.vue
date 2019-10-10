@@ -24,6 +24,12 @@
           </el-table-column>
         </el-table>
       </el-row>
+      <el-col :span="24" class="toolbar">
+        <el-pagination layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange"
+                       :page-sizes="[10]" @size-change="handleSizeChange"
+                       :page-size="pageSize" :total="totalCount" :current-page="pageNum" style="float:right;">
+        </el-pagination>
+      </el-col>
     </el-card>
   </div>
 </template>
@@ -33,15 +39,31 @@
     data() {
       return {
         loading: false,
-        monthRecords: []
+        monthRecords: [],
+        totalCount: 0,
+        pageSize: 10,
+        pageNum: 1
       }
     },
     methods: {
+      // 页数改变事件
+      handleSizeChange(pageSize) {
+        this.pageSize = pageSize
+        this.queryTotal()
+      },
+      // 页码改变事件
+      handleCurrentChange(current) {
+        this.pageNum = current
+        this.queryTotal()
+      },
       queryTotal() {
         this.loading = true
         const para = this.$setCurrentUser({})
-        this.$query('userfractionlog', { id: para.creationId }).then(response => {
-          this.monthRecords = response.data
+        this.$query('page/userfractionlog', { id: para.creationId }).then(response => {
+          this.monthRecords = response.data.list
+          this.totalCount = response.data.totalCount
+          this.pageNum = response.data.pageNum
+          this.pageSize = response.data.pageSize
           this.loading = false
         }).catch(() => {
           this.loading = false
