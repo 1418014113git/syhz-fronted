@@ -5,16 +5,23 @@
         <el-card>
           <div class="video_div">
             <div id="player" class="audio_player" :style="playType !== '5' ? 'width: 100%' : ''">
-              <img :src="detailData.enIcon ? detailData.enIcon : '/static/image/online/audio.jpg'">
+              <img :src="srcUrl">
               <!--<audio id="audio" src="http://192.168.42.204:8084/video/02、spring boot返回json数据_高清.mp4" controls="controls"-->
                      <!--@play="onPlayerPlay($event)"-->
                      <!--@pause="onPlayerPause($event)"-->
                      <!--@ended="onPlayerEnded($event)"-->
               <!--&gt;</audio>-->
-              <div class="btn-audio paused" @click="audioClick">
-                <img src="/static/image/online/paused.png">
-                <img src="/static/image/online/player.png">
-                <audio id="mp3Btn">
+              <div class="btn-audio paused">
+                <div @click="audioClick">
+                  <img src="/static/image/online/paused.png">
+                  <img src="/static/image/online/player.png">
+                </div>
+                <!--<div class="slider_progress">-->
+                  <!--<div>{{playTime}}</div>-->
+                  <!--<div><el-slider v-model="value" :format-tooltip="formatTooltip" :show-tooltip="false" @change="sliderChange"></el-slider></div>-->
+                  <!--<div>{{allTime}}</div>-->
+                <!--</div>-->
+                <audio id="mp3Btn" @ended="ended" ref="audio">
                   <source :src="detailData.enPath" type="audio/mpeg" />
                 </audio>
               </div>
@@ -53,6 +60,11 @@
     ],
     data() {
       return {
+        srcUrl: '',
+        value: 0,
+        playTime: '0:0',
+        allTime: '0:0',
+        allCount: 0,
         audioMusic: {
           title: '',
           author: '',
@@ -69,56 +81,35 @@
       }
     },
     methods: {
-      // listen event
-      onPlayerPlay(player) {
-        if (this.num === 0 && this.detailData.flag) {
-          this.$emit('viewLog', '0')
-          this.num += 1
+      formatTooltip(val) {
+        return val / this.allCount
+      },
+      sliderChange(value) {
+        console.info(value)
+      },
+      src() {
+        if (this.detailData.enIcon) {
+          this.srcUrl = this.detailData.enIcon
+        } else {
+          if (this.detailData.type === 1) {
+            this.srcUrl = '/static/image/online/sp.jpg'
+          }
+          if (this.detailData.type === 2) {
+            this.srcUrl = '/static/image/online/yp.jpg'
+          }
+          if (this.detailData.type === 3) {
+            this.srcUrl = '/static/image/online/hj.jpg'
+          }
+          if (this.detailData.type === 4) {
+            this.srcUrl = '/static/image/online/zh.jpg'
+          }
         }
-      },
-      onPlayerPause(player) {
-        if (this.detailData.flag) {
-          this.$emit('uploadViewLog', player.currentTime())
-        }
-      },
-      onPlayerEnded(player) {
-        if (this.detailData.flag) {
-          this.$emit('uploadViewLog', player.currentTime())
-        }
-      },
-      onPlayerLoadeddata(player) {
-        console.log('player Loadeddata!', player)
-      },
-      onPlayerWaiting(player) {
-        console.log('player Waiting!', player)
-      },
-      onPlayerPlaying(player) {
-        console.log('player Playing!', player)
-      },
-      onPlayerTimeupdate(player) {
-        // 获取当前播放的时长
-        // console.log('player Timeupdate!', player.currentTime())
-      },
-      onPlayerCanplay(player) {
-        console.log('player Canplay!', player)
-      },
-      onPlayerCanplaythrough(player) {
-        console.log('player Canplaythrough!', player)
-      },
-      // or listen state event
-      playerStateChanged(playerCurrentState) {
-        console.log('player current update state', playerCurrentState)
-      },
-      // player is ready
-      playerReadied(player) {
-        // seek to 10s
-        console.log('example player 1 readied', player)
-        player.currentTime(10)
-        console.log('example 01: the player is readied', player)
       },
       setDetail(playerDetail) {
         this.detailData = playerDetail
-        document.getElementById('mp3Btn').load()
+        this.src()
+        const audio = document.getElementById('mp3Btn')
+        audio.load()
         this.audioMusic = {
           title: this.detailData.enName,
           author: this.detailData.creationName,
@@ -190,24 +181,32 @@
           this.addJF('1')
         }, this.learningTime)
       },
+      ended() {
+        const audio = document.getElementById('mp3Btn')
+        if (this.detailData.flag) {
+          this.$emit('uploadViewLog', audio.currentTime)
+          this.clearTimeInterval()
+        }
+        document.getElementsByClassName('btn-audio')[0].classList.remove('player')
+        document.getElementsByClassName('btn-audio')[0].classList.add('paused')
+      },
       audioClick() {
         const audio = document.getElementById('mp3Btn')
-        // audio.addEventListener('touchend', function(e) {
-        //   var x = e.originalEvent.changedTouches[0].clientX - this.offsetLeft
-        //   var X = x < 0 ? 0 : x
-        //   var W = document.getElementsByClassName('timeline')[0].clientWidth
-        //   var place = X > W ? W : X
-        //   audio.currentTime = (place / W).toFixed(2) * audio.duration
-        //   // (place/W).toFixed(2)*100+"%"
-        // })
-        audio.addEventListener('ended', function() {
-          if (this.detailData.flag) {
-            this.$emit('uploadViewLog', audio.currentTime)
-            this.clearTimeInterval()
-          }
-        }, false)
         event.stopPropagation()
         if (audio.paused) {
+          const time = audio.duration
+          this.allCount = parseInt(time)
+          const minute = time / 60
+          let minutes = parseInt(minute)
+          if (minutes < 10) {
+            minutes = '0' + minutes
+          }
+          const second = time % 60
+          let seconds = Math.round(second)
+          if (seconds < 10) {
+            seconds = '0' + seconds
+          }
+          this.allTime = minutes + ':' + seconds
           document.getElementsByClassName('btn-audio')[0].classList.remove('paused')
           document.getElementsByClassName('btn-audio')[0].classList.add('player')
           audio.play()
@@ -431,23 +430,40 @@
     position: absolute;
     top: 369px;
   }
-  .btn-audio.paused > img:nth-child(1){
+  .btn-audio.paused > div > img:nth-child(1){
     display: none;
   }
-  .btn-audio.player > img:nth-child(2){
+  .btn-audio.player > div > img:nth-child(2){
     display: none;
   }
-  .classRoom_audioPlayer .video_div .btn-audio > img{
+  .classRoom_audioPlayer .video_div .btn-audio > div > img{
     width: 40px;
     height: 40px;
     padding: 10px;
   }
-  .classRoom_audioPlayer .video_div .btn-audio.paused > img{
+  .classRoom_audioPlayer .video_div .btn-audio.paused > div > img{
     padding-left: 14px;
   }
-  .classRoom_audioPlayer .video_div .btn-audio > img:hover{
+  .classRoom_audioPlayer .video_div .btn-audio > div > img:hover{
     cursor: pointer;
     border-radius: 50%;
     background-color: rgba(240, 240, 240, 0.4);
+  }
+</style>
+<style rel="stylesheet/scss" lang="scss">
+  .classRoom_audioPlayer .slider_progress {
+    width: 85%;
+    position: absolute;
+    top: 5px;
+    left: 60px;
+  }
+  .classRoom_audioPlayer .slider_progress > div{
+    display: inline-block;
+  }
+  .classRoom_audioPlayer .slider_progress > div:nth-child(1){
+  }
+  .classRoom_audioPlayer .slider_progress > div:nth-child(2){
+  }
+  .classRoom_audioPlayer .slider_progress > div:nth-child(3){
   }
 </style>
