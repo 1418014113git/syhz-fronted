@@ -474,7 +474,11 @@
         if (cl === 'docx' || cl === 'doc' || cl === 'ppt' || cl === 'pptx') {
           enPathNew = enPathOld.substring(0, enPathOld.lastIndexOf('.')) + '.pdf'
         } else {
-          enPathNew = enPathOld
+          if (cl === 'mp4') {
+            enPathNew = enPathOld.substring(0, enPathOld.lastIndexOf('/') + 1) + 'conversion_' + enPathOld.substring(enPathOld.lastIndexOf('/') + 1)
+          } else {
+            enPathNew = enPathOld
+          }
         }
         const data = {
           enCode: '1',

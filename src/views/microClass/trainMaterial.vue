@@ -289,7 +289,7 @@
         this.$gotoid('/micro/uploadFile', JSON.stringify(para))
       },
       handleRowDel(index, row) {
-        this.$confirm('确认要删除此培训资料吗?', '提示', {
+        this.$confirm('资料删除后将无法再找回，确定是否要删除?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'

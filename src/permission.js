@@ -28,7 +28,7 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
-    console.log('获取token失败')
+    // console.log('获取token失败')
     if (whiteList.indexOf(to.path) !== -1) {
       next()
     } else {
