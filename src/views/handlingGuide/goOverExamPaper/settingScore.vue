@@ -186,7 +186,7 @@ export default {
               type: 'success',
               message: '阅卷成功!'
             })
-            this.$router.push({ path: '/handlingGuide/goOverExamPaper/index' })
+            this.$router.push({ path: '/handlingGuide/goOverExamPaper/index', query: { examId: this.rowParam.examId }})
           }).catch(() => {
             this.listLoading = false
           })
@@ -233,7 +233,7 @@ export default {
         line-height: 32px;
         margin-bottom: 0px;
         // border: 1px solid #00a0e9;
-         border: 1px solid #000;
+        border: 1px solid #000;
         border-bottom: 0;
       }
     }
@@ -244,7 +244,7 @@ export default {
     font-size: 18px;
     font-weight: bold;
   }
-  .qusestionBox{
+  .qusestionBox {
     height: 72vh;
     overflow: auto;
   }
@@ -252,7 +252,7 @@ export default {
     color: #000;
     background: #fff;
     border: 1px solid #000;
-    }
+  }
   .el-card__header {
     padding: 12px 20px !important;
     border-bottom: 1px solid #000;
@@ -260,7 +260,7 @@ export default {
   .el-card__body {
     padding: 20px 8px 20px 20px !important;
   }
-  .noData{
+  .noData {
     text-align: center;
   }
   .el-input__inner {
@@ -269,7 +269,7 @@ export default {
     border: 1px solid #000;
   }
   .el-input.is-disabled .el-input__inner {
-    background-color:#fff;
+    background-color: #fff;
     border-color: #000;
     color: #f72929;
     text-align: center;
@@ -284,23 +284,23 @@ export default {
   background-color: none;
   padding: 5px 0;
 }
- .question_name {
-    position: relative;
-    .samllNum {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 22px;
-    }
-    .questionContentNoP {
-      margin-left: 22px;
-    }
-    .questionContent {
-      float: left;
-      margin-left: 10px;
-      p {
-        text-indent: 20px;
-      }
+.question_name {
+  position: relative;
+  .samllNum {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 22px;
+  }
+  .questionContentNoP {
+    margin-left: 22px;
+  }
+  .questionContent {
+    float: left;
+    margin-left: 10px;
+    p {
+      text-indent: 20px;
     }
   }
+}
 </style>

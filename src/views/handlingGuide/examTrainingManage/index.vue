@@ -2,7 +2,7 @@
   <section class="testTableList">
     <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
       <el-form-item label="" prop="examType" label-width="0">
-        <el-select v-model="filters.examType" placeholder="请选择" clearable @change="examTypeChange">
+        <el-select v-model="filters.examType" placeholder="请选择" @change="examTypeChange">
           <el-option v-for="item in ksData" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
@@ -134,7 +134,8 @@ export default {
       }
     },
     handleRanking(index, row) { // 排名
-      this.$router.push({ path: '/handlingGuide/examTrainingManage/scoreRanking', query: { examinationId: row.examinationId, examinationName: row.examinationName }})
+      // 参数 考试id 考试名称 发布时间
+      this.$router.push({ path: '/handlingGuide/examTrainingManage/scoreRanking', query: { examinationId: row.examinationId, examinationName: row.examinationName, startTime: row.modifyDate }})
     },
     handleStartExam(index, row) { // 开始考试
       this.$router.push({ path: '/handlingGuide/examTrainingManage/trainingOnline', query: { examinationId: row.examinationId, questionsCount: row.questionsCount }})
@@ -171,6 +172,7 @@ export default {
           this.pageSize = response.data.pageSize
         } else {
           this.tableData = []
+          this.total = 0
         }
       }).catch(() => {
         this.listLoading = false
@@ -199,6 +201,7 @@ export default {
           this.pageSize = response.data.pageSize
         } else {
           this.tableData = []
+          this.total = 0
         }
       }).catch(() => {
         this.listLoading = false
