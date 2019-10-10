@@ -1,5 +1,5 @@
 <template>
-<div class="Gndh">
+<div class="">
   <gndh-menu></gndh-menu>
   <mywork></mywork>
   <waitthing></waitthing>

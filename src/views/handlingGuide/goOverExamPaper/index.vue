@@ -7,24 +7,23 @@
     <!--查询条件-->
     <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
       <el-form-item label="单位" prop="deptName">
-        <!-- <el-input type="text" size="small" v-model="filters.deptName" clearable placeholder="输入关键字检索单位"></el-input> -->
         <el-tooltip class="item" effect="dark" :content="filters.deptName" placement="top-start" :popper-class="(filters.deptName&&filters.deptName.length>16)?'tooltipShow':'tooltipHide'">
           <el-autocomplete
             v-model="filters.deptName"
             :fetch-suggestions="querySearchAsyncDept"
             placeholder="输入关键字检索单位"
+            :trigger-on-focus="false"
             @select="handleSelectDept"
-            clearable
             class="autoInputW"
           ></el-autocomplete>
         </el-tooltip>
       </el-form-item>
       <el-form-item label="姓名" prop="realName">
-        <!-- <el-input type="text" size="small" v-model="filters.realName" clearable placeholder="输入关键字检索姓名"></el-input> -->
         <el-autocomplete
           v-model="filters.realName"
           :fetch-suggestions="querySearchAsyncName"
           placeholder="输入关键字检索姓名"
+          :trigger-on-focus="false"
           @select="handleSelectName"
         ></el-autocomplete>
       </el-form-item>
@@ -91,15 +90,15 @@ export default {
   },
   methods: {
     examStatusChange(val) {
-      this.queryList(false, true)
+      this.initData()
+      this.queryList(true, true)
     },
     initData() {
-      this.list = []
+      this.tableData = []
       this.total = 0
       this.pageSize = 15
     },
-    queryList(flag) { // 列表数据查询
-      this.initData()
+    queryList(flag, hand) { // 列表数据查询
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -111,6 +110,9 @@ export default {
         status: this.filters.status,
         examId: this.carryParam.examId // 考试的id
       }
+      if (hand) {
+        para.logFlag = 1 // 添加埋点参数
+      }
       this.$query('exam/subjectiveList', para).then((response) => {
         this.listLoading = false
         if (response.data.list && response.data.list.length > 0) {
@@ -118,10 +120,10 @@ export default {
           this.total = response.data.totalCount
           this.pageSize = response.data.pageSize
         } else {
-          this.tableData = []
+          this.initData()
         }
       }).catch(() => {
-        this.tableData = []
+        this.initData()
         this.listLoading = false
       })
     },
@@ -148,7 +150,7 @@ export default {
             restaurants.forEach(element => {
               element.value = element.name
             })
-            var results = queryString ? restaurants.filter(this.createStateFilterDept(queryString)) : restaurants
+            var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
             cb(results)
           })
         }
@@ -156,9 +158,9 @@ export default {
         this.isQueryDept = false
       }
     },
-    createStateFilterDept(queryString) {
+    createStateFilter(queryString) {
       return (state) => {
-        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) !== -1)
       }
     },
     querySearchAsyncName(queryString, cb) { // 姓名检索
@@ -176,17 +178,12 @@ export default {
             restaurants.forEach(element => {
               element.value = element.realName
             })
-            var results = queryString ? restaurants.filter(this.createStateFilterName(queryString)) : restaurants
+            var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
             cb(results)
           })
         }
       } else {
         this.isQueryName = false
-      }
-    },
-    createStateFilterName(queryString) {
-      return (state) => {
-        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
       }
     },
     handleSelectDept(item) {

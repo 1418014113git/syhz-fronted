@@ -2,7 +2,7 @@
   <div class="portal-list">
     <div>
       <div class="tabList">
-        <span v-for="(item,index) in tabList" :key="index" :class="{'onClick':curIndex === index}" @click="checkTab(item.type,index)">{{item.title}}</span>
+        <span v-for="(item,index) in tabList" :key="index" :class="{'onClick':curIndex === index}" @click="checkTab(item.type,index)">{{item.title}}({{item.total}})</span>
       </div>
       <ul class="portal_carousel_ul">
         <template v-if="isShowAll">
@@ -20,7 +20,7 @@
               </p>
             </li>
           </div>
-          <div v-if="listData.length < 1" style="line-height: 260px; text-align: center; color: #fff;font-size:15px;">
+          <div v-if="listData.length < 1" style="line-height: 247px; text-align: center; color: #fff;font-size:15px;">
             暂无数据
           </div>
         </template>
@@ -36,7 +36,7 @@
               </p>
             </li>
           </div>
-          <div v-if="classData.length < 1" style="line-height: 260px; text-align: center; color: #fff;font-size:15px;">
+          <div v-if="classData.length < 1" style="line-height: 247px; text-align: center; color: #fff;font-size:15px;">
             暂无数据
           </div>
         </template>
@@ -59,24 +59,34 @@
         curDept: {},
         curIndex: 0,
         tabList: [
+          // {
+          //   title: '全部',
+          //   type: ''
+          // },
+          // {
+          //   title: '食品',
+          //   type: '1'
+          // }, {
+          //   title: '药品',
+          //   type: '2'
+          // },
+          // {
+          //   title: '环境',
+          //   type: '3'
+          // },
+          // {
+          //   title: '综合',
+          //   type: '4'
+          // }
           {
             title: '全部',
-            type: ''
+            type: '',
+            total: 0
           },
           {
-            title: '食品',
-            type: '1'
-          }, {
-            title: '药品',
-            type: '2'
-          },
-          {
-            title: '环境',
-            type: '3'
-          },
-          {
-            title: '综合',
-            type: '4'
+            title: '未签收',
+            type: '1',
+            total: 0
           }
         ]
       }
@@ -176,13 +186,14 @@
 	}
 	.tabList {
 		width: 100%;
-		height: 33px;
-		background: url('/static/image/portal_newImg/tabBg.png') no-repeat center center;
+		height: 31px;
+		background: url('/static/image/portal_newImg/moudyq.png') no-repeat center center;
 		background-size: 100%;
-		padding-top: 2px;
+    line-height: 27px;
+    margin-top: 10px;
 		span {
 			font-size: 17px;
-			color: rgba(0, 160, 233, 0.5);
+			color: rgba(0, 160, 233, 0.8);
 			cursor: pointer;
       display: inline-block;
       width: 19.5%;

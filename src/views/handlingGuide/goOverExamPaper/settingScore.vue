@@ -25,10 +25,12 @@
                   <span v-html="items.name" :class="items.name.indexOf('<p>')>-1?'questionContent':'questionContentNoP'"></span>
                 </p>
                 <p>
-                  <span class="font_b">您的答案：</span>{{items.answer}}
+                  <span class="font_b">您的答案：</span>
+                  <span v-html="items.answer" class="richTextWrap"></span>
                 </p>
                 <p>
-                  <span class="font_b">解析：</span>{{items.analysis}}
+                  <span class="font_b">解析：</span>
+                  <span v-html="items.analysis" class="richTextWrap"></span>
                 </p>
               </div>
               <div class="right" style="">
@@ -129,7 +131,6 @@ export default {
       if (this.list.length === 0) {
         this.noData = true
       }
-      console.log('list', JSON.stringify(this.list))
     },
     inputChange(row) {
       if (Number(row.yjscore) > Number(row.score)) {
@@ -137,7 +138,6 @@ export default {
       } else if (Number(row.yjscore) < 0) {
         this.$set(row, 'yjscore', 0)
       }
-      console.log('row', JSON.stringify(row))
     },
     save() { // 完成阅卷
       var lsData = []
@@ -174,14 +174,22 @@ export default {
         }
       })
       if (isSumbit) {
-        this.listLoading = true
-        this.$update('exam/subjectiveJudge', yjParam).then((response) => {
-          this.listLoading = false
-          this.$message({
-            type: 'success',
-            message: '阅卷成功!'
+        this.$confirm('确认是否完成阅卷？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.listLoading = true
+          this.$update('exam/subjectiveJudge', yjParam).then((response) => {
+            this.listLoading = false
+            this.$message({
+              type: 'success',
+              message: '阅卷成功!'
+            })
+            this.$router.push({ path: '/handlingGuide/goOverExamPaper/index' })
+          }).catch(() => {
+            this.listLoading = false
           })
-          this.$router.push({ path: '/handlingGuide/goOverExamPaper/index' })
         }).catch(() => {
           this.listLoading = false
         })
@@ -210,6 +218,7 @@ export default {
   }
   .question_wrap p {
     margin-bottom: 15px;
+    word-break: break-word;
   }
   .small_question_wrap {
     margin-left: 27px;

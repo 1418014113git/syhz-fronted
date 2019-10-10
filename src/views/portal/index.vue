@@ -1,8 +1,8 @@
 <template>
   <section class="portalCont" @mouseover="isOvertime()">
+    <top></top>
     <div class="portalWrap">
-      <top></top>
-      <top-message></top-message>
+      <!-- <top-message></top-message> -->
       <div class="cardCount">
         <card v-for="item in cardData" :col-span="item.span" :title="item.title" :content="item.content" :icon="item.icon" :cls="item.content"  :key="item.id" :more-btn="item.moreBtn" :more="item.more"></card>
       </div>
@@ -10,7 +10,7 @@
     </div>
     <import-common-data></import-common-data>
      <foot></foot>
-     <online-help></online-help>
+     <!-- <online-help></online-help> -->
   </section>
 </template>
 <script>
@@ -18,7 +18,7 @@ import Top from './components/Top'
 import Card from './components/card'
 import ImportCommonData from './components/ImportCommonData'
 import TopMessage from './components/TopMessage'
-import OnlineHelp from './components/onlineHelp'
+// import OnlineHelp from './components/onlineHelp'
 import Foot from './components/foot'
 import WorkMenu from './components/WorkMenu'
 
@@ -30,55 +30,52 @@ export default {
     TopMessage,
     ImportCommonData,
     Foot,
-    WorkMenu,
-    OnlineHelp
+    WorkMenu
+    // OnlineHelp
   },
   data() {
     return {
       sysnotice: [],
       cardData: [],
       cardData1: [ // 全部菜单（省厅权限）
-        { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
-        { 'span': 9, 'title': '统计', 'content': 'AnJian' },
-        { 'span': 7, 'title': '功能导航', 'content': 'Gndh' },
-        { 'span': 7, 'title': '站内信息', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
-        { 'span': 9, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
-        { 'span': 7, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
-        { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' },
-        { 'span': 9, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
-        { 'span': 7, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' }
+        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
+        { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
+        { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
+        { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
+        { 'span': 8, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
+        { 'span': 8, 'title': '网上培训', 'content': 'Train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
+        // { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
+        { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
+        { 'span': 8, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' },
+        { 'span': 8, 'title': '网上考试', 'content': 'Exam', 'moreBtn': '更多', 'more': '/handlingGuide/examineManage/statistical' } // 网上考试
+        // { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' }
+
       ],
       cardData2: [ // 市
-        // { 'span': 7, 'title': '站内信息', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
-        // { 'span': 9, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
-        // { 'span': 7, 'title': '功能导航', 'content': 'Gndh' },
-        // { 'span': 7, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
-        // { 'span': 9, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
-        // { 'span': 7, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' }
-
-        // 20190731 门户权限变更需求   总队、市一样9个模块
-        { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
-        { 'span': 9, 'title': '统计', 'content': 'AnJian' },
-        { 'span': 7, 'title': '功能导航', 'content': 'Gndh' },
-        { 'span': 7, 'title': '站内信息', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
-        { 'span': 9, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
-        { 'span': 7, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
-        { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' },
-        { 'span': 9, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
-        { 'span': 7, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' }
+        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
+        { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
+        { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
+        { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
+        { 'span': 8, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
+        { 'span': 8, 'title': '网上培训', 'content': 'train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
+        // { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
+        { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
+        { 'span': 8, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' },
+        { 'span': 8, 'title': '网上考试', 'content': 'Exam', 'moreBtn': '更多', 'more': '/handlingGuide/examineManage/statistical' } // 网上考试
+        // { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' }
       ],
       cardData3: [ // 旗县
-        // { 'span': 7, 'title': '站内信息', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
-        // { 'span': 9, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
-        // { 'span': 7, 'title': '功能导航', 'content': 'Gndh' }
-
-        // 20190731 门户权限变更需求   县区6个功能同原市
-        { 'span': 7, 'title': '站内信息', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
-        { 'span': 9, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
-        { 'span': 7, 'title': '功能导航', 'content': 'Gndh' },
-        { 'span': 7, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
-        { 'span': 9, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
-        { 'span': 7, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' }
+        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
+        { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
+        { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
+        { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
+        { 'span': 8, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
+        { 'span': 8, 'title': '网上培训', 'content': 'train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
+        // { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
+        { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
+        { 'span': 8, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' },
+        { 'span': 8, 'title': '网上考试', 'content': 'Exam', 'moreBtn': '更多', 'more': '/handlingGuide/examineManage/statistical' } // 网上考试
+        // { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' }
       ],
       isShowMenu: this.$store.state.app.clickAll, // 是否显示个性化菜单
       lastTime: null, // 最后一次鼠标移动的时间
@@ -105,7 +102,7 @@ export default {
         this.$query('sysloginnumber', { userName: curUser.userName }, '0').then(response => {
           if (response.data.length > 1) {
             sessionStorage.setItem('currentIp', response.data[0].ip_address)
-            this.$drawWaterMark()
+            // this.$drawWaterMark() // 水印
             if (response.data[0].ip_address !== response.data[1].ip_address) {
               sessionStorage.setItem('loginFlag', '1')
 
@@ -165,23 +162,27 @@ export default {
   }
 }
 </script>
-<style  rel="stylesheet/scss" lang="scss" scoped>
+<style  rel="stylesheet/scss" lang="scss">
 .portalCont {
   width: 100%;
   height: 100%;
   min-height: 100%;
   position: relative;
-  background: url("/static/image/portal_newImg/portalBg.png") no-repeat center
-    center;
-  background-size: 100% 100%;
+  background: url("/static/image/portal_newImg/portalBg.png") no-repeat;
+  background-size: 100%;
   overflow-x: hidden;
   overflow-y: auto;
   font-size: 14px;
   .portalWrap {
     width: 100%;
-    // height: 100%;
+    height: 100%;
     min-height: 93%;
-    padding: 20px 30px 0 30px;
+    padding: 0 10px 0 20px;
+  }
+  .el-card{
+    color: #fff;
+    background: url('/static/image/portal_newImg/moudBg.png') no-repeat center;
+    background-size: 100% 100%;
   }
 }
 .cardCount {
@@ -193,16 +194,11 @@ export default {
   // position: relative;
   // top: -40px;
   div {
-    // margin-top: 30px;
-    border-radius: 8px !important;
-    border: 2px solid rgb(0, 160, 233);
+    // border-radius: 8px !important;
+    // border: 2px solid rgb(0, 160, 233);
   }
-  //  div:nth-child(2){
-  //   border: 0 !important;
-  //  }
   div:nth-child(3) {
-    padding-bottom: 3px;
-    // border: 2px solid transparent !important;
+    // padding-bottom: 3px;
   }
   div:nth-child(1),
   div:nth-child(2),
@@ -210,14 +206,14 @@ export default {
   div:nth-child(4),
   div:nth-child(5),
   div:nth-child(6) {
-    margin-bottom: 30px;
+    // margin-bottom: 20px;
   }
 
   div:nth-child(2),
   div:nth-child(5),
   div:nth-child(8) {
-    margin-left: 2%;
-    margin-right: 2%;
+    // margin-left: 1%;
+    // margin-right: 1%;
   }
 }
 .navmenubg {
@@ -261,7 +257,7 @@ export default {
 @media only screen and (max-width: 1367px) {
   .portalCont {
     .portalWrap {
-      padding: 15px 18px 0 18px;
+      padding: 15px 5px 0 12px;
       min-height: 90%;
     }
   }
@@ -271,7 +267,7 @@ export default {
   .cardCount div:nth-child(4),
   .cardCount div:nth-child(5),
   .cardCount div:nth-child(6) {
-    margin-bottom: 23px;
+    // margin-bottom: 23px;
   }
 }
 .marqueea {
