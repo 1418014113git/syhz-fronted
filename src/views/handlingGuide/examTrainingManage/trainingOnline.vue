@@ -56,7 +56,8 @@
             </p>
             <!-- 单选题选项 -->
             <div v-if="smallItem.items && smallItem.type===1" class="options_wrap">
-              <el-radio-group v-model="answer[smallItem.id]" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
+              <!-- v-model="answer[smallItem.id]" -->
+              <el-radio-group v-model="smallItem.answer" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
                 <p v-if="smallItem.items.A" class="option_item"><el-radio label="A">A、<span v-html="smallItem.items.A" class="richTextWrap"></span></el-radio></p>
                 <p v-if="smallItem.items.B" class="option_item"><el-radio label="B">B、<span v-html="smallItem.items.B" class="richTextWrap"></span></el-radio></p>
                 <p v-if="smallItem.items.C" class="option_item"><el-radio label="C">C、<span v-html="smallItem.items.C" class="richTextWrap"></span></el-radio></p>
@@ -83,14 +84,16 @@
             </div>
             <!-- 判断题 对错 -->
             <div v-if="smallItem.type===4" class="options_wrap pd_options_wrap">
-              <el-radio-group v-model="answer[smallIndex]" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
-                <span class="option_item"><el-radio label="true">正确</el-radio></span>
-                <span class="option_item"><el-radio label="false">错误</el-radio></span>
+              <!-- answer[smallIndex] -->
+              <el-radio-group v-model="smallItem.answer" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
+                <span class="option_item"><el-radio label="1">正确</el-radio></span>
+                <span class="option_item"><el-radio label="2">错误</el-radio></span>
                </el-radio-group>
             </div>
             <!-- 简答题、论述题、案例分析题 -->
-            <el-input v-if="smallItem.type === 5 || smallItem.type === 6 || smallItem.type === 7" type="textarea" :rows="3" v-model="answer[smallItem.id]"
-              @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)" maxlength="500" clearable placeholder="请输入您的答案"></el-input>
+            <!-- answer[smallItem.id] -->
+            <el-input v-if="smallItem.type === 5 || smallItem.type === 6 || smallItem.type === 7" type="textarea" :rows="3"
+              v-model="smallItem.answer" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)" maxlength="500" clearable placeholder="请输入您的答案"></el-input>
           </div>
         </div>
       </div>
@@ -241,6 +244,16 @@ export default {
         this.detailLoading = false
       })
     },
+    timestampToTime(timestamp) {
+      var date = new Date(timestamp * 1000) // 时间戳为10位需*1000，时间戳为13位的话不需乘1000
+      var Y = date.getFullYear() + '-'
+      var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+      var D = date.getDate() + ' '
+      var h = date.getHours() + ':'
+      var m = date.getMinutes() + ':'
+      var s = date.getSeconds()
+      return Y + M + D + h + m + s
+    },
     saveExamStart() { // 提交开始考试信息
       this.detailLoading = true
       var param = {
@@ -253,26 +266,54 @@ export default {
         deptName: this.deptInfo.depName
       }
       this.$save('exam/start', param).then((response) => {
-        this.detailLoading = false
         if (response.code === '000000') {
-          this.startTime = response.data.startTime // 考试开始时间
-          this.recordId = response.data.recordId // 考试记录id
-          var minutes = Number(this.examinationData.totalDate) * 60
-          this.countdown(minutes) // 倒计时开始，参数 秒数
+          var startObj = response.data
+          this.$query('exam/systemTime', {}).then((res) => {
+            this.detailLoading = false
+            if (res.code === '000000') {
+              // 1570693066740
+              // console.log(this.timestampToTime((response.data + '').substr(0, 10)))
+              var time1 = startObj.startTime
+              var time1Stamp = new Date(time1).getTime()
+              var time2 = this.timestampToTime((res.data + '').substr(0, 10))
+              var timeDiff = 0
+              if (time1Stamp < res.data) {
+                timeDiff = this.timeDifference(time1, time2)
+              }
+              this.startTime = startObj.startTime // 考试开始时间
+              this.recordId = startObj.recordId // 考试记录id
+              // var minutes = Number(this.examinationData.totalDate) * 60 // 考试时限
+              var minutes = Number(this.examinationData.totalDate) * 60 - Number(timeDiff) * 60
+              if (minutes > 0) {
+                this.countdown(minutes) // 倒计时开始，参数 秒数
+              } else {
+                // 接口已处理 说不存在小于0的情况
+              }
+            }
+          }).catch(() => {
+            this.detailLoading = false
+          })
         }
+        // this.detailLoading = false
+        // if (response.code === '000000') {
+        //   this.startTime = response.data.startTime // 考试开始时间
+        //   this.recordId = response.data.recordId // 考试记录id
+        //   var minutes = Number(this.examinationData.totalDate) * 60
+        //   this.countdown(minutes) // 倒计时开始，参数 秒数
+        // }
       }).catch(() => {
         this.detailLoading = false
       })
     },
-    timeDifference() { // 计算时间相减
+    timeDifference(time1, time2) { // 计算时间相减
       // 定义两个变量time1,time2分别保存开始和结束时间
-      var time1 = '2017-12-02 12:25'
-      var time2 = '2017-12-03 12:35'
+      // var time1 = '2017-12-03 12:01'
+      // var time2 = '2017-12-03 12:35'
       // 判断开始时间是否大于结束日期
-      if (time1 > time2) {
-        alert('开始时间不能大于结束时间！')
-        return false
-      }
+      // if (time1 > time2) {
+      //   alert('开始时间不能大于结束时间！')
+      //   return false
+      // }
       // 截取字符串，得到日期部分"2009-12-02",用split把字符串分隔成数组
       var begin1 = time1.substr(0, 10).split('-')
       var end1 = time2.substr(0, 10).split('-')
@@ -293,7 +334,8 @@ export default {
       var n = min2 - min1
       // 将日期和时间两个部分计算出来的差值相加，即得到两个时间相减后的分钟数
       var minutes = m + n
-      document.writeln(minutes)
+      console.log(minutes)
+      return minutes
     },
     saveQuestionAnswer(type, questionsId, answer, OtherAnswer) { // 保存题目答案
       // console.log(type)
@@ -329,32 +371,69 @@ export default {
       } else {
         param.answer = answer
       }
-
       this.$update('exam/saveAnswer', param).then((response) => {
         this.detailLoading = false
-        if (param.answer) { // 计算已答题的数量
-          this.doneQuestionNum++
-        } else {
-          this.doneQuestionNum--
+        if (response.code === '000000') {
+          // 不能在这判断是否第一次答题累计数量 第二次开始时间会有影响，有可能题是更新 但是不计数
+          // if (response.data.id) { // 第一次作答
+          //   if (param.answer) { // 计算已答题的数量
+          //     this.doneQuestionNum++
+          //   } else {
+          //     this.doneQuestionNum--
+          //   }
+          // } else { // 二次编辑
+          //   if (param.answer) { // 计算已答题的数量
+          //   } else {
+          //     this.doneQuestionNum--
+          //   }
+          // }
         }
-        console.log('已答题目数：' + this.doneQuestionNum)
-        // if (response.code === '000000') {
-        // }
+        // console.log('已答题目数：' + this.doneQuestionNum)
       }).catch(() => {
         this.detailLoading = false
       })
     },
     lastCancelExam() { // 页面下方取消考试
       this.isExamCancel = true
-      // console.log(this.curPaperData)
     },
     lastSubmitExam() { // 页面下方提交答案
       // 判断是不是所有的题都答了
+      var isAnswerComplete = true // 是否所有试题都答了 标志字段
+      console.log(JSON.stringify(this.curPaperData))
+      // 遍历所有试题是否全部作答
+      for (let index = 0; index < this.curPaperData.length; index++) {
+        const element = this.curPaperData[index]
+        for (let m = 0; m < element.data.length; m++) {
+          const item = element.data[m]
+          if (element.type === 1) { // 多选 答案字段answerr
+            if (item.answerr && item.answerr.length > 0) {
+              // console.log(item)
+            } else {
+              isAnswerComplete = false
+              break
+            }
+          } else if (element.type === 3) { // 填空 答案字段 zhi
+            if (item.zhi) {
+              // console.log(item)
+            } else {
+              isAnswerComplete = false
+              break
+            }
+          } else { // 其他类型的试题 答案字段都是answer
+            if (item.answer) {
+              // console.log(item)
+            } else {
+              isAnswerComplete = false
+              break
+            }
+          }
+        }
+      }
       this.isExamSubmit = true // 弹框显示
-      if (this.doneQuestionNum < Number(this.carryParam.questionsCount)) {
-        this.submitNoticeStr = '您还有考试题目没有填写或选择答案，是否需要提交答卷？'
-      } else {
+      if (isAnswerComplete) {
         this.submitNoticeStr = '确认提交答卷？'
+      } else {
+        this.submitNoticeStr = '您还有考试题目没有填写或选择答案，是否需要提交答卷？'
       }
     },
     handleSubmitAnswer(submitType) { // 提交试卷答案

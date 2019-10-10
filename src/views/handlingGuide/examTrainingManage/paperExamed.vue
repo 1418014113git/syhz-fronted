@@ -94,7 +94,7 @@
                 <!-- <span class="option_item"><el-radio label="true">正确</el-radio></span> -->
                 <!-- <span class="option_item"><el-radio label="false">错误</el-radio></span> -->
                <!-- </el-radio-group> -->
-               <p>您的答案：{{smallItem.answer==='true'?'✔':'×'}}</p>
+               <p>您的答案：{{smallItem.answer==='1'?'✔':'×'}}</p>
                <p>正确答案：{{smallItem.rightAnswer==='1'?'✔':'×'}}</p>
             </div>
             <!-- 简答题、论述题、案例分析题 -->
@@ -117,7 +117,7 @@
         </p>
         <p class="right">
           <span class="font_b">可重考次数： <span class="scoreNumber">{{examinationData.enableNum}}</span> 次</span>
-          <span class="again_exam" @click="handleAgainExam" v-if="(examinationData.enableNum > 0) || !(examinationData.unable)">重新考试</span>
+          <span class="again_exam" @click="handleAgainExam" v-if="(examinationData.enableNum > 0) || (examinationData.unable===false)">重新考试</span>
           <span class="again_exam" v-else></span>
           <el-button size="mini" circle icon="el-icon-question" title="重新考试会有多个考试成绩，我们将以其中的最高分作为最终的成绩！"></el-button>
         </p>
