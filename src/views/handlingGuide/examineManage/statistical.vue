@@ -24,18 +24,19 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" v-if="$isViewBtn('100401')"  @click="queryExamStatistical(true)">查询</el-button>
-          <!-- <el-button type="primary" @click="reset">重置</el-button> -->
+          <el-button type="primary" @click="queryExamStatistical(true)">查询</el-button>
+          <!-- <el-button type="primary" v-if="$isViewBtn('100401')" @click="reset">重置</el-button> -->
         </el-form-item>
       </el-form>
     </el-card>
     <!--考试信息-->
     <el-card style="margin-bottom: 10px;">
       <div slot="header" class="clearfix">
-        <span>考试统计</span>
+        <span>考试统计&emsp;<el-button circle title="选中考试后，可按单条或多条考试信息统计地市考试情况！"><i class="el-icon-question"></i></el-button></span>
       </div>
-      <el-table :data="examinations"  style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange" v-loading="examLoading">
-        <el-table-column type="selection" width="55"></el-table-column>
+      <el-table :data="examinations"  style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange" v-loading="examLoading"
+       show-summary>
+        <el-table-column type="selection" width="60"></el-table-column>
         <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
         <el-table-column prop="examinationName" label="考试名称" show-overflow-tooltip></el-table-column>
         <el-table-column prop="totalNum" label="应考人数" width="160" align="center">
@@ -68,7 +69,7 @@
         <el-table-column label="操作" width="200">
           <template slot-scope="scope">
             <!-- <span v-if="scope.row.totalNum" class="canClick" @click="watchReport">考试报告</span> -->
-            <el-button @click="watchReport(scope.$index, scope.row)" icon="el-icon-document">考试报告</el-button>
+            <el-button @click="watchReport(scope.$index, scope.row)" icon="el-icon-document" title="可生成查询结果汇总考试报告">考试报告</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -181,11 +182,6 @@ export default {
     testReport
   },
   methods: {
-    examinationNameChange() {
-    },
-    deptChange() {
-
-    },
     handleSelectionChange(val) { // 多选表格
       this.multipleSelection = val
       // console.log(this.multipleSelection)
@@ -204,16 +200,6 @@ export default {
         this.drawChartPerNum()
         this.drawCityStatistical()
       }
-    },
-    getSummaries() {
-      const sums = ['', '', '合计', '', '', '', '', '']
-      sums[3] = this.$thousSplit(this.totlaYrl + '')
-      sums[4] = this.$thousSplit(this.totalDrl + '')
-      sums[5] = this.$thousSplit(this.totalXf + '')
-      sums[6] = this.$thousSplit(this.totalZf + '')
-      sums[7] = this.$thousSplit(this.totalCx + '')
-      sums[8] = this.$thousSplit(this.totalAll + '')
-      return sums
     },
     initStaticData() {
       for (let index = 0; index < this.cityData.length; index++) { // 初始化12市数据全为0
