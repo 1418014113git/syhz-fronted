@@ -76,7 +76,7 @@
                     <el-table-column  label="排序" min-width="120" align="center">
                       <template slot-scope="scope">
                         <el-form-item prop="sort">
-                          <el-input-number v-model.trim="scope.row.sort" :min="1" :max="7"></el-input-number>
+                          <el-input-number v-model.trim="scope.row.sort" :min="1" :max="7" @change="sortChange(scope.row)"></el-input-number>
                         </el-form-item>
                       </template>
                     </el-table-column>
@@ -218,7 +218,7 @@ export default {
       isClear: false,
       isClose: false,
       listLoading: false,
-      isShowSaveBtn: true, // 预览弹框里是否显示保存按钮
+      isShowSaveBtn: false, // 预览弹框里是否显示保存按钮
       dialogPreviewVisible: false, // 是否显示预览弹框
       zjOption: [ // 组卷方式
         {
@@ -977,6 +977,7 @@ export default {
     },
     preview(type) { // 预览试卷
       if (type === 1) { // 人工组卷
+        this.isShowSaveBtn = false
         this.buildData() // 前端组装数据，传给试卷预览组件
       } else { // 随机组卷
         this.sjPreView() // 调接口获取数据，传给试卷预览组件
@@ -1036,6 +1037,7 @@ export default {
               this.listLoading = false
               this.previewProSubmit = response.data // 存储预览接口数据传给预览组件，预览组件里保存时需要将该数据传给后台进行保存。
               var data = JSON.parse(JSON.stringify(response.data))
+              this.isShowSaveBtn = true
               this.reBuildData(data) // 将后台数据处理成和列表预览接口返回的数据格式一致，以便于预览组件能按照一种数据格式渲染。
             }).catch(() => {
               this.listLoading = false

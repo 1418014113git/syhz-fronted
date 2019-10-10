@@ -45,7 +45,7 @@
           <el-button size="mini" circle @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩" v-if="!scope.row.status">
             <svg-icon icon-class="release"></svg-icon>
           </el-button>
-          <el-button size="mini" circle @click="handleGoOverExam(scope.$index, scope.row)" icon="el-icon-view" title="阅卷" v-if="scope.row.isGoOver===1"></el-button>
+          <el-button size="mini" circle @click="handleGoOverExam(scope.$index, scope.row)" icon="el-icon-view" title="阅卷" v-if="scope.row.isGoOver===1" :disabled="scope.row.status"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -208,9 +208,9 @@ export default {
     handlePublishScore(index, row) { // 发布成绩
       var param = {
         id: row.id,
-        status: 0
+        status: 1 // 发布成绩标志字段
       }
-      this.$update('examination/save', param).then((response) => {
+      this.$update('examination/update', param).then((response) => {
         if (response.code === '000000') {
           this.formLoading = true
           this.loading = false
@@ -218,6 +218,7 @@ export default {
             type: 'success',
             message: '发布成功!'
           })
+          this.queryList(true) // 刷新列表
         }
       }).catch(() => {
         this.formLoading = false

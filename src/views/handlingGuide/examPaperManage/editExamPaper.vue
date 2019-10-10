@@ -191,7 +191,7 @@
 
    <!-- 预览试卷 -->
   <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
-    <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit'></preview-paper>
+    <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit' :zjType="zjType"></preview-paper>
   </el-dialog>
 </div>
 </template>
@@ -220,6 +220,7 @@ export default {
       sjdisabled: true, // 随机组卷初始化时详细信息不能编辑。除非点击试题模块重新选择试题模块
       isClear: false,
       isClose: false,
+      zjType: '',
       zjOption: [ // 组卷方式
         {
           value: '1',
@@ -230,7 +231,7 @@ export default {
           label: '随机组卷'
         }
       ],
-      isShowSaveBtn: true, // 预览弹框里是否显示保存按钮
+      isShowSaveBtn: false, // 预览弹框里是否显示保存按钮
       dialogPreviewVisible: false, // 是否显示预览弹框
       listLoading: false, // 详情接口请求前的loading
       rgzjDialog: false, // 是否显示人工组卷选择试题弹框
@@ -754,6 +755,7 @@ export default {
                 this.btnLoading = false
               })
             } else {
+              // console.log('人工组卷参数', JSON.stringify(this.form))
               this.$confirm('您的试卷分值是' + this.rgzjTotal + '分，请确认是否保存！', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -1086,6 +1088,7 @@ export default {
       }
     },
     getsjCheckList(val) { // 获取随机组卷选择的模块tree节点集合
+      console.log(555)
       this.isClickxt = true
       this.initData(2)
       this.sjzjList = this.sjzjListDefault
@@ -1133,6 +1136,7 @@ export default {
     },
     preview(type) { // 预览试卷
       if (type === 1) { // 人工组卷
+        this.isShowSaveBtn = false
         this.buildData() // 前端组装数据，传给试卷预览组件
       } else { // 随机组卷
         this.sjPreView() // 调接口获取数据，传给试卷预览组件
@@ -1194,8 +1198,15 @@ export default {
             if (this.isClickxt) { // 如果点击选择试题重新选择模块后并保存，调用的是随机试卷预览接口
               this.$save('paper/random/preView', this.form).then((response) => {
                 this.listLoading = false
-                this.previewProSubmit = response.data // 存储预览接口数据传给预览组件，预览组件里保存时需要将该数据传给后台进行保存。
+                // this.previewProSubmit = response.data // 存储预览接口数据传给预览组件，预览组件里保存时需要将该数据传给后台进行保存。
+                this.previewProSubmit = this.form
+                this.zjType = 1
                 var data = JSON.parse(JSON.stringify(response.data))
+                if (this.isClickxt) {
+                  this.isShowSaveBtn = true
+                } else {
+                  this.isShowSaveBtn = false
+                }
                 this.reBuildData(data) // 将后台数据处理成和列表预览接口返回的数据格式一致，以便于预览组件能按照一种数据格式渲染。
               }).catch(() => {
                 this.listLoading = false
@@ -1203,8 +1214,15 @@ export default {
             } else { // 否则，列表点击进来后未做修改操作，调用的是列表的随机试卷预览接口
               this.$query('paper/preview/' + this.$route.query.id, {}).then((response) => {
                 this.listLoading = false
-                this.previewProSubmit = response.data // 存储预览接口数据传给预览组件，预览组件里保存时需要将该数据传给后台进行保存。
+                // this.previewProSubmit = response.data // 存储预览接口数据传给预览组件，预览组件里保存时需要将该数据传给后台进行保存。
+                this.previewProSubmit = this.form
+                this.zjType = 1
                 var data = JSON.parse(JSON.stringify(response.data))
+                if (this.isClickxt) {
+                  this.isShowSaveBtn = true
+                } else {
+                  this.isShowSaveBtn = false
+                }
                 this.reBuildData(data) // 将后台数据处理成和列表预览接口返回的数据格式一致，以便于预览组件能按照一种数据格式渲染。
               }).catch(() => {
                 this.listLoading = false

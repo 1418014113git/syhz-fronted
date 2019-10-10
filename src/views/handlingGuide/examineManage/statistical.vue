@@ -67,8 +67,8 @@
         </el-table-column>
         <el-table-column label="操作" width="200">
           <template slot-scope="scope">
-            <span v-if="scope.row.totalNum" class="canClick">考试报告</span>
-            <!-- <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="排名"></el-button> -->
+            <!-- <span v-if="scope.row.totalNum" class="canClick" @click="watchReport">考试报告</span> -->
+            <el-button @click="watchReport(scope.$index, scope.row)" icon="el-icon-document">考试报告</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -117,10 +117,15 @@
       <!-- 柱状图 -->
       <div id="cityStatistical" style="min-height: 400px;"></div>
     </el-card>
+    <!-- 考试报告 -->
+    <el-dialog title="考试报告" :visible.sync="dialogReportVisible" size="small" @close="closeDia" class="reportDialog" width="60%">
+      <test-report :examItem="currentExam" @isShowDialog="closeDia"></test-report>
+    </el-dialog>
   </div>
 </template>
 <script>
 import echarts from 'echarts'
+import testReport from './testReport'
 export default {
   name: 'examinationStatistical',
   data() {
@@ -167,8 +172,13 @@ export default {
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       multipleSelection: [], // 选中的多行
       showEchart: false,
+      dialogReportVisible: false, // 考试报告弹框
+      currentExam: {}, // 当前点击的考试报告
       curDept: {} // 当前部门
     }
+  },
+  components: {
+    testReport
   },
   methods: {
     examinationNameChange() {
@@ -294,7 +304,7 @@ export default {
         pageSize: this.pageSize
       }
       this.cityLoading = true
-      this.$query('examination/statisticsOne?examinationId=' + examIdStr, param).then((response) => {
+      this.$query('examination/statisticsOne?examinationIds=' + examIdStr, param).then((response) => {
         if (response.code === '000000') {
           this.cityLoading = false
           this.cityData = response.data
@@ -572,6 +582,13 @@ export default {
         this.query()
       }
     },
+    watchReport(index, row) { // 考试报告
+      this.currentExam = row // 当前选中的考试
+      this.dialogReportVisible = true
+    },
+    closeDia() {
+      this.dialogReportVisible = false
+    },
     getdate() {
       var now = new Date()
       var y = now.getFullYear()
@@ -696,7 +713,7 @@ export default {
   }
 }
 </script>
-<style>
+<style rel="stylesheet/scss" lang="scss">
 .case-trend .card {
   margin-bottom: 20px;
 }
@@ -713,5 +730,24 @@ export default {
 }
 .el-table .row-expand-cover .cell .el-table__expand-icon {
   display: none;
+}
+.reportDialog {
+  .el-dialog {
+    background: #ffffff;
+    border: 1px solid #bebebe;
+  }
+  .el-dialog__header {
+    border-bottom: 2px solid #aaaaaa;
+    .el-dialog__title {
+      color: #000000;
+    }
+    .el-dialog__headerbtn .el-dialog__close {
+      color: #000000;
+    }
+  }
+  .el-dialog__body {
+    background: #ffffff;
+    color: #000000;
+  }
 }
 </style>
