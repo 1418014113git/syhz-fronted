@@ -74,8 +74,12 @@ Vue.use(VueKindEditor)
 
 import Navigation from 'vue-navigation'
 Vue.use(Navigation, { router })
-import Print from 'vue-print-nb' // 打印插件
+// import Print from 'vue-print-nb' // 打印插件 一直报错 未解决
+// Vue.use(Print)
+import Print from '@/plugs/print' // 打印插件
 Vue.use(Print)
+import htmlToPdf from '@/utils/htmlToPdf'
+Vue.use(htmlToPdf)
 
 new Vue({
   el: '#app',

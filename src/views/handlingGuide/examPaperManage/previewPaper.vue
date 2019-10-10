@@ -1,10 +1,11 @@
 <template>
   <section class="preview">
     <el-row class="clearfix">
-      <el-button v-print="'#previewExamPaper'" class="right" type="primary" plain icon="el-icon-printer">打印</el-button>
+      <!-- v-print="'#previewExamPaper'" -->
+      <el-button class="right" type="primary" plain icon="el-icon-printer" @click="printPaper">打印</el-button>
       <el-button class="right" type="primary" plain icon="el-icon-check" style="margin-right:10px;" :loading="detailLoading"  v-if="isShowSaveBtn" @click="save">保存</el-button>
     </el-row>
-    <div id="previewExamPaper">
+    <div id="previewExamPaper" ref="print">
       <!-- 填空题 -->
       <div class="question_wrap" v-for="(item,index) in paperData" :key="index">
         <!-- （每题10分，共20分） -->
@@ -49,7 +50,7 @@ import { questionTypeAll } from '@/utils/codetotext'
 
 export default {
   name: 'preview',
-  props: ['curPaper', 'isShowSaveBtn', 'previewProSubmit'],
+  props: ['curPaper', 'isShowSaveBtn', 'previewProSubmit', 'zjType'],
   data() {
     return {
       paperData: [], // 试卷数据
@@ -69,6 +70,9 @@ export default {
     }
   },
   methods: {
+    printPaper() {
+      this.$print(this.$refs.print) // 使用
+    },
     dealData() {
       var staticArr = ['one', 'two', 'three', 'four', 'five', 'six', 'seven']
       var titleText = ['一', '二', '三', '四', '五', '六', '七']
@@ -96,16 +100,29 @@ export default {
     },
     save() {
       this.detailLoading = true
-      this.$save('paper/random/preViewSave', this.submitData).then((response) => {
-        this.detailLoading = false
-        this.$message({
-          type: 'success',
-          message: '保存成功!'
+      if (this.zjType && this.zjType === 1) {
+        this.$update('paper/random/update', this.submitData).then((response) => {
+          this.detailLoading = false
+          this.$message({
+            type: 'success',
+            message: '保存成功!'
+          })
+          this.$router.push({ path: '/handlingGuide/examPaperManage' })
+        }).catch(() => {
+          this.detailLoading = false
         })
-        this.$router.push({ path: '/handlingGuide/examPaperManage' })
-      }).catch(() => {
-        this.detailLoading = false
-      })
+      } else {
+        this.$save('paper/random/preViewSave', this.submitData).then((response) => {
+          this.detailLoading = false
+          this.$message({
+            type: 'success',
+            message: '保存成功!'
+          })
+          this.$router.push({ path: '/handlingGuide/examPaperManage' })
+        }).catch(() => {
+          this.detailLoading = false
+        })
+      }
     }
   },
   mounted() {
@@ -124,7 +141,6 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss">
 .preview {
-  padding: 0 20px;
   .scoreNumber {
     font-size: 20px;
     color: #f72929;
@@ -167,8 +183,14 @@ export default {
   }
 
   .options_wrap {
-    margin: 0 0 8px 10px;
-    .pd_options_wrap .option_item {
+    margin: 5px 0 5px 10px;
+    p {
+      margin: 0 0 5px;
+    }
+  }
+  .pd_options_wrap {
+    margin: 6px 0 0;
+    .option_item {
       display: inline-block;
       width: 22%;
     }
@@ -194,14 +216,8 @@ export default {
 }
 </style>
 <style media="previewExamPaper" type="text/css">
-.noprint {
-  display: none;
-}
-.print {
-  margin-left: 25%;
-}
 @page {
   size: auto;
-  margin: 0mm;
+  margin: 10mm;
 }
 </style>

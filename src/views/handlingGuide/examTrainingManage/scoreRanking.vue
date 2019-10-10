@@ -13,7 +13,7 @@
       <el-button class="right" size="mini" circle icon="el-icon-question" title="排名规则：成绩相同的，按考试时长排名；成绩和时长相同的，按参加考试次数及试卷提交时间排名！"></el-button>
     </div>
     <!--列表-->
-    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
       <el-table-column type="index" label="排名" width="100" align="center"></el-table-column>
       <el-table-column prop="realName" label="姓名" width="240" show-overflow-tooltip class-name="tabC"></el-table-column>
       <el-table-column prop="deptName" label="工作单位" show-overflow-tooltip ></el-table-column>
