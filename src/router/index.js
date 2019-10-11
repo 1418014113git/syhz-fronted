@@ -270,6 +270,7 @@ export const constantRouterMap = [
       { path: '/handlingGuide/trainingOnLine', component: () => import('@/views/microClass/index'), name: '网上培训' },
       { path: '/handlingGuide/testbaseManage', component: () => import('@/views/handlingGuide/testbaseManage/index'), name: '题库管理' }, // 题库管理--试题模块
       { path: '/handlingGuide/testbaseManage/detail', component: () => import('@/views/handlingGuide/testbaseManage/detail'), name: '试题详情' },
+      { path: '/handlingGuide/testbaseManage/add', component: () => import('@/views/handlingGuide/testbaseManage/edit'), name: '添加试题' },
       { path: '/handlingGuide/testbaseManage/edit', component: () => import('@/views/handlingGuide/testbaseManage/edit'), name: '编辑试题' },
       { path: '/handlingGuide/examineManage', component: () => import('@/views/handlingGuide/examineManage/index'), name: '考试管理' },
       { path: '/handlingGuide/examineManage/edit', component: () => import('@/views/handlingGuide/examineManage/edit'), name: '编辑考试' },
