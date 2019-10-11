@@ -501,7 +501,7 @@ export function setCurrentUser(param) {
   const curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
   const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
   param.creationId = curUser.id
-  param.creationName = curUser.userName
+  param.creationName = curUser.realName
   param.areaCode = curDept.areaCode
   param.belongDepCode = curDept.depCode
   param.belongDepName = curDept.depName

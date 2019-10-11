@@ -321,6 +321,7 @@
             para.departInfo = this.departInfo
             para = this.$setCurrentUser(para)
             para.belongAreaCode = para.areaCode
+            para.adminFlag = this.$isViewBtn('129405') ? '0' : '1'
             if (this.id !== '') {
               if (!this.nameCheckFlag) {
                 this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {

@@ -90,6 +90,7 @@
         detailData: this.playerDetail,
         intervalSplit: 3000, // 毫秒
         timeInterval: null,
+        autoUpdateInterval: null,
         learningTime: 10000 // 毫秒
       }
     },
@@ -231,9 +232,13 @@
         this.timeInterval = setInterval(() => {
           this.addJF('4')
         }, this.intervalSplit)
+        this.autoUpdateInterval = setInterval(() => {
+          this.$emit('uploadViewLog', this.$refs.videoPlayer.player.currentTime())
+        }, this.learningTime)
       },
       clearTimeInterval() {
         clearInterval(this.timeInterval)
+        clearInterval(this.autoUpdateInterval)
       },
       bindSetTimeOut() {
         setTimeout(() => {
