@@ -3,11 +3,11 @@
     <!-- <el-card style="margin-bottom: 10px;">
     </el-card> -->
     <el-row class="btn_wrap">
-      <el-button type="primary" v-if="$isViewBtn('100401')" @click="closeDia">关闭</el-button>
+      <el-button type="primary" @click="closeDia">关闭</el-button>
       <!-- @click="printReport" -->
       <!-- v-print="'#pdfDom'" -->
-      <el-button type="primary" v-if="$isViewBtn('100401')" @click="printReport">打印</el-button>
-      <el-button type="primary" v-if="$isViewBtn('100401')" @click="toGetPdf">下载</el-button>
+      <el-button type="primary" @click="printReport">打印</el-button>
+      <el-button type="primary" @click="toGetPdf">下载</el-button>
     </el-row>
     <div id="pdfDom" style="padding: 20px;" ref="print">
       <p class="title">{{examItem.examinationName}}考试报告</p>
@@ -33,7 +33,10 @@
         <el-table-column prop="cNum" label="差" width="100" align="center"></el-table-column>
       </el-table>
     </div>
-
+    <!-- 关闭按钮 -->
+    <div style="text-align:center;">
+      <el-button size="medium" type="primary" @click="closeDia">关闭</el-button>
+    </div>
   </div>
 </template>
 <script>

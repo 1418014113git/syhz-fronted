@@ -184,13 +184,8 @@ export default {
           if (this.questionForm.type === 2) {
             this.questionForm.answerDx = this.questionForm.answer.split(',')
           }
-          if (this.questionForm.type === 4) { // 判断题 答案转化
-            if (this.questionForm.answer === true) {
-              this.questionForm.answer = 1
-            } else {
-              this.questionForm.answer = 2
-            }
-          }
+          // if (this.questionForm.type === 4) { // 判断题 答案转化
+          // }
           if (this.questionForm.points) {
             var points = this.questionForm.points
             for (let index = 0; index < points.length; index++) {
