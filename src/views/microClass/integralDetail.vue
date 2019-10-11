@@ -59,7 +59,7 @@
       queryTotal() {
         this.loading = true
         const para = this.$setCurrentUser({})
-        this.$query('page/userfractionlog', { id: para.creationId }).then(response => {
+        this.$query('page/userfractionlog', { id: para.creationId, pageSize: this.pageSize, pageNum: this.pageNum }).then(response => {
           this.monthRecords = response.data.list
           this.totalCount = response.data.totalCount
           this.pageNum = response.data.pageNum
