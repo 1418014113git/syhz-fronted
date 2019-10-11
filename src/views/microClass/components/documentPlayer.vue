@@ -1,5 +1,5 @@
 <template>
-  <div class="classRoom_documentPlayer" v-loading="detailLoading">
+  <div id="navBar_doc" class="classRoom_documentPlayer" v-loading="detailLoading">
     <el-row type="flex" justify="center">
       <el-col  :span="playType !== '5' ? 24 : 20">
         <el-card>
@@ -112,7 +112,11 @@
         if (val === 1 && this.currentPage < this.pageCount) {
           this.currentPage++
         }
-        this.$store.dispatch('ToTop', 1)
+        if (this.playType === 5) {
+          this.$store.dispatch('ToTop', 1)
+        } else {
+          location.hash = '#navBar_doc'
+        }
         if (this.detailData.flag) {
           const time = new Date()
           const longC = parseFloat((time.getTime() - this.currentTime.getTime()) / 1000).toFixed(3)

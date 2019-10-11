@@ -63,19 +63,19 @@
       }
     },
     methods: {
-      query(flag) {
+      query(flag, pageNum, pageSize) {
         if (!this.uploadFlag) {
           this.toOnlineClass()
           return false
         }
         this.loading = true
-        this.page = flag ? 1 : this.page
+        this.page = flag ? 1 : (pageNum !== undefined && pageNum !== null && pageNum !== '' ? pageNum : this.page)
         const para = {
           pageNum: this.page,
           type: this.filters.type,
           search: this.filters.search,
           enType: this.filters.enType,
-          pageSize: this.pageSize
+          pageSize: pageSize !== undefined && pageSize !== null && pageSize !== '' ? pageSize : this.pageSize
         }
         if (this.isMore) {
           para.pageSize = 12
