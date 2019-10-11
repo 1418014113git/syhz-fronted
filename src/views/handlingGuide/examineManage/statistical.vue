@@ -304,14 +304,16 @@ export default {
               cityElement.lNum = 0
               cityElement.zNum = 0
               cityElement.cNum = 0
-              for (let m = 0; m < cityElement.child.length; m++) {
-                const deptElement = cityElement.child[m]
-                cityElement.ykNum += deptElement.totalNum
-                cityElement.skNum += deptElement.realNum
-                cityElement.yNum += deptElement.y
-                cityElement.lNum += deptElement.l
-                cityElement.zNum += deptElement.z
-                cityElement.cNum += deptElement.c
+              if (cityElement.child) {
+                for (let m = 0; m < cityElement.child.length; m++) {
+                  const deptElement = cityElement.child[m]
+                  cityElement.ykNum += deptElement.totalNum
+                  cityElement.skNum += deptElement.realNum
+                  cityElement.yNum += deptElement.y
+                  cityElement.lNum += deptElement.l
+                  cityElement.zNum += deptElement.z
+                  cityElement.cNum += deptElement.c
+                }
               }
             }
           } else {
