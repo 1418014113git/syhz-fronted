@@ -23,16 +23,16 @@
     <!-- 所有成绩排名 -->
     <el-dialog title="成绩排名" :visible.sync="dialogAllScoreVisible" size="small" width="60%" class="allScore">
       <el-button type="primary" @click="toGetPdf" style="float:right;">下载</el-button>
-      <div id="pdfDom" style="padding: 30px 0;">
+      <div id="pdfDom" style="padding: 30px 20px;">
         <div class="exam_title_wrap clearfix">
           <p class="exam_title">{{carryParam.examinationName}}_成绩排名</p>
           <p class="right">发布时间：{{carryParam.startTime}}</p>
         </div>
         <el-table :data="allScore" v-loading="listLoading" style="width: 100%;" border :max-height="tableHeight" :row-class-name="getRowClass" class="table_th_center">
-          <el-table-column type="index" label="排名" width="100" align="center" class-name="paiming"></el-table-column>
-          <el-table-column prop="realName" label="姓名" width="140" show-overflow-tooltip class-name="tabC"></el-table-column>
+          <el-table-column type="index" label="排名" width="70" align="center" class-name="paiming"></el-table-column>
+          <el-table-column prop="realName" label="姓名" width="120" show-overflow-tooltip class-name="tabC"></el-table-column>
           <el-table-column prop="deptName" label="工作单位" show-overflow-tooltip ></el-table-column>
-          <el-table-column prop="totalScore" label="考试成绩" width="140" align="center"></el-table-column>
+          <el-table-column prop="totalScore" label="考试成绩" width="100" align="center"></el-table-column>
           <el-table-column prop="dateStr" label="考试时长" width="240" align="center"></el-table-column>
         </el-table>
       </div>
