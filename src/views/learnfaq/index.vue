@@ -126,7 +126,7 @@
         helpList: [
           {
             src: '/static/image/question_images/handbook.png',
-            describe: '系统使用手册使用手册',
+            describe: '系统使用手册',
             downloadUrl: ''
           },
           {

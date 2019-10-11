@@ -350,7 +350,19 @@ export default {
             })
           }
         } else { // 未引用到考试
-          this.removeQuestion(row)
+          this.$confirm('此操作将删除该试题, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.removeQuestion(row) // 删除试题
+          }).catch(() => {
+            this.listLoading = false
+            this.$message({
+              type: 'info',
+              message: '已取消'
+            })
+          })
         }
       }).catch(() => {
         this.listLoading = false

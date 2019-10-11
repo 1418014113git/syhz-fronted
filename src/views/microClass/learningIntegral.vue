@@ -40,8 +40,8 @@
       </el-row>
       <p><strong>赚取积分</strong></p>
       <div class="zIntegral">
-        <div v-for="item in dayFraction" :key="item.index">
-          <img>
+        <div v-for="(item, index) in dayFraction" :key="item.index">
+          <img :src="'/static/image/online/type' + index + '.png'">
           <span>{{item.ruleName}}</span>
           <span class="small">{{item.ruleDescribe.replace('*时长', (item.ruleTime / 60 + '分钟'))}}<i>+{{item.oneNumber}}</i></span>
           <div class="progress-bar" :style="item.ruleType === 2 ? 'margin-top: 13px;' : ''">
@@ -109,6 +109,27 @@
     background: rgba(0, 89, 130, 0.7);
     padding: 30px 30px;
     margin: 0 52px 10px 15px;
+    text-align: center;
+  }
+  .classRoom_learningIntegral .zIntegral > div:nth-child(1) > img{
+    width: 30%;
+    height: 58px;
+  }
+  .classRoom_learningIntegral .zIntegral > div:nth-child(2) > img{
+    width: 44%;
+    height: 58px;
+  }
+  .classRoom_learningIntegral .zIntegral > div:nth-child(3) > img{
+    width: 36%;
+    height: 58px;
+  }
+  .classRoom_learningIntegral .zIntegral > div:nth-child(4) > img{
+    width: 45%;
+    height: 58px;
+  }
+  .classRoom_learningIntegral .zIntegral > div:nth-child(5) > img{
+    width: 34%;
+    height: 58px;
   }
   .classRoom_learningIntegral .zIntegral > div:nth-child(4n){
     margin-right: 15px;
