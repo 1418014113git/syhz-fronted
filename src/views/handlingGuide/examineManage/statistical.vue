@@ -342,7 +342,6 @@ export default {
       }
     },
     handleCurrentChange(val) {
-      alert(val) // 分页查询
       this.page = val
       this.queryExamStatistical()
     },
