@@ -12,7 +12,11 @@
       </div>
       <el-row type="flex" justify="center" style="margin-top:15px;">
         <el-table :data="monthRecords" v-loading="loading" style="width: 100%;">
-          <el-table-column type="index" label="排名" width="100"></el-table-column>
+          <el-table-column type="index" label="排名" width="100">
+            <template slot-scope="scope">
+              {{parseInt(scope.$index + 1) + index}}
+            </template>
+          </el-table-column>
           <el-table-column prop="userName" label="姓名"></el-table-column>
           <el-table-column prop="dept" label="所在单位"></el-table-column>
           <el-table-column prop="fractionNumber" label="积分数"></el-table-column>
@@ -20,7 +24,7 @@
       </el-row>
       <el-col :span="24" class="toolbar">
         <el-pagination layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange"
-                       :page-sizes="[10]" @size-change="handleSizeChange"
+                       :page-sizes="[10,15,30,50,100]" @size-change="handleSizeChange"
                        :page-size="pageSize" :total="totalCount" :current-page="pageNum" style="float:right;">
         </el-pagination>
       </el-col>
@@ -32,6 +36,7 @@
   export default {
     data() {
       return {
+        index: 0,
         loading: false,
         monthRecords: [],
         total: {
@@ -68,6 +73,7 @@
           this.pageNum = response.data.monthRank.pageNum
           this.pageSize = response.data.monthRank.pageSize
           this.dayFraction = response.data.dayFraction
+          this.index = this.pageNum * this.pageSize - this.pageSize
           this.loading = false
         }).catch(() => {
           this.loading = false

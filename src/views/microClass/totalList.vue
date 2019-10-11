@@ -8,6 +8,7 @@
               <el-form :inline="true" :model="filters" label-width="80px">
                 <el-form-item label="类别">
                   <el-select v-model="filters.type" placeholder="请选择">
+                    <el-option label="全部" value=""></el-option>
                     <el-option label="环境" value="3"></el-option>
                     <el-option label="食品" value="1"></el-option>
                     <el-option label="药品" value="2"></el-option>
@@ -42,7 +43,11 @@
                       <el-table-column prop="total3" align="center" width="160" label="资料审核通过"></el-table-column>
                       <el-table-column prop="total4" align="center" width="160" label="资料审核不通过"></el-table-column>
                       <el-table-column prop="total5" align="center" width="160" label="学习人次"></el-table-column>
-                      <el-table-column prop="total6" align="center" width="160" label="学习时长"></el-table-column>
+                      <el-table-column prop="total6" align="center" width="160" label="学习时长">
+                        <template slot-scope="scope">
+                          {{scope.row.total6 > 0 ? $buildTime(scope.row.total6) : '-'}}
+                        </template>
+                      </el-table-column>
                       <el-table-column prop="total7" align="center" width="160" label="下载次数"></el-table-column>
                     </el-table>
                   </template>
@@ -54,7 +59,11 @@
                 <el-table-column prop="total3" align="center" width="160" label="资料审核通过"></el-table-column>
                 <el-table-column prop="total4" align="center" width="160" label="资料审核不通过"></el-table-column>
                 <el-table-column prop="total5" align="center" width="160" label="学习人次"></el-table-column>
-                <el-table-column prop="total6" align="center" width="160" label="学习时长"></el-table-column>
+                <el-table-column prop="total6" align="center" width="160" label="学习时长">
+                  <template slot-scope="scope">
+                    {{scope.row.total6 > 0 ? $buildTime(scope.row.total6) : '-'}}
+                  </template>
+                </el-table-column>
                 <el-table-column prop="total7" align="center" width="160" label="下载次数"></el-table-column>
               </el-table>
             </el-card>
@@ -133,7 +142,11 @@
                 return prev
               }
             }, 0)
-            sums[index] = sums[index]
+            if (index === 8) {
+              sums[index] = this.$buildTime(sums[index])
+            } else {
+              sums[index] = sums[index]
+            }
           } else {
             sums[index] = ''
           }

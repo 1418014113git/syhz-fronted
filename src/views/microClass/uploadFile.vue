@@ -154,7 +154,7 @@
               para.enclosure = JSON.stringify(this.form.enclosure)
               para.departInfo = this.departInfo
               para = this.$setCurrentUser(para)
-              para.aduitFlag = this.$isViewBtn('139010') ? '0' : '1'
+              para.adminFlag = this.$isViewBtn('139010') ? '0' : '1'
               // 调用保存接口
               this.$save('traincourse', para).then(response => {
                 this.loading = false
