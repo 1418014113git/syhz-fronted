@@ -1173,8 +1173,8 @@ export function getComArchivesApproveStatus(type) {
 }
 
 // 试题类型
-export function questionTypeAll(all) { // 有参数 包含全部
-  if (all === 'all') {
+export function questionTypeAll(type) { // 有参数 包含全部
+  if (type === 'all') {
     return [{
       value: '0',
       label: '全部'
@@ -1200,7 +1200,7 @@ export function questionTypeAll(all) { // 有参数 包含全部
       value: '7',
       label: '案例分析类'
     }]
-  } else {
+  } else if (type === '1') {
     return [{
       value: '1',
       label: '单选类'
@@ -1223,18 +1223,41 @@ export function questionTypeAll(all) { // 有参数 包含全部
       value: '7',
       label: '案例分析类'
     }]
+  } else {
+    return [{
+      value: '1',
+      label: '单选题'
+    }, {
+      value: '2',
+      label: '多选题'
+    }, {
+      value: '3',
+      label: '填空题'
+    }, {
+      value: '4',
+      label: '判断题'
+    }, {
+      value: '5',
+      label: '简答题'
+    }, {
+      value: '6',
+      label: '论述题'
+    }, {
+      value: '7',
+      label: '案例分析题'
+    }]
   }
 }
 // 考试状态
 export function examStatus() {
   return [{
-    value: '0',
+    value: '2',
     label: '进行中'
   }, {
-    value: '1',
+    value: '3',
     label: '已结束'
   }, {
-    value: '2',
+    value: '1',
     label: '未开始'
   }]
 }
@@ -1242,10 +1265,64 @@ export function examStatus() {
 // 阅卷状态
 export function goOverPaperStatus() {
   return [{
-    value: '0',
+    value: 'start',
     label: '未阅卷'
   }, {
-    value: '1',
+    value: 'end',
     label: '已阅卷'
+  }]
+}
+
+// 试卷类型
+export function examPaperType() {
+  return [{
+    value: '1',
+    label: '人工组卷'
+  }, {
+    value: '2',
+    label: '随机组卷'
+  }]
+}
+
+// 分类
+export function systemClassify() {
+  return [{
+    value: '4',
+    label: '环境'
+  }, {
+    value: '1',
+    label: '食品'
+  }, {
+    value: '2',
+    label: '药品'
+  }, {
+    value: '3',
+    label: '综合'
+  }]
+}
+
+// 试题类型名称
+export function questionTypeName() {
+  return [{
+    value: '1',
+    label: '单选题'
+  }, {
+    value: '2',
+    label: '多选题'
+  }, {
+    value: '3',
+    label: '填空题'
+  }, {
+    value: '4',
+    label: '判断题'
+  }, {
+    value: '5',
+    label: '简答题'
+  }, {
+    value: '6',
+    label: '论述题'
+  }, {
+    value: '7',
+    label: '案例分析题'
   }]
 }

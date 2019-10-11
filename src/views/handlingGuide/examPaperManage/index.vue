@@ -7,7 +7,7 @@
         <el-input v-model.trim="filters.paperName"  maxlength="50" placeholder="" clearable></el-input>
       </el-form-item>
       <el-form-item label="组卷方式" prop="">
-        <el-select  v-model="filters.paperType" size="small" placeholder="请选择">
+        <el-select  v-model="filters.paperType" size="small" placeholder="请选择" @change="paperTypeChange">
           <el-option v-for="item in zjOption" :key="item.label" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
@@ -44,17 +44,20 @@
       <el-table-column prop="createDate" label="创建时间" min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="paperStatus" label="发布状态" min-width="100">
         <template slot-scope="scope">
-          <span>{{getfbStatus(scope.row.paperStatus)}}</span>
+          <span v-if="scope.row.paperStatus === 1" style="color:#F56C6C;">{{getfbStatus(scope.row.paperStatus)}}</span>
+          <span v-else-if="scope.row.paperStatus === 2" style="color:#67C23A;">{{getfbStatus(scope.row.paperStatus)}}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="180">
         <template slot-scope="scope">
-          <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="scope.row.fbStatus==='0'"   @click="handleEdit(scope.$index, scope.row)"></el-button>
-          <el-button size="mini" title="发布"  type="primary" icon="el-icon-bell"  circle  v-if="scope.row.fbStatus==='0'" @click="handleRelease(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="scope.row.paperStatus===1"   @click="handleEdit(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="发布"  type="primary"  circle  v-if="scope.row.paperStatus===1" @click="handleRelease(scope.$index, scope.row)">
+            <svg-icon icon-class="release"></svg-icon>
+          </el-button>
           <el-button size="mini" title="预览"  type="primary" circle  @click="preview(scope.$index, scope.row)">
             <svg-icon icon-class="yulan"></svg-icon>
           </el-button>
-          <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete"  circle  v-if="scope.row.fbStatus==='0'" @click="handleDelete(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete"  circle  v-if="scope.row.paperStatus===1" @click="handleDelete(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -65,17 +68,25 @@
                      :current-page="page" :total="total" style="float:right;">
       </el-pagination>
     </el-col>
+
+    <!-- 预览试卷 -->
+    <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
+      <preview-paper :curPaper="curPaperData"></preview-paper>
+    </el-dialog>
   </section>
 </template>
 
 <script>
+import { questionTypeAll } from '@/utils/codetotext'
+import previewPaper from './previewPaper'
 export default {
+  name: 'exampaper',
   props: ['menuItemNode'],
   data() {
     return {
       filters: {
         paperName: '', // 试卷名称
-        paperType: 1, // 人工组卷/自动组卷
+        paperType: '', // 人工组卷/自动组卷
         startTime: '', // 创建时间 开始
         endTime: '', // 创建时间 结束
         paperStatus: '' // 发布状态
@@ -88,6 +99,9 @@ export default {
       endDateDisabled: true, // 结束时间选择框是否禁用
       tableHeight: null,
       list: [], // 列表数据
+      dialogPreviewVisible: false, // 预览试卷的弹框
+      curPaperData: [], // 预览时的试卷内容
+      txData: questionTypeAll(),
       zjOption: [ // 组卷方式
         {
           value: 1,
@@ -110,9 +124,11 @@ export default {
       ]
     }
   },
+  components: {
+    previewPaper
+  },
   methods: {
     query(flag, hand) { // 列表数据查询
-      this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
         pageNum: this.page,
@@ -127,16 +143,31 @@ export default {
       if (hand) {
         para.logFlag = 1 // 添加埋点参数
       }
+      if (this.filters.startTime > this.filters.endTime) {
+        this.$alert('结束时间不能小于开始时间', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return
+      }
+      this.listLoading = true
       this.$query('paper/list', para).then((response) => {
         this.listLoading = false
         if (response.data.list && response.data.list.length > 0) {
           this.list = response.data.list
           this.total = response.data.totalCount
           this.pageSize = response.data.pageSize
+        } else {
+          this.initData()
         }
       }).catch(() => {
         this.listLoading = false
       })
+    },
+    initData() {
+      this.list = []
+      this.total = 0
+      this.pageSize = 15
     },
     handleCurrentChange(val) { // 分页查询
       this.page = val
@@ -147,7 +178,9 @@ export default {
       this.query(true, true)
     },
     handleEdit(index, row) { // 编辑
-
+      this.$router.push({
+        path: '/handlingGuide/editExamPaper', query: { id: row.id, paperType: row.paperType }
+      })
     },
     handleDelete(index, row) { // 删除
       this.$confirm('确定要删除该试卷吗？', '提示', {
@@ -156,12 +189,13 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        this.$remove('paper/delete', { id: row.id, logFlag: 1 }).then((response) => {
+        this.$update('paper/delete', { id: row.id, logFlag: 1 }).then((response) => {
           this.listLoading = false
           this.$message({
             message: '删除成功',
             type: 'success'
           })
+          this.initData()
           this.query(true)
         }).catch(() => {
           this.listLoading = false
@@ -186,12 +220,13 @@ export default {
           modifier: JSON.parse(sessionStorage.getItem('userInfo')).userName, // 登录人账号
           logFlag: 1
         }
-        this.$remove('paper/release', param).then((response) => {
+        this.$update('paper/release', param).then((response) => {
           this.listLoading = false
           this.$message({
             message: '发布成功',
             type: 'success'
           })
+          this.initData()
           this.query(true)
         }).catch(() => {
           this.listLoading = false
@@ -205,7 +240,43 @@ export default {
       })
     },
     preview(index, row) { // 预览试卷
-
+      this.listLoading = true
+      this.$query('paper/preview/' + row.id, {}).then((response) => {
+        this.listLoading = false
+        if (response.code === '000000') {
+          var data = response.data
+          this.dialogPreviewVisible = true
+          this.dealData(data)
+        }
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    dealData(data) { // 处理预览返回的数据
+      var _this = this
+      var staticArr = ['one', 'two', 'three', 'four', 'five', 'six', 'seven']
+      var titleText = ['一', '二', '三', '四', '五', '六', '七']
+      _this.curPaperData = []
+      for (let index = 0; index < staticArr.length; index++) {
+        var element = staticArr[index]
+        if (data[element]) {
+          data[element].titleCN = titleText[index]
+          if (data[element].data && data[element].data.length > 0 && data[element].data[0].type) {
+            data[element].typeName = _this.$getLabelByValue(data[element].data[0].type + '', _this.txData)
+          } else {
+            data[element].typeName = '无'
+          }
+          if (data[element].data[0].type === 3) { // 填空题，将[] 替换为横线
+            for (let k = 0; k < data[element].data.length; k++) {
+              var tkelement = data[element].data[k]
+              if (tkelement.name.indexOf('[]') > -1) {
+                tkelement.name = tkelement.name.replace(/\[/g, '___').replace(/\]/g, '___')
+              }
+            }
+          }
+          _this.curPaperData.push(data[element])
+        }
+      }
     },
     addExamPaper() { // 添加试卷
       this.$router.push({ path: '/handlingGuide/addExamPaper' })
@@ -257,6 +328,12 @@ export default {
         endTime: '', // 创建时间 结束
         paperStatus: '' // 发布状态
       }
+      this.endDateDisabled = true // 禁用结束时间选择框
+      this.initData()
+      this.query(true, true)
+    },
+    paperTypeChange() { // 组卷方式change
+      this.initData()
       this.query(true, true)
     }
   },
@@ -268,12 +345,31 @@ export default {
 
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
-.testTableList{
-   height: 100%;
-  .addTestQuestion{
+<style rel="stylesheet/scss" lang="scss">
+.testTableList {
+  height: 100%;
+  .addTestQuestion {
     float: right;
     margin-bottom: 10px;
   }
 }
+ .previewDia {
+    .el-dialog {
+      background: #ffffff;
+      border: 2px solid #00a0e9;
+    }
+    .el-dialog__header {
+      border-bottom: 2px solid #aaaaaa;
+      .el-dialog__title {
+        color: #000000;
+      }
+      .el-dialog__headerbtn .el-dialog__close {
+        color: #000000;
+      }
+    }
+    .el-dialog__body {
+      background: #ffffff;
+      color: #000000;
+    }
+  }
 </style>

@@ -2,13 +2,11 @@
 <div class="GndhMenu">
   <ul class="Gndhul">
     <li v-for="(item,index) in rightfixeddata" :key="index" @click="clickNavList(item)">
-      <!-- <img v-if="item.icon" :src="item.icon">
-      <span>{{item.name}}</span> -->
       <img :src="item.src">
     </li>
-    <li class="addMenu"  @click="addMenu">
+    <!-- <li class="addMenu"  @click="addMenu">
       <span>全部</span>
-    </li>
+    </li> -->
   </ul>
 </div>
 </template>
@@ -42,11 +40,15 @@ export default {
 </script>
 <style rel="stylesheet/scss" lang="scss">
 .GndhMenu{
+  margin-top: 24px;
+  padding-bottom: 5px;
   .Gndhul{
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     overflow: hidden;
+    width: 97%;
+    margin: 0 auto;
     margin-bottom: 2px;
     li{
     width: 24%;
@@ -82,6 +84,9 @@ export default {
   }
 }
 @media only screen and (max-width: 1367px) {
+  .GndhMenu{
+    padding-bottom: 0;
+  }
   .GndhMenu .Gndhul{
     margin-bottom: 8px;
   }
