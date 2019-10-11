@@ -105,7 +105,7 @@
               const arr = rule.field.split('.')
               const index = arr[1]
               const lineOne = this.ruleForm.ruleList[index].oneNumber
-              if (lineOne > value) {
+              if (parseInt(lineOne) > parseInt(value)) {
                 return callback(new Error('每日最多积分不能小于单次积分'))
               } else if (value % lineOne !== 0) {
                 return callback(new Error('每日最多积分数必须为单次积分整数倍'))
