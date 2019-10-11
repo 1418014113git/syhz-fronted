@@ -22,7 +22,7 @@
     </el-table>
     <!-- 所有成绩排名 -->
     <el-dialog title="考试报告" :visible.sync="dialogAllScoreVisible" size="small" width="60%" class="allScore">
-      <el-button type="primary" v-if="$isViewBtn('100401')" @click="toGetPdf" style="float:right;">下载</el-button>
+      <el-button type="primary" @click="toGetPdf" style="float:right;">下载</el-button>
       <div id="pdfDom" style="padding: 30px 0;">
         <div class="exam_title_wrap clearfix">
           <p class="exam_title">{{carryParam.examinationName}}_成绩排名</p>

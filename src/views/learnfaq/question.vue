@@ -181,7 +181,8 @@
             page: this.$route.query.page,
             pageSize: this.$route.query.pageSize,
             activeIndex: this.$route.query.activeIndex,
-            myQuestion: this.$route.query.myQuestion
+            myQuestion: this.$route.query.myQuestion,
+            quTitle: this.$route.query.quTitle
           }
         })
       }

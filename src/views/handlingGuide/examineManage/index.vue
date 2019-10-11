@@ -42,7 +42,8 @@
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
           <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" :disabled="scope.row.status"></el-button>
           <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除" :disabled="scope.row.status"></el-button>
-          <el-button size="mini" circle @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩" v-if="!scope.row.status">
+          <!-- 未开始的考试或者已经发布成绩的 发布按钮禁用 -->
+          <el-button size="mini" circle @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩" :disabled="scope.row.examStatus===1 || scope.row.status">
             <svg-icon icon-class="release"></svg-icon>
           </el-button>
           <!-- <el-button size="mini" circle @click="handleGoOverExam(scope.$index, scope.row)" icon="el-icon-view" title="阅卷" v-if="scope.row.isGoOver===1" :disabled="scope.row.status"></el-button> -->
@@ -99,7 +100,8 @@ export default {
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
-      this.$query('page/examination', para).then((response) => {
+      // page/examination
+      this.$query('examination/findAllExamination', para).then((response) => {
         this.listLoading = false
         if (response.data && response.data.list.length > 0) {
           this.total = response.data.totalCount
