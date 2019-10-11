@@ -55,6 +55,7 @@ export default {
     width: 30%;
     position: absolute;
     text-align: right;
+    font-size: 16px;
   }
   .node1 {
     left: -10px;
