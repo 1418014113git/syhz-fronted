@@ -35,7 +35,7 @@
           {{$getLabelByValue(scope.row.examStatus+'', ksztData)}}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200">
+      <el-table-column label="操作" width="100">
         <template slot-scope="scope">
           <!-- <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
           <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" :disabled="scope.row.status"></el-button>
@@ -43,7 +43,9 @@
           <el-button size="mini" circle @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩" v-if="!scope.row.status">
             <svg-icon icon-class="release"></svg-icon>
           </el-button> -->
-          <el-button size="mini" circle @click="handleGoOverExam(scope.$index, scope.row)" icon="el-icon-view" title="阅卷" v-if="scope.row.isGoOver===1" :disabled="scope.row.status"></el-button>
+          <!-- scope.row.isGoOver===1 ||  -->
+          <!-- status 是否发布成绩 true 已经发布了 -->
+          <el-button size="mini" circle @click="handleGoOverExam(scope.$index, scope.row)" icon="el-icon-view" title="阅卷" v-if="scope.row.examStatus !== 3" :disabled="scope.row.status"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -83,7 +85,7 @@ export default {
     examStatusChange(val) {
 
     },
-    queryList(flag, hand) { // 列表数据查询
+    queryList(flag, hand) { // 列表数据查询，根据阅卷老师查可阅卷的考试列表
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -91,29 +93,30 @@ export default {
         pageSize: this.pageSize,
         logFlag: 1, // 添加埋点参数
         deptCode: this.deptInfo.depCode,
+        userId: this.userInfo.id, // 当前登录
         examinationName: this.filters.examinationName || '', // 考试名称
         examStatus: this.filters.examStatus || '' // 考试状态
       }
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
-      this.$query('page/examination', para).then((response) => {
+      this.$query('examination/findAllExaminationMark', para).then((response) => {
         this.listLoading = false
         if (response.data && response.data.list.length > 0) {
           this.total = response.data.totalCount
           this.page = response.data.pageNum
           this.pageSize = response.data.pageSize
-          for (let index = 0; index < response.data.list.length; index++) {
-            var element = response.data.list[index]
-            if (element.markPeople) {
-              var markArr = element.markPeople.split(',')
-              if (markArr.indexOf(this.userInfo.id + '') > -1) {
-                element.isGoOver = 1 // 是否可以阅卷
-              } else {
-                element.isGoOver = 0
-              }
-            }
-          }
+          // for (let index = 0; index < response.data.list.length; index++) {
+          //   var element = response.data.list[index]
+          //   if (element.markPeople) {
+          //     var markArr = element.markPeople.split(',')
+          //     if (markArr.indexOf(this.userInfo.id + '') > -1) {
+          //       element.isGoOver = 1 // 是否可以阅卷
+          //     } else {
+          //       element.isGoOver = 0
+          //     }
+          //   }
+          // }
           this.tableData = response.data.list
         } else {
           this.tableData = []
