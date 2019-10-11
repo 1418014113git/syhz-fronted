@@ -9,17 +9,15 @@
     </el-row>
     <!-- 考试须知 -->
     <!-- <div class="v-modal" tabindex="0" style="z-index: 2000;" v-if="isInstruction||isExamEnd||isExamCancel"></div> -->
-    <div class="instructions_wrap" v-if="isInstruction">
+    <!-- <div class="instructions_wrap" v-if="isInstruction">
       <p>考试须知</p>
       <p>考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知</p>
       <el-button class="right" type="primary" plain @click="closeInstructions">我知道了</el-button>
     </div>
     <div class="exam_end_wrap" v-if="isExamEnd">
-      <!-- <p>考试须知</p> -->
       <p>考试时间已结束，系统已为您自动提交！</p>
       <el-button class="right" type="primary" plain @click="closeExamOver">我知道了（{{endTime}}s）</el-button>
     </div>
-    <!-- 取消考试按钮 -->
     <div class="exam_cancel_wrap" v-if="isExamCancel">
       <p>温馨提示</p>
       <p>如果您取消考试的话，本次考试的答案将不被提交，也不记录考试次数，下次可以重新参加考试！</p>
@@ -27,7 +25,7 @@
         <el-button plain @click="handleCancelExam('1')" class="saveBtn">确定</el-button>
         <el-button plain @click="handleCancelExam('2')" class="cancelBtn">取消</el-button>
       </div>
-    </div>
+    </div> -->
     <!-- 试卷 -->
     <div id="previewExamPaper" v-loading="detailLoading">
       <div class="exam_title_wrap">
