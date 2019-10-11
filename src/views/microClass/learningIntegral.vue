@@ -48,8 +48,8 @@
             <div class="bar has-rotation has-colors red heat-gradient" role="progressbar">
               <div class="bar-face face-position back percentage">
                 <span>{{item.dayFraction}}分/{{item.maxNumber}}分</span>
-              </div>
-              <div class="bar-percentage" :style="'width:' + ((item.dayFraction/item.maxNumber).toFixed(2) * 100) + '%' "></div>
+              </div> <!-- > item.maxNumber ? item.maxNumber : item.dayFraction-->
+              <div class="bar-percentage" :style="'width:' + (((item.dayFraction/item.maxNumber).toFixed(2) * 100) > 100 ? 100 : ((item.dayFraction/item.maxNumber).toFixed(2) * 100)) + '%' "></div>
             </div>
           </div>
           <div class="btn">

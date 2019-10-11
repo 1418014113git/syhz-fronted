@@ -38,22 +38,24 @@
                       </el-table-column>
                       <el-table-column prop="departName" align="center" label="单位"></el-table-column>
                       <el-table-column prop="total1" align="center" width="160" label="资料发布数量"></el-table-column>
-                      <el-table-column prop="total2" align="center" width="160" label="资料审核通过"></el-table-column>
-                      <el-table-column prop="total3" align="center" width="160" label="资料审核不通过"></el-table-column>
-                      <el-table-column prop="total4" align="center" width="160" label="学习人次"></el-table-column>
-                      <el-table-column prop="total5" align="center" width="160" label="学习时长"></el-table-column>
-                      <el-table-column prop="total6" align="center" width="160" label="下载次数"></el-table-column>
+                      <el-table-column prop="total2" align="center" width="160" label="资料待审核"></el-table-column>
+                      <el-table-column prop="total3" align="center" width="160" label="资料审核通过"></el-table-column>
+                      <el-table-column prop="total4" align="center" width="160" label="资料审核不通过"></el-table-column>
+                      <el-table-column prop="total5" align="center" width="160" label="学习人次"></el-table-column>
+                      <el-table-column prop="total6" align="center" width="160" label="学习时长"></el-table-column>
+                      <el-table-column prop="total7" align="center" width="160" label="下载次数"></el-table-column>
                     </el-table>
                   </template>
                 </el-table-column>
                 <el-table-column type="index" width="80"></el-table-column>
                 <el-table-column prop="areaName" align="center" label="地市"></el-table-column>
                 <el-table-column prop="total1" align="center" width="160" label="资料发布数量"></el-table-column>
-                <el-table-column prop="total2" align="center" width="160" label="资料审核通过"></el-table-column>
-                <el-table-column prop="total3" align="center" width="160" label="资料审核不通过"></el-table-column>
-                <el-table-column prop="total4" align="center" width="160" label="学习人次"></el-table-column>
-                <el-table-column prop="total5" align="center" width="160" label="学习时长"></el-table-column>
-                <el-table-column prop="total6" align="center" width="160" label="下载次数"></el-table-column>
+                <el-table-column prop="total2" align="center" width="160" label="资料待审核"></el-table-column>
+                <el-table-column prop="total3" align="center" width="160" label="资料审核通过"></el-table-column>
+                <el-table-column prop="total4" align="center" width="160" label="资料审核不通过"></el-table-column>
+                <el-table-column prop="total5" align="center" width="160" label="学习人次"></el-table-column>
+                <el-table-column prop="total6" align="center" width="160" label="学习时长"></el-table-column>
+                <el-table-column prop="total7" align="center" width="160" label="下载次数"></el-table-column>
               </el-table>
             </el-card>
           </el-col>

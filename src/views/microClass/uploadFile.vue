@@ -34,7 +34,6 @@
               </el-upload>
             </el-form-item>
             <el-form-item label="资料附件">
-              <!--action="/syhz/uploadFile"-->
               <el-upload drag ref="fileUpload"
                 action="/upload/uploadFileSingle"
                 :before-upload="fileBeforeUpload"
@@ -62,6 +61,7 @@
 </template>
 
 <script>
+  import { checkFileName } from '@/api/trainRuleConfig'
   export default {
     data() {
       return {
@@ -233,7 +233,6 @@
         }
       },
       fileBeforeUpload(file) {
-        console.info(file.type)
         this.uploadData.uploadUserId = this.curUser.id
         this.uploadData.uploadDate = this.$parseTime(new Date(), '{y}{m}{d}{h}{i}{s}')
         this.uploadData.fileName = file.name
@@ -300,28 +299,15 @@
             return false
           }
         }
-        const checkFlag = true
-        return this.checkEnName(file, checkFlag)
-      },
-      async checkEnName(file) {
-        let flag = true
-        // 校验文件名称是否重复
-        const response = await this.$queryAsyns('traincourseonly', { enName: file.name.substring(0, file.name.lastIndexOf('.')), entype: this.uploadFileType })
-        if (response.data.data !== null && response.data.data.length > 0) {
+        const rejected = checkFileName('traincourseonly', { enName: file.name.substring(0, file.name.lastIndexOf('.')), entype: this.uploadFileType })
+        rejected.catch(() => {
           this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {
             confirmButtonText: '知道了',
             callback: action => {
             }
           })
-          this.nameCheckFlag = false
-          this.currentFile = file
-          flag = false
-        } else {
-          this.nameCheckFlag = true
-          this.loading = true
-          flag = true
-        }
-        return flag
+        })
+        return rejected
       },
       fileError() {
       },
@@ -344,6 +330,8 @@
         } else {
           if (cl === 'mp4') {
             enPathNew = enPathOld.substring(0, enPathOld.lastIndexOf('/') + 1) + 'conversion_' + enPathOld.substring(enPathOld.lastIndexOf('/') + 1)
+          } else if (cl === 'avi' || cl === 'wmv') {
+            enPathNew = enPathOld.substring(0, enPathOld.lastIndexOf('/') + 1) + 'conversion_' + enPathOld.substring(enPathOld.lastIndexOf('/') + 1, enPathOld.lastIndexOf('.')) + '.mp4'
           } else {
             enPathNew = enPathOld
           }
@@ -444,11 +432,12 @@
       }
     },
     watch: {
-      'nameCheckFlag': function(val) {
-        if (!val) {
-          this.clearErrorFileList()
-        }
-      }
+      // 'nameCheckFlag': function(val) {
+      //   if (!val) {
+      //     this.clearErrorFileList()
+      //     this.nameCheckFlag = true
+      //   }
+      // }
     },
     mounted() {
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
