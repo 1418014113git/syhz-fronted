@@ -6,14 +6,14 @@
         <span>成长总积分<i>{{total.systembranchCount}}</i></span>
         <span>|</span>
         <span>总积分排名<i>{{total.systemOrder}}</i></span>
-        <span><el-button type="text" v-if="$isViewBtn('139004')" @click="detail">积分明细 >></el-button></span>
+        <span><el-button type="text" @click="detail">积分明细 >></el-button></span>
       </div>
       <p><strong>当月排名</strong></p>
       <div class="count">
         <span><strong>人数：{{total.dayUserCount}} 人</strong></span>
         <span><strong>我的积分：{{total.daybranchCount}}</strong></span>
         <span><strong>我的排名：{{total.dayOrder}}</strong></span>
-        <span><el-button type="text" icon="el-icon-menu" v-if="$isViewBtn('139004')" @click="monthMore">更多 >></el-button></span>
+        <span><el-button type="text" icon="el-icon-menu" @click="monthMore">更多 >></el-button></span>
       </div>
       <el-row type="flex" justify="center" style="margin-top:15px;">
         <el-table :data="monthRecords" v-loading="loading" style="width: 100%;">
@@ -28,7 +28,7 @@
         <span><strong>人数：{{total.systemUserCount}} 人</strong></span>
         <span><strong>我的积分：{{total.systembranchCount}}</strong></span>
         <span><strong>我的排名：{{total.systemOrder}}</strong></span>
-        <span><el-button type="text" icon="el-icon-menu" v-if="$isViewBtn('139004')" @click="totalMore">更多 >></el-button></span>
+        <span><el-button type="text" icon="el-icon-menu" @click="totalMore">更多 >></el-button></span>
       </div>
       <el-row type="flex" justify="center" style="margin-top:15px;">
         <el-table :data="totalRecords" v-loading="loading" style="width: 100%;">
@@ -43,7 +43,7 @@
         <div v-for="(item, index) in dayFraction" :key="item.index">
           <img :src="'/static/image/online/type' + index + '.png'">
           <span>{{item.ruleName}}</span>
-          <span class="small">{{item.ruleDescribe.replace('*时长', (item.ruleTime / 60 + '分钟'))}}<i>+{{item.oneNumber}}</i></span>
+          <span class="small">{{item.ruleDescribe.replace('*时长', (item.ruleTime / 60 + '分钟'))}}<br v-if="item.ruleType === 2"><i>+{{item.oneNumber}}</i></span>
           <div class="progress-bar" :style="item.ruleType === 2 ? 'margin-top: 13px;' : ''">
             <div class="bar has-rotation has-colors red heat-gradient" role="progressbar">
               <div class="bar-face face-position back percentage">
@@ -120,7 +120,7 @@
     height: 58px;
   }
   .classRoom_learningIntegral .zIntegral > div:nth-child(3) > img{
-    width: 36%;
+    width: 32%;
     height: 58px;
   }
   .classRoom_learningIntegral .zIntegral > div:nth-child(4) > img{
