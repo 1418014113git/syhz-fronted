@@ -11,6 +11,9 @@
           :default-expanded-keys="[2, 1]"
           @node-click="handleNodeClick"
           >
+          <span class="checkstEllipsis" slot-scope="{data}">
+            <span :title="data.label">{{ data.label }}</span>
+          </span>
         </el-tree>
       </el-col>
 
@@ -156,31 +159,44 @@ export default {
           this.$nextTick(function() {
             this.memoryChecked()
           })
+        } else {
+          this.initData()
         }
       }).catch(() => {
         this.listLoading = false
-        this.listData = []
+        this.initData()
       })
     },
     questionTypeChange(val) {
-      this.listData = []
-      this.total = 0
-      this.page = 1
-      this.pageSize = 15
+      this.initData()
       if (this.menuItemNode.id) {
         this.query(true, true)
       }
     },
     handleNodeClick(data) { // 点击tree节点，获取id，查询对应的菜单详情
+      // var checkData = this.$refs.multipleTable.selection
+      // console.log('切换节点时之前已选中的', JSON.stringify(checkData))
+
+      // checkData.forEach((item, index) => {
+      //   // this.saveList.push(item)
+      //   this.saveList.forEach((it, i) => {
+      //     if (item.id === it.id) {
+      //       it.isCheck = true
+      //     } else {
+      //       it.isCheck = false
+      //     }
+      //   })
+      // })
+      // console.log('切换节点时之前已选中的', JSON.stringify(this.$refs.multipleTable.selection))
+      // this.clearCheckItem()
       if (data.id) {
         this.menuItemNode = data
-        this.listData = []
+        this.initData()
         this.query(true, true)
       } else {
         this.menuItemNode = {}
       }
     },
-
     cancel() { // 取消
       this.checkId = [] // 复选框选中的列表id清空
       this.checkList = []
@@ -290,22 +306,28 @@ export default {
     unique(arr) { // 数组去重
       for (var i = 0; i < arr.length; i++) {
         for (var j = i + 1; j < arr.length; j++) {
-          if (arr[i] === arr[j]) { // 第一个等同于第二个，splice方法删除第二个
+          if (arr[i].id === arr[j].id) { // 第一个等同于第二个，splice方法删除第二个
             arr.splice(j, 1)
             j--
           }
         }
       }
       return arr
+    },
+    initData() {
+      this.listData = []
+      this.total = 0
+      this.page = 1
+      this.pageSize = 15
     }
   },
   mounted() {
     this.tableHeight = document.querySelector('.rightCont').offsetHeight - 180
     this.init()
+  },
+  activated() {
+    this.init()
   }
-  // activated() {
-  //   this.init()
-  // }
 }
 </script>
 
@@ -340,6 +362,14 @@ export default {
   }
   .el-tree__empty-block {
     min-height: 60vh;
+  }
+  .checkstEllipsis{
+    max-width: 245px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-left:10px;
+    color: #fff;
   }
 }
 </style>
