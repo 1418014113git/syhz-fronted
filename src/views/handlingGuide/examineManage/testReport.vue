@@ -250,16 +250,6 @@ export default {
         return 'row-expand-cover'
       }
     },
-    handleCurrentChange(val) {
-      alert(val) // 分页查询
-      this.page = val
-      this.queryExamStatistical()
-    },
-    handleSizeChange(val) { // 分条查询
-      alert(val) // 分页查询
-      this.pageSize = val
-      this.queryExamStatistical()
-    },
     drawChartScore() { // 考试成绩 饼状图
       var scoreArr = []
       if (this.cityData.length > 0) {
