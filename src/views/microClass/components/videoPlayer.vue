@@ -241,11 +241,21 @@
         }, this.learningTime)
       },
       initSplit() {
-        const config = JSON.parse(sessionStorage.getItem('config'))
-        const currentTypeConfig = config['ruleType4']
-        this.intervalSplit = currentTypeConfig.ruleTime * 1000
-        const currentTypeConfig1 = config['ruleType1']
-        this.learningTime = currentTypeConfig1.ruleTime * 1000
+        let config = JSON.parse(sessionStorage.getItem('config'))
+        if (config === null || config === undefined) {
+          this.$store.dispatch('GetConfig').then(() => {
+            config = JSON.parse(sessionStorage.getItem('config'))
+            const currentTypeConfig = config['ruleType4']
+            this.intervalSplit = currentTypeConfig.ruleTime * 1000
+            const currentTypeConfig1 = config['ruleType1']
+            this.learningTime = currentTypeConfig1.ruleTime * 1000
+          })
+        } else {
+          const currentTypeConfig = config['ruleType4']
+          this.intervalSplit = currentTypeConfig.ruleTime * 1000
+          const currentTypeConfig1 = config['ruleType1']
+          this.learningTime = currentTypeConfig1.ruleTime * 1000
+        }
       }
     },
     watch: {
