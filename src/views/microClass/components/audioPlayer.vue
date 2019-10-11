@@ -78,6 +78,7 @@
         num: 0,
         intervalSplit: 3000, // 毫秒
         timeInterval: null,
+        autoUpdateInterval: null,
         learningTime: 10000 // 毫秒
       }
     },
@@ -171,9 +172,14 @@
         this.timeInterval = setInterval(() => {
           this.addJF('4')
         }, this.intervalSplit)
+        this.autoUpdateInterval = setInterval(() => {
+          const audio = document.getElementById('mp3Btn')
+          this.$emit('uploadViewLog', audio.currentTime)
+        }, this.learningTime)
       },
       clearTimeInterval() {
         clearInterval(this.timeInterval)
+        clearInterval(this.autoUpdateInterval)
       },
       stopRun() {
         const audio = document.getElementById('mp3Btn')
