@@ -370,7 +370,7 @@
         const wordReg = /^(application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)|(application\/msword)$/
         const pdfReg = /^(application\/vnd.openxmlformats-officedocument.presentationml.presentation)|(application\/pdf)$/
         const pptReg = /^(application\/vnd.ms-powerpoint)$/
-        const videoReg = /^(video\/mp4)|(video\/avi)|(video\/wmv)$/
+        const videoReg = /^(video\/mp4)|(video\/avi)|(video\/x-ms-wmv)$/
         const audioReg = /^(audio\/mp3)$/
         let flag = false
         if (wordReg.test(file.type) || pdfReg.test(file.type) || pptReg.test(file.type)) {
