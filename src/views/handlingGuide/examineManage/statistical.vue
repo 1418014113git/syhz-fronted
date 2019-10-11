@@ -85,7 +85,7 @@
       <div slot="header" class="clearfix">
         <span>地市考试统计</span>
       </div>
-      <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight">
+      <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight" :row-class-name="getRowClass">
         <!-- :expand-row-keys="expends" -->
         <el-table-column type="expand">
           <template slot-scope="scope">
@@ -101,7 +101,11 @@
             </el-table>
           </template>
         </el-table-column>
-        <el-table-column type="index" label="序号" width="60"></el-table-column>
+        <el-table-column type="index" label="序号" width="60" class-name="xuhao">
+          <template slot-scope="scope">
+            <span>{{scope.row.index}}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="areaName" label="地市" min-width="15%" show-overflow-tooltip></el-table-column>
         <el-table-column prop="ykNum" label="应考总人数" width="160" show-overflow-tooltip></el-table-column>
         <el-table-column prop="skNum" label="实考总人数" width="160"></el-table-column>
@@ -298,6 +302,7 @@ export default {
             // this.showEchart = true
             for (let index = 0; index < this.cityData.length; index++) {
               var cityElement = this.cityData[index]
+              cityElement.index = index
               cityElement.ykNum = 0 // 应考
               cityElement.skNum = 0 // 实考
               cityElement.yNum = 0
@@ -328,10 +333,12 @@ export default {
         this.cityLoading = false
       })
     },
-    getRowClass(row) {
+    getRowClass({ row, rowIndex }) {
       // console.log(row)
-      if (!row.row.canExpand) {
-        return 'row-expand-cover'
+      if (rowIndex === 0) {
+        return 'row-sheng'
+      } else {
+        return ''
       }
     },
     handleCurrentChange(val) {
@@ -715,8 +722,12 @@ export default {
 .canClick:hover {
   text-decoration: underline;
 }
-.el-table .row-expand-cover .cell .el-table__expand-icon {
+.el-table .row-sheng .cell .el-table__expand-icon {
   display: none;
+}
+.el-table .row-sheng .xuhao {
+  // 如果用display none 隐藏了 会整行往左移
+  opacity: 0;
 }
 .reportDialog {
   .el-dialog {
