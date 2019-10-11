@@ -11,31 +11,40 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/upms': {
-        target: 'http://192.168.42.204:9001',
+        // target: 'http://192.168.42.204:9001',
+        target: 'http://192.168.1.107:8081',
         changeOrigin: true,
         pathRewrite: {
           '^/upms': '/upms'
         }
       },
+      // '/syhz': {
+      //   target: 'http://192.168.42.204:9002',
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     '^/syhz': '/syhz'
+      //   }
+      // },
       '/syhz': {
-        target: 'http://192.168.42.204:9002',
+        target: 'http://192.168.1.107:9002',
+        // target: 'http://192.168.1.102:9002',
         changeOrigin: true,
         pathRewrite: {
           '^/syhz': '/syhz'
         }
       },
       '/trajectory-search': {
-        target: 'http://127.0.0.1:9003',
+        target: 'http://192.168.1.116:9003',
         changeOrigin: true,
         pathRewrite: {
           '^/trajectory-search': '/trajectory-search'
         }
       },
       '/attachment': {
-        target: 'http://127.0.0.1:9004',
+        target: 'http://192.168.42.204:8084',
         changeOrigin: true,
         pathRewrite: {
-          '^/attachment': '/attachment'
+          '^/attachment': '/'
         }
       },
       '/file': {
@@ -52,6 +61,20 @@ module.exports = {
           '^/zdry/': '/'
         }
       },
+      '/upload': {
+        target: 'http://192.168.42.161:8088',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/upload': '/upload'
+        }
+      },
+      '/app/shanxi_hsyz/testupload/files': {
+        target: 'http://192.168.42.161:85/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/app/shanxi_hsyz/testupload/files': '/files'
+        }
+      }
     },
 
     // Various Dev Server settings

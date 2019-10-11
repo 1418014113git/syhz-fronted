@@ -15,11 +15,11 @@
       </el-form-item>
     </el-form>
     <!--列表-->
-    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
       <el-table-column type="index" label="序号" width="70" class-name="tabC" align="center"></el-table-column>
       <el-table-column prop="subjectName" label="题目内容" show-overflow-tooltip>
         <template slot-scope="scope">
-          <span v-html="scope.row.subjectName" class="spanP"></span>
+          <span v-html="scope.row.subjectName" class="richTextWrap questionCon"></span>
         </template>
       </el-table-column>
       <el-table-column prop="modifyDate" label="更新时间" width="200" align="center"></el-table-column>
@@ -54,17 +54,21 @@
     </el-dialog>
     <!-- 导入弹框 -->
     <el-dialog title="试题导入" :visible.sync="dialogImportVisible" size="small" @close="closeDia('importInfo')" class="comDialog">
-      <el-form ref="importInfo" size="small" :model="importInfo" label-width="100px" v-loading="importLoading">
+      <el-form ref="importInfo" size="small" :rules="rules" :model="importInfo" label-width="100px" v-loading="importLoading">
         <el-form-item label="模块" prop="category">
           <el-cascader :options="mokuaiList" v-model="importInfo.category" :props="props"></el-cascader>
         </el-form-item>
-        <el-form-item label="试题文件">
-          <input type="file" @change="getFile" clearable name="file" id="excelFile"
-                  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
+        <el-form-item label="试题文件" class="fileItem">
+          <!-- <span class="fileinput-button"> -->
+          <!-- <el-button >选择文件</el-button> -->
+            <!-- <span>选择文件</span> -->
+            <input type="file" @change="getFile" clearable name="file" id="excelFile"
+                    accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
+          <!-- </span> -->
         </el-form-item>
         <el-form-item>
-          <el-button @click="closeDia('importInfo')" :loading="importLoading">取消</el-button>
-          <el-button type="primary" @click="submitImportForm('importInfo')" :loading="importLoading">导入</el-button>
+          <el-button @click="closeDia('importInfo')" class="cancelBtn" :loading="importLoading">取消</el-button>
+          <el-button type="primary" @click="submitImportForm('importInfo')" class="saveBtn" :loading="importLoading">导入</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -94,7 +98,30 @@ import Http from '@/api/http'
 import axios from 'axios'
 export default {
   name: 'list',
-  props: ['menuItemNode', 'dataList'],
+  props: {
+    menuItemNode: {
+      type: Object,
+      required: false
+    },
+    dataList: {
+      type: Array,
+      required: false
+    },
+    parentId: {
+      type: Number,
+      required: false,
+      default: function() {
+        return -1
+      }
+    },
+    parentColName: {
+      type: String,
+      required: false,
+      default: function() {
+        return 'parentId'
+      }
+    }
+  },
   data() {
     return {
       downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
@@ -109,7 +136,7 @@ export default {
         tx: '1'
       },
       // txData: questionTypeAll('all'),
-      txData: questionTypeAll(),
+      txData: questionTypeAll('1'),
       dialogImportVisible: false, // 导入弹框
       importLoading: false, // 导入弹框loading
       importInfo: {
@@ -125,7 +152,12 @@ export default {
         value: 'id'
       },
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
-      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
+      rules: {
+        category: {
+          required: true, message: '请选择模块', trigger: 'change'
+        }
+      }
     }
   },
   components: {
@@ -139,16 +171,53 @@ export default {
     },
     dataList: {
       handler: function(val, oldeval) {
-        this.mokuaiList = [val[0]]
+        this.changeData(val)
+        // this.mokuaiList = [val]
       }
     }
   },
   methods: {
+    changeData(data) { // tree数据结构改造
+      if (data.length > 0) {
+        const _this = this
+        const newMenuData = []
+        data.forEach(item => {
+          if (item[_this.parentColName] === _this.parentId) {
+            newMenuData.push(_this.buildChildren(_this, item, data))
+          }
+        })
+        var datas = newMenuData[0].children
+        datas.forEach(item => {
+          if (item.children && item.children.length > 0) {
+            item.children.sort((a, b) => a.sort - b.sort) // 升序
+            if (item.children.children && item.children.children.length > 0) {
+              item.children.children.sort((c, d) => c.sort - d.sort) // 升序
+            }
+          }
+        })
+        this.mokuaiList = datas
+      } else {
+        this.mokuaiList = []
+      }
+    },
+    buildChildren(_this, parent, data) {
+      const newChildren = []
+      data.forEach(item => {
+        if (parent.id === item[_this.parentColName]) {
+          newChildren.push(_this.buildChildren(_this, item, data))
+        }
+      })
+      if (newChildren.length > 0) {
+        parent.children = newChildren
+        parent.leaf = 1
+      }
+      return parent
+    },
     questionTypeChange(val) {
       this.queryList(true, true)
     },
     queryList(flag, hand) { // 列表数据查询
-      console.log('menuItemNode', JSON.stringify(this.menuItemNode))
+      // console.log('menuItemNode', JSON.stringify(this.menuItemNode))
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -221,7 +290,7 @@ export default {
               type: 'warning'
             }).then(() => {
               this.listLoading = false
-              this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type }})
+              this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type, questionCatrgory: row.subjectCategoryId }})
             }).catch(() => {
               this.listLoading = false
               this.$message({
@@ -232,7 +301,7 @@ export default {
           }
         } else { // 未引用到考试
           this.listLoading = false
-          this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type }})
+          this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type, questionCatrgory: row.subjectCategoryId }})
         }
       }).catch(() => {
         this.listLoading = false
@@ -264,7 +333,7 @@ export default {
               })
             })
           } if (response.data.type === '2') { // 考试过期
-            messageText = '该试题在已结束的考试试卷中有使用，如果修改可能会影响到警员查看以往考试信息！是否继续删除？'
+            messageText = '该试题在已结束的考试试卷中有使用，如果删除可能会影响到警员查看以往考试信息！是否继续删除？'
             this.$confirm(messageText, '提示', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
@@ -281,7 +350,19 @@ export default {
             })
           }
         } else { // 未引用到考试
-          this.removeQuestion(row)
+          this.$confirm('此操作将删除该试题, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.removeQuestion(row) // 删除试题
+          }).catch(() => {
+            this.listLoading = false
+            this.$message({
+              type: 'info',
+              message: '已取消'
+            })
+          })
         }
       }).catch(() => {
         this.listLoading = false
@@ -300,7 +381,7 @@ export default {
         this.listLoading = false
         if (response.code === '000000') {
           this.$message({
-            message: '删除成功', type: 'error'
+            message: '删除成功', type: 'success'
           })
           this.queryList(true, true)
         }
@@ -396,7 +477,14 @@ export default {
         if (file) {
           file.value = ''
         }
+        this.resetForm('importInfo')
+        this.fileCon = ''
         this.dialogImportVisible = false
+      }
+    },
+    resetForm(formName) {
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
       }
     }
   },
@@ -413,17 +501,35 @@ export default {
     float: right;
     margin-bottom: 10px;
   }
-  .spanP p {
-    display: inline-block;
-    margin: 0;
-    img {
-      width: 120px;
-      height: 80px;
-      margin-left: 20px;
-    }
-  }
   .toolbar {
     margin: 10px 0 8px;
   }
+  .el-table p {
+    margin: 0;
+  }
+  .questionCon {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  // .fileItem .el-form-item__content {
+  //   position: relative;
+  // }
+  .fileinput-button {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+  }
+  .fileinput-button input {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    opacity: 0;
+    font-size: 200px;
+  }
+  // #excelFile {
+  //   background: blue;
+  // }
 }
 </style>

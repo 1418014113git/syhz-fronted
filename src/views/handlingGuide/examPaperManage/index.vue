@@ -44,13 +44,16 @@
       <el-table-column prop="createDate" label="创建时间" min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="paperStatus" label="发布状态" min-width="100">
         <template slot-scope="scope">
-          <span>{{getfbStatus(scope.row.paperStatus)}}</span>
+          <span v-if="scope.row.paperStatus === 1" style="color:#F56C6C;">{{getfbStatus(scope.row.paperStatus)}}</span>
+          <span v-else-if="scope.row.paperStatus === 2" style="color:#67C23A;">{{getfbStatus(scope.row.paperStatus)}}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="180">
         <template slot-scope="scope">
           <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="scope.row.paperStatus===1"   @click="handleEdit(scope.$index, scope.row)"></el-button>
-          <el-button size="mini" title="发布"  type="primary" icon="el-icon-bell"  circle  v-if="scope.row.paperStatus===1" @click="handleRelease(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="发布"  type="primary"  circle  v-if="scope.row.paperStatus===1" @click="handleRelease(scope.$index, scope.row)">
+            <svg-icon icon-class="release"></svg-icon>
+          </el-button>
           <el-button size="mini" title="预览"  type="primary" circle  @click="preview(scope.$index, scope.row)">
             <svg-icon icon-class="yulan"></svg-icon>
           </el-button>
@@ -67,7 +70,7 @@
     </el-col>
 
     <!-- 预览试卷 -->
-    <el-dialog title="试题详情" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
+    <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
       <preview-paper :curPaper="curPaperData"></preview-paper>
     </el-dialog>
   </section>
@@ -83,7 +86,7 @@ export default {
     return {
       filters: {
         paperName: '', // 试卷名称
-        paperType: 1, // 人工组卷/自动组卷
+        paperType: '', // 人工组卷/自动组卷
         startTime: '', // 创建时间 开始
         endTime: '', // 创建时间 结束
         paperStatus: '' // 发布状态
@@ -126,7 +129,6 @@ export default {
   },
   methods: {
     query(flag, hand) { // 列表数据查询
-      this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
         pageNum: this.page,
@@ -141,16 +143,31 @@ export default {
       if (hand) {
         para.logFlag = 1 // 添加埋点参数
       }
+      if (this.filters.startTime > this.filters.endTime) {
+        this.$alert('结束时间不能小于开始时间', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return
+      }
+      this.listLoading = true
       this.$query('paper/list', para).then((response) => {
         this.listLoading = false
         if (response.data.list && response.data.list.length > 0) {
           this.list = response.data.list
           this.total = response.data.totalCount
           this.pageSize = response.data.pageSize
+        } else {
+          this.initData()
         }
       }).catch(() => {
         this.listLoading = false
       })
+    },
+    initData() {
+      this.list = []
+      this.total = 0
+      this.pageSize = 15
     },
     handleCurrentChange(val) { // 分页查询
       this.page = val
@@ -178,6 +195,7 @@ export default {
             message: '删除成功',
             type: 'success'
           })
+          this.initData()
           this.query(true)
         }).catch(() => {
           this.listLoading = false
@@ -208,6 +226,7 @@ export default {
             message: '发布成功',
             type: 'success'
           })
+          this.initData()
           this.query(true)
         }).catch(() => {
           this.listLoading = false
@@ -222,7 +241,6 @@ export default {
     },
     preview(index, row) { // 预览试卷
       this.listLoading = true
-      row.id = 2030 // 先写死 数据比较全
       this.$query('paper/preview/' + row.id, {}).then((response) => {
         this.listLoading = false
         if (response.code === '000000') {
@@ -310,9 +328,12 @@ export default {
         endTime: '', // 创建时间 结束
         paperStatus: '' // 发布状态
       }
+      this.endDateDisabled = true // 禁用结束时间选择框
+      this.initData()
       this.query(true, true)
     },
     paperTypeChange() { // 组卷方式change
+      this.initData()
       this.query(true, true)
     }
   },
@@ -332,8 +353,23 @@ export default {
     margin-bottom: 10px;
   }
 }
-.previewDia .el-dialog__body {
-  background: #ffffff;
-  color: #000000;
-}
+ .previewDia {
+    .el-dialog {
+      background: #ffffff;
+      border: 2px solid #00a0e9;
+    }
+    .el-dialog__header {
+      border-bottom: 2px solid #aaaaaa;
+      .el-dialog__title {
+        color: #000000;
+      }
+      .el-dialog__headerbtn .el-dialog__close {
+        color: #000000;
+      }
+    }
+    .el-dialog__body {
+      background: #ffffff;
+      color: #000000;
+    }
+  }
 </style>

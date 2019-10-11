@@ -1,85 +1,66 @@
 <template>
-  <div>
+  <div class="hybzEdit">
     <el-row class="caseEdit">
-      <img src="@/assets/icon/back.png"  class="goBack" @click="toList">   <!--返回-->
+      <img src="@/assets/icon/back.png"  class="goBack" @click="callback">   <!--返回-->
     </el-row>
     <el-card class="caseEdit">
       <el-row type="flex" justify="center" style="margin-top:15px;">
-        <el-col :span="20" style="margin-right: 134px;">
-          <el-form :model="casezy" size="small" ref="form" :rules="rules" label-width="210px">
-            <el-col :span="12">
-              <el-form-item label="标题" prop="title">
-                <el-input v-model="casezy.title" size="small" maxlength="50" class="input_w"></el-input>
-              </el-form-item>
-              <el-form-item label="类别" prop="syhFllb">
-                <el-select v-model="casezy.syhFllb" placeholder="请选择" @change="lbChange" class="input_w">
-                  <!-- <el-option label="食品" value="1000"></el-option>
-                  <el-option label="药品" value="2000"></el-option>
-                  <el-option label="环境" value="3000"></el-option>
-                  <el-option label="综合" value="4000"></el-option> -->
-                  <el-option label="国家标准" value="1000"></el-option>
-                  <el-option label="行业标准" value="2000"></el-option>
-                  <el-option label="企业标准" value="3000"></el-option>
-                  <el-option label="地方标准" value="4000"></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item label="分类" prop="standardCategory">
-                <el-select v-model="casezy.standardCategory" placeholder="请选择" @change="standardCategoryChange"  class="input_w">
-                  <el-option v-for="item in cascaderOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                </el-select>
-                <!-- <el-cascader :options="cascaderOptions" v-model="casezy.standardCategory" @change="handleChange"></el-cascader> -->
-              </el-form-item>
-              <el-form-item label="施行日期">
-                <el-date-picker v-model="casezy.enforcementDate"  type="date" placeholder="施行日期"  class="input_w"></el-date-picker>
-              </el-form-item>
-              <div v-if="chooseableFlag">
-                <el-form-item label="批次" class="batch" prop="batch">
-                  <el-input-number v-model="casezy.batch" :min="1" :max="100" label="批次"></el-input-number>
-                </el-form-item>
-                <el-form-item label="品种类别" prop="varietyCategory" v-if="pzlb">
-                  <el-select v-model="casezy.varietyCategory" placeholder="请选择">
-                    <el-option label="国内品种" value="2031"></el-option>
-                    <el-option label="进口品种" value="2032"></el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item :label="yffCategoryLabel" prop="yffCategory">
-                  <el-input v-model="casezy.yffCategory" :rows="2" placeholder="请输入内容" type="textarea" maxlength="100"></el-input>
-                </el-form-item>
-                <el-form-item :label="yffNameLabel" prop="yffName">
-                  <el-input v-model="casezy.yffName" :rows="2" placeholder="请输入内容" type="textarea" maxlength="100"></el-input>
-                </el-form-item>
-              </div>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="颁布机关">
-                <el-input v-model="casezy.establishmentOrgan" maxlength="50" size="small"  class="input_w" ></el-input>
-              </el-form-item>
-              <el-form-item label="颁布日期">
-                <el-date-picker v-model="casezy.issueDate"  type="date" placeholder="颁布日期"  class="input_w"></el-date-picker>
-              </el-form-item>
-              <el-form-item label="颁布文号">
-                <el-input v-model="casezy.enactment" size="small" maxlength="20"  class="input_w"></el-input>
-              </el-form-item>
-              <el-form-item label="时效性">
-                <el-input v-model="casezy.timeliness" size="small" maxlength="100"  class="input_w"></el-input>
-              </el-form-item>
-              <div v-if="chooseableFlag">
-                <el-form-item :label="detectionBaseLabel" prop="detectionBase">
-                  <el-input v-model="casezy.detectionBase" :rows="2" placeholder="请输入内容" type="textarea"  class="input_w"></el-input>
-                </el-form-item>
-              </div>
-            </el-col>
-            <el-col class="editorWidth">
-              <el-form-item label="正文" prop="content">
-                <vue-editor v-model="casezy.content" useCustomImageHandler @imageAdded="handleImageAdded"
-                            style="min-width: 500px;"></vue-editor>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="onEdit" v-loading.fullscreen.lock="loading">保 存
-                </el-button>
-                <el-button @click="toList">取 消</el-button>
-              </el-form-item>
-            </el-col>
+        <el-col :span="18">
+          <el-form :model="lawInfo" size="small" ref="form" :rules="rules" label-width="110px">
+            <el-form-item label="标题" prop="title">
+              <el-input v-model="lawInfo.title" size="small" maxlength="50"></el-input>
+            </el-form-item>
+            <el-form-item label="类别" prop="articleType">
+              <el-select v-model="lawInfo.articleType" placeholder="请选择" @change="lbChange">
+                <el-option label="食品" :value="1"></el-option>
+                <el-option label="药品" :value="2"></el-option>
+                <el-option label="环境" :value="3"></el-option>
+                <el-option label="综合" :value="4"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="分类" prop="category">
+              <el-select v-model="lawInfo.category" placeholder="请选择">
+                <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="颁布机关" prop="publishOrgName">
+              <el-input v-model="lawInfo.publishOrgName" maxlength="50" size="small" ></el-input>
+            </el-form-item>
+            <el-form-item label="颁布日期" prop="publishTime">
+              <el-date-picker v-model="lawInfo.publishTime"  type="date" placeholder="颁布日期"></el-date-picker>
+            </el-form-item>
+            <el-form-item label="施行日期" prop="effectiveTime">
+              <el-date-picker v-model="lawInfo.effectiveTime"  type="date" placeholder="施行日期"></el-date-picker>
+            </el-form-item>
+            <el-form-item label="颁布文号" prop="publishCode">
+              <el-input v-model="lawInfo.publishCode" size="small" maxlength="50"></el-input>
+            </el-form-item>
+            <el-form-item label="正文" prop="content">
+              <vue-editor v-model="lawInfo.content" useCustomImageHandler @imageAdded="handleImageAdded"
+                          style="width: 100%; min-width: 500px;"></vue-editor>
+            </el-form-item>
+            <el-form-item label="资料附件">
+              <el-upload drag ref="fileUpload"
+                         action="/upload/uploadFileSingle"
+                         :on-error="fileError"
+                         :on-success="fileSuccess"
+                         :on-remove="fileRemove"
+                         :data="uploadData"
+                         :file-list="enclosureList"
+                         :before-upload="fileBeforeUpload"
+                         :on-change="uploadCheck"
+                         :limit="5"
+                         multiple>
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                <div class="el-upload__tip" slot="tip">支持Word、PDF、视频、音频和PPT文件！最多可一次性上传5个文件！过大的视频文件建议单个上传！（视频支持MP4、AVI、WMV，最大2G；音频支持MP3，最大512M）</div>
+              </el-upload>
+            </el-form-item>
+            <el-form-item>
+              <el-button v-if="showSave" type="primary" class="saveBtn" @click="onEdit('0')" v-loading.fullscreen.lock="loading">保 存</el-button>
+              <el-button type="primary" class="saveBtn" @click="onEdit('1')" v-loading.fullscreen.lock="loading">提 交</el-button>
+              <el-button @click="callback" class="cancelBtn">取 消</el-button>
+            </el-form-item>
           </el-form>
         </el-col>
       </el-row>
@@ -88,306 +69,536 @@
 </template>
 
 <script>
-import VueEditor from '@/components/Editor/VueEditor'
-import {
-  uploadImg
-} from '@/utils/editorUpload'
+  import VueEditor from '@/components/Editor/VueEditor'
+  import {
+    uploadImg
+  } from '@/utils/editorUpload'
+  import Attachment from '@/api/attachment'
 
-export default {
-  name: 'caseEdit',
-  components: {
-    VueEditor
-  },
-  data() {
-    return {
-      id: '',
-      loading: false,
-      currentDep: {},
-      casezy: {
-        syhFllb: '',
-        standardCategory: '',
-        batch: '',
-        yffCategory: '',
-        yffName: '',
-        detectionBase: '',
-        varietyCategory: '',
-        establishmentOrgan: '',
-        enactment: '',
-        issueDate: '',
-        enforcementDate: '',
-        timeliness: '',
-        title: '',
-        content: '',
-        createUser: ''
+  export default {
+    name: 'caseEdit',
+    components: {
+      VueEditor
+    },
+    data() {
+      return {
+        showSave: true,
+        uploadAction: Attachment.uploadFileUrl,
+        id: '',
+        callBack: '',
+        active: '',
+        filters: {},
+        loading: false,
+        currentDep: {},
+        lawInfo: {
+          articleType: '',
+          category: '',
+          title: '',
+          content: '',
+          draft: '',
+          publishOrgName: '',
+          publishCode: '',
+          publishTime: '',
+          effectiveTime: '',
+          departInfo: '',
+          enclosure: [],
+          workId: '',
+          documentId: ''
+        },
+        categoryOptions: [
+          { label: '法律', value: 1 },
+          { label: '行政法规', value: 2 },
+          { label: '地方性行政法规', value: 201 },
+          { label: '部门规章', value: 202 },
+          { label: '司法解释', value: 3 },
+          { label: '其他规范性文件', value: 4 }
+        ],
+        rules: {
+          title: [
+            {
+              required: true, trigger: 'blur', validator: (rule, value, callback) => {
+                const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                if (value === undefined || value === null || value === '') {
+                  callback(new Error('请输入标题'))
+                } else if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
+                  callback(new Error('标题不能输入特殊字符'))
+                } else if (value.length > 50) {
+                  callback(new Error('标题长度不能超过 50个字符'))
+                } else {
+                  return this.titleCheckAsyns(callback)
+                }
+              }
+            }
+          ],
+          articleType: [{ required: true, message: '请选择类别', trigger: 'change' }],
+          category: [{ required: true, message: '请选择分类', trigger: 'change' }],
+          content: [{ max: 65000, message: '正文内容长度不能超过 65000个字符', trigger: 'blur' }],
+          publishOrgName: [
+            {
+              required: false, trigger: 'blur', validator: (rule, value, callback) => {
+                if (value === '' || value === undefined) {
+                  return callback()
+                }
+                const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
+                  callback(new Error('颁布机关不能输入特殊字符'))
+                } else if (value.length > 50) {
+                  callback(new Error('颁布机关长度不能超过 50个字符'))
+                } else {
+                  callback()
+                }
+              }
+            }
+          ],
+          publishCode: [
+            {
+              required: false, trigger: 'blur', validator: (rule, value, callback) => {
+                if (value === '' || value === undefined) {
+                  return callback()
+                }
+                const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
+                const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
+                if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
+                  callback(new Error('颁布文号不能输入特殊字符'))
+                } else if (value.length > 50) {
+                  callback(new Error('颁布文号长度不能超过 50个字符'))
+                } else {
+                  callback()
+                }
+              }
+            }
+          ],
+          publishTime: [{
+            required: true, trigger: 'blur', validator: (rule, value, callback) => {
+              if (value === null || value === '') {
+                callback(new Error('请选择颁布日期'))
+              } else if (new Date() < value) {
+                callback(new Error('颁布日期不能大于当前日期'))
+              } else {
+                callback()
+              }
+            }
+          }],
+          effectiveTime: [{
+            required: false, trigger: 'blur', validator: (rule, value, callback) => {
+              if (value === null || value === '') {
+                return callback()
+              } else if (new Date() < value) {
+                callback(new Error('施行日期不能大于当前日期'))
+              } else if (new Date(this.lawInfo.publishTime) > value) {
+                callback(new Error('施行日期不能小于颁布日期'))
+              } else {
+                callback()
+              }
+            }
+          }]
+        },
+        enclosureList: [],
+        uploadData: {
+          uploadDate: '',
+          uploadUserId: ''
+        },
+        uploadFileType: '',
+        departInfo: {},
+        titleCheckFlag: false,
+        nameCheckFlag: true,
+        curUser: {},
+        typeOptions: [],
+        optionsSP: [
+          { value: 1010, label: '食品中可能违法添加的非食用物质名单' },
+          { value: 1020, label: '食品中可能滥用的食品添加剂品种名单' },
+          { value: 1030, label: '其它食品标准' }
+        ],
+        optionsYP: [
+          { value: 2010, label: '保健食品中易非法添加的物质和组分及检测依据' },
+          { value: 2020, label: '化妆品中易非法添加的物质、组分及检测依据' },
+          { value: 2030, label: '含可待因复方口服溶液品种目录' },
+          { value: 2040, label: '其它药品标准' }
+        ],
+        optionsHJ: [
+          { value: 3010, label: '其它环境标准' }
+        ],
+        chooseAbleFlag: false
+      }
+    },
+    methods: {
+      async titleCheckAsyns(callback) {
+        // 同步处理
+        const response = await this.$queryAsyns('trainindustryinfobytitle', { title: this.lawInfo.title })
+        const data = response.data
+        if (this.id !== '') {
+          if (data.data === null || data.data.length === 0 || (this.id === data.data[0].id && data.data.length === 1)) {
+            this.titleCheckFlag = true
+            callback = callback()
+          } else {
+            this.titleCheckFlag = false
+            callback = callback(Error('标题不能重复'))
+          }
+        } else {
+          if (data.data === undefined || data.data === null || data.data.length === 0) {
+            this.titleCheckFlag = true
+            callback = callback()
+          } else {
+            this.titleCheckFlag = false
+            callback = callback(Error('标题不能重复'))
+          }
+        }
+        return callback
       },
-      cascaderOptions: [],
-      categoryOptions: [
-        {
-          label: '法律', value: '1'
-        },
-        {
-          label: '行政法规', value: '2'
-        },
-        {
-          label: '地方性行政法规', value: '201'
-        },
-        {
-          label: '部门规章', value: '202'
-        },
-        {
-          label: '司法解释', value: '3'
-        },
-        {
-          label: '其他规范性文件', value: '4'
+      lbChange(val, flag) {
+        if (val === 1) { // 食品
+          this.typeOptions = this.optionsSP
+        } else if (val === 2) { // 药品
+          this.typeOptions = this.optionsYP
+        } else if (val === 3) { // 环境
+          this.typeOptions = this.optionsHJ
+        } else if (val === 4) { // 综合
+          this.typeOptions = this.optionsYP
         }
-      ],
-      optionsSP: [
-        {
-          value: '1010',
-          label: '食品中可能违法添加的非食用物质名单'
-        }, {
-          value: '1020',
-          label: '食品中可能滥用的食品添加剂品种名单'
-        },
-        {
-          value: '1030',
-          label: '其它食品标准'
+        if (flag !== '1') {
+          this.lawInfo.category = ''
         }
-      ],
-      optionsYP: [
-        {
-          value: '2010',
-          label: '保健食品中易非法添加的物质和组分及检测依据'
-        }, {
-          value: '2020',
-          label: '化妆品中易非法添加的物质、组分及检测依据'
-        }, {
-          value: '2030',
-          label: '含可待因复方口服溶液品种目录'
-          // children: [{
-          //   value: '',
-          //   label: '出口'
-          // }, {
-          //   value: 'sketch',
-          //   label: '进口'
-          // }]
-        },
-        {
-          value: '2040',
-          label: '其它药品标准'
+        this.chooseAbleFlag = false
+      },
+      callback() {
+        if (this.callBack === '') {
+          this.$gotoid('/handlingGuide/hybzList', JSON.stringify(this.filters))
+        } else {
+          this.$gotoid('/handlingGuide/knowLedgeBase', this.active)
         }
-      ],
-      optionsHJ: [
-        {
-          value: '3010',
-          label: '其它环境标准'
-        }
-
-      ],
-      pzlb: false,
-      chooseableFlag: false,
-      yffCategoryLabel: '',
-      yffNameLabel: '',
-      detectionBaseLabel: '',
-      rules: {
-        // title: [
-        //   {
-        //     required: true, message: '请输入标题', trigger: 'change'
-        //   },
-        //   {
-        //     min: 2, max: 100, message: '标题长度应为2到100个字', trigger: 'blur'
-        //   }
-        // ],
-        syhFllb: [
-          {
-            required: true, message: '请选择类别', trigger: 'change'
+      },
+      getCategoryData(key) {
+        let a = ''
+        this.categoryOptions.forEach(item1 => {
+          if (item1.value === key) {
+            a += item1.label + ','
           }
-        ],
-        standardCategory: [
-          {
-            required: true, message: '请选择分类', trigger: 'change'
-          }
-        ],
-        yffCategory: [
-          {
-            required: true, message: '不能为空', trigger: 'change'
-          }
-        ],
-        yffName: [
-          {
-            required: true, message: '不能为空', trigger: 'change'
-          }
-        ],
-        detectionBase: [
-          {
-            required: true, message: '不能为空', trigger: 'change'
-          }
-        ],
-        content: [
-          {
-            max: 40000, message: '内容过长请修改内容', trigger: 'blur'
-          }
-        ]
-      }
-    }
-  },
-  methods: {
-    getCategoryData(key) {
-      let a = ''
-      this.categoryOptions.forEach(item1 => {
-        if (item1.value === key) {
-          a += item1.label + ','
-        }
-      })
-      return a
-    },
-    lbChange(val) {
-      if (val === '1000') { // 食品
-        this.cascaderOptions = this.optionsSP
-      } else if (val === '2000') { // 药品
-        this.cascaderOptions = this.optionsYP
-      } else if (val === '3000') { // 环境
-        this.cascaderOptions = this.optionsHJ
-      } else if (val === '4000') { // 综合
-        this.cascaderOptions = this.optionsYP
-      }
-      this.casezy.standardCategory = ''
-      this.chooseableFlag = false
-    },
-    standardCategoryChange(val) { // 分类改变
-      this.chooseableFlag = true
-      this.pzlb = false // 品种类别
-      if (val === '1010') { // 食品中可能违法添加的非食用物质名单
-        this.yffCategoryLabel = '可能添加的食品品种'
-        this.yffNameLabel = '名称'
-        this.detectionBaseLabel = '检测方法'
-      } else if (val === '1020') { // 食品中可能滥用的食品添加剂品种名单
-        this.yffCategoryLabel = '可能适用的添加剂品种'
-        this.yffNameLabel = '名称'
-        this.detectionBaseLabel = '检测方法'
-      } else if (val === '1030') { // 其它食品标准
-        this.chooseableFlag = false
-      } else if (val === '2010') { // 保健食品中易非法添加的物质和组分及检测依据
-        this.yffCategoryLabel = '易非法添加的保健食品产品类别'
-        this.yffNameLabel = '易非法添加的物质或组分名称'
-        this.detectionBaseLabel = '检测依据'
-      } else if (val === '2020') { // 化妆品中易非法添加的物质、组分及检测依据
-        this.yffCategoryLabel = '易非法添加的化妆品产品类别'
-        this.yffNameLabel = '易非法添加的禁用物质或组分名称'
-        this.detectionBaseLabel = '检测依据'
-      } else if (val === '2030') { // 含可待因复方口服溶液品种目录
-        this.yffCategoryLabel = '品种类别'
-        this.yffNameLabel = '药品名称'
-        this.detectionBaseLabel = '生产企业名称'
-        this.pzlb = true
-      } else {
-        this.chooseableFlag = false
-      }
-    },
-    // handleChange(value) {
-    //   console.log(value)
-    // },
-    onEdit() {
-      this.$refs.form.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.casezy.enforcementDate = this.casezy.enforcementDate ? this.$parseTime(this.casezy.enforcementDate, '{y}-{m}-{d}') : ''
-          this.casezy.issueDate = this.casezy.issueDate ? this.$parseTime(this.casezy.issueDate, '{y}-{m}-{d}') : ''
-          this.casezy.logFlag = 1 // 手动点击时，添加埋点参数
-          if (this.casezy.standardCategory === '1030' || this.casezy.standardCategory === '2040' || this.casezy.standardCategory === '3010') {
-            // 选有其他字样
-            if (!this.casezy.title) {
-              this.loading = false
-              this.$message.error('请输入标题')
-              return false
+        })
+        return a
+      },
+      checkEnclosure() {
+        let cfNum = 0
+        for (let i = 0; i < this.lawInfo.enclosure.length; i++) {
+          const curFile = this.lawInfo.enclosure[i]
+          if (i < this.lawInfo.enclosure.length - 1) {
+            const nextFile = this.lawInfo.enclosure[i + 1]
+            if (curFile.enName === nextFile.enName && curFile.enClass === nextFile.enClass) {
+              cfNum += 1
             }
           }
-          if (sessionStorage.getItem(this.$route.path)) {
-            this.casezy.id = this.id
-            this.$update('standard/' + this.id, this.casezy).then(response => {
+        }
+        return cfNum > 0
+      },
+      onEdit(draft) {
+        this.lawInfo.draft = draft
+        this.loading = true
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            if (this.lawInfo.content === '' && this.lawInfo.enclosure.length === 0) {
+              this.$message({
+                message: '正文和附件，必须确保有一个不能为空',
+                type: 'warning'
+              })
               this.loading = false
-              this.$router.push('/handlingGuide/hybzList')
-            })
+              return false
+            }
+            if (this.checkEnclosure()) {
+              this.$alert('您上传的资料列表中存在同名且同格式的文件，请确认一个，重新上传！', '提示', {
+                confirmButtonText: '知道了',
+                callback: action => {
+                }
+              })
+              this.loading = false
+              return false
+            }
+            let para = JSON.parse(JSON.stringify(this.lawInfo))
+            para.effectiveTime = this.lawInfo.effectiveTime ? this.$parseTime(this.lawInfo.effectiveTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
+            para.publishTime = this.lawInfo.publishTime ? this.$parseTime(this.lawInfo.publishTime, '{y}-{m}-{d} {h}:{i}:{s}') : ''
+            para.logFlag = 1 // 手动点击时，添加埋点参数
+            para.enclosure = JSON.stringify(this.lawInfo.enclosure)
+            para.departInfo = this.departInfo
+            para = this.$setCurrentUser(para)
+            para.belongAreaCode = para.areaCode
+            if (this.id !== '') {
+              if (!this.nameCheckFlag) {
+                this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {
+                  confirmButtonText: '知道了',
+                  callback: action => {
+                  }
+                })
+                this.loading = false
+                return false
+              }
+              this.lawInfo.id = this.id
+              para.subType = draft
+              para.id = this.id
+              this.$update('industryInfo/update', para).then(response => {
+                this.loading = false
+                this.$message({
+                  message: '修改成功',
+                  type: 'success'
+                })
+                this.callback()
+              }).catch(() => {
+                this.loading = false
+              })
+            } else {
+              this.$update('industryInfo/save', para).then(response => {
+                this.loading = false
+                this.$message({
+                  message: '添加成功',
+                  type: 'success'
+                })
+                this.callback()
+              }).catch(() => {
+                this.loading = false
+              })
+            }
           } else {
-            this.$save('standard', this.casezy).then(response => {
-              this.loading = false
-              this.$router.push('/handlingGuide/hybzList')
+            this.loading = false
+          }
+        })
+      },
+      parentdepartcode() {
+        const para = this.$setCurrentUser({})
+        this.$query('parentdepartcode/' + para.belongDepCode, {}, true).then(response => {
+          this.departInfo = response.data
+        })
+      },
+      getDetail() {
+        this.loading = true
+        this.$query('industryinfo/' + this.id, {}).then(response => {
+          this.loading = false
+          this.lawInfo = response.data
+          this.showSave = (this.lawInfo.draft !== '1' && this.lawInfo.draft !== 1)
+          this.lbChange(this.lawInfo.articleType, '1')
+          for (let i = 0; i < response.data.enclosure.length; i++) {
+            const item = response.data.enclosure[i]
+            this.enclosureList.push({
+              name: item.enName + item.enClass,
+              url: item.enPathOld
             })
           }
+        }).catch(() => {
+          this.loading = false
+        })
+      },
+      handleImageAdded(file, Editor, cursorLocation, resetUploader) {
+        const formData = new FormData()
+        formData.append('file', file)
+        uploadImg(formData).then((response) => {
+          if (response.code === '000000') {
+            Editor.insertEmbed(cursorLocation, 'image', response.data)
+            resetUploader()
+          }
+        }).catch((e) => {})
+      },
+      fileBeforeUpload(file) {
+        this.uploadData.uploadUserId = this.curUser.id
+        this.uploadData.uploadDate = this.$parseTime(new Date(), '{y}{m}{d}{h}{i}{s}')
+        this.uploadData.fileName = file.name
+        const wordReg = /^(application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)|(application\/msword)$/
+        const pdfReg = /^(application\/vnd.openxmlformats-officedocument.presentationml.presentation)|(application\/pdf)$/
+        const pptReg = /^(application\/vnd.ms-powerpoint)$/
+        const videoReg = /^(video\/mp4)|(video\/avi)|(video\/wmv)$/
+        const audioReg = /^(audio\/mp3)$/
+        let flag = false
+        if (wordReg.test(file.type) || pdfReg.test(file.type) || pptReg.test(file.type)) {
+          this.uploadFileType = '0'
+          flag = true
+          if (file.size / 1024 / 1024 > 10) {
+            this.$message({
+              message: '文件上传失败！上传文档大小不得超过10M！',
+              type: 'error'
+            })
+            return false
+          }
         }
-      })
-    },
-    getDetail() {
-      this.loading = true
-      this.$query('standard/' + this.id, {}).then(response => {
+        if (videoReg.test(file.type)) {
+          this.uploadFileType = '1'
+          flag = true
+          if (file.size / 1024 / 1024 / 1024 > 2) {
+            this.$message({
+              message: '文件上传失败！上传视频大小不得超过2G！',
+              type: 'error'
+            })
+            return false
+          }
+        }
+        if (audioReg.test(file.type)) {
+          this.uploadFileType = '2'
+          flag = true
+          if (file.size / 1024 / 1024 > 512) {
+            this.$message({
+              message: '文件上传失败！上传音频大小不得超过512M！',
+              type: 'error'
+            })
+            return false
+          }
+        }
+        if (!flag) {
+          this.$message({
+            message: '仅支持Word、PDF、视频、音频和PPT文件',
+            type: 'error'
+          })
+          return false
+        }
+        // if (this.id !== '') {
+        //   if (this.lawInfo.enclosure.length === 1) {
+        //     this.clearFileList()
+        //     this.$message({
+        //       message: '编辑时只能上传1个文件！',
+        //       type: 'error'
+        //     })
+        //     return false
+        //   }
+        // } else {
+        if (this.lawInfo.enclosure.length === 5) {
+          this.$message({
+            message: '最多可一次性上传5个文件！',
+            type: 'error'
+          })
+          return false
+        }
+        // }
+        const checkFlag = true
+        return this.checkEnName(file, checkFlag)
+      },
+      uploadCheck(file, fileList) {
+      },
+      async checkEnName(file, flag) {
+        // 校验文件名称是否重复
+        const response = await this.$queryAsyns('knowledgeenclosurebyname', { belongMode: '2', enName: file.name.substring(0, file.name.lastIndexOf('.')), enClass: file.name.substring(file.name.lastIndexOf('.'), file.name.length) })
+        if (response.data.data !== null && response.data.data.length > 0) {
+          this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {
+            confirmButtonText: '知道了',
+            callback: action => {
+            }
+          })
+          this.clearErrorFileList()
+          this.nameCheckFlag = false
+          flag = false
+        } else {
+          this.nameCheckFlag = true
+          this.loading = true
+          flag = true
+        }
+        return flag
+      },
+      fileError() {
+      },
+      fileSuccess(response, file, fileList) {
         this.loading = false
-        this.casezy = response.data
-        this.standardCategoryChange(this.casezy.standardCategory)
-        if (this.casezy.standardCategory.charAt(0) === '1') {
-          this.cascaderOptions = this.optionsSP
-        } else if (this.casezy.standardCategory.charAt(0) === '2') {
-          this.cascaderOptions = this.optionsYP
-        } else if (this.casezy.standardCategory.charAt(0) === '3') {
-          this.cascaderOptions = this.optionsHJ
-        } else if (this.casezy.standardCategory.charAt(0) === '4') {
-          // this.standardCategory = this.optionsSP
-
+        if (response.code !== '000000') {
+          this.$alert(response.message + '， 请重新上传', '提示', {
+            confirmButtonText: '确定',
+            callback: action => {
+              this.clearFileList()
+            }
+          })
+          return false
         }
-        // this.standardCategory
-      }).catch(() => {
-        this.loading = false
-      })
-    },
-    handleImageAdded(file, Editor, cursorLocation, resetUploader) {
-      const formData = new FormData()
-      formData.append('file', file)
-      uploadImg(formData).then((response) => {
-        if (response.code === '000000') {
-          Editor.insertEmbed(cursorLocation, 'image', response.data)
-          resetUploader()
+        const enPathOld = response.data
+        let enPathNew = ''
+        const cl = enPathOld.substring(enPathOld.lastIndexOf('.') + 1, enPathOld.length)
+        if (cl === 'docx' || cl === 'doc' || cl === 'ppt' || cl === 'pptx') {
+          enPathNew = enPathOld.substring(0, enPathOld.lastIndexOf('.')) + '.pdf'
+        } else {
+          if (cl === 'mp4') {
+            enPathNew = enPathOld.substring(0, enPathOld.lastIndexOf('/') + 1) + 'conversion_' + enPathOld.substring(enPathOld.lastIndexOf('/') + 1)
+          } else {
+            enPathNew = enPathOld
+          }
         }
-      }).catch((e) => { })
+        const data = {
+          enCode: '1',
+          enType: this.uploadFileType,
+          enClass: file.name.substring(file.name.lastIndexOf('.'), file.name.length),
+          enName: file.name.substring(0, file.name.lastIndexOf('.')),
+          enPath: enPathNew,
+          enPathOld: enPathOld,
+          order: this.lawInfo.enclosure.length + 1
+        }
+        this.lawInfo.enclosure.push(data)
+      },
+      fileRemove(file, fileList) {
+        if (file.response) {
+          this.lawInfo.enclosure.splice(this.lawInfo.enclosure.indexOf(file.response.data), 1)
+        } else {
+          this.lawInfo.enclosure.splice(this.lawInfo.enclosure.indexOf(file.url), 1)
+        }
+      },
+      clearFileList() {
+        this.$refs.fileUpload.abort()
+        const elementArr = document.getElementsByClassName('el-upload-list__item')
+        for (let i = 0; i < elementArr.length; i++) {
+          const element = elementArr[i]
+          if (i === elementArr.length - 1) {
+            element.setAttribute('style', 'display: none;')
+            element.remove()
+          }
+        }
+      },
+      clearErrorFileList() {
+        this.$refs.fileUpload.abort()
+        const elementArr = document.getElementsByClassName('el-upload-list__item')
+        for (let i = 0; i < elementArr.length; i++) {
+          const element = elementArr[i]
+          const className = element.getAttribute('class')
+          if (className.indexOf('is-ready') > -1 || className.indexOf('is-uploading') > -1) {
+            element.setAttribute('style', 'display: none;')
+            element.remove()
+          }
+        }
+      }
     },
-    toList() {
-      this.$router.push({ path: '/handlingGuide/hybzList' })
-    }
-  },
-  mounted() {
-    this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-    if (this.currentDep && curUser) {
-      this.casezy.createUser = curUser.realName
-    }
-    if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
-      this.id = sessionStorage.getItem(this.$route.path)
-      this.getDetail()
+    watch: {
+      'nameCheckFlag': function(val) {
+        if (!val) {
+          this.clearErrorFileList()
+          this.nameCheckFlag = true
+        }
+      }
+    },
+    mounted() {
+      this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+      this.parentdepartcode()
+      if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
+        const para = JSON.parse(sessionStorage.getItem(this.$route.path))
+        if (para.id) {
+          this.id = para.id
+          this.getDetail()
+        }
+        if (para.jumpType) {
+          this.callBack = para.jumpType
+          this.active = para.active
+        }
+        if (para.filters) {
+          this.filters = para
+        }
+      }
     }
   }
-}
 </script>
 
 <style>
-.caseEdit .input_w {
-  width: 300px;
-}
-
-.caseEdit .el-form-item {
-  margin-bottom: 16px;
-}
-.caseEdit .batch .el-input--small .el-input__inner {
-  height: 32px !important;
-  line-height: 32px !important;
-}
-.caseEdit .el-select,
-.caseEdit .el-date-editor--date {
-  /* width: 100%; */
-}
-.editorWidth{
-  width: 102.7%;
-}
-@media only screen and (min-width: 1920px){
-.editorWidth{
-  width: 93%;
+  .hybzEdit .input_w {
+    width: 300px;
   }
-}
+
+  .hybzEdit .el-form-item {
+    margin-bottom: 16px;
+  }
+  .hybzEdit .el-select,
+  .hybzEdit .el-date-editor--date {
+    width: 100%;
+  }
+  .hybzEdit .el-upload.el-upload--text, .hybzEdit .el-upload-dragger{
+    width: 100%;
+  }
+  .hybzEdit .caseEdit .ql-image{
+    display: none;
+  }
 </style>

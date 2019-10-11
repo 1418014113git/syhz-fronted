@@ -126,7 +126,7 @@
         helpList: [
           {
             src: '/static/image/question_images/handbook.png',
-            describe: '系统使用手册使用手册',
+            describe: '系统使用手册',
             downloadUrl: ''
           },
           {
@@ -195,7 +195,7 @@
       // 编辑
       edit(row) {
         this.$router.push({
-          path: '/micro/trainMaterial/save/',
+          path: '/micro/difficult/save/',
           query: {
             id: row.id,
             page: this.page,
@@ -239,7 +239,7 @@
       // 详情
       details(id) {
         this.$router.push({
-          path: '/micro/trainMaterial/detail/' + id,
+          path: '/micro/difficult/detail/' + id,
           query: {
             page: this.page,
             pageSize: this.pageSize,
@@ -287,7 +287,7 @@
       // 提问
       toQuestion() {
         this.$router.push({
-          path: '/micro/trainMaterial/save',
+          path: '/micro/difficult/save',
           query: {
             page: this.page,
             pageSize: this.pageSize,

@@ -1,39 +1,58 @@
 <template>
+ <!--阅卷列表-->
   <section class="testTableList">
+    <el-row class="">
+    <img src="@/assets/icon/back.png"  class="goBack" @click="goBack">   <!--返回-->
+  </el-row>
+    <!--查询条件-->
     <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
-      <el-form-item label="单位" prop="AJMC">
-        <el-input type="text" size="small" v-model="filters.options1" clearable placeholder="请输入关键字检索单位"></el-input>
+      <el-form-item label="单位" prop="deptName">
+        <el-tooltip class="item" effect="dark" :content="filters.deptName" placement="top-start" :popper-class="(filters.deptName&&filters.deptName.length>16)?'tooltipShow':'tooltipHide'">
+          <el-autocomplete
+            v-model="filters.deptName"
+            :fetch-suggestions="querySearchAsyncDept"
+            placeholder="输入关键字检索单位"
+            :trigger-on-focus="false"
+            @select="handleSelectDept"
+            class="autoInputW"
+          ></el-autocomplete>
+        </el-tooltip>
       </el-form-item>
-      <el-form-item label="姓名" prop="AJMC">
-        <el-input type="text" size="small" v-model="filters.options1" clearable placeholder="请输入关键字检索姓名"></el-input>
+      <el-form-item label="姓名" prop="realName">
+        <el-autocomplete
+          v-model="filters.realName"
+          :fetch-suggestions="querySearchAsyncName"
+          placeholder="输入关键字检索姓名"
+          :trigger-on-focus="false"
+          @select="handleSelectName"
+        ></el-autocomplete>
       </el-form-item>
-      <el-form-item label="阅卷状态" prop="AJMC">
-        <el-select v-model="filters.tx" placeholder="请选择题型" @change="examStatusChange">
-          <el-option v-for="item in ksztData" :key="item.value" :label="item.label" :value="item.value"></el-option>
+      <el-form-item label="阅卷状态" prop="">
+        <el-select v-model="filters.status" placeholder="请选择" clearable @change="examStatusChange">
+          <el-option v-for="item in txData" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" @click="queryList(true,true)">检索</el-button>
+        <el-button type="primary" size="small" icon="el-icon-search" @click="queryList(true,true)">检索</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
-    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
-      <el-table-column type="index" label="序号" width="70" class-name="tabC"></el-table-column>
-      <el-table-column prop="name" label="单位名称" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="name" label="姓名" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="date" label="考试时间" width="400" class-name="tabC"></el-table-column>
-      <el-table-column prop="date" label="自动阅卷得分" width="200" class-name="tabC"></el-table-column>
-      <el-table-column prop="date" label="人工阅卷得分" width="200" class-name="tabC"></el-table-column>
-      <el-table-column prop="type" label="阅卷状态" width="200" class-name="tabC">
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
+      <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
+      <el-table-column prop="deptName" label="单位名称" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="realName" label="姓名" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="startTime" label="考试时间" width="280" align="center"></el-table-column>
+      <el-table-column prop="score" label="自动阅卷得分" width="140" align="center"></el-table-column>
+      <el-table-column prop="artScore" label="人工阅卷得分" width="140" align="center"></el-table-column>
+      <el-table-column prop="status" label="阅卷状态" width="160" align="center">
         <template slot-scope="scope">
-          <!-- <el-tag type="success"> -->
-            {{$getLabelByValue(scope.row.type, txData)}}
-          <!-- </el-tag> -->
+          <span v-if="scope.row.status === 'start'" style="color:#F56C6C;">{{$getLabelByValue(scope.row.status, txData)}}</span>
+          <span v-else-if="scope.row.status === 'end'" style="color:#67C23A;">{{$getLabelByValue(scope.row.status, txData)}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200">
+      <el-table-column label="操作" width="100">
         <template slot-scope="scope">
-          <el-button size="mini" circle @click="goOverScore(scope.$index, scope.row)" icon="el-icon-view" title="阅卷"></el-button>
+          <el-button size="mini" circle  :title="scope.row.status === 'start'?'阅卷':'详情'"  :icon="scope.row.status === 'start'?'el-icon-view':'el-icon-document'"  @click="goOverScore(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -41,7 +60,7 @@
     <!--工具条-->
     <el-col :span="24" class="toolbar clearfix">
       <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize"
-                     :current-page="page" :total="total" style="float:right;">
+          :current-page="page" :total="total" style="float:right;">
       </el-pagination>
     </el-col>
   </section>
@@ -49,137 +68,178 @@
 
 <script>
 import { goOverPaperStatus } from '@/utils/codetotext'
-import importexport from '@/api/importexport'
 export default {
   props: ['menuItemNode'],
   data() {
     return {
-      downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
-      tableData: [
-        { name: '11', date: '2019-01-01 21:01 ~ 2019-01-01 21:01', type: '2' }
-      ], // 列表数据
-      ksztData: [
-        { label: '未过期', value: '1' },
-        { label: '已过期', value: '2' }
-      ],
+      tableData: [], // 列表数据
       total: 0,
       page: 1,
       pageSize: 15,
       listLoading: false,
       tableHeight: null,
-      filters: {},
+      filters: {
+        realName: '', // 用户名称
+        deptName: '', // 单位名称
+        status: '' // 阅卷状态
+      },
+      isQueryDept: true, // 是否再次调用检索单位功能
+      isQueryName: true, // 是否再次调用检索姓名功能
       txData: goOverPaperStatus() // 阅卷状态
-
     }
-  },
-  watch: { // 监听state状态变化
   },
   methods: {
     examStatusChange(val) {
-
+      this.initData()
+      this.queryList(true, true)
     },
-    queryList(flag) { // 列表数据查询
-      console.log('menuItemNode', JSON.stringify(this.menuItemNode))
-      // this.listLoading = true
-      // this.page = flag ? 1 : this.page
-      // const para = {
-      //   pageNum: this.page,
-      //   pageSize: this.pageSize,
-      //   logFlag: 1, // 添加埋点参数
-      //   id: this.menuItemNode.id
-      // }
-      // this.$query('', para).then((response) => {
-      //   this.listLoading = false
-      //   if (response.data && response.data.length > 0) {
-      //     this.list = response.data.list
-      //   }
-      // }).catch(() => {
-      //   this.listLoading = false
-      // })
+    initData() {
+      this.tableData = []
+      this.total = 0
+      this.pageSize = 15
+    },
+    queryList(flag, hand) { // 列表数据查询
+      this.listLoading = true
+      this.page = flag ? 1 : this.page
+      const para = {
+        pageNum: this.page,
+        pageSize: this.pageSize,
+        logFlag: 1, // 添加埋点参数
+        realName: this.filters.realName,
+        deptName: this.filters.deptName,
+        status: this.filters.status,
+        examId: this.carryParam.examId // 考试的id
+      }
+      if (hand) {
+        para.logFlag = 1 // 添加埋点参数
+      }
+      this.$query('exam/subjectiveList', para).then((response) => {
+        this.listLoading = false
+        if (response.data.list && response.data.list.length > 0) {
+          this.tableData = response.data.list
+          this.total = response.data.totalCount
+          this.pageSize = response.data.pageSize
+        } else {
+          this.initData()
+        }
+      }).catch(() => {
+        this.initData()
+        this.listLoading = false
+      })
     },
     handleCurrentChange(val) { // 分页查询
       this.page = val
-      this.queryList(false)
+      this.queryList(false, true)
     },
     handleSizeChange(val) { // 分条查询
       this.pageSize = val
-      this.queryList(true)
+      this.queryList(true, true)
     },
-    handleEdit(index, row) { // 编辑
-      var message1 = '该试题已经被抽取到XXXX（试卷名称）试卷中，暂时不能编辑或删除！'
-      // var message2 = '该试题在已结束的考试试卷中有使用，如果修改可能会影响到警员查看以往考试信息！是否继续修改？'
-      var messageText = message1
-      this.$confirm(messageText, '提示', {
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        // showCancelButton: false,
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
-      })
-      // this.$router.push({ path: '/handlingGuide/testbaseManage/edit' })
+    goOverScore(index, row) { // 去阅卷
+      this.$gotoid('/handlingGuide/goOverExamPaper/settingScore', JSON.stringify(row))
     },
-    handleDelete(index, row) { // 删除
-      this.$confirm('确定要删除吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功'
-        })
-      }).catch(() => {
-        this.loading = false
-        this.$message({
-          type: 'info',
-          message: '已取消'
-        })
-      })
-    },
-    goOverScore() { // 去阅卷
-      this.$router.push({ path: '/handlingGuide/goOverExamPaper/settingScore' })
-    },
-    importTem() {
-      this.dialogImportVisible = true
-    },
-    getFile() {
-      if (event.target.files[0]) {
-        this.fileCon = event.target.files[0]
+    querySearchAsyncDept(queryString, cb) { // 单位检索
+      if (queryString) {
+        this.isQueryDept = true
+        if (this.isQueryDept) {
+          var param = {
+            name: this.filters.deptName
+          }
+          this.$query('departsearch', param, true).then((response) => {
+            var restaurants = response.data
+            restaurants.forEach(element => {
+              element.value = element.name
+            })
+            var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
+            cb(results)
+          })
+        }
       } else {
-        this.fileCon = ''
+        this.isQueryDept = false
       }
     },
-    closeDia() {
-      const file = document.getElementById('excelFile')
-      if (file) {
-        file.value = ''
+    createStateFilter(queryString) {
+      return (state) => {
+        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) !== -1)
       }
-      this.dialogImportVisible = false
+    },
+    querySearchAsyncName(queryString, cb) { // 姓名检索
+      if (queryString) {
+        this.isQueryName = true
+        if (this.isQueryName) {
+          var param = {
+            realName: this.filters.realName
+          }
+          if (this.filters.deptName) {
+            param.deptName = this.filters.deptName
+          }
+          this.$query('userlikename', param, true).then((response) => {
+            var restaurants = response.data
+            restaurants.forEach(element => {
+              element.value = element.realName
+            })
+            var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
+            cb(results)
+          })
+        }
+      } else {
+        this.isQueryName = false
+      }
+    },
+    handleSelectDept(item) {
+      this.filters.deptName = item.name
+      this.isQueryDept = false
+    },
+    handleSelectName(item) {
+      this.filters.realName = item.realName
+      this.isQueryName = false
+    },
+    goBack() { // 返回
+      this.$router.back(-1)
     }
   },
   mounted() {
-    this.tableHeight = document.documentElement.clientHeight - 180
-    // this.query(true)
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    if (this.$route.query) {
+      this.carryParam = this.$route.query
+    }
+    this.queryList(true)
+  },
+  activated() {
+    this.queryList(true)
   }
 }
-
 </script>
-
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
 .testTableList {
   height: 100%;
   .addTestQuestion {
     float: right;
     margin-bottom: 10px;
   }
+}
+.el-autocomplete-suggestion {
+  border: 1px solid #00a0e9;
+}
+.el-autocomplete-suggestion__wrap {
+  background-color: #005982 !important;
+  border: 0 !important;
+}
+.el-autocomplete-suggestion li {
+  color: #fff;
+}
+.el-autocomplete-suggestion.is-loading li:hover,
+.el-autocomplete-suggestion li.highlighted,
+.el-autocomplete-suggestion li:hover {
+  background-color: rgba(188, 232, 252, 0.1);
+}
+.autoInputW {
+  width: 300px;
+}
+.tooltipShow {
+  opacity: 1;
+}
+.tooltipHide {
+  opacity: 0;
 }
 </style>

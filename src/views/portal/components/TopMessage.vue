@@ -8,7 +8,7 @@
       </div>
     </div>
     <div class="gndhTit">功能导航</div>
-    <div class="search">
+    <!-- <div class="search">
       <el-form :inline="true"
                :model="filters"
                size="mini"
@@ -26,8 +26,7 @@
           </el-form-item>
         </el-row>
       </el-form>
-    </div>
-
+    </div> -->
   </div>
 
 </template>

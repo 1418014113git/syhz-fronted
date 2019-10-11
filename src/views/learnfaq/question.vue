@@ -176,7 +176,7 @@
       },
       toList() {
         this.$router.push({
-          path: '/micro/trainMaterial',
+          path: '/micro/difficult',
           query: {
             page: this.$route.query.page,
             pageSize: this.$route.query.pageSize,

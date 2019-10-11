@@ -3,14 +3,16 @@
     <!-- 随机组卷--选择模块 -->
     <div class="treeStyle" v-loading="listLoading">
       <el-tree
+        ref="tree"
         :data="dataList"
         node-key="id"
         show-checkbox
         :expand-on-click-node="false"
         :default-expanded-keys="[2, 1]"
+        :default-checked-keys="checkId"
         @check-change="handleCheckChange"
         >
-        <span class="span-ellipsis" slot-scope="{data}">
+        <span class="MoudleEllipsis" slot-scope="{data}">
           <span :title="data.label">{{ data.label }}</span>
         </span>
       </el-tree>
@@ -64,13 +66,8 @@ export default {
   watch: { // 监听state状态变化
     alreadyCheck: {
       handler: function(val, oldeval) {
-        if (val.length > 0) {
-          var data = []
-          val.forEach(item => {
-            data.push(item.id)
-          })
-        }
-        this.checkId = data
+        this.checkId = this.unique(val)
+        this.$refs.tree.setCheckedKeys(this.checkId)
       }
     },
     isClose: {
@@ -84,13 +81,12 @@ export default {
   },
   methods: {
     init() { // 查询试题模块tree数据
+      this.checkId = this.unique(this.alreadyCheck)
       this.listLoading = true
       this.$query('examsubjectcategory', {}).then((response) => {
         this.listLoading = false
         if (response.data && response.data.length > 0) {
           this.changeData(response.data)
-        } else {
-          this.noData = true
         }
       }).catch(() => {
         this.listLoading = false
@@ -104,7 +100,17 @@ export default {
         this.menuItemNode = {}
       }
     },
-
+    unique(arr) { // 数组去重
+      for (var i = 0; i < arr.length; i++) {
+        for (var j = i + 1; j < arr.length; j++) {
+          if (arr[i] === arr[j]) { // 第一个等同于第二个，splice方法删除第二个
+            arr.splice(j, 1)
+            j--
+          }
+        }
+      }
+      return arr
+    },
     cancel() { // 取消
       this.checkId = [] // 复选框选中的列表id清空
       this.checkList = []
@@ -132,6 +138,7 @@ export default {
       } else {
         this.dataList = []
       }
+      this.$refs.tree.setCheckedKeys(this.checkId)
     },
     buildChildren(_this, parent, data) {
       const newChildren = []
@@ -161,47 +168,53 @@ export default {
         }
       }
     },
-    save() { // 保存添加的模块
-      var data = []
-      this.checkList.forEach((item, index) => {
-        if (item.leaf) {
-          data.push(item.children)
-        } else {
-          data.push(item)
+    uniqueList(arr) { // list去重
+      for (var i = 0; i < arr.length; i++) {
+        for (var j = i + 1; j < arr.length; j++) {
+          if (arr[i].id === arr[j].id) { // 第一个等同于第二个，splice方法删除第二个
+            arr.splice(j, 1)
+            j--
+          }
         }
-      })
-      this.$emit('sjcheckList', data)
-
-      // var data = []
-      // if (this.listData.length > 0) {
-      //   if (this.checkId.length > 0) {
-      //     this.listData.forEach((item, index) => {
-      //       if (this.checkId.indexOf(item.id) > 0) {
-      //         item.subjectCategoryId = this.menuItemNode.id // 当前的模块id
-      //         item.subjectCategoryName = this.menuItemNode.label // 当前的模块名称
-      //         item.questionsId = item.id // 被选中的试题id
-      //         data.push(item)
-      //       }
-      //     })
-      //     var datas = { 'type': this.type, 'sort': Number(this.type), 'data': data }
-      //     this.$emit('checkList', datas)
-      //     this.$emit('stType', this.type)
-      //   } else {
-      //     this.$emit('checkList', { 'type': this.type, 'sort': Number(this.type), 'data': [] })
-      //     this.$emit('stType', this.type)
-      //     this.$message({
-      //       type: 'error',
-      //       message: '请至少选择一条试题'
-      //     })
-      //   }
-      // } else {
-      //   this.$emit('checkList', { 'type': this.type, 'sort': Number(this.type), 'data': [] })
-      //   this.$emit('stType', this.type)
-      //   this.$message({
-      //     type: 'error',
-      //     message: '当前无可选择的试题'
-      //   })
-      // }
+      }
+      return arr
+    },
+    save() { // 保存添加的模块
+      if (this.dataList.length > 0) {
+        this.checkList = this.$refs.tree.getCheckedNodes() // 获取所有选中的节点
+        if (this.checkList.length > 0) {
+          var data = []
+          this.checkList.forEach((item) => {
+            if (item.children && item.children.length > 0) {
+              item.children.forEach((it) => {
+                if (it.children && it.children.length > 0) {
+                  it.children.forEach((its) => {
+                    data.push(its)
+                  })
+                } else {
+                  data.push(it)
+                }
+              })
+            } else {
+              data.push(item)
+            }
+          })
+          data = this.uniqueList(data)
+          // console.log('sjcheckList', JSON.stringify(data))
+          this.$emit('sjcheckList', data)
+          this.$emit('closesjDialog', false)
+        } else {
+          this.$message({
+            type: 'error',
+            message: '请至少选择一个试题模块'
+          })
+        }
+      } else {
+        this.$message({
+          type: 'error',
+          message: '当前无可选择的试题模块'
+        })
+      }
     }
   },
   mounted() {
@@ -231,7 +244,7 @@ export default {
     color: #fff;
   }
 }
-.span-ellipsis {
+.MoudleEllipsis {
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
