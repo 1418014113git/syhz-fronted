@@ -4,25 +4,25 @@
       <img src="@/assets/icon/back.png" class="goBack" @click="callback">
     </el-row>
     <el-card class="caseEdit">
-      <p style="margin-top: 10px;">您累计学习<span>{{myData[0].totalCount}}</span>次，累计学习时间<span>{{myData[0].time === 0 ? myData[0].time : parseFloat(myData[0].time / 60 / 60).toFixed(2) }}</span>小时</p>
+      <p style="margin-top: 10px;">您累计学习<span>{{myData[0].totalCount}}</span>次，累计学习时间<span>{{myData[0].time === 0 ? myData[0].time : $buildTime(myData[0].time) }}</span>小时</p>
       <el-row type="flex" justify="center" style="margin-top:15px;">
         <el-table :data="myData" v-loading="loading" stripe style="width: 100%;">
           <el-table-column prop="totalCount0" align="center" label="文档">
             <template slot-scope="scope">
               <span>{{scope.row.totalCount0}}次</span>
-              <span>{{scope.row.time0 && scope.row.time0 > 0 ? parseFloat(scope.row.time0 / 60 / 60).toFixed(4) : scope.row.time0 }}小时</span>
+              <span>{{scope.row.time0 && scope.row.time0 > 0 ? $buildTime(scope.row.time0) : scope.row.time0 }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="totalCount1" align="center" label="视频">
             <template slot-scope="scope">
               <span>{{scope.row.totalCount1}}次</span>
-              <span>{{scope.row.time1 && scope.row.time1 > 0 ? parseFloat(scope.row.time1 / 60 / 60).toFixed(4) : scope.row.time1 }}小时</span>
+              <span>{{scope.row.time1 && scope.row.time1 > 0 ? $buildTime(scope.row.time1) : scope.row.time1 }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="totalCount2" align="center" label="音频">
             <template slot-scope="scope">
               <span>{{scope.row.totalCount2}}次</span>
-              <span>{{scope.row.time2 && scope.row.time2 > 0 ? parseFloat(scope.row.time2 / 60 / 60).toFixed(4) : scope.row.time2 }}小时</span>
+              <span>{{scope.row.time2 && scope.row.time2 > 0 ? $buildTime(scope.row.time2) : scope.row.time2 }}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -41,8 +41,11 @@
           </el-table-column>
           <el-table-column prop="creationTime" label="学习时间"></el-table-column>
           <el-table-column prop="stopTime" label="学习时长">
+            <!--<template slot-scope="scope">-->
+              <!--{{parseFloat(scope.row.stopTime / 60 / 60).toFixed(4)}} 小时-->
+            <!--</template>-->
             <template slot-scope="scope">
-              {{parseFloat(scope.row.stopTime / 60 / 60).toFixed(4)}} 小时
+            {{scope.row.stopTime > 0 ? $buildTime(scope.row.stopTime) : '-'}}
             </template>
           </el-table-column>
         </el-table>
