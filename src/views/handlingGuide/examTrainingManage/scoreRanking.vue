@@ -21,7 +21,7 @@
       <el-table-column prop="dateStr" label="考试时长" width="240" align="center"></el-table-column>
     </el-table>
     <!-- 所有成绩排名 -->
-    <el-dialog title="考试报告" :visible.sync="dialogAllScoreVisible" size="small" width="60%" class="allScore">
+    <el-dialog title="成绩排名" :visible.sync="dialogAllScoreVisible" size="small" width="60%" class="allScore">
       <el-button type="primary" @click="toGetPdf" style="float:right;">下载</el-button>
       <div id="pdfDom" style="padding: 30px 0;">
         <div class="exam_title_wrap clearfix">
@@ -197,6 +197,9 @@ export default {
       thead {
         background: #ffffff;
         color: #000000;
+      }
+      .el-table__body-wrapper tr:nth-child(2n) {
+        background-color: transparent;
       }
     }
     .el-table td,
