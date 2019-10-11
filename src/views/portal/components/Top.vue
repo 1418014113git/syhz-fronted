@@ -124,9 +124,9 @@ export default {
       this.week = week
     },
     watchMessage() {
-      // this.$router.push({
-      //   path: '/message/list'
-      // })
+      this.$router.push({
+        path: '/message/list'
+      })
     },
     isShow() {
       var flag = false

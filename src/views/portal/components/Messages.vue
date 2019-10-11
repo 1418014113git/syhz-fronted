@@ -1,124 +1,118 @@
 <template>
   <div class="message-list">
-    <div class="cardCount">
-      <el-col class="carddiv">
-        <el-card class="box-card" v-loading="loading">
-          <div class="msg-list">
-            <div class="tabList">
-              <span :class="{'on':curIndex === 0}" @click="checkTab(0, 0)">&nbsp;&nbsp;全部&nbsp;&nbsp;</span>
-              <em></em>
-              <span :class="{'on':curIndex === 1}" @click="checkTab(1, 1)">案件认领</span>
-              <em></em>
-              <span :class="{'on':curIndex === 2}" @click="checkTab(3, 2)">案件督办</span>
-              <em></em>
-              <span :class="{'on':curIndex === 3}" @click="checkTab(4, 3)">全国协查</span>
-              <em></em>
-              <span :class="{'on':curIndex === 4}" @click="checkTab(5, 4)">案件协查</span>
-              <em></em>
-              <span :class="{'on':curIndex === 5}" @click="checkTab(6, 5)">专项任务</span>
-              <em></em>
-              <span :class="{'on':curIndex === 6}" @click="checkTab(7, 6)">情报线索</span>
-              <em></em>
-            </div>
-          </div>
-          <div style="margin-bottom: 10px;">
-            <el-table ref="multipleTable" :data="dataList" tooltip-effect="dark" style="width: 100%;overflow-y:auto;" :max-height="tableHeight"
-                      @selection-change="handleSelectionChange" :show-header="showHeader" id="msg-table">
-              <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column>
-                <template slot-scope="scope">
-                  <el-row style="padding: 18px 0 17px;" type="flex" justify="space-between">
-                    <!--border-bottom: 1px dashed #00a0ec;-->
-                    <el-col :span="18">
-                      <el-button v-if="bizType === 0" type="text" @click="toDetail(scope.row)">
-                        <span style="color: #1b89bd;">[{{getBizTypeText(scope.row.businessType)}}]</span>
-                        <span class="fontFFF">{{scope.row.actionType}}</span>
-                        <span class="fontFFF">[{{formatTime(scope.row.createTime)}}]</span>
-                        <span class="fontFFF isMessage" style="position: relative;" v-if="scope.row.msgStatus === 0">[未读]</span>
-                        <span class="fontFFF" v-if="scope.row.msgStatus === 1">[已读]</span>
-                      </el-button>
-                      <el-button v-if="bizType > 0" type="text" @click="toDetail(scope.row)">
-                        <span style="color: #1b89bd;">[{{getBizTypeText(scope.row.business_type)}}]</span>
-                        <span class="fontFFF">{{scope.row.action_type}}</span>
-                        <span class="fontFFF">[{{formatTime(scope.row.create_time)}}]</span>
-                        <span class="fontFFF isMessage" style="position: relative;" v-if="scope.row.msg_status === 0">[未读]</span>
-                        <span class="fontFFF" v-if="scope.row.msg_status === 1">[已读]</span>
-                      </el-button>
-                    </el-col>
-                    <el-col :span="4" style="text-align: right">
-                      <el-button type="primary" @click="updMessage(scope.row.id, 2)"><i class="el-icon-delete"></i>删除
-                      </el-button>
-                    </el-col>
-                  </el-row>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-          <div style="padding: 10px 0 18px;" v-if="total > 0">
-            <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange"
-                         style="padding: 0 14px; color:#1E98D2">全选
-            </el-checkbox>
-            <el-button type="primary" @click="batchUpdMessage(2)"><i class="el-icon-delete"></i>删除</el-button>
-            <el-button type="primary" @click="batchUpdMessage(1)"><i class="el-icon-message"></i>已读</el-button>
-            <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
-                           :page-size="pageSize" :total="total" :current-page="page" style="float:right; padding-bottom: 20px;">
-            </el-pagination>
-          </div>
-
-        </el-card>
-      </el-col>
-    </div>
+    <el-row class="caseEdit">
+      <img src="@/assets/icon/back.png" class="goBack" @click="callback">
+    </el-row>
+    <el-card class="caseEdit">
+      <div class="msg-list">
+        <div class="tabList">
+          <span :class="{'on':curIndex === 0}" @click="checkTab(0, 0)">&nbsp;&nbsp;全部({{countData.list}})</span>
+          <em></em>
+          <span :class="{'on':curIndex === 1}" @click="checkTab(9, 1)">已读({{countData.list1}})</span>
+          <em></em>
+          <span :class="{'on':curIndex === 2}" @click="checkTab(8, 2)">未读({{countData.list0}})</span>
+          <em></em>
+          <span :class="{'on':curIndex === 3}" @click="checkTab(1, 3)">案件管理({{countData.bussionType1}})</span>
+          <em></em>
+          <span :class="{'on':curIndex === 4}" @click="checkTab(2, 4)">情报管理({{countData.bussionType2}})</span>
+          <em></em>
+          <span :class="{'on':curIndex === 5}" @click="checkTab(3, 5)">教育训练({{countData.bussionType3}})</span>
+          <em></em>
+          <span :class="{'on':curIndex === 6}" @click="checkTab(4, 6)">基础业务({{countData.bussionType4}})</span>
+          <span></span>
+        </div>
+      </div>
+      <div style="margin-bottom: 10px;">
+        <el-table ref="multipleTable" :data="dataList" v-loading="loading" tooltip-effect="dark" style="width: 100%;overflow-y:auto;" :max-height="tableHeight"
+                  @selection-change="handleSelectionChange" :show-header="showHeader" id="msg-table">
+          <el-table-column type="selection" width="55"></el-table-column>
+          <el-table-column>
+            <template slot-scope="scope">
+              <el-row style="padding: 18px 0 17px;" type="flex" justify="space-between">
+                <el-col :span="18">
+                  <el-button type="text" @click="toDetail(scope.row)">
+                    <span style="color: #1b89bd;">[{{getBizTypeText(scope.row.bussionType)}}]</span>
+                    <span class="fontFFF">{{scope.row.title}}</span>
+                    <span class="fontFFF">[{{formatTime(scope.row.creatorDate)}}]</span>
+                    <span class="fontFFF isMessage" style="position: relative;" v-if="scope.row.status === 0">[未读]</span>
+                    <span class="fontFFF" v-if="scope.row.status === 1">[已读]</span>
+                  </el-button>
+                </el-col>
+                <el-col :span="4" style="text-align: right">
+                  <el-button title="删除" type="primary" @click="deleteMessage(scope.row)" icon="el-icon-delete" circle></el-button>
+                </el-col>
+              </el-row>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div style="padding: 10px 0 18px;" v-if="total > 0">
+        <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange"
+                     style="padding: 0 14px; color:#1E98D2">全选
+        </el-checkbox>
+        <el-button type="primary" @click="batchDeleteMessage()"><i class="el-icon-delete"></i>删除</el-button>
+        <el-button type="primary" @click="batchUpdateMessage()"><i class="el-icon-message"></i>已读</el-button>
+        <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
+                       :page-size="pageSize" :total="total" :current-page="page" style="float:right; padding-bottom: 20px;">
+        </el-pagination>
+      </div>
+    </el-card>
+    <el-dialog :title="detail.title" :visible.sync="dialogVisible" :close-on-click-modal="false" class="audit_dialog" @close="closeDialog">
+      <el-form :model="detail" label-width="100px" style="padding-left: 20px; padding-right: 15px;" v-loading="dialogLoading">
+        <el-form-item label="消息内容">{{detail.content}}</el-form-item>
+        <el-form-item label="发送时间">{{detail.creatorDate}}</el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeDialog" class="cancelBtn">关闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import {
-  getMessagesPage, getMessagesUpd, getBatchMessagesUpd
-} from '@/api/messages'
-
 export default {
   name: 'Messages',
   data() {
     return {
+      dialogVisible: false,
+      dialogLoading: false,
       loading: false,
       checkAll: false,
       isIndeterminate: false,
       showHeader: false,
       curIndex: 0,
+      allData: {},
       dataList: [],
+      countData: {
+      },
       tabList: [
-        {
-          title: '全部', type: 0
-        },
-        {
-          title: '案件认领', type: 1
-        },
-        {
-          title: '案件督办', type: 3
-        },
-        {
-          title: '全国协查', type: 4
-        },
-        {
-          title: '案件协查', type: 5
-        },
-        {
-          title: '专项任务', type: 6
-        },
-        {
-          title: '情报线索', type: 7
-        }
+        { title: '全部', type: 0 },
+        { title: '已读', type: 9 },
+        { title: '未读', type: 8 },
+        { title: '案件管理', type: 1 },
+        { title: '情报管理', type: 2 },
+        { title: '教育训练', type: 3 },
+        { title: '基础业务', type: 4 }
       ],
       multipleSelection: [],
       total: 0,
       pageSize: 15,
       page: 1,
       curDept: {},
+      curUser: {},
       bizType: 0,
-      tableHeight: document.documentElement.clientHeight - 300
+      tableHeight: document.documentElement.clientHeight - 300,
+      detail: {}
     }
   },
   methods: {
+    closeDialog() {
+      this.dialogVisible = false
+      this.detail = {}
+    },
+    callback() {
+      this.$router.push({ path: '/portal' })
+    },
     formatTime(time) {
       return this.$parseTime(time, '{y}-{m}-{d} {h}:{i}')
     },
@@ -141,22 +135,42 @@ export default {
       this.pageSize = val
       this.queryData()
     },
+    queryCount() {
+      const para = {
+        userId: this.curUser.id
+      }
+      this.$query('sysMessages', para).then((res) => {
+        this.loading = false
+        if (res.code === '000000' && res.data) {
+          this.countData = res.data
+        }
+      }).catch(() => {
+        this.loading = false
+      })
+    },
     queryData() {
       this.loading = true
       this.dataList = []
       this.checkAll = false
       this.isIndeterminate = false
-      getMessagesPage({
-        type: this.bizType,
+      const para = {
         pageNum: this.page,
         pageSize: this.pageSize,
-        deptId: this.curDept.id
-      }).then((res) => {
+        userId: this.curUser.id
+      }
+      if (this.bizType === 9) {
+        para.status = 1
+      } else if (this.bizType === 8) {
+        para.status = 0
+      } else if (this.bizType !== 0) {
+        para.bussionType = this.bizType
+      }
+      this.$query('page/sysMessagesPage', para).then((res) => {
         this.loading = false
         if (res.code === '000000' && res.data) {
           this.dataList = res.data.list
           this.total = res.data.totalCount
-          this.pageSize = res.data.pageSize
+          this.total = res.data.totalCount
         }
       }).catch(() => {
         this.loading = false
@@ -194,79 +208,112 @@ export default {
       }
     },
     toDetail(row) {
-      this.updMessage(row.id, 1)
-      let uri = ''
-      if (row.business_type === 1) {
-        uri = '/caseManage/detail/' + row.business_id
+      this.dialogLoading = true
+      if (row.status === 0) {
+        this.updMessage(row.messagesId, 1)
       }
-      if (row.business_type === 3) {
-        uri = '/caseManage/dbdetail/' + row.business_id
-      }
-      if (row.business_type === 4) {
-        uri = '/caseManage/investigation/detail/' + row.business_id
-      }
-      if (row.business_type === 5) {
-        uri = '/caseAssist/detail/' + row.business_id
-      }
-      if (row.business_type === 6) {
-        uri = '/specialTasks/total/'
-      }
-      if (row.business_type === 7) {
-        uri = '/intellSystem/edit/' + row.business_id
-      }
-      this.$router.push({
-        path: uri
+      this.dialogVisible = true
+      this.$query('sysmessagesdetail/' + row.messagesId, {}).then(response => {
+        this.dialogLoading = false
+        this.detail = response.data
+      }).catch(() => {
+        this.dialogLoading = false
       })
     },
-    updMessage(id, status) {
+    updMessage(id) {
       this.loading = true
-      getMessagesUpd({
-        id: id,
-        status: status
-      }).then((res) => {
+      const para = {
+        messagesId: [id]
+      }
+      this.$update('sysmessagesstatus/1', para).then((res) => {
         this.loading = false
         if (res.code === '000000') {
-          if (status === 2) {
-            this.$message({
-              message: '操作成功', type: 'success'
-            })
-          }
-          this.queryData()
+          this.$message({
+            message: '操作成功', type: 'success'
+          })
+          this.query()
         }
       })
     },
-    batchUpdMessage(type) {
+    deleteMessage(row) {
+      this.loading = true
+      const para = {
+        messagesId: [row.messagesId]
+      }
+      this.$update('sysmessagesdel/1', para).then((res) => {
+        this.loading = false
+        if (res.code === '000000') {
+          this.$message({
+            message: '操作成功', type: 'success'
+          })
+          this.query()
+        }
+      })
+    },
+    batchDeleteMessage() {
       if (this.multipleSelection.length < 1) {
         this.$message({
           message: '请勾选信息', type: 'warning'
         })
         return false
       }
-      const params = []
+      const params = {
+        messagesId: []
+      }
       for (let i = 0; i < this.multipleSelection.length; i++) {
-        params.push({
-          id: this.multipleSelection[i]['id'], status: type
-        })
+        params.messagesId.push(this.multipleSelection[i]['messagesId'])
       }
       this.loading = true
-      getBatchMessagesUpd({
-        params: params
-      }).then((res) => {
+      this.$update('sysmessagesdel/1', params).then((res) => {
         this.loading = false
         if (res.code === '000000') {
           this.$message({
             message: '操作成功', type: 'success'
           })
-          this.queryData()
+          this.query()
         }
       }).catch(() => {
         this.loading = false
       })
+    },
+    batchUpdateMessage() {
+      if (this.multipleSelection.length < 1) {
+        this.$message({
+          message: '请勾选信息', type: 'warning'
+        })
+        return false
+      }
+      const params = {
+        messagesId: []
+      }
+      for (let i = 0; i < this.multipleSelection.length; i++) {
+        if (this.multipleSelection[i].status === 0) {
+          params.messagesId.push(this.multipleSelection[i]['messagesId'])
+        }
+      }
+      this.loading = true
+      this.$update('sysmessagesstatus/1', params).then((res) => {
+        this.loading = false
+        if (res.code === '000000') {
+          this.$message({
+            message: '操作成功', type: 'success'
+          })
+          this.query()
+        }
+      }).catch(() => {
+        this.loading = false
+      })
+    },
+    query() {
+      this.queryCount()
+      this.queryData()
     }
   },
   mounted() {
     this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     if (this.curDept) {
+      this.queryCount()
       this.queryData()
     }
   }
