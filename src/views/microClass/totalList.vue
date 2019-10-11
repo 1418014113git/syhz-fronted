@@ -6,9 +6,6 @@
           <el-col :span="24" class="content">
             <el-card>
               <el-form :inline="true" :model="filters" label-width="80px">
-                <el-form-item label="资料名称">
-                  <el-input placeholder="请输入关键字" v-model="filters.title" maxlength="50" style="width: 222px"></el-input>
-                </el-form-item>
                 <el-form-item label="类别">
                   <el-select v-model="filters.type" placeholder="请选择">
                     <el-option label="环境" value="3"></el-option>
@@ -40,23 +37,23 @@
                         </template>
                       </el-table-column>
                       <el-table-column prop="departName" align="center" label="单位"></el-table-column>
-                      <el-table-column prop="id" align="center" width="160" label="资料发布数量"></el-table-column>
-                      <el-table-column prop="id" align="center" width="160" label="资料审核通过"></el-table-column>
-                      <el-table-column prop="id" align="center" width="160" label="资料审核不通过"></el-table-column>
-                      <el-table-column prop="id" align="center" width="160" label="学习人次"></el-table-column>
-                      <el-table-column prop="id" align="center" width="160" label="学习时长"></el-table-column>
-                      <el-table-column prop="id" align="center" width="160" label="下载次数"></el-table-column>
+                      <el-table-column prop="total1" align="center" width="160" label="资料发布数量"></el-table-column>
+                      <el-table-column prop="total2" align="center" width="160" label="资料审核通过"></el-table-column>
+                      <el-table-column prop="total3" align="center" width="160" label="资料审核不通过"></el-table-column>
+                      <el-table-column prop="total4" align="center" width="160" label="学习人次"></el-table-column>
+                      <el-table-column prop="total5" align="center" width="160" label="学习时长"></el-table-column>
+                      <el-table-column prop="total6" align="center" width="160" label="下载次数"></el-table-column>
                     </el-table>
                   </template>
                 </el-table-column>
                 <el-table-column type="index" width="80"></el-table-column>
                 <el-table-column prop="areaName" align="center" label="地市"></el-table-column>
-                <el-table-column prop="id" align="center" width="160" label="资料发布数量"></el-table-column>
-                <el-table-column prop="id" align="center" width="160" label="资料审核通过"></el-table-column>
-                <el-table-column prop="id" align="center" width="160" label="资料审核不通过"></el-table-column>
-                <el-table-column prop="id" align="center" width="160" label="学习人次"></el-table-column>
-                <el-table-column prop="id" align="center" width="160" label="学习时长"></el-table-column>
-                <el-table-column prop="id" align="center" width="160" label="下载次数"></el-table-column>
+                <el-table-column prop="total1" align="center" width="160" label="资料发布数量"></el-table-column>
+                <el-table-column prop="total2" align="center" width="160" label="资料审核通过"></el-table-column>
+                <el-table-column prop="total3" align="center" width="160" label="资料审核不通过"></el-table-column>
+                <el-table-column prop="total4" align="center" width="160" label="学习人次"></el-table-column>
+                <el-table-column prop="total5" align="center" width="160" label="学习时长"></el-table-column>
+                <el-table-column prop="total6" align="center" width="160" label="下载次数"></el-table-column>
               </el-table>
             </el-card>
           </el-col>
@@ -73,7 +70,6 @@
       return {
         expands: [],
         filters: {
-          title: '',
           cityCode: '1',
           type: '',
           departCode: '',
@@ -144,7 +140,6 @@
       },
       query(flag, departCode) {
         let para = {
-          title: this.filters.title,
           type: this.filters.type,
           startTime: this.filters.time ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : '',
           endTime: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '',
