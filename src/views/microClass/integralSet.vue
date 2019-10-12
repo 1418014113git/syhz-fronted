@@ -153,7 +153,11 @@
               type: 'success'
             })
             this.$router.go(0)
+          }).catch(() => {
+            this.loading = false
           })
+        } else {
+          this.loading = false
         }
       },
       callback() {
