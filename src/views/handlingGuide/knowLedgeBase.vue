@@ -179,7 +179,8 @@
           auditId: '',
           remark: '',
           workId: '',
-          documentId: ''
+          documentId: '',
+          userId: ''
         },
         auditRules: {
           remark: [{
@@ -219,7 +220,7 @@
       },
       uploadFile() {
         const para = {
-          param: this.filters,
+          filters: this.filters,
           jumpType: 'knowLedgeBase',
           active: this.active
         }
@@ -278,7 +279,7 @@
       },
       handleRowView(index, row) {
         const para = {
-          param: this.filters,
+          filters: this.filters,
           jumpType: 'knowLedgeBase',
           id: row.id,
           active: this.active
@@ -298,7 +299,7 @@
       },
       handleRowEdit(index, row) {
         const para = {
-          param: this.filters,
+          filters: this.filters,
           jumpType: 'knowLedgeBase',
           id: row.id,
           active: this.active
@@ -338,10 +339,17 @@
         this.auditForm.workId = row.workId
         this.auditForm.documentId = row.documentId
         this.auditForm.articleType = row.articleType
+        this.auditForm.userId = row.userId
       },
       closeDialog() {
         this.auditDialogVisible = false
-        this.auditForm = {}
+        this.auditForm = {
+          auditId: '',
+          remark: '',
+          workId: '',
+          documentId: '',
+          userId: ''
+        }
         this.isBatchAudit = false
         this.$refs.auditForm.resetFields()
       },
@@ -361,7 +369,8 @@
               workId: this.auditForm.workId,
               currentAuditType: auditStatus,
               remark: this.auditForm.remark,
-              documentId: this.auditForm.documentId
+              documentId: this.auditForm.documentId,
+              userId: this.auditForm.userId
             }
             para = this.$setCurrentUser(para)
             para.deptAreaCode = para.areaCode
@@ -390,7 +399,13 @@
                 })
                 this.loading = false
                 this.auditDialogVisible = false
-                this.auditForm = {}
+                this.auditForm = {
+                  auditId: '',
+                  remark: '',
+                  workId: '',
+                  documentId: '',
+                  userId: ''
+                }
                 this.query()
               }).catch(() => {
                 this.loading = false
@@ -404,7 +419,13 @@
                 })
                 this.loading = false
                 this.auditDialogVisible = false
-                this.auditForm = {}
+                this.auditForm = {
+                  auditId: '',
+                  remark: '',
+                  workId: '',
+                  documentId: '',
+                  userId: ''
+                }
                 this.query()
               }).catch(() => {
                 this.loading = false
@@ -498,7 +519,11 @@
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.countHeight = document.documentElement.clientHeight - 230
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
-        this.active = sessionStorage.getItem(this.$route.path)
+        const param = JSON.parse(sessionStorage.getItem(this.$route.path))
+        if (param) {
+          this.active = param.active
+          this.filters = param.filters
+        }
         sessionStorage.setItem(this.$route.path, '')
       }
       this.queryDept()

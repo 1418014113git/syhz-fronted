@@ -266,7 +266,11 @@
         if (this.callBack === '') {
           this.$gotoid('/handlingGuide/hybzList', JSON.stringify(this.filters))
         } else {
-          this.$gotoid('/handlingGuide/knowLedgeBase', this.active)
+          const para = {
+            filters: this.filters,
+            active: this.active
+          }
+          this.$gotoid('/handlingGuide/knowLedgeBase', JSON.stringify(para))
         }
       },
       getCategoryData(key) {
@@ -555,7 +559,7 @@
           this.active = para.active
         }
         if (para.filters) {
-          this.filters = para
+          this.filters = para.filters
         }
       }
     }
