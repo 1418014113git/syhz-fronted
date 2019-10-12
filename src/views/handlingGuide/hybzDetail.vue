@@ -112,6 +112,7 @@
         id: '',
         callBack: '',
         active: '',
+        filters: {},
         loading: false,
         currentDep: {},
         curUser: {},
@@ -209,7 +210,11 @@
         if (this.callBack === '') {
           this.$router.push('/handlingGuide/hybzList')
         } else {
-          this.$gotoid('/handlingGuide/knowLedgeBase', this.active)
+          const para = {
+            filters: this.filters,
+            active: this.active
+          }
+          this.$gotoid('/handlingGuide/knowLedgeBase', JSON.stringify(para))
         }
       },
       getDetail() {
@@ -322,7 +327,9 @@
           this.callBack = para.jumpType
           this.active = para.active
         }
-        // sessionStorage.setItem(this.$route.path, '')
+        if (para.filters) {
+          this.filters = para.filters
+        }
       }
     }
   }
