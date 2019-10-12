@@ -6,8 +6,12 @@
     <el-table v-else :data="tableData" style="width: 100%">
       <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
       <el-table-column prop="areaName" label="省市" align="center" min-width="70"></el-table-column>
-      <el-table-column prop="total5" label="学习人次" align="center"></el-table-column>
-      <el-table-column prop="total6" label="学习时长" align="center" min-width="70"></el-table-column>
+      <el-table-column prop="total5" label="学习人次" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="total6" label="学习时长" align="center" min-width="70" show-overflow-tooltip>
+        <template slot-scope="scope">
+          {{scope.row.total6 > 0 ? $buildTime(scope.row.total6) : '-'}}
+        </template>
+      </el-table-column>
     </el-table>
   </section>
 </template>

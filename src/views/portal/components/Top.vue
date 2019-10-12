@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { getMessagesCount } from '@/api/messages'
+// import { getMessagesCount } from '@/api/messages'
 import SearchApp from './searchApp'
 export default {
   name: '',
@@ -217,12 +217,10 @@ export default {
         location.reload()
       })
     },
-    getCount() {
-      getMessagesCount({
-        deptId: this.curDept.id
-      }).then((res) => {
-        if (res.code === '000000' && res.data) {
-          this.isMessage = res.data > 0
+    getCount() { // 消息图标是否显示小红点
+      this.$query('SYSMESSAGESSTATUS/'+ this.curUser.id, {}).then((response) => {
+       if (response.code === '000000' && response.data.messageCount) {
+          this.isMessage = response.data.messageCount > 0
         }
       })
     },
@@ -278,9 +276,7 @@ export default {
   mounted() {
     this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-    if (this.curDept) {
-      this.getCount()
-    }
+    this.getCount()
   }
 }
 </script>
