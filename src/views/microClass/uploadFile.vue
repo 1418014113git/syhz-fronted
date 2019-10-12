@@ -178,7 +178,11 @@
           this.$gotoid('/micro/onlineClassRoom', param)
         }
         if (this.source === 'trainMaterial') {
-          this.$gotoid('/micro/trainMaterial', this.active)
+          const para = {
+            filters: this.filters,
+            active: this.active
+          }
+          this.$gotoid('/micro/trainMaterial', JSON.stringify(para))
         }
         if (this.source === '0') {
           this.$gotoid('/micro/moreVideo', param)
