@@ -94,7 +94,7 @@
               </el-table>
             </el-card>
             <div class="paginationWrap">
-              <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[10,15,30,50,100]" @size-change="handleSizeChange"
+              <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
                              :page-size="pageSize" :total="total" :current-page="page"></el-pagination>
             </div>
           </el-col>
@@ -127,7 +127,7 @@
         <el-table-column property="remark" label="审核意见"></el-table-column>
       </el-table>
       <div class="paginationWrap">
-        <el-pagination v-if="auditTotal > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange_audit" :page-sizes="[10,15,30,50,100]" @size-change="handleSizeChange_audit"
+        <el-pagination v-if="auditTotal > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange_audit" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange_audit"
                        :page-size="auditPageSize" :total="auditTotal" :current-page="auditPage"></el-pagination>
       </div>
     </el-dialog>
@@ -164,20 +164,22 @@
         curriculumData: [],
         total: 0,
         page: 1,
-        pageSize: 10,
+        pageSize: 15,
         value: '',
         countHeight: null,
         auditListDialogVisible: false,
         auditList: [],
         auditPage: 1,
-        auditPageSize: 10,
+        auditPageSize: 15,
         auditTotal: 0,
         auditListLoading: false,
         auditDialogVisible: false,
         auditForm: {
           auditId: '',
           remark: '',
-          workId: ''
+          workId: '',
+          userId: '',
+          title: ''
         },
         auditRules: {
           remark: [{
@@ -218,6 +220,7 @@
       uploadFile() {
         const para = {
           auditView: true,
+          param: this.filters,
           jumpType: 'trainMaterial',
           active: this.active
         }
@@ -267,8 +270,10 @@
         const para = {
           auditView: true,
           enType: row.enType + '',
+          filters: this.filters,
           jumpType: 'trainMaterial',
-          id: row.id
+          id: row.id,
+          active: this.active
         }
         if (row.enType === 0) {
           this.$gotoid('/micro/documentPlayer', JSON.stringify(para))
@@ -308,10 +313,18 @@
         this.auditDialogVisible = true
         this.auditForm.auditId = row.id
         this.auditForm.workId = row.workId
+        this.auditForm.userId = row.userId
+        this.auditForm.title = row.title
       },
       closeDialog() {
         this.auditDialogVisible = false
-        this.auditForm = {}
+        this.auditForm = {
+          auditId: '',
+          remark: '',
+          workId: '',
+          userId: '',
+          title: ''
+        }
         this.isBatchAudit = false
         this.$refs.auditForm.resetFields()
       },
@@ -330,7 +343,9 @@
               belongSys: '2',
               workId: this.auditForm.workId,
               currentAuditType: auditStatus,
-              remark: this.auditForm.remark
+              remark: this.auditForm.remark,
+              userId: this.auditForm.userId,
+              title: this.auditForm.title
             }
             para = this.$setCurrentUser(para)
             para.deptAreaCode = para.areaCode
@@ -353,7 +368,13 @@
                 })
                 this.loading = false
                 this.auditDialogVisible = false
-                this.auditForm = {}
+                this.auditForm = {
+                  auditId: '',
+                  remark: '',
+                  workId: '',
+                  userId: '',
+                  title: ''
+                }
                 this.query()
               }).catch(() => {
                 this.loading = false
@@ -367,7 +388,13 @@
                 })
                 this.loading = false
                 this.auditDialogVisible = false
-                this.auditForm = {}
+                this.auditForm = {
+                  auditId: '',
+                  remark: '',
+                  workId: '',
+                  userId: '',
+                  title: ''
+                }
                 this.query()
               }).catch(() => {
                 this.loading = false
@@ -458,7 +485,11 @@
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.countHeight = document.documentElement.clientHeight - 230
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
-        this.active = sessionStorage.getItem(this.$route.path)
+        const param = JSON.parse(sessionStorage.getItem(this.$route.path))
+        if (param) {
+          this.active = param.active
+          this.filters = param.filters
+        }
         sessionStorage.setItem(this.$route.path, '')
       }
       this.queryDept()

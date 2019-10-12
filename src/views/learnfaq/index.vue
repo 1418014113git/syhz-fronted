@@ -92,7 +92,7 @@
       </el-card>
       <el-col :span="24" class="toolbar">
         <el-pagination layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange"
-                       :page-sizes="[10,30,50,100]" @size-change="handleSizeChange"
+                       :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
                        :page-size="pageSize" :total="total" :current-page="page" v-if="paginationShow" style="float:right;">
         </el-pagination>
       </el-col>
@@ -117,7 +117,7 @@
         helpPageSize: 6,
         total: 0,
         page: 1,
-        pageSize: 10,
+        pageSize: 15,
         dataArray: [],
         detailLoading: false,
         activeIndex: '0',
@@ -166,7 +166,7 @@
       },
       // 资料下载
       download(url) {
-        window.open()
+        window.open(url)
       },
       // 删除
       dele(row) {

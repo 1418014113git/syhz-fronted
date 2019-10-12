@@ -5,7 +5,7 @@
       <el-form :inline="true" :model="filters" >
         <el-col :span="24">
           <div class="tabsDiv">
-            <el-tabs v-model="activeName">
+            <el-tabs v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="全部" name=""></el-tab-pane>
               <el-tab-pane label="环境" name="3"></el-tab-pane>
               <el-tab-pane label="食品" name="1"></el-tab-pane>
@@ -63,6 +63,14 @@
       }
     },
     methods: {
+      handleClick(tab, event) {
+        if (this.activeName === '0') {
+          this.filters.type = ''
+        } else {
+          this.filters.type = this.activeName
+        }
+        this.query(true)
+      },
       query(flag, pageNum, pageSize) {
         if (!this.uploadFlag) {
           this.toOnlineClass()
@@ -111,6 +119,9 @@
       },
       setFilter(filters) {
         this.filters = filters
+        if (this.filters.type !== '') {
+          this.activeName = this.filters.type
+        }
       },
       add() {
         this.$router.push({ path: '/handlingGuide/flfg/add' })

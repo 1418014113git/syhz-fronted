@@ -170,6 +170,14 @@
     // created() {
     //   this.detailData.enPath = pdf.createLoadingTask('/down/test.pdf')
     // },
+    created() {
+      this.$navigation.on('forward', (to, from) => {
+        this.clearTimeInterval()
+      })
+      this.$navigation.on('back', (to, from) => {
+        this.clearTimeInterval()
+      })
+    },
     mounted() {
       this.initSplit()
       this.setDetail(this.playerDetail)

@@ -137,7 +137,8 @@ export default {
     },
     queryCount() {
       const para = {
-        userId: this.curUser.id
+        userId: this.curUser.id,
+        deptCode: this.curDept.depCode
       }
       this.$query('sysMessages', para).then((res) => {
         this.loading = false
@@ -156,7 +157,8 @@ export default {
       const para = {
         pageNum: this.page,
         pageSize: this.pageSize,
-        userId: this.curUser.id
+        userId: this.curUser.id,
+        deptCode: this.curDept.depCode
       }
       if (this.bizType === 9) {
         para.status = 1

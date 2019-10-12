@@ -104,7 +104,7 @@
         }
         this.filters = filters
         this.$refs.filterCommon.setFilter(filters)
-        sessionStorage.setItem(this.$route.path, '')
+        // sessionStorage.setItem(this.$route.path, '')
         this.$refs.filterCommon.query()
       }
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
