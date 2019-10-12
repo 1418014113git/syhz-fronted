@@ -523,9 +523,9 @@ export default {
       // console.log('forward to', to, 'from ', from)
       this.cleartExamTimeout() // 清除定时器
     })
-    // this.$navigation.on('back', (to, from) => {
-    //   console.log('back to', to, 'from ', from)
-    // })
+    this.$navigation.on('back', (to, from) => {
+      this.cleartExamTimeout() // 清除定时器
+    })
     // this.$navigation.on('replace', (to, from) => {
     //   console.log('replace to', to, 'from ', from)
     // })
