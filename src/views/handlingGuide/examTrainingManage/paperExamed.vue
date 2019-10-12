@@ -101,7 +101,7 @@
                 @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)" maxlength="1000" clearable placeholder="请输入您的答案"></el-input> -->
               <!-- 答案 -->
               <p>您的答案：{{smallItem.answer}}</p>
-              <p>解析：{{smallItem.analysis}}</p>
+              <p>解析：<span v-html="smallItem.analysis" class="richTextWrap"></span></p>
             </div>
           </div>
         </div>
@@ -111,7 +111,7 @@
         <p class="left">
           <!-- <span class="font_b">考试成绩：</span> 自动阅卷得分 <span class="scoreNumber">{{examinationData.examScore}}</span> 分，人工阅卷得分 <span class="scoreNumber">{{examinationData.examArtificialScore}}</span> 分 -->
           <span class="font_b">考试成绩：</span>
-          <span class="scoreNumber">{{Number(examinationData.examScore) + Number(examinationData.examArtificialScore)}}</span> 分
+          用时 {{examinationData.totalTime}}，成绩 <span class="scoreNumber">{{Number(examinationData.examScore) + Number(examinationData.examArtificialScore)}}</span> 分
         </p>
         <p class="right">
           <span class="font_b">可重考次数： <span class="scoreNumber">{{examinationData.enableNum}}</span> 次</span>

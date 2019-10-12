@@ -27,7 +27,7 @@
         <span v-else-if="questionForm.answer === 2">错误</span>
       </el-form-item>
       <el-form-item label="题目解析">
-        <span v-html="questionForm.analysis"></span>
+        <span v-html="questionForm.analysis" class="richTextWrap"></span>
       </el-form-item>
       <el-form-item label="出处" prop="source">
         <el-tag>{{questionForm.source}}</el-tag>
