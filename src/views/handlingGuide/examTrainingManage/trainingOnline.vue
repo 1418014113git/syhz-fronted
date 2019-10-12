@@ -235,27 +235,14 @@ export default {
         }
       }
     },
-    querySeverTime() { // 查询服务器时间
-      this.$query('exam/systemTime', {}).then((response) => {
-        this.detailLoading = false
-        if (response.code === '000000') {
-          // this.startTime = response.data.startTime // 考试开始时间
-          // this.recordId = response.data.recordId // 考试记录id
-          // var minutes = Number(this.examinationData.totalDate) * 60
-          // this.countdown(minutes) // 倒计时开始，参数 秒数
-        }
-      }).catch(() => {
-        this.detailLoading = false
-      })
-    },
     timestampToTime(timestamp) {
       var date = new Date(timestamp * 1000) // 时间戳为10位需*1000，时间戳为13位的话不需乘1000
       var Y = date.getFullYear() + '-'
       var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
-      var D = date.getDate() + ' '
-      var h = date.getHours() + ':'
-      var m = date.getMinutes() + ':'
-      var s = date.getSeconds()
+      var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
+      var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+      var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+      var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
       return Y + M + D + h + m + s
     },
     saveExamStart() { // 提交开始考试信息
@@ -272,7 +259,7 @@ export default {
       this.$save('exam/start', param).then((response) => {
         if (response.code === '000000') {
           var startObj = response.data
-          this.$query('exam/systemTime', {}).then((res) => {
+          this.$query('exam/systemTime', {}).then((res) => { // 查询服务器时间
             this.detailLoading = false
             if (res.code === '000000') {
               // 1570693066740
@@ -283,10 +270,15 @@ export default {
               var timeDiff = 0
               if (time1Stamp < res.data) {
                 timeDiff = this.timeDifference(time1, time2)
+              } else {
+                timeDiff = 0
               }
               this.startTime = startObj.startTime // 考试开始时间
               this.recordId = startObj.recordId // 考试记录id
               // var minutes = Number(this.examinationData.totalDate) * 60 // 考试时限
+              if (timeDiff < 0) {
+                timeDiff = 0
+              }
               var minutes = Number(this.examinationData.totalDate) * 60 - Number(timeDiff) * 60
               if (minutes > 0) {
                 this.countdown(minutes) // 倒计时开始，参数 秒数
@@ -318,6 +310,7 @@ export default {
       //   alert('开始时间不能大于结束时间！')
       //   return false
       // }
+      console.log(time1 + '---' + time2)
       // 截取字符串，得到日期部分"2009-12-02",用split把字符串分隔成数组
       var begin1 = time1.substr(0, 10).split('-')
       var end1 = time2.substr(0, 10).split('-')
@@ -338,7 +331,7 @@ export default {
       var n = min2 - min1
       // 将日期和时间两个部分计算出来的差值相加，即得到两个时间相减后的分钟数
       var minutes = m + n
-      // console.log(minutes)
+      console.log(minutes)
       return minutes
     },
     saveQuestionAnswer(type, questionsId, answer, OtherAnswer) { // 保存题目答案
@@ -524,6 +517,24 @@ export default {
   },
   beforeDestroy() {
     this.cleartExamTimeout()
+  },
+  created() {
+    this.$navigation.on('forward', (to, from) => {
+      // console.log('forward to', to, 'from ', from)
+      this.cleartExamTimeout() // 清除定时器
+    })
+    // this.$navigation.on('back', (to, from) => {
+    //   console.log('back to', to, 'from ', from)
+    // })
+    // this.$navigation.on('replace', (to, from) => {
+    //   console.log('replace to', to, 'from ', from)
+    // })
+    // this.$navigation.on('refresh', (to, from) => {
+    //   console.log('refresh to', to, 'from ', from)
+    // })
+    // this.$navigation.on('reset', (to, from) => {
+    //   console.log('reset to', to, 'from ', from)
+    // })
   },
   mounted() {
     if (this.$route.query) {
