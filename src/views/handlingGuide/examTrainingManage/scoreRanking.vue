@@ -169,7 +169,7 @@ export default {
     font-weight: bold;
   }
   .el-table .row-paiming .paiming .cell div {
-    color: #000000;
+    color: #ffffff;
     font-weight: bold;
   }
   // 成绩下载的弹框
