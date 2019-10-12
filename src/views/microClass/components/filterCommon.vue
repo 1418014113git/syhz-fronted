@@ -64,7 +64,11 @@
     },
     methods: {
       handleClick(tab, event) {
-        this.filters.type = this.activeName
+        if (this.activeName === '0') {
+          this.filters.type = ''
+        } else {
+          this.filters.type = this.activeName
+        }
         this.query(true)
       },
       query(flag, pageNum, pageSize) {
@@ -115,6 +119,9 @@
       },
       setFilter(filters) {
         this.filters = filters
+        if (this.filters.type !== '') {
+          this.activeName = this.filters.type
+        }
       },
       add() {
         this.$router.push({ path: '/handlingGuide/flfg/add' })
