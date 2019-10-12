@@ -95,7 +95,7 @@
               </el-table>
             </el-card>
             <div class="paginationWrap">
-              <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[10,15,30,50,100]" @size-change="handleSizeChange"
+              <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
                              :page-size="pageSize" :total="total" :current-page="page"></el-pagination>
             </div>
           </el-col>
@@ -128,7 +128,7 @@
         <el-table-column property="remark" label="审核意见"></el-table-column>
       </el-table>
       <div class="paginationWrap">
-        <el-pagination v-if="auditTotal > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange_audit" :page-sizes="[10,15,30,50,100]" @size-change="handleSizeChange_audit"
+        <el-pagination v-if="auditTotal > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange_audit" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange_audit"
                        :page-size="auditPageSize" :total="auditTotal" :current-page="auditPage"></el-pagination>
       </div>
     </el-dialog>
@@ -165,13 +165,13 @@
         curriculumData: [],
         total: 0,
         page: 1,
-        pageSize: 10,
+        pageSize: 15,
         value: '',
         countHeight: null,
         auditListDialogVisible: false,
         auditList: [],
         auditPage: 1,
-        auditPageSize: 10,
+        auditPageSize: 15,
         auditTotal: 0,
         auditListLoading: false,
         auditDialogVisible: false,

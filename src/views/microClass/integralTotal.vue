@@ -24,7 +24,7 @@
       </el-row>
       <el-col :span="24" class="toolbar">
         <el-pagination layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange"
-                       :page-sizes="[10,15,30,50,100]" @size-change="handleSizeChange"
+                       :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
                        :page-size="pageSize" :total="totalCount" :current-page="pageNum" style="float:right;">
         </el-pagination>
       </el-col>
@@ -48,7 +48,7 @@
         },
         totalRecords: [],
         totalCount: 0,
-        pageSize: 10,
+        pageSize: 15,
         pageNum: 1
       }
     },
