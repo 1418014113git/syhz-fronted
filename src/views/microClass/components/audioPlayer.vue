@@ -281,6 +281,9 @@
       this.$navigation.on('forward', (to, from) => {
         this.clearTimeInterval()
       })
+      this.$navigation.on('back', (to, from) => {
+        this.clearTimeInterval()
+      })
     },
     mounted() {
       this.initSplit()
