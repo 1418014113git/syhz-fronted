@@ -139,6 +139,8 @@ export default {
       startTime: '',
       doneQuestionNum: 0,
       submitNoticeStr: '', // 点最后提交试卷时 弹框提示内容
+      timeOut1: null, // 定时器
+      timeOut2: null, // 定时器
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -153,11 +155,13 @@ export default {
     },
     closeExamOver() { // 考试结束，(我知道了)
       this.isExamEnd = false
+      this.cleartExamTimeout() // 清除定时器
       this.$router.back(-1)
     },
     handleCancelExam(type) { // 取消考试 弹框
       this.isExamCancel = false
       if (type === '1') { // 确定
+        this.cleartExamTimeout() // 清除定时器
         this.$router.back(-1)
       } else if (type === '2') {
         // 继续答题
@@ -334,7 +338,7 @@ export default {
       var n = min2 - min1
       // 将日期和时间两个部分计算出来的差值相加，即得到两个时间相减后的分钟数
       var minutes = m + n
-      console.log(minutes)
+      // console.log(minutes)
       return minutes
     },
     saveQuestionAnswer(type, questionsId, answer, OtherAnswer) { // 保存题目答案
@@ -460,6 +464,7 @@ export default {
       this.$update('exam/submitAnswer', param).then((response) => {
         this.detailLoading = false
         if (response.code === '000000') { // 提交答案成功
+          this.cleartExamTimeout() // 清除定时器
           this.$router.push({ path: '/handlingGuide/examTrainingManage/index' })
         }
       }).catch(() => {
@@ -485,7 +490,7 @@ export default {
         this.isExamEnd = true // 考试结束的弹框
         this.countdownOver(3)
       } else {
-        setTimeout(function() {
+        this.timeOut1 = setTimeout(function() {
           _this.countdown(allSeconds)
         }, 1000)
       }
@@ -497,20 +502,34 @@ export default {
         this.handleSubmitAnswer('2') // 自动交卷
         // return
       } else {
-        setTimeout(function() {
+        this.timeOut2 = setTimeout(function() {
           _this.countdownOver(this.endTime)
         }, 1000)
       }
     },
     back() {
+      this.cleartExamTimeout() // 清除定时器
       this.$router.back(-1)
+    },
+    cleartExamTimeout() {
+      if (this.timeOut1) {
+        clearTimeout(this.timeOut1)
+      }
+      if (this.timeOut2) {
+        clearTimeout(this.timeOut2)
+      }
+      this.timeOut1 = null
+      this.timeOut2 = null
     }
+  },
+  beforeDestroy() {
+    this.cleartExamTimeout()
   },
   mounted() {
     if (this.$route.query) {
       this.carryParam = this.$route.query
+      this.queryPaperData()
     }
-    this.queryPaperData()
   }
 }
 
