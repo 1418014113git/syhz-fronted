@@ -93,7 +93,7 @@
       <input id="input" v-model="inputData" style="display:none;">
 
     <div class="slideshows">
-      <el-carousel :interval="5000" indicator-position="none" arrow="never">
+      <el-carousel :interval="3000" indicator-position="none" arrow="never">
         <el-carousel-item v-for="(item,index) in imgList" :key="index">
           <img :src="'/static/image/login_images/'+item" class="bannerImg"/>
         </el-carousel-item>
@@ -505,16 +505,16 @@ export default {
       padding-left: 50px;
     }
     .login-form {
-      width: 23%;
+      width: 21%;
       min-width: 350px;
       z-index: 300;
       position: absolute;
-      right: 50px;
+      right: 55px;
       top:0;
       height: auto;
-      margin: 5% 0 0 0;
+      margin: 14% 0 0 0;
       padding-bottom: 35px;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.2);
       　　　filter: progid:DXImageTransform.Microsoft.gradient(startcolorstr=#66000000,endcolorstr=#66000000);
       border-radius: 5px;
       -moz-border-radius: 5px;
@@ -556,7 +556,7 @@ export default {
     }
     .loginbtnbox {
       font-size: 20px;
-      margin-top: 45px;
+      margin-top: 60px;
     }
     .loginbtn {
       width: 80%;
@@ -619,7 +619,7 @@ export default {
     .pkiSpan {
       position: relative;
       display: inline-block;
-      font-size: 15px;
+      font-size: 16px;
       // &::after {
       //   display: block;
       //   content: "";
@@ -809,6 +809,9 @@ export default {
   .slideshow img,.slideshows img{
     width: 79%;
     height: 79%;
+  }
+  .login-container .login-box .login-form {
+    margin: 10% 0 0 0;
   }
 }
 @media screen and (min-width: 1920px) {
