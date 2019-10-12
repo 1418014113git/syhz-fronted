@@ -227,7 +227,7 @@ export default {
       })
     },
     addTestQuestion() { // 添加考试
-      this.$router.push({ path: '/handlingGuide/examineManage/edit' })
+      this.$router.push({ path: '/handlingGuide/examineManage/add' })
     },
     handleGoOverExam(index, row) { // 阅卷
       // this.$router.push({ path: '/handlingGuide/goOverExamPaper/index', query: { examId: row.id }})
