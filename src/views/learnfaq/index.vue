@@ -166,7 +166,7 @@
       },
       // 资料下载
       download(url) {
-        window.open()
+        window.open(url)
       },
       // 删除
       dele(row) {
