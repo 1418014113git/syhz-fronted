@@ -277,6 +277,11 @@
         this.setDetail(playerDetail)
       }
     },
+    created() {
+      this.$navigation.on('forward', (to, from) => {
+        this.clearTimeInterval()
+      })
+    },
     mounted() {
       this.initSplit()
       this.setDetail(this.playerDetail)
