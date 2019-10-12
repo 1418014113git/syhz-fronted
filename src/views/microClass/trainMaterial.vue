@@ -94,7 +94,7 @@
               </el-table>
             </el-card>
             <div class="paginationWrap">
-              <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[10,15,30,50,100]" @size-change="handleSizeChange"
+              <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
                              :page-size="pageSize" :total="total" :current-page="page"></el-pagination>
             </div>
           </el-col>
@@ -102,14 +102,14 @@
       </el-col>
     </el-row>
     <el-dialog title="审核" :visible.sync="auditDialogVisible" :close-on-click-modal="false" class="audit_dialog" @close="closeDialog">
-      <el-form :model="auditForm" ref="auditForm" :rules="auditRules" label-width="87px">
+      <el-form :model="auditForm" ref="auditForm" :rules="auditRules" label-width="100px">
         <el-form-item label="审核意见" prop="remark">
-          <el-input v-model="auditForm.remark" type="textarea" size="small" placeholder="最多可输入500个文字！"></el-input>
+          <el-input v-model="auditForm.remark" type="textarea" maxlength="500" size="small" placeholder="最多可输入500个字符！"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="executeAudit('3')" class="cancelBtn">不通过</el-button>
-        <el-button type="primary" @click="executeAudit('2')" class="saveBtn">通过</el-button>
+        <el-button type="primary" @click="executeAudit('2')" class="saveBtn" v-loading.fullscreen.lock="loading">通过</el-button>
       </div>
     </el-dialog>
     <el-dialog title="审核记录" :visible.sync="auditListDialogVisible">
@@ -127,7 +127,7 @@
         <el-table-column property="remark" label="审核意见"></el-table-column>
       </el-table>
       <div class="paginationWrap">
-        <el-pagination v-if="auditTotal > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange_audit" :page-sizes="[10,15,30,50,100]" @size-change="handleSizeChange_audit"
+        <el-pagination v-if="auditTotal > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange_audit" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange_audit"
                        :page-size="auditPageSize" :total="auditTotal" :current-page="auditPage"></el-pagination>
       </div>
     </el-dialog>
@@ -139,6 +139,7 @@
     name: 'trainMaterial',
     data() {
       return {
+        loading: false,
         totalData: {
           total: 0,
           type1: 0,
@@ -163,20 +164,22 @@
         curriculumData: [],
         total: 0,
         page: 1,
-        pageSize: 10,
+        pageSize: 15,
         value: '',
         countHeight: null,
         auditListDialogVisible: false,
         auditList: [],
         auditPage: 1,
-        auditPageSize: 10,
+        auditPageSize: 15,
         auditTotal: 0,
         auditListLoading: false,
         auditDialogVisible: false,
         auditForm: {
           auditId: '',
           remark: '',
-          workId: ''
+          workId: '',
+          userId: '',
+          title: ''
         },
         auditRules: {
           remark: [{
@@ -185,7 +188,7 @@
                 return callback(new Error('请输入审核意见！'))
               }
               if (value.length > 500) {
-                return callback(new Error('审核意见最多可输入500个文字！'))
+                return callback(new Error('审核意见最多可输入500个字符！'))
               }
               return callback()
             }
@@ -217,6 +220,7 @@
       uploadFile() {
         const para = {
           auditView: true,
+          param: this.filters,
           jumpType: 'trainMaterial',
           active: this.active
         }
@@ -266,8 +270,10 @@
         const para = {
           auditView: true,
           enType: row.enType + '',
+          filters: this.filters,
           jumpType: 'trainMaterial',
-          id: row.id
+          id: row.id,
+          active: this.active
         }
         if (row.enType === 0) {
           this.$gotoid('/micro/documentPlayer', JSON.stringify(para))
@@ -288,7 +294,7 @@
         this.$gotoid('/micro/uploadFile', JSON.stringify(para))
       },
       handleRowDel(index, row) {
-        this.$confirm('确认要删除此培训资料吗?', '提示', {
+        this.$confirm('资料删除后将无法再找回，确定是否要删除?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -307,14 +313,24 @@
         this.auditDialogVisible = true
         this.auditForm.auditId = row.id
         this.auditForm.workId = row.workId
+        this.auditForm.userId = row.userId
+        this.auditForm.title = row.title
       },
       closeDialog() {
         this.auditDialogVisible = false
-        this.auditForm = {}
+        this.auditForm = {
+          auditId: '',
+          remark: '',
+          workId: '',
+          userId: '',
+          title: ''
+        }
         this.isBatchAudit = false
+        this.$refs.auditForm.resetFields()
       },
       executeAudit(auditStatus) {
-        if (auditStatus === '2') {
+        this.loading = true
+        if (auditStatus === '2' && this.auditForm.remark === '') {
           this.auditForm.remark = '审核通过'
         }
         this.$refs.auditForm.validate(valid => {
@@ -327,7 +343,9 @@
               belongSys: '2',
               workId: this.auditForm.workId,
               currentAuditType: auditStatus,
-              remark: this.auditForm.remark
+              remark: this.auditForm.remark,
+              userId: this.auditForm.userId,
+              title: this.auditForm.title
             }
             para = this.$setCurrentUser(para)
             para.deptAreaCode = para.areaCode
@@ -348,10 +366,18 @@
                   message: '审核成功',
                   type: 'success'
                 })
+                this.loading = false
                 this.auditDialogVisible = false
-                this.auditForm = {}
+                this.auditForm = {
+                  auditId: '',
+                  remark: '',
+                  workId: '',
+                  userId: '',
+                  title: ''
+                }
                 this.query()
               }).catch(() => {
+                this.loading = false
               })
             } else {
               this.isBatchAudit = false
@@ -360,12 +386,22 @@
                   message: '审核成功',
                   type: 'success'
                 })
+                this.loading = false
                 this.auditDialogVisible = false
-                this.auditForm = {}
+                this.auditForm = {
+                  auditId: '',
+                  remark: '',
+                  workId: '',
+                  userId: '',
+                  title: ''
+                }
                 this.query()
               }).catch(() => {
+                this.loading = false
               })
             }
+          } else {
+            this.loading = false
           }
         })
       },
@@ -449,7 +485,11 @@
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.countHeight = document.documentElement.clientHeight - 230
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
-        this.active = sessionStorage.getItem(this.$route.path)
+        const param = JSON.parse(sessionStorage.getItem(this.$route.path))
+        if (param) {
+          this.active = param.active
+          this.filters = param.filters
+        }
         sessionStorage.setItem(this.$route.path, '')
       }
       this.queryDept()

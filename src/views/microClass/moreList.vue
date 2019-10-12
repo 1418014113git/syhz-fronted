@@ -57,12 +57,12 @@
       // 页数改变事件
       handleSizeChange(pageSize) {
         this.pageSize = pageSize
-        this.$refs.filterCommon.query()
+        this.$refs.filterCommon.query(false, this.pageNum, this.pageSize)
       },
       // 页码改变事件
       handleCurrentChange(current) {
         this.pageNum = current
-        this.$refs.filterCommon.query()
+        this.$refs.filterCommon.query(false, this.pageNum, this.pageSize)
       },
       changeList(arr1, arr2, arr3, pageNum, total, filters) {
         this.total = total
@@ -104,7 +104,7 @@
         }
         this.filters = filters
         this.$refs.filterCommon.setFilter(filters)
-        sessionStorage.setItem(this.$route.path, '')
+        // sessionStorage.setItem(this.$route.path, '')
         this.$refs.filterCommon.query()
       }
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]

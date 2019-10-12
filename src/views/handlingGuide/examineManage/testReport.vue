@@ -1,122 +1,51 @@
 <template>
-  <div>
-    <el-card style="margin-bottom: 10px;">
-      <el-form :inline="true" :model="filterQuery" label-width="84px">
-        <el-form-item label="发布单位"  prop="deptRange">
-          <el-select v-model="filterQuery.deptRange" placeholder="请选择">
-            <el-option label="全部" value=""></el-option>
-            <el-option label="省厅" value="1"></el-option>
-            <el-option label="地市" value="2"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="考试名称"  prop="examinationName">
-          <el-input v-model="filterQuery.examinationName" clearable maxlength="20" placeholder="请输入" ></el-input>
-        </el-form-item>
-        <el-form-item label="考试日期" prop="startTime">
-          <el-date-picker v-model="filterQuery.startDate" type="date" value-format="yyyy-MM-dd" :picker-options="startPickerOptions" placeholder="请选择开始时间" @change="startDateChange"></el-date-picker>
-          <el-date-picker v-model="filterQuery.endDate" type="date"  value-format="yyyy-MM-dd" :picker-options="endPickerOptions" placeholder="请选择结束时间" :disabled="endDateDisabled"  @change="endDateChange"></el-date-picker>
-        </el-form-item>
-        <el-form-item label="筛选类型">
-          <el-select v-model="filterQuery.type" filterable clearable placeholder="请选择" @change="filterTypeChange">
-            <el-option label="本年" value="year"></el-option>
-            <el-option label="本季" value="quarter"></el-option>
-            <el-option label="本月" value="month"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" v-if="$isViewBtn('100401')"  @click="queryExamStatistical(true)">查询</el-button>
-          <!-- <el-button type="primary" @click="reset">重置</el-button> -->
-        </el-form-item>
-      </el-form>
-    </el-card>
-    <!--考试信息-->
-    <el-card style="margin-bottom: 10px;">
-      <div slot="header" class="clearfix">
-        <span>考试统计</span>
-      </div>
-      <el-table :data="examinations"  style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange" v-loading="examLoading">
-        <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
-        <el-table-column prop="examinationName" label="考试名称" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="totalNum" label="应考人数" width="160" align="center">
-        </el-table-column>
-        <el-table-column prop="realNum" label="实考人数" width="160" align="center"></el-table-column>
-        <el-table-column prop="y" label="优" width="100" align="center">
-          <template slot-scope="scope">
-            <span v-if="scope.row.y">{{scope.row.y}}</span>
-            <span v-else>0</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="l" label="良" width="100" align="center">
-          <template slot-scope="scope">
-            <span v-if="scope.row.l">{{scope.row.l}}</span>
-            <span v-else>0</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z" label="中" width="100" align="center">
-          <template slot-scope="scope">
-            <span v-if="scope.row.z">{{scope.row.z}}</span>
-            <span v-else>0</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="c" label="差" width="100" align="center">
-          <template slot-scope="scope">
-            <span v-if="scope.row.c">{{scope.row.c}}</span>
-            <span v-else>0</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="200">
-          <template slot-scope="scope">
-            <span v-if="scope.row.totalNum">考试报告</span>
-            <!-- <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="排名"></el-button> -->
-          </template>
-        </el-table-column>
+  <div class="report">
+    <!-- <el-card style="margin-bottom: 10px;">
+    </el-card> -->
+    <el-row class="btn_wrap">
+      <el-button type="primary" @click="closeDia">关闭</el-button>
+      <!-- @click="printReport" -->
+      <!-- v-print="'#pdfDom'" -->
+      <el-button type="primary" @click="printReport">打印</el-button>
+      <el-button type="primary" @click="toGetPdf">下载</el-button>
+    </el-row>
+    <div id="pdfDom" style="padding: 20px;" ref="print">
+      <p class="title">{{examItem.examinationName}}考试报告</p>
+      <p class="main_content">
+        自 {{examItem.startDate}} 至 {{examItem.endDate}} 开展考试活动期间，应考 {{examItem.totalNum}} 人，实考 {{examItem.realNum}} 人，
+        实考占比 {{ toPercent(Number(examItem.realNum)/Number(examItem.totalNum)) }}。</p>
+      <p class="main_content">
+        其中，
+        优（{{examItem.y}}）人，占比 {{ toPercent(Number(examItem.y)/Number(examItem.totalNum)) }}；
+        良（{{examItem.l}}）人，占比 {{ toPercent(Number(examItem.l)/Number(examItem.totalNum)) }}；
+        中（{{examItem.z}}）人，占比 {{ toPercent(Number(examItem.z)/Number(examItem.totalNum)) }}；
+        差（{{examItem.c}}）人，占比 {{ toPercent(Number(examItem.c)/Number(examItem.totalNum)) }}。
+      </p>
+      <p class="main_content">地市考试情况如下表所示：</p>
+      <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight" border class="table_th_center" v-loading="listLoading">
+        <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+        <el-table-column prop="areaName" label="地市" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="ykNum" label="应考" width="120" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="skNum" label="实考" width="120" align="center"></el-table-column>
+        <el-table-column prop="yNum" label="优" width="100" align="center"></el-table-column>
+        <el-table-column prop="lNum" label="良" width="100" align="center"></el-table-column>
+        <el-table-column prop="zNum" label="中" width="100" align="center"></el-table-column>
+        <el-table-column prop="cNum" label="差" width="100" align="center"></el-table-column>
       </el-table>
-      <!--工具条-->
-      <el-col :span="24" class="toolbar clearfix">
-        <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize"
-                      :current-page="page" :total="total" style="float:right;">
-        </el-pagination>
-      </el-col>
-    </el-card>
-    <!--地市统计-->
-    <el-card style="margin-bottom: 10px;" v-loading="cityLoading">
-      <div slot="header" class="clearfix">
-        <span>地市考试统计</span>
-      </div>
-      <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight">
-        <!-- :expand-row-keys="expends" -->
-        <el-table-column type="expand">
-          <template slot-scope="scope">
-            <el-table :data="scope.row.child" style="width: 100%;" max-height="400">
-              <el-table-column prop="" label="" width="110px" style="opacity:0;"></el-table-column>
-              <el-table-column prop="deptName" label="单位" min-width="25%"></el-table-column>
-              <el-table-column prop="totalNum" label="应考总人数" width="160"></el-table-column>
-              <el-table-column prop="realNum" label="实考总人数" width="160"></el-table-column>
-              <el-table-column prop="y" label="优" width="100"> </el-table-column>
-              <el-table-column prop="l" label="良" width="100"></el-table-column>
-              <el-table-column prop="z" label="中" width="100"></el-table-column>
-              <el-table-column prop="c" label="差" width="100"></el-table-column>
-            </el-table>
-          </template>
-        </el-table-column>
-        <el-table-column type="index" label="序号" width="60"></el-table-column>
-        <el-table-column prop="areaName" label="地市" min-width="15%" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="ykNum" label="应考总人数" width="160" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="skNum" label="实考总人数" width="160"></el-table-column>
-        <el-table-column prop="yNum" label="优" width="100"></el-table-column>
-        <el-table-column prop="lNum" label="良" width="100"></el-table-column>
-        <el-table-column prop="zNum" label="中" width="100"></el-table-column>
-        <el-table-column prop="cNum" label="差" width="100"></el-table-column>
-      </el-table>
-    </el-card>
+    </div>
+    <!-- 关闭按钮 -->
+    <div style="text-align:center;">
+      <el-button size="medium" type="primary" @click="closeDia">关闭</el-button>
+    </div>
   </div>
 </template>
 <script>
 export default {
   name: 'examinationStatistical',
+  props: ['examItem'],
   data() {
     return {
+      htmlTitle: '', // 导出pdf的文件名
       filterQuery: {
         deptCode: '',
         startDate: '',
@@ -125,7 +54,7 @@ export default {
         type: ''
       },
       examinations: [], // 考试统计
-      childCityData: [],
+      cityData: [],
       expandstab: [], // 设置当前的展开行
       caseData: [], // 市的列表数据
       // subDeptCaseData: [], // 下级部门列表数据
@@ -141,7 +70,7 @@ export default {
         }
       },
       endPickerOptions: {},
-      cityData: [], // 盟市统计的
+      // cityData: [], // 盟市统计的
       startTime: '', // 开始时间，页面是绑定的modle
       endTime: '', // 结束时间
       yearDate: '', // 年份
@@ -160,11 +89,34 @@ export default {
       curDept: {} // 当前部门
     }
   },
+  watch: { // 监听state状态变化
+    examItem: {
+      handler: function(val, oldeval) {
+        // this.queryList(true)
+        this.queryCityStatisticalByExam(this.examItem.examinationId) // 考试统计
+      }
+    }
+  },
   methods: {
-    examinationNameChange() {
+    closeDia() { // 关闭弹框
+      this.$emit('isShowDialog')
     },
-    deptChange() {
-
+    printReport() { // 打印报告
+      this.$print(this.$refs.print) // 使用
+    },
+    toGetPdf() { // 下载报告
+      window.scrollTo(0, 0)
+      this.htmlTitle = this.examItem.examinationName + '考试报告'
+      this.getPdf(this.htmlTitle)
+    },
+    toPercent(point) {
+      if (point) {
+        var str = Number(point * 100).toFixed(1)
+        str += '%'
+        return str
+      } else {
+        return '0%'
+      }
     },
     handleSelectionChange(val) { // 多选表格
       this.multipleSelection = val
@@ -252,41 +204,13 @@ export default {
       })
     },
     queryCityStatisticalByExam(examIdStr) {
-      if (this.filterQuery.type === '') {
-        if (this.filterQuery.startDate === '' && this.filterQuery.endDate !== '') { // 开始时间为空,结束时间不为空
-          this.$message({
-            message: '开始时间不能为空', type: 'error'
-          })
-          return false
-        } else if (this.filterQuery.startDate !== '' && this.filterQuery.endDate === '') { // 选择了开始时间,结束时间为空
-          this.filterQuery.endDate = this.getdate() // 将当前时间赋值给结束时间
-        } else if (this.filterQuery.startDate && this.filterQuery.endDate) { // 开始时间和结束时间均不为空
-          if (new Date(this.filterQuery.startDate).getTime() > new Date(this.filterQuery.endDate).getTime()) {
-            this.$message({
-              message: '结束时间不能小于开始时间', type: 'error'
-            })
-            return false
-          }
-        }
-      }
       // if (hand) { // 手动点击时，添加埋点参数
       //   this.filters.logFlag = 1
       // }
-      var param = {
-        deptRange: this.filterQuery.deptRange || '',
-        startDate: this.filterQuery.startDate || '',
-        endDate: this.filterQuery.endDate || '',
-        examinationName: this.filterQuery.examinationName || '',
-        year: this.filterQuery.type === 'year' ? true : '',
-        quarter: this.filterQuery.type === 'quarter' ? true : '',
-        month: this.filterQuery.type === 'month' ? true : '',
-        pageNum: this.page,
-        pageSize: this.pageSize
-      }
-      this.cityLoading = true
-      this.$query('examination/statisticsOne?examinationId=' + examIdStr, param).then((response) => {
+      this.listLoading = true
+      this.$query('examination/statisticsOne?examinationIds=' + examIdStr, {}).then((response) => {
         if (response.code === '000000') {
-          this.cityLoading = false
+          this.listLoading = false
           this.cityData = response.data
           if (this.cityData.length > 0) {
             // this.showEchart = true
@@ -325,16 +249,6 @@ export default {
       if (!row.row.canExpand) {
         return 'row-expand-cover'
       }
-    },
-    handleCurrentChange(val) {
-      alert(val) // 分页查询
-      this.page = val
-      this.queryExamStatistical()
-    },
-    handleSizeChange(val) { // 分条查询
-      alert(val) // 分页查询
-      this.pageSize = val
-      this.queryExamStatistical()
     },
     drawChartScore() { // 考试成绩 饼状图
       var scoreArr = []
@@ -630,38 +544,62 @@ export default {
       } else {
         this.quarterDisabled = false
       }
-    },
-    linkAjrl(canClick, level, cityCode, deptId, deptCode, type) { // 跳转到案件认领列表
-      if (!canClick) {
-        return false
-      }
-      var param = {
-        origin: 'statistical', // 表示从统计跳转过去的
-        deptLevel: level, // 区分是一级还是二级
-        cityCode: cityCode,
-        deptCode: deptCode, // 当前点击的code
-        curFirstLevelCode: this.curFirstLevelCode, // 展开一级的，有可能展开一级后点一级的跳转 所以不能用这个字段判断
-        type: type, // 待认领...等
-        yearDate: this.yearDate, // 筛选框的值
-        quarterDate: this.quarterDate,
-        monthDate: this.monthDate,
-        queryType: this.filters.type,
-        startTime: this.startTime,
-        endTime: this.endTime,
-        filtStartTime: this.filters.startTime, // 查询的参数，认领页面需要用到
-        filtEndTime: this.filters.endTime
-      }
-      console.log(param)
-      this.$gotoid('/caseManage/ajrl', JSON.stringify(param))
     }
   },
   destroyed() {
     sessionStorage.removeItem('/caseManage/caseClaimStatistical')
   },
   mounted() {
-    this.queryExamStatistical() // 考试统计
+    if (this.examItem && this.examItem.examinationId) {
+      this.queryCityStatisticalByExam(this.examItem.examinationId) // 考试统计
+    }
   }
 }
 </script>
-<style>
+<style rel="stylesheet/scss" lang="scss">
+.report {
+  .btn_wrap {
+    .el-button {
+      float: right;
+      margin-left: 10px;
+    }
+  }
+  // 文章样式
+  .title {
+    font-size: 26px;
+    text-align: center;
+  }
+  .main_content {
+    font-size: 16px;
+    text-indent: 20px;
+  }
+  .el-table {
+    background: #ffffff;
+    color: #000000;
+    thead {
+      background: #ffffff;
+      color: #000000;
+    }
+    .el-table__body-wrapper tr:nth-child(even) {
+      background-color: transparent;
+    }
+  }
+  .el-table td,
+  .el-table th.is-leaf,
+  .el-table th > .cell,
+  .el-table__empty-text {
+    color: #000000;
+  }
+}
+@media print {
+  // 文章样式
+  .title {
+    font-size: 26px;
+    text-align: center;
+  }
+  .main_content {
+    font-size: 16px;
+    text-indent: 20px;
+  }
+}
 </style>

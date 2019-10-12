@@ -13,7 +13,7 @@ import '@/permission' // permission control
 
 import Attachment from '@/api/attachment'
 import { isResView, isResDisabled } from '@/utils/auth'
-import { isViewBtn, gotoid, closePath, parseTime, handlerDateTime, thousSplit, str2ArrBuf, resetSetItem, drawWaterMark, echartOptionToContent, getLabelByValue, pickerOptionChange, setCurrentUser } from '@/utils/public'
+import { isViewBtn, gotoid, closePath, parseTime, handlerDateTime, thousSplit, str2ArrBuf, resetSetItem, drawWaterMark, echartOptionToContent, getLabelByValue, pickerOptionChange, setCurrentUser, buildTime } from '@/utils/public'
 import { query, queryAsyns, save, update, remove, download, zdryhc, download_http } from '@/api/http'
 import { validatePhone, regEnCnNumber, regEnNumber, regNumber, regCn, regEn, regEmail, regQQ, regWx, regAddress } from '@/utils/validate'
 import Watermark from '@/utils/watermark'
@@ -52,6 +52,7 @@ Vue.prototype.$echartOptionToContent = echartOptionToContent // ecart数据视�
 Vue.prototype.$getLabelByValue = getLabelByValue // 通过value取name
 Vue.prototype.$pickerOptionChange = pickerOptionChange // 开始时间和结束时间 是否可选限制
 Vue.prototype.$setCurrentUser = setCurrentUser
+Vue.prototype.$buildTime = buildTime
 
 // Vue.use(ElementUI)
 Vue.use(ElementUI, { size: 'small' }) // 全局配置组件使用small
@@ -74,8 +75,12 @@ Vue.use(VueKindEditor)
 
 import Navigation from 'vue-navigation'
 Vue.use(Navigation, { router })
-import Print from 'vue-print-nb' // 打印插件
+// import Print from 'vue-print-nb' // 打印插件 一直报错 未解决
+// Vue.use(Print)
+import Print from '@/plugs/print' // 打印插件
 Vue.use(Print)
+import htmlToPdf from '@/utils/htmlToPdf'
+Vue.use(htmlToPdf)
 
 new Vue({
   el: '#app',

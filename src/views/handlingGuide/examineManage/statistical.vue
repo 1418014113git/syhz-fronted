@@ -24,18 +24,19 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" v-if="$isViewBtn('100401')"  @click="queryExamStatistical(true)">查询</el-button>
-          <!-- <el-button type="primary" @click="reset">重置</el-button> -->
+          <el-button type="primary" @click="queryExamStatistical(true)">查询</el-button>
+          <!-- <el-button type="primary" v-if="$isViewBtn('100401')" @click="reset">重置</el-button> -->
         </el-form-item>
       </el-form>
     </el-card>
     <!--考试信息-->
     <el-card style="margin-bottom: 10px;">
       <div slot="header" class="clearfix">
-        <span>考试统计</span>
+        <span>考试统计&emsp;<el-button circle title="选中考试后，可按单条或多条考试信息统计地市考试情况！"><i class="el-icon-question"></i></el-button></span>
       </div>
-      <el-table :data="examinations"  style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange" v-loading="examLoading">
-        <el-table-column type="selection" width="55"></el-table-column>
+      <el-table :data="examinations"  style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange" v-loading="examLoading"
+       show-summary :summary-method="getSummaries">
+        <el-table-column type="selection" width="50"></el-table-column>
         <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
         <el-table-column prop="examinationName" label="考试名称" show-overflow-tooltip></el-table-column>
         <el-table-column prop="totalNum" label="应考人数" width="160" align="center">
@@ -67,8 +68,8 @@
         </el-table-column>
         <el-table-column label="操作" width="200">
           <template slot-scope="scope">
-            <span v-if="scope.row.totalNum" class="canClick">考试报告</span>
-            <!-- <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="排名"></el-button> -->
+            <!-- <span v-if="scope.row.totalNum" class="canClick" @click="watchReport">考试报告</span> -->
+            <el-button @click="watchReport(scope.$index, scope.row)" icon="el-icon-document" title="可生成查询结果汇总考试报告">考试报告</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -84,7 +85,7 @@
       <div slot="header" class="clearfix">
         <span>地市考试统计</span>
       </div>
-      <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight">
+      <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight" :row-class-name="getRowClass">
         <!-- :expand-row-keys="expends" -->
         <el-table-column type="expand">
           <template slot-scope="scope">
@@ -100,7 +101,11 @@
             </el-table>
           </template>
         </el-table-column>
-        <el-table-column type="index" label="序号" width="60"></el-table-column>
+        <el-table-column type="index" label="序号" width="60" class-name="xuhao">
+          <template slot-scope="scope">
+            <span>{{scope.row.index}}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="areaName" label="地市" min-width="15%" show-overflow-tooltip></el-table-column>
         <el-table-column prop="ykNum" label="应考总人数" width="160" show-overflow-tooltip></el-table-column>
         <el-table-column prop="skNum" label="实考总人数" width="160"></el-table-column>
@@ -117,10 +122,15 @@
       <!-- 柱状图 -->
       <div id="cityStatistical" style="min-height: 400px;"></div>
     </el-card>
+    <!-- 考试报告 -->
+    <el-dialog title="考试报告" :visible.sync="dialogReportVisible" size="small" @close="closeDia" class="reportDialog" width="60%">
+      <test-report :examItem="currentExam" @isShowDialog="closeDia"></test-report>
+    </el-dialog>
   </div>
 </template>
 <script>
 import echarts from 'echarts'
+import testReport from './testReport'
 export default {
   name: 'examinationStatistical',
   data() {
@@ -167,14 +177,51 @@ export default {
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       multipleSelection: [], // 选中的多行
       showEchart: false,
+      dialogReportVisible: false, // 考试报告弹框
+      currentExam: {}, // 当前点击的考试报告
       curDept: {} // 当前部门
     }
   },
+  components: {
+    testReport
+  },
   methods: {
-    examinationNameChange() {
-    },
-    deptChange() {
-
+    getSummaries(param) {
+      // const sums = ['', '', '合计', '', '', '', '', '']
+      // sums[3] = this.$thousSplit(this.totlaYrl + '')
+      // sums[4] = this.$thousSplit(this.totalDrl + '')
+      // sums[5] = this.$thousSplit(this.totalXf + '')
+      // sums[6] = this.$thousSplit(this.totalZf + '')
+      // sums[7] = this.$thousSplit(this.totalCx + '')
+      // sums[8] = this.$thousSplit(this.totalAll + '')
+      // return sums
+      const { columns, data } = param
+      const sums = []
+      columns.forEach((column, index) => {
+        if (index === 1) {
+          sums[index] = '总计'
+          return
+        }
+        const values = data.map(item => Number(item[column.property]))
+        if (!values.every(value => isNaN(value))) {
+          sums[index] = values.reduce((prev, curr) => {
+            const value = Number(curr)
+            if (!isNaN(value)) {
+              return prev + curr
+            } else {
+              return prev
+            }
+          }, 0)
+          if (index === 2) {
+            sums[index] = ''
+          } else {
+            sums[index] = sums[index]
+          }
+        } else {
+          sums[index] = ''
+        }
+      })
+      return sums
     },
     handleSelectionChange(val) { // 多选表格
       this.multipleSelection = val
@@ -194,16 +241,6 @@ export default {
         this.drawChartPerNum()
         this.drawCityStatistical()
       }
-    },
-    getSummaries() {
-      const sums = ['', '', '合计', '', '', '', '', '']
-      sums[3] = this.$thousSplit(this.totlaYrl + '')
-      sums[4] = this.$thousSplit(this.totalDrl + '')
-      sums[5] = this.$thousSplit(this.totalXf + '')
-      sums[6] = this.$thousSplit(this.totalZf + '')
-      sums[7] = this.$thousSplit(this.totalCx + '')
-      sums[8] = this.$thousSplit(this.totalAll + '')
-      return sums
     },
     initStaticData() {
       for (let index = 0; index < this.cityData.length; index++) { // 初始化12市数据全为0
@@ -294,7 +331,7 @@ export default {
         pageSize: this.pageSize
       }
       this.cityLoading = true
-      this.$query('examination/statisticsOne?examinationId=' + examIdStr, param).then((response) => {
+      this.$query('examination/statisticsOne?examinationIds=' + examIdStr, param).then((response) => {
         if (response.code === '000000') {
           this.cityLoading = false
           this.cityData = response.data
@@ -302,20 +339,23 @@ export default {
             // this.showEchart = true
             for (let index = 0; index < this.cityData.length; index++) {
               var cityElement = this.cityData[index]
+              cityElement.index = index
               cityElement.ykNum = 0 // 应考
               cityElement.skNum = 0 // 实考
               cityElement.yNum = 0
               cityElement.lNum = 0
               cityElement.zNum = 0
               cityElement.cNum = 0
-              for (let m = 0; m < cityElement.child.length; m++) {
-                const deptElement = cityElement.child[m]
-                cityElement.ykNum += deptElement.totalNum
-                cityElement.skNum += deptElement.realNum
-                cityElement.yNum += deptElement.y
-                cityElement.lNum += deptElement.l
-                cityElement.zNum += deptElement.z
-                cityElement.cNum += deptElement.c
+              if (cityElement.child) {
+                for (let m = 0; m < cityElement.child.length; m++) {
+                  const deptElement = cityElement.child[m]
+                  cityElement.ykNum += deptElement.totalNum
+                  cityElement.skNum += deptElement.realNum
+                  cityElement.yNum += deptElement.y
+                  cityElement.lNum += deptElement.l
+                  cityElement.zNum += deptElement.z
+                  cityElement.cNum += deptElement.c
+                }
               }
             }
           } else {
@@ -330,19 +370,19 @@ export default {
         this.cityLoading = false
       })
     },
-    getRowClass(row) {
+    getRowClass({ row, rowIndex }) {
       // console.log(row)
-      if (!row.row.canExpand) {
-        return 'row-expand-cover'
+      if (rowIndex === 0) {
+        return 'row-sheng'
+      } else {
+        return ''
       }
     },
     handleCurrentChange(val) {
-      alert(val) // 分页查询
       this.page = val
       this.queryExamStatistical()
     },
     handleSizeChange(val) { // 分条查询
-      alert(val) // 分页查询
       this.pageSize = val
       this.queryExamStatistical()
     },
@@ -572,6 +612,13 @@ export default {
         this.query()
       }
     },
+    watchReport(index, row) { // 考试报告
+      this.currentExam = row // 当前选中的考试
+      this.dialogReportVisible = true
+    },
+    closeDia() {
+      this.dialogReportVisible = false
+    },
     getdate() {
       var now = new Date()
       var y = now.getFullYear()
@@ -696,7 +743,7 @@ export default {
   }
 }
 </script>
-<style>
+<style rel="stylesheet/scss" lang="scss">
 .case-trend .card {
   margin-bottom: 20px;
 }
@@ -711,7 +758,30 @@ export default {
 .canClick:hover {
   text-decoration: underline;
 }
-.el-table .row-expand-cover .cell .el-table__expand-icon {
+.el-table .row-sheng .cell .el-table__expand-icon {
   display: none;
+}
+.el-table .row-sheng .xuhao {
+  // 如果用display none 隐藏了 会整行往左移
+  opacity: 0;
+}
+.reportDialog {
+  .el-dialog {
+    background: #ffffff;
+    border: 1px solid #bebebe;
+  }
+  .el-dialog__header {
+    border-bottom: 2px solid #aaaaaa;
+    .el-dialog__title {
+      color: #000000;
+    }
+    .el-dialog__headerbtn .el-dialog__close {
+      color: #000000;
+    }
+  }
+  .el-dialog__body {
+    background: #ffffff;
+    color: #000000;
+  }
 }
 </style>

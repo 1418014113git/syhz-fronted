@@ -1,10 +1,11 @@
 <template>
   <section class="preview">
     <el-row class="clearfix">
-      <el-button v-print="'#previewExamPaper'" class="right" type="primary" plain icon="el-icon-printer">打印</el-button>
+      <!-- v-print="'#previewExamPaper'" -->
+      <el-button class="right" type="primary" plain icon="el-icon-printer" @click="printPaper">打印</el-button>
       <el-button class="right" type="primary" plain icon="el-icon-check" style="margin-right:10px;" :loading="detailLoading"  v-if="isShowSaveBtn" @click="save">保存</el-button>
     </el-row>
-    <div id="previewExamPaper">
+    <div id="previewExamPaper" ref="print">
       <!-- 填空题 -->
       <div class="question_wrap" v-for="(item,index) in paperData" :key="index">
         <!-- （每题10分，共20分） -->
@@ -17,15 +18,21 @@
             </p>
             <!-- 选项 -->
             <div v-if="smallItem.items" class="options_wrap">
-              <span v-if="smallItem.items.A">A、{{smallItem.items.A}}</span>
+              <!-- <span v-if="smallItem.items.A">A、{{smallItem.items.A}}</span>
               <span v-if="smallItem.items.B">B、{{smallItem.items.B}}</span>
               <span v-if="smallItem.items.C">C、{{smallItem.items.C}}</span>
               <span v-if="smallItem.items.D">D、{{smallItem.items.D}}</span>
               <span v-if="smallItem.items.E">E、{{smallItem.items.E}}</span>
-              <span v-if="smallItem.items.F">F、{{smallItem.items.F}}</span>
+              <span v-if="smallItem.items.F">F、{{smallItem.items.F}}</span> -->
+              <p v-if="smallItem.items.A" class="option_item">A、<span v-html="smallItem.items.A" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.B" class="option_item">B、<span v-html="smallItem.items.B" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.C" class="option_item">C、<span v-html="smallItem.items.C" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.D" class="option_item">D、<span v-html="smallItem.items.D" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.E" class="option_item">E、<span v-html="smallItem.items.E" class="richTextWrap"></span></p>
+              <p v-if="smallItem.items.F" class="option_item">F、<span v-html="smallItem.items.F" class="richTextWrap"></span></p>
             </div>
             <!-- 判断题 -->
-            <div v-if="smallItem.type === 4">
+            <div v-if="smallItem.type === 4" class="pd_options_wrap">
               <el-radio-group>
                 <span class="option_item"><el-radio label="true">正确</el-radio></span>
                 <span class="option_item"><el-radio label="false">错误</el-radio></span>
@@ -43,7 +50,7 @@ import { questionTypeAll } from '@/utils/codetotext'
 
 export default {
   name: 'preview',
-  props: ['curPaper', 'isShowSaveBtn', 'previewProSubmit'],
+  props: ['curPaper', 'isShowSaveBtn', 'previewProSubmit', 'zjType'],
   data() {
     return {
       paperData: [], // 试卷数据
@@ -63,6 +70,9 @@ export default {
     }
   },
   methods: {
+    printPaper() {
+      this.$print(this.$refs.print) // 使用
+    },
     dealData() {
       var staticArr = ['one', 'two', 'three', 'four', 'five', 'six', 'seven']
       var titleText = ['一', '二', '三', '四', '五', '六', '七']
@@ -90,16 +100,29 @@ export default {
     },
     save() {
       this.detailLoading = true
-      this.$save('paper/random/preViewSave', this.submitData).then((response) => {
-        this.detailLoading = false
-        this.$message({
-          type: 'success',
-          message: '保存成功!'
+      if (this.zjType && this.zjType === 1) {
+        this.$update('paper/random/update', this.submitData).then((response) => {
+          this.detailLoading = false
+          this.$message({
+            type: 'success',
+            message: '保存成功!'
+          })
+          this.$router.push({ path: '/handlingGuide/examPaperManage' })
+        }).catch(() => {
+          this.detailLoading = false
         })
-        this.$router.push({ path: '/handlingGuide/examPaperManage' })
-      }).catch(() => {
-        this.detailLoading = false
-      })
+      } else {
+        this.$save('paper/random/preViewSave', this.submitData).then((response) => {
+          this.detailLoading = false
+          this.$message({
+            type: 'success',
+            message: '保存成功!'
+          })
+          this.$router.push({ path: '/handlingGuide/examPaperManage' })
+        }).catch(() => {
+          this.detailLoading = false
+        })
+      }
     }
   },
   mounted() {
@@ -118,7 +141,6 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss">
 .preview {
-  padding: 0 20px;
   .scoreNumber {
     font-size: 20px;
     color: #f72929;
@@ -137,10 +159,6 @@ export default {
         border-bottom: 1px solid #bebebe;
         margin-bottom: 0px;
       }
-    }
-    .option_item {
-      display: inline-block;
-      width: 22%;
     }
     // 单选框样式
     .el-radio {
@@ -165,10 +183,16 @@ export default {
   }
 
   .options_wrap {
-    margin: 0 0 8px 10px;
-    span {
+    margin: 5px 0 5px 10px;
+    p {
+      margin: 0 0 5px;
+    }
+  }
+  .pd_options_wrap {
+    margin: 6px 0 0;
+    .option_item {
       display: inline-block;
-      min-width: 22%;
+      width: 22%;
     }
   }
   .question_name {
@@ -192,14 +216,8 @@ export default {
 }
 </style>
 <style media="previewExamPaper" type="text/css">
-.noprint {
-  display: none;
-}
-.print {
-  margin-left: 25%;
-}
 @page {
   size: auto;
-  margin: 0mm;
+  margin: 10mm;
 }
 </style>

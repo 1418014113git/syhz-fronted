@@ -5,16 +5,23 @@
         <el-card>
           <div class="video_div">
             <div id="player" class="audio_player" :style="playType !== '5' ? 'width: 100%' : ''">
-              <img :src="detailData.enIcon ? detailData.enIcon : '/static/image/online/audio.jpg'">
+              <img :src="srcUrl">
               <!--<audio id="audio" src="http://192.168.42.204:8084/video/02、spring boot返回json数据_高清.mp4" controls="controls"-->
                      <!--@play="onPlayerPlay($event)"-->
                      <!--@pause="onPlayerPause($event)"-->
                      <!--@ended="onPlayerEnded($event)"-->
               <!--&gt;</audio>-->
-              <div class="btn-audio paused" @click="audioClick">
-                <img src="/static/image/online/paused.png">
-                <img src="/static/image/online/player.png">
-                <audio id="mp3Btn">
+              <div class="btn-audio paused">
+                <div @click="audioClick">
+                  <img src="/static/image/online/paused.png">
+                  <img src="/static/image/online/player.png">
+                </div>
+                <div class="slider_progress">
+                  <div>{{playTime}}</div>
+                  <div><el-slider v-model="value" :format-tooltip="formatTooltip" :show-tooltip="false" @change="sliderChange"></el-slider></div>
+                  <div>{{allTime}}</div>
+                </div>
+                <audio id="mp3Btn" @ended="ended" ref="audio">
                   <source :src="detailData.enPath" type="audio/mpeg" />
                 </audio>
               </div>
@@ -36,7 +43,7 @@
           </div>
           <div v-if="playType === '5'" class="audio_player_fj">
             <ul>
-              <li v-for="item in detailData.courseList" :key="item.index" :class="item.id === detailId ? 'active' : ''" @click="partsClick(i)">第{{item.en_order}}节</li>
+              <li v-for="item in detailData.courseList" :key="item.index" :class="item.id === detailId ? 'active' : ''" @click="partsClick(item.id)">第{{item.en_order}}节</li>
             </ul>
           </div>
         </el-card>
@@ -53,6 +60,12 @@
     ],
     data() {
       return {
+        srcUrl: '',
+        value: 0,
+        playTime: '00:00',
+        allTime: '00:00',
+        allCount: 0,
+        playInterval: null,
         audioMusic: {
           title: '',
           author: '',
@@ -61,64 +74,48 @@
           lrc: ''
         },
         detailData: this.playerDetail,
-        detailId: this.rowId,
+        detailId: this.$parent.rowId,
         num: 0,
+        waitTime: 0,
+        waitInterval: null,
         intervalSplit: 3000, // 毫秒
         timeInterval: null,
+        autoUpdateInterval: null,
         learningTime: 10000 // 毫秒
       }
     },
     methods: {
-      // listen event
-      onPlayerPlay(player) {
-        if (this.num === 0 && this.detailData.flag) {
-          this.$emit('viewLog', '0')
-          this.num += 1
+      formatTooltip(val) {
+        return val / this.allCount
+      },
+      sliderChange(value) {
+        const audio = document.getElementById('mp3Btn')
+        audio.currentTime = value / 100 * audio.duration
+        this.playTime = this.buildTime(audio.currentTime)
+      },
+      src() {
+        if (this.detailData.enIcon) {
+          this.srcUrl = this.detailData.enIcon
+        } else {
+          if (this.detailData.type === 1) {
+            this.srcUrl = '/static/image/online/sp.jpg'
+          }
+          if (this.detailData.type === 2) {
+            this.srcUrl = '/static/image/online/yp.jpg'
+          }
+          if (this.detailData.type === 3) {
+            this.srcUrl = '/static/image/online/hj.jpg'
+          }
+          if (this.detailData.type === 4) {
+            this.srcUrl = '/static/image/online/zh.jpg'
+          }
         }
-      },
-      onPlayerPause(player) {
-        if (this.detailData.flag) {
-          this.$emit('uploadViewLog', player.currentTime())
-        }
-      },
-      onPlayerEnded(player) {
-        if (this.detailData.flag) {
-          this.$emit('uploadViewLog', player.currentTime())
-        }
-      },
-      onPlayerLoadeddata(player) {
-        console.log('player Loadeddata!', player)
-      },
-      onPlayerWaiting(player) {
-        console.log('player Waiting!', player)
-      },
-      onPlayerPlaying(player) {
-        console.log('player Playing!', player)
-      },
-      onPlayerTimeupdate(player) {
-        // 获取当前播放的时长
-        // console.log('player Timeupdate!', player.currentTime())
-      },
-      onPlayerCanplay(player) {
-        console.log('player Canplay!', player)
-      },
-      onPlayerCanplaythrough(player) {
-        console.log('player Canplaythrough!', player)
-      },
-      // or listen state event
-      playerStateChanged(playerCurrentState) {
-        console.log('player current update state', playerCurrentState)
-      },
-      // player is ready
-      playerReadied(player) {
-        // seek to 10s
-        console.log('example player 1 readied', player)
-        player.currentTime(10)
-        console.log('example 01: the player is readied', player)
       },
       setDetail(playerDetail) {
         this.detailData = playerDetail
-        document.getElementById('mp3Btn').load()
+        this.src()
+        const audio = document.getElementById('mp3Btn')
+        audio.load()
         this.audioMusic = {
           title: this.detailData.enName,
           author: this.detailData.creationName,
@@ -130,11 +127,16 @@
       partsClick(id) {
         const para = {
           filters: this.$parent.filters,
-          enType: '2',
-          jumpType: 'online',
+          enType: this.$parent.enType,
+          jumpType: this.$parent.source,
           id: id
         }
-        this.$gotoid('/micro/videoPlayer', JSON.stringify(para))
+        if (this.$parent.source === 'trainMaterial') {
+          para.auditView = this.$parent.auditView
+          para.active = this.$parent.active
+        }
+        sessionStorage.setItem(this.$route.path, JSON.stringify(para))
+        this.$router.go(0)
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })
@@ -173,37 +175,63 @@
           }
         })
       },
+      uploadViewLog() {
+        this.$emit('uploadViewLog', this.waitTime)
+      },
       bindSetInterval() {
         this.timeInterval = setInterval(() => {
           this.addJF('4')
         }, this.intervalSplit)
+        this.autoUpdateInterval = setInterval(() => {
+          this.uploadViewLog()
+        }, this.learningTime)
+        this.waitInterval = setInterval(() => {
+          this.waitTime += 1
+        }, 1000)
+      },
+      clearWaitInterval() {
+        clearInterval(this.waitInterval)
       },
       clearTimeInterval() {
         clearInterval(this.timeInterval)
+        clearInterval(this.autoUpdateInterval)
+        clearInterval(this.waitInterval)
+      },
+      stopRun() {
+        const audio = document.getElementById('mp3Btn')
+        audio.pause()
       },
       bindSetTimeOut() {
         setTimeout(() => {
           this.addJF('1')
         }, this.learningTime)
       },
+      ended() {
+        if (this.detailData.flag) {
+          this.uploadViewLog()
+        }
+        this.clearTimeInterval()
+        document.getElementsByClassName('btn-audio')[0].classList.remove('player')
+        document.getElementsByClassName('btn-audio')[0].classList.add('paused')
+      },
       audioClick() {
         const audio = document.getElementById('mp3Btn')
-        // audio.addEventListener('touchend', function(e) {
-        //   var x = e.originalEvent.changedTouches[0].clientX - this.offsetLeft
-        //   var X = x < 0 ? 0 : x
-        //   var W = document.getElementsByClassName('timeline')[0].clientWidth
-        //   var place = X > W ? W : X
-        //   audio.currentTime = (place / W).toFixed(2) * audio.duration
-        //   // (place/W).toFixed(2)*100+"%"
-        // })
-        audio.addEventListener('ended', function() {
-          if (this.detailData.flag) {
-            this.$emit('uploadViewLog', audio.currentTime)
-            this.clearTimeInterval()
-          }
-        }, false)
         event.stopPropagation()
         if (audio.paused) {
+          if (audio.duration === undefined || audio.duration === null || audio.duration === '' || isNaN(audio.duration)) {
+            this.$alert('当前音频资源未访问到，请联系管理员', '提示')
+            return false
+          }
+          const time = audio.duration
+          this.allCount = parseInt(time)
+          this.allTime = this.buildTime(time)
+          this.playInterval = setInterval(() => {
+            this.playTime = this.buildTime(audio.currentTime)
+            if (this.playTime === this.allTime) {
+              clearInterval(this.playInterval)
+            }
+            this.value = (audio.currentTime / audio.duration) * 100
+          }, 1000)
           document.getElementsByClassName('btn-audio')[0].classList.remove('paused')
           document.getElementsByClassName('btn-audio')[0].classList.add('player')
           audio.play()
@@ -224,24 +252,56 @@
           document.getElementsByClassName('btn-audio')[0].classList.remove('player')
           document.getElementsByClassName('btn-audio')[0].classList.add('paused')
           audio.pause()
+          clearInterval(this.playInterval)
           if (this.detailData.flag) {
-            this.$emit('uploadViewLog', audio.currentTime)
-            this.clearTimeInterval()
+            this.uploadViewLog()
           }
+          this.clearTimeInterval()
         }
       },
+      buildTime(time) {
+        const minute = time / 60
+        let minutes = parseInt(minute)
+        if (minutes < 10) {
+          minutes = '0' + minutes
+        }
+        const second = time % 60
+        let seconds = Math.round(second)
+        if (seconds < 10) {
+          seconds = '0' + seconds
+        }
+        return minutes + ':' + seconds
+      },
       initSplit() {
-        const config = JSON.parse(sessionStorage.getItem('config'))
-        const currentTypeConfig = config['ruleType4']
-        this.intervalSplit = currentTypeConfig.ruleTime * 1000
-        const currentTypeConfig1 = config['ruleType1']
-        this.learningTime = currentTypeConfig1.ruleTime * 1000
+        let config = JSON.parse(sessionStorage.getItem('config'))
+        if (config === null || config === undefined) {
+          this.$store.dispatch('GetConfig').then(() => {
+            config = JSON.parse(sessionStorage.getItem('config'))
+            const currentTypeConfig = config['ruleType4']
+            this.intervalSplit = currentTypeConfig.ruleTime * 1000
+            const currentTypeConfig1 = config['ruleType1']
+            this.learningTime = currentTypeConfig1.ruleTime * 1000
+          })
+        } else {
+          const currentTypeConfig = config['ruleType4']
+          this.intervalSplit = currentTypeConfig.ruleTime * 1000
+          const currentTypeConfig1 = config['ruleType1']
+          this.learningTime = currentTypeConfig1.ruleTime * 1000
+        }
       }
     },
     watch: {
       'playerDetail': function(playerDetail) {
         this.setDetail(playerDetail)
       }
+    },
+    created() {
+      this.$navigation.on('forward', (to, from) => {
+        this.clearTimeInterval()
+      })
+      this.$navigation.on('back', (to, from) => {
+        this.clearTimeInterval()
+      })
     },
     mounted() {
       this.initSplit()
@@ -427,23 +487,52 @@
     position: absolute;
     top: 369px;
   }
-  .btn-audio.paused > img:nth-child(1){
+  .btn-audio.paused > div > img:nth-child(1){
     display: none;
   }
-  .btn-audio.player > img:nth-child(2){
+  .btn-audio.player > div > img:nth-child(2){
     display: none;
   }
-  .classRoom_audioPlayer .video_div .btn-audio > img{
+  .classRoom_audioPlayer .video_div .btn-audio > div > img{
     width: 40px;
     height: 40px;
     padding: 10px;
   }
-  .classRoom_audioPlayer .video_div .btn-audio.paused > img{
+  .classRoom_audioPlayer .video_div .btn-audio.paused > div > img{
     padding-left: 14px;
   }
-  .classRoom_audioPlayer .video_div .btn-audio > img:hover{
+  .classRoom_audioPlayer .video_div .btn-audio > div > img:hover{
     cursor: pointer;
     border-radius: 50%;
     background-color: rgba(240, 240, 240, 0.4);
+  }
+</style>
+<style rel="stylesheet/scss" lang="scss">
+  .classRoom_audioPlayer .slider_progress {
+    width: 85%;
+    position: absolute;
+    top: 5px;
+    left: 50px;
+  }
+  .classRoom_audioPlayer .slider_progress > div{
+    display: inline-block;
+    position: absolute;
+  }
+  .classRoom_audioPlayer .slider_progress > div:nth-child(1){
+    top: -3px;
+  }
+  .classRoom_audioPlayer .slider_progress > div:nth-child(2){
+    width: 87%;
+    left: 55px;
+  }
+  .classRoom_audioPlayer .slider_progress > div:nth-child(3){
+    right: -30px;
+    top: -3px;
+  }
+  .classRoom_audioPlayer .el-slider__bar{
+    background-color: #074f71;
+  }
+  .classRoom_audioPlayer .el-slider__button{
+    border-color: #074f71;
   }
 </style>

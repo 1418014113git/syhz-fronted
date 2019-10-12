@@ -40,7 +40,7 @@
           </div>
           <div v-if="playType === '5'" class="video_player_fj">
             <ul>
-              <li v-for="item in detailData.courseList" :key="item.index" :class="item.id === detailId ? 'active' : ''" @click="partsClick(i)">第{{item.en_order}}节</li>
+              <li v-for="item in detailData.courseList" :key="item.index" :class="item.id === detailId ? 'active' : ''" @click="partsClick(item.id)">第{{item.en_order}}节</li>
             </ul>
           </div>
         </el-card>
@@ -85,11 +85,14 @@
             fullscreenToggle: true // 全屏按钮
           }
         },
-        detailId: this.rowId,
+        detailId: this.$parent.rowId,
         num: 0,
+        waitTime: 0,
+        waitInterval: null,
         detailData: this.playerDetail,
         intervalSplit: 3000, // 毫秒
         timeInterval: null,
+        autoUpdateInterval: null,
         learningTime: 10000 // 毫秒
       }
     },
@@ -98,6 +101,9 @@
         this.$refs.videoPlayer.player.play() // 播放
         this.$refs.videoPlayer.player.pause() // 暂停
         this.$refs.videoPlayer.player.src(this.playerOptions.sources[0].src) // 重置进度条
+      },
+      stopRun() {
+        this.$refs.videoPlayer.player.pause()
       },
       // listen event
       onPlayerPlay(player) {
@@ -116,14 +122,15 @@
       },
       onPlayerPause(player) {
         if (this.detailData.flag) {
-          this.$emit('uploadViewLog', player.currentTime())
+          this.uploadViewLog()
         }
+        this.clearTimeInterval()
       },
       onPlayerEnded(player) {
         if (this.detailData.flag) {
-          this.$emit('uploadViewLog', player.currentTime())
-          this.clearTimeInterval()
+          this.uploadViewLog()
         }
+        this.clearTimeInterval()
       },
       onPlayerLoadeddata(player) {
         console.log('player Loadeddata!', player)
@@ -157,17 +164,40 @@
       },
       setDetail(playerDetail) {
         this.detailData = playerDetail
-        this.playerOptions.poster = this.detailData.enIcon
+        this.playerOptions.poster = this.src()
         this.playerOptions.sources[0].src = this.detailData.enPath
+      },
+      src() {
+        if (this.detailData.enIcon) {
+          return this.detailData.enIcon
+        } else {
+          if (this.detailData.type === 1) {
+            return '/static/image/online/sp.jpg'
+          }
+          if (this.detailData.type === 2) {
+            return '/static/image/online/yp.jpg'
+          }
+          if (this.detailData.type === 3) {
+            return '/static/image/online/hj.jpg'
+          }
+          if (this.detailData.type === 4) {
+            return '/static/image/online/zh.jpg'
+          }
+        }
       },
       partsClick(id) {
         const para = {
           filters: this.$parent.filters,
-          enType: '1',
-          jumpType: 'online',
+          enType: this.$parent.enType,
+          jumpType: this.$parent.source,
           id: id
         }
-        this.$gotoid('/micro/videoPlayer', JSON.stringify(para))
+        if (this.$parent.source === 'trainMaterial') {
+          para.auditView = this.$parent.auditView
+          para.active = this.$parent.active
+        }
+        sessionStorage.setItem(this.$route.path, JSON.stringify(para))
+        this.$router.go(0)
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })
@@ -206,13 +236,27 @@
           }
         })
       },
+      uploadViewLog() {
+        this.$emit('uploadViewLog', this.waitTime)
+      },
       bindSetInterval() {
         this.timeInterval = setInterval(() => {
           this.addJF('4')
         }, this.intervalSplit)
+        this.autoUpdateInterval = setInterval(() => {
+          this.uploadViewLog()
+        }, this.learningTime)
+        this.waitInterval = setInterval(() => {
+          this.waitTime += 1
+        }, 1000)
+      },
+      clearWaitInterval() {
+        clearInterval(this.waitInterval)
       },
       clearTimeInterval() {
         clearInterval(this.timeInterval)
+        clearInterval(this.autoUpdateInterval)
+        clearInterval(this.waitInterval)
       },
       bindSetTimeOut() {
         setTimeout(() => {
@@ -220,17 +264,35 @@
         }, this.learningTime)
       },
       initSplit() {
-        const config = JSON.parse(sessionStorage.getItem('config'))
-        const currentTypeConfig = config['ruleType4']
-        this.intervalSplit = currentTypeConfig.ruleTime * 1000
-        const currentTypeConfig1 = config['ruleType1']
-        this.learningTime = currentTypeConfig1.ruleTime * 1000
+        let config = JSON.parse(sessionStorage.getItem('config'))
+        if (config === null || config === undefined) {
+          this.$store.dispatch('GetConfig').then(() => {
+            config = JSON.parse(sessionStorage.getItem('config'))
+            const currentTypeConfig = config['ruleType4']
+            this.intervalSplit = currentTypeConfig.ruleTime * 1000
+            const currentTypeConfig1 = config['ruleType1']
+            this.learningTime = currentTypeConfig1.ruleTime * 1000
+          })
+        } else {
+          const currentTypeConfig = config['ruleType4']
+          this.intervalSplit = currentTypeConfig.ruleTime * 1000
+          const currentTypeConfig1 = config['ruleType1']
+          this.learningTime = currentTypeConfig1.ruleTime * 1000
+        }
       }
     },
     watch: {
       'playerDetail': function(playerDetail) {
         this.setDetail(playerDetail)
       }
+    },
+    created() {
+      this.$navigation.on('forward', (to, from) => {
+        this.clearTimeInterval()
+      })
+      this.$navigation.on('back', (to, from) => {
+        this.clearTimeInterval()
+      })
     },
     mounted() {
       this.initSplit()

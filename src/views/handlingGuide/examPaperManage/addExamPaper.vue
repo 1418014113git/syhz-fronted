@@ -76,7 +76,7 @@
                     <el-table-column  label="排序" min-width="120" align="center">
                       <template slot-scope="scope">
                         <el-form-item prop="sort">
-                          <el-input-number v-model.trim="scope.row.sort" :min="1" :max="7"></el-input-number>
+                          <el-input-number v-model.trim="scope.row.sort" :min="1" :max="7" @change="sortChange(scope.row)"></el-input-number>
                         </el-form-item>
                       </template>
                     </el-table-column>
@@ -218,7 +218,7 @@ export default {
       isClear: false,
       isClose: false,
       listLoading: false,
-      isShowSaveBtn: true, // 预览弹框里是否显示保存按钮
+      isShowSaveBtn: false, // 预览弹框里是否显示保存按钮
       dialogPreviewVisible: false, // 是否显示预览弹框
       zjOption: [ // 组卷方式
         {
@@ -506,33 +506,40 @@ export default {
     },
     sortChange(row) { // 序号发生改变时触发
       if (!row.sort) {
-        row.sort = 1
-        this.$set(row, 'sort', 1)
+        setTimeout(() => {
+          this.$set(row, 'sort', 1)
+        }, 50)
       }
     },
     inputChange(index, row, type) { // 人工组卷/随机组卷分值输入框change事件
       if (type === 1) { // 人工组卷
         if (!row.value) {
-          var value = 1
-          this.$set(row, 'value', value)
+          setTimeout(() => {
+            this.$set(row, 'value', 1)
+          }, 50)
         }
         if (!row.num) {
-          var num = 1
-          this.$set(row, 'num', num)
+          setTimeout(() => {
+            this.$set(row, 'num', 1)
+          }, 50)
         }
       } else { // 随机组卷
         if (!row.value) {
-          var values = 0
-          this.$set(row, 'value', values)
+          setTimeout(() => {
+            this.$set(row, 'value', 0)
+          }, 50)
         }
         if (!row.num) {
-          var nums = 0
-          this.$set(row, 'num', nums)
+          setTimeout(() => {
+            this.$set(row, 'num', 0)
+          }, 50)
         }
       }
-      var desc = '每题' + row.value + '分，共' + Number(row.num * row.value) + '分。'
-      this.$set(row, 'desc', desc)
-      this.getTotalScore(type)
+      setTimeout(() => {
+        var desc = '每题' + row.value + '分，共' + Number(row.num * row.value) + '分。'
+        this.$set(row, 'desc', desc)
+        this.getTotalScore(type)
+      }, 60)
     },
     descinputChange(index, row, type) { // 说明输入框发生变化时
       if (!row.desc) {
@@ -624,31 +631,37 @@ export default {
             }
             var isSave = false
             this.sjzjList.forEach((item, index) => {
-              if (item.data.length > 0 && item.sort && item.num > 0 && item.value > 0 && item.desc) {
+              if (item.data.length > 0 && item.sort > 0 && item.num > 0 && item.value > 0 && item.desc) {
                 item.isSave = true
                 isSave = true
+              } else {
+                item.isSave = false
               }
             })
             if (isSave) {
-              var sjzjList = this.sjzjList
-              sjzjList.forEach((item, index) => {
-                if (!item.isSave) {
-                  sjzjList.splice(index, 1)
-                } else {
-                  var modelId = []
-                  var cateIds = ''
-                  var data = item.data
-                  data.forEach((item, index) => {
-                    modelId.push(item.id)
-                  })
-                  if (modelId.length > 0) {
-                    modelId = this.uniqueModelId(modelId) // 去重
-                  }
-                  cateIds = modelId.length > 0 ? modelId.join(',') : ''
-                  item.cateIds = cateIds
-                  this.delWidthData(item)
+              var sjzjList = JSON.parse(JSON.stringify(this.sjzjList))
+              var list = []
+              sjzjList.forEach((item, i) => {
+                if (item.isSave) {
+                  list.push(item)
                 }
               })
+              this.deletelObj()
+              list.forEach((item, i) => {
+                var modelId = []
+                var cateIds = ''
+                var data = item.data
+                data.forEach((item, index) => {
+                  modelId.push(item.id)
+                })
+                if (modelId.length > 0) {
+                  modelId = this.uniqueModelId(modelId) // 去重
+                }
+                cateIds = modelId.length > 0 ? modelId.join(',') : ''
+                item.cateIds = cateIds
+                this.delWidthData(item)
+              })
+
               if (Number(this.sjzjTotal) === 100) {
                 this.btnLoading = true
                 this.$save('paper/random/save', this.form).then((response) => {
@@ -758,7 +771,8 @@ export default {
       for (var i = 0; i < _this.rgzjList.length; i++) {
         if (element.type === _this.rgzjList[i].type) {
           bo = true// 存在
-          _this.rgzjList[i].data = _this.rgzjList[i].data.concat(element.data)
+          // _this.rgzjList[i].data = _this.rgzjList[i].data.concat(element.data)
+          _this.rgzjList[i].data = element.data
         }
       }
       // 如果不存在就直接塞到array中
@@ -791,7 +805,7 @@ export default {
         item.sort = Number(index + 1)
       })
       _this.rgzjList = element
-      // console.log('排序后', JSON.stringify(this.rgzjList))
+      // .log(console'排序后', JSON.stringify(this.rgzjList))
     },
     cancel() { // 取消
       this.$router.push({ path: '/handlingGuide/examPaperManage' })
@@ -918,7 +932,8 @@ export default {
     },
     getsjCheckList(val) { // 获取随机组卷选择的模块tree节点集合
       this.initData(2)
-      this.sjzjList = this.sjzjListDefault
+      this.sjzjList = JSON.parse(JSON.stringify(this.sjzjListDefault))
+      this.sjzjTotal = 0
       this.sjzjList.forEach((item, index) => {
         item.data = this.unique(val) // 去重
         item.desc = '每题' + item.value + '分，共' + Number(item.num * item.value) + '分。' // 说明
@@ -964,6 +979,7 @@ export default {
     },
     preview(type) { // 预览试卷
       if (type === 1) { // 人工组卷
+        this.isShowSaveBtn = false
         this.buildData() // 前端组装数据，传给试卷预览组件
       } else { // 随机组卷
         this.sjPreView() // 调接口获取数据，传给试卷预览组件
@@ -988,36 +1004,42 @@ export default {
         if (valid) {
           var isSave = false
           this.sjzjList.forEach((item, index) => {
-            if (item.data.length > 0 && item.sort && item.num > 0 && item.value > 0 && item.desc) {
+            if (item.data.length > 0 && item.sort > 0 && item.num > 0 && item.value > 0 && item.desc) {
               isSave = true
               item.isSave = true
+            } else {
+              item.isSave = false
             }
           })
           if (isSave) {
             var sjzjList = JSON.parse(JSON.stringify(this.sjzjList))
-            sjzjList.forEach((item, index) => {
-              if (!item.isSave) {
-                sjzjList.splice(index, 1)
-              } else {
-                var modelId = []
-                var cateIds = ''
-                var data = item.data
-                data.forEach((item, index) => {
-                  modelId.push(item.id)
-                })
-                if (modelId.length > 0) {
-                  modelId = this.uniqueModelId(modelId) // 去重
-                }
-                cateIds = modelId.length > 0 ? modelId.join(',') : ''
-                item.cateIds = cateIds
-                this.delWidthData(item)
+            var list = []
+            sjzjList.forEach((item, i) => {
+              if (item.isSave) {
+                list.push(item)
               }
+            })
+            this.deletelObj()
+            list.forEach((item, i) => {
+              var modelId = []
+              var cateIds = ''
+              var data = item.data
+              data.forEach((item, index) => {
+                modelId.push(item.id)
+              })
+              if (modelId.length > 0) {
+                modelId = this.uniqueModelId(modelId) // 去重
+              }
+              cateIds = modelId.length > 0 ? modelId.join(',') : ''
+              item.cateIds = cateIds
+              this.delWidthData(item)
             })
             this.listLoading = true
             this.$save('paper/random/preView', this.form).then((response) => {
               this.listLoading = false
               this.previewProSubmit = response.data // 存储预览接口数据传给预览组件，预览组件里保存时需要将该数据传给后台进行保存。
               var data = JSON.parse(JSON.stringify(response.data))
+              this.isShowSaveBtn = true
               this.reBuildData(data) // 将后台数据处理成和列表预览接口返回的数据格式一致，以便于预览组件能按照一种数据格式渲染。
             }).catch(() => {
               this.listLoading = false
@@ -1148,7 +1170,7 @@ export default {
  .previewDia {
     .el-dialog {
       background: #ffffff;
-      border: 1px solid #bebebe;
+      border: 2px solid #00a0e9;
     }
     .el-dialog__header {
       border-bottom: 2px solid #aaaaaa;

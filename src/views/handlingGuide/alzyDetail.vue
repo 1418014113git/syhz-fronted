@@ -51,11 +51,7 @@
         <div v-if="detailData.enclosure && detailData.enclosure.length > 0" class="enclosure_con">
           <div v-for="item in detailData.enclosure" :key="item.key" class="file_data_list" @click="handlerClick(item)">
             <div class="img">
-              <img v-if="item.enClass === '.mp3'" src="/static/image/online/audio.jpg">
-              <img v-if="item.enClass === '.mp4' || item.enClass === '.avi' || item.enClass === '.wmv'" src="/static/image/online/video.jpg">
-              <img v-if="item.enClass === '.doc' || item.enClass === '.docx'" src="/static/image/online/word.jpg">
-              <img v-if="item.enClass === '.pdf'" src="/static/image/online/pdf.jpg">
-              <img v-if="item.enClass === '.ppt' || item.enClass === '.pptx'" src="/static/image/online/ppt.jpg">
+              <img :src="src(item)">
               <div class="tag">
                 <span v-if="detailData.articleType === 1">食品</span>
                 <span v-if="detailData.articleType === 2">药品</span>
@@ -125,6 +121,7 @@
         id: '',
         callBack: '',
         active: '',
+        filters: {},
         loading: false,
         currentDep: {},
         curUser: {},
@@ -141,6 +138,31 @@
       }
     },
     methods: {
+      src(item) {
+        if (item.enClass === '.mp3' || item.enClass === '.mp4' || item.enClass === '.avi' || item.enClass === '.wmv') {
+          if (this.detailData.articleType === 1) {
+            return '/static/image/online/sp.jpg'
+          }
+          if (this.detailData.articleType === 2) {
+            return '/static/image/online/yp.jpg'
+          }
+          if (this.detailData.articleType === 3) {
+            return '/static/image/online/hj.jpg'
+          }
+          if (this.detailData.articleType === 4) {
+            return '/static/image/online/zh.jpg'
+          }
+        }
+        if (item.enClass === '.doc' || item.enClass === '.docx') {
+          return '/static/image/online/word.jpg'
+        }
+        if (item.enClass === '.pdf') {
+          return '/static/image/online/pdf.jpg'
+        }
+        if (item.enClass === '.ppt' || item.enClass === '.pptx') {
+          return '/static/image/online/ppt.jpg'
+        }
+      },
       getCategoryData(key) {
         let a = ''
         this.categoryOptions.forEach(item1 => {
@@ -157,7 +179,11 @@
         if (this.callBack === '') {
           this.$router.push('/handlingGuide/alzyList')
         } else {
-          this.$gotoid('/handlingGuide/knowLedgeBase', this.active)
+          const para = {
+            filters: this.filters,
+            active: this.active
+          }
+          this.$gotoid('/handlingGuide/knowLedgeBase', JSON.stringify(para))
         }
       },
       getDetail() {
@@ -215,9 +241,11 @@
         this.audioDialogVisible = false
         if (this.$refs.audioPlayer) {
           this.$refs.audioPlayer.clearTimeInterval()
+          this.$refs.audioPlayer.stopRun()
         }
         if (this.$refs.videoPlayer) {
           this.$refs.videoPlayer.clearTimeInterval()
+          this.$refs.videoPlayer.stopRun()
         }
         if (this.$refs.documentPlayer) {
           this.$refs.documentPlayer.clearTimeInterval()
@@ -231,6 +259,8 @@
           ip: sessionStorage.getItem('currentIp'),
           ensId: this.playerDetail.id,
           belongMode: '4',
+          belongType: this.detailData.articleType,
+          documentId: this.detailData.documentId,
           viewType: viewType, // 0 文章， 1 附件
           operateType: operateType // 0 预览， 1 下载
         }
@@ -266,7 +296,9 @@
           this.callBack = para.jumpType
           this.active = para.active
         }
-        // sessionStorage.setItem(this.$route.path, '')
+        if (para.filters) {
+          this.filters = para.filters
+        }
       }
     }
   }

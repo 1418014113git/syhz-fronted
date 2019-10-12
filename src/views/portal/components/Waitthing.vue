@@ -229,7 +229,7 @@ export default {
               this.listData[0].data.push({
                 data_op: '知识库待审核', num: item.count, type: '0010'
               })
-            } else {
+            } else if (item.type === 2) {
               this.listData[0].data.push({
                 data_op: '培训资料待审核', num: item.count, type: '0011'
               })
@@ -282,17 +282,15 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .waitThing {
   border-radius: 8px;
-  border: 2px solid #00a0e9;
-  background: rgba(0, 89, 130, 0.7);
-  padding: 3px 0;
+  padding: 3px 8px;
   margin-top: 7px;
   .waitThingTitle {
-    padding-left: 38px;
+    padding: 6px 0 0 38px;
     margin-bottom: 3px;
     color: #bce8fc;
     text-shadow: 0 0 2px #fff;
-    background: url("/static/image/portal_newImg/corwLine.png") no-repeat 3px
-      center;
+    background: url("/static/image/portal_newImg/corwLine.png") no-repeat 3px center;
+    border-top:  1px dashed #5b8dd8;
   }
   .myWorkUl {
     overflow: hidden;
@@ -322,8 +320,7 @@ export default {
     padding: 16px 0 14px 0;
   }
   .waitThing {
-    margin-top: 20px;
-    padding: 6px 0;
+    margin-top: 15px;
   }
   .waitThing .myWorkUl li {
     font-size: 12px;

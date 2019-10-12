@@ -275,19 +275,18 @@ input{
 }
 .el-dropdown-menu__item:focus,
 .el-dropdown-menu__item:not(.is-disabled):hover {
-  background-color: rgba(188, 232, 252, 0.2);
+  background-color: rgba(188, 232, 252, 0.1);
 }
 
 .el-submenu__title:hover {
-  background-color: rgba(188, 232, 252, 0.2) !important;
+  background-color: rgba(188, 232, 252, 0.1) !important;
 }
 
 
 .el-menu--horizontal .el-menu-item:not(.is-disabled):focus,
 .el-menu--horizontal .el-menu-item:not(.is-disabled):hover {
   color: #004f99;
-  // background-color: #044c6d;
-  background-color: rgba(188, 232, 252, 0.3);
+  background-color: #044c6d;
 }
 
 .el-menu--horizontal .el-menu .el-submenu>.el-submenu__title,
@@ -881,22 +880,20 @@ label {
 // 门户页面每个模块标题样式
 .carddiv {
   .el-card__header {
-    font-size: 16px;
-    padding: 5px 15px 5px 55px;
-    color: #bce8fc;
-    text-shadow:0 0 2px #fff;
-    background: url('/static/image/portal_newImg/subTitle.png') no-repeat center center;
-    background-size: 97% 100%;
-    // border-bottom: 1px solid #3bc0fc;
+    font-size: 17px;
+    font-weight: bold;
+    padding: 8px 15px;
+    color: #2fd5ff;
     border-bottom:0;
+    text-align: center;
   }
   .el-table{
-    background-color:transparent !important;
+    // background-color:transparent !important;
   }
 }
 .carddiv:nth-child(2){
   .el-card__header{
-    padding: 5px 15px 5px 70px;
+    // padding: 5px 15px 5px 70px;
   }
 }
 //门户页面--案件
@@ -908,21 +905,21 @@ label {
     overflow: inherit !important;
   }
   .el-card__header {
-    padding: 1px !important;
-    background: transparent !important;
-    position: relative;
-    &::before{
-      display: inline-block;
-      content: '';
-      width: 7px;
-      height: 20px;
-      background: #00a0e9;
-      position: absolute;
-      top: 3px;
-    }
-    div{
-      padding-left: 13px;
-    }
+    // padding: 1px !important;
+    // background: transparent !important;
+    // position: relative;
+    // &::before{
+    //   display: inline-block;
+    //   content: '';
+    //   width: 7px;
+    //   height: 20px;
+    //   background: #00a0e9;
+    //   position: absolute;
+    //   top: 3px;
+    // }
+    // div{
+    //   padding-left: 13px;
+    // }
   }
   .el-card__body{
     padding: 0!important;
@@ -939,26 +936,20 @@ label {
 //门户页面--功能导航
 // .carddiv:nth-child(3){
   .Gndh{
-    border: 2px solid transparent !important;
+    // border: 2px solid transparent !important;
+    border: 0 !important;
+    background: url(/static/image/portal_newImg/moudBg.png) no-repeat center;
+    background-size: 100% 100%;
+
   .el-card{
     background: transparent !important;
     overflow: inherit !important;
   }
   .el-card__header {
-    padding: 1px;
     background: transparent !important;
     position: relative;
-    &::before{
-      display: inline-block;
-      content: '';
-      width: 7px;
-      height: 19px;
-      background: #00a0e9;
-      position: absolute;
-      top: 3px;
-    }
     div{
-      padding-left: 7px;
+      // padding-left: 50px;
     }
   }
   .el-card__body{
@@ -987,16 +978,15 @@ label {
 }
 
 //门户页面--案件走势图
-// .carddiv:nth-child(5){
-  .Echart{
+.Echart{
   .el-card__header{
-    padding: 5px 15px 5px 66px !important;
+    // padding: 5px 15px 5px 66px !important;
   }
  .el-button{
     margin: 1px 16px 0 0;
   }
   .el-card__body{
-    padding: 5px 10px !important;
+    padding: 5px 0 !important;
   }
   .echart_carousel .el-carousel__container{
     height: 303px;
@@ -1040,12 +1030,12 @@ label {
 }
 
 //门户页面--考核排行
-.Statistical{
+.Statistical,.Exam,.Train{
   .el-table thead.is-group th{
     background: #005892;
   }
   .el-card__header{
-    padding: 5px 15px 5px 66px !important;
+    // padding: 5px 15px 5px 66px !important;
   }
   .el-table .cell{
     padding: 4px 0;
@@ -1057,7 +1047,7 @@ label {
     background-color: #2164a1 !important;
   }
   .el-card__body{
-    padding: 0 8px 6px 8px;
+    padding: 0 3px 6px 8px;
     height: 306px;
     overflow-x: hidden;
     overflow-y: auto;
@@ -1088,7 +1078,7 @@ label {
     height: 100%;
     content: '';
     position: absolute;
-    background-color: #1c252c;
+    // background-color: #1c252c;
   }
 }
 //门户页面--高发案件类别
@@ -1318,14 +1308,14 @@ label {
 }
 @media screen and (min-width:1368px) and (max-width:1600px){
 	.carddiv .el-card__header {
-    padding: 5px 10px 5px 55px;
+    // padding: 5px 10px 5px 55px;
   }
 }
 @media only screen and (max-width: 1367px) {
   .carddiv {
     .el-card__header {
-      font-size: 15px;
-      padding: 5px 15px 5px 42px;
+      // font-size: 15px;
+      // padding: 5px 15px 5px 42px;
     }
   }
   .cardCount{
@@ -1346,7 +1336,7 @@ label {
       margin: 1px 3px 0 0;
     }
     .el-card__header{
-      padding: 5px 15px 5px 44px !important;
+      // padding: 5px 15px 5px 44px !important;
     }
   }
   .carddiv:nth-child(9){
@@ -1361,7 +1351,7 @@ label {
   }
   .carddiv:nth-child(8) {
     .el-card__header {
-      padding: 5px 15px 5px 42px !important;
+      // padding: 5px 15px 5px 42px !important;
     }
     .el-table .cell {
       padding: 0;
@@ -1370,6 +1360,9 @@ label {
   .el-breadcrumb {
     // font-size: 12px;
     font-size: 16px;
+  }
+  .Gndh .el-card__header {
+    padding: 8px 15px 8px 9px;
   }
 }
 
@@ -1555,6 +1548,9 @@ label {
 .richTextWrap {
  display: inline-block;
   margin: 0;
+  p{
+    margin: 0;
+  }
   img {
     width: 120px;
     height: 80px;
@@ -1571,4 +1567,7 @@ label {
   clear: both;
   content: '';
   display: block;
+}
+.table_th_center th .cell {
+  text-align: center;
 }

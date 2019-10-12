@@ -27,7 +27,9 @@
                 </el-tooltip>
               </el-form-item>
                 <el-form-item label="考试时限" prop="totalDate" class="clearfix">
-                <el-input type="text" v-model="examForm.totalDate" clearable placeholder="请输入" maxlength="3" class="left" style="width:calc(100% - 30px)"></el-input>
+                <el-input type="text" v-model="examForm.totalDate" clearable placeholder="请输入" maxlength="3" class="left" style="width:calc(100% - 30px)">
+                  <template slot="append">分钟</template>
+                </el-input>
                 <el-tooltip class="right"  effect="dark" content="请填写考试限定时间，在时间范围内警员可以自主提交答卷，到达限定时间，系统将强制提交答卷！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
@@ -151,6 +153,7 @@ export default {
       allSystemPeople: [], // 系统所有人员
       markPerFormattingOwn: [],
       markPerFormattingAll: [],
+      markPerOwn: [],
       carryParam: {}, // 列表带过来的参数
       yjry: '', // 阅卷人员筛选框
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息

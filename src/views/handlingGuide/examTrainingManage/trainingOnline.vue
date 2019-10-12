@@ -39,7 +39,7 @@
     <!-- 试卷 -->
     <div id="previewExamPaper" v-loading="detailLoading">
       <div class="exam_title_wrap">
-        <p class="exam_title">{{examinationData.paperName}}</p>
+        <p class="exam_title">{{examinationData.examinationName}}</p>
         <p class="exam_subtitle">
           <span>开始时间：{{startTime}}</span>
           <span>考试时限：{{examinationData.totalDate}}分钟</span>
@@ -56,7 +56,8 @@
             </p>
             <!-- 单选题选项 -->
             <div v-if="smallItem.items && smallItem.type===1" class="options_wrap">
-              <el-radio-group v-model="answer[smallItem.id]" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
+              <!-- v-model="answer[smallItem.id]" -->
+              <el-radio-group v-model="smallItem.answer" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
                 <p v-if="smallItem.items.A" class="option_item"><el-radio label="A">A、<span v-html="smallItem.items.A" class="richTextWrap"></span></el-radio></p>
                 <p v-if="smallItem.items.B" class="option_item"><el-radio label="B">B、<span v-html="smallItem.items.B" class="richTextWrap"></span></el-radio></p>
                 <p v-if="smallItem.items.C" class="option_item"><el-radio label="C">C、<span v-html="smallItem.items.C" class="richTextWrap"></span></el-radio></p>
@@ -83,14 +84,16 @@
             </div>
             <!-- 判断题 对错 -->
             <div v-if="smallItem.type===4" class="options_wrap pd_options_wrap">
-              <el-radio-group v-model="answer[smallIndex]" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
-                <span class="option_item"><el-radio label="true">正确</el-radio></span>
-                <span class="option_item"><el-radio label="false">错误</el-radio></span>
+              <!-- answer[smallIndex] -->
+              <el-radio-group v-model="smallItem.answer" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
+                <span class="option_item"><el-radio label="1">正确</el-radio></span>
+                <span class="option_item"><el-radio label="2">错误</el-radio></span>
                </el-radio-group>
             </div>
             <!-- 简答题、论述题、案例分析题 -->
-            <el-input v-if="smallItem.type === 5 || smallItem.type === 6 || smallItem.type === 7" type="textarea" :rows="3" v-model="answer[smallItem.id]"
-              @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)" maxlength="500" clearable placeholder="请输入您的答案"></el-input>
+            <!-- answer[smallItem.id] -->
+            <el-input v-if="smallItem.type === 5 || smallItem.type === 6 || smallItem.type === 7" type="textarea" :rows="3"
+              v-model="smallItem.answer" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)" maxlength="500" clearable placeholder="请输入您的答案"></el-input>
           </div>
         </div>
       </div>
@@ -136,6 +139,8 @@ export default {
       startTime: '',
       doneQuestionNum: 0,
       submitNoticeStr: '', // 点最后提交试卷时 弹框提示内容
+      timeOut1: null, // 定时器
+      timeOut2: null, // 定时器
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -150,11 +155,13 @@ export default {
     },
     closeExamOver() { // 考试结束，(我知道了)
       this.isExamEnd = false
+      this.cleartExamTimeout() // 清除定时器
       this.$router.back(-1)
     },
     handleCancelExam(type) { // 取消考试 弹框
       this.isExamCancel = false
       if (type === '1') { // 确定
+        this.cleartExamTimeout() // 清除定时器
         this.$router.back(-1)
       } else if (type === '2') {
         // 继续答题
@@ -228,6 +235,16 @@ export default {
         }
       }
     },
+    timestampToTime(timestamp) {
+      var date = new Date(timestamp * 1000) // 时间戳为10位需*1000，时间戳为13位的话不需乘1000
+      var Y = date.getFullYear() + '-'
+      var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+      var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
+      var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+      var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+      var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
+      return Y + M + D + h + m + s
+    },
     saveExamStart() { // 提交开始考试信息
       this.detailLoading = true
       var param = {
@@ -240,16 +257,82 @@ export default {
         deptName: this.deptInfo.depName
       }
       this.$save('exam/start', param).then((response) => {
-        this.detailLoading = false
         if (response.code === '000000') {
-          this.startTime = response.data.startTime // 考试开始时间
-          this.recordId = response.data.recordId // 考试记录id
-          var minutes = Number(this.examinationData.totalDate) * 60
-          this.countdown(minutes) // 倒计时开始，参数 秒数
+          var startObj = response.data
+          this.$query('exam/systemTime', {}).then((res) => { // 查询服务器时间
+            this.detailLoading = false
+            if (res.code === '000000') {
+              // 1570693066740
+              // console.log(this.timestampToTime((response.data + '').substr(0, 10)))
+              var time1 = startObj.startTime
+              var time1Stamp = new Date(time1).getTime()
+              var time2 = this.timestampToTime((res.data + '').substr(0, 10))
+              var timeDiff = 0
+              if (time1Stamp < res.data) {
+                timeDiff = this.timeDifference(time1, time2)
+              } else {
+                timeDiff = 0
+              }
+              this.startTime = startObj.startTime // 考试开始时间
+              this.recordId = startObj.recordId // 考试记录id
+              // var minutes = Number(this.examinationData.totalDate) * 60 // 考试时限
+              if (timeDiff < 0) {
+                timeDiff = 0
+              }
+              var minutes = Number(this.examinationData.totalDate) * 60 - Number(timeDiff) * 60
+              if (minutes > 0) {
+                this.countdown(minutes) // 倒计时开始，参数 秒数
+              } else {
+                // 接口已处理 说不存在小于0的情况
+              }
+            }
+          }).catch(() => {
+            this.detailLoading = false
+          })
         }
+        // this.detailLoading = false
+        // if (response.code === '000000') {
+        //   this.startTime = response.data.startTime // 考试开始时间
+        //   this.recordId = response.data.recordId // 考试记录id
+        //   var minutes = Number(this.examinationData.totalDate) * 60
+        //   this.countdown(minutes) // 倒计时开始，参数 秒数
+        // }
       }).catch(() => {
         this.detailLoading = false
       })
+    },
+    timeDifference(time1, time2) { // 计算时间相减
+      // 定义两个变量time1,time2分别保存开始和结束时间
+      // var time1 = '2017-12-03 12:01'
+      // var time2 = '2017-12-03 12:35'
+      // 判断开始时间是否大于结束日期
+      // if (time1 > time2) {
+      //   alert('开始时间不能大于结束时间！')
+      //   return false
+      // }
+      console.log(time1 + '---' + time2)
+      // 截取字符串，得到日期部分"2009-12-02",用split把字符串分隔成数组
+      var begin1 = time1.substr(0, 10).split('-')
+      var end1 = time2.substr(0, 10).split('-')
+      // 将拆分的数组重新组合，并实例成化新的日期对象
+      var date1 = new Date(begin1[1] + -+begin1[2] + -+begin1[0])
+      var date2 = new Date(end1[1] + -+end1[2] + -+end1[0])
+      // 得到两个日期之间的差值m，以分钟为单位
+      // Math.abs(date2-date1)计算出以毫秒为单位的差值
+      // Math.abs(date2-date1)/1000得到以秒为单位的差值
+      // Math.abs(date2-date1)/1000/60得到以分钟为单位的差值
+      var m = parseInt(Math.abs(date2 - date1) / 1000 / 60)
+      // 小时数和分钟数相加得到总的分钟数
+      // time1.substr(11,2)截取字符串得到时间的小时数
+      // parseInt(time1.substr(11,2))*60把小时数转化成为分钟
+      var min1 = parseInt(time1.substr(11, 2)) * 60 + parseInt(time1.substr(14, 2))
+      var min2 = parseInt(time2.substr(11, 2)) * 60 + parseInt(time2.substr(14, 2))
+      // 两个分钟数相减得到时间部分的差值，以分钟为单位
+      var n = min2 - min1
+      // 将日期和时间两个部分计算出来的差值相加，即得到两个时间相减后的分钟数
+      var minutes = m + n
+      console.log(minutes)
+      return minutes
     },
     saveQuestionAnswer(type, questionsId, answer, OtherAnswer) { // 保存题目答案
       // console.log(type)
@@ -285,32 +368,69 @@ export default {
       } else {
         param.answer = answer
       }
-
       this.$update('exam/saveAnswer', param).then((response) => {
         this.detailLoading = false
-        if (param.answer) { // 计算已答题的数量
-          this.doneQuestionNum++
-        } else {
-          this.doneQuestionNum--
+        if (response.code === '000000') {
+          // 不能在这判断是否第一次答题累计数量 第二次开始时间会有影响，有可能题是更新 但是不计数
+          // if (response.data.id) { // 第一次作答
+          //   if (param.answer) { // 计算已答题的数量
+          //     this.doneQuestionNum++
+          //   } else {
+          //     this.doneQuestionNum--
+          //   }
+          // } else { // 二次编辑
+          //   if (param.answer) { // 计算已答题的数量
+          //   } else {
+          //     this.doneQuestionNum--
+          //   }
+          // }
         }
-        console.log('已答题目数：' + this.doneQuestionNum)
-        // if (response.code === '000000') {
-        // }
+        // console.log('已答题目数：' + this.doneQuestionNum)
       }).catch(() => {
         this.detailLoading = false
       })
     },
     lastCancelExam() { // 页面下方取消考试
       this.isExamCancel = true
-      // console.log(this.curPaperData)
     },
     lastSubmitExam() { // 页面下方提交答案
       // 判断是不是所有的题都答了
+      var isAnswerComplete = true // 是否所有试题都答了 标志字段
+      console.log(JSON.stringify(this.curPaperData))
+      // 遍历所有试题是否全部作答
+      for (let index = 0; index < this.curPaperData.length; index++) {
+        const element = this.curPaperData[index]
+        for (let m = 0; m < element.data.length; m++) {
+          const item = element.data[m]
+          if (element.type === 2) { // 多选 答案字段answerr
+            if (item.answerr && item.answerr.length > 0) {
+              // console.log(item)
+            } else {
+              isAnswerComplete = false
+              break
+            }
+          } else if (element.type === 3) { // 填空 答案字段 zhi
+            if (item.zhi) {
+              // console.log(item)
+            } else {
+              isAnswerComplete = false
+              break
+            }
+          } else { // 其他类型的试题 答案字段都是answer
+            if (item.answer) {
+              // console.log(item)
+            } else {
+              isAnswerComplete = false
+              break
+            }
+          }
+        }
+      }
       this.isExamSubmit = true // 弹框显示
-      if (this.doneQuestionNum < Number(this.carryParam.questionsCount)) {
-        this.submitNoticeStr = '您还有考试题目没有填写或选择答案，是否需要提交答卷？'
-      } else {
+      if (isAnswerComplete) {
         this.submitNoticeStr = '确认提交答卷？'
+      } else {
+        this.submitNoticeStr = '您还有考试题目没有填写或选择答案，是否需要提交答卷？'
       }
     },
     handleSubmitAnswer(submitType) { // 提交试卷答案
@@ -337,6 +457,7 @@ export default {
       this.$update('exam/submitAnswer', param).then((response) => {
         this.detailLoading = false
         if (response.code === '000000') { // 提交答案成功
+          this.cleartExamTimeout() // 清除定时器
           this.$router.push({ path: '/handlingGuide/examTrainingManage/index' })
         }
       }).catch(() => {
@@ -362,7 +483,7 @@ export default {
         this.isExamEnd = true // 考试结束的弹框
         this.countdownOver(3)
       } else {
-        setTimeout(function() {
+        this.timeOut1 = setTimeout(function() {
           _this.countdown(allSeconds)
         }, 1000)
       }
@@ -374,20 +495,52 @@ export default {
         this.handleSubmitAnswer('2') // 自动交卷
         // return
       } else {
-        setTimeout(function() {
+        this.timeOut2 = setTimeout(function() {
           _this.countdownOver(this.endTime)
         }, 1000)
       }
     },
     back() {
+      this.cleartExamTimeout() // 清除定时器
       this.$router.back(-1)
+    },
+    cleartExamTimeout() {
+      if (this.timeOut1) {
+        clearTimeout(this.timeOut1)
+      }
+      if (this.timeOut2) {
+        clearTimeout(this.timeOut2)
+      }
+      this.timeOut1 = null
+      this.timeOut2 = null
     }
+  },
+  beforeDestroy() {
+    this.cleartExamTimeout()
+  },
+  created() {
+    this.$navigation.on('forward', (to, from) => {
+      // console.log('forward to', to, 'from ', from)
+      this.cleartExamTimeout() // 清除定时器
+    })
+    this.$navigation.on('back', (to, from) => {
+      this.cleartExamTimeout() // 清除定时器
+    })
+    // this.$navigation.on('replace', (to, from) => {
+    //   console.log('replace to', to, 'from ', from)
+    // })
+    // this.$navigation.on('refresh', (to, from) => {
+    //   console.log('refresh to', to, 'from ', from)
+    // })
+    // this.$navigation.on('reset', (to, from) => {
+    //   console.log('reset to', to, 'from ', from)
+    // })
   },
   mounted() {
     if (this.$route.query) {
       this.carryParam = this.$route.query
+      this.queryPaperData()
     }
-    this.queryPaperData()
   }
 }
 
@@ -538,11 +691,17 @@ export default {
   }
 
   .options_wrap {
-    margin: 0 0 8px 10px;
+    margin: 5px 0 5px 10px;
+    p {
+      margin: 0 0 5px;
+    }
   }
-  .pd_options_wrap .option_item {
-    display: inline-block;
-    width: 22%;
+  .pd_options_wrap {
+    margin: 6px 0 0;
+    .option_item {
+      display: inline-block;
+      width: 22%;
+    }
   }
   .question_name {
     position: relative;

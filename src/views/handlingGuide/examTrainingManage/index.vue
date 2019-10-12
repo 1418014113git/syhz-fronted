@@ -2,7 +2,7 @@
   <section class="testTableList">
     <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
       <el-form-item label="" prop="examType" label-width="0">
-        <el-select v-model="filters.examType" placeholder="请选择" clearable @change="examTypeChange">
+        <el-select v-model="filters.examType" placeholder="请选择" @change="examTypeChange">
           <el-option v-for="item in ksData" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
@@ -14,7 +14,7 @@
       </el-form-item>
     </el-form>
     <!--列表-->
-    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
       <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
       <el-table-column prop="examinationName" label="考试" show-overflow-tooltip class="tabC">
         <template slot-scope="scope">
@@ -34,8 +34,10 @@
         </template>
       </el-table-column>
       <el-table-column prop="status" label="开始考试" width="100" align="center" v-if="currentExamType==='1'" :key=Math.random()>
+        <!-- 先判断成绩是否发布（已发布的不能开始考试），然后判断是否还有考试的次数 -->
         <template slot-scope="scope">
-          <el-button size="mini" circle v-if="scope.row.examinationCount < scope.row.permitNumber" @click="handleStartExam(scope.$index, scope.row)" icon="el-icon-caret-right" title="开始考试"></el-button>
+          <span v-if="scope.row.status">否</span>
+          <el-button size="mini" circle v-else-if="scope.row.examinationCount < scope.row.permitNumber" @click="handleStartExam(scope.$index, scope.row)" icon="el-icon-caret-right" title="开始考试"></el-button>
           <span v-else>否</span>
         </template>
       </el-table-column>
@@ -132,7 +134,8 @@ export default {
       }
     },
     handleRanking(index, row) { // 排名
-      this.$router.push({ path: '/handlingGuide/examTrainingManage/scoreRanking', query: { examinationId: row.examinationId, examinationName: row.examinationName }})
+      // 参数 考试id 考试名称 发布时间
+      this.$router.push({ path: '/handlingGuide/examTrainingManage/scoreRanking', query: { examinationId: row.examinationId, examinationName: row.examinationName, startTime: row.modifyDate }})
     },
     handleStartExam(index, row) { // 开始考试
       this.$router.push({ path: '/handlingGuide/examTrainingManage/trainingOnline', query: { examinationId: row.examinationId, questionsCount: row.questionsCount }})
@@ -169,6 +172,7 @@ export default {
           this.pageSize = response.data.pageSize
         } else {
           this.tableData = []
+          this.total = 0
         }
       }).catch(() => {
         this.listLoading = false
@@ -197,6 +201,7 @@ export default {
           this.pageSize = response.data.pageSize
         } else {
           this.tableData = []
+          this.total = 0
         }
       }).catch(() => {
         this.listLoading = false
