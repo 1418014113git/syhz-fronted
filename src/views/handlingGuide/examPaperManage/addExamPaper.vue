@@ -771,7 +771,8 @@ export default {
       for (var i = 0; i < _this.rgzjList.length; i++) {
         if (element.type === _this.rgzjList[i].type) {
           bo = true// 存在
-          _this.rgzjList[i].data = _this.rgzjList[i].data.concat(element.data)
+          // _this.rgzjList[i].data = _this.rgzjList[i].data.concat(element.data)
+          _this.rgzjList[i].data = element.data
         }
       }
       // 如果不存在就直接塞到array中
@@ -931,7 +932,8 @@ export default {
     },
     getsjCheckList(val) { // 获取随机组卷选择的模块tree节点集合
       this.initData(2)
-      this.sjzjList = this.sjzjListDefault
+      this.sjzjList = JSON.parse(JSON.stringify(this.sjzjListDefault))
+      this.sjzjTotal = 0
       this.sjzjList.forEach((item, index) => {
         item.data = this.unique(val) // 去重
         item.desc = '每题' + item.value + '分，共' + Number(item.num * item.value) + '分。' // 说明

@@ -86,7 +86,7 @@ export default {
     return {
       filters: {
         paperName: '', // 试卷名称
-        paperType: 1, // 人工组卷/自动组卷
+        paperType: '', // 人工组卷/自动组卷
         startTime: '', // 创建时间 开始
         endTime: '', // 创建时间 结束
         paperStatus: '' // 发布状态
@@ -129,8 +129,6 @@ export default {
   },
   methods: {
     query(flag, hand) { // 列表数据查询
-      this.initData()
-      this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
         pageNum: this.page,
@@ -145,12 +143,22 @@ export default {
       if (hand) {
         para.logFlag = 1 // 添加埋点参数
       }
+      if (this.filters.startTime > this.filters.endTime) {
+        this.$alert('结束时间不能小于开始时间', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return
+      }
+      this.listLoading = true
       this.$query('paper/list', para).then((response) => {
         this.listLoading = false
         if (response.data.list && response.data.list.length > 0) {
           this.list = response.data.list
           this.total = response.data.totalCount
           this.pageSize = response.data.pageSize
+        } else {
+          this.initData()
         }
       }).catch(() => {
         this.listLoading = false
@@ -187,6 +195,7 @@ export default {
             message: '删除成功',
             type: 'success'
           })
+          this.initData()
           this.query(true)
         }).catch(() => {
           this.listLoading = false
@@ -217,6 +226,7 @@ export default {
             message: '发布成功',
             type: 'success'
           })
+          this.initData()
           this.query(true)
         }).catch(() => {
           this.listLoading = false
@@ -318,9 +328,12 @@ export default {
         endTime: '', // 创建时间 结束
         paperStatus: '' // 发布状态
       }
+      this.endDateDisabled = true // 禁用结束时间选择框
+      this.initData()
       this.query(true, true)
     },
     paperTypeChange() { // 组卷方式change
+      this.initData()
       this.query(true, true)
     }
   },

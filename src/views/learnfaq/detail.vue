@@ -71,7 +71,7 @@
             </el-card>
           </el-col>
           <el-col :span="24" class="toolbar">
-            <el-pagination v-if="floorAnswerListPagination.showPagination" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[10,20,50]" @size-change="handleSizeChange"
+            <el-pagination v-if="floorAnswerListPagination.showPagination" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
                             :page-size="floorAnswerListPagination.pageSize" :total="floorAnswerListPagination.total" :current-page="floorAnswerListPagination.currentPage" style="float:right;">
             </el-pagination>
           </el-col>
@@ -122,7 +122,7 @@
         listLoading: false, // 楼回答列表加载
         floorAnswerListPagination: { // 楼回答分页
           total: 0,
-          pageSize: 10,
+          pageSize: 15,
           currentPage: 0,
           showPagination: false
         },
@@ -334,7 +334,8 @@
             page: this.$route.query.page,
             pageSize: this.$route.query.pageSize,
             activeIndex: this.$route.query.activeIndex,
-            myQuestion: this.$route.query.myQuestion
+            myQuestion: this.$route.query.myQuestion,
+            quTitle: this.$route.query.quTitle
           }
         })
       },

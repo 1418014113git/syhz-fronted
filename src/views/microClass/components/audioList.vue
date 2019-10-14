@@ -2,7 +2,7 @@
   <section v-loading="loading">
     <div v-for="item in audioList" :key="item.key" class="file_data_list" @click="handlerClick(item)">
       <div class="img">
-        <img :src="item.enIcon ? item.enIcon : '/static/image/online/audio.jpg'">
+        <img :src="src(item)">
         <div class="tag">
           <span v-if="item.type === 1">食品</span>
           <span v-if="item.type === 2">药品</span>
@@ -46,6 +46,24 @@
       }
     },
     methods: {
+      src(item) {
+        if (item.enIcon) {
+          return item.enIcon
+        } else {
+          if (item.type === 1) {
+            return '/static/image/online/sp.jpg'
+          }
+          if (item.type === 2) {
+            return '/static/image/online/yp.jpg'
+          }
+          if (item.type === 3) {
+            return '/static/image/online/hj.jpg'
+          }
+          if (item.type === 4) {
+            return '/static/image/online/zh.jpg'
+          }
+        }
+      },
       handlerClick(row) {
         const para = {
           filters: this.commonFilters,

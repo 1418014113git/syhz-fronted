@@ -42,10 +42,11 @@
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
           <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" :disabled="scope.row.status"></el-button>
           <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除" :disabled="scope.row.status"></el-button>
-          <el-button size="mini" circle @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩" v-if="!scope.row.status">
+          <!-- 未开始的考试或者已经发布成绩的 发布按钮禁用 -->
+          <el-button size="mini" circle @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩" :disabled="scope.row.examStatus===1 || scope.row.status">
             <svg-icon icon-class="release"></svg-icon>
           </el-button>
-          <el-button size="mini" circle @click="handleGoOverExam(scope.$index, scope.row)" icon="el-icon-view" title="阅卷" v-if="scope.row.isGoOver===1" :disabled="scope.row.status"></el-button>
+          <!-- <el-button size="mini" circle @click="handleGoOverExam(scope.$index, scope.row)" icon="el-icon-view" title="阅卷" v-if="scope.row.isGoOver===1" :disabled="scope.row.status"></el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -99,7 +100,8 @@ export default {
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
-      this.$query('page/examination', para).then((response) => {
+      // page/examination
+      this.$query('examination/findAllExamination', para).then((response) => {
         this.listLoading = false
         if (response.data && response.data.list.length > 0) {
           this.total = response.data.totalCount
@@ -198,7 +200,7 @@ export default {
           this.listLoading = false
         })
       }).catch(() => {
-        this.loading = false
+        this.listLoading = false
         this.$message({
           type: 'info',
           message: '已取消'
@@ -210,10 +212,10 @@ export default {
         id: row.id,
         status: 1 // 发布成绩标志字段
       }
+      this.listLoading = true
       this.$update('examination/update', param).then((response) => {
         if (response.code === '000000') {
-          this.formLoading = true
-          this.loading = false
+          this.listLoading = true
           this.$message({
             type: 'success',
             message: '发布成功!'
@@ -221,14 +223,14 @@ export default {
           this.queryList(true) // 刷新列表
         }
       }).catch(() => {
-        this.formLoading = false
+        this.listLoading = false
       })
     },
-    addTestQuestion() { // 添加试题
+    addTestQuestion() { // 添加考试
       this.$router.push({ path: '/handlingGuide/examineManage/edit' })
     },
     handleGoOverExam(index, row) { // 阅卷
-      this.$router.push({ path: '/handlingGuide/goOverExamPaper/index', query: { examId: row.id }})
+      // this.$router.push({ path: '/handlingGuide/goOverExamPaper/index', query: { examId: row.id }})
     },
     importTem() {
       this.dialogImportVisible = true

@@ -1,26 +1,62 @@
 <template>
 <div class="top">
-  <img class="leftTit" src="/static/image/portal_newImg/mainTitle.png" alt="">
-  <div class="midArea">
-    <div class="minCont">
-      <span class="nameLeft">用户名：</span>
-      <span class="user">{{name}}</span>
-      <span class="goOut" @click="goOut">[退出]</span>
-      <span class="upms" @click="toUpms" v-if="isShow()">[系统管理]</span>
-      <!-- <div class="message" :class="{'isMessage':isMessage}" @click="watchMessage">
-        <img src="/static/image/portal_newImg/mes.png" alt="">
-      </div> -->
-      <span>{{date}}&nbsp;&nbsp;&nbsp;&nbsp;{{week}}</span>
-    </div>
+  <div class="lefArea">
+    <span>{{date}}&nbsp;&nbsp;&nbsp;&nbsp;{{week}}</span>
   </div>
+  <div class="centerTit" >
+    <img src="/static/image/portal_newImg/mainTitle.png" alt="">
+  </div>
+  <div class="rigCon">
+    <search-app></search-app>
+  </div>
+  <div class="rigArea">
+      <span class="nameLeft">用户名：</span>
+      <el-dropdown class="avatar-container" trigger="hover">
+        <div class="avatar-wrapper">
+          <span class="userinfo-inner">{{name}}</span>
+          <i class="el-icon-arrow-down el-icon-caret-bottom"></i>
+        </div>
+        <el-dropdown-menu class="user-dropdown" slot="dropdown">
+          <el-dropdown-item v-if="isShow()" style="font-size:14px;" divided>
+            <span style="display:block;" @click="EditPassword">修改密码</span>
+          </el-dropdown-item>
+          <el-dropdown-item v-if="isShow()" style="font-size:14px;" divided>
+            <span style="display:block;" @click="toUpms">系统管理</span>
+          </el-dropdown-item>
+          <el-dropdown-item style="font-size:14px;" divided>
+            <span style="display:block;" @click="goOut">退出</span>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <div class="message" :class="{'isMessage':isMessage}" @click="watchMessage">
+        <img src="/static/image/portal_newImg/mes.png" alt="">
+      </div>
+  </div>
+
+   <!--修改密码弹出层-->
+  <el-dialog title="修改密码" :visible.sync="isShowdialog">
+    <el-form ref="resetPwdForm" :rules="resetPwdFormRules" :model="resetPwdForm" size="mini" :label-width="formLabelWidth">
+      <el-form-item label="原密码" prop="loginPwd" :label-width="formLabelWidth">
+        <el-input v-model.trim="resetPwdForm.loginPwd" type="password" auto-complete="off" maxlength="20" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="新密码" prop="loginPwdNew" :label-width="formLabelWidth">
+        <el-input v-model.trim="resetPwdForm.loginPwdNew" type="password" auto-complete="off" maxlength="20" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="确认密码" prop="loginPwdNew1" :label-width="formLabelWidth">
+        <el-input v-model.trim="resetPwdForm.loginPwdNew1" type="password" auto-complete="off" maxlength="20" clearable></el-input>
+      </el-form-item>
+    </el-form>
+    <el-row class="tabC martop">
+      <el-button  @click="handleResetPwdCancel" class="cancelBtn">取 消</el-button>
+      <el-button  type="primary" @click="handleResetPwdSubmit" v-loading.fullscreen.lock="loadingFlag" class="saveBtn">保 存</el-button>
+    </el-row>
+  </el-dialog>
 </div>
 </template>
 
 <script>
-import {
-  getMessagesCount
-} from '@/api/messages'
-
+// import { getMessagesCount } from '@/api/messages'
+import SearchApp from './searchApp'
 export default {
   name: '',
   data() {
@@ -30,8 +66,48 @@ export default {
       week: '',
       roles: JSON.parse(sessionStorage.getItem('roles')), // 角色列表
       isMessage: false, // 如果有消息，则设置为true，显示小红点
-      curDept: {}
+      curDept: {},
+      loadingFlag: false,
+      formLabelWidth: '100px',
+      isShowdialog: false,
+      curUser: {},
+      resetPwdForm: {
+        id: '',
+        loginName: '',
+        loginPwd: '',
+        loginPwdNew: '',
+        loginPwdNew1: ''
+      },
+      resetPwdFormRules: {
+        loginPwd: [
+          { required: true, message: '请输入当前密码', trigger: 'blur' },
+          { min: 6, max: 20, message: '长度在6到20个字符', trigger: 'blur' }
+        ],
+        loginPwdNew: [
+          { required: true, message: '请输入新密码', trigger: 'blur' },
+          { min: 6, max: 20, message: '长度在6到20个字符', trigger: 'blur' }
+        ],
+        loginPwdNew1: [
+          { min: 6, max: 20, message: '长度在6到20个字符', trigger: 'blur' },
+          {
+            required: true, trigger: 'blur', validator: (rule, value, callback) => {
+              if (value.length > 0) {
+                if (this.resetPwdForm.loginPwdNew !== value) {
+                  callback(new Error('新密码设置不一致，请确认后再次输入！'))
+                } else {
+                  callback()
+                }
+              } else {
+                callback(new Error('请输入确认密码'))
+              }
+            }
+          }
+        ]
+      }
     }
+  },
+  components: {
+    SearchApp
   },
   methods: {
     /* eslint-disable */
@@ -107,7 +183,6 @@ export default {
       this.week = week
     },
     watchMessage() {
-      localStorage.setItem('curAppCode', '001')
       this.$router.push({
         path: '/message/list'
       })
@@ -142,15 +217,57 @@ export default {
         location.reload()
       })
     },
-    getCount() {
-      getMessagesCount({
-        deptId: this.curDept.id
-      }).then((res) => {
-        if (res.code === '000000' && res.data) {
-          this.isMessage = res.data > 0
+    getCount() { // 消息图标是否显示小红点
+      this.$query('SYSMESSAGESSTATUS/'+ this.curUser.id, {}).then((response) => {
+       if (response.code === '000000' && response.data.messageCount) {
+          this.isMessage = response.data.messageCount > 0
         }
       })
-    }
+    },
+    EditPassword(){ // 修改密码
+      this.isShowdialog=true
+    },
+    handleResetPwdSubmit: function(index, row) {
+      this.$refs.resetPwdForm.validate(valid => {
+        if (valid) {
+          this.$confirm('确认修改密码吗?', '提示', {
+            type: 'warning'
+          }).then(() => {
+            this.uppwd()
+          })
+        }
+      })
+    },
+    uppwd: function() { // 保存修改密码
+      this.loadingFlag = true
+      var param = {
+        oldPassWord: this.resetPwdForm.loginPwd,
+        passWord: this.resetPwdForm.loginPwdNew
+      }
+      this.$update('userresetpwd/' + this.curUser.id, param,true).then((response) => {
+        this.loadingFlag = false
+        if (response.code === '000000') {
+           this.$message({
+            message: '修改密码成功',
+            type: 'success'
+          })
+          this.isShowdialog=false
+        }
+      }).catch(() => {
+        this.loadingFlag = false
+        this.restData()
+      })
+    },
+    handleResetPwdCancel: function() {
+      this.isShowdialog=false
+      this.restData()
+    },
+    restData(){
+      this.$refs['resetPwdForm'].resetFields();
+      this.resetPwdForm.loginPwd = ''
+      this.resetPwdForm.loginPwdNew = ''
+      this.resetPwdForm.loginPwdNew1 = ''
+    },
   },
   created() {
     this.init()
@@ -158,39 +275,49 @@ export default {
   },
   mounted() {
     this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    if (this.curDept) {
-      this.getCount()
-    }
+    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+    this.getCount()
   }
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss" scoped>
+<style rel="stylesheet/scss" lang="scss">
 .top {
   display: flex;
-  .leftTit {
-    width: 350px;
-    height: 60px;
+  overflow: hidden;
+  text-align: center;
+  background: url("/static/image/portal_newImg/topLine.png") no-repeat center bottom;
+  background-size: 100%;
+  height: 100px;
+  .centerTit {
+    width: 32%;
+    text-align: center;
+    padding-top: 18px;
+    img{
+      width: 380px;
+    }
   }
-  .midArea {
-    flex: 1;
-    margin: 8px 0 0 23px;
+  .lefArea {
+    width: 34%;
     color: #bce8fc;
     text-shadow: 0 0 2px #fff;
-    background: url("/static/image/portal_newImg/topLine.png") no-repeat center
-      center;
-    background-size: 100% 100%;
-    .minCont {
-      text-align: center;
-      padding-bottom: 25px;
-      .user {
-        color: #ffe617;
-      }
+    text-align: right;
+    padding: 40px 120px 0 0;
+  }
+  .rigArea{
+    flex: 1;
+    .nameLeft{
+      color: #bce8fc;
+      text-shadow: 0 0 2px #fff;
     }
+  }
+  .rigCon{
+    width: 20%;
+    padding-top: 25px;
   }
   .message {
     display: inline-block;
-    margin: 0 28px 0 12px;
+    margin: 0 15px 0 12px;
     position: relative;
     cursor: pointer;
   }
@@ -211,27 +338,68 @@ export default {
   .upms {
     cursor: pointer;
   }
+
+  .avatar-container {
+    .avatar-wrapper {
+      height: 100%;
+      cursor: pointer;
+      position: relative;
+       .userinfo-inner{
+        color: #ffe617;
+        text-shadow: 0 0 2px #fff;
+        display: inline-block;
+        margin-top: 20px;
+      }
+    // .el-icon-caret-bottom {
+    //     position: absolute;
+    //     right: -20px;
+    //     top: 25px;
+    //     font-size: 12px;
+    //   }
+    }
+  }
+  .el-dropdown {
+    color: #28a8f8 !important;
+  }
+  .el-dialog{
+    width: 30%;
+  }
+  .el-form{
+    width: 90%;
+    margin: 0 auto;
+  }
+  .martop{
+    margin-top: 15px;
+  }
 }
 @media only screen and (max-width: 1367px) {
-  .top {
-    .leftTit {
-      width: 270px;
-      height: 42px;
-    }
-    .midArea {
-      font-size: 12px;
-    }
-    .message {
-      margin: 0 16px 0 12px;
-      img {
-        width: 22px;
-        margin-top: -1px;
-      }
-    }
-    .minCont {
-      width: 94%;
-      padding-bottom: 15px;
-    }
+  .top{
+    height: 85px;
+  }
+  .top .centerTit img{
+    width: 340px;
+  }
+  .top .lefArea{
+    padding: 37px 30px 0 0;
+  }
+  .top .rigArea{
+    font-size: 12px;
+  }
+  .el-input--mini .el-input__inner {
+    height: 25px;
+    line-height: 25px;
+  }
+  .top .rigArea[data-v-c8abc34a] {
+    text-align: right;
+  }
+  .top .rigCon{
+    width: 18%;
+  }
+  .el-dropdown {
+    font-size: 12px;
+  }
+  .message img{
+    width: 20px;
   }
 }
 </style>

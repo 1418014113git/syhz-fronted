@@ -6,14 +6,14 @@
         <span>成长总积分<i>{{total.systembranchCount}}</i></span>
         <span>|</span>
         <span>总积分排名<i>{{total.systemOrder}}</i></span>
-        <span><el-button type="text" v-if="$isViewBtn('139004')" @click="detail">积分明细 >></el-button></span>
+        <span><el-button type="text" @click="detail">积分明细 >></el-button></span>
       </div>
       <p><strong>当月排名</strong></p>
       <div class="count">
         <span><strong>人数：{{total.dayUserCount}} 人</strong></span>
         <span><strong>我的积分：{{total.daybranchCount}}</strong></span>
         <span><strong>我的排名：{{total.dayOrder}}</strong></span>
-        <span><el-button type="text" icon="el-icon-menu" v-if="$isViewBtn('139004')" @click="monthMore">更多 >></el-button></span>
+        <span><el-button type="text" icon="el-icon-menu" @click="monthMore">更多 >></el-button></span>
       </div>
       <el-row type="flex" justify="center" style="margin-top:15px;">
         <el-table :data="monthRecords" v-loading="loading" style="width: 100%;">
@@ -28,7 +28,7 @@
         <span><strong>人数：{{total.systemUserCount}} 人</strong></span>
         <span><strong>我的积分：{{total.systembranchCount}}</strong></span>
         <span><strong>我的排名：{{total.systemOrder}}</strong></span>
-        <span><el-button type="text" icon="el-icon-menu" v-if="$isViewBtn('139004')" @click="totalMore">更多 >></el-button></span>
+        <span><el-button type="text" icon="el-icon-menu" @click="totalMore">更多 >></el-button></span>
       </div>
       <el-row type="flex" justify="center" style="margin-top:15px;">
         <el-table :data="totalRecords" v-loading="loading" style="width: 100%;">
@@ -40,16 +40,16 @@
       </el-row>
       <p><strong>赚取积分</strong></p>
       <div class="zIntegral">
-        <div v-for="item in dayFraction" :key="item.index">
-          <img>
+        <div v-for="(item, index) in dayFraction" :key="item.index">
+          <img :src="'/static/image/online/type' + index + '.png'">
           <span>{{item.ruleName}}</span>
-          <span class="small">{{item.ruleDescribe.replace('*时长', (item.ruleTime / 60 + '分钟'))}}<i>+{{item.oneNumber}}</i></span>
+          <span class="small">{{item.ruleDescribe.replace('*时长', (item.ruleTime / 60 + '分钟'))}}<br v-if="item.ruleType === 2"><i>+{{item.oneNumber}}</i></span>
           <div class="progress-bar" :style="item.ruleType === 2 ? 'margin-top: 13px;' : ''">
             <div class="bar has-rotation has-colors red heat-gradient" role="progressbar">
               <div class="bar-face face-position back percentage">
                 <span>{{item.dayFraction}}分/{{item.maxNumber}}分</span>
-              </div>
-              <div class="bar-percentage" :style="'width:' + ((item.dayFraction/item.maxNumber).toFixed(2) * 100) + '%' "></div>
+              </div> <!-- > item.maxNumber ? item.maxNumber : item.dayFraction-->
+              <div class="bar-percentage" :style="'width:' + (((item.dayFraction/item.maxNumber).toFixed(2) * 100) > 100 ? 100 : ((item.dayFraction/item.maxNumber).toFixed(2) * 100)) + '%' "></div>
             </div>
           </div>
           <div class="btn">
@@ -109,6 +109,27 @@
     background: rgba(0, 89, 130, 0.7);
     padding: 30px 30px;
     margin: 0 52px 10px 15px;
+    text-align: center;
+  }
+  .classRoom_learningIntegral .zIntegral > div:nth-child(1) > img{
+    width: 30%;
+    height: 58px;
+  }
+  .classRoom_learningIntegral .zIntegral > div:nth-child(2) > img{
+    width: 44%;
+    height: 58px;
+  }
+  .classRoom_learningIntegral .zIntegral > div:nth-child(3) > img{
+    width: 32%;
+    height: 58px;
+  }
+  .classRoom_learningIntegral .zIntegral > div:nth-child(4) > img{
+    width: 45%;
+    height: 58px;
+  }
+  .classRoom_learningIntegral .zIntegral > div:nth-child(5) > img{
+    width: 34%;
+    height: 58px;
   }
   .classRoom_learningIntegral .zIntegral > div:nth-child(4n){
     margin-right: 15px;

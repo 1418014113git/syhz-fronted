@@ -25,10 +25,12 @@
                   <span v-html="items.name" :class="items.name.indexOf('<p>')>-1?'questionContent':'questionContentNoP'"></span>
                 </p>
                 <p>
-                  <span class="font_b">您的答案：</span>{{items.answer}}
+                  <span class="font_b">您的答案：</span>
+                  <span v-html="items.answer" class="richTextWrap questionContentNoP"></span>
                 </p>
                 <p>
-                  <span class="font_b">解析：</span>{{items.analysis}}
+                  <span class="font_b">解析：</span>
+                  <span v-html="items.analysis" class="richTextWrap"></span>
                 </p>
               </div>
               <div class="right" style="">
@@ -129,7 +131,6 @@ export default {
       if (this.list.length === 0) {
         this.noData = true
       }
-      console.log('list', JSON.stringify(this.list))
     },
     inputChange(row) {
       if (Number(row.yjscore) > Number(row.score)) {
@@ -137,7 +138,6 @@ export default {
       } else if (Number(row.yjscore) < 0) {
         this.$set(row, 'yjscore', 0)
       }
-      console.log('row', JSON.stringify(row))
     },
     save() { // 完成阅卷
       var lsData = []
@@ -174,14 +174,22 @@ export default {
         }
       })
       if (isSumbit) {
-        this.listLoading = true
-        this.$update('exam/subjectiveJudge', yjParam).then((response) => {
-          this.listLoading = false
-          this.$message({
-            type: 'success',
-            message: '阅卷成功!'
+        this.$confirm('确认是否完成阅卷？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.listLoading = true
+          this.$update('exam/subjectiveJudge', yjParam).then((response) => {
+            this.listLoading = false
+            this.$message({
+              type: 'success',
+              message: '阅卷成功!'
+            })
+            this.$router.push({ path: '/handlingGuide/goOverExamPaper/index', query: { examId: this.rowParam.examId }})
+          }).catch(() => {
+            this.listLoading = false
           })
-          this.$router.push({ path: '/handlingGuide/goOverExamPaper/index' })
         }).catch(() => {
           this.listLoading = false
         })
@@ -210,11 +218,12 @@ export default {
   }
   .question_wrap p {
     margin-bottom: 15px;
+    word-break: break-all;
   }
   .small_question_wrap {
     margin-left: 27px;
     .left {
-      width: 80%;
+      width: 84%;
     }
     .right {
       width: 100px;
@@ -224,7 +233,7 @@ export default {
         line-height: 32px;
         margin-bottom: 0px;
         // border: 1px solid #00a0e9;
-         border: 1px solid #000;
+        border: 1px solid #000;
         border-bottom: 0;
       }
     }
@@ -235,7 +244,7 @@ export default {
     font-size: 18px;
     font-weight: bold;
   }
-  .qusestionBox{
+  .qusestionBox {
     height: 72vh;
     overflow: auto;
   }
@@ -243,7 +252,7 @@ export default {
     color: #000;
     background: #fff;
     border: 1px solid #000;
-    }
+  }
   .el-card__header {
     padding: 12px 20px !important;
     border-bottom: 1px solid #000;
@@ -251,7 +260,7 @@ export default {
   .el-card__body {
     padding: 20px 8px 20px 20px !important;
   }
-  .noData{
+  .noData {
     text-align: center;
   }
   .el-input__inner {
@@ -260,7 +269,7 @@ export default {
     border: 1px solid #000;
   }
   .el-input.is-disabled .el-input__inner {
-    background-color:#fff;
+    background-color: #fff;
     border-color: #000;
     color: #f72929;
     text-align: center;
@@ -275,23 +284,23 @@ export default {
   background-color: none;
   padding: 5px 0;
 }
- .question_name {
-    position: relative;
-    .samllNum {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 22px;
-    }
-    .questionContentNoP {
-      margin-left: 22px;
-    }
-    .questionContent {
-      float: left;
-      margin-left: 10px;
-      p {
-        text-indent: 20px;
-      }
+.question_name {
+  position: relative;
+  .samllNum {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 26px;
+  }
+  .questionContentNoP {
+    margin-left: 22px;
+  }
+  .questionContent {
+    float: left;
+    margin-left: 10px;
+    p {
+      text-indent: 10px;
     }
   }
+}
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <section class="trainMaterial_totalList">
+  <section class="knowLedgeBase_totalList">
     <el-row type="flex" justify="center">
       <el-col :span="24">
         <el-row>
@@ -15,69 +15,83 @@
                     <el-option label="综合" value="4"></el-option>
                   </el-select>
                 </el-form-item>
-                <el-form-item label="发布时间">
-                  <el-date-picker v-model="filters.time" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"> </el-date-picker>
-                </el-form-item>
-                <el-form-item label="筛选条件">
-                  <el-select v-model="filters.type" placeholder="请选择">
-                    <el-option label="本年" value=""></el-option>
-                    <el-option label="本月" value="3"></el-option>
-                    <el-option label="食品" value="1"></el-option>
-                  </el-select>
+                <el-form-item>
+                  <el-radio-group v-model="filters.timeType" @change="radioChange">
+                    <el-radio label="1">本年</el-radio>
+                    <el-radio label="2">本季</el-radio>
+                    <el-radio label="3">本月</el-radio>
+                    <el-radio label="4">时间段&nbsp;&nbsp;&nbsp;&nbsp;
+                      <el-date-picker v-if="filters.timeType === '4'" v-model="filters.time" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+                    </el-radio>
+                  </el-radio-group>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" v-if="$isViewBtn('139006')" @click="query(true)" icon="el-icon-search">查询</el-button>
+                  <el-button type="primary" v-if="$isViewBtn('139006')" @click="query()" icon="el-icon-search">查询</el-button>
                 </el-form-item>
               </el-form>
-              <p style="padding: 5px 2px; margin: 10px 0 0 0; font-weight: bold;">发布情况统计</p>
-              <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick">
-                <el-table-column type="expand">
-                  <template slot-scope="scope">
-                    <el-table :data="curriculumDataList" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight">
-                      <el-table-column prop="" width="128"><template slot-scope="scopeEx"></template></el-table-column>
-                      <el-table-column prop="name" align="center" class="left" label="单位"></el-table-column>
-                      <el-table-column prop="id" align="center" label="法律法规"></el-table-column>
-                      <el-table-column prop="id" align="center" label="行业标准"></el-table-column>
-                      <el-table-column prop="id" align="center" label="规范制度"></el-table-column>
-                      <el-table-column prop="id" align="center" label="学习人次"></el-table-column>
-                      <el-table-column prop="id" align="center" label="案例指引"></el-table-column>
-                      <el-table-column prop="id" align="center" label="总数"></el-table-column>
-                    </el-table>
-                  </template>
-                </el-table-column>
-                <el-table-column type="index" width="80"></el-table-column>
-                <el-table-column prop="name" align="center" class="left" label="地市"></el-table-column>
-                <el-table-column prop="id" align="center" label="法律法规"></el-table-column>
-                <el-table-column prop="id" align="center" label="行业标准"></el-table-column>
-                <el-table-column prop="id" align="center" label="规范制度"></el-table-column>
-                <el-table-column prop="id" align="center" label="案例指引"></el-table-column>
-                <el-table-column prop="id" align="center" label="总数"></el-table-column>
-              </el-table>
-              <p style="padding: 5px 2px; margin: 10px 0 0 0; font-weight: bold;">使用情况统计</p>
-              <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands1" @expand-change="rowClick1">
-                <el-table-column type="expand">
-                  <template slot-scope="scope">
-                    <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight">
-                      <el-table-column prop="" width="128"><template slot-scope="scopeEx"></template></el-table-column>
-                      <el-table-column prop="name" align="center" class="left" label="单位"></el-table-column>
-                      <el-table-column prop="id" align="center" label="发布数量"></el-table-column>
-                      <el-table-column prop="id" align="center" label="审核通过"></el-table-column>
-                      <el-table-column prop="id" align="center" label="审核不通过"></el-table-column>
-                      <el-table-column prop="id" align="center" label="阅读次数"></el-table-column>
-                      <el-table-column prop="id" align="center" label="阅读时长"></el-table-column>
-                      <el-table-column prop="id" align="center" label="下载次数"></el-table-column>
-                    </el-table>
-                  </template>
-                </el-table-column>
-                <el-table-column type="index" width="80"></el-table-column>
-                <el-table-column prop="name" align="center" class="left" label="地市"></el-table-column>
-                <el-table-column prop="id" align="center" label="发布数量"></el-table-column>
-                <el-table-column prop="id" align="center" label="审核通过"></el-table-column>
-                <el-table-column prop="id" align="center" label="审核不通过"></el-table-column>
-                <el-table-column prop="id" align="center" label="阅读次数"></el-table-column>
-                <el-table-column prop="id" align="center" label="阅读时长"></el-table-column>
-                <el-table-column prop="id" align="center" label="下载次数"></el-table-column>
-              </el-table>
+
+              <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
+                <el-tab-pane label="发布情况统计" name="0">
+                  <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick">
+                    <el-table-column type="expand">
+                      <template slot-scope="scope">
+                        <el-table :data="scope.row.curriculumDataList" v-loading="listChildLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight">
+                          <el-table-column prop="" width="128"><template slot-scope="scopeEx"></template></el-table-column>
+                          <el-table-column prop="departName" align="center" class="left" label="单位"></el-table-column>
+                          <el-table-column prop="total1" align="center" width="180" label="法律法规"></el-table-column>
+                          <el-table-column prop="total2" align="center" width="180" label="行业标准"></el-table-column>
+                          <el-table-column prop="total3" align="center" width="180" label="规范制度"></el-table-column>
+                          <el-table-column prop="total4" align="center" width="180" label="案例指引"></el-table-column>
+                          <el-table-column prop="total0" align="center" width="180" label="总数"></el-table-column>
+                        </el-table>
+                      </template>
+                    </el-table-column>
+                    <el-table-column type="index" width="80"></el-table-column>
+                    <el-table-column prop="areaName" align="center" class="left" label="地市"></el-table-column>
+                    <el-table-column prop="total1" align="center" width="180" label="法律法规"></el-table-column>
+                    <el-table-column prop="total2" align="center" width="180" label="行业标准"></el-table-column>
+                    <el-table-column prop="total3" align="center" width="180" label="规范制度"></el-table-column>
+                    <el-table-column prop="total4" align="center" width="180" label="案例指引"></el-table-column>
+                    <el-table-column prop="total0" align="center" width="180" label="总数"></el-table-column>
+                  </el-table>
+                </el-tab-pane>
+                <el-tab-pane label="使用情况统计" name="1">
+                  <el-table :data="curriculumData_sy" v-loading="listLoading_sy" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands_sy" @expand-change="rowClick_sy">
+                    <el-table-column type="expand">
+                      <template slot-scope="scope">
+                        <el-table :data="scope.row.curriculumDataList" v-loading="listChildLoading_sy" style="width: 100%; margin-top: 5px;"  :max-height="countHeight">
+                          <el-table-column prop="" width="128"><template slot-scope="scopeEx"></template></el-table-column>
+                          <el-table-column prop="departName" align="center" class="left" label="单位"></el-table-column>
+                          <el-table-column prop="total1" align="center" width="140" label="发布数量"></el-table-column>
+                          <el-table-column prop="total2" align="center" width="140" label="待审核"></el-table-column>
+                          <el-table-column prop="total3" align="center" width="140" label="审核通过"></el-table-column>
+                          <el-table-column prop="total4" align="center" width="140" label="审核不通过"></el-table-column>
+                          <el-table-column prop="total5" align="center" width="140" label="阅读次数"></el-table-column>
+                          <el-table-column prop="total6" align="center" width="140" label="阅读时长">
+                            <template slot-scope="scope">
+                              {{scope.row.total6 > 0 ? $buildTime(scope.row.total6) : '-'}}
+                            </template>
+                          </el-table-column>
+                          <el-table-column prop="total7" align="center" width="140" label="下载次数"></el-table-column>
+                        </el-table>
+                      </template>
+                    </el-table-column>
+                    <el-table-column type="index" width="80"></el-table-column>
+                    <el-table-column prop="areaName" align="center" class="left" label="地市"></el-table-column>
+                    <el-table-column prop="total1" align="center" width="140" label="发布数量"></el-table-column>
+                    <el-table-column prop="total2" align="center" width="140" label="待审核"></el-table-column>
+                    <el-table-column prop="total3" align="center" width="140" label="审核通过"></el-table-column>
+                    <el-table-column prop="total4" align="center" width="140" label="审核不通过"></el-table-column>
+                    <el-table-column prop="total5" align="center" width="140" label="阅读次数"></el-table-column>
+                    <el-table-column prop="total6" align="center" width="140" label="阅读时长">
+                      <template slot-scope="scope">
+                        {{scope.row.total6 > 0 ? $buildTime(scope.row.total6) : '-'}}
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="total7" align="center" width="140" label="下载次数"></el-table-column>
+                  </el-table>
+                </el-tab-pane>
+              </el-tabs>
             </el-card>
           </el-col>
         </el-row>
@@ -91,39 +105,64 @@
     name: 'trainMaterial_totalList',
     data() {
       return {
+        activeName: '0',
         expands: [],
-        expands1: [],
+        expands_sy: [],
         filters: {
+          cityCode: '1',
           type: '',
-          belongDepCode: '',
-          creationId: '',
+          departCode: '',
           time: [],
-          startTime: '',
-          endTime: ''
+          timeType: '1'
         },
         listLoading: false,
-        curriculumData: [{ id: 12, name: '陕西省' }],
-        curriculumDataList: [{ id: 12, name: '陕西省环食药总队' }],
-        value: '',
+        listChildLoading: false,
+        curriculumData: [],
+        listLoading_sy: false,
+        listChildLoading_sy: false,
+        curriculumData_sy: [],
         countHeight: null,
         curDept: {},
         curUser: {},
-        isNormal: false // true 普通民警， false 审核者
+        systemTime: ''
       }
     },
     methods: {
-      rowClick(row) {
-        if (this.expands.indexOf(row.id) > -1) {
-          this.expands.splice(this.expands.indexOf(row.id), 1)
-        } else {
-          this.expands.push(row.id)
+      radioChange(value) {
+        if (value !== '4') {
+          this.filters.time = []
         }
       },
-      rowClick1(row) {
-        if (this.expands1.indexOf(row.id) > -1) {
-          this.expands1.splice(this.expands1.indexOf(row.id), 1)
+      handleClick(item, event) {
+        if (this.activeName === '0') {
+          this.queryFB()
+        }
+        if (this.activeName === '1') {
+          this.querySY()
+        }
+      },
+      rowClick(row, expandedRows) {
+        // if (expandedRows.length) {
+        //   this.expands = []
+        //   this.expands.push(row.departCode)
+        // }
+        if (this.expands.indexOf(row.departCode) > -1) {
+          this.expands.splice(this.expands.indexOf(row.departCode), 1)
         } else {
-          this.expands1.push(row.id)
+          this.expands.push(row.departCode)
+          this.queryFB(true, row.departCode)
+        }
+      },
+      rowClick_sy(row, expandedRows) {
+        // if (expandedRows.length) {
+        //   this.expands1 = []
+        //   this.expands1.push(row.departCode)
+        // }
+        if (this.expands_sy.indexOf(row.departCode) > -1) {
+          this.expands_sy.splice(this.expands_sy.indexOf(row.departCode), 1)
+        } else {
+          this.expands_sy.push(row.departCode)
+          this.querySY(true, row.departCode)
         }
       },
       arraySpanMethod({ row, column, rowIndex, columnIndex }) {
@@ -134,7 +173,7 @@
         // }
       },
       getRowKeys(row) {
-        return row.id
+        return row.departCode
       },
       getSummaries(param) {
         const { columns, data } = param
@@ -154,7 +193,11 @@
                 return prev
               }
             }, 0)
-            sums[index] = sums[index]
+            if (index === 8) {
+              sums[index] = this.$buildTime(sums[index])
+            } else {
+              sums[index] = sums[index]
+            }
           } else {
             sums[index] = ''
           }
@@ -162,47 +205,132 @@
         return sums
       },
       query() {
-        // this.listLoading = true
-        // const para = {
-        //   title: this.filters.title,
-        //   type: this.filters.type,
-        //   auditStatus: this.filters.auditStatus,
-        //   creationId: this.filters.creationId,
-        //   startTime: this.filters.time ? this.filters.time[0] : '',
-        //   endTime: this.filters.time ? this.filters.time[1] : '',
-        //   auditDeptCode: this.curDept.depCode
-        // }
-        // if (this.isNormal) {
-        //   para.personId = this.curUser.id
-        // }
-        // if (this.filters.belongDepCode === '' || this.filters.belongDepCode === this.curDept.depCode) {
-        //   para.belongDeptCode = this.curDept.depCode
-        // }
-        // this.active = this.filters.type
-        // this.$query('page/traincourseaudit', para).then((response) => {
-        //   this.listLoading = false
-        //   // this.curriculumData = response.data.list
-        //   // this.total = response.data.totalCount
-        //   // this.pageSize = response.data.pageSize
-        // }).catch(() => {
-        //   this.listLoading = false
-        // })
+        if (this.activeName === '0') {
+          this.queryFB()
+        }
+        if (this.activeName === '1') {
+          this.querySY()
+        }
       },
-      queryChild() {}
+      queryFB(flag, departCode) {
+        let para = {
+          type: this.filters.type,
+          startTime: this.filters.time ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : '',
+          endTime: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '',
+          cityCode: '1'
+        }
+        if (this.filters.timeType !== '4') {
+          para = this.buildTime(para)
+        }
+        if (flag) {
+          this.listChildLoading = true
+          para.departCode = departCode
+        } else {
+          this.listLoading = true
+        }
+        this.$update('knowledge/query', para).then((response) => {
+          if (flag) {
+            this.listChildLoading = false
+            for (let i = 0; i < this.curriculumData.length; i++) {
+              const item = this.curriculumData[i]
+              if (item.departCode === departCode) {
+                item.curriculumDataList = response.data
+              }
+            }
+          } else {
+            this.listLoading = false
+            this.curriculumData = response.data
+          }
+        }).catch(() => {
+          this.listLoading = false
+          this.listChildLoading = false
+        })
+      },
+      querySY(flag, departCode) {
+        let para = {
+          type: this.filters.type,
+          startTime: this.filters.time ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : '',
+          endTime: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '',
+          cityCode: '1'
+        }
+        if (this.filters.timeType !== '4') {
+          para = this.buildTime(para)
+        }
+        if (flag) {
+          this.listChildLoading_sy = true
+          para.departCode = departCode
+        } else {
+          this.listLoading_sy = true
+        }
+        this.$update('knowledge/queryUse', para).then((response) => {
+          if (flag) {
+            this.listChildLoading_sy = false
+            for (let i = 0; i < this.curriculumData_sy.length; i++) {
+              const item = this.curriculumData_sy[i]
+              if (item.departCode === departCode) {
+                item.curriculumDataList = response.data
+              }
+            }
+          } else {
+            this.listLoading_sy = false
+            this.curriculumData_sy = response.data
+          }
+        }).catch(() => {
+          this.listLoading_sy = false
+          this.listChildLoading_sy = false
+        })
+      },
+      buildTime(para) {
+        const systemDate = new Date(this.systemTime)
+        let startTime = ''
+        let endTime = ''
+        if (this.filters.timeType === '1') {
+          startTime = systemDate.getFullYear() + '-01-01 00:00:00'
+          const day = new Date(systemDate.getFullYear(), 12, 0)
+          endTime = systemDate.getFullYear() + '-12-' + day.getDate() + ' 23:59:59'
+        }
+        if (this.filters.timeType === '2') {
+          if (systemDate.getMonth() + 1 <= 3) {
+            startTime = systemDate.getFullYear() + '-01-01 00:00:00'
+            endTime = systemDate.getFullYear() + '-03-31 23:59:59'
+          } else if (systemDate.getMonth() + 1 > 3 && systemDate.getMonth() + 1 <= 6) {
+            startTime = systemDate.getFullYear() + '-04-01 00:00:00'
+            endTime = systemDate.getFullYear() + '-06-30 23:59:59'
+          } else if (systemDate.getMonth() + 1 > 6 && systemDate.getMonth() + 1 <= 9) {
+            startTime = systemDate.getFullYear() + '-07-01 00:00:00'
+            endTime = systemDate.getFullYear() + '-09-30 23:59:59'
+          } else if (systemDate.getMonth() + 1 > 9 && systemDate.getMonth() + 1 <= 12) {
+            startTime = systemDate.getFullYear() + '-10-01 00:00:00'
+            endTime = systemDate.getFullYear() + '-12-31 23:59:59'
+          }
+        }
+        if (this.filters.timeType === '3') {
+          startTime = systemDate.getFullYear() + '-' + (systemDate.getMonth() + 1) + '-01 00:00:00'
+          const day = new Date(systemDate.getFullYear(), systemDate.getMonth() + 1, 0)
+          endTime = systemDate.getFullYear() + '-' + (systemDate.getMonth() + 1) + '-' + day.getDate() + ' 23:59:59'
+        }
+        para.startTime = startTime
+        para.endTime = endTime
+        return para
+      },
+      getSysTime() {
+        this.$query('knowledge/queryTime').then(response => {
+          this.systemTime = response.data
+          this.query()
+        })
+      }
     },
     mounted() {
-      this.isNormal = !this.$isViewBtn('129405')
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.countHeight = document.documentElement.clientHeight - 230
-      this.filters.belongDepCode = this.curDept.depCode
-      this.query()
+      this.getSysTime()
     }
   }
 </script>
 
 <style>
-  .trainMaterial_totalList .content {
+  .knowLedgeBase_totalList .content {
     padding: 0 10px;
   }
   .demo-table-expand {
@@ -217,25 +345,28 @@
     margin-bottom: 0;
     width: 33%;
   }
-  .trainMaterial_totalList .el-card.is-always-shadow .el-card__body > div.all{
+  .knowLedgeBase_totalList .el-card.is-always-shadow .el-card__body > div.all{
     height: 50px;
   }
-  .trainMaterial_totalList .el-card.is-always-shadow .el-card__body ul{
+  .knowLedgeBase_totalList .el-card.is-always-shadow .el-card__body ul{
     margin-left: 20px;
   }
-  .trainMaterial_totalList .el-table__body td.el-table__expanded-cell{
+  .knowLedgeBase_totalList .el-table__body td.el-table__expanded-cell{
     padding: 0;
   }
-  .trainMaterial_totalList .el-table__body td.el-table__expanded-cell > div {
+  .knowLedgeBase_totalList .el-table__body td.el-table__expanded-cell > div {
     margin: 0!important;
   }
-  .trainMaterial_totalList .el-table_1_column_1.el-table__expand-column{
+  .knowLedgeBase_totalList .el-table_1_column_1.el-table__expand-column{
     width: 100px;
   }
-  .trainMaterial_totalList .el-table__body-wrapper .is-center.left{
+  .knowLedgeBase_totalList .el-table__body-wrapper .is-center.left{
     text-align: left !important;
   }
-  .trainMaterial_totalList .el-table__body-wrapper .el-table__expanded-cell .is-center.left.is-leaf{
+  .knowLedgeBase_totalList .el-table__body-wrapper .el-table__expanded-cell .is-center.left.is-leaf{
     text-align: center !important;
+  }
+  .knowLedgeBase_totalList .el-table__body tbody > tr:first-child .el-table__expand-column .cell > div{
+    display: none;
   }
 </style>
