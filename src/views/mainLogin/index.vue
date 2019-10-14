@@ -38,11 +38,16 @@
             </div>
         </el-form>
          <div class="slideshow"> <!--背景左侧图片轮播 -->
-          <el-carousel :interval="5000" indicator-position="none" arrow="never">
+          <!-- <el-carousel :interval="3000" indicator-position="none" arrow="never">
             <el-carousel-item v-for="(item,index) in imgList" :key="index">
               <img :src="'/static/image/login_images/'+item" class="bannerImg"/>
             </el-carousel-item>
-          </el-carousel>
+          </el-carousel> -->
+          <transition-group name="flip-list" tag="ul">
+				   <li v-for="curImg in currImgs" v-bind:key="curImg" class="list-item">
+              <img :src="'/static/image/login_images/'+curImg" class="bannerImg"/>
+          </li>
+				</transition-group>
         </div>
       </div>
 
@@ -91,13 +96,18 @@
         <div class="closeBtn" @click="close">关闭</div>
       </div>
       <input id="input" v-model="inputData" style="display:none;">
-
+    <!--背景左侧图片轮播 -->
     <div class="slideshows">
-      <el-carousel :interval="3000" indicator-position="none" arrow="never">
+      <!-- <el-carousel :interval="3000" indicator-position="none" arrow="never">
         <el-carousel-item v-for="(item,index) in imgList" :key="index">
           <img :src="'/static/image/login_images/'+item" class="bannerImg"/>
         </el-carousel-item>
-      </el-carousel>
+      </el-carousel> -->
+      <transition-group name="flip-list" tag="ul">
+        <li v-for="curImg in currImgs" v-bind:key="curImg" class="list-item">
+          <img :src="'/static/image/login_images/'+curImg" class="bannerImg"/>
+        </li>
+			</transition-group>
     </div>
 
     </div>
@@ -109,7 +119,7 @@
         <float-tip-msg></float-tip-msg>
       </el-dialog>
     </div> -->
-    <!--背景左侧图片轮播 -->
+
 
   </div>
 </template>
@@ -189,7 +199,9 @@ export default {
         obj: {}
       },
       itl: '',
-      imgList: ['bmy.png', 'zl.png', 'pb.png', 'spyp.png', 'yp.png']
+      imgList: ['bmy.png', 'zl.png', 'pb.png', 'spyp.png', 'yp.png'],
+      currImgs: [],
+      index: 0
     }
   },
   methods: {
@@ -407,10 +419,23 @@ export default {
     },
     floatTipShow() {
       this.tipShow = true
+    },
+    startChange: function() {
+      var _this = this
+      setInterval(function() {
+        if (_this.index < _this.imgList.length - 1) {
+          _this.index++
+        } else {
+          _this.index = 0
+        }
+        _this.currImgs.splice(0, 1, _this.imgList[_this.index])
+      }, 3000)
     }
   },
   mounted() {
     this.tipMsg.obj = document.getElementById('tipImg')
+    this.currImgs = [this.imgList[0]]
+    this.startChange()
     // this.floatOut()
   }
 }

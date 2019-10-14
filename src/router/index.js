@@ -274,6 +274,7 @@ export const constantRouterMap = [
       { path: '/handlingGuide/testbaseManage/edit', component: () => import('@/views/handlingGuide/testbaseManage/edit'), name: '编辑试题' },
       { path: '/handlingGuide/examineManage', component: () => import('@/views/handlingGuide/examineManage/index'), name: '考试管理' },
       { path: '/handlingGuide/examineManage/edit', component: () => import('@/views/handlingGuide/examineManage/edit'), name: '编辑考试' },
+      { path: '/handlingGuide/examineManage/add', component: () => import('@/views/handlingGuide/examineManage/edit'), name: '添加考试' },
       { path: '/handlingGuide/examineManage/detail', component: () => import('@/views/handlingGuide/examineManage/detail'), name: '考试详情' },
       { path: '/handlingGuide/educationalFreeSettings_detail/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_detail'), name: '考试管理详情' },
       { path: '/handlingGuide/educationalFreeSettings_edit/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_edit'), name: '考试管理编辑' },
