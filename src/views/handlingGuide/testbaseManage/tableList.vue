@@ -390,7 +390,7 @@ export default {
       })
     },
     addTestQuestion() { // 添加试题
-      this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questionCatrgory: this.menuItemNode.id }})
+      this.$router.push({ path: '/handlingGuide/testbaseManage/add', query: { questionCatrgory: this.menuItemNode.id }})
     },
     importTem() { // 试题导入
       this.dialogImportVisible = true

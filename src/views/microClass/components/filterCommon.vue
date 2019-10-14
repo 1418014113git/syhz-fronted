@@ -5,7 +5,7 @@
       <el-form :inline="true" :model="filters" >
         <el-col :span="24">
           <div class="tabsDiv">
-            <el-tabs v-model="activeName">
+            <el-tabs v-model="activeName" @tab-click="handleClick">
               <el-tab-pane label="全部" name=""></el-tab-pane>
               <el-tab-pane label="环境" name="3"></el-tab-pane>
               <el-tab-pane label="食品" name="1"></el-tab-pane>
@@ -63,19 +63,27 @@
       }
     },
     methods: {
-      query(flag) {
+      handleClick(tab, event) {
+        if (this.activeName === '0') {
+          this.filters.type = ''
+        } else {
+          this.filters.type = this.activeName
+        }
+        this.query(true)
+      },
+      query(flag, pageNum, pageSize) {
         if (!this.uploadFlag) {
           this.toOnlineClass()
           return false
         }
         this.loading = true
-        this.page = flag ? 1 : this.page
+        this.page = flag ? 1 : (pageNum !== undefined && pageNum !== null && pageNum !== '' ? pageNum : this.page)
         const para = {
           pageNum: this.page,
           type: this.filters.type,
           search: this.filters.search,
           enType: this.filters.enType,
-          pageSize: this.pageSize
+          pageSize: pageSize !== undefined && pageSize !== null && pageSize !== '' ? pageSize : this.pageSize
         }
         if (this.isMore) {
           para.pageSize = 12
@@ -111,6 +119,9 @@
       },
       setFilter(filters) {
         this.filters = filters
+        if (this.filters.type !== '') {
+          this.activeName = this.filters.type
+        }
       },
       add() {
         this.$router.push({ path: '/handlingGuide/flfg/add' })

@@ -139,6 +139,8 @@ export default {
       startTime: '',
       doneQuestionNum: 0,
       submitNoticeStr: '', // 点最后提交试卷时 弹框提示内容
+      timeOut1: null, // 定时器
+      timeOut2: null, // 定时器
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -153,11 +155,13 @@ export default {
     },
     closeExamOver() { // 考试结束，(我知道了)
       this.isExamEnd = false
+      this.cleartExamTimeout() // 清除定时器
       this.$router.back(-1)
     },
     handleCancelExam(type) { // 取消考试 弹框
       this.isExamCancel = false
       if (type === '1') { // 确定
+        this.cleartExamTimeout() // 清除定时器
         this.$router.back(-1)
       } else if (type === '2') {
         // 继续答题
@@ -231,27 +235,14 @@ export default {
         }
       }
     },
-    querySeverTime() { // 查询服务器时间
-      this.$query('exam/systemTime', {}).then((response) => {
-        this.detailLoading = false
-        if (response.code === '000000') {
-          // this.startTime = response.data.startTime // 考试开始时间
-          // this.recordId = response.data.recordId // 考试记录id
-          // var minutes = Number(this.examinationData.totalDate) * 60
-          // this.countdown(minutes) // 倒计时开始，参数 秒数
-        }
-      }).catch(() => {
-        this.detailLoading = false
-      })
-    },
     timestampToTime(timestamp) {
       var date = new Date(timestamp * 1000) // 时间戳为10位需*1000，时间戳为13位的话不需乘1000
       var Y = date.getFullYear() + '-'
       var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
-      var D = date.getDate() + ' '
-      var h = date.getHours() + ':'
-      var m = date.getMinutes() + ':'
-      var s = date.getSeconds()
+      var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
+      var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+      var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+      var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
       return Y + M + D + h + m + s
     },
     saveExamStart() { // 提交开始考试信息
@@ -268,7 +259,7 @@ export default {
       this.$save('exam/start', param).then((response) => {
         if (response.code === '000000') {
           var startObj = response.data
-          this.$query('exam/systemTime', {}).then((res) => {
+          this.$query('exam/systemTime', {}).then((res) => { // 查询服务器时间
             this.detailLoading = false
             if (res.code === '000000') {
               // 1570693066740
@@ -279,10 +270,15 @@ export default {
               var timeDiff = 0
               if (time1Stamp < res.data) {
                 timeDiff = this.timeDifference(time1, time2)
+              } else {
+                timeDiff = 0
               }
               this.startTime = startObj.startTime // 考试开始时间
               this.recordId = startObj.recordId // 考试记录id
               // var minutes = Number(this.examinationData.totalDate) * 60 // 考试时限
+              if (timeDiff < 0) {
+                timeDiff = 0
+              }
               var minutes = Number(this.examinationData.totalDate) * 60 - Number(timeDiff) * 60
               if (minutes > 0) {
                 this.countdown(minutes) // 倒计时开始，参数 秒数
@@ -314,6 +310,7 @@ export default {
       //   alert('开始时间不能大于结束时间！')
       //   return false
       // }
+      console.log(time1 + '---' + time2)
       // 截取字符串，得到日期部分"2009-12-02",用split把字符串分隔成数组
       var begin1 = time1.substr(0, 10).split('-')
       var end1 = time2.substr(0, 10).split('-')
@@ -460,6 +457,7 @@ export default {
       this.$update('exam/submitAnswer', param).then((response) => {
         this.detailLoading = false
         if (response.code === '000000') { // 提交答案成功
+          this.cleartExamTimeout() // 清除定时器
           this.$router.push({ path: '/handlingGuide/examTrainingManage/index' })
         }
       }).catch(() => {
@@ -485,7 +483,7 @@ export default {
         this.isExamEnd = true // 考试结束的弹框
         this.countdownOver(3)
       } else {
-        setTimeout(function() {
+        this.timeOut1 = setTimeout(function() {
           _this.countdown(allSeconds)
         }, 1000)
       }
@@ -497,20 +495,52 @@ export default {
         this.handleSubmitAnswer('2') // 自动交卷
         // return
       } else {
-        setTimeout(function() {
+        this.timeOut2 = setTimeout(function() {
           _this.countdownOver(this.endTime)
         }, 1000)
       }
     },
     back() {
+      this.cleartExamTimeout() // 清除定时器
       this.$router.back(-1)
+    },
+    cleartExamTimeout() {
+      if (this.timeOut1) {
+        clearTimeout(this.timeOut1)
+      }
+      if (this.timeOut2) {
+        clearTimeout(this.timeOut2)
+      }
+      this.timeOut1 = null
+      this.timeOut2 = null
     }
+  },
+  beforeDestroy() {
+    this.cleartExamTimeout()
+  },
+  created() {
+    this.$navigation.on('forward', (to, from) => {
+      // console.log('forward to', to, 'from ', from)
+      this.cleartExamTimeout() // 清除定时器
+    })
+    this.$navigation.on('back', (to, from) => {
+      this.cleartExamTimeout() // 清除定时器
+    })
+    // this.$navigation.on('replace', (to, from) => {
+    //   console.log('replace to', to, 'from ', from)
+    // })
+    // this.$navigation.on('refresh', (to, from) => {
+    //   console.log('refresh to', to, 'from ', from)
+    // })
+    // this.$navigation.on('reset', (to, from) => {
+    //   console.log('reset to', to, 'from ', from)
+    // })
   },
   mounted() {
     if (this.$route.query) {
       this.carryParam = this.$route.query
+      this.queryPaperData()
     }
-    this.queryPaperData()
   }
 }
 

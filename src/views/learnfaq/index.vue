@@ -92,7 +92,7 @@
       </el-card>
       <el-col :span="24" class="toolbar">
         <el-pagination layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange"
-                       :page-sizes="[10,30,50,100]" @size-change="handleSizeChange"
+                       :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
                        :page-size="pageSize" :total="total" :current-page="page" v-if="paginationShow" style="float:right;">
         </el-pagination>
       </el-col>
@@ -117,7 +117,7 @@
         helpPageSize: 6,
         total: 0,
         page: 1,
-        pageSize: 10,
+        pageSize: 15,
         dataArray: [],
         detailLoading: false,
         activeIndex: '0',
@@ -127,22 +127,22 @@
           {
             src: '/static/image/question_images/handbook.png',
             describe: '系统使用手册',
-            downloadUrl: ''
+            downloadUrl: 'http://192.168.42.189:91/file/用户使用手册_[公安食药环侦实战应用平台建设].doc'
           },
           {
             src: '/static/image/question_images/browser.png',
             describe: '浏览器',
-            downloadUrl: ''
+            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
           },
           {
             src: '/static/image/question_images/certificate.png',
             describe: 'PKI数字证书',
-            downloadUrl: ''
+            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
           },
           {
             src: '/static/image/question_images/specification.png',
             describe: '插件安装说明',
-            downloadUrl: ''
+            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
           }
         ]
       }
@@ -166,7 +166,7 @@
       },
       // 资料下载
       download(url) {
-        window.open()
+        window.open(url)
       },
       // 删除
       dele(row) {
