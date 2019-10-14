@@ -104,12 +104,12 @@
   }
 
   .classRoom_learningIntegral .zIntegral > div{
-    float: left;
     width: 20%;
     background: rgba(0, 89, 130, 0.7);
     padding: 30px 30px;
     margin: 0 52px 10px 15px;
     text-align: center;
+    display: inline-block;
   }
   .classRoom_learningIntegral .zIntegral > div:nth-child(1) > img{
     width: 30%;
