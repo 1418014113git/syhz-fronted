@@ -26,7 +26,7 @@
                 </p>
                 <p>
                   <span class="font_b">您的答案：</span>
-                  <span v-html="items.answer" class="richTextWrap"></span>
+                  <span v-html="items.answer" class="richTextWrap questionContentNoP"></span>
                 </p>
                 <p>
                   <span class="font_b">解析：</span>
@@ -218,12 +218,12 @@ export default {
   }
   .question_wrap p {
     margin-bottom: 15px;
-    word-break: break-word;
+    word-break: break-all;
   }
   .small_question_wrap {
     margin-left: 27px;
     .left {
-      width: 80%;
+      width: 84%;
     }
     .right {
       width: 100px;
@@ -290,7 +290,7 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
-    width: 22px;
+    width: 26px;
   }
   .questionContentNoP {
     margin-left: 22px;
@@ -299,7 +299,7 @@ export default {
     float: left;
     margin-left: 10px;
     p {
-      text-indent: 20px;
+      text-indent: 10px;
     }
   }
 }

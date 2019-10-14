@@ -157,7 +157,7 @@
           creationId: this.myflag === true ? a.id : null,
           quTitle: this.search,
           currentPage: flag === true ? this.page : 1,
-          pageSize: 10
+          pageSize: 15
         }
         this.query(para)
       },
@@ -272,7 +272,7 @@
         const para = {
           creationId: a.id,
           currentPage: flag ? this.page : 1,
-          pageSize: flag ? this.pageSize : 10
+          pageSize: flag ? this.pageSize : 15
         }
         this.query(para)
       },
@@ -316,7 +316,7 @@
         const para = {
           quType: index !== '0' ? index : '',
           currentPage: flag === 1 ? this.page : 1,
-          pageSize: flag === 1 ? this.pageSize : 10
+          pageSize: flag === 1 ? this.pageSize : 15
         }
         this.query(para)
       },
