@@ -9,17 +9,15 @@
     </el-row>
     <!-- 考试须知 -->
     <!-- <div class="v-modal" tabindex="0" style="z-index: 2000;" v-if="isInstruction||isExamEnd||isExamCancel"></div> -->
-    <div class="instructions_wrap" v-if="isInstruction">
+    <!-- <div class="instructions_wrap" v-if="isInstruction">
       <p>考试须知</p>
       <p>考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知考试须知</p>
       <el-button class="right" type="primary" plain @click="closeInstructions">我知道了</el-button>
     </div>
     <div class="exam_end_wrap" v-if="isExamEnd">
-      <!-- <p>考试须知</p> -->
       <p>考试时间已结束，系统已为您自动提交！</p>
       <el-button class="right" type="primary" plain @click="closeExamOver">我知道了（{{endTime}}s）</el-button>
     </div>
-    <!-- 取消考试按钮 -->
     <div class="exam_cancel_wrap" v-if="isExamCancel">
       <p>温馨提示</p>
       <p>如果您取消考试的话，本次考试的答案将不被提交，也不记录考试次数，下次可以重新参加考试！</p>
@@ -27,7 +25,7 @@
         <el-button plain @click="handleCancelExam('1')" class="saveBtn">确定</el-button>
         <el-button plain @click="handleCancelExam('2')" class="cancelBtn">取消</el-button>
       </div>
-    </div>
+    </div> -->
     <!-- 试卷 -->
     <div id="previewExamPaper" v-loading="detailLoading">
       <div class="exam_title_wrap">
@@ -95,7 +93,7 @@
                 <!-- <span class="option_item"><el-radio label="false">错误</el-radio></span> -->
                <!-- </el-radio-group> -->
                <p>您的答案：{{smallItem.answer==='1'?'✔':'×'}}</p>
-               <p>正确答案：{{smallItem.rightAnswer==='1'?'✔':'×'}}</p>
+               <p>正确答案：{{smallItem.rightAnswer===1?'✔':'×'}}</p>
             </div>
             <!-- 简答题、论述题、案例分析题 -->
             <div  v-if="smallItem.type === 5 || smallItem.type === 6 || smallItem.type === 7">
@@ -103,7 +101,7 @@
                 @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)" maxlength="1000" clearable placeholder="请输入您的答案"></el-input> -->
               <!-- 答案 -->
               <p>您的答案：{{smallItem.answer}}</p>
-              <p>解析：{{smallItem.analysis}}</p>
+              <p>解析：<span v-html="smallItem.analysis" class="richTextWrap"></span></p>
             </div>
           </div>
         </div>
@@ -113,7 +111,7 @@
         <p class="left">
           <!-- <span class="font_b">考试成绩：</span> 自动阅卷得分 <span class="scoreNumber">{{examinationData.examScore}}</span> 分，人工阅卷得分 <span class="scoreNumber">{{examinationData.examArtificialScore}}</span> 分 -->
           <span class="font_b">考试成绩：</span>
-          <span class="scoreNumber">{{Number(examinationData.examScore) + Number(examinationData.examArtificialScore)}}</span> 分
+          用时 {{examinationData.totalTime}}，成绩 <span class="scoreNumber">{{Number(examinationData.examScore) + Number(examinationData.examArtificialScore)}}</span> 分
         </p>
         <p class="right">
           <span class="font_b">可重考次数： <span class="scoreNumber">{{examinationData.enableNum}}</span> 次</span>

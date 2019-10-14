@@ -67,7 +67,11 @@
           this.$gotoid('/micro/onlineClassRoom', param)
         }
         if (this.source === 'trainMaterial') {
-          this.$gotoid('/micro/trainMaterial', this.active)
+          const para = {
+            filters: this.filters,
+            active: this.active
+          }
+          this.$gotoid('/micro/trainMaterial', JSON.stringify(para))
         }
       },
       changeList() {
@@ -141,6 +145,8 @@
           this.postfix = '音频'
         }
         if (filters.auditView) {
+          this.active = filters.active
+          this.filters = filters.filters
           this.auditView = filters.auditView
         } else {
           this.filters = filters.filters

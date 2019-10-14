@@ -16,7 +16,7 @@
                 <el-input v-model="search" placeholder="请输入主题进行查询" size="small"></el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" size="small" @click="keyQuery">查询</el-button>
+                <el-button type="primary" size="small" @click="keyQuery(false)">查询</el-button>
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" icon="el-icon-question" @click="toQuestion">提问</el-button>
@@ -37,6 +37,7 @@
               </el-col>
             </el-row>
           </div>
+          <!--在线帮助 资料下载-->
           <el-row>
             <el-col :span="24" style="padding: 15px 10px 0 10px;">
               <div v-for="(item, index) in helpList" :key="index" style="display: inline-block">
@@ -45,7 +46,6 @@
                   <div style="margin-top: 10px;">{{ item.describe }}</div>
                 </div>
               </div>
-              <!--<i style="width: 15%;margin: 5px 5px 0 0;cursor: pointer;" class="el-icon-delete"></i>-->
             </el-col>
             <el-pagination layout="pager" @current-change="helpPageChange"
                             :page-size="helpPageSize" :total="helpTotal" :current-page="helpPage" style="float:right;">
@@ -92,7 +92,7 @@
       </el-card>
       <el-col :span="24" class="toolbar">
         <el-pagination layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange"
-                       :page-sizes="[10,30,50,100]" @size-change="handleSizeChange"
+                       :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
                        :page-size="pageSize" :total="total" :current-page="page" v-if="paginationShow" style="float:right;">
         </el-pagination>
       </el-col>
@@ -117,7 +117,7 @@
         helpPageSize: 6,
         total: 0,
         page: 1,
-        pageSize: 10,
+        pageSize: 15,
         dataArray: [],
         detailLoading: false,
         activeIndex: '0',
@@ -127,36 +127,36 @@
           {
             src: '/static/image/question_images/handbook.png',
             describe: '系统使用手册',
-            downloadUrl: ''
+            downloadUrl: 'http://192.168.42.189:91/file/用户使用手册_[公安食药环侦实战应用平台建设].doc'
           },
           {
             src: '/static/image/question_images/browser.png',
             describe: '浏览器',
-            downloadUrl: ''
+            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
           },
           {
             src: '/static/image/question_images/certificate.png',
             describe: 'PKI数字证书',
-            downloadUrl: ''
+            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
           },
           {
             src: '/static/image/question_images/specification.png',
             describe: '插件安装说明',
-            downloadUrl: ''
+            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
           }
         ]
       }
     },
     methods: {
       // 主题关键字查询
-      keyQuery() {
+      keyQuery(flag) {
         var type = this.activeIndex
         const a = JSON.parse(getUserInfo())
         const para = {
           quType: this.myflag !== true && type !== '0' && type !== '5' ? type : null,
           creationId: this.myflag === true ? a.id : null,
           quTitle: this.search,
-          currentPage: 1,
+          currentPage: flag === true ? this.page : 1,
           pageSize: 10
         }
         this.query(para)
@@ -166,7 +166,7 @@
       },
       // 资料下载
       download(url) {
-        window.open()
+        window.open(url)
       },
       // 删除
       dele(row) {
@@ -244,7 +244,8 @@
             page: this.page,
             pageSize: this.pageSize,
             activeIndex: this.myflag === true ? null : this.activeIndex,
-            myQuestion: this.myflag === true ? '1' : '0'
+            myQuestion: this.myflag === true ? '1' : '0',
+            quTitle: this.search
           }
         })
       },
@@ -257,12 +258,14 @@
           currentPage: this.page,
           pageSize: this.pageSize,
           quType: this.activeIndex !== '0' && this.myflag !== true ? this.activeIndex : null,
-          creationId: this.myflag === true ? a.id : null
+          creationId: this.myflag === true ? a.id : null,
+          quTitle: this.search
         }
         this.query(para)
       },
       // 我的提问
       myQuestion(flag) {
+        this.search = ''
         this.myflag = true
         this.$refs['help'].style.display = 'none'
         const a = JSON.parse(getUserInfo())
@@ -280,7 +283,8 @@
         const para = {
           creationId: this.myflag === true ? a.id : null,
           currentPage: this.page,
-          pageSize: this.pageSize
+          pageSize: this.pageSize,
+          quTitle: this.search
         }
         this.query(para)
       },
@@ -292,12 +296,14 @@
             page: this.page,
             pageSize: this.pageSize,
             activeIndex: this.myflag === true ? null : this.activeIndex,
-            myQuestion: this.myflag === true ? '1' : '0'
+            myQuestion: this.myflag === true ? '1' : '0',
+            quTitle: this.search
           }
         })
       },
       // 导航监听事件
       handleSelect(index, flag) {
+        this.search = ''
         this.myflag = false
         var _this = this
         if (index === '5') {
@@ -323,7 +329,10 @@
         if (this.$route.query.pageSize) {
           this.pageSize = parseInt(this.$route.query.pageSize)
         }
-        if (this.$route.query.activeIndex) {
+        if (this.$route.query.quTitle) {
+          this.search = this.$route.query.quTitle
+          this.keyQuery(true)
+        } else if (this.$route.query.activeIndex) {
           this.activeIndex = this.$route.query.activeIndex
           _this.handleSelect(this.activeIndex, 1)
         } else if (this.$route.query.myQuestion === '1') {
