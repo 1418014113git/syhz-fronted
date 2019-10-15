@@ -46,7 +46,7 @@
                         </el-table>
                       </template>
                     </el-table-column>
-                    <el-table-column type="index" width="80"></el-table-column>
+                    <el-table-column type="index" width="80" label="序号"></el-table-column>
                     <el-table-column prop="areaName" align="center" class="left" label="地市"></el-table-column>
                     <el-table-column prop="total1" align="center" width="180" label="法律法规"></el-table-column>
                     <el-table-column prop="total2" align="center" width="180" label="行业标准"></el-table-column>
@@ -76,7 +76,7 @@
                         </el-table>
                       </template>
                     </el-table-column>
-                    <el-table-column type="index" width="80"></el-table-column>
+                    <el-table-column type="index" width="80" label="序号"></el-table-column>
                     <el-table-column prop="areaName" align="center" class="left" label="地市"></el-table-column>
                     <el-table-column prop="total1" align="center" width="140" label="发布数量"></el-table-column>
                     <el-table-column prop="total2" align="center" width="140" label="待审核"></el-table-column>

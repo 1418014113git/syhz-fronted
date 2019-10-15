@@ -216,7 +216,7 @@
     methods: {
       async titleCheckAsyns(callback) {
         // 同步处理
-        const response = await this.$queryAsyns('trainlawinfobytitle', { title: this.lawInfo.title })
+        const response = await this.$updateAsyns('trainlawinfobytitle', { title: this.lawInfo.title })
         const data = response.data
         if (this.id !== '') {
           if (data.data === null || data.data.length === 0 || (this.id === data.data[0].id && data.data.length === 1)) {
