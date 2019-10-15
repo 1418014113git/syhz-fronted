@@ -56,6 +56,7 @@
                 <el-checkbox label="D"></el-checkbox>
                 <el-checkbox label="E"></el-checkbox>
                 <el-checkbox label="F"></el-checkbox>
+                 <!-- :disabled="!(questionForm.options5)" -->
               </el-checkbox-group>
             </el-form-item>
             <el-form-item label="题目答案" prop="answer" v-if="questionForm.type==='3'" class="clearfix">
@@ -146,7 +147,17 @@ export default {
           required: true, message: '请输入正确答案', trigger: 'change'
         },
         answerDx: {
-          required: true, message: '请输入正确答案', trigger: 'change'
+          required: true, trigger: 'change', validator: (rule, value, callback) => {
+            if (value.length === 0 || value === null || value === undefined) {
+              callback(new Error('请选择正确答案'))
+            } else if (value.indexOf('E') > -1 && this.questionForm.options5 === '') {
+              callback(new Error('请输入E选项的内容，或取消E选项'))
+            } else if (value.indexOf('F') > -1 && this.questionForm.options6 === '') {
+              callback(new Error('请输入F选项的内容，或取消F选项'))
+            } else {
+              callback()
+            }
+          }
         },
         source: {
           required: true, message: '请输入出处', trigger: 'change'
@@ -162,6 +173,28 @@ export default {
         },
         options4: {
           required: true, message: '请输入选项内容', trigger: 'change'
+        },
+        options5: {
+          required: false, trigger: 'change', validator: (rule, value, callback) => {
+            // 无论是否填写 都需要对 正确答案 进行校验
+            this.$refs.questionForm.validateField('answerDx', (answerDxError) => {
+              if (answerDxError) {
+                console.log(answerDxError)
+              }
+            })
+            callback()
+          }
+        },
+        options6: {
+          required: false, trigger: 'change', validator: (rule, value, callback) => {
+            // 无论是否填写 都需要对 正确答案 进行校验
+            this.$refs.questionForm.validateField('answerDx', (answerDxError) => {
+              if (answerDxError) {
+                console.log(answerDxError)
+              }
+            })
+            callback()
+          }
         }
       }
     }
@@ -219,7 +252,7 @@ export default {
         this.editorContent = this.questionForm[this.answerOptions[this.answerIndex]]
         this.beforeEditorCon = this.editorContent
       }
-      console.log('focus' + this.editorContent)
+      // console.log('focus' + this.editorContent)
     },
     editorChange({ editor, html, text }) {
       // console.log(editor, html, text)
@@ -259,7 +292,7 @@ export default {
           var param = JSON.parse(JSON.stringify(this.questionForm))
           param.subjectCategoryId = this.carryParam.questionCatrgory // 所在模块
           if (param.answerDx && param.answerDx.length > 0) { // 多选
-            param.answer = param.answerDx.join(',')
+            param.answer = param.answerDx.sort().join(',')
           }
           var optinosArr = {} // 将选项按照接口规定的key value存到数组中
           if (param.options1) {
@@ -332,10 +365,6 @@ export default {
       } else {
         this.questionForm[this.answerOptions[this.answerIndex]] = this.editorContent
       }
-    },
-    itemChanges(val, type) {
-      console.log(val)
-      console.log(type)
     },
     subjectFocus(type) {
       this.editorOptions = '2'

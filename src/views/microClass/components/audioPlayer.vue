@@ -171,7 +171,7 @@
         }
         this.$save('trainFraction', para).then(response => {
           if (type === '4' && response.data === '999') {
-            this.clearTimeInterval()
+            this.clearJFInterval()
           }
         })
       },
@@ -179,8 +179,14 @@
         this.$emit('uploadViewLog', this.waitTime)
       },
       bindSetInterval() {
+        if (this.waitTime * 1000 < this.intervalSplit) {
+          this.intervalSplit = this.intervalSplit - this.waitTime * 1000
+        } else if (this.waitTime * 1000 > this.intervalSplit) {
+          this.intervalSplit = this.waitTime * 1000 - this.intervalSplit
+        }
         this.timeInterval = setInterval(() => {
           this.addJF('4')
+          this.initSplit()
         }, this.intervalSplit)
         this.autoUpdateInterval = setInterval(() => {
           this.uploadViewLog()
@@ -189,8 +195,8 @@
           this.waitTime += 1
         }, 1000)
       },
-      clearWaitInterval() {
-        clearInterval(this.waitInterval)
+      clearJFInterval() {
+        clearInterval(this.timeInterval)
       },
       clearTimeInterval() {
         clearInterval(this.timeInterval)

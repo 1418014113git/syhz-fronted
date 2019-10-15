@@ -293,6 +293,12 @@ export default {
           params.messagesId.push(this.multipleSelection[i]['messagesId'])
         }
       }
+      if (params.messagesId.length === 0) {
+        this.$message({
+          message: '没有未读的消息', type: 'warning'
+        })
+        return false
+      }
       this.loading = true
       this.$update('sysmessagesstatus/1', params).then((res) => {
         this.loading = false

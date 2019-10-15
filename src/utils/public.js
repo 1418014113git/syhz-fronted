@@ -505,6 +505,7 @@ export function setCurrentUser(param) {
   param.areaCode = curDept.areaCode
   param.belongDepCode = curDept.depCode
   param.belongDepName = curDept.depName
+  param.depType = curDept.depType
   return param
 }
 

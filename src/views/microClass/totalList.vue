@@ -21,7 +21,7 @@
                     <el-radio label="2">本季</el-radio>
                     <el-radio label="3">本月</el-radio>
                     <el-radio label="4">时间段&nbsp;&nbsp;&nbsp;&nbsp;
-                      <el-date-picker v-if="filters.timeType === '4'" v-model="filters.time" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
+                      <el-date-picker :disabled="filters.timeType !== '4'" v-model="filters.time" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
                     </el-radio>
                   </el-radio-group>
                 </el-form-item>
@@ -98,9 +98,11 @@
     },
     methods: {
       radioChange(value) {
-        if (value !== '4') {
-          this.filters.time = []
-        }
+        const para = this.buildTime({})
+        this.filters.time = [para.startTime, para.endTime]
+        // if (value !== '4') {
+        //   this.filters.time = []
+        // }
       },
       rowClick(row, expandedRows) {
         // if (expandedRows.length) {
@@ -154,15 +156,15 @@
         return sums
       },
       query(flag, departCode) {
-        let para = {
+        const para = {
           type: this.filters.type,
           startTime: this.filters.time ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : '',
           endTime: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '',
           cityCode: '1'
         }
-        if (this.filters.timeType !== '4') {
-          para = this.buildTime(para)
-        }
+        // if (this.filters.timeType !== '4') {
+        //   para = this.buildTime(para)
+        // }
         if (flag) {
           this.listChildLoading = true
           para.departCode = departCode
@@ -217,11 +219,14 @@
         }
         para.startTime = startTime
         para.endTime = endTime
+        // 赋当前时间
+        para.endTime = this.$parseTime(new Date(this.systemTime), '{y}-{m}-{d}') + ' 23:59:59'
         return para
       },
       getSysTime() {
         this.$query('knowledge/queryTime').then(response => {
           this.systemTime = response.data
+          this.radioChange()
           this.query()
         })
       }
@@ -274,5 +279,12 @@
   }
   .trainMaterial_totalList .el-table__body tbody > tr:first-child .el-table__expand-column .cell > div{
     display: none;
+  }
+  .trainMaterial_totalList .el-range-editor.is-disabled{
+    background: none;
+    /*background-color: rgba(255, 255, 255, 0.1);*/
+  }
+  .trainMaterial_totalList .el-range-editor.is-disabled input{
+    background: none;
   }
 </style>
