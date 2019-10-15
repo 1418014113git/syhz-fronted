@@ -11,22 +11,31 @@
     </el-row>
     <div id="pdfDom" style="padding: 20px;" ref="print">
       <p class="title">{{examItem.examinationName}}考试报告</p>
-      <p class="main_content">
-        自 {{examItem.startDate}} 至 {{examItem.endDate}} 开展考试活动期间，应考 {{examItem.totalNum}} 人，实考 {{examItem.realNum}} 人，
-        实考占比 {{ toPercent(Number(examItem.realNum)/Number(examItem.totalNum)) }}。</p>
-      <p class="main_content">
-        其中，
-        优（{{examItem.y}}）人，占比 {{ toPercent(Number(examItem.y)/Number(examItem.totalNum)) }}；
-        良（{{examItem.l}}）人，占比 {{ toPercent(Number(examItem.l)/Number(examItem.totalNum)) }}；
-        中（{{examItem.z}}）人，占比 {{ toPercent(Number(examItem.z)/Number(examItem.totalNum)) }}；
-        差（{{examItem.c}}）人，占比 {{ toPercent(Number(examItem.c)/Number(examItem.totalNum)) }}。
+      <!-- 合计的考试报告 -->
+      <p class="main_content" v-if="examItem.isHj">
+        自 {{examItem.startDate}} 至 {{examItem.endDate}} 期间，各级单位组织考试 {{examItem.examNum}} 起，
+        累计应考 {{examItem.totalNum}} 人，实考 {{examItem.realNum}} 人，
+        实考占比 {{ toPercent(Number(examItem.realNum)/Number(examItem.totalNum)) }}。
       </p>
-      <p class="main_content">地市考试情况如下表所示：</p>
+      <!-- 单个考试的考试报告 -->
+      <p class="main_content" v-else>
+        自 {{examItem.startDate}} 至 {{examItem.endDate}} 开展的考试活动期间，
+        应考 {{examItem.totalNum}} 人，实考 {{examItem.realNum}} 人，
+        实考占比 {{ toPercent(Number(examItem.realNum)/Number(examItem.totalNum)) }}。
+      </p>
+      <p class="main_content">
+        其中考试成绩，
+        优：{{examItem.y}} 人，占比 {{ toPercent(Number(examItem.y)/Number(examItem.realNum)) }}；
+        良：{{examItem.l}} 人，占比 {{ toPercent(Number(examItem.l)/Number(examItem.realNum)) }}；
+        中：{{examItem.z}} 人，占比 {{ toPercent(Number(examItem.z)/Number(examItem.realNum)) }}；
+        差：{{examItem.c}} 人，占比 {{ toPercent(Number(examItem.c)/Number(examItem.realNum)) }}。
+      </p>
+      <p class="main_content">省市考试统计情况如下：</p>
       <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight" border class="table_th_center" v-loading="listLoading">
         <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
-        <el-table-column prop="areaName" label="地市" align="center" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="ykNum" label="应考" width="120" align="center" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="skNum" label="实考" width="120" align="center"></el-table-column>
+        <el-table-column prop="areaName" label="省市" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="ykNum" label="应考总人数" width="120" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="skNum" label="实考总人数" width="120" align="center"></el-table-column>
         <el-table-column prop="yNum" label="优" width="100" align="center"></el-table-column>
         <el-table-column prop="lNum" label="良" width="100" align="center"></el-table-column>
         <el-table-column prop="zNum" label="中" width="100" align="center"></el-table-column>
@@ -93,7 +102,7 @@ export default {
     examItem: {
       handler: function(val, oldeval) {
         // this.queryList(true)
-        this.queryCityStatisticalByExam(this.examItem.examinationId) // 考试统计
+        this.queryCityStatisticalByExam(this.examItem) // 考试统计
       }
     }
   },
@@ -118,96 +127,17 @@ export default {
         return '0%'
       }
     },
-    handleSelectionChange(val) { // 多选表格
-      this.multipleSelection = val
-      // console.log(this.multipleSelection)
-      var choosedArr = []
-      var choosedStr = ''
-      if (this.multipleSelection.length > 0) {
-        for (let index = 0; index < this.multipleSelection.length; index++) {
-          const element = this.multipleSelection[index]
-          choosedArr.push(element.examinationId)
-        }
-        choosedStr = choosedArr.join(',')
-        this.queryCityStatisticalByExam(choosedStr)
-      } else {
-        this.cityData = []
-        this.drawChartScore()
-        this.drawChartPerNum()
-        this.drawCityStatistical()
-      }
-    },
-    getSummaries() {
-      const sums = ['', '', '合计', '', '', '', '', '']
-      sums[3] = this.$thousSplit(this.totlaYrl + '')
-      sums[4] = this.$thousSplit(this.totalDrl + '')
-      sums[5] = this.$thousSplit(this.totalXf + '')
-      sums[6] = this.$thousSplit(this.totalZf + '')
-      sums[7] = this.$thousSplit(this.totalCx + '')
-      sums[8] = this.$thousSplit(this.totalAll + '')
-      return sums
-    },
-    initStaticData() {
-      for (let index = 0; index < this.cityData.length; index++) { // 初始化12市数据全为0
-        const element = this.cityData[index]
-        element.claimed = 0
-        element.toClaimed = 0
-        element.downward = 0
-        element.forward = 0
-        element.revoke = 0
-        element.total = 0
-      }
-    },
-    queryExamStatistical(hand) {
-      if (this.filterQuery.type === '') {
-        if (this.filterQuery.startDate === '' && this.filterQuery.endDate !== '') { // 开始时间为空,结束时间不为空
-          this.$message({
-            message: '开始时间不能为空', type: 'error'
-          })
-          return false
-        } else if (this.filterQuery.startDate !== '' && this.filterQuery.endDate === '') { // 选择了开始时间,结束时间为空
-          this.filterQuery.endDate = this.getdate() // 将当前时间赋值给结束时间
-        } else if (this.filterQuery.startDate && this.filterQuery.endDate) { // 开始时间和结束时间均不为空
-          if (new Date(this.filterQuery.startDate).getTime() > new Date(this.filterQuery.endDate).getTime()) {
-            this.$message({
-              message: '结束时间不能小于开始时间', type: 'error'
-            })
-            return false
-          }
-        }
-      }
-      // if (hand) { // 手动点击时，添加埋点参数
-      //   this.filters.logFlag = 1
-      // }
-      var param = {
-        deptRange: this.filterQuery.deptRange || '',
-        startDate: this.filterQuery.startDate || '',
-        endDate: this.filterQuery.endDate || '',
-        examinationName: this.filterQuery.examinationName || '',
-        year: this.filterQuery.type === 'year' ? true : '',
-        quarter: this.filterQuery.type === 'quarter' ? true : '',
-        month: this.filterQuery.type === 'month' ? true : '',
-        pageNum: this.page,
-        pageSize: this.pageSize
-      }
-      this.examLoading = true
-      this.$query('examination/statistics', param).then((response) => {
-        if (response.code === '000000') {
-          this.examLoading = false
-          this.examinations = response.data.list
-          this.total = response.data.totalCount
-          this.page = response.data.pageNum
-          this.pageSize = response.data.pageSize
-        }
-      }).catch(() => {
-        this.examLoading = false
-      })
-    },
-    queryCityStatisticalByExam(examIdStr) {
+    queryCityStatisticalByExam(examObj) {
       // if (hand) { // 手动点击时，添加埋点参数
       //   this.filters.logFlag = 1
       // }
       this.listLoading = true
+      var examIdStr = ''
+      if (examObj.isHj) { // 合计的考试报告
+        examIdStr = examObj.hjIds
+      } else {
+        examIdStr = examObj.examinationId // 单个考试的考试报告
+      }
       this.$query('examination/statisticsOne?examinationIds=' + examIdStr, {}).then((response) => {
         if (response.code === '000000') {
           this.listLoading = false
@@ -235,6 +165,13 @@ export default {
           } else {
             this.cityData = []
             // this.showEchart = false
+          }
+          for (let q = 0; q < this.cityData.length; q++) {
+            const item = this.cityData[q]
+            if (item.ykNum === 0) {
+              this.cityData.splice(q, 1)
+              q = q - 1
+            }
           }
           this.drawChartScore()
           this.drawChartPerNum()
@@ -441,117 +378,14 @@ export default {
           { type: 'bar', barWidth: 30, barGap: 0, itemStyle: { color: '#20CF53' }}
         ]
       })
-    },
-    filterTypeChange(val) { // 切换筛选类型
-      if (val) {
-        this.filterQuery.startDate = ''
-        this.filterQuery.endDate = ''
-      }
-    },
-    startDateChange(val) { // 开始时间change事件
-      if (val) {
-        this.filterQuery.type = ''
-        this.endDateDisabled = false
-        this.endPickerOptions = this.$pickerOptionChange(val, this.startPickerOptions, 'end')
-      } else {
-        this.endDateDisabled = true
-        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
-      }
-    },
-    endDateChange(val) { // 结束时间change事件
-      if (val) {
-        this.startPickerOptions = this.$pickerOptionChange(val, this.startPickerOptions, 'start')
-      } else {
-        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
-      }
-    },
-    queryByType(val) { // 查询类型change事件
-      this.filters.startTime = ''
-      this.filters.endTime = ''
-      this.yearDate = '' // 清空年份值
-      this.quarterDate = ''
-      this.monthDate = ''
-      this.yearChange() // 清空了yearDate 没有自动调change事件
-      if (val) {
-        this.query()
-      }
-    },
-    getdate() {
-      var now = new Date()
-      var y = now.getFullYear()
-      var m = now.getMonth() + 1
-      var d = now.getDate()
-      return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
-      // + ' ' + now.toTimeString().substr(0, 8)
-    },
-    reset() { // 重置
-      // this.filters = {
-      //   startTime: '', endTime: '', type: ''
-      // }
-      // this.dateRange = []
-      // this.yearDate = '' // 年份
-      // this.quarterDate = '' // 季度
-      // this.monthDate = '' // 月份
-      // this.startTime = '' // 开始时间
-      // this.endTime = '' // 结束时间
-      // this.query(true)
-    },
-    yearChange(val) { // 按年查询
-      this.endDateDisabled = true // 禁用结束时间选择框
-      this.quarterDate = '' // 清空季度
-      this.monthDate = '' // 清空月
-      if (val) {
-        this.filters.type = '' // 清空掉筛选类型框
-        this.startTime = ''
-        this.endTime = ''
-        this.quarterDisabled = false // 激活季度选择框
-        this.monthDisabled = false
-        const date = new Date(val + '-01-01')
-        this.filters.startTime = this.$parseTime(new Date(date.getFullYear(), 0, 1), '{y}-{m}-{d}')
-        this.filters.endTime = this.$parseTime(new Date(date.getFullYear(), 12, 0), '{y}-{m}-{d}')
-      } else {
-        this.quarterDisabled = true // 禁用季度选择
-        this.monthDisabled = true // 禁用月份选择
-      }
-    },
-    quarterChange(val) {
-      if (val) {
-        this.monthDisabled = true
-        this.startTime = ''
-        this.endTime = ''
-        this.monthDisabled = true
-        let date = new Date()
-        if (this.yearDate) {
-          date = new Date(this.yearDate + '-01-01')
-        }
-        this.filters.startTime = this.$parseTime(new Date(date.getFullYear(), (val * 3 - 3), 1), '{y}-{m}-{d}')
-        this.filters.endTime = this.$parseTime(new Date(date.getFullYear(), (val * 3), 0), '{y}-{m}-{d}')
-      } else {
-        this.monthDisabled = false
-      }
-    },
-    monthChange(val) {
-      if (val) {
-        this.quarterDisabled = true
-        this.startTime = ''
-        this.endTime = ''
-        let date = new Date()
-        if (this.yearDate) {
-          date = new Date(this.yearDate + '-01-01')
-        }
-        this.filters.startTime = this.$parseTime(new Date(date.getFullYear(), (val - 1), 1), '{y}-{m}-{d}')
-        this.filters.endTime = this.$parseTime(new Date(date.getFullYear(), val, 0), '{y}-{m}-{d}')
-      } else {
-        this.quarterDisabled = false
-      }
     }
   },
   destroyed() {
     sessionStorage.removeItem('/caseManage/caseClaimStatistical')
   },
   mounted() {
-    if (this.examItem && this.examItem.examinationId) {
-      this.queryCityStatisticalByExam(this.examItem.examinationId) // 考试统计
+    if (this.examItem) {
+      this.queryCityStatisticalByExam(this.examItem) // 考试统计
     }
   }
 }
