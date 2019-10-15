@@ -211,7 +211,7 @@ export default {
       this.page = val
       if (this.currentExamType === '1') {
         this.queryList(false, true)
-      } else if (val === '2') {
+      } else if (this.currentExamType === '2') {
         this.queryListNewExam(false, true)
       }
     },
@@ -219,7 +219,7 @@ export default {
       this.pageSize = val
       if (this.currentExamType === '1') {
         this.queryList(true, true)
-      } else if (val === '2') {
+      } else if (this.currentExamType === '2') {
         this.queryListNewExam(true, true)
       }
     },
