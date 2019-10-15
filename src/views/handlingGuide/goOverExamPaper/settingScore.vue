@@ -245,7 +245,7 @@ export default {
     font-weight: bold;
   }
   .qusestionBox {
-    height: 72vh;
+    // height: 72vh;
     overflow: auto;
   }
   .el-card {
