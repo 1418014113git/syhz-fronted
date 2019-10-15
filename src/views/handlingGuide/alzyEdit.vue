@@ -141,8 +141,10 @@
           title: [
             {
               required: true, trigger: 'blur', validator: (rule, value, callback) => {
-                const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value === undefined || value === null || value === '') {
                   callback(new Error('请输入标题'))
                 } else if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
@@ -165,8 +167,10 @@
                 if (value === '' || value === undefined) {
                   return callback()
                 }
-                const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('关键词不能输入特殊字符'))
                 } else if (value.length > 50) {
@@ -183,8 +187,10 @@
                 if (value === '' || value === undefined) {
                   return callback()
                 }
-                const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value.length > 0 && regEnCode.test(value) && regCnCode.test(value)) {
                   callback(new Error('摘要不能输入特殊字符'))
                 } else if (value.length > 500) {
@@ -526,7 +532,9 @@
           this.callBack = para.jumpType
           this.active = para.active
         }
-        if (para.filters) {
+        if (para.checkboxGroup1) {
+          this.filters = para
+        } else {
           this.filters = para.filters
         }
       }
