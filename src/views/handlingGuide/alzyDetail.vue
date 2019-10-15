@@ -40,7 +40,7 @@
         <div class="alzyContent">
           <div class="lineDetail">
             <div><span>关键词：</span>
-              <span>{{detailData.keyword}}</span>
+              <span>{{detailData.keyWord}}</span>
             </div>
           </div>
           <div class="lineDetail">

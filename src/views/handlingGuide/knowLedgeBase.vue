@@ -55,7 +55,7 @@
               </el-form>
               <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" :selectable="selectable"></el-table-column>
-                <el-table-column type="index" ></el-table-column>
+                <el-table-column type="index"  label="序号" width="60"></el-table-column>
                 <el-table-column prop="title" label="标题"></el-table-column>
                 <el-table-column prop="type" label="知识分类">
                   <template slot-scope="scope">

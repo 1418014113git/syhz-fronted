@@ -52,7 +52,7 @@
                     </el-table>
                   </template>
                 </el-table-column>
-                <el-table-column type="index" width="80"></el-table-column>
+                <el-table-column type="index" width="80" label="序号"></el-table-column>
                 <el-table-column prop="areaName" align="center" label="地市"></el-table-column>
                 <el-table-column prop="total1" align="center" width="160" label="资料发布数量"></el-table-column>
                 <el-table-column prop="total2" align="center" width="160" label="资料待审核"></el-table-column>
