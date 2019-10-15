@@ -117,8 +117,10 @@
           title: [
             {
               required: true, trigger: 'blur', validator: (rule, value, callback) => {
-                const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value === undefined || value === null || value === '') {
                   callback(new Error('请输入标题'))
                 } else if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
@@ -140,8 +142,10 @@
                 if (value === '' || value === undefined) {
                   return callback()
                 }
-                const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('颁布机关不能输入特殊字符'))
                 } else if (value.length > 50) {
@@ -158,8 +162,10 @@
                 if (value === '' || value === undefined) {
                   return callback()
                 }
-                const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('颁布文号不能输入特殊字符'))
                 } else if (value.length > 50) {
@@ -210,7 +216,7 @@
     methods: {
       async titleCheckAsyns(callback) {
         // 同步处理
-        const response = await this.$queryAsyns('trainstandardinfobytitle', { title: this.lawInfo.title })
+        const response = await this.$updateAsyns('trainstandardinfobytitle', { title: this.lawInfo.title })
         const data = response.data
         if (this.id !== '') {
           if (data.data === null || data.data.length === 0 || (this.id === data.data[0].id && data.data.length === 1)) {
@@ -526,7 +532,9 @@
           this.callBack = para.jumpType
           this.active = para.active
         }
-        if (para.filters) {
+        if (para.checkboxGroup1) {
+          this.filters = para
+        } else {
           this.filters = para.filters
         }
       }

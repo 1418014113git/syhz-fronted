@@ -55,7 +55,7 @@
               </el-form>
               <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" :selectable="selectable"></el-table-column>
-                <el-table-column type="index" ></el-table-column>
+                <el-table-column type="index" label="序号" width="60"></el-table-column>
                 <el-table-column prop="enName" label="资料名称"></el-table-column>
                 <el-table-column prop="enType" label="资料类型">
                   <template slot-scope="scope">
@@ -255,6 +255,7 @@
       },
       queryTotal() {
         const para = {}
+        para.creationId = this.filters.creationId
         para.currentDeptCode = this.curDept.depCode
         para.personId = this.curUser.id
         para.belongDeptCode = this.filters.belongDepCode
@@ -289,7 +290,8 @@
         const para = {
           param: this.filters,
           jumpType: 'trainMaterial',
-          id: row.id
+          id: row.id,
+          active: this.active
         }
         this.$gotoid('/micro/uploadFile', JSON.stringify(para))
       },
@@ -456,12 +458,16 @@
           // 上传者：登录时默认本人，不允许修改
           // 列表数据权限说明：可查看本人上传记录
           this.deptList.push({ departCode: this.curDept.depCode, id: this.curDept.id, departName: this.curDept.depName, parentDepCode: this.curDept.parentDepCode, parentDepId: this.curDept.parentDepId })
+          this.filters.belongDepCode = this.curDept.depCode
+          this.queryDeptUser()
         } else {
           const para = this.$setCurrentUser({})
           para.departCode = para.belongDepCode
           this.$query('departchildren', para, true).then(response => {
             this.deptList = response.data
-            this.queryDeptUser()
+            if (this.filters.belongDepCode !== '') {
+              this.queryDeptUser()
+            }
           })
         }
       },
@@ -491,6 +497,9 @@
           this.filters = param.filters
         }
         sessionStorage.setItem(this.$route.path, '')
+      }
+      if (this.isNormal) {
+        this.filters.creationId = this.curUser.id
       }
       this.queryDept()
       this.queryTotal()

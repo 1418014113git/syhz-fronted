@@ -64,6 +64,21 @@ export function update(url, params, moduleType) {
   })
 }
 
+// 同步查询
+export function updateAsyns(url, params, moduleType) {
+  let moduleName = ModuleName
+  if (moduleType) {
+    moduleName = LoginModuleName
+  }
+  return new Promise((resolve, reject) => {
+    axios.post(moduleName + url, params).then((res) => {
+      resolve(res)
+    }).catch((err) => {
+      reject(err)
+    })
+  })
+}
+
 // 删除操作
 export function remove(url, params, moduleType) {
   let moduleName = ModuleName
