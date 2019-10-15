@@ -14,7 +14,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { getMenuToken } from '@/utils/auth'
-import { xglogin } from '@/api/login'
+// import { xglogin } from '@/api/login'
 
 export default {
   components: {
@@ -78,22 +78,22 @@ export default {
   },
   methods: {
     handleSelect: function(key, keyPath) {
-      if (key === 'http://znjs.gat.nm') {
-        var ukStr = sessionStorage.getItem('uk')
-        console.info('uk String value:' + ukStr)
-        if (ukStr) {
-          const para = {
-            uk: ukStr
-          }
-          xglogin(para).then((res) => {
-            console.info('uk return value:' + res.data)
-            window.open(res.data)
-          })
-        } else {
-          window.open(key)
-        }
-        return
-      }
+      // if (key === 'http://znjs.gat.nm') {
+      //   var ukStr = sessionStorage.getItem('uk')
+      //   console.info('uk String value:' + ukStr)
+      //   if (ukStr) {
+      //     const para = {
+      //       uk: ukStr
+      //     }
+      //     xglogin(para).then((res) => {
+      //       console.info('uk return value:' + res.data)
+      //       window.open(res.data)
+      //     })
+      //   } else {
+      //     window.open(key)
+      //   }
+      //   return
+      // }
       if (key === '/menuItemNode') { // 试题模块 点击模块时记住当前被点击的模块列表信息，点击菜单时清空掉
         sessionStorage.removeItem('/menuItemNode')
       }
