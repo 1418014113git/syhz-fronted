@@ -102,8 +102,8 @@
           <el-button size="medium"  class="cancelBtn" plain @click="lastCancelExam" style="margin-right:20px;" v-loading="detailLoading">取消考试</el-button>
           <el-button size="medium"  class="saveBtn" plain @click="lastSubmitExam" v-loading="detailLoading">提交答案</el-button>
         </div>
-        <el-tag type="danger" size="medium" class="right">结束倒计时：{{mm}}分{{ss}}秒</el-tag>
       </div>
+      <el-tag type="danger" size="medium" class="right daojishi">结束倒计时：{{mm}}分{{ss}}秒</el-tag>
     </div>
   </section>
 </template>
@@ -725,14 +725,19 @@ export default {
   .exam_bottom_wrap {
     margin-top: 20px;
     text-align: center;
-    .el-tag--danger {
-      background-color: rgba(245, 108, 108, 0.1);
-      border-color: #f56c6c;
-      color: #f56c6c;
-      height: 32px;
-      line-height: 32px;
-      font-size: 16px;
-    }
+  }
+  .daojishi {
+    position: fixed;
+    top: 180px;
+    right: 80px;
+  }
+  .daojishi.el-tag--danger {
+    background-color: rgba(245, 108, 108, 0.1);
+    border-color: #f56c6c;
+    color: #f56c6c;
+    height: 32px;
+    line-height: 32px;
+    font-size: 16px;
   }
   .richTextWrap p:nth-child(1) {
     display: inline-block;
