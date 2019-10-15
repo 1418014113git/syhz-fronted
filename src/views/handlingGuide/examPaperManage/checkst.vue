@@ -27,12 +27,12 @@
           </el-form-item>
         </el-form>
         <!--列表-->
-        <el-table :data="listData" ref="multipleTable" v-loading="listLoading" style="width: 100%;" @select="handleselectRow" @select-all="handleselectAll"  :max-height="tableHeight" >
+        <el-table :data="listData" ref="multipleTable" v-loading="listLoading" style="width: 100%;"  @select="handleselectRow" @select-all="handleselectAll"   :max-height="tableHeight" >
           <el-table-column type="selection" label="选择" width="55"></el-table-column>
-          <el-table-column type="index" label="序号" width="70" class-name="tabC"></el-table-column>
+          <el-table-column type="index" label="序号" width="60"></el-table-column>
           <el-table-column prop="name" label="试题内容" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-html="scope.row.name" class="richTextWrap"></span>
+              <span v-html="scope.row.name"></span>
             </template>
           </el-table-column>
         </el-table>
@@ -74,7 +74,11 @@ export default {
       type: Boolean,
       default: false
     },
-    alreadyCheck: { // 添加试卷页已经被选择的试题
+    alreadyCheck: { // 添加试卷页已经被选择的试题列表id
+      type: Array,
+      required: true
+    },
+    alreadyCheckList: { // 添加试卷页已经被选择的试题列表项
       type: Array,
       required: true
     }
@@ -91,11 +95,13 @@ export default {
       type: '1', // 筛选条件
       checkId: [], // 复选框选中的列表id
       checkIdRow: [], // 存储当前行被点击选中的项
-      checkList: [], // 复选框选中的列表项
       txData: questionTypeAll('1'),
       tableHeight: null,
       dataList: [], // 菜单tree数据
-      btnLoading: false // 保存按钮加载进度条
+      btnLoading: false, // 保存按钮加载进度条
+      saveList: [], // 存储所有模块选中的列表项
+      isClickSelect: false, // 当右侧列表选项执行了change事件后，置为true
+      checkData: []
     }
   },
   components: {
@@ -105,14 +111,20 @@ export default {
     alreadyCheck: {
       handler: function(val, oldeval) {
         this.checkId = val
-        this.memoryChecked()
+        this.query(true, false)
+      }
+    },
+    alreadyCheckList: {
+      handler: function(val, oldeval) {
+        this.getSelected(val)
       }
     },
     isClear: {
       handler: function(val, oldeval) {
         if (val) {
           this.checkId = [] // 复选框选中的列表id清空
-          this.checkList = [] // 复选框选中的列表项清空
+          this.saveList = [] // 复选框选中的列表项清空
+          this.checkIdRow = []
         }
       }
     }
@@ -168,27 +180,13 @@ export default {
       })
     },
     questionTypeChange(val) {
-      this.initData()
       if (this.menuItemNode.id) {
+        // this.isClickSelect = true
+        this.initData()
         this.query(true, true)
       }
     },
     handleNodeClick(data) { // 点击tree节点，获取id，查询对应的菜单详情
-      // var checkData = this.$refs.multipleTable.selection
-      // console.log('切换节点时之前已选中的', JSON.stringify(checkData))
-
-      // checkData.forEach((item, index) => {
-      //   // this.saveList.push(item)
-      //   this.saveList.forEach((it, i) => {
-      //     if (item.id === it.id) {
-      //       it.isCheck = true
-      //     } else {
-      //       it.isCheck = false
-      //     }
-      //   })
-      // })
-      // console.log('切换节点时之前已选中的', JSON.stringify(this.$refs.multipleTable.selection))
-      // this.clearCheckItem()
       if (data.id) {
         this.menuItemNode = data
         this.initData()
@@ -197,9 +195,99 @@ export default {
         this.menuItemNode = {}
       }
     },
+    getSelected(datas) {
+      var saveList = []
+      if (datas.length > 0) {
+        saveList = this.processingData(datas)
+      }
+      this.saveList = saveList
+      // console.info('this.saveList-----', JSON.stringify(this.saveList))
+    },
+
+    // 过滤重复的数据
+    FilterProcessingData(data, Name, subjectCategoryId) {
+      var dest = []
+      for (var i = 0; i < data.length; i++) {
+        var ai = data[i]
+        if (i === 0) {
+          dest.push(ai)
+        } else {
+          var filterData = dest.filter(function(e) {
+            if (e[Name] === ai[Name] && e[subjectCategoryId] === ai[subjectCategoryId]) {
+              for (var i = 0; i < ai.data.length; i++) {
+                e.data.push(ai.data[i])
+              }
+              return true
+            } else {
+              return false
+            }
+          })
+          if (filterData.length === 0) {
+            dest.push(ai)
+          }
+        }
+      }
+      return dest
+    },
+
+    // 将添加页/编辑页 传递过来的数据根据试题类型type和subjectCategoryId进行归类拆分
+    processingData(dataS) {
+      var stt = []
+      var stt1 = []
+      for (var i = 0; i < dataS.length; i++) {
+        for (var j = 0; j < dataS[i].data.length; j++) {
+          dataS[i].data[j].type = dataS[i].type
+          stt.push(dataS[i].data[j])
+        }
+      }
+      for (var m = 0; m < stt.length; m++) {
+        for (var n = 0; n < dataS.length; n++) {
+          if (dataS[n].type === stt[m].type) {
+            var s = dataS[n]
+            s.subjectCategoryId = stt[m].subjectCategoryId
+            s.data = []
+            delete stt[m].type
+            s.data.push(stt[m])
+            stt1.push(JSON.parse(JSON.stringify(s)))
+          }
+        }
+      }
+      stt1 = this.FilterProcessingData(stt1, 'type', 'subjectCategoryId')
+      return stt1
+    },
+
+    getSelect(type, datas, id) {
+      this.checkData = datas
+      if (this.checkData.length > 0) {
+        this.checkData.forEach((item, i) => {
+          item.subjectCategoryId = this.menuItemNode.id // 当前的模块id
+          item.subjectCategoryName = this.menuItemNode.label // 当前的模块名称
+          item.questionsId = item.id // 被选中的试题id
+        })
+      }
+      var item = { type: type, sort: Number(type), num: 0, value: 1, desc: '', subjectCategoryId: id, data: this.checkData }
+      this.getshitiList(item)
+    },
+    getshitiList(element) {
+      var bo = false
+      var _this = this
+      for (var i = 0; i < _this.saveList.length; i++) {
+        if (element.type === _this.saveList[i].type) {
+          if (element.subjectCategoryId === _this.saveList[i].subjectCategoryId) {
+            bo = true
+            _this.saveList[i].data = element.data
+          }
+        }
+      }
+      // 如果不存在就直接塞到array中
+      if (!bo) {
+        _this.saveList.push(element)
+      }
+      // console.log('getshitiList', JSON.stringify(_this.saveList))
+    },
     cancel() { // 取消
       this.checkId = [] // 复选框选中的列表id清空
-      this.checkList = []
+      this.saveList = []
       this.$emit('closergDialog', false)
     },
     changeData(data) { // tree数据结构改造
@@ -248,25 +336,77 @@ export default {
     },
     // 行选中函数  若有删除，若无添加
     handleselectRow(selection, row) {
-      if (this.checkIdRow[row.id]) {
-        delete this.checkIdRow[row.id]
-      } else {
-        this.checkIdRow[row.id] = row.id
+      this.checkIdRow = []
+      if (selection.length > 0) {
+        selection.forEach((item, index) => {
+          this.checkIdRow.push(item.id)
+        })
       }
-      this.checkId = this.checkIdRow
+
+      if (this.checkId.length === 0 && selection.length > 0) {
+        this.checkId.push(row.id)
+      } else {
+        var checkId_ = this.checkId
+        checkId_.forEach((id) => {
+          if (row.id === id) {
+            this.removeByValue(this.checkId, row.id)
+          } else {
+            if (!this.temp(row.id)) {
+              this.checkId.push(row.id)
+            }
+          }
+        })
+      }
+      this.getSelect(this.type, selection, this.menuItemNode.id)
+    },
+    removeByValue(arr, val) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === val) {
+          arr.splice(i, 1)
+        }
+      }
+    },
+
+    temp(id) {
+      if (this.checkId.indexOf(id) !== -1) {
+        return true
+      } else {
+        return false
+      }
     },
     // 全选函数  点击全选遍历当页数据若无添加,若是反选则删除(判断是否是全选还是反选)
     handleselectAll(selection) {
-      this.listData.forEach((item, index) => {
-        if (this.checkId.hasOwnProperty(item.id)) {
-          selection.length ? null : delete this.checkId[item.id]
-        } else {
-          this.checkId[item.id] = item.id
+      var allSelect = selection
+      if (selection.length > 0) {
+        var checkId_1 = this.checkId
+        allSelect.forEach((item, index) => {
+          checkId_1.forEach((it, i) => {
+            if (it !== item) {
+              if (!this.temp(item.id)) {
+                this.checkId.push(item.id)
+              }
+            }
+          })
+        })
+        if (this.checkId.length === 0) {
+          allSelect.forEach((item, i) => {
+            this.checkId.push(item.id)
+          })
         }
-      })
+      } else {
+        this.listData.forEach((item) => {
+          this.checkId.forEach((it) => {
+            if (item.id === it) {
+              this.removeByValue(this.checkId, item.id)
+            }
+          })
+        })
+      }
+      this.getSelect(this.type, selection, this.menuItemNode.id)
     },
     // 记忆函数
     memoryChecked() {
+      // console.log('jiyi', JSON.stringify(this.checkId))
       if (this.listData.length > 0) {
         this.listData.forEach((item, index) => {
           if (this.checkId.indexOf(item.id) !== -1) {
@@ -277,42 +417,54 @@ export default {
         })
       }
     },
-    save() { // 保存添加的模块
-      var checkData = this.$refs.multipleTable.selection // 当前被选中的列表项
-      if (this.listData.length > 0) {
-        if (checkData.length > 0) {
-          checkData.forEach((item, index) => {
-            item.subjectCategoryId = this.menuItemNode.id // 当前的模块id
-            item.subjectCategoryName = this.menuItemNode.label // 当前的模块名称
-            item.questionsId = item.id // 被选中的试题id
-          })
-          var dataList = { type: this.type, sort: Number(this.type), num: 0, value: 1, desc: '', data: checkData }
-          this.$emit('checkList', dataList)
-          this.$emit('stType', this.type)
-          this.$emit('closergDialog', false)
+    // 保存时数据根据type类型进行分类合并
+    filterByName(data, Name) {
+      var dest = []
+      for (var i = 0; i < data.length; i++) {
+        var ai = data[i]
+        if (i === 0) {
+          dest.push(ai)
         } else {
-          this.$message({
-            type: 'error',
-            message: '请至少选择一条试题'
+          var filterData = dest.filter(function(e) {
+            if (e[Name] === ai[Name]) {
+              for (var i = 0; i < ai.data.length; i++) {
+                e.data.push(ai.data[i])
+              }
+              return true
+            } else {
+              return false
+            }
           })
+          if (filterData.length === 0) {
+            dest.push(ai)
+          }
         }
+      }
+      return dest
+    },
+    save() { // 保存添加的模块
+      if (this.listData.length > 0) {
+        var dataList = []
+        // console.log('保存时saveList', JSON.stringify(this.saveList))
+        this.saveList.forEach((item, index) => {
+          if (item.data.length > 0) {
+            dataList.push(item)
+          }
+        })
+
+        dataList.forEach((item, index) => {
+          delete item.subjectCategoryId
+        })
+        dataList = this.filterByName(dataList, 'type')
+        // console.log('保存时总共选择的列表处理后', JSON.stringify(dataList))
+        this.$emit('checkList', dataList)
+        this.$emit('closergDialog', false)
       } else {
         this.$message({
           type: 'error',
           message: '当前无可选择的试题'
         })
       }
-    },
-    unique(arr) { // 数组去重
-      for (var i = 0; i < arr.length; i++) {
-        for (var j = i + 1; j < arr.length; j++) {
-          if (arr[i].id === arr[j].id) { // 第一个等同于第二个，splice方法删除第二个
-            arr.splice(j, 1)
-            j--
-          }
-        }
-      }
-      return arr
     },
     initData() {
       this.listData = []
@@ -322,10 +474,13 @@ export default {
     }
   },
   mounted() {
+    this.checkId = this.alreadyCheck
+    this.getSelected(this.alreadyCheckList)
     this.tableHeight = document.querySelector('.rightCont').offsetHeight - 180
     this.init()
   },
   activated() {
+    this.initData()
     this.init()
   }
 }
