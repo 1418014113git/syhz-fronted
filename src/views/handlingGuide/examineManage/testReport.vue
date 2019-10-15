@@ -116,7 +116,11 @@ export default {
     },
     toGetPdf() { // 下载报告
       window.scrollTo(0, 0)
-      this.htmlTitle = this.examItem.examinationName + '考试报告'
+      if (this.examItem.isHj) { // 合计的考试报告
+        this.htmlTitle = this.examItem.startTitle + '至' + this.examItem.endTitle + '考试报告'
+      } else {
+        this.htmlTitle = this.examItem.examinationName + '考试报告'
+      }
       this.getPdf(this.htmlTitle)
     },
     toPercent(point) {
