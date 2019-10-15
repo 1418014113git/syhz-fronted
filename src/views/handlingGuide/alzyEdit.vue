@@ -337,7 +337,7 @@
       },
       parentdepartcode() {
         const para = this.$setCurrentUser({})
-        this.$query('parentdepartcode/' + para.belongDepCode, {}, true).then(response => {
+        this.$query('parentdepartcode/' + para.belongDepCode, para, true).then(response => {
           this.departInfo = response.data
         })
       },
