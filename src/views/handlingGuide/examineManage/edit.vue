@@ -66,14 +66,30 @@
                 <el-select v-model="examForm.openDepts" placeholder="请选择开放单位" multiple class="left openWrap" style="width:calc(100% - 30px)">
                   <el-option v-for="item in openDeptsList" :key="item.id" :label="item.deptName" :value="item.id"></el-option>
                 </el-select>
-                <!-- <el-collapse>
+                <!-- <el-collapse class="left" style="width:calc(100% - 30px)">
                   <el-collapse-item title="选择部门" name="1">
                     <div class="dept-tree">
-                      <el-tree class="filter-tree" :data="depData" :props="{children: 'children',label: 'name'}" default-expand-all
-                              ref="depTree1"
-                              highlight-current show-checkbox check-strictly @check-change="checkDeptChange"
-                              :expand-on-click-node="false" node-key="id"
-                              style="margin-top: 5px;">
+                      <el-tree class="filter-tree" :data="openDeptsList"
+                        :props="{children: 'children',label: 'name'}"
+                        :default-expand-all="false"
+                        ref="depTree"
+                        highlight-current
+                        show-checkbox
+                        check-strictly
+                        @check-change="checkDeptChange"
+                        :expand-on-click-node="false" node-key="id"
+                        :default-expanded-keys="defaultExpandedKeys"
+                        :default-checked-keys="defaultCheckedKeys"
+                        style="margin-top: 5px;">
+                        <span slot-scope="{ node, data }" @mouseleave="mouseleave(data,$event)" @mouseover="mouseover(data,$event)" style="flex: 1; display: flex; align-items: center; justify-content: space-between; font-size: 14px; padding-right: 8px;">
+                          <span>
+                            <span>{{data.name}}</span>
+                          </span>
+                          <span class="node_none">
+                            <el-button v-if="data.children && data.children.length>0" size="mini" @click="checkedSonDept(data,$event)" circle icon="el-icon-check" title="选中子部门"></el-button>
+                            <el-button v-if="data.children && data.children.length>0" size="mini" @click="noCheckedSonDept(data,$event)" circle icon="el-icon-close" title="取消子部门"></el-button>
+                          </span>
+                        </span>
                       </el-tree>
                     </div>
                   </el-collapse-item>
@@ -156,12 +172,14 @@ export default {
       markPerOwn: [],
       carryParam: {}, // 列表带过来的参数
       yjry: '', // 阅卷人员筛选框
+      defaultExpandedKeys: [], // 默认展开的节点的 key 的数组
+      defaultCheckedKeys: [], // 默认勾选的节点的 key 的数组
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       rules: {
         examinationName: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === '') {
+            if (value === null || value === undefined || value === '') {
               callback(new Error('请输入考试名称'))
             } else if (regEnCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
@@ -228,6 +246,26 @@ export default {
     },
     filterMethod(query, item) {
       return item.label.indexOf(query) > -1
+    },
+    mouseleave(data, $event) {
+      $event.currentTarget.firstElementChild.nextElementSibling.setAttribute('class', 'node_none')
+    },
+    mouseover(data, $event) {
+      $event.currentTarget.firstElementChild.nextElementSibling.setAttribute('class', 'node_block')
+    },
+    checkDeptChange(data) { // 复选框事件
+      // this.$refs.depTree.store.nodesMap[data.id].expanded = true // 展开当前部门的子部门
+    },
+    checkedSonDept(data, $event) { // 选中子部门
+      // this.$refs.depTree.store.nodesMap[data.id].expanded = true // 展开当前部门的子部门
+      var checkNodes = this.$refs.depTree.getCheckedNodes()
+      console.log(checkNodes)
+      var newArr = this.unique(checkNodes.concat(data.children))
+      this.$refs.depTree.setCheckedNodes(newArr)
+    },
+    unique(arr) {
+      const res = new Map()
+      return arr.filter((arr) => !res.has(arr.id) && res.set(arr.id, 1))
     },
     init() {
       // 开放单位：获取本单位和下级单位
@@ -453,6 +491,8 @@ export default {
       this.carryParam = this.$route.query
     }
     this.init()
+    // this.openDeptsList = JSON.parse(sessionStorage.getItem('DeptTree'))
+    // this.defaultExpandedKeys = [this.deptInfo.id] // 默认展开当前部门的下一级
   },
   watch: {
 
@@ -479,15 +519,24 @@ export default {
     content: "";
     display: block;
   }
+  .el-collapse-item__content {
+    padding: 0 20px;
+  }
   .dept-tree {
     max-height: 400px;
     overflow-y: auto;
-    padding: 5px;
+    // padding: 5px;
   }
 }
 .spt_report {
   width: 80%;
   min-width: 1200px;
   margin: 0 auto;
+}
+.node_block {
+  display: inline-block;
+}
+.node_none {
+  display: none;
 }
 </style>

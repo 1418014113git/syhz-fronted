@@ -2,12 +2,23 @@
   <div class="examStatistical">
     <el-card style="margin-bottom: 10px;">
       <el-form :inline="true" :model="filterQuery" label-width="84px">
-        <el-form-item label="发布单位"  prop="deptRange">
-          <el-select v-model="filterQuery.deptRange" placeholder="请选择">
+        <el-form-item label="发布单位"  prop="deptCode">
+          <!-- <el-select v-model="filterQuery.deptRange" placeholder="请选择">
             <el-option label="全部" value=""></el-option>
             <el-option label="省厅" value="1"></el-option>
             <el-option label="地市" value="2"></el-option>
-          </el-select>
+          </el-select> -->
+          <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>11)?'tooltipShow':'tooltipHide'">
+            <el-cascader
+              :options="deptOptions"
+              v-model="filterQuery.deptCode"
+              :props="deptProps"
+              :show-all-levels=false
+              change-on-select
+              @change="handleDeptChange"
+              clearable placeholder="全部">
+            </el-cascader>
+          </el-tooltip>
         </el-form-item>
         <el-form-item label="考试名称"  prop="examinationName">
           <!-- <el-input v-model="filterQuery.examinationName" clearable maxlength="20" placeholder="关键字检索考试名称" ></el-input> -->
@@ -54,7 +65,8 @@
           </el-tooltip>
           <!-- <el-button circle title="选中考试后，可按单条或多条考试信息统计地市考试情况！"><i class="el-icon-question"></i></el-button> -->
       </div>
-      <el-table :data="examinations"  style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange" v-loading="examLoading">
+      <el-table :data="examinations"  style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange"
+      :row-class-name="getRowClassExam" v-loading="examLoading">
        <!-- show-summary :summary-method="getSummaries" -->
         <el-table-column type="selection" width="50"></el-table-column>
         <el-table-column prop="index" label="序号" width="70" align="center">
@@ -164,7 +176,7 @@ export default {
   data() {
     return {
       filterQuery: {
-        deptCode: '',
+        deptCode: [],
         startDate: '',
         endDate: '',
         examinationName: '',
@@ -208,6 +220,13 @@ export default {
       showEchart: false,
       dialogReportVisible: false, // 考试报告弹框
       currentExam: {}, // 当前点击的考试报告
+      deptProps: {
+        value: 'depCode',
+        label: 'name',
+        children: 'children'
+      },
+      selectCurDep: { name: '' },
+      deptOptions: [], // 部门数据
       curDept: {} // 当前部门
     }
   },
@@ -255,6 +274,21 @@ export default {
         }
       })
       return sums
+    },
+    handleDeptChange(val) { // 发布单位
+      // console.log(val)
+      if (val.length > 0) {
+        var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+        for (let i = 0; i < deptArr.length; i++) {
+          const dept = deptArr[i]
+          if (dept.depCode === val[val.length - 1]) {
+            this.selectCurDep = dept
+            break
+          }
+        }
+      } else {
+        this.selectCurTingDep = { name: '' }
+      }
     },
     handleSelectionChange(val) { // 多选表格
       this.multipleSelection = val
@@ -328,7 +362,7 @@ export default {
         this.buildTime() // 页面上显示 年度/季度/月的时间
       }
       var param = {
-        deptRange: this.filterQuery.deptRange || '',
+        // deptRange: this.filterQuery.deptRange || '',
         startDate: this.filterQuery.startDate || '',
         endDate: this.filterQuery.endDate || '',
         examinationName: this.filterQuery.examinationName || '',
@@ -337,6 +371,11 @@ export default {
         month: this.filterQuery.type === 'month' ? true : '',
         pageNum: this.page,
         pageSize: this.pageSize
+      }
+      if (this.filterQuery.deptCode.length === 0) {
+        param.deptCode = ''
+      } else {
+        param.deptCode = this.filterQuery.deptCode[this.filterQuery.deptCode.length - 1] // 最后一级的code
       }
       this.examLoading = true
       this.$query('examination/statistics', param).then((response) => {
@@ -389,7 +428,7 @@ export default {
       //   this.filters.logFlag = 1
       // }
       var param = {
-        deptRange: this.filterQuery.deptRange || '',
+        // deptRange: this.filterQuery.deptRange || '',
         startDate: this.filterQuery.startDate || '',
         endDate: this.filterQuery.endDate || '',
         examinationName: this.filterQuery.examinationName || '',
@@ -398,6 +437,11 @@ export default {
         month: this.filterQuery.type === 'month' ? true : '',
         pageNum: this.page,
         pageSize: this.pageSize
+      }
+      if (this.filterQuery.deptCode.length === 0) {
+        param.deptCode = ''
+      } else {
+        param.deptCode = this.filterQuery.deptCode[this.filterQuery.deptCode.length - 1] // 最后一级的code
       }
       this.cityLoading = true
       this.$query('examination/statisticsOne?examinationIds=' + examIdStr, param).then((response) => {
@@ -443,6 +487,13 @@ export default {
       // console.log(row)
       if (rowIndex === 0) {
         return 'row-sheng'
+      } else {
+        return ''
+      }
+    },
+    getRowClassExam({ row, rowIndex }) { // 考试统计
+      if (row.isHj) {
+        return 'row-hj'
       } else {
         return ''
       }
@@ -543,11 +594,12 @@ export default {
       }
       this.echartScore = echarts.init(document.getElementById('echartScore'))
       this.echartScore.setOption({
-        color: ['#537ff7', '#f46470', '#ffb337', '#23ce7b', '#a257ed', '#fee344', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
+        color: ['#23ce7b', '#537ff7', '#ffb337', '#f46470', '#a257ed', '#fee344', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
         title: {
           text: '考试成绩分析',
           subtext: '',
           x: 'center',
+          // top: 10,
           textStyle: {
             color: '#fff'
           }
@@ -572,8 +624,8 @@ export default {
           {
             name: '数量',
             type: 'pie',
-            // radius: ['0', '75%'],
-            // center: ['50%', '60%'],
+            radius: ['0', '75%'],
+            center: ['50%', '60%'],
             data: scoreArr,
             itemStyle: {
               emphasis: {
@@ -754,6 +806,8 @@ export default {
         this.currentExam.startDate = this.filterQuery.startDate // 开始时间
         this.currentExam.endDate = this.filterQuery.endDate // 截至时间
         this.currentExam.examNum = hjArrIds.length // 总数
+        this.currentExam.startTitle = this.filterQuery.startDate.substr(0, 4) + '年' + this.filterQuery.startDate.substr(5, 2) + '月' + this.filterQuery.startDate.substr(8, 2) + '日'
+        this.currentExam.endTitle = this.filterQuery.endDate.substr(0, 4) + '年' + this.filterQuery.endDate.substr(5, 2) + '月' + this.filterQuery.endDate.substr(8, 2) + '日'
       }
       this.dialogReportVisible = true
     },
@@ -770,7 +824,7 @@ export default {
     },
     reset() { // 重置
       this.filterQuery = {
-        deptCode: '',
+        deptCode: [],
         startDate: '',
         endDate: '',
         examinationName: '',
@@ -855,12 +909,41 @@ export default {
       }
       console.log(param)
       this.$gotoid('/caseManage/ajrl', JSON.stringify(param))
+    },
+    getTree(treeArray) {
+      const r = []
+      const tmpMap = {}
+      for (let i = 0, l = treeArray.length; i < l; i++) {
+        tmpMap[treeArray[i]['depCode']] = treeArray[i]
+      }
+      for (let i = 0, l = treeArray.length; i < l; i++) {
+        const key = tmpMap[treeArray[i]['parentCode']]
+        if (key && key.depType !== '4') { // 去掉派出所的层级
+          if (!key['children']) {
+            if (treeArray[i].depType !== '4') {
+              key['children'] = []
+              key['children'].push(treeArray[i])
+            }
+          } else {
+            if (treeArray[i].depType !== '4') {
+              key['children'].push(treeArray[i])
+            }
+          }
+        } else {
+          if (treeArray[i].depType !== '4') {
+            r.push(treeArray[i])
+          }
+        }
+      }
+      return r
     }
   },
   destroyed() {
-    sessionStorage.removeItem('/caseManage/caseClaimStatistical')
+    // sessionStorage.removeItem('/caseManage/caseClaimStatistical')
   },
   mounted() {
+    var dept = this.getTree(JSON.parse(sessionStorage.getItem('DeptSelect')))
+    this.deptOptions = dept
     this.getSysTime()
     // this.initStaticData()
     // if (sessionStorage.getItem(this.$route.path)) {
@@ -902,6 +985,12 @@ export default {
     margin-bottom: 0 !important;
   }
 }
+.tooltipShow {
+  opacity: 1;
+}
+.tooltipHide {
+  opacity: 0;
+}
 .canClick {
   cursor: pointer;
 }
@@ -914,6 +1003,12 @@ export default {
 .el-table .row-sheng .xuhao {
   // 如果用display none 隐藏了 会整行往左移
   opacity: 0;
+  pointer-events: none;
+}
+.el-table .row-hj .el-table-column--selection {
+  // 合计行去掉 复选框
+  opacity: 0;
+  pointer-events: none;
 }
 .reportDialog {
   .el-dialog {

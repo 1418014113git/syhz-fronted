@@ -10,7 +10,8 @@
       <el-button type="primary" @click="toGetPdf">下载</el-button>
     </el-row>
     <div id="pdfDom" style="padding: 20px;" ref="print">
-      <p class="title">{{examItem.examinationName}}考试报告</p>
+      <p class="title" v-if="examItem.isHj">{{examItem.startTitle}} 至 {{examItem.endTitle}}考试报告</p>
+      <p class="title" v-else>{{examItem.examinationName}}考试报告</p>
       <!-- 合计的考试报告 -->
       <p class="main_content" v-if="examItem.isHj">
         自 {{examItem.startDate}} 至 {{examItem.endDate}} 期间，各级单位组织考试 {{examItem.examNum}} 起，
