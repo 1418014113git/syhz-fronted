@@ -23,14 +23,6 @@
               <el-button type="success" v-if="$isViewBtn('118003') && detailData.createUser === String(curUser.id)" plain @click="doEdit">修改</el-button>
             </div>
           </div>
-          <!--<div class="lineDetail">-->
-            <!--<div><span>颁布机关：</span><span>{{detailData.publishOrgName}}</span></div>-->
-            <!--<div><span>颁布日期：</span><span>{{this.$parseTime(detailData.publishTime, '{y}-{m}-{d}')}}</span></div>-->
-          <!--</div>-->
-          <!--<div class="lineDetail">-->
-            <!--<div><span>颁布文号：</span><span>{{detailData.publishCode}}</span></div>-->
-            <!--<div><span>施行日期：</span><span>{{this.$parseTime(detailData.effectiveTime, '{y}-{m}-{d}')}}</span></div>-->
-          <!--</div>-->
           <div class="lineDetail">
             <div><span>发布单位：</span><span>{{detailData.belongDepName}}</span></div>
             <div><span>发布人：</span><span>{{detailData.creationName}}</span></div>
@@ -45,8 +37,20 @@
             </div>
           </div>
         </div>
-        <div v-if="detailData.content && detailData.content !== ''" class="alzyContent">
-          <div v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
+        <div class="alzyContent">
+          <div class="lineDetail">
+            <div><span>关键词：</span>
+              <span>{{detailData.keyword}}</span>
+            </div>
+          </div>
+          <div class="lineDetail">
+            <div><span>摘要：</span>
+              <span>{{detailData.abstract}}</span>
+            </div>
+          </div>
+          <p></p>
+          <p></p>
+          <div v-if="detailData.content && detailData.content !== ''" v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
         </div>
         <div v-if="detailData.enclosure && detailData.enclosure.length > 0" class="enclosure_con">
           <div v-for="item in detailData.enclosure" :key="item.key" class="file_data_list" @click="handlerClick(item)">
@@ -333,9 +337,20 @@
     margin-right: 10px;
   }
   .alzyContent{
+    padding: 20px 40px;
     border-top: 1px solid #eeeeee;
-    padding-top: 20px;
     min-height: 500px;
+  }
+  .alzyContent > div.lineDetail{
+    width: 100%;
+    padding: 5px;
+    display: inline-block;
+  }
+  .alzyContent > div.lineDetail > div > span:first-child{
+    width: 80px;
+    text-align: right;
+    display: inline-block;
+    margin-right: 10px;
   }
   .alzyDetail .title{
     color: rgb(32, 160, 255);

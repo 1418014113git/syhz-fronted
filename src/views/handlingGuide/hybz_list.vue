@@ -185,6 +185,7 @@
     border-bottom: 1px dotted #fefefe;
     display: inline-block;
     width: 100%;
+    cursor: pointer;
   }
   .hybzList .lineStyle .el-col {
     padding: 5px;
