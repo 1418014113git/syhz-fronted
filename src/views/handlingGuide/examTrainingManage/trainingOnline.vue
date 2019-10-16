@@ -618,7 +618,8 @@ export default {
   }
 }
 .preview {
-  // padding: 0 20px;
+  width: 70%;
+  margin: 0 auto;
   .scoreNumber {
     font-size: 20px;
     color: #f72929;
