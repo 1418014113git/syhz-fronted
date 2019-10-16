@@ -21,7 +21,7 @@
                 </el-tooltip>
               </el-form-item>
               <el-form-item label="截止时间" prop="endDate" class="clearfix">
-                <el-date-picker v-model="examForm.endDate" type="datetime" :picker-options="endPickerOptions" value-format="yyyy-MM-dd HH:mm:ss" default-time="23:59:59" placeholder="选择日期时间" @change="endDateChange" class="left" style="width:calc(100% - 30px)"></el-date-picker>
+                <el-date-picker v-model="examForm.endDate" type="datetime" :picker-options="endPickerOptions" value-format="yyyy-MM-dd HH:mm:ss" :disabled="endDateDisabled" default-time="23:59:59" placeholder="选择日期时间" @change="endDateChange" class="left" style="width:calc(100% - 30px)"></el-date-picker>
                 <el-tooltip class="right"  effect="dark" content="请选择考试截至时间，截止时间以后，警员将不能在进入考试页面进行考试！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
@@ -63,37 +63,37 @@
               </el-form-item>
               <el-form-item label="开放单位" prop="openDepts" class="clearfix">
                 <!-- 可以多选；只能是本单位或者下级单位，无法选择上级及其他单位 -->
-                <el-select v-model="examForm.openDepts" placeholder="请选择开放单位" multiple class="left openWrap" style="width:calc(100% - 30px)">
+                <!-- <el-select v-model="examForm.openDepts" placeholder="请选择开放单位" multiple class="left openWrap" style="width:calc(100% - 30px)">
                   <el-option v-for="item in openDeptsList" :key="item.id" :label="item.deptName" :value="item.id"></el-option>
-                </el-select>
-                <!-- <el-collapse class="left" style="width:calc(100% - 30px)">
+                </el-select> -->
+                <el-collapse class="left" style="width:calc(100% - 30px)">
                   <el-collapse-item title="选择部门" name="1">
-                    <div class="dept-tree">
+                    <div class="dept-tree" v-loading="treeLoading">
                       <el-tree class="filter-tree" :data="openDeptsList"
-                        :props="{children: 'children',label: 'name'}"
+                        :props="{children: 'child',label: 'deptName',value: 'deptId'}"
                         :default-expand-all="false"
                         ref="depTree"
                         highlight-current
                         show-checkbox
                         check-strictly
                         @check-change="checkDeptChange"
-                        :expand-on-click-node="false" node-key="id"
+                        :expand-on-click-node="false" node-key="deptId"
                         :default-expanded-keys="defaultExpandedKeys"
                         :default-checked-keys="defaultCheckedKeys"
                         style="margin-top: 5px;">
                         <span slot-scope="{ node, data }" @mouseleave="mouseleave(data,$event)" @mouseover="mouseover(data,$event)" style="flex: 1; display: flex; align-items: center; justify-content: space-between; font-size: 14px; padding-right: 8px;">
                           <span>
-                            <span>{{data.name}}</span>
+                            <span>{{data.deptName}}</span>
                           </span>
                           <span class="node_none">
-                            <el-button v-if="data.children && data.children.length>0" size="mini" @click="checkedSonDept(data,$event)" circle icon="el-icon-check" title="选中子部门"></el-button>
-                            <el-button v-if="data.children && data.children.length>0" size="mini" @click="noCheckedSonDept(data,$event)" circle icon="el-icon-close" title="取消子部门"></el-button>
+                            <el-button v-if="data.child && data.child.length>0" size="mini" @click="checkedSonDept(data,$event)" circle icon="el-icon-check" title="选中子部门"></el-button>
+                            <el-button v-if="data.child && data.child.length>0" size="mini" @click="noCheckedSonDept(data,$event)" circle icon="el-icon-close" title="取消子部门"></el-button>
                           </span>
                         </span>
                       </el-tree>
                     </div>
                   </el-collapse-item>
-                </el-collapse> -->
+                </el-collapse>
                 <el-tooltip class="right" effect="dark" content="根据实际情况，选择可以参加本次考试的机构单位！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
@@ -135,14 +135,13 @@
 <script>
 import { uploadImg } from '@/utils/editorUpload'
 import { examPaperType, systemClassify } from '@/utils/codetotext'
-import { regEnCode, regCnCode } from '@/utils/validate'
+import { regCode } from '@/utils/validate'
 // import { getTree } from '@/api/dept'
 
 export default {
   name: 'add',
   data() {
     return {
-      action: '',
       paperList: [], // 只能选择本单位组织的试卷
       openDeptsList: [], // 开放单位只能是本单位或者下级单位，无法选择上级及其他单位
       examForm: {
@@ -164,14 +163,20 @@ export default {
           return time.getTime() < Date.now() - 86400000
         }
       },
-      endPickerOptions: {},
+      endPickerOptions: {
+        disabledDate(time) {
+          return time.getTime() < Date.now() - 86400000
+        }
+      },
       formLoading: false, // 表单loading
       allSystemPeople: [], // 系统所有人员
-      markPerFormattingOwn: [],
-      markPerFormattingAll: [],
+      markPerFormattingOwn: [], // 自己单位人员
+      markPerFormattingAll: [], // 格式化后的所有人员
       markPerOwn: [],
       carryParam: {}, // 列表带过来的参数
       yjry: '', // 阅卷人员筛选框
+      endDateDisabled: true, // 结束时间禁用
+      treeLoading: true, // 开放单位加载的loading
       defaultExpandedKeys: [], // 默认展开的节点的 key 的数组
       defaultCheckedKeys: [], // 默认勾选的节点的 key 的数组
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
@@ -181,9 +186,7 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
               callback(new Error('请输入考试名称'))
-            } else if (regEnCode.test(value)) {
-              callback(new Error('请不要输入特殊字符'))
-            } else if (regCnCode.test(value)) {
+            } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
               callback()
@@ -191,10 +194,30 @@ export default {
           }
         }],
         startDate: {
-          required: true, message: '请输入开始时间', trigger: 'blur'
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            if (value === null || value === undefined || value === '') {
+              callback(new Error('请选择开始时间'))
+            } else if (new Date(this.examForm.startDate).getTime() < new Date().getTime()) {
+              callback(new Error('开始时间不能小于当前时间'))
+            } else if (new Date(this.examForm.startDate).getTime() > new Date(this.examForm.endDate).getTime()) {
+              callback(new Error('开始时间不能大于截至时间'))
+            } else {
+              callback()
+            }
+          }
         },
         endDate: {
-          required: true, message: '请输入截止时间', trigger: 'blur'
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            if (value === null || value === undefined || value === '') {
+              callback(new Error('请选择截止时间'))
+            } else if (new Date(this.examForm.endDate).getTime() < new Date().getTime()) {
+              callback(new Error('截至时间不能小于当前时间'))
+            } else if (new Date(this.examForm.startDate).getTime() > new Date(this.examForm.endDate).getTime()) {
+              callback(new Error('截至时间不能小于开始时间'))
+            } else {
+              callback()
+            }
+          }
         },
         totalDate: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
@@ -214,16 +237,23 @@ export default {
           required: true, message: '请输入允许次数', trigger: 'blur'
         },
         type: {
-          required: true, message: '请选择试卷类型', trigger: 'blur'
+          required: true, message: '请选择试卷类型', trigger: 'change'
         },
         paperId: {
-          required: true, message: '请选择试卷', trigger: 'blur'
+          required: true, message: '请选择试卷', trigger: 'change'
         },
         examinationType: {
           required: true, message: '请选择分类', trigger: 'change'
         },
         openDepts: {
-          required: true, message: '请选择开放单位', trigger: 'blur'
+          required: true, trigger: 'change', validator: (rule, value, callback) => {
+            var checkedNodes = this.$refs.depTree.getCheckedNodes()
+            if (checkedNodes.length > 0) {
+              callback()
+            } else {
+              callback(new Error('请选择开放单位'))
+            }
+          }
         }
       }
     }
@@ -237,12 +267,21 @@ export default {
         for (let k = 0; k < _this.markPerFormattingAll.length; k++) {
           var itemK = _this.markPerFormattingAll[k]
           if (itemK.label.indexOf(val) > -1) {
-            _this.markingPeopleData.push(itemK)
+            console.log(itemK.key)
+            if (_this.markingPeopleData.indexOf(itemK.key) > -1) {
+              console.log(itemK)
+            } else {
+              _this.markingPeopleData.push(itemK)
+            }
           }
         }
       } else {
         _this.markingPeopleData = _this.markPerFormattingOwn
       }
+    },
+    uniqueById(arr) {
+      const res = new Map()
+      return arr.filter((arr) => !res.has(arr.id) && res.set(arr.id, 1))
     },
     filterMethod(query, item) {
       return item.label.indexOf(query) > -1
@@ -259,25 +298,53 @@ export default {
     checkedSonDept(data, $event) { // 选中子部门
       // this.$refs.depTree.store.nodesMap[data.id].expanded = true // 展开当前部门的子部门
       var checkNodes = this.$refs.depTree.getCheckedNodes()
-      console.log(checkNodes)
-      var newArr = this.unique(checkNodes.concat(data.children))
-      this.$refs.depTree.setCheckedNodes(newArr)
+      // checkNodes = this.unique(checkNodes.concat([data])) // 包含当前节点
+      var newArr = this.unique(checkNodes.concat(data.child))
+      console.log(newArr)
+      this.$refs.depTree.setCheckedNodes(newArr) // 设置选中的节点
+    },
+    noCheckedSonDept(data, $event) { // 取消选中子部门
+      var checkedNodes = this.$refs.depTree.getCheckedNodes() // 获取当前选中的部门
+      for (let m = 0; m < data.child.length; m++) { // 当前节点的所有子节点
+        const childItem = data.child[m]
+        for (let index = 0; index < checkedNodes.length; index++) { // 遍历现有的节点
+          const element = checkedNodes[index]
+          if (childItem.deptId === element.deptId) {
+            checkedNodes.splice(index, 1)
+            break
+          }
+        }
+      }
+      this.$refs.depTree.setCheckedNodes(checkedNodes) // 设置选中的节点
     },
     unique(arr) {
       const res = new Map()
-      return arr.filter((arr) => !res.has(arr.id) && res.set(arr.id, 1))
+      return arr.filter((arr) => !res.has(arr.deptId) && res.set(arr.deptId, 1))
     },
     init() {
       // 开放单位：获取本单位和下级单位
-      this.$query('deptsbyparentdeptcode', { deptCode: this.deptInfo.depCode }, 'upms').then((response) => {
+      // this.$query('deptsbyparentdeptcode', { deptCode: this.deptInfo.depCode }, 'upms').then((response) => {
+      //   if (response.code === '000000') {
+      //     this.openDeptsList = response.data
+      //   } else {
+      //     this.openDeptsList = []
+      //   }
+      // }).catch(() => {
+      //   this.openDeptsList = []
+      // })
+      // 查开放部门
+      this.treeLoading = true
+      this.$query('childDept', { deptCode: this.deptInfo.depCode }).then((response) => {
+        this.treeLoading = false
         if (response.code === '000000') {
-          this.openDeptsList = response.data
-          // var treeData = getTree(response.data) // 转化成tree
-          // console.log(treeData)
+          this.openDeptsList = [response.data]
         } else {
           this.openDeptsList = []
         }
+        // this.openDeptsList = JSON.parse(sessionStorage.getItem('DeptTree')) // 全部的部门
+        this.defaultExpandedKeys = [this.deptInfo.id] // 默认展开当前部门的下一级
       }).catch(() => {
+        this.treeLoading = false
         this.openDeptsList = []
       })
       var _this = this
@@ -293,7 +360,6 @@ export default {
               _this.markPerOwn.push(element)
             }
           }
-
           var nameArr = [] // 用户名
           var jinghaoArr = [] // 警号
           var deptArr = [] // 所在单位
@@ -359,7 +425,7 @@ export default {
             var element = Number(choosedDepts[index])
             newDeptsArr.push(element)
           }
-          // this.$refs.depTree1.setCheckedKeys(selectedData)
+          this.$refs.depTree.setCheckedKeys(newDeptsArr)
 
           if (response.data.markPeople) { // 阅卷人员
             var choosedPers = response.data.markPeople.split(',')
@@ -370,7 +436,7 @@ export default {
             }
           }
           this.examForm = response.data
-          this.examForm.openDepts = newDeptsArr
+          // this.examForm.openDepts = newDeptsArr
           this.examForm.markPeople = newPersArr
         }
       }).catch(() => {
@@ -389,17 +455,28 @@ export default {
     },
     startDateChange(val) {
       if (val) {
-        this.endPickerOptions = Object.assign({}, this.endPickerOptions, {
-          disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
-          }
+        this.endDateDisabled = false
+        this.$refs.examForm.validateField('endDate', (error) => {
+          console.log(error)
         })
+        // this.endPickerOptions = Object.assign({}, this.endPickerOptions, {
+        //   disabledDate: (time) => {
+        //     return time.getTime() < new Date(val).getTime()
+        //   }
+        // })
       } else {
-        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
+        this.endDateDisabled = true
       }
     },
-    endDateChange() {
-
+    endDateChange(val) {
+      if (val) {
+        this.$refs.examForm.validateField('startDate', (error) => {
+          console.log(error)
+        })
+        // this.startPickerOptions = this.$pickerOptionChange(val, this.startPickerOptions, 'start')
+      } else {
+        // this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
+      }
     },
     cancel() {
       this.$router.push({ path: '/handlingGuide/examineManage' })
@@ -409,11 +486,19 @@ export default {
         if (valid) {
           // console.log(this.questionForm)
           var param = JSON.parse(JSON.stringify(this.examForm))
-          if (param.openDepts && param.openDepts.length > 0) { // 开放单位
-            param.openDepts = param.openDepts.join(',')
-          } else {
-            param.openDepts = ''
+          // if (param.openDepts && param.openDepts.length > 0) { // 开放单位
+          //   param.openDepts = param.openDepts.join(',')
+          // } else {
+          //   param.openDepts = ''
+          // }
+          var checkedNodes = this.$refs.depTree.getCheckedNodes()
+          var checkedIdsArr = []
+          for (let w = 0; w < checkedNodes.length; w++) {
+            const element = checkedNodes[w]
+            checkedIdsArr.push(element.deptId)
           }
+          param.openDepts = checkedIdsArr.join(',')
+          console.log(param.openDepts)
           if (param.markPeople && param.markPeople.length > 0) { // 阅卷老师
             param.markPeople = param.markPeople.join(',')
           } else {
@@ -491,8 +576,6 @@ export default {
       this.carryParam = this.$route.query
     }
     this.init()
-    // this.openDeptsList = JSON.parse(sessionStorage.getItem('DeptTree'))
-    // this.defaultExpandedKeys = [this.deptInfo.id] // 默认展开当前部门的下一级
   },
   watch: {
 
