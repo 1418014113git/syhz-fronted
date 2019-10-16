@@ -92,7 +92,8 @@
                 <!-- <span class="option_item"><el-radio label="true">正确</el-radio></span> -->
                 <!-- <span class="option_item"><el-radio label="false">错误</el-radio></span> -->
                <!-- </el-radio-group> -->
-               <p>您的答案：{{smallItem.answer==='1'?'✔':'×'}}</p>
+               <p v-if="smallItem.answer">您的答案：{{smallItem.answer==='1'?'✔':'×'}}</p>
+               <p v-else>您的答案：</p>
                <p>正确答案：{{smallItem.rightAnswer===1?'✔':'×'}}</p>
             </div>
             <!-- 简答题、论述题、案例分析题 -->

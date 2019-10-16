@@ -225,9 +225,17 @@ export default {
             if (value === '') {
               callback(new Error('请输入考试时限'))
             } else if (reg.test(value)) {
-              callback()
-            } else if (Number(value) < 5) {
-              callback(new Error('考试时限需至少大于五分钟'))
+              if (Number(value) < 5) {
+                callback(new Error('考试时限需至少大于五分钟'))
+              }
+              if (this.examForm.startDate && this.examForm.endDate) { // 考试时限 不能大于 开始时间和截止时间
+                var diff = this.timeDifference(this.examForm.startDate, this.examForm.endDate)
+                if (value > diff) {
+                  callback(new Error('考试时限不能大于考试时间'))
+                } else {
+                  callback()
+                }
+              }
             } else {
               callback(new Error('考试时限最多为三位数字'))
             }
@@ -267,16 +275,11 @@ export default {
         for (let k = 0; k < _this.markPerFormattingAll.length; k++) {
           var itemK = _this.markPerFormattingAll[k]
           if (itemK.label.indexOf(val) > -1) {
-            console.log(itemK.key)
-            if (_this.markingPeopleData.indexOf(itemK.key) > -1) {
-              console.log(itemK)
-            } else {
-              _this.markingPeopleData.push(itemK)
-            }
+            _this.markingPeopleData.push(itemK)
           }
         }
       } else {
-        _this.markingPeopleData = _this.markPerFormattingOwn
+        _this.markingPeopleData = _this.markPerFormattingOwn // 搜索框为空时 展示当前部门的人
       }
     },
     uniqueById(arr) {
@@ -486,19 +489,13 @@ export default {
         if (valid) {
           // console.log(this.questionForm)
           var param = JSON.parse(JSON.stringify(this.examForm))
-          // if (param.openDepts && param.openDepts.length > 0) { // 开放单位
-          //   param.openDepts = param.openDepts.join(',')
-          // } else {
-          //   param.openDepts = ''
-          // }
           var checkedNodes = this.$refs.depTree.getCheckedNodes()
           var checkedIdsArr = []
           for (let w = 0; w < checkedNodes.length; w++) {
             const element = checkedNodes[w]
             checkedIdsArr.push(element.deptId)
           }
-          param.openDepts = checkedIdsArr.join(',')
-          console.log(param.openDepts)
+          param.openDepts = checkedIdsArr.join(',') // 开放单位
           if (param.markPeople && param.markPeople.length > 0) { // 阅卷老师
             param.markPeople = param.markPeople.join(',')
           } else {
@@ -566,6 +563,37 @@ export default {
       } else {
         this.paperList = []
       }
+    },
+    timeDifference(time1, time2) { // 计算时间相减
+      // 定义两个变量time1,time2分别保存开始和结束时间
+      // var time1 = '2017-12-03 12:01'
+      // var time2 = '2017-12-03 12:35'
+      // 判断开始时间是否大于结束日期
+      // if (time1 > time2) {
+      //   alert('开始时间不能大于结束时间！')
+      //   return false
+      // }
+      // 截取字符串，得到日期部分"2009-12-02",用split把字符串分隔成数组
+      var begin1 = time1.substr(0, 10).split('-')
+      var end1 = time2.substr(0, 10).split('-')
+      // 将拆分的数组重新组合，并实例成化新的日期对象
+      var date1 = new Date(begin1[1] + -+begin1[2] + -+begin1[0])
+      var date2 = new Date(end1[1] + -+end1[2] + -+end1[0])
+      // 得到两个日期之间的差值m，以分钟为单位
+      // Math.abs(date2-date1)计算出以毫秒为单位的差值
+      // Math.abs(date2-date1)/1000得到以秒为单位的差值
+      // Math.abs(date2-date1)/1000/60得到以分钟为单位的差值
+      var m = parseInt(Math.abs(date2 - date1) / 1000 / 60)
+      // 小时数和分钟数相加得到总的分钟数
+      // time1.substr(11,2)截取字符串得到时间的小时数
+      // parseInt(time1.substr(11,2))*60把小时数转化成为分钟
+      var min1 = parseInt(time1.substr(11, 2)) * 60 + parseInt(time1.substr(14, 2))
+      var min2 = parseInt(time2.substr(11, 2)) * 60 + parseInt(time2.substr(14, 2))
+      // 两个分钟数相减得到时间部分的差值，以分钟为单位
+      var n = min2 - min1
+      // 将日期和时间两个部分计算出来的差值相加，即得到两个时间相减后的分钟数
+      var minutes = m + n
+      return minutes
     },
     back() {
       this.$router.back(-1)
