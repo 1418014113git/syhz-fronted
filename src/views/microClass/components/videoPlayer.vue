@@ -62,6 +62,7 @@
     },
     data() {
       return {
+        notTake: false,
         playerOptions: {
           playbackRates: [0.7, 1.0, 1.5, 2.0], // 播放速度
           autoplay: false, // 如果true,浏览器准备好时开始回放。
@@ -107,7 +108,7 @@
       },
       // listen event
       onPlayerPlay(player) {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           if (this.num === 0) {
             if (this.playType === '5') {
               this.$emit('viewLog', '0')
@@ -119,15 +120,16 @@
           this.bindSetInterval()
           this.bindSetTimeOut()
         }
+        this.bindWaitInterval()
       },
       onPlayerPause(player) {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.uploadViewLog()
         }
         this.clearTimeInterval()
       },
       onPlayerEnded(player) {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.uploadViewLog()
         }
         this.clearTimeInterval()
@@ -163,6 +165,12 @@
         console.log('example 01: the player is readied', player)
       },
       setDetail(playerDetail) {
+        const data = JSON.parse(sessionStorage.getItem('depToken'))
+        if (data !== undefined && data !== null && data.length > 0) {
+          this.notTake = true
+        } else {
+          this.notTake = false
+        }
         this.detailData = playerDetail
         this.playerOptions.poster = this.src()
         this.playerOptions.sources[0].src = this.detailData.enPath
@@ -201,7 +209,7 @@
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.addJF('3')
           this.$emit('viewLog', '1', '1')
         }
@@ -252,6 +260,8 @@
         this.autoUpdateInterval = setInterval(() => {
           this.uploadViewLog()
         }, this.learningTime)
+      },
+      bindWaitInterval() {
         this.waitInterval = setInterval(() => {
           this.waitTime += 1
         }, 1000)

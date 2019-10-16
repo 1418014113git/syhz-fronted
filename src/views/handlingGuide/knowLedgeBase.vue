@@ -90,9 +90,9 @@
                 <el-table-column label="操作" width="200px">
                   <template slot-scope="scope">
                     <el-button size="mini" v-if="$isViewBtn('129403')" title="查看" type="primary" icon="el-icon-view" circle @click="handleRowView(scope.$index, scope.row)"></el-button>
-                    <el-button size="mini" v-if="$isViewBtn('129407') || (curUser.id === scope.row.userId && (scope.row.auditStatus === '0' || scope.row.auditStatus === '3' || scope.row.auditStatus === '4'))" title="编辑" type="primary" icon="el-icon-edit" circle @click="handleRowEdit(scope.$index, scope.row)"></el-button>
-                    <el-button size="mini" v-if="$isViewBtn('129404') || (curUser.id === scope.row.userId && (scope.row.auditStatus === '0' || scope.row.auditStatus === '3' || scope.row.auditStatus === '4'))" title="删除" type="primary" icon="el-icon-delete" circle @click="handleRowDel(scope.$index, scope.row)"></el-button>
-                    <el-button size="mini" v-if="$isViewBtn('129405') && scope.row.auditStatus2 === '0' && curDept.depType !== '4'" title="审核" type="primary" circle @click="handleAudit(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
+                    <el-button size="mini" v-if="$isViewBtn('129407') && editBtn(scope.row)" title="编辑" type="primary" icon="el-icon-edit" circle @click="handleRowEdit(scope.$index, scope.row)"></el-button>
+                    <el-button size="mini" v-if="$isViewBtn('129404') && removeBtn(scope.row)" title="删除" type="primary" icon="el-icon-delete" circle @click="handleRowDel(scope.$index, scope.row)"></el-button>
+                    <el-button size="mini" v-if="$isViewBtn('129405') && scope.row.auditStatus2 === '0' && scope.row.auditStatus !== '4' && curDept.depType !== '4'" title="审核" type="primary" circle @click="handleAudit(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
                     <el-button size="mini" v-if="$isViewBtn('129406') && scope.row.auditStatus !== '4'" title="审核记录" type="primary" icon="el-icon-document" circle @click="handleAuditList(scope.$index, scope.row)"></el-button>
                   </template>
                 </el-table-column>
@@ -210,6 +210,26 @@
       }
     },
     methods: {
+      editBtn(row) {
+        if (!this.isNormal) {
+          return true
+        }
+        if (this.curUser.id === row.userId) {
+          return row.auditStatus === '0' || row.auditStatus === '3' || row.auditStatus === '4'
+        } else {
+          return true
+        }
+      },
+      removeBtn(row) {
+        if (this.curUser.id === row.userId) {
+          return row.auditStatus === '0' || row.auditStatus === '3' || row.auditStatus === '4'
+        } else {
+          if (!this.isNormal) {
+            return row.auditStatus === '0' || row.auditStatus === '3'
+          }
+          return false
+        }
+      },
       handleCurrentChange(val) {
         this.page = val
         this.query()
@@ -522,7 +542,7 @@
         })
       },
       selectable(row, index) {
-        return row.auditStatus2 === '0'
+        return row.auditStatus2 === '0' && row.auditStatus !== '4' && this.curDept.depType !== '4'
       }
     },
     mounted() {
