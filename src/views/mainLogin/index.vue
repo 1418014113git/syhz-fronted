@@ -178,7 +178,7 @@ export default {
         obj: {}
       },
       itl: '',
-      imgList: ['bmy.jpg', 'zl.jpg', 'pb.jpg', 'sp.jpg', 'yp.jpg'],
+      imgList: ['bmy.jpg', 'dyt.jpg', 'pb.jpg', 'sp.jpg', 'yp.jpg'],
       currImgs: [],
       index: 0,
       loginImgStyle: 'bmy.jpg',
@@ -415,7 +415,7 @@ export default {
       this.loginImgStyle = this.imgList[this.mark]
     },
     play() {
-      setInterval(this.autoPlay, 5000)
+      setInterval(this.autoPlay, 3000)
     }
   },
   created() {

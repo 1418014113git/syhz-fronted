@@ -60,13 +60,13 @@
     <el-card style="margin-bottom: 10px;">
       <div slot="header" class="clearfix">
         <span>考试统计&nbsp;</span>
-          <el-tooltip class="item" effect="dark" content="选中考试后，可按单条或多条考试信息统计地市考试情况。" placement="top">
+          <!-- <el-tooltip class="item" effect="dark" content="" placement="top"> -->
             <i class="el-icon-question"></i>
-          </el-tooltip>
-          <!-- <el-button circle title="选中考试后，可按单条或多条考试信息统计地市考试情况！"><i class="el-icon-question"></i></el-button> -->
+            <span style="font-size:12px;">&nbsp;选中考试后，可按单条或多条考试信息统计地市考试情况。</span>
+          <!-- </el-tooltip> -->
       </div>
       <el-table :data="examinations"  style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange"
-      :row-class-name="getRowClassExam" v-loading="examLoading">
+      :row-class-name="getRowClassExam" v-loading="examLoading" class="table_th_center">
        <!-- show-summary :summary-method="getSummaries" -->
         <el-table-column type="selection" width="50"></el-table-column>
         <el-table-column prop="index" label="序号" width="70" align="center">
@@ -103,7 +103,7 @@
             <span v-else>0</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200">
+        <el-table-column label="操作" width="130">
           <template slot-scope="scope">
             <!-- <span v-if="scope.row.totalNum" class="canClick" @click="watchReport">考试报告</span> -->
             <el-button @click="watchReport(scope.$index, scope.row)" icon="el-icon-document">考试报告</el-button>
@@ -155,12 +155,12 @@
         <el-table-column prop="cNum" label="差" width="100"></el-table-column>
       </el-table>
       <!-- 饼状图 -->
-      <div class="clearfix" style="margin: 50px 0 80px;">
-        <div id="echartScore" style="width: 49%; min-height: 400px; float:left;"></div>
-        <div id="echartPerNum" style="width: 49%; min-height: 400px; float:right;"></div>
+      <div class="clearfix" style="margin: 50px 0 80px;" v-if="showEchart">
+        <div id="echartScore" style="width: 49%; height: 400px; float:left;"></div>
+        <div id="echartPerNum" style="width: 49%; height: 400px; float:right;"></div>
       </div>
       <!-- 柱状图 -->
-      <div id="cityStatistical" style="min-height: 400px;"></div>
+      <div id="cityStatistical" style="height: 400px;" v-if="showEchart"></div>
     </el-card>
     <!-- 考试报告 -->
     <el-dialog title="考试报告" :visible.sync="dialogReportVisible" size="small" @close="closeDia" class="reportDialog" width="60%">
@@ -295,6 +295,7 @@ export default {
       // console.log(this.multipleSelection)
       var choosedArr = []
       var choosedStr = ''
+      this.showEchart = true
       if (this.multipleSelection.length > 0) {
         for (let index = 0; index < this.multipleSelection.length; index++) {
           const element = this.multipleSelection[index]
@@ -305,6 +306,7 @@ export default {
         choosedStr = choosedArr.join(',')
         this.queryCityStatisticalByExam(choosedStr)
       } else {
+        this.showEchart = false
         this.cityData = []
         this.drawChartScore()
         this.drawChartPerNum()
@@ -610,10 +612,8 @@ export default {
         },
         legend: {
           type: 'scroll',
-          orient: 'vertical',
-          left: 10,
-          top: 20,
-          bottom: 20,
+          bottom: 0,
+          itemGap: 15,
           data: ['优', '良', '中', '差'],
           textStyle: {
             color: '#bbbbbb',
@@ -624,8 +624,7 @@ export default {
           {
             name: '数量',
             type: 'pie',
-            radius: ['0', '75%'],
-            center: ['50%', '60%'],
+            radius: ['0', '60%'],
             data: scoreArr,
             itemStyle: {
               emphasis: {
@@ -675,10 +674,8 @@ export default {
         },
         legend: {
           type: 'scroll',
-          orient: 'vertical',
-          left: 10,
-          top: 20,
-          bottom: 20,
+          bottom: 0,
+          itemGap: 15,
           data: ['实考人数', '缺考人数'],
           textStyle: {
             color: '#bbbbbb',
@@ -689,8 +686,8 @@ export default {
           {
             name: '数量',
             type: 'pie',
-            radius: ['0', '75%'],
-            center: ['50%', '60%'],
+            radius: ['0', '60%'],
+            // center: ['50%', '60%'],
             data: joinPerArr,
             itemStyle: {
               emphasis: {
@@ -726,6 +723,9 @@ export default {
           }
         },
         legend: {
+          type: 'scroll',
+          bottom: 0,
+          itemGap: 15,
           textStyle: { color: '#bbbbbb' }
         },
         tooltip: {},
@@ -979,7 +979,7 @@ export default {
     padding: 0;
   }
   .autoInput {
-    width: 220px;
+    width: 230px;
   }
   .el-radio {
     margin-bottom: 0 !important;
