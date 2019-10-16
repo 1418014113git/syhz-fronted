@@ -571,6 +571,15 @@ export default {
         }
       }
       if (data.fillGap) {
+        if (data.fillGap.data.length > 0) {
+          var fillGap = data.fillGap.data
+          for (let k = 0; k < fillGap.length; k++) {
+            var tkelement = fillGap[k]
+            if (tkelement.name.indexOf('[]') > -1) {
+              tkelement.name = tkelement.name.replace(/\[/g, '___').replace(/\]/g, '___')
+            }
+          }
+        }
         data.fillGap.sort = Number(data.fillGap.sort)
         data.fillGap.type = data.fillGap.type + ''
         data.fillGap.value = Number(data.fillGap.value)
