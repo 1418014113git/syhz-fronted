@@ -79,8 +79,10 @@
             <!-- 填空题 -->
             <!-- {{smallItem.zhi}} -->
             <div v-if="smallItem.type===3" class="options_wrap">
-              <el-input v-for="(tkItem,tkItemIndex) in smallItem.tkInputNum" :key="tkItemIndex" v-model="smallItem.zhi[tkItem.id][tkItemIndex+'p']"
-              @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event,smallItem.zhi,)" placeholder="请输入" maxlength="30" class="tkInput"></el-input>
+              <span v-for="(tkItem,tkItemIndex) in smallItem.tkInputNum" :key="tkItemIndex">
+                {{String.fromCharCode(65+tkItemIndex)}} <el-input  v-model="smallItem.zhi[tkItem.id][tkItemIndex+'p']"
+                @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event,smallItem.zhi)" placeholder="请输入" maxlength="30" class="tkInput"></el-input>
+              </span>
             </div>
             <!-- 判断题 对错 -->
             <div v-if="smallItem.type===4" class="options_wrap pd_options_wrap">
@@ -88,7 +90,7 @@
               <el-radio-group v-model="smallItem.answer" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
                 <span class="option_item"><el-radio label="1">正确</el-radio></span>
                 <span class="option_item"><el-radio label="2">错误</el-radio></span>
-               </el-radio-group>
+              </el-radio-group>
             </div>
             <!-- 简答题、论述题、案例分析题 -->
             <!-- answer[smallItem.id] -->
