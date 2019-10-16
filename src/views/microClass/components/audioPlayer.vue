@@ -60,6 +60,7 @@
     ],
     data() {
       return {
+        notTake: false,
         srcUrl: '',
         value: 0,
         playTime: '00:00',
@@ -112,6 +113,12 @@
         }
       },
       setDetail(playerDetail) {
+        const data = JSON.parse(sessionStorage.getItem('depToken'))
+        if (data !== undefined && data !== null && data.length > 0) {
+          this.notTake = true
+        } else {
+          this.notTake = false
+        }
         this.detailData = playerDetail
         this.src()
         const audio = document.getElementById('mp3Btn')
@@ -140,7 +147,7 @@
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.addJF('3')
           this.$emit('viewLog', '1', '1')
         }
@@ -191,6 +198,8 @@
         this.autoUpdateInterval = setInterval(() => {
           this.uploadViewLog()
         }, this.learningTime)
+      },
+      bindWaitInterval() {
         this.waitInterval = setInterval(() => {
           this.waitTime += 1
         }, 1000)
@@ -213,7 +222,7 @@
         }, this.learningTime)
       },
       ended() {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.uploadViewLog()
         }
         this.clearTimeInterval()
@@ -241,7 +250,7 @@
           document.getElementsByClassName('btn-audio')[0].classList.remove('paused')
           document.getElementsByClassName('btn-audio')[0].classList.add('player')
           audio.play()
-          if (this.detailData.flag) {
+          if (this.detailData.flag && this.notTake) {
             if (this.num === 0) {
               if (this.playType === '5') {
                 this.$emit('viewLog', '0')
@@ -253,13 +262,14 @@
             this.bindSetInterval()
             this.bindSetTimeOut()
           }
+          this.bindWaitInterval()
           return
         } else {
           document.getElementsByClassName('btn-audio')[0].classList.remove('player')
           document.getElementsByClassName('btn-audio')[0].classList.add('paused')
           audio.pause()
           clearInterval(this.playInterval)
-          if (this.detailData.flag) {
+          if (this.detailData.flag && this.notTake) {
             this.uploadViewLog()
           }
           this.clearTimeInterval()

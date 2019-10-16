@@ -49,6 +49,7 @@
     },
     data() {
       return {
+        notTake: false,
         currentPage: 0,
         pageCount: 0,
         detailData: this.playerDetail,
@@ -62,6 +63,12 @@
     },
     methods: {
       setDetail(playerDetail) {
+        const data = JSON.parse(sessionStorage.getItem('depToken'))
+        if (data !== undefined && data !== null && data.length > 0) {
+          this.notTake = true
+        } else {
+          this.notTake = false
+        }
         this.detailData = playerDetail
         this.detailLoading = true
         setTimeout(() => {
@@ -70,7 +77,7 @@
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.addJF('3')
           this.$emit('viewLog', '1', '1')
         }
@@ -117,7 +124,7 @@
         } else {
           location.hash = '#navBar_doc'
         }
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           const time = new Date()
           const longC = parseFloat((time.getTime() - this.currentTime.getTime()) / 1000).toFixed(3)
           if (longC > 0) {
@@ -130,7 +137,7 @@
       },
       loadPdfHandler(e) {
         this.currentPage = 1 // 加载的时候先加载第一页
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           if (this.playType === '5') {
             this.$emit('viewLog', '0')
           } else {
