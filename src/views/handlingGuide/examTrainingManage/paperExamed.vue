@@ -438,7 +438,7 @@ export default {
 #previewExamPaper {
   padding: 20px;
   margin-top: 10px;
-  background: #ffffff;
+  background: #c7eece;
   color: #000000;
   .exam_title_wrap {
     margin-bottom: 14px;
@@ -459,7 +459,7 @@ export default {
   }
 }
 .preview {
-  padding: 0 20px;
+  // padding: 0 20px;
   .scoreNumber {
     font-size: 20px;
     color: #f72929;
