@@ -4,7 +4,10 @@
       <img src="@/assets/icon/back.png" class="goBack" @click="callback">
     </el-row>
     <el-card class="caseEdit">
-      <p style="margin-top: 10px;">您累计学习<span>{{myData[0].totalCount}}</span>次，累计学习时间<span>{{myData[0].time === 0 ? myData[0].time : $buildTime(myData[0].time) }}</span>小时</p>
+      <p style="margin-top: 10px;">
+        您累计学习<span>{{myData[0].totalCount}}</span>次，
+        累计学习时间<span>{{$buildTime(myData[0].time) }}</span>
+      </p>
       <el-row type="flex" justify="center" style="margin-top:15px;">
         <el-table :data="myData" v-loading="loading" stripe style="width: 100%;">
           <el-table-column prop="totalCount0" align="center" label="文档">

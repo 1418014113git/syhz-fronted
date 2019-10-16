@@ -148,13 +148,20 @@
           }
           this.$update('trainruleconfig/1', data).then(response => {
             this.loading = false
-            this.$message({
-              message: '设置成功',
-              type: 'success'
+            this.$alert('设置成功', '提示', {
+              confirmButtonText: '确定',
+              callback: action => {
+                this.$router.go(0)
+              }
             })
-            this.$router.go(0)
           }).catch(() => {
             this.loading = false
+            this.$alert('设置失败，请联系管理员！', '提示', {
+              confirmButtonText: '确定',
+              callback: action => {
+                this.$router.go(0)
+              }
+            })
           })
         } else {
           this.loading = false
