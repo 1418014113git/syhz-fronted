@@ -70,7 +70,7 @@
     </el-col>
 
     <!-- 预览试卷 -->
-    <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
+    <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="66%">
       <preview-paper :curPaper="curPaperData"></preview-paper>
     </el-dialog>
   </section>
@@ -355,7 +355,7 @@ export default {
 }
  .previewDia {
     .el-dialog {
-      background: #ffffff;
+      background: #c7eece;
       border: 2px solid #00a0e9;
     }
     .el-dialog__header {
@@ -368,8 +368,10 @@ export default {
       }
     }
     .el-dialog__body {
-      background: #ffffff;
+      background: #c7eece;
       color: #000000;
+      max-height: 75vh !important;
+      overflow: auto;
     }
   }
 </style>
