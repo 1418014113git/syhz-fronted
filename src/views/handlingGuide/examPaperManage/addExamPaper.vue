@@ -189,7 +189,7 @@
 
   <!-- 预览试卷 -->
   <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="66%">
-    <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit'></preview-paper>
+    <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit'  :curPaperName='form.paperName'></preview-paper>
   </el-dialog>
 </div>
 </template>
