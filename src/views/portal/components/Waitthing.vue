@@ -225,11 +225,11 @@ export default {
           }
           for (let j = 0; j < res.data.length; j++) {
             const item = res.data[j]
-            if (item.type === 1) {
+            if (item.type === 1 && this.$isViewBtn('129405')) {
               this.listData[0].data.push({
                 data_op: '知识库待审核', num: item.count, type: '0010'
               })
-            } else if (item.type === 2) {
+            } else if (item.type === 2 && this.$isViewBtn('139010')) {
               this.listData[0].data.push({
                 data_op: '培训资料待审核', num: item.count, type: '0011'
               })
