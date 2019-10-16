@@ -17,7 +17,7 @@
           <i class="el-icon-arrow-down el-icon-caret-bottom"></i>
         </div>
         <el-dropdown-menu class="user-dropdown" slot="dropdown">
-          <el-dropdown-item v-if="isShow()" style="font-size:14px;" divided>
+          <el-dropdown-item  style="font-size:14px;" divided>
             <span style="display:block;" @click="EditPassword">修改密码</span>
           </el-dropdown-item>
           <el-dropdown-item v-if="isShow()" style="font-size:14px;" divided>
@@ -58,6 +58,7 @@
 // import { getMessagesCount } from '@/api/messages'
 import SearchApp from './searchApp'
 export default {
+  props: ['upmsUrl'],
   name: '',
   data() {
     return {
@@ -197,13 +198,11 @@ export default {
       return flag
     },
     toUpms() {
-      const ModuleName = process.env.LOCATIONUPMS
-      // window.location.href = ModuleName + '?n=' + sessionStorage.getItem('username') + '&p=' + sessionStorage.getItem('userpass')
-      // var username=this.compile(sessionStorage.getItem('username'))
-      // var userpass=this.compile(sessionStorage.getItem('userpass'))
-      var userToken=sessionStorage.getItem('userToken')
-      var address=ModuleName + '?n=' + userToken
-      window.open(address)
+      if(this.upmsUrl){
+        var userToken=sessionStorage.getItem('userToken')
+        var address='http://'+this.upmsUrl + '?n=' + userToken
+        window.open(address)
+      }
     },
     compile(code) { // 参数加密
       var c=String.fromCharCode(code.charCodeAt(0)+code.length)
@@ -370,6 +369,9 @@ export default {
   }
   .martop{
     margin-top: 15px;
+  }
+  .el-dialog__body{
+    padding: 20px 0;
   }
 }
 @media only screen and (max-width: 1367px) {

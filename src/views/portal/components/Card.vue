@@ -190,6 +190,9 @@
   font-weight: initial;
   font-size: 14px;
   cursor: pointer;
+  img{
+    width: 14px;
+  }
 }
 .Exam .el-card__header .el-button{
   margin-right: 15px !important;
@@ -243,9 +246,6 @@
 @media only screen and (max-width: 1367px) {
   .zxbz {
     font-size: 12px;
-  }
-  .zxbz img{
-    width: 14px;
   }
 }
 </style>

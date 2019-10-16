@@ -246,11 +246,11 @@ export default {
   }
   .qusestionBox {
     // height: 72vh;
-    overflow: auto;
+    // overflow: auto;
   }
   .el-card {
     color: #000;
-    background: #fff;
+    background: #c7eece;
     border: 1px solid #000;
   }
   .el-card__header {
@@ -258,18 +258,20 @@ export default {
     border-bottom: 1px solid #000;
   }
   .el-card__body {
+    max-height: 75vh !important;
     padding: 20px 8px 20px 20px !important;
+    overflow: auto;
   }
   .noData {
     text-align: center;
   }
   .el-input__inner {
     color: #000;
-    background-color: #fff;
+    background-color: #c7eece;
     border: 1px solid #000;
   }
   .el-input.is-disabled .el-input__inner {
-    background-color: #fff;
+    background-color: #c7eece;
     border-color: #000;
     color: #f72929;
     text-align: center;
