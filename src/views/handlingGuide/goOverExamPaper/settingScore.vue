@@ -212,6 +212,8 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss">
 .setScore {
+  width: 66%;
+  margin: 0 auto;
   .scoreNumber {
     font-size: 20px;
     color: #f72929;
