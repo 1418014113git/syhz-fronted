@@ -127,22 +127,22 @@
           {
             src: '/static/image/question_images/handbook.png',
             describe: '系统使用手册',
-            downloadUrl: 'http://192.168.42.189:91/file/用户使用手册_[公安食药环侦实战应用平台建设].doc'
+            downloadUrl: '/file/用户使用手册_[公安食药环侦实战应用平台建设].doc'
           },
           {
             src: '/static/image/question_images/browser.png',
             describe: '浏览器',
-            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
+            downloadUrl: '/file/谷歌and插件and安装插件说明.zip'
           },
           {
             src: '/static/image/question_images/certificate.png',
             describe: 'PKI数字证书',
-            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
+            downloadUrl: '/file/谷歌and插件and安装插件说明.zip'
           },
           {
             src: '/static/image/question_images/specification.png',
             describe: '插件安装说明',
-            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
+            downloadUrl: '/file/谷歌and插件and安装插件说明.zip'
           }
         ]
       }
