@@ -291,7 +291,7 @@ export const constantRouterMap = [
       { path: '/handlingGuide/examTrainingManage/trainingOnline', component: () => import('@/views/handlingGuide/examTrainingManage/trainingOnline'), name: '在线考试' }, // 在线考试
       { path: '/handlingGuide/examTrainingManage/paperExamed', component: () => import('@/views/handlingGuide/examTrainingManage/paperExamed'), name: '已考试详情' }, // 已考试详情
       { path: '/handlingGuide/examTrainingManage/scoreRanking', component: () => import('@/views/handlingGuide/examTrainingManage/scoreRanking'), name: '成绩排名' }, // 成绩排名
-      { path: '/handlingGuide/examineManage/statistical', component: () => import('@/views/handlingGuide/examineManage/statistical'), name: '在线考试统计' } // 考试统计
+      { path: '/handlingGuide/examineManage/statistical', component: () => import('@/views/handlingGuide/examineManage/statistical'), name: '考试统计分析' } // 考试统计分析
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },

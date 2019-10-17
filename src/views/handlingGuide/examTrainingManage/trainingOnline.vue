@@ -79,8 +79,10 @@
             <!-- 填空题 -->
             <!-- {{smallItem.zhi}} -->
             <div v-if="smallItem.type===3" class="options_wrap">
-              <el-input v-for="(tkItem,tkItemIndex) in smallItem.tkInputNum" :key="tkItemIndex" v-model="smallItem.zhi[tkItem.id][tkItemIndex+'p']"
-              @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event,smallItem.zhi,)" placeholder="请输入" maxlength="30" class="tkInput"></el-input>
+              <span v-for="(tkItem,tkItemIndex) in smallItem.tkInputNum" :key="tkItemIndex">
+                {{String.fromCharCode(65+tkItemIndex)}} <el-input  v-model="smallItem.zhi[tkItem.id][tkItemIndex+'p']"
+                @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event,smallItem.zhi)" placeholder="请输入" maxlength="30" class="tkInput"></el-input>
+              </span>
             </div>
             <!-- 判断题 对错 -->
             <div v-if="smallItem.type===4" class="options_wrap pd_options_wrap">
@@ -88,7 +90,7 @@
               <el-radio-group v-model="smallItem.answer" @change="saveQuestionAnswer(smallItem.type,smallItem.id,$event)">
                 <span class="option_item"><el-radio label="1">正确</el-radio></span>
                 <span class="option_item"><el-radio label="2">错误</el-radio></span>
-               </el-radio-group>
+              </el-radio-group>
             </div>
             <!-- 简答题、论述题、案例分析题 -->
             <!-- answer[smallItem.id] -->
@@ -102,8 +104,8 @@
           <el-button size="medium"  class="cancelBtn" plain @click="lastCancelExam" style="margin-right:20px;" v-loading="detailLoading">取消考试</el-button>
           <el-button size="medium"  class="saveBtn" plain @click="lastSubmitExam" v-loading="detailLoading">提交答案</el-button>
         </div>
-        <el-tag type="danger" size="medium" class="right">结束倒计时：{{mm}}分{{ss}}秒</el-tag>
       </div>
+      <el-tag type="danger" size="medium" class="right daojishi">结束倒计时：{{mm}}分{{ss}}秒</el-tag>
     </div>
   </section>
 </template>
@@ -597,7 +599,7 @@ export default {
 #previewExamPaper {
   padding: 20px;
   margin-top: 10px;
-  background: #ffffff;
+  background: #c7eece;
   color: #000000;
   .exam_title_wrap {
     margin-bottom: 14px;
@@ -618,7 +620,8 @@ export default {
   }
 }
 .preview {
-  padding: 0 20px;
+  width: 70%;
+  margin: 0 auto;
   .scoreNumber {
     font-size: 20px;
     color: #f72929;
@@ -725,14 +728,19 @@ export default {
   .exam_bottom_wrap {
     margin-top: 20px;
     text-align: center;
-    .el-tag--danger {
-      background-color: rgba(245, 108, 108, 0.1);
-      border-color: #f56c6c;
-      color: #f56c6c;
-      height: 32px;
-      line-height: 32px;
-      font-size: 16px;
-    }
+  }
+  .daojishi {
+    position: fixed;
+    top: 180px;
+    right: 80px;
+  }
+  .daojishi.el-tag--danger {
+    background-color: rgba(245, 108, 108, 0.1);
+    border-color: #f56c6c;
+    color: #f56c6c;
+    height: 32px;
+    line-height: 32px;
+    font-size: 16px;
   }
   .richTextWrap p:nth-child(1) {
     display: inline-block;

@@ -115,3 +115,4 @@ export const regAddress = /^(?=.*?[\u4E00-\u9FA5])[\d\u4E00-\u9FA5]+/
 export const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
 export const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
 export const regW = /^\w$/
+export const regCode = /[！@#￥%……&]/

@@ -12,10 +12,10 @@
             </el-form-item>
             <el-form-item label="类别" prop="articleType">
               <el-select v-model="lawInfo.articleType" placeholder="请选择">
-                <el-option label="食品" value="1"></el-option>
-                <el-option label="药品" value="2"></el-option>
-                <el-option label="环境" value="3"></el-option>
-                <el-option label="综合" value="4"></el-option>
+                <el-option label="食品" :value="1"></el-option>
+                <el-option label="药品" :value="2"></el-option>
+                <el-option label="环境" :value="3"></el-option>
+                <el-option label="综合" :value="4"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="分类" prop="category">
@@ -25,8 +25,8 @@
             </el-form-item>
             <el-form-item label="地域" prop="region">
               <el-select v-model="lawInfo.region" placeholder="请选择" class="input_w2" clearable>
-                <el-option label="省内" value="0"></el-option>
-                <el-option label="省外" value="1"></el-option>
+                <el-option label="省内" :value="0"></el-option>
+                <el-option label="省外" :value="1"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="发布日期" prop="publishTime">
@@ -34,10 +34,10 @@
             </el-form-item>
             <el-form-item label="来源" prop="source">
               <el-select v-model="lawInfo.source" placeholder="请选择" class="input_w2" clearable>
-                <el-option label="公安内部" value="0"></el-option>
-                <el-option label="最高法院" value="1"></el-option>
-                <el-option label="最高检察院" value="2"></el-option>
-                <el-option label="其他" value="3"></el-option>
+                <el-option label="公安内部" :value="0"></el-option>
+                <el-option label="最高法院" :value="1"></el-option>
+                <el-option label="最高检察院" :value="2"></el-option>
+                <el-option label="其他" :value="3"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="关键词" prop="keyWord">
@@ -130,19 +130,21 @@
           documentId: ''
         },
         categoryOptions: [
-          { label: '法律', value: '1' },
-          { label: '行政法规', value: '2' },
-          { label: '地方性行政法规', value: '201' },
-          { label: '部门规章', value: '202' },
-          { label: '司法解释', value: '3' },
-          { label: '其他规范性文件', value: '4' }
+          { label: '法律', value: 1 },
+          { label: '行政法规', value: 2 },
+          { label: '地方性行政法规', value: 201 },
+          { label: '部门规章', value: 202 },
+          { label: '司法解释', value: 3 },
+          { label: '其他规范性文件', value: 4 }
         ],
         rules: {
           title: [
             {
               required: true, trigger: 'blur', validator: (rule, value, callback) => {
-                const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value === undefined || value === null || value === '') {
                   callback(new Error('请输入标题'))
                 } else if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
@@ -165,8 +167,10 @@
                 if (value === '' || value === undefined) {
                   return callback()
                 }
-                const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('关键词不能输入特殊字符'))
                 } else if (value.length > 50) {
@@ -183,8 +187,10 @@
                 if (value === '' || value === undefined) {
                   return callback()
                 }
-                const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value.length > 0 && regEnCode.test(value) && regCnCode.test(value)) {
                   callback(new Error('摘要不能输入特殊字符'))
                 } else if (value.length > 500) {
@@ -211,7 +217,7 @@
     methods: {
       async titleCheckAsyns(callback) {
         // 同步处理
-        const response = await this.$queryAsyns('traincaseinfobytitle', { title: this.lawInfo.title })
+        const response = await this.$updateAsyns('traincaseinfobytitle', { title: this.lawInfo.title })
         const data = response.data
         if (this.id !== '') {
           if (data.data === null || data.data.length === 0 || (this.id === data.data[0].id && data.data.length === 1)) {
@@ -337,7 +343,7 @@
       },
       parentdepartcode() {
         const para = this.$setCurrentUser({})
-        this.$query('parentdepartcode/' + para.belongDepCode, {}, true).then(response => {
+        this.$query('parentdepartcode/' + para.belongDepCode, para, true).then(response => {
           this.departInfo = response.data
         })
       },
@@ -526,7 +532,9 @@
           this.callBack = para.jumpType
           this.active = para.active
         }
-        if (para.filters) {
+        if (para.checkboxGroup1) {
+          this.filters = para
+        } else {
           this.filters = para.filters
         }
       }

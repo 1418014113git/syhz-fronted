@@ -50,7 +50,8 @@
               </el-upload>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="add" class="saveBtn" v-loading.fullscreen.lock="loading">保 存</el-button>
+              <el-button v-if="showSave" type="primary" class="saveBtn" @click="add('0')" v-loading.fullscreen.lock="loading">保 存</el-button>
+              <el-button type="primary" class="saveBtn" @click="add('1')" v-loading.fullscreen.lock="loading">提 交</el-button>
               <el-button @click="callback" class="cancelBtn">取 消</el-button>
             </el-form-item>
           </el-form>
@@ -65,6 +66,7 @@
   export default {
     data() {
       return {
+        showSave: true,
         uploadAction: this.UploadAttachment.uploadFileUrl,
         source: '',
         active: '',
@@ -117,7 +119,8 @@
         }
         return cfNum > 0
       },
-      add() {
+      add(draft) {
+        this.form.draft = draft
         this.loading = true
         this.$refs.form.validate(valid => {
           if (valid) {
@@ -383,7 +386,7 @@
       },
       parentdepartcode() {
         const para = this.$setCurrentUser({})
-        this.$query('parentdepartcode/' + para.belongDepCode, {}, true).then(response => {
+        this.$query('parentdepartcode/' + para.belongDepCode, para, true).then(response => {
           this.departInfo = response.data
         })
       },
@@ -400,8 +403,10 @@
               enName: response.data.enName,
               enPath: response.data.enPath,
               enPathOld: response.data.enPathOld
-            }]
+            }],
+            draft: response.data.draft
           }
+          this.showSave = (response.data.draft !== '1' && response.data.draft !== 1)
           this.imgList = [{
             name: response.data.enIcon.substring(response.data.enIcon.lastIndexOf('/') + 1, response.data.enIcon.length),
             url: response.data.enIcon
@@ -414,6 +419,7 @@
       },
       executeUpdate() {
         let para = JSON.parse(JSON.stringify(this.form))
+        para.subType = this.form.draft
         para.enCode = this.form.enclosure[0].enCode
         para.enType = this.form.enclosure[0].enType
         para.enClass = this.form.enclosure[0].enClass

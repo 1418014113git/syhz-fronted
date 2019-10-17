@@ -133,8 +133,8 @@
 
   <!--人工组卷选择试题-->
   <div class="rgzjtk">
-    <el-dialog title="选择试题" :visible.sync="rgzjDialog" @close="rgcloseDialog">
-      <check-list @checkList="getCheckList"  @closergDialog="closergDialog"  :alreadyCheck="rgzjcheckId" :isClear="isClear"></check-list>
+    <el-dialog title="选择试题" :visible.sync="rgzjDialog" @close="rgcloseDialog" :close-on-click-modal='false'>
+      <check-list @checkList="getCheckList"  @closergDialog="closergDialog"  :alreadyCheck="rgzjcheckId" :alreadyCheckList="rgzjcheckList" :isClear="isClear"></check-list>
     </el-dialog>
   </div>
 
@@ -164,7 +164,7 @@
 
   <!--随机组卷选择试题模块 tree结构-->
   <div class="sjzjtk">
-    <el-dialog title="试题模块" :visible.sync="sjzjDialog" @close="sjcloseDialog">
+    <el-dialog title="试题模块" :visible.sync="sjzjDialog" @close="sjcloseDialog" :close-on-click-modal='false'>
       <check-moudle @closesjDialog="closesjDialog" @sjcheckList="getsjCheckList" :alreadyCheck="sjzjcheckId" :isClose="isClose"></check-moudle>
     </el-dialog>
   </div>
@@ -190,8 +190,8 @@
   </el-dialog>
 
    <!-- 预览试卷 -->
-  <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
-    <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit' :zjType="zjType"></preview-paper>
+  <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="66%">
+    <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit' :zjType="zjType" :curPaperName='form.paperName'></preview-paper>
   </el-dialog>
 </div>
 </template>
@@ -311,8 +311,9 @@ export default {
       //     data:[]
       //   }
       // ],
-      sjzjcheckId: [], //  将已选择的试题模块id传给试题tree组件，用于显示已选中的的状态。
-      rgzjcheckId: [], //  将已选择的试题列表id传给试题选择组卷，用于显示已选中的的状态。
+      sjzjcheckId: [], //  将已选择的试题模块id传给试题tree组件，用于显示已选中的状态。
+      rgzjcheckId: [], //  将已选择的试题列表id传给试题选择组卷，用于显示已选中的状态。
+      rgzjcheckList: [], //  将已选择的试题列表项传给试题选择组卷，用于保存时存储数据。
       sjzjListDefault: [ // 随机组卷默认列表，当前试题被删完后，重新点击试题时，重新将默认值赋给sjzjList
         {
           type: '1',
@@ -547,7 +548,7 @@ export default {
       }
     },
     deletdyObject(data, type) {
-      if (data.choices) {
+      if (data.choices) { // 单选题
         data.choices.sort = Number(data.choices.sort)
         data.choices.type = data.choices.type + ''
         data.choices.value = Number(data.choices.value)
@@ -558,7 +559,7 @@ export default {
           this.sjzjList.push(data.choices)
         }
       }
-      if (data.multiSelect) {
+      if (data.multiSelect) { // 多选题
         data.multiSelect.sort = Number(data.multiSelect.sort)
         data.multiSelect.type = data.multiSelect.type + ''
         data.multiSelect.value = Number(data.multiSelect.value)
@@ -569,18 +570,27 @@ export default {
           this.sjzjList.push(data.multiSelect)
         }
       }
-      if (data.fillGap) {
+      if (data.fillGap) { // 填空题
         data.fillGap.sort = Number(data.fillGap.sort)
         data.fillGap.type = data.fillGap.type + ''
         data.fillGap.value = Number(data.fillGap.value)
         if (type === 1) { // 人工组卷
+          if (data.fillGap.data.length > 0) {
+            var fillGap = data.fillGap.data
+            for (let k = 0; k < fillGap.length; k++) {
+              var tkelement = fillGap[k]
+              if (tkelement.name.indexOf('[]') > -1) {
+                tkelement.name = tkelement.name.replace(/\[/g, '___').replace(/\]/g, '___')
+              }
+            }
+          }
           this.rgzjList.push(data.fillGap)
         } else { // 随机组卷
           data.fillGap.num = Number(data.fillGap.num)
           this.sjzjList.push(data.fillGap)
         }
       }
-      if (data.judge) {
+      if (data.judge) { // 判断题
         data.judge.sort = Number(data.judge.sort)
         data.judge.type = data.judge.type + ''
         data.judge.value = Number(data.judge.value)
@@ -591,7 +601,7 @@ export default {
           this.sjzjList.push(data.judge)
         }
       }
-      if (data.shortAnswer) {
+      if (data.shortAnswer) { // 简答题
         data.shortAnswer.sort = Number(data.shortAnswer.sort)
         data.shortAnswer.type = data.shortAnswer.type + ''
         data.shortAnswer.value = Number(data.shortAnswer.value)
@@ -602,7 +612,7 @@ export default {
           this.sjzjList.push(data.shortAnswer)
         }
       }
-      if (data.discuss) {
+      if (data.discuss) { // 论述题
         data.discuss.sort = Number(data.discuss.sort)
         data.discuss.type = data.discuss.type + ''
         data.discuss.value = Number(data.discuss.value)
@@ -613,7 +623,7 @@ export default {
           this.sjzjList.push(data.discuss)
         }
       }
-      if (data.caseAnalysis) {
+      if (data.caseAnalysis) { // 案例分析题
         data.caseAnalysis.sort = Number(data.caseAnalysis.sort)
         data.caseAnalysis.type = data.caseAnalysis.type + ''
         data.caseAnalysis.value = Number(data.caseAnalysis.value)
@@ -630,8 +640,10 @@ export default {
       if (this.form.paperType === '1') { // 人工组卷
         this.rgzjDialog = true
         var rgzjcheckId = []
-        if (this.rgzjList.length > 0) {
-          this.rgzjList.forEach(item => {
+        this.rgzjcheckList = []
+        var rgzjList = this.rgzjList
+        if (rgzjList.length > 0) {
+          rgzjList.forEach(item => {
             var datas = item.data
             if (datas.length > 0) {
               datas.forEach(it => {
@@ -641,6 +653,7 @@ export default {
           })
         }
         this.rgzjcheckId = rgzjcheckId
+        this.rgzjcheckList = rgzjList
       } else { // 随机组卷
         this.sjzjDialog = true
         var sjzjcheckId = []
@@ -915,8 +928,12 @@ export default {
       }
     },
     getCheckList(val) { // 获取选择的试题列表
-      this.initData(1)
-      this.getshitiList(val)
+      // this.initData(1)
+      this.rgzjList = [] // 初始化数据
+      this.rgzjStList = []
+      val.forEach((item, index) => {
+        this.getshitiList(item)
+      })
     },
     getType(val) {
       this.type = val
@@ -936,17 +953,19 @@ export default {
     getshitiList(element) {
       var bo = false// 设置element的type不存在
       var _this = this
-      for (var i = 0; i < _this.rgzjList.length; i++) {
-        if (element.type === _this.rgzjList[i].type) {
+      var rgzjList = _this.rgzjList
+      for (var i = 0; i < rgzjList.length; i++) {
+        if (element.type === rgzjList[i].type) {
           bo = true// 存在
           // _this.rgzjList[i].data = _this.rgzjList[i].data.concat(element.data)
-          _this.rgzjList[i].data = element.data
+          rgzjList[i].data = element.data
         }
       }
       // 如果不存在就直接塞到array中
       if (!bo) {
-        _this.rgzjList.push(element)
+        rgzjList.push(element)
       }
+      _this.rgzjList = rgzjList
       _this.getRgzjNum(1)
       // 排序
       _this.sort(_this.rgzjList)
@@ -1376,7 +1395,7 @@ export default {
   }
   .previewDia {
     .el-dialog {
-      background: #ffffff;
+      background: #c7eece;
       border: 2px solid #00a0e9;
     }
     .el-dialog__header {
@@ -1389,8 +1408,10 @@ export default {
       }
     }
     .el-dialog__body {
-      background: #ffffff;
+      background: #c7eece;
       color: #000000;
+      max-height: 75vh !important;
+      overflow: auto;
     }
   }
 }

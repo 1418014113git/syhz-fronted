@@ -209,11 +209,19 @@ export default {
     },
     handleCurrentChange(val) { // 分页查询
       this.page = val
-      this.queryList(false, true)
+      if (this.currentExamType === '1') {
+        this.queryList(false, true)
+      } else if (this.currentExamType === '2') {
+        this.queryListNewExam(false, true)
+      }
     },
     handleSizeChange(val) { // 分条查询
       this.pageSize = val
-      this.queryList(true, true)
+      if (this.currentExamType === '1') {
+        this.queryList(true, true)
+      } else if (this.currentExamType === '2') {
+        this.queryListNewExam(true, true)
+      }
     },
     handleDetail(index, row) { // 详情
       this.$router.push({ path: '/handlingGuide/examineManage/detail', query: { examId: row.id }})

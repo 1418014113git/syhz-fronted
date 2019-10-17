@@ -92,7 +92,8 @@
                 <!-- <span class="option_item"><el-radio label="true">正确</el-radio></span> -->
                 <!-- <span class="option_item"><el-radio label="false">错误</el-radio></span> -->
                <!-- </el-radio-group> -->
-               <p>您的答案：{{smallItem.answer==='1'?'✔':'×'}}</p>
+               <p v-if="smallItem.answer">您的答案：{{smallItem.answer==='1'?'✔':'×'}}</p>
+               <p v-else>您的答案：</p>
                <p>正确答案：{{smallItem.rightAnswer===1?'✔':'×'}}</p>
             </div>
             <!-- 简答题、论述题、案例分析题 -->
@@ -438,7 +439,7 @@ export default {
 #previewExamPaper {
   padding: 20px;
   margin-top: 10px;
-  background: #ffffff;
+  background: #c7eece;
   color: #000000;
   .exam_title_wrap {
     margin-bottom: 14px;
@@ -459,7 +460,8 @@ export default {
   }
 }
 .preview {
-  padding: 0 20px;
+  width: 70%;
+  margin: 0 auto;
   .scoreNumber {
     font-size: 20px;
     color: #f72929;
