@@ -1545,6 +1545,13 @@ label {
 .el-transfer-panel__item.el-checkbox{
   color: #fff;
 }
+.el-transfer-panel .el-transfer-panel__footer{
+  background-color: rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(0, 160, 233, 0.6);
+}
+.transfer-footer{
+  margin-left: 15px;
+}
 .richTextWrap {
  display: inline-block;
   margin: 0;

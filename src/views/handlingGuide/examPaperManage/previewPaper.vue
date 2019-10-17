@@ -60,7 +60,6 @@ export default {
       detailLoading: false,
       submitData: {}, // 预览后保存时提交的数据
       paperName: '' // 试卷名称
-
     }
   },
   watch: { // 监听state状态变化
@@ -97,7 +96,7 @@ export default {
           } else {
             this.data[element].typeName = '无'
           }
-          if (this.data[element].data[0].type === 3) { // 填空题，将[] 替换为横线
+          if (this.data[element].data[0].type === 3 || this.data[element].data[0].type === '3') { // 填空题，将[] 替换为横线
             for (let k = 0; k < this.data[element].data.length; k++) {
               var tkelement = this.data[element].data[k]
               if (tkelement.name.indexOf('[]') > -1) {
