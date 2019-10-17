@@ -1294,7 +1294,7 @@ export default {
           } else {
             data[element].typeName = '无'
           }
-          if (data[element].type === '3') { // 填空题，将[] 替换为横线
+          if (data[element].type === '3' || data[element].type === 3) { // 填空题，将[] 替换为横线
             for (let k = 0; k < data[element].data.length; k++) {
               var tkelement = data[element].data[k]
               if (tkelement.name.indexOf('[]') > -1) {
