@@ -1517,6 +1517,12 @@ label {
 .el-dialog__header {
   padding: 10px 0px 10px 10px;
   border-bottom: 2px solid #00a0e9;
+
+  // padding: 5px 15px 9px 38px;
+  // background: url(/static/image/portal_newImg/subTitle.png) no-repeat center center;
+  // background-size: 100%;
+  // text-align: left;
+  // text-indent: 15px;
 }
 .el-dialog__headerbtn {
   top: 14px;
@@ -1545,6 +1551,13 @@ label {
 .el-transfer-panel__item.el-checkbox{
   color: #fff;
 }
+.el-transfer-panel .el-transfer-panel__footer{
+  background-color: rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(0, 160, 233, 0.6);
+}
+.transfer-footer{
+  margin-left: 15px;
+}
 .richTextWrap {
  display: inline-block;
   margin: 0;
@@ -1571,3 +1584,8 @@ label {
 .table_th_center th .cell {
   text-align: center;
 }
+.dialogBtnUpLine {
+  padding-top: 15px;
+  border-top: 2px solid #00a0e9;
+}
+

@@ -191,7 +191,7 @@
 
    <!-- 预览试卷 -->
   <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="66%">
-    <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit' :zjType="zjType"></preview-paper>
+    <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit' :zjType="zjType" :curPaperName='form.paperName'></preview-paper>
   </el-dialog>
 </div>
 </template>
@@ -548,7 +548,7 @@ export default {
       }
     },
     deletdyObject(data, type) {
-      if (data.choices) {
+      if (data.choices) { // 单选题
         data.choices.sort = Number(data.choices.sort)
         data.choices.type = data.choices.type + ''
         data.choices.value = Number(data.choices.value)
@@ -559,7 +559,7 @@ export default {
           this.sjzjList.push(data.choices)
         }
       }
-      if (data.multiSelect) {
+      if (data.multiSelect) { // 多选题
         data.multiSelect.sort = Number(data.multiSelect.sort)
         data.multiSelect.type = data.multiSelect.type + ''
         data.multiSelect.value = Number(data.multiSelect.value)
@@ -570,27 +570,27 @@ export default {
           this.sjzjList.push(data.multiSelect)
         }
       }
-      if (data.fillGap) {
-        if (data.fillGap.data.length > 0) {
-          var fillGap = data.fillGap.data
-          for (let k = 0; k < fillGap.length; k++) {
-            var tkelement = fillGap[k]
-            if (tkelement.name.indexOf('[]') > -1) {
-              tkelement.name = tkelement.name.replace(/\[/g, '___').replace(/\]/g, '___')
-            }
-          }
-        }
+      if (data.fillGap) { // 填空题
         data.fillGap.sort = Number(data.fillGap.sort)
         data.fillGap.type = data.fillGap.type + ''
         data.fillGap.value = Number(data.fillGap.value)
         if (type === 1) { // 人工组卷
+          if (data.fillGap.data.length > 0) {
+            var fillGap = data.fillGap.data
+            for (let k = 0; k < fillGap.length; k++) {
+              var tkelement = fillGap[k]
+              if (tkelement.name.indexOf('[]') > -1) {
+                tkelement.name = tkelement.name.replace(/\[/g, '___').replace(/\]/g, '___')
+              }
+            }
+          }
           this.rgzjList.push(data.fillGap)
         } else { // 随机组卷
           data.fillGap.num = Number(data.fillGap.num)
           this.sjzjList.push(data.fillGap)
         }
       }
-      if (data.judge) {
+      if (data.judge) { // 判断题
         data.judge.sort = Number(data.judge.sort)
         data.judge.type = data.judge.type + ''
         data.judge.value = Number(data.judge.value)
@@ -601,7 +601,7 @@ export default {
           this.sjzjList.push(data.judge)
         }
       }
-      if (data.shortAnswer) {
+      if (data.shortAnswer) { // 简答题
         data.shortAnswer.sort = Number(data.shortAnswer.sort)
         data.shortAnswer.type = data.shortAnswer.type + ''
         data.shortAnswer.value = Number(data.shortAnswer.value)
@@ -612,7 +612,7 @@ export default {
           this.sjzjList.push(data.shortAnswer)
         }
       }
-      if (data.discuss) {
+      if (data.discuss) { // 论述题
         data.discuss.sort = Number(data.discuss.sort)
         data.discuss.type = data.discuss.type + ''
         data.discuss.value = Number(data.discuss.value)
@@ -623,7 +623,7 @@ export default {
           this.sjzjList.push(data.discuss)
         }
       }
-      if (data.caseAnalysis) {
+      if (data.caseAnalysis) { // 案例分析题
         data.caseAnalysis.sort = Number(data.caseAnalysis.sort)
         data.caseAnalysis.type = data.caseAnalysis.type + ''
         data.caseAnalysis.value = Number(data.caseAnalysis.value)
@@ -928,12 +928,15 @@ export default {
       }
     },
     getCheckList(val) { // 获取选择的试题列表
-      // this.initData(1)
       this.rgzjList = [] // 初始化数据
       this.rgzjStList = []
-      val.forEach((item, index) => {
-        this.getshitiList(item)
-      })
+      if (val.length > 0) {
+        val.forEach((item, index) => {
+          if (item.data.length > 0) {
+            this.getshitiList(item)
+          }
+        })
+      }
     },
     getType(val) {
       this.type = val
@@ -1294,7 +1297,7 @@ export default {
           } else {
             data[element].typeName = '无'
           }
-          if (data[element].type === '3') { // 填空题，将[] 替换为横线
+          if (data[element].type === '3' || data[element].type === 3) { // 填空题，将[] 替换为横线
             for (let k = 0; k < data[element].data.length; k++) {
               var tkelement = data[element].data[k]
               if (tkelement.name.indexOf('[]') > -1) {

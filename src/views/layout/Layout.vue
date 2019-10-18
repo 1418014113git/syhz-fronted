@@ -67,11 +67,10 @@ export default {
         this.$alert('由于您长时间未操作，请重新登录', '提示', {
           confirmButtonText: '确定',
           callback: action => {
-            this.$store.dispatch('FedLogOut').then(() => {
-              this.$router.push({
-                path: '/login'
-              })
+            this.$router.push({
+              path: '/login'
             })
+            sessionStorage.clear()
           }
         })
       } else {

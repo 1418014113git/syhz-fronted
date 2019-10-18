@@ -92,7 +92,8 @@
                 <!-- <span class="option_item"><el-radio label="true">正确</el-radio></span> -->
                 <!-- <span class="option_item"><el-radio label="false">错误</el-radio></span> -->
                <!-- </el-radio-group> -->
-               <p>您的答案：{{smallItem.answer==='1'?'✔':'×'}}</p>
+               <p v-if="smallItem.answer">您的答案：{{smallItem.answer==='1'?'✔':'×'}}</p>
+               <p v-else>您的答案：</p>
                <p>正确答案：{{smallItem.rightAnswer===1?'✔':'×'}}</p>
             </div>
             <!-- 简答题、论述题、案例分析题 -->
@@ -115,7 +116,8 @@
         </p>
         <p class="right">
           <span class="font_b">可重考次数： <span class="scoreNumber">{{examinationData.enableNum}}</span> 次</span>
-          <span class="again_exam" @click="handleAgainExam" v-if="(examinationData.enableNum > 0) || (examinationData.unable===false)">重新考试</span>
+          <!-- 后台判断的结束时间是否过期，是否发布成绩 unable，，考试剩余次数 大于0，，两个条件同时满足 才可重新考试 -->
+          <span class="again_exam" @click="handleAgainExam" v-if="(examinationData.enableNum > 0) && (examinationData.unable===false)">重新考试</span>
           <span class="again_exam" v-else></span>
           <el-button size="mini" circle icon="el-icon-question" title="重新考试会有多个考试成绩，我们将以其中的最高分作为最终的成绩！"></el-button>
         </p>
@@ -210,7 +212,7 @@ export default {
           if (data[element].data[0].type === 3) { // 填空题
             for (let k = 0; k < data[element].data.length; k++) {
               var tkelement = data[element].data[k]
-              if (tkelement.name.indexOf('[]') > -1) {
+              if (tkelement.name.indexOf('[]') > -1) { // 题目内容包括方括号
                 var num = (tkelement.name.split('[]')).length - 1 // 填空的个数，得知输入框的个数
                 tkelement.tkInputNum = []
                 tkelement.zhi = {}
@@ -220,6 +222,26 @@ export default {
                   tkelement.zhi[tkelement.id][i + 'p'] = ''
                 }
                 tkelement.name = tkelement.name.replace(/\[/g, '___').replace(/\]/g, '___') // 将方括号[]替换为 下横线
+              }
+              // 您的答案
+              if (tkelement.answer.indexOf('|') > 0) { // 竖线 替换为顿号
+                tkelement.answer = tkelement.answer.replace(/\|/g, '、')
+              }
+              if (tkelement.answer.indexOf(',') > 0) { // 逗号 替换为或
+                tkelement.answer = tkelement.answer.replace(/\,/g, '或')
+              }
+              if (tkelement.answer.indexOf('，') > 0) { // 逗号 替换为或
+                tkelement.answer = tkelement.answer.replace(/\，/g, '或')
+              }
+              // 正确答案
+              if (tkelement.rightAnswer.indexOf('|') > 0) { // 竖线 替换为顿号
+                tkelement.rightAnswer = tkelement.rightAnswer.replace(/\|/g, '、')
+              }
+              if (tkelement.rightAnswer.indexOf(',') > 0) { // 逗号 替换为或
+                tkelement.rightAnswer = tkelement.rightAnswer.replace(/\,/g, '或')
+              }
+              if (tkelement.rightAnswer.indexOf('，') > 0) { // 逗号 替换为或
+                tkelement.rightAnswer = tkelement.rightAnswer.replace(/\，/g, '或')
               }
             }
           }

@@ -39,7 +39,7 @@ export default {
       // <el-menu-item  v-else :key="item.path" :index="item.path" >
       //   <span slot="title">{{item.name}}</span>
       // </el-menu-item>`
-      template: `<el-submenu :index="item.id+''" v-if="item.leaf==1">
+      template: `<el-submenu :index="item.id+''" v-if="item.leaf==1" :popper-append-to-body="true">
         <template slot="title"><span  slot="title">{{item.name}}</span></template>
           <template v-for="(child, index) in item.children">
             <sidebar-item :item="child"></sidebar-item>

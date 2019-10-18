@@ -189,7 +189,7 @@
 
   <!-- 预览试卷 -->
   <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="66%">
-    <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit'></preview-paper>
+    <preview-paper :curPaper="curPaperData" :isShowSaveBtn='isShowSaveBtn' :previewProSubmit='previewProSubmit'  :curPaperName='form.paperName'></preview-paper>
   </el-dialog>
 </div>
 </template>
@@ -751,12 +751,13 @@ export default {
       }
     },
     getCheckList(val) { // 获取选择的试题列表
-      // this.initData(1)
       this.rgzjList = [] // 初始化数据
       this.rgzjStList = []
       if (val.length > 0) {
         val.forEach((item, index) => {
-          this.getshitiList(item)
+          if (item.data.length > 0) {
+            this.getshitiList(item)
+          }
         })
       }
     },
