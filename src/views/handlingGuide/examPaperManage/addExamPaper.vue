@@ -751,12 +751,13 @@ export default {
       }
     },
     getCheckList(val) { // 获取选择的试题列表
-      // this.initData(1)
       this.rgzjList = [] // 初始化数据
       this.rgzjStList = []
       if (val.length > 0) {
         val.forEach((item, index) => {
-          this.getshitiList(item)
+          if (item.data.length > 0) {
+            this.getshitiList(item)
+          }
         })
       }
     },
