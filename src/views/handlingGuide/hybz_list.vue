@@ -46,7 +46,7 @@
           <div v-for="item in dataList" :key="item.value" class="lineStyle" @click='detail(item.id)'>
             <el-col :span="24" style="font-size: 16px; font-weight: bold; cursor: pointer;">{{ item.title }}</el-col>
             <el-col :span="12" style="color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">颁布机关：{{ item.publishOrgName }}</el-col>
-            <el-col :span="12" style="color: #c7c7c7;">颁布日期：{{ $parseTime(item.publishTime, '{y}-{m}-{d}') }}</el-col>
+            <el-col :span="12" style="color: #c7c7c7;">施行日期：{{ $parseTime(item.effectiveTime, '{y}-{m}-{d}') }}</el-col>
             <!--<p>{{ item.title }}</p>-->
             <!--<p><span>发布机构：{{ item.establishmentOrgan }}</span><span>发布时间：{{ item.issueDate }}</span></p>-->
           </div>
@@ -164,13 +164,13 @@
         this.activeName = para.activeName
         sessionStorage.setItem(this.$route.path, '')
       }
-      this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
+      this.tableHeight = document.documentElement.clientHeight - 379 + 'px'
       this.query(true)
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     },
     activated() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
-      this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
+      this.tableHeight = document.documentElement.clientHeight - 379 + 'px'
     }
 
   }
@@ -179,6 +179,9 @@
 <style>
   .hybzList .el-card__body {
     padding: 10px 1px;
+  }
+  .flfgList .box-card {
+    height: auto;
   }
   .hybzList .lineStyle {
     padding: 5px 50px;

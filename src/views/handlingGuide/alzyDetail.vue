@@ -50,7 +50,7 @@
           </div>
           <p></p>
           <p></p>
-          <div v-if="detailData.content && detailData.content !== ''" v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
+          <div v-if="detailData.content && detailData.content !== ''" :style="detailData.content && detailData.content !== '' ? {maxHeight:tableHeight} : ''" v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
         </div>
         <div v-if="detailData.enclosure && detailData.enclosure.length > 0" class="enclosure_con">
           <div v-for="item in detailData.enclosure" :key="item.key" class="file_data_list" @click="handlerClick(item)">
@@ -138,7 +138,8 @@
           { label: '司法解释', value: '3' },
           { label: '其他规范性文件', value: '4' }
         ],
-        viewId: ''
+        viewId: '',
+        tableHeight: null
       }
     },
     methods: {
@@ -288,6 +289,7 @@
       }
     },
     mounted() {
+      this.tableHeight = document.documentElement.clientHeight - 559 + 'px'
       this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
@@ -339,7 +341,7 @@
   .alzyContent{
     padding: 20px 40px;
     border-top: 1px solid #eeeeee;
-    min-height: 500px;
+    overflow-y: auto;
   }
   .alzyContent > div.lineDetail{
     width: 100%;
