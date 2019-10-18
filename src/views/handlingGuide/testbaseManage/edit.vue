@@ -290,7 +290,6 @@ export default {
           // console.log(this.questionForm)
           this.formLoading = true
           var param = JSON.parse(JSON.stringify(this.questionForm))
-          param.subjectCategoryId = this.carryParam.questionCatrgory // 所在模块
           if (param.answerDx && param.answerDx.length > 0) { // 多选
             param.answer = param.answerDx.sort().join(',')
           }
@@ -319,6 +318,7 @@ export default {
           param.creator = this.userInfo.userName
           // console.log(param)
           if (this.carryParam.questinoId) {
+            param.subjectCategoryId = this.carryParam.questionCatrgory // 所在模块
             // 编辑
             this.$update('examquestion/' + this.carryParam.questinoId, param).then((response) => {
               this.formLoading = false
@@ -333,6 +333,7 @@ export default {
             })
           } else {
             // 添加
+            param.subjectCategoryId = this.carryParam.nodeCategoryId // 所在模块
             this.$save('question', param).then((response) => {
               this.formLoading = false
               if (response.code === '000000') {
@@ -379,6 +380,13 @@ export default {
     }
   },
   mounted() {
+    this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
+    if (this.$route.query && this.$route.query.filtersTx) {
+      this.carryParam = this.$route.query
+      this.init()
+    }
+  },
+  activated() {
     this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
     if (this.$route.query && this.$route.query.filtersTx) {
       this.carryParam = this.$route.query
