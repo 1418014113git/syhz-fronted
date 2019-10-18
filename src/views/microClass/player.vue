@@ -95,7 +95,7 @@
         }
         para = this.$setCurrentUser(para)
         this.$save('traincourselog', para).then(response => {
-          if (type === '0') {
+          if (type === '1') {
             this.viewId = response.data
           }
         })
