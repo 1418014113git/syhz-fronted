@@ -90,7 +90,7 @@
                   <template slot-scope="scope">
                     <el-button size="mini" v-if="$isViewBtn('139007')" title="查看" type="primary" icon="el-icon-view" circle @click="handleRowView(scope.$index, scope.row)"></el-button>
                     <el-button size="mini" v-if="$isViewBtn('139008') && editBtn(scope.row)" title="编辑" type="primary" icon="el-icon-edit" circle @click="handleRowEdit(scope.$index, scope.row)"></el-button>
-                    <el-button size="mini" v-if="$isViewBtn('139009') && removeBtn(scope.row)" title="删除" type="primary" icon="el-icon-delete" circle @click="handleRowDel(scope.$index, scope.row)"></el-button>
+                    <el-button size="mini" v-if="$isViewBtn('139009') || removeBtn(scope.row)" title="删除" type="primary" icon="el-icon-delete" circle @click="handleRowDel(scope.$index, scope.row)"></el-button>
                     <el-button size="mini" v-if="$isViewBtn('139010') && scope.row.auditStatus2 === '0' && scope.row.auditStatus !== '4' && curDept.depType !== '4'" title="审核" type="primary" circle @click="handleAudit(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
                     <el-button size="mini" v-if="$isViewBtn('139011') && scope.row.auditStatus !== '4'" title="审核记录" type="primary" icon="el-icon-document" circle @click="handleAuditList(scope.$index, scope.row)"></el-button>
                   </template>
@@ -334,6 +334,9 @@
               type: 'success',
               message: '删除成功'
             })
+            // // 调用删除硬盘附件接口
+            // this.$update('/upload/delFile', { files: response.data.join(';') }).then(response => {
+            // })
             this.query()
           })
         }).catch(() => {

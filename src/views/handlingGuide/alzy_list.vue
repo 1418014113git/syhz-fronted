@@ -43,14 +43,14 @@
         </div>
         <div style="overflow:auto;"   :style="{maxHeight:tableHeight}">
           <div v-for="item in dataList" :key="item.value" class="lineStyle" @click='detail(item.id)'>
-            <el-col :span="24" style="font-size: 16px; font-weight: bold; cursor: pointer;">{{ item.title }} &nbsp;&nbsp;&nbsp;&nbsp;
+            <el-col :title="item.title" :span="20" style="word-break: keep-all; text-overflow: ellipsis; font-size: 16px; font-weight: bold; cursor: pointer;">{{ item.title }} &nbsp;&nbsp;&nbsp;&nbsp;
               <el-tag v-if="item.articleType === 1" type="success">食品</el-tag>
               <el-tag v-if="item.articleType === 2" type="success">药品</el-tag>
               <el-tag v-if="item.articleType === 3" type="success">环境</el-tag>
               <el-tag v-if="item.articleType === 4" type="success">综合</el-tag>
             </el-col>
-            <el-col :span="4" style="color: #c7c7c7;">发布日期：{{ $parseTime(item.publishTime, '{y}-{m}-{d}') }}</el-col>
-            <el-col :span="20" style="color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">摘要：{{ item.abstract ? item.abstract : '无' }}</el-col>
+            <el-col :title="$parseTime(item.publishTime, '{y}-{m}-{d}')" :span="4" style="word-break: keep-all; text-overflow: ellipsis; color: #c7c7c7; overflow: hidden; white-space: nowrap;">发布日期：{{ $parseTime(item.publishTime, '{y}-{m}-{d}') }}</el-col>
+            <!--<el-col :span="20" style="color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">摘要：{{ item.abstract ? item.abstract : '无' }}</el-col>-->
           </div>
         </div>
       </el-card>
@@ -184,11 +184,14 @@ export default {
   height: auto;
 }
 .alzyList .lineStyle {
-  padding: 5px 50px;
-  border-bottom: 1px dotted #fefefe;
+  padding: 3px 50px 5px;
+  border-bottom: 1px dotted #1d659b;
   display: inline-block;
   width: 100%;
   cursor: pointer;
+}
+.alzyList .lineStyle:last-child{
+  border-bottom: 0;
 }
 .alzyList .lineStyle .el-col {
   padding: 5px;
