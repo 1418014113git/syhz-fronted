@@ -116,7 +116,8 @@
         </p>
         <p class="right">
           <span class="font_b">可重考次数： <span class="scoreNumber">{{examinationData.enableNum}}</span> 次</span>
-          <span class="again_exam" @click="handleAgainExam" v-if="(examinationData.enableNum > 0) || (examinationData.unable===false)">重新考试</span>
+          <!-- 后台判断的结束时间是否过期，是否发布成绩 unable，，考试剩余次数 大于0，，两个条件同时满足 才可重新考试 -->
+          <span class="again_exam" @click="handleAgainExam" v-if="(examinationData.enableNum > 0) && (examinationData.unable===false)">重新考试</span>
           <span class="again_exam" v-else></span>
           <el-button size="mini" circle icon="el-icon-question" title="重新考试会有多个考试成绩，我们将以其中的最高分作为最终的成绩！"></el-button>
         </p>

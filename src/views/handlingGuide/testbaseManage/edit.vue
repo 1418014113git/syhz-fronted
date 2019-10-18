@@ -282,7 +282,7 @@ export default {
       }).catch((e) => { })
     },
     cancel() {
-      this.$router.push({ path: '/handlingGuide/testbaseManage' })
+      this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName }})
     },
     handleSave(formName) { // 保存
       this.$refs[formName].validate(valid => {
@@ -326,7 +326,7 @@ export default {
                 this.$message({
                   message: '修改成功', type: 'success'
                 })
-                this.$router.push({ path: '/handlingGuide/testbaseManage' })
+                this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName }})
               }
             }).catch(() => {
               this.formLoading = false
@@ -340,7 +340,7 @@ export default {
                   type: 'success',
                   message: '添加成功!'
                 })
-                this.$router.push({ path: '/handlingGuide/testbaseManage' })
+                this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName }})
               }
             }).catch(() => {
               this.formLoading = false
@@ -380,7 +380,7 @@ export default {
   },
   mounted() {
     this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
-    if (this.$route.query) {
+    if (this.$route.query && this.$route.query.filtersTx) {
       this.carryParam = this.$route.query
       this.init()
     }
