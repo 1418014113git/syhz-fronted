@@ -272,7 +272,11 @@ export const constantRouterMap = [
       { path: '/handlingGuide/examTrainingManage/trainingOnline', component: () => import('@/views/handlingGuide/examTrainingManage/trainingOnline'), name: '在线考试' }, // 在线考试
       { path: '/handlingGuide/examTrainingManage/paperExamed', component: () => import('@/views/handlingGuide/examTrainingManage/paperExamed'), name: '已考试详情' }, // 已考试详情
       { path: '/handlingGuide/examTrainingManage/scoreRanking', component: () => import('@/views/handlingGuide/examTrainingManage/scoreRanking'), name: '成绩排名' }, // 成绩排名
-      { path: '/handlingGuide/examineManage/statistical', component: () => import('@/views/handlingGuide/examineManage/statistical'), name: '考试统计分析' } // 考试统计分析
+      { path: '/handlingGuide/examineManage/statistical', component: () => import('@/views/handlingGuide/examineManage/statistical'), name: '考试统计分析' }, // 考试统计分析
+      { path: '/basicService/deptInfo/index', component: () => import('@/views/basicService/deptInfo/index'), name: '机构信息列表' },
+      { path: '/basicService/deptInfo/detail', component: () => import('@/views/basicService/deptInfo/detail'), name: '机构信息' },
+      { path: '/basicService/deptInfo/edit', component: () => import('@/views/basicService/deptInfo/edit'), name: '编辑机构信息' },
+      { path: '/basicService/deptInfo/deptStatistical', component: () => import('@/views/basicService/deptInfo/deptStatistical'), name: '单位机构基本情况' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
