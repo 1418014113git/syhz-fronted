@@ -253,7 +253,7 @@
           if (this.detailData.flag && this.notTake) {
             if (this.num === 0) {
               if (this.playType === '5') {
-                this.$emit('viewLog', '1')
+                this.$emit('viewLog', '0')
               } else {
                 this.$emit('viewLog', '1', '0')
               }
