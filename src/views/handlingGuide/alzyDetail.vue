@@ -23,12 +23,12 @@
               <el-button type="success" v-if="$isViewBtn('118003') && detailData.createUser === String(curUser.id)" plain @click="doEdit">修改</el-button>
             </div>
           </div>
+          <!--<div class="lineDetail">-->
+            <!--<div><span>发布单位：</span><span>{{detailData.belongDepName}}</span></div>-->
+            <!--<div><span>发布人：</span><span>{{detailData.creationName}}</span></div>-->
+          <!--</div>-->
           <div class="lineDetail">
-            <div><span>发布单位：</span><span>{{detailData.belongDepName}}</span></div>
-            <div><span>发布人：</span><span>{{detailData.creationName}}</span></div>
-          </div>
-          <div class="lineDetail">
-            <div><span>发布日期：</span><span>{{this.$parseTime(detailData.publishTime, '{y}-{m}-{d}')}}</span></div>
+            <!--<div><span>发布日期：</span><span>{{this.$parseTime(detailData.publishTime, '{y}-{m}-{d}')}}</span></div>-->
             <div><span>来源：</span>
               <span v-if="detailData.source === 0">公安内部</span>
               <span v-if="detailData.source === 1">最高法院</span>
