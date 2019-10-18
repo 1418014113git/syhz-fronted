@@ -36,7 +36,7 @@
               <div><span>发布日期：</span><span>{{this.$parseTime(detailData.creationTime, '{y}-{m}-{d}')}}</span></div>
             </div>
           </div>
-          <div v-if="detailData.content && detailData.content !== ''" class="hybzContent">
+          <div v-if="detailData.content && detailData.content !== ''" :style="detailData.content && detailData.content !== '' ? {maxHeight:tableHeight} : ''" class="hybzContent">
             <div v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
           </div>
           <div v-if="detailData.enclosure && detailData.enclosure.length > 0" class="enclosure_con">
@@ -139,7 +139,8 @@
         optionsHJ: [
           { value: 3010, label: '其它环境标准' }
         ],
-        viewId: ''
+        viewId: '',
+        tableHeight: null
       }
     },
     methods: {
@@ -315,6 +316,7 @@
       }
     },
     mounted() {
+      this.tableHeight = document.documentElement.clientHeight - 519 + 'px'
       this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
@@ -366,7 +368,7 @@
   .hybzContent{
     border-top: 1px solid #eeeeee;
     padding-top: 20px;
-    min-height: 500px;
+    overflow-y: auto;
   }
   .hybzDetail .title{
     color: rgb(32, 160, 255);
