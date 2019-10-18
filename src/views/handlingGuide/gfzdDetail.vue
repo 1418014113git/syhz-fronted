@@ -290,7 +290,7 @@
             addJF('1', this.detailData.articleType, this.detailData.id, '3').then(response => {
             })
           }, this.learningTime)
-          this.viewLog('0')
+          this.viewLog('0', '0')
           this.bindSetInterval()
         }
       },

@@ -139,7 +139,7 @@
         this.currentPage = 1 // 加载的时候先加载第一页
         if (this.detailData.flag && this.notTake) {
           if (this.playType === '5') {
-            this.$emit('viewLog', '1')
+            this.$emit('viewLog', '0')
           } else {
             this.$emit('viewLog', '1', '0')
           }
