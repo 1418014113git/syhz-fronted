@@ -45,8 +45,8 @@
         <div style="overflow:auto;"   :style="{maxHeight:tableHeight}">
           <div v-for="item in dataList" :key="item.value" class="lineStyle" @click='detail(item.id)'>
             <el-col :title="item.title" :span="14" style="word-break: keep-all; text-overflow: ellipsis; font-size: 16px; font-weight: bold; cursor: pointer;">{{ item.title }}</el-col>
-            <el-col :title="item.publishOrgName" :span="7" style="word-break: keep-all; text-overflow: ellipsis; color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">颁布机关：{{ item.publishOrgName }}</el-col>
-            <el-col :span="3" style="color: #c7c7c7;">施行日期：{{ $parseTime(item.effectiveTime, '{y}-{m}-{d}') }}</el-col>
+            <el-col :title="item.publishOrgName" :span="6" style="word-break: keep-all; text-overflow: ellipsis; color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">颁布机关：{{ item.publishOrgName }}</el-col>
+            <el-col :title="$parseTime(item.publishTime, '{y}-{m}-{d}')" :span="4" style="word-break: keep-all; text-overflow: ellipsis; color: #c7c7c7; overflow: hidden; white-space: nowrap;">施行日期：{{ $parseTime(item.effectiveTime, '{y}-{m}-{d}') }}</el-col>
           </div>
         </div>
       </el-card>
