@@ -178,7 +178,7 @@ export default {
         obj: {}
       },
       itl: '',
-      imgList: ['bmy.jpg', 'dyt.jpg', 'pb.jpg', 'sp.jpg', 'yp.jpg'],
+      imgList: ['bmy.jpg', 'jsx.jpg', 'dyt.jpg', 'sp.jpg', 'pb.jpg', 'yp.jpg', 'bts.jpg', 'qlsb.jpg'],
       currImgs: [],
       index: 0,
       loginImgStyle: 'bmy.jpg',
