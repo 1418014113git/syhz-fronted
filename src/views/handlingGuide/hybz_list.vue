@@ -180,7 +180,7 @@
   .hybzList .el-card__body {
     padding: 10px 1px;
   }
-  .flfgList .box-card {
+  .hybzList .box-card {
     height: auto;
   }
   .hybzList .lineStyle {
