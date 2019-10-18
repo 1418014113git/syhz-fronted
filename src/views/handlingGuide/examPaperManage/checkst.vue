@@ -75,12 +75,10 @@ export default {
       default: false
     },
     alreadyCheck: { // 添加试卷页已经被选择的试题列表id
-      type: Array,
-      required: true
+      type: Array
     },
     alreadyCheckList: { // 添加试卷页已经被选择的试题列表项
-      type: Array,
-      required: true
+      type: Array
     }
   },
   data() {
@@ -100,7 +98,6 @@ export default {
       dataList: [], // 菜单tree数据
       btnLoading: false, // 保存按钮加载进度条
       saveList: [], // 存储所有模块选中的列表项
-      isClickSelect: false, // 当右侧列表选项执行了change事件后，置为true
       checkData: []
     }
   },
@@ -111,7 +108,6 @@ export default {
     alreadyCheck: {
       handler: function(val, oldeval) {
         this.checkId = val
-        this.query(true, false)
       }
     },
     alreadyCheckList: {
@@ -181,7 +177,6 @@ export default {
     },
     questionTypeChange(val) {
       if (this.menuItemNode.id) {
-        // this.isClickSelect = true
         this.initData()
         this.query(true, true)
       }
@@ -275,7 +270,7 @@ export default {
         if (element.type === _this.saveList[i].type) {
           if (element.subjectCategoryId === _this.saveList[i].subjectCategoryId) {
             bo = true
-            _this.saveList[i].data = element.data
+            _this.saveList[i].data = _this.saveList[i].data.concat(element.data)
           }
         }
       }
@@ -456,6 +451,17 @@ export default {
           delete item.subjectCategoryId
         })
         dataList = this.filterByName(dataList, 'type')
+        dataList.forEach((item, index) => {
+          var datas = this.unique(item.data)
+          var newData = []
+          datas.forEach((it, i) => {
+            if (this.checkId.indexOf(it.id) > -1) {
+              newData.push(it)
+            }
+          })
+          item.data = newData
+        })
+        // console.log('保存时this.checkId', JSON.stringify(this.checkId))
         // console.log('保存时总共选择的列表处理后', JSON.stringify(dataList))
         this.$emit('checkList', dataList)
         this.$emit('closergDialog', false)
@@ -465,6 +471,17 @@ export default {
           message: '当前无可选择的试题'
         })
       }
+    },
+    unique(arr) { // 数组列表去重
+      for (var i = 0; i < arr.length; i++) {
+        for (var j = i + 1; j < arr.length; j++) {
+          if (arr[i].id === arr[j].id) { // 第一个等同于第二个，splice方法删除第二个
+            arr.splice(j, 1)
+            j--
+          }
+        }
+      }
+      return arr
     },
     initData() {
       this.listData = []
@@ -477,10 +494,6 @@ export default {
     this.checkId = this.alreadyCheck
     this.getSelected(this.alreadyCheckList)
     this.tableHeight = document.querySelector('.rightCont').offsetHeight - 180
-    this.init()
-  },
-  activated() {
-    this.initData()
     this.init()
   }
 }
