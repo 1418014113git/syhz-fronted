@@ -44,11 +44,9 @@
         </div>
         <div style="overflow:auto;"   :style="{maxHeight:tableHeight}">
           <div v-for="item in dataList" :key="item.value" class="lineStyle" @click='detail(item.id)'>
-            <el-col :span="24" style="font-size: 16px; font-weight: bold; cursor: pointer;">{{ item.title }}</el-col>
-            <el-col :span="12" style="color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">颁布机关：{{ item.publishOrgName }}</el-col>
-            <el-col :span="12" style="color: #c7c7c7;">施行日期：{{ $parseTime(item.effectiveTime, '{y}-{m}-{d}') }}</el-col>
-            <!--<p>{{ item.title }}</p>-->
-            <!--<p><span>发布机构：{{ item.establishmentOrgan }}</span><span>发布时间：{{ item.issueDate }}</span></p>-->
+            <el-col :title="item.title" :span="14" style="word-break: keep-all; text-overflow: ellipsis; font-size: 16px; font-weight: bold; cursor: pointer;">{{ item.title }}</el-col>
+            <el-col :title="item.publishOrgName" :span="7" style="word-break: keep-all; text-overflow: ellipsis; color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">颁布机关：{{ item.publishOrgName }}</el-col>
+            <el-col :span="3" style="color: #c7c7c7;">施行日期：{{ $parseTime(item.effectiveTime, '{y}-{m}-{d}') }}</el-col>
           </div>
         </div>
       </el-card>
@@ -174,11 +172,14 @@ export default {
   height: auto;
 }
 .gfzdList .lineStyle {
-  padding: 5px 50px;
-  border-bottom: 1px dotted #fefefe;
+  padding: 3px 50px 5px;
+  border-bottom: 1px dotted #1d659b;
   display: inline-block;
   width: 100%;
   cursor: pointer;
+}
+.gfzdList .lineStyle:last-child{
+  border-bottom: 0;
 }
 .gfzdList .lineStyle .el-col {
   padding: 5px;
