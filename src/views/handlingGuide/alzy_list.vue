@@ -180,7 +180,7 @@ export default {
 .alzyList .el-card__body {
   padding: 10px 1px;
 }
-.flfgList .box-card {
+.alzyList .box-card {
   height: auto;
 }
 .alzyList .lineStyle {
