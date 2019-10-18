@@ -212,7 +212,7 @@ export default {
           if (data[element].data[0].type === 3) { // 填空题
             for (let k = 0; k < data[element].data.length; k++) {
               var tkelement = data[element].data[k]
-              if (tkelement.name.indexOf('[]') > -1) {
+              if (tkelement.name.indexOf('[]') > -1) { // 题目内容包括方括号
                 var num = (tkelement.name.split('[]')).length - 1 // 填空的个数，得知输入框的个数
                 tkelement.tkInputNum = []
                 tkelement.zhi = {}
@@ -222,6 +222,26 @@ export default {
                   tkelement.zhi[tkelement.id][i + 'p'] = ''
                 }
                 tkelement.name = tkelement.name.replace(/\[/g, '___').replace(/\]/g, '___') // 将方括号[]替换为 下横线
+              }
+              // 您的答案
+              if (tkelement.answer.indexOf('|') > 0) { // 竖线 替换为顿号
+                tkelement.answer = tkelement.answer.replace(/\|/g, '、')
+              }
+              if (tkelement.answer.indexOf(',') > 0) { // 逗号 替换为或
+                tkelement.answer = tkelement.answer.replace(/\,/g, '或')
+              }
+              if (tkelement.answer.indexOf('，') > 0) { // 逗号 替换为或
+                tkelement.answer = tkelement.answer.replace(/\，/g, '或')
+              }
+              // 正确答案
+              if (tkelement.rightAnswer.indexOf('|') > 0) { // 竖线 替换为顿号
+                tkelement.rightAnswer = tkelement.rightAnswer.replace(/\|/g, '、')
+              }
+              if (tkelement.rightAnswer.indexOf(',') > 0) { // 逗号 替换为或
+                tkelement.rightAnswer = tkelement.rightAnswer.replace(/\,/g, '或')
+              }
+              if (tkelement.rightAnswer.indexOf('，') > 0) { // 逗号 替换为或
+                tkelement.rightAnswer = tkelement.rightAnswer.replace(/\，/g, '或')
               }
             }
           }

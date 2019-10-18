@@ -74,13 +74,26 @@ export default {
       }
       this.$query('questions/questionbyid', para).then((response) => {
         this.listLoading = false
-        if (response.data.subjectName.indexOf('[]') > 0) {
-          response.data.subjectName = response.data.subjectName.replace(/\[/g, '___').replace(/\]/g, '___')
+        if (response.code === '000000') {
+          if (response.data.type === 3) { // 填空题
+            if (response.data.subjectName.indexOf('[]') > 0) {
+              response.data.subjectName = response.data.subjectName.replace(/\[/g, '___').replace(/\]/g, '___')
+            }
+            if (response.data.answer.indexOf('|') > 0) { // 竖线 替换为顿号
+              response.data.answer = response.data.answer.replace(/\|/g, '、')
+            }
+            if (response.data.answer.indexOf(',') > 0) { // 逗号 替换为或
+              response.data.answer = response.data.answer.replace(/\,/g, '或')
+            }
+            if (response.data.answer.indexOf('，') > 0) { // 逗号 替换为或
+              response.data.answer = response.data.answer.replace(/\，/g, '或')
+            }
+          }
+          this.questionForm = response.data
         }
-        this.questionForm = response.data
       }).catch(() => {
         this.listLoading = false
-        this.tableData = []
+        this.questionForm = {}
       })
     },
     cancel() {
