@@ -524,7 +524,7 @@ export default {
     padding-left: 20px;
   }
   .bottomBtn{
-    width: 100%;
+    width: 97%;
     position: absolute;
     bottom: 15px;
   }

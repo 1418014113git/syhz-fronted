@@ -1515,14 +1515,17 @@ label {
   color: #bce8fc;
 }
 .el-dialog__header {
-  padding: 5px 15px 9px 38px;
-  background: url(/static/image/portal_newImg/subTitle.png) no-repeat center center;
-  background-size: 100%;
-  text-align: left;
-  text-indent: 15px;
+  padding: 10px 0px 10px 10px;
+  border-bottom: 2px solid #00a0e9;
+
+  // padding: 5px 15px 9px 38px;
+  // background: url(/static/image/portal_newImg/subTitle.png) no-repeat center center;
+  // background-size: 100%;
+  // text-align: left;
+  // text-indent: 15px;
 }
 .el-dialog__headerbtn {
-  top: 8px;
+  top: 14px;
 }
 .el-dialog__body {
   padding: 10px 0 15px 0;
