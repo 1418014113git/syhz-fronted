@@ -164,13 +164,13 @@ export default {
       this.activeName = para.activeName
       sessionStorage.setItem(this.$route.path, '')
     }
-    this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
+    this.tableHeight = document.documentElement.clientHeight - 429 + 'px'
     this.query(true)
     this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
   },
   activated() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
-    this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
+    this.tableHeight = document.documentElement.clientHeight - 429 + 'px'
   }
 
 }
@@ -179,6 +179,9 @@ export default {
 <style>
 .alzyList .el-card__body {
   padding: 10px 1px;
+}
+.alzyList .box-card {
+  height: auto;
 }
 .alzyList .lineStyle {
   padding: 5px 50px;

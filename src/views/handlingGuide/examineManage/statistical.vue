@@ -287,7 +287,7 @@ export default {
           }
         }
       } else {
-        this.selectCurTingDep = { name: '' }
+        this.selectCurDep = { name: '' }
       }
     },
     handleSelectionChange(val) { // 多选表格

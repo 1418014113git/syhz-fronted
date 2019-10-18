@@ -107,8 +107,9 @@
                   v-model="examForm.markPeople"
                   :button-texts="['移除', '选中']"
                   :titles="['人员列表','已选中的人员']"
-                  :data="markingPeopleData">
-                  <span slot-scope="{ option }">{{ option.label }}-{{ option.dept }}</span>
+                  :data="markingPeopleData"
+                  @change="transferMarkPerChange">
+                  <span slot-scope="{ option }" :title="option.dept">{{ option.label }}-{{ option.dept }}</span>
                 </el-transfer>
                 <el-tooltip class="right" effect="dark" content="请选择本次考试主观题的阅卷人员。" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
@@ -179,6 +180,7 @@ export default {
       treeLoading: true, // 开放单位加载的loading
       defaultExpandedKeys: [], // 默认展开的节点的 key 的数组
       defaultCheckedKeys: [], // 默认勾选的节点的 key 的数组
+      markFilterFlag: false, // 阅卷老师是否筛选过
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       rules: {
@@ -272,6 +274,7 @@ export default {
       // 根据当前的val 查询
       var _this = this
       if (val) {
+        _this.markFilterFlag = true
         for (let k = 0; k < _this.markPerFormattingAll.length; k++) {
           var itemK = _this.markPerFormattingAll[k]
           if (itemK.label.indexOf(val) > -1) {
@@ -279,7 +282,14 @@ export default {
           }
         }
       } else {
+        _this.markFilterFlag = false
+        // _this.markingPeopleData = this.markPerFormattingAll // 切换为所有人员
         _this.markingPeopleData = _this.markPerFormattingOwn // 搜索框为空时 展示当前部门的人
+      }
+    },
+    transferMarkPerChange() { // 左边数据源 切换为所有人员
+      if (this.markFilterFlag) {
+        this.markingPeopleData = this.markPerFormattingAll
       }
     },
     uniqueById(arr) {
