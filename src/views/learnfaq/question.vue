@@ -35,194 +35,194 @@
 </template>
 
 <script>
-  import {
-    questionSave, getQuestion, questionEdit, getSensitive
-  } from '@/api/learnfaq'
+import {
+  questionSave, getQuestion, questionEdit, getSensitive
+} from '@/api/learnfaq'
 
-  export default {
-    name: 'learQuestion',
-    components: {},
-    data() {
-      return {
-        sensitiveList: [], // 敏感词库
-        typeArr: [
+export default {
+  name: 'learQuestion',
+  components: {},
+  data() {
+    return {
+      sensitiveList: [], // 敏感词库
+      typeArr: [
+        {
+          code: 1,
+          name: '环境'
+        },
+        {
+          code: 2,
+          name: '食品'
+        },
+        {
+          code: 3,
+          name: '药品'
+        },
+        {
+          code: 4,
+          name: '综合'
+        }
+      ],
+      id: '',
+      currentDep: {},
+      question: {},
+      loading: false,
+      rules: {
+        quType: [{
+          required: true, message: '请选择分类', trigger: 'change'
+        }],
+        introduction: [
           {
-            code: 1,
-            name: '环境'
+            required: true, message: '请输入问题', trigger: 'blur'
           },
           {
-            code: 2,
-            name: '食品'
-          },
-          {
-            code: 3,
-            name: '药品'
-          },
-          {
-            code: 4,
-            name: '综合'
+            min: 1, max: 500, message: '问题长度不能超过500个字', trigger: 'blur'
           }
         ],
-        id: '',
-        currentDep: {},
-        question: {},
-        loading: false,
-        rules: {
-          quType: [{
-            required: true, message: '请选择分类', trigger: 'change'
-          }],
-          introduction: [
-            {
-              required: true, message: '请输入问题', trigger: 'blur'
-            },
-            {
-              min: 1, max: 500, message: '问题长度不能超过500个字', trigger: 'blur'
-            }
-          ],
-          quTitle: [
-            {
-              required: true, message: '请输入标题', trigger: 'blur'
-            },
-            {
-              min: 1, max: 200, message: '标题长度不能超过200个字', trigger: 'blur'
-            }
-          ]
-        }
-      }
-    },
-    methods: {
-      // 判断是否存在敏感词
-      validateSensitive() {
-        if (this.sensitiveList.length > 0) {
-          for (let i = 0; i < this.sensitiveList.length; i++) {
-            if (this.question.quTitle.indexOf(this.sensitiveList[i]) !== -1) {
-              this.$alert('问题主题中包含敏感词，请修改后再发表', '警告', {
-                confirmButtonText: '确定'
-              })
-              return false
-            }
-            if (this.question.introduction.indexOf(this.sensitiveList[i]) !== -1) {
-              this.$alert('具体问题中包含敏感词，请修改后再发表', '警告', {
-                confirmButtonText: '确定'
-              })
-              return false
-            }
+        quTitle: [
+          {
+            required: true, message: '请输入标题', trigger: 'blur'
+          },
+          {
+            min: 1, max: 200, message: '标题长度不能超过200个字', trigger: 'blur'
           }
-        }
-        return true
-      },
-      // 获取敏感词信息
-      getSensitiveList() {
-        const param = {
-          appId: 1,
-          dictType: 'sensitive'
-        }
-        const _this = this
-        this.sensitiveList = []
-        getSensitive(param).then((response) => {
-          if (response.code === '000000') {
-            const data = response.data
-            data.forEach(element => {
-              _this.sensitiveList.push(element.dictName)
-            })
-          } else {
-            this.$message({
-              message: '获取敏感词失败',
-              type: 'error'
-            })
-          }
-        })
-      },
-      onAdd() {
-        this.$refs.form.validate(valid => {
-          if (valid) {
-            if (this.validateSensitive()) {
-              questionSave(this.question).then((response) => {
-                if (response.data) {
-                  this.$message({
-                    message: '发布成功',
-                    type: 'success'
-                  })
-                  this.toList()
-                }
-              })
-            }
-          }
-        })
-      },
-      edit() {
-        this.$refs.form.validate(valid => {
-          if (valid) {
-            if (this.validateSensitive()) {
-              const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-              const para = {
-                id: this.$route.query.id,
-                introduction: this.question.introduction,
-                lastId: curUser.id,
-                lastName: curUser.userName
-              }
-              questionEdit(para).then((response) => {
-                if (response.data) {
-                  this.$message({
-                    message: '发布成功',
-                    type: 'success'
-                  })
-                  this.toList()
-                }
-              })
-            }
-          }
-        })
-      },
-      toList() {
-        this.$router.push({
-          path: '/micro/difficult',
-          query: {
-            page: this.$route.query.page,
-            pageSize: this.$route.query.pageSize,
-            activeIndex: this.$route.query.activeIndex,
-            myQuestion: this.$route.query.myQuestion,
-            quTitle: this.$route.query.quTitle
-          }
-        })
-      }
-    },
-    mounted() {
-      if (this.$route.query.id) {
-        const para = {
-          id: this.$route.query.id,
-          addViewNumMakr: 0,
-          addViewLogMark: 0
-        }
-        getQuestion(para).then((response) => {
-          if (response.data) {
-            this.question = response.data
-          }
-        })
-      }
-      this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-      this.question.creationName = curUser.userName
-      this.question.creationId = curUser.id
-      if (this.currentDep) {
-        this.question.belongDepName = this.currentDep.depName
-        this.question.belongDepCode = this.currentDep.id
-        this.question.belongAreaCode = this.currentDep.areaCode
-      }
-      if (sessionStorage.getItem('dictData') && sessionStorage.getItem('dictData')['sensitive']) {
-        this.sensitiveList = sessionStorage.getItem('dictData')['sensitive']
-      } else {
-        this.getSensitiveList()
+        ]
       }
     }
+  },
+  methods: {
+    // 判断是否存在敏感词
+    validateSensitive() {
+      if (this.sensitiveList.length > 0) {
+        for (let i = 0; i < this.sensitiveList.length; i++) {
+          if (this.question.quTitle.indexOf(this.sensitiveList[i]) !== -1) {
+            this.$alert('问题主题中包含敏感词，请修改后再发表', '警告', {
+              confirmButtonText: '确定'
+            })
+            return false
+          }
+          if (this.question.introduction.indexOf(this.sensitiveList[i]) !== -1) {
+            this.$alert('具体问题中包含敏感词，请修改后再发表', '警告', {
+              confirmButtonText: '确定'
+            })
+            return false
+          }
+        }
+      }
+      return true
+    },
+    // 获取敏感词信息
+    getSensitiveList() {
+      const param = {
+        appId: 1,
+        dictType: 'sensitive'
+      }
+      const _this = this
+      this.sensitiveList = []
+      getSensitive(param).then((response) => {
+        if (response.code === '000000') {
+          const data = response.data
+          data.forEach(element => {
+            _this.sensitiveList.push(element.dictName)
+          })
+        } else {
+          this.$message({
+            message: '获取敏感词失败',
+            type: 'error'
+          })
+        }
+      })
+    },
+    onAdd() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          if (this.validateSensitive()) {
+            questionSave(this.question).then((response) => {
+              if (response.data) {
+                this.$message({
+                  message: '发布成功',
+                  type: 'success'
+                })
+                this.toList()
+              }
+            })
+          }
+        }
+      })
+    },
+    edit() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          if (this.validateSensitive()) {
+            const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+            const para = {
+              id: this.$route.query.id,
+              introduction: this.question.introduction,
+              lastId: curUser.id,
+              lastName: curUser.realName // 10.21 修改为存储真实姓名
+            }
+            questionEdit(para).then((response) => {
+              if (response.data) {
+                this.$message({
+                  message: '发布成功',
+                  type: 'success'
+                })
+                this.toList()
+              }
+            })
+          }
+        }
+      })
+    },
+    toList() {
+      this.$router.push({
+        path: '/micro/difficult',
+        query: {
+          page: this.$route.query.page,
+          pageSize: this.$route.query.pageSize,
+          activeIndex: this.$route.query.activeIndex,
+          myQuestion: this.$route.query.myQuestion,
+          quTitle: this.$route.query.quTitle
+        }
+      })
+    }
+  },
+  mounted() {
+    if (this.$route.query.id) {
+      const para = {
+        id: this.$route.query.id,
+        addViewNumMakr: 0,
+        addViewLogMark: 0
+      }
+      getQuestion(para).then((response) => {
+        if (response.data) {
+          this.question = response.data
+        }
+      })
+    }
+    this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
+    const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+    this.question.creationName = curUser.realName // 10.21 修改为存储真实姓名
+    this.question.creationId = curUser.id
+    if (this.currentDep) {
+      this.question.belongDepName = this.currentDep.depName
+      this.question.belongDepCode = this.currentDep.id
+      this.question.belongAreaCode = this.currentDep.areaCode
+    }
+    if (sessionStorage.getItem('dictData') && sessionStorage.getItem('dictData')['sensitive']) {
+      this.sensitiveList = sessionStorage.getItem('dictData')['sensitive']
+    } else {
+      this.getSensitiveList()
+    }
   }
+}
 </script>
 
 <style scoped>
-  .learQuestion .el-form-item {
-    margin-bottom: 26px;
-  }
-  .input_ws{
-    width: 55%;
-  }
+.learQuestion .el-form-item {
+  margin-bottom: 26px;
+}
+.input_ws {
+  width: 55%;
+}
 </style>
