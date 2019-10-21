@@ -28,13 +28,13 @@
               <div><span>颁布文号：</span><span>{{detailData.publishCode}}</span></div>
               <div><span>施行日期：</span><span>{{this.$parseTime(detailData.effectiveTime, '{y}-{m}-{d}')}}</span></div>
             </div>
-            <div class="lineDetail">
-              <div><span>发布单位：</span><span>{{detailData.belongDepName}}</span></div>
-              <div><span>发布人：</span><span>{{detailData.creationName}}</span></div>
-            </div>
-            <div class="lineDetail">
-              <div><span>发布日期：</span><span>{{this.$parseTime(detailData.creationTime, '{y}-{m}-{d}')}}</span></div>
-            </div>
+            <!--<div class="lineDetail">-->
+              <!--<div><span>发布单位：</span><span>{{detailData.belongDepName}}</span></div>-->
+              <!--<div><span>发布人：</span><span>{{detailData.creationName}}</span></div>-->
+            <!--</div>-->
+            <!--<div class="lineDetail">-->
+              <!--<div><span>发布日期：</span><span>{{this.$parseTime(detailData.creationTime, '{y}-{m}-{d}')}}</span></div>-->
+            <!--</div>-->
           </div>
           <div v-if="detailData.content && detailData.content !== ''" :style="detailData.content && detailData.content !== '' ? {maxHeight:tableHeight} : ''" class="hybzContent">
             <div v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
