@@ -282,7 +282,7 @@ export default {
       }).catch((e) => { })
     },
     cancel() {
-      this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName }})
+      this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName, page: this.carryParam.page }})
     },
     handleSave(formName) { // 保存
       this.$refs[formName].validate(valid => {
@@ -326,7 +326,7 @@ export default {
                 this.$message({
                   message: '修改成功', type: 'success'
                 })
-                this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName }})
+                this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName, page: this.carryParam.page }})
               }
             }).catch(() => {
               this.formLoading = false
@@ -341,7 +341,7 @@ export default {
                   type: 'success',
                   message: '添加成功!'
                 })
-                this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName }})
+                this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName, page: this.carryParam.page }})
               }
             }).catch(() => {
               this.formLoading = false
@@ -376,7 +376,8 @@ export default {
       // }
     },
     back() {
-      this.$router.back(-1)
+      // this.$router.back(-1)
+      this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName, page: this.carryParam.page }})
     }
   },
   mounted() {
