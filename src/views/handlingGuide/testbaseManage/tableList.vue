@@ -298,7 +298,8 @@ export default {
                 questionCatrgory: row.subjectCategoryId, // 试题所属模块id
                 nodeCategoryId: this.menuItemNode.id, // 左边模块id
                 nodeCategoryName: this.menuItemNode.label, // 左边模块name
-                filtersTx: this.filters.tx // 当前选中的题型
+                filtersTx: this.filters.tx, // 当前选中的题型
+                page: this.page // 当前页码
               }
               this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: param })
             }).catch(() => {
@@ -317,7 +318,8 @@ export default {
             questionCatrgory: row.subjectCategoryId, // 试题所属模块id
             nodeCategoryId: this.menuItemNode.id, // 左边模块id
             nodeCategoryName: this.menuItemNode.label, // 左边模块name
-            filtersTx: this.filters.tx // 当前选中的题型
+            filtersTx: this.filters.tx, // 当前选中的题型
+            page: this.page // 当前页码
           }
           this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: param })
         }
@@ -517,8 +519,11 @@ export default {
       this.filters.tx = this.$route.query.filtersTx // 所选题型
       this.menuItemNode.id = this.$route.query.nodeCategoryId // 左边选中的模块的id
       this.menuItemNode.label = this.$route.query.nodeCategoryName // 左边模块的name
+      this.page = this.$route.query.page // 页码
+      this.queryList(false, true)
+    } else {
+      this.queryList(true, true)
     }
-    this.queryList(true, true)
   },
   activated() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 200
@@ -526,8 +531,11 @@ export default {
       this.filters.tx = this.$route.query.filtersTx // 所选题型
       this.menuItemNode.id = this.$route.query.nodeCategoryId // 左边选中的模块的id
       this.menuItemNode.label = this.$route.query.nodeCategoryName // 左边模块的name
+      this.page = this.$route.query.page // 页码
+      this.queryList(false, true)
+    } else {
+      this.queryList(true, true)
     }
-    this.queryList(true, true)
   }
 }
 </script>
