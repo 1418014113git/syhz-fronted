@@ -69,18 +69,22 @@ export default {
 }
 
 @media only screen and (max-width: 1367px) {
-  .el-input--mini .el-input__inner {
+  .searchApp .el-input--mini .el-input__inner {
     height: 25px;
     line-height: 25px;
   }
   .searchApp .yjss {
     font-size: 12px;
   }
-  .el-input {
+  .searchApp .el-input {
     width: 145px;
   }
   .searchApp {
     float: right;
+  }
+  .top .el-form {
+    width: 100%;
+    margin: 0 auto;
   }
 }
 </style>

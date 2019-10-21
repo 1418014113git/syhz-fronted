@@ -23,14 +23,6 @@
               <el-button type="success" v-if="$isViewBtn('118003') && detailData.createUser === String(curUser.id)" plain @click="doEdit">修改</el-button>
             </div>
           </div>
-          <!--<div class="lineDetail">-->
-            <!--<div><span>颁布机关：</span><span>{{detailData.publishOrgName}}</span></div>-->
-            <!--<div><span>颁布日期：</span><span>{{this.$parseTime(detailData.publishTime, '{y}-{m}-{d}')}}</span></div>-->
-          <!--</div>-->
-          <!--<div class="lineDetail">-->
-            <!--<div><span>颁布文号：</span><span>{{detailData.publishCode}}</span></div>-->
-            <!--<div><span>施行日期：</span><span>{{this.$parseTime(detailData.effectiveTime, '{y}-{m}-{d}')}}</span></div>-->
-          <!--</div>-->
           <div class="lineDetail">
             <div><span>发布单位：</span><span>{{detailData.belongDepName}}</span></div>
             <div><span>发布人：</span><span>{{detailData.creationName}}</span></div>
@@ -45,8 +37,20 @@
             </div>
           </div>
         </div>
-        <div v-if="detailData.content && detailData.content !== ''" class="alzyContent">
-          <div v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
+        <div class="alzyContent">
+          <div class="lineDetail">
+            <div><span>关键词：</span>
+              <span>{{detailData.keyWord}}</span>
+            </div>
+          </div>
+          <div class="lineDetail">
+            <div><span>摘要：</span>
+              <span>{{detailData.abstract}}</span>
+            </div>
+          </div>
+          <p></p>
+          <p></p>
+          <div v-if="detailData.content && detailData.content !== ''" :style="detailData.content && detailData.content !== '' ? {maxHeight:tableHeight} : ''" v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
         </div>
         <div v-if="detailData.enclosure && detailData.enclosure.length > 0" class="enclosure_con">
           <div v-for="item in detailData.enclosure" :key="item.key" class="file_data_list" @click="handlerClick(item)">
@@ -78,19 +82,19 @@
     <el-row class="caseEdit">
       <img src="@/assets/icon/back.png"  class="goBack" @click="dialogClose">   <!--返回-->
     </el-row>
-    <audio-player ref="audioPlayer" :playType="1" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></audio-player>
+    <audio-player ref="audioPlayer" :playType="4" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></audio-player>
   </el-dialog>
   <el-dialog title="" :visible.sync="videoDialogVisible" :close-on-click-modal="false" :show-close="false" @close="dialogClose" class="play_dialog">
     <el-row class="caseEdit">
       <img src="@/assets/icon/back.png"  class="goBack" @click="dialogClose">   <!--返回-->
     </el-row>
-    <video-player ref="videoPlayer" :playType="1" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></video-player>
+    <video-player ref="videoPlayer" :playType="4" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></video-player>
   </el-dialog>
   <el-dialog title="" :visible.sync="documentDialogVisible" :close-on-click-modal="false" :show-close="false" @close="dialogClose" class="play_dialog">
     <el-row class="caseEdit">
       <img src="@/assets/icon/back.png"  class="goBack" @click="dialogClose">   <!--返回-->
     </el-row>
-    <document-player ref="documentPlayer" :playType="1" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></document-player>
+    <document-player ref="documentPlayer" :playType="4" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></document-player>
   </el-dialog>
 </div>
 </template>
@@ -102,6 +106,7 @@
   import VueEditor from '@/components/Editor/VueEditor'
   import { uploadImg } from '@/utils/editorUpload'
   import Attachment from '@/api/attachment'
+  import { addJF } from '@/api/trainRuleConfig'
 
   export default {
     name: 'caseEdit',
@@ -134,7 +139,14 @@
           { label: '司法解释', value: '3' },
           { label: '其他规范性文件', value: '4' }
         ],
-        viewId: ''
+        viewId: '',
+        detailViewId: '',
+        tableHeight: null,
+        notTack: false,
+        currentTime: new Date(),
+        autoUpdateInterval: null,
+        waitInterval: null,
+        learningTime: 10000 // 毫秒
       }
     },
     methods: {
@@ -176,6 +188,7 @@
         this.$gotoid('/handlingGuide/alzy/edit', this.id)
       },
       callback() {
+        this.clearTimeInterval()
         if (this.callBack === '') {
           this.$router.push('/handlingGuide/alzyList')
         } else {
@@ -191,9 +204,7 @@
         this.$query('caseinfo/' + this.id, {}).then(response => {
           this.loading = false
           this.detailData = response.data
-          if (this.callBack === '') { // 从列表页进来的
-            this.viewLog('0', '0')
-          }
+          this.bindSetTimeOut()
         }).catch(() => {
           this.loading = false
         })
@@ -257,33 +268,74 @@
           stopTime: '',
           remark: '',
           ip: sessionStorage.getItem('currentIp'),
-          ensId: this.playerDetail.id,
           belongMode: '4',
           belongType: this.detailData.articleType,
           documentId: this.detailData.documentId,
           viewType: viewType, // 0 文章， 1 附件
           operateType: operateType // 0 预览， 1 下载
         }
+        if (viewType === '0') {
+          para.ensId = this.playerDetail.id
+        }
         para = this.$setCurrentUser(para)
         this.$save('konwledgeLog', para).then(response => {
           if (viewType === '1' && operateType === '0') {
             this.viewId = response.data
           }
+          if (viewType === '0') {
+            this.detailViewId = response.data
+          }
         })
       },
-      uploadViewLog(stopTime) {
+      uploadViewLog(stopTime, detailFlag) {
         let para = {
           stopTime: stopTime
         }
         para = this.$setCurrentUser(para)
         para.lastId = para.creationId
         para.lastName = para.creationName
-        this.$update('Knowledge/' + this.viewId, para).then(response => {
+        const id = detailFlag ? this.detailViewId : this.viewId
+        this.$update('Knowledge/' + id, para).then(response => {
           console.info('更新停留时间')
         })
+      },
+      bindSetTimeOut() {
+        if (this.callBack === '' && this.notTake) {
+          setTimeout(() => {
+            addJF('1', this.detailData.articleType, this.detailData.id, '4').then(response => {
+            })
+          }, this.learningTime)
+          this.viewLog('0', '0')
+          this.bindSetInterval()
+        }
+      },
+      bindSetInterval() {
+        this.autoUpdateInterval = setInterval(() => {
+          const time = new Date()
+          const longC = parseFloat((time.getTime() - this.currentTime.getTime()) / 1000).toFixed(3)
+          this.uploadViewLog(longC, true)
+        }, this.learningTime)
+      },
+      clearTimeInterval() {
+        clearInterval(this.autoUpdateInterval)
       }
     },
+    created() {
+      this.$navigation.on('forward', (to, from) => {
+        this.clearTimeInterval()
+      })
+      this.$navigation.on('back', (to, from) => {
+        this.clearTimeInterval()
+      })
+    },
     mounted() {
+      const data = JSON.parse(sessionStorage.getItem('depToken'))
+      if (data !== undefined && data !== null && data.length > 0) {
+        this.notTake = true
+      } else {
+        this.notTake = false
+      }
+      this.tableHeight = document.documentElement.clientHeight - 559 + 'px'
       this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
@@ -333,9 +385,20 @@
     margin-right: 10px;
   }
   .alzyContent{
+    padding: 20px 40px;
     border-top: 1px solid #eeeeee;
-    padding-top: 20px;
-    min-height: 500px;
+    overflow-y: auto;
+  }
+  .alzyContent > div.lineDetail{
+    width: 100%;
+    padding: 5px;
+    display: inline-block;
+  }
+  .alzyContent > div.lineDetail > div > span:first-child{
+    width: 80px;
+    text-align: right;
+    display: inline-block;
+    margin-right: 10px;
   }
   .alzyDetail .title{
     color: rgb(32, 160, 255);

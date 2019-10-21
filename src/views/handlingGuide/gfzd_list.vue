@@ -44,11 +44,9 @@
         </div>
         <div style="overflow:auto;"   :style="{maxHeight:tableHeight}">
           <div v-for="item in dataList" :key="item.value" class="lineStyle" @click='detail(item.id)'>
-            <el-col :span="24" style="font-size: 16px; font-weight: bold; cursor: pointer;">{{ item.title }}</el-col>
-            <el-col :span="12" style="color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">颁布机关：{{ item.publishOrgName }}</el-col>
-            <el-col :span="12" style="color: #c7c7c7;">颁布日期：{{ $parseTime(item.publishTime, '{y}-{m}-{d}') }}</el-col>
-            <!--<p>{{ item.title }}</p>-->
-            <!--<p><span>发布机构：{{ item.establishmentOrgan }}</span><span>发布时间：{{ item.issueDate }}</span></p>-->
+            <el-col :title="item.title" :span="14" style="word-break: keep-all; text-overflow: ellipsis; font-size: 16px; font-weight: bold; cursor: pointer;">{{ item.title }}</el-col>
+            <el-col :title="item.publishOrgName" :span="6" style="word-break: keep-all; text-overflow: ellipsis; color: #c7c7c7; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">颁布机关：{{ item.publishOrgName }}</el-col>
+            <el-col :title="$parseTime(item.publishTime, '{y}-{m}-{d}')" :span="4" style="word-break: keep-all; text-overflow: ellipsis; color: #c7c7c7; overflow: hidden; white-space: nowrap;">施行日期：{{ $parseTime(item.effectiveTime, '{y}-{m}-{d}') }}</el-col>
           </div>
         </div>
       </el-card>
@@ -154,13 +152,13 @@ export default {
       this.activeName = para.activeName
       sessionStorage.setItem(this.$route.path, '')
     }
-    this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
+    this.tableHeight = document.documentElement.clientHeight - 379 + 'px'
     this.query(true)
     this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
   },
   activated() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
-    this.tableHeight = document.documentElement.clientHeight - 300 + 'px'
+    this.tableHeight = document.documentElement.clientHeight - 379 + 'px'
   }
 
 }
@@ -170,11 +168,18 @@ export default {
 .gfzdList .el-card__body {
   padding: 10px 1px;
 }
+.gfzdList .box-card {
+  height: auto;
+}
 .gfzdList .lineStyle {
-  padding: 5px 50px;
-  border-bottom: 1px dotted #fefefe;
+  padding: 3px 50px 5px;
+  border-bottom: 1px dotted #1d659b;
   display: inline-block;
   width: 100%;
+  cursor: pointer;
+}
+.gfzdList .lineStyle:last-child{
+  border-bottom: 0;
 }
 .gfzdList .lineStyle .el-col {
   padding: 5px;

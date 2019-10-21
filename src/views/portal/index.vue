@@ -1,6 +1,6 @@
 <template>
   <section class="portalCont" @mouseover="isOvertime()">
-    <top></top>
+    <top :upmsUrl="upmsUrl"></top>
     <div class="portalWrap">
       <!-- <top-message></top-message> -->
       <div class="cardCount">
@@ -78,6 +78,7 @@ export default {
         // { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' }
       ],
       isShowMenu: this.$store.state.app.clickAll, // 是否显示个性化菜单
+      upmsUrl: '', // 存储upms地址
       lastTime: null, // 最后一次鼠标移动的时间
       currentTime: null, // 当前鼠标移动的时间
       timeOut: 30 * 60 * 1000 // 设置超时时间： 30分钟
@@ -116,6 +117,14 @@ export default {
         })
       }
       this.accessControlModel()
+      this.getSysconfig()
+    },
+    getSysconfig() { // 获取upms地址
+      this.$query('sysconfig', { configKey: 'upms_url' }).then(response => {
+        if (response.data.length > 0) {
+          this.upmsUrl = response.data[0].configValue.trim()
+        }
+      })
     },
     accessControlModel() { // 模块显示权限控制
       // this.cardData = this.cardData1
@@ -142,11 +151,10 @@ export default {
         this.$alert('由于您长时间未操作，请重新登录', '提示', {
           confirmButtonText: '确定',
           callback: action => {
-            this.$store.dispatch('FedLogOut').then(() => {
-              this.$router.push({
-                path: '/login'
-              })
+            this.$router.push({
+              path: '/login'
             })
+            sessionStorage.clear()
           }
         })
       } else {

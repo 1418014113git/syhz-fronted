@@ -115,3 +115,5 @@ export const regAddress = /^(?=.*?[\u4E00-\u9FA5])[\d\u4E00-\u9FA5]+/
 export const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
 export const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
 export const regW = /^\w$/
+export const regCode = /[！@#￥%……&]/
+export const regCnName = /^((?![\u3000-\u303F])[\u2E80-\uFE4F]|\·)*(?![\u3000-\u303F])[\u2E80-\uFE4F](\·)*$/ // 判断是否包含生僻字的中文姓名

@@ -1,6 +1,29 @@
 <template>
   <div class="examStatistical">
     <el-card style="margin-bottom: 10px;">
+      <el-table :data="tableData6" :span-method="objectSpanMethod" border style="width: 100%; margin-top: 20px">
+        <el-table-column
+          prop="id"
+          label="ID"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          label="姓名">
+        </el-table-column>
+        <el-table-column
+          prop="amount1"
+          label="数值 1（元）">
+        </el-table-column>
+        <el-table-column
+          prop="amount2"
+          label="数值 2（元）">
+        </el-table-column>
+        <el-table-column
+          prop="amount3"
+          label="数值 3（元）">
+        </el-table-column>
+      </el-table>
       <el-form :inline="true" :model="filterQuery" label-width="84px">
         <el-form-item label="发布单位"  prop="deptCode">
           <!-- <el-select v-model="filterQuery.deptRange" placeholder="请选择">
@@ -170,7 +193,6 @@
 </template>
 <script>
 import echarts from 'echarts'
-import testReport from './testReport'
 export default {
   name: 'examinationStatistical',
   data() {
@@ -231,7 +253,6 @@ export default {
     }
   },
   components: {
-    testReport
   },
   methods: {
     getSummaries(param) {
@@ -287,7 +308,7 @@ export default {
           }
         }
       } else {
-        this.selectCurDep = { name: '' }
+        this.selectCurTingDep = { name: '' }
       }
     },
     handleSelectionChange(val) { // 多选表格

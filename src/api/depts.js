@@ -56,7 +56,7 @@ export function setSessionDeptSelect() {
         const obj = data[i]
         arr.push({
           id: obj.id, name: obj.dep_name, cityCode: obj.city_code,
-          depCode: obj.dep_code, parentCode: obj.super_dep_code
+          depCode: obj.dep_code, parentCode: obj.super_dep_code, depType: obj.depType
         })
       }
       sessionStorage.setItem('DeptSelect', JSON.stringify(arr))
