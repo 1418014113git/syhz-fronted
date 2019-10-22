@@ -1,15 +1,24 @@
 <template>
   <section class="deptTableList">
-    <el-form :inline="true" :model="filters" ref="filters" label-width="98px" style="text-align: left;">
-      <el-form-item label="地市" prop="examStatus">
-        {{selectCurDep.name && Number(selectCurDep.name.length)>11}}
+    <el-form :inline="true" :model="filters" ref="filters" label-width="80px" style="text-align: left;">
+      <el-form-item label="行政区划" prop="examStatus">
+        <el-cascader
+          :options="xzqhOptions"
+          v-model="filters.area"
+          :props="props"
+          change-on-select
+          @change="handleAreaChange"
+          clearable placeholder="全部">
+        </el-cascader>
+      </el-form-item>
+      <el-form-item label="单位机构" prop="examStatus">
         <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>11)===true?'tooltipShow':'tooltipHide'">
           <el-cascader
             :options="deptOptions"
-            v-model="filters.deptCode"
+            v-model="filters.department"
             :props="deptProps"
-            :show-all-levels=false
             change-on-select
+            :show-all-levels="false"
             @change="handleDeptChange"
             clearable placeholder="全部">
           </el-cascader>
@@ -24,25 +33,24 @@
     <!--列表-->
     <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
       <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
-      <el-table-column prop="examinationName" label="机构全称" min-width="160" show-overflow-tooltip>
+      <el-table-column prop="departName" label="机构全称" min-width="160" show-overflow-tooltip>
          <template slot-scope="scope">
-            <span class="canClick" @click="handleDepartDetail(scope.row)">{{scope.row.examinationName}}</span>
+            <span class="canClick" @click="handleDetail(scope.$index, scope.row)">{{scope.row.departName}}</span>
           </template>
       </el-table-column>
-      <el-table-column prop="totalDate" label="机构级别" width="100" align="center"></el-table-column>
-      <el-table-column prop="permitNumber" label="实有人数" width="100" align="center"></el-table-column>
-      <!-- <el-table-column prop="type" label="试卷类型" width="140" align="center">
+      <el-table-column prop="departLevel" label="机构级别" width="100" align="center">
         <template slot-scope="scope">
-          {{$getLabelByValue(scope.row.type+'', paperType)}}
+          {{$getDictName(scope.row.departLevel+'', 'zyzz')}}
         </template>
-      </el-table-column> -->
-      <el-table-column prop="examStatus" label="所属行政区划" width="140" align="center"></el-table-column>
-      <el-table-column prop="examStatus" label="主要负责人" width="140" align="center"></el-table-column>
-      <el-table-column prop="examStatus" label="分管局领导" width="140" align="center"></el-table-column>
+      </el-table-column>
+      <el-table-column prop="realityNum" label="实有人数" width="100" align="center"></el-table-column>
+      <el-table-column prop="areaName" label="所属行政区划" width="160" align="center"></el-table-column>
+      <el-table-column prop="mainLeader" label="主要负责人" width="160" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="subofficeLeader" label="分管局领导" width="160" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
-          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑"></el-button>
+          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" :disabled="scope.row.setFlag===0"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -59,20 +67,30 @@
 <script>
 import { examStatus, examPaperType } from '@/utils/codetotext'
 import importexport from '@/api/importexport'
+import { getTree } from '@/api/dept'
+
 export default {
   data() {
     return {
       downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
+      filters: {
+        area: [],
+        department: []
+      },
       tableData: [], // 列表数据
+      xzqhOptions: [], // 行政区划数据
+      deptOptions: [], // 部门数据
       total: 0,
       page: 1,
       pageSize: 15,
       listLoading: false,
       tableHeight: null,
-      filters: {},
       ksztData: examStatus(), // 考试状态
       paperType: examPaperType(), // 试卷类型
-      deptOptions: [], // 部门数据
+      props: {
+        value: 'cityCode',
+        label: 'cityName'
+      },
       deptProps: {
         value: 'depCode',
         label: 'name',
@@ -86,7 +104,40 @@ export default {
   watch: { // 监听state状态变化
   },
   methods: {
-    handleDeptChange(val) { // 发布单位
+    handleAreaChange(val) { // 行政区划
+      if (val.length > 0) {
+        var param = {
+          provinceCode: val[0] || '',
+          cityCode: val[1] || '',
+          reginCode: val[2] || ''
+        }
+        this.$query('hsyzdeparttree', param, 'upms').then((response) => {
+          if (response.code === '000000') {
+            if (response.data && response.data.length > 0) {
+              var arr = []
+              const data = response.data
+              for (let i = 0; i < data.length; i++) {
+                const obj = data[i]
+                arr.push({
+                  id: obj.id, name: obj.dep_name, cityCode: obj.city_code,
+                  depCode: obj.dep_code, parentCode: obj.super_dep_code, depType: obj.depType
+                })
+              }
+              this.deptOptions = getTree(arr) // 机构
+              if (this.deptInfo.depType === '4') {
+                this.filters.department = [this.deptInfo.depCode.substring(0, 7) + '00000', this.deptInfo.depCode]
+                this.queryList(true) // 查列表
+              }
+            }
+          }
+        }).catch(() => {
+          this.formLoading = false
+        })
+      } else {
+        this.deptOptions = []
+      }
+    },
+    handleDeptChange(val) { // 单位机构
       // console.log(val)
       if (val.length > 0) {
         var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
@@ -101,46 +152,70 @@ export default {
         this.selectCurDep = { name: '' }
       }
     },
-    examStatusChange(val) {
-
+    initData() { // 初始化筛选条件
+      // 行政区划
+      this.listLoading = true
+      this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.xzqhOptions = response.data ? response.data : []
+          var currentArea = []
+          if (this.deptInfo.depType === '-1' || this.deptInfo.depType === '1') { // 总队 省
+            currentArea = [this.deptInfo.areaCode]
+          } else if (this.deptInfo.depType === '2') { // 支队
+            currentArea = ['610000', this.deptInfo.areaCode]
+          } else if (this.deptInfo.depType === '3' || this.deptInfo.depType === '4') { // 大队 派出所
+            currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
+          }
+          this.filters.area = currentArea
+          this.handleAreaChange(currentArea) // 查单位机构
+          if (this.deptInfo.depType !== '4') { // 非派出所
+            this.queryList(true) // 查列表
+          }
+        }
+      }).catch(() => {
+        this.formLoading = false
+      })
     },
     queryList(flag, hand) { // 列表数据查询
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
+        id: this.deptInfo.id, // 当前部门的id
         pageNum: this.page,
         pageSize: this.pageSize,
         logFlag: 1, // 添加埋点参数
-        deptCode: this.deptInfo.depCode,
-        examinationName: this.filters.examinationName || '', // 考试名称
-        examStatus: this.filters.examStatus || '' // 考试状态
+        userId: this.userInfo.id
+      }
+      if (this.filters.area && this.filters.area.length > 0) { // 行政区划
+        console.log(this.filters.area)
+        para.provinceCode = this.filters.area[0] || '' // 省code
+        para.cityCode = this.filters.area[1] || '' // 市code
+        para.reginCode = this.filters.area[2] || '' // 区code
+      } else {
+        para.provinceCode = '' // 省code
+        para.cityCode = '' // 市code
+        para.reginCode = '' // 区code
+      }
+      if (this.filters.department && this.filters.department.length > 0) { // 单位机构
+        para.departCode = this.filters.department[this.filters.department.length - 1] || '' // 部门code
+      } else {
+        para.departCode = ''
       }
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
-      // page/examination
-      this.$query('examination/findAllExamination', para).then((response) => {
+      this.$query('page/hsyzdepart', para, 'upms').then((response) => {
         this.listLoading = false
         if (response.data && response.data.list.length > 0) {
           this.total = response.data.totalCount
           this.page = response.data.pageNum
           this.pageSize = response.data.pageSize
-          for (let index = 0; index < response.data.list.length; index++) {
-            var element = response.data.list[index]
-            if (element.markPeople) {
-              var markArr = element.markPeople.split(',')
-              if (markArr.indexOf(this.userInfo.id + '') > -1) {
-                element.isGoOver = 1 // 是否可以阅卷
-              } else {
-                element.isGoOver = 0
-              }
-            }
-          }
           this.tableData = response.data.list
         } else {
           this.tableData = []
         }
       }).catch(() => {
+        this.tableData = []
         this.listLoading = false
       })
     },
@@ -152,15 +227,29 @@ export default {
       this.pageSize = val
       this.queryList(true, true)
     },
-    handleDepartDetail(index, row) { // 跳转详情
-      this.$router.push({ path: '/basicService/deptInfo/detail', query: { examId: row.id }})
-    },
     handleDetail(index, row) { // 详情
-      this.$router.push({ path: '/basicService/deptInfo/detail', query: { examId: row.id }})
+      this.$router.push({ path: '/basicService/deptInfo/detail', query: { deptId: row.id }})
     },
     handleEdit(index, row) { // 编辑
-      this.$router.push({ path: '/basicService/deptInfo/edit', query: { examId: row.id }})
       // 检查是否可编辑
+      var roleFlag = false
+      if (sessionStorage.getItem('roles')) {
+        var roles = JSON.parse(sessionStorage.getItem('roles'))
+        for (let d = 0; d < roles.length; d++) {
+          const element = roles[d]
+          if (element.roleCode === '1007') { // 具有审核权限的用户
+            roleFlag = true
+            break
+          } else {
+            roleFlag = false
+          }
+        }
+      }
+      if (roleFlag) {
+        this.$router.push({ path: '/basicService/deptInfo/edit', query: { deptId: row.id }})
+      } else {
+        this.$message.error('此操作您暂时没有权限操作！')
+      }
       // var para = {
       //   id: row.id
       // }
@@ -173,71 +262,17 @@ export default {
       //   this.listLoading = false
       // })
     },
-    getTree(treeArray) {
-      const r = []
-      const tmpMap = {}
-      for (let i = 0, l = treeArray.length; i < l; i++) {
-        tmpMap[treeArray[i]['depCode']] = treeArray[i]
-      }
-      for (let i = 0, l = treeArray.length; i < l; i++) {
-        const key = tmpMap[treeArray[i]['parentCode']]
-        if (key && key.depType !== '4') { // 去掉派出所的层级
-          if (!key['children']) {
-            if (treeArray[i].depType !== '4') {
-              key['children'] = []
-              key['children'].push(treeArray[i])
-            }
-          } else {
-            if (treeArray[i].depType !== '4') {
-              key['children'].push(treeArray[i])
-            }
-          }
-        } else {
-          if (treeArray[i].depType !== '4') {
-            r.push(treeArray[i])
-          }
-        }
-      }
-      return r
-    },
     reset() { // 重置
       this.filters = {
-
+        area: [],
+        department: []
       }
-      // this.dateRange = []
-      // this.yearDate = '' // 年份
-      // this.quarterDate = '' // 季度
-      // this.monthDate = '' // 月份
-      // this.startTime = '' // 开始时间
-      // this.endTime = '' // 结束时间
-      this.queryList(true)
-    },
-    handleGoOverExam(index, row) { // 阅卷
-      // this.$router.push({ path: '/handlingGuide/goOverExamPaper/index', query: { examId: row.id }})
-    },
-    importTem() {
-      this.dialogImportVisible = true
-    },
-    getFile() {
-      if (event.target.files[0]) {
-        this.fileCon = event.target.files[0]
-      } else {
-        this.fileCon = ''
-      }
-    },
-    closeDia() {
-      const file = document.getElementById('excelFile')
-      if (file) {
-        file.value = ''
-      }
-      this.dialogImportVisible = false
+      this.initData()
     }
   },
   mounted() {
-    var dept = this.getTree(JSON.parse(sessionStorage.getItem('DeptSelect')))
-    this.deptOptions = dept
     this.tableHeight = document.documentElement.clientHeight - 180
-    this.queryList(true)
+    this.initData()
   }
 }
 
