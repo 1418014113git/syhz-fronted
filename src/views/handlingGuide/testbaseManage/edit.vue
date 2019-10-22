@@ -282,7 +282,7 @@ export default {
       }).catch((e) => { })
     },
     cancel() {
-      this.$router.push({ path: '/handlingGuide/testbaseManage' })
+      this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName, page: this.carryParam.page }})
     },
     handleSave(formName) { // 保存
       this.$refs[formName].validate(valid => {
@@ -290,7 +290,6 @@ export default {
           // console.log(this.questionForm)
           this.formLoading = true
           var param = JSON.parse(JSON.stringify(this.questionForm))
-          param.subjectCategoryId = this.carryParam.questionCatrgory // 所在模块
           if (param.answerDx && param.answerDx.length > 0) { // 多选
             param.answer = param.answerDx.sort().join(',')
           }
@@ -319,6 +318,7 @@ export default {
           param.creator = this.userInfo.userName
           // console.log(param)
           if (this.carryParam.questinoId) {
+            param.subjectCategoryId = this.carryParam.questionCatrgory // 所在模块
             // 编辑
             this.$update('examquestion/' + this.carryParam.questinoId, param).then((response) => {
               this.formLoading = false
@@ -326,13 +326,14 @@ export default {
                 this.$message({
                   message: '修改成功', type: 'success'
                 })
-                this.$router.push({ path: '/handlingGuide/testbaseManage' })
+                this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName, page: this.carryParam.page }})
               }
             }).catch(() => {
               this.formLoading = false
             })
           } else {
             // 添加
+            param.subjectCategoryId = this.carryParam.nodeCategoryId // 所在模块
             this.$save('question', param).then((response) => {
               this.formLoading = false
               if (response.code === '000000') {
@@ -340,7 +341,7 @@ export default {
                   type: 'success',
                   message: '添加成功!'
                 })
-                this.$router.push({ path: '/handlingGuide/testbaseManage' })
+                this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName, page: this.carryParam.page }})
               }
             }).catch(() => {
               this.formLoading = false
@@ -375,12 +376,20 @@ export default {
       // }
     },
     back() {
-      this.$router.back(-1)
+      // this.$router.back(-1)
+      this.$router.push({ path: '/handlingGuide/testbaseManage', query: { filtersTx: this.carryParam.filtersTx, nodeCategoryId: this.carryParam.nodeCategoryId, nodeCategoryName: this.carryParam.nodeCategoryName, page: this.carryParam.page }})
     }
   },
   mounted() {
     this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
-    if (this.$route.query) {
+    if (this.$route.query && this.$route.query.filtersTx) {
+      this.carryParam = this.$route.query
+      this.init()
+    }
+  },
+  activated() {
+    this.editorHeight = this.$refs.leftCol.offsetHeight - 12 + 'px'
+    if (this.$route.query && this.$route.query.filtersTx) {
       this.carryParam = this.$route.query
       this.init()
     }

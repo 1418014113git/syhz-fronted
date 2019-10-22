@@ -23,12 +23,12 @@
               <el-button type="success" v-if="$isViewBtn('118003') && detailData.createUser === String(curUser.id)" plain @click="doEdit">修改</el-button>
             </div>
           </div>
+          <!--<div class="lineDetail">-->
+            <!--<div><span>发布单位：</span><span>{{detailData.belongDepName}}</span></div>-->
+            <!--<div><span>发布人：</span><span>{{detailData.creationName}}</span></div>-->
+          <!--</div>-->
           <div class="lineDetail">
-            <div><span>发布单位：</span><span>{{detailData.belongDepName}}</span></div>
-            <div><span>发布人：</span><span>{{detailData.creationName}}</span></div>
-          </div>
-          <div class="lineDetail">
-            <div><span>发布日期：</span><span>{{this.$parseTime(detailData.publishTime, '{y}-{m}-{d}')}}</span></div>
+            <!--<div><span>发布日期：</span><span>{{this.$parseTime(detailData.publishTime, '{y}-{m}-{d}')}}</span></div>-->
             <div><span>来源：</span>
               <span v-if="detailData.source === 0">公安内部</span>
               <span v-if="detailData.source === 1">最高法院</span>
@@ -82,19 +82,19 @@
     <el-row class="caseEdit">
       <img src="@/assets/icon/back.png"  class="goBack" @click="dialogClose">   <!--返回-->
     </el-row>
-    <audio-player ref="audioPlayer" :playType="1" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></audio-player>
+    <audio-player ref="audioPlayer" :playType="4" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></audio-player>
   </el-dialog>
   <el-dialog title="" :visible.sync="videoDialogVisible" :close-on-click-modal="false" :show-close="false" @close="dialogClose" class="play_dialog">
     <el-row class="caseEdit">
       <img src="@/assets/icon/back.png"  class="goBack" @click="dialogClose">   <!--返回-->
     </el-row>
-    <video-player ref="videoPlayer" :playType="1" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></video-player>
+    <video-player ref="videoPlayer" :playType="4" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></video-player>
   </el-dialog>
   <el-dialog title="" :visible.sync="documentDialogVisible" :close-on-click-modal="false" :show-close="false" @close="dialogClose" class="play_dialog">
     <el-row class="caseEdit">
       <img src="@/assets/icon/back.png"  class="goBack" @click="dialogClose">   <!--返回-->
     </el-row>
-    <document-player ref="documentPlayer" :playType="1" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></document-player>
+    <document-player ref="documentPlayer" :playType="4" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></document-player>
   </el-dialog>
 </div>
 </template>
@@ -106,6 +106,7 @@
   import VueEditor from '@/components/Editor/VueEditor'
   import { uploadImg } from '@/utils/editorUpload'
   import Attachment from '@/api/attachment'
+  import { addJF } from '@/api/trainRuleConfig'
 
   export default {
     name: 'caseEdit',
@@ -139,7 +140,13 @@
           { label: '其他规范性文件', value: '4' }
         ],
         viewId: '',
-        tableHeight: null
+        detailViewId: '',
+        tableHeight: null,
+        notTack: false,
+        currentTime: new Date(),
+        autoUpdateInterval: null,
+        waitInterval: null,
+        learningTime: 10000 // 毫秒
       }
     },
     methods: {
@@ -181,6 +188,7 @@
         this.$gotoid('/handlingGuide/alzy/edit', this.id)
       },
       callback() {
+        this.clearTimeInterval()
         if (this.callBack === '') {
           this.$router.push('/handlingGuide/alzyList')
         } else {
@@ -196,9 +204,7 @@
         this.$query('caseinfo/' + this.id, {}).then(response => {
           this.loading = false
           this.detailData = response.data
-          if (this.callBack === '') { // 从列表页进来的
-            this.viewLog('0', '0')
-          }
+          this.bindSetTimeOut()
         }).catch(() => {
           this.loading = false
         })
@@ -262,33 +268,73 @@
           stopTime: '',
           remark: '',
           ip: sessionStorage.getItem('currentIp'),
-          ensId: this.playerDetail.id,
           belongMode: '4',
           belongType: this.detailData.articleType,
           documentId: this.detailData.documentId,
           viewType: viewType, // 0 文章， 1 附件
           operateType: operateType // 0 预览， 1 下载
         }
+        if (viewType === '0') {
+          para.ensId = this.playerDetail.id
+        }
         para = this.$setCurrentUser(para)
         this.$save('konwledgeLog', para).then(response => {
           if (viewType === '1' && operateType === '0') {
             this.viewId = response.data
           }
+          if (viewType === '0') {
+            this.detailViewId = response.data
+          }
         })
       },
-      uploadViewLog(stopTime) {
+      uploadViewLog(stopTime, detailFlag) {
         let para = {
           stopTime: stopTime
         }
         para = this.$setCurrentUser(para)
         para.lastId = para.creationId
         para.lastName = para.creationName
-        this.$update('Knowledge/' + this.viewId, para).then(response => {
+        const id = detailFlag ? this.detailViewId : this.viewId
+        this.$update('Knowledge/' + id, para).then(response => {
           console.info('更新停留时间')
         })
+      },
+      bindSetTimeOut() {
+        if (this.callBack === '' && this.notTake) {
+          setTimeout(() => {
+            addJF('1', this.detailData.articleType, this.detailData.id, '4').then(response => {
+            })
+          }, this.learningTime)
+          this.viewLog('0', '0')
+          this.bindSetInterval()
+        }
+      },
+      bindSetInterval() {
+        this.autoUpdateInterval = setInterval(() => {
+          const time = new Date()
+          const longC = parseFloat((time.getTime() - this.currentTime.getTime()) / 1000).toFixed(3)
+          this.uploadViewLog(longC, true)
+        }, this.learningTime)
+      },
+      clearTimeInterval() {
+        clearInterval(this.autoUpdateInterval)
       }
     },
+    created() {
+      this.$navigation.on('forward', (to, from) => {
+        this.clearTimeInterval()
+      })
+      this.$navigation.on('back', (to, from) => {
+        this.clearTimeInterval()
+      })
+    },
     mounted() {
+      const data = JSON.parse(sessionStorage.getItem('depToken'))
+      if (data !== undefined && data !== null && data.length > 0) {
+        this.notTake = true
+      } else {
+        this.notTake = false
+      }
       this.tableHeight = document.documentElement.clientHeight - 559 + 'px'
       this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
