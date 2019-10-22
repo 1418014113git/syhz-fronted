@@ -296,11 +296,11 @@ export default {
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
           this.administrativeData = response.data ? response.data : []
+          if (this.carryParam.deptId) {
+            this.queryDetailById() // 查详情
+          }
         }
       })
-      if (this.carryParam.deptId) {
-        this.queryDetailById() // 查详情
-      }
     },
     queryDetailById() { // 通过id查询详情
       this.formLoading = true
@@ -326,6 +326,9 @@ export default {
           if (response.data.reginCode) { // 区
             this.departmentForm.administrative.push(response.data.reginCode)
           }
+          if (this.departmentForm.administrative.length > 0) {
+            this.areaChange(this.departmentForm.administrative)
+          }
         }
       }).catch(() => {
         this.formLoading = false
@@ -349,7 +352,6 @@ export default {
       }).catch(() => {
         // 留在编辑页面
       })
-      // this.$router.push({ path: '/handlingGuide/examineManage' })
     },
     handleSave(formName) {
       this.$refs[formName].validate(valid => {
@@ -365,8 +367,6 @@ export default {
           param.userId = this.userInfo.id
           // console.log(param)
           this.formLoading = true
-          // if (this.carryParam.examId) {
-          // 编辑
           this.$update('hsyzdepart/' + this.carryParam.deptId, param, 'upms').then((response) => {
             this.formLoading = false
             if (response.code === '000000') {

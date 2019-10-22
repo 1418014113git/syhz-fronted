@@ -113,6 +113,12 @@ export default {
       return arr.filter((arr) => !res.has(arr.deptId) && res.set(arr.deptId, 1))
     },
     init() {
+      if (this.carryParam.deptId) {
+        // 列表进来的
+      } else {
+        // 菜单进来的
+        this.carryParam.deptId = this.deptInfo.id // 将当前机构的id 放到 this.carryParam.deptId
+      }
       if (sessionStorage.getItem('roles')) {
         var roles = JSON.parse(sessionStorage.getItem('roles'))
         for (let d = 0; d < roles.length; d++) {
@@ -125,12 +131,7 @@ export default {
           }
         }
       }
-      if (this.carryParam.deptId) {
-        // 列表进来的
-      } else {
-        // 菜单进来的
-        this.carryParam.deptId = this.deptInfo.id
-      }
+
       this.queryDetailById() // 查详情
     },
     queryDetailById() { // 通过id查询详情

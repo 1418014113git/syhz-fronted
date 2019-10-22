@@ -6,7 +6,7 @@ const LoginModuleName = process.env.LOGIN_MODULE
 const zdryModuleName = process.env.MODULE_ZDRY
 // const downModuleName = process.env.DOWN_MODULE
 export default {
-  ModuleName
+  ModuleName, LoginModuleName
 }
 // 查询操作
 export function query(url, params, moduleType) {

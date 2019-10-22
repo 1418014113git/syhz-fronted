@@ -27,7 +27,7 @@
       <el-form-item>
         <el-button type="primary" @click="queryList(true)">查询</el-button>
         <el-button type="info" @click="reset">重置</el-button>
-        <el-button type="info" @click="reset">导出</el-button>
+        <el-button type="info" @click="exportDeptExcel">导出</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
@@ -50,7 +50,7 @@
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
-          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" :disabled="scope.row.setFlag===0"></el-button>
+          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" v-if="scope.row.setFlag===1"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -66,13 +66,13 @@
 
 <script>
 import { examStatus, examPaperType } from '@/utils/codetotext'
-import importexport from '@/api/importexport'
+import http from '@/api/http'
 import { getTree } from '@/api/dept'
 
 export default {
   data() {
     return {
-      downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
+      downLoadUrl: http.LoginModuleName, // nginx配置的文件下载
       filters: {
         area: [],
         department: []
@@ -183,7 +183,6 @@ export default {
         id: this.deptInfo.id, // 当前部门的id
         pageNum: this.page,
         pageSize: this.pageSize,
-        logFlag: 1, // 添加埋点参数
         userId: this.userInfo.id
       }
       if (this.filters.area && this.filters.area.length > 0) { // 行政区划
@@ -250,17 +249,33 @@ export default {
       } else {
         this.$message.error('此操作您暂时没有权限操作！')
       }
-      // var para = {
-      //   id: row.id
-      // }
-      // this.$query('examination/checkexamination', para).then((response) => {
-      //   this.listLoading = false
-      //   if (response.code === '000000') {
-      //     this.$router.push({ path: '/handlingGuide/examineManage/edit', query: { examId: row.id }})
-      //   }
-      // }).catch(() => {
-      //   this.listLoading = false
-      // })
+    },
+    exportDeptExcel() { // 导出excel
+      var para = {
+        id: this.deptInfo.id, // 当前部门的id
+        logFlag: 1, // 添加埋点参数
+        type: 1, // 接口规定的
+        userId: this.userInfo.id
+      }
+      if (this.filters.area && this.filters.area.length > 0) { // 行政区划
+        console.log(this.filters.area)
+        para.provinceCode = this.filters.area[0] || '' // 省code
+        para.cityCode = this.filters.area[1] || '' // 市code
+        para.reginCode = this.filters.area[2] || '' // 区code
+      } else {
+        para.provinceCode = '' // 省code
+        para.cityCode = '' // 市code
+        para.reginCode = '' // 区code
+      }
+      if (this.filters.department && this.filters.department.length > 0) { // 单位机构
+        para.departCode = this.filters.department[this.filters.department.length - 1] || '' // 部门code
+      } else {
+        para.departCode = ''
+      }
+      // /upms/excel/exporFile/hsyzdepart?id=1039&logFlag=1&type=1&userId=3007&provinceCode=610000&cityCode=610100&reginCode=610116&departCode=
+      var url = this.downLoadUrl + 'excel/exporFile/hsyzdepart?id=' + this.deptInfo.id + '&type=' + 1 + '&userId=' + this.userInfo.id +
+        '&provinceCode=' + para.provinceCode + '&cityCode=' + para.cityCode + '&reginCode=' + para.reginCode + '&departCode=' + para.departCode
+      window.open(url)
     },
     reset() { // 重置
       this.filters = {
