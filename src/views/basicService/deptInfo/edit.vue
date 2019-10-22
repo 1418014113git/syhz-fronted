@@ -292,14 +292,6 @@ export default {
       }
     },
     init() {
-      // 查upms下的人员数
-      this.$query('personMessage', {}).then((response) => {
-        if (response.code === '000000') {
-          this.filter.realityNum = response.data // 实有人数
-        }
-      }).catch(() => {
-        this.formLoading = false
-      })
       // 盟市
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
