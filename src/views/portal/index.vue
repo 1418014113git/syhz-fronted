@@ -37,6 +37,7 @@ export default {
     return {
       sysnotice: [],
       cardData: [],
+      curDept: null,
       cardData1: [ // 全部菜单（省厅权限）
         { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
@@ -118,6 +119,24 @@ export default {
       }
       this.accessControlModel()
       this.getSysconfig()
+      this.getPersonInfoTip()
+    },
+    getPersonInfoTip() {
+      // if (this.curDept && this.curDept.length > 0) {
+      //   this.$query('', {}).then(response => {
+      //     if (response.data.length > 0) {
+      //       this.$confirm('您的个人信息还没有完善，未避免影响您的正常使用，请尽快完善个人信息！', '提示', {
+      //         confirmButtonText: '立即完善',
+      //         cancelButtonText: '稍后再说',
+      //         type: 'warning'
+      //       }).then(() => {
+      //         this.$router.push({ path: '/basicService/personInfo', query: { type: 'mainEdit', id: this.curUser.id }})
+      //       }).catch(() => {
+
+      //       })
+      //     }
+      //   })
+      // }
     },
     getSysconfig() { // 获取upms地址
       this.$query('sysconfig', { configKey: 'upms_url' }).then(response => {
@@ -160,13 +179,23 @@ export default {
       } else {
         this.lastTime = new Date().getTime() // 如果在30分钟内鼠标移动，则把这次鼠标移动的时间记录覆盖掉之前存的最后一次鼠标移动的时间
       }
+    },
+    getDist() { // 获取字典
+      this.$query('personMessage', {}).then(response => {
+        if (response.data.length > 0) {
+          sessionStorage.setItem('dictdata', JSON.stringify(response.data))
+        }
+      })
     }
   },
   mounted() {
+    this.curDept = sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode : ''
+    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     this.init()
   },
   created() {
     this.lastTime = new Date().getTime() // 网页第一次打开时，记录当前时间
+    // this.getDist()
   }
 }
 </script>
