@@ -132,11 +132,50 @@ export default {
       //       }).then(() => {
       //         this.$router.push({ path: '/basicService/personInfo', query: { type: 'mainEdit', id: this.curUser.id }})
       //       }).catch(() => {
-
+      //         // 点击 稍后再说
+      //         this.judgeRoleAudit()
       //       })
+      //     } else {
+      //       // 人员信息已完善
+      //       this.judgeRoleAudit()
       //     }
       //   })
       // }
+    },
+    judgeRoleAudit() { // 判断当前用户是否有审核权限
+      if (sessionStorage.getItem('roles')) {
+        var roles = JSON.parse(sessionStorage.getItem('roles'))
+        for (let d = 0; d < roles.length; d++) {
+          const element = roles[d]
+          if (element.roleCode === '1007') { // 具有审核权限的用户
+            this.getDeptInfoTip() // 是否完善机构信息
+          }
+        }
+      }
+    },
+    getDeptInfoTip() {
+      if (sessionStorage.getItem('depToken')) {
+        var deptId = JSON.parse(sessionStorage.getItem('depToken'))[0].id
+        this.$query('hsyzdepartmessage', { id: deptId }, 'upms').then(response => {
+          if (response.code === '000000') {
+            // data的size等于0 未完善，等于1 已完善
+            if (response.data.length === 0) {
+              this.$confirm('您所在的机构信息还没有完善，为避免影响后期的数据统计及分析，请尽快完善机构信息！', '提示', {
+                confirmButtonText: '>>立即完善',
+                cancelButtonText: '稍后再说',
+                type: 'warning'
+              }).then(() => {
+                this.$router.push({ path: '/basicService/deptInfo/edit', query: { type: 'mainEdit' }})
+              }).catch(() => {
+
+              })
+            } else {
+              // 已完善
+            }
+          }
+        }).catch(() => {
+        })
+      }
     },
     getSysconfig() { // 获取upms地址
       this.$query('sysconfig', { configKey: 'upms_url' }).then(response => {
@@ -216,9 +255,9 @@ export default {
     min-height: 93%;
     padding: 0 10px 0 20px;
   }
-  .el-card{
+  .el-card {
     color: #fff;
-    background: url('/static/image/portal_newImg/moudBg.png') no-repeat center;
+    background: url("/static/image/portal_newImg/moudBg.png") no-repeat center;
     background-size: 100% 100%;
   }
 }
