@@ -1,7 +1,7 @@
 <template>
   <section class="deptWrap">
     <el-row>
-      <img src="@/assets/icon/back.png"  class="goBack" @click="back">
+      <!-- <img src="@/assets/icon/back.png"  class="goBack" @click="back"> -->
       <el-button size="mini" class="right" @click="lookMoreDept" icon="el-icon-menu" style="margin-right:10px;">更多机构信息</el-button>
     </el-row>
     <el-card style="margin-top:10px;">
@@ -126,8 +126,12 @@ export default {
         }
       }
       if (this.carryParam.deptId) {
-        this.queryDetailById() // 查详情
+        // 列表进来的
+      } else {
+        // 菜单进来的
+        this.carryParam.deptId = this.deptInfo.id
       }
+      this.queryDetailById() // 查详情
     },
     queryDetailById() { // 通过id查询详情
       this.formLoading = true
@@ -171,8 +175,8 @@ export default {
   mounted() {
     if (this.$route.query) {
       this.carryParam = this.$route.query
-      this.init()
     }
+    this.init()
   },
   watch: {
 

@@ -1,7 +1,7 @@
 <template>
   <section class="deptWrap">
     <el-row>
-      <img src="@/assets/icon/back.png"  class="goBack" @click="back">
+      <!-- <img src="@/assets/icon/back.png"  class="goBack" @click="back"> -->
       <el-button size="mini" class="right" @click="lookMoreDept" icon="el-icon-menu" style="margin-right:10px;">更多机构信息</el-button>
     </el-row>
     <el-card style="margin-top:10px;">
@@ -309,6 +309,13 @@ export default {
         this.formLoading = false
         if (response.code === '000000') {
           this.departmentForm = response.data
+          if (this.departmentForm.departLevel) { // 机构级别
+            this.departmentForm.departLevel = this.departmentForm.departLevel + ''
+          }
+          if (this.departmentForm.designMode) { // 设置模式
+            this.departmentForm.designMode = this.departmentForm.designMode + ''
+          }
+
           this.departmentForm.administrative = [] // 行政区划
           if (response.data.provinceCode) { // 省
             this.departmentForm.administrative.push(response.data.provinceCode)
@@ -319,27 +326,6 @@ export default {
           if (response.data.reginCode) { // 区
             this.departmentForm.administrative.push(response.data.reginCode)
           }
-          // response.data.examinationType = response.data.examinationType + '' // 分类
-          // response.data.type = response.data.type + '' // 试卷类型
-
-          // var choosedDepts = response.data.openDepts.split(',') // 开放单位
-          // var newDeptsArr = []
-          // for (let index = 0; index < choosedDepts.length; index++) {
-          //   var element = Number(choosedDepts[index])
-          //   newDeptsArr.push(element)
-          // }
-          // this.$refs.depTree.setCheckedKeys(newDeptsArr)
-
-          // if (response.data.markPeople) { // 阅卷人员
-          //   var choosedPers = response.data.markPeople.split(',')
-          //   var newPersArr = []
-          //   for (let index = 0; index < choosedPers.length; index++) {
-          //     var item = Number(choosedPers[index])
-          //     newPersArr.push(item)
-          //   }
-          // }
-          // // this.departmentForm.openDepts = newDeptsArr
-          // this.departmentForm.markPeople = newPersArr
         }
       }).catch(() => {
         this.formLoading = false
@@ -359,7 +345,7 @@ export default {
         type: 'warning'
       }).then(() => {
         // 跳转到详情画面
-        this.$router.push({ path: '/basicService/deptInfo/detail', query: {}})
+        this.$router.push({ path: '/basicService/deptInfo/detail', query: { deptId: this.carryParam.deptId }})
       }).catch(() => {
         // 留在编辑页面
       })
@@ -377,30 +363,11 @@ export default {
             param.administrative = this.departmentForm.administrative[this.departmentForm.administrative.length - 1] // 为最后一级的code
           }
           param.userId = this.userInfo.id
-          // var checkedNodes = this.$refs.depTree.getCheckedNodes()
-          // var checkedIdsArr = []
-          // for (let w = 0; w < checkedNodes.length; w++) {
-          //   const element = checkedNodes[w]
-          //   checkedIdsArr.push(element.deptId)
-          // }
-          // param.openDepts = checkedIdsArr.join(',') // 开放单位
-          // if (param.markPeople && param.markPeople.length > 0) { // 阅卷老师
-          //   param.markPeople = param.markPeople.join(',')
-          // } else {
-          //   param.markPeople = ''
-          // }
-          // param.deptCode = this.deptInfo.depCode // 当前部门code
-          // param.deptName = this.deptInfo.depName
-          // if (this.carryParam.examId) {
-          //   param.modifier = this.userInfo.userName
-          // } else {
-          //   param.creator = this.userInfo.userName
-          // }
           // console.log(param)
           this.formLoading = true
           // if (this.carryParam.examId) {
           // 编辑
-          this.$update('hsyzdepart/6012', param, 'upms').then((response) => {
+          this.$update('hsyzdepart/' + this.carryParam.deptId, param, 'upms').then((response) => {
             this.formLoading = false
             if (response.code === '000000') {
               this.$message({
@@ -418,21 +385,6 @@ export default {
             })
             this.formLoading = false
           })
-          // } else {
-          //   // 添加
-          //   this.$update('examination/save', param).then((response) => {
-          //     if (response.code === '000000') {
-          //       this.formLoading = false
-          //       this.$message({
-          //         type: 'success',
-          //         message: '添加成功!'
-          //       })
-          //       this.$router.push({ path: '/handlingGuide/examineManage' })
-          //     }
-          //   }).catch(() => {
-          //     this.formLoading = false
-          //   })
-          // }
         }
       })
     },
