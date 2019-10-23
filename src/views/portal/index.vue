@@ -21,6 +21,7 @@ import TopMessage from './components/TopMessage'
 // import OnlineHelp from './components/onlineHelp'
 import Foot from './components/foot'
 import WorkMenu from './components/WorkMenu'
+import { isViewBtn } from '@/utils/public'
 
 export default {
   name: 'index',
@@ -133,28 +134,17 @@ export default {
       //         this.$router.push({ path: '/basicService/personInfo', query: { type: 'mainEdit', id: this.curUser.id }})
       //       }).catch(() => {
       //         // 点击 稍后再说
-      //         this.judgeRoleAudit()
+      //         this.getDeptInfoTip()
       //       })
       //     } else {
       //       // 人员信息已完善
-      //       this.judgeRoleAudit()
+      //       this.getDeptInfoTip()
       //     }
       //   })
       // }
     },
-    judgeRoleAudit() { // 判断当前用户是否有审核权限
-      if (sessionStorage.getItem('roles')) {
-        var roles = JSON.parse(sessionStorage.getItem('roles'))
-        for (let d = 0; d < roles.length; d++) {
-          const element = roles[d]
-          if (element.roleCode === '1007') { // 具有审核权限的用户
-            this.getDeptInfoTip() // 是否完善机构信息
-          }
-        }
-      }
-    },
     getDeptInfoTip() {
-      if (sessionStorage.getItem('depToken')) {
+      if (isViewBtn('169003') && sessionStorage.getItem('depToken')) { // 拥有审核权限  本单位的人
         var deptId = JSON.parse(sessionStorage.getItem('depToken'))[0].id
         this.$query('hsyzdepartmessage', { id: deptId }, 'upms').then(response => {
           if (response.code === '000000') {
