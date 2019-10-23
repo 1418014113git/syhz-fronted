@@ -8,7 +8,7 @@
       <div slot="header">
         <span>机构信息</span>
         <!-- 非本单位机构用户审核权限用户登录 不显示编辑按钮，业务审核人员 只能对本单位的机构信息进行维护 -->
-        <el-button style="float: right; padding: 3px 0;font-size:22px;margin-top:-5px;" type="text" icon="el-icon-edit-outline" title="编辑" @click="editDepartment" v-if="editBtnShow"></el-button>
+        <el-button style="float: right; padding: 3px 0;font-size:22px;margin-top:-5px;" type="text" icon="el-icon-edit-outline" title="编辑" @click="editDepartment" v-if="editBtnShow && ($isViewBtn('169003'))"></el-button>
       </div>
         <!-- <el-row type="flex" justify="center" class="clearfix"> -->
       <el-form :model="departmentForm" ref="departmentForm" label-width="120px" label-position="left" v-loading="formLoading" class="clearfix">
@@ -88,7 +88,7 @@ export default {
       carryParam: {}, // 列表带过来的参数
       showAllzyzzrw: false, // 主要职责任务 是否全部展示
       showAllXxdz: false, // 机构详细地址 是否全部展示
-      editBtnShow: false, // 编辑按钮
+      editBtnShow: false, // 编辑按钮 是否为本部门
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -119,19 +119,11 @@ export default {
         // 菜单进来的
         this.carryParam.deptId = this.deptInfo.id // 将当前机构的id 放到 this.carryParam.deptId
       }
-      if (sessionStorage.getItem('roles')) {
-        var roles = JSON.parse(sessionStorage.getItem('roles'))
-        for (let d = 0; d < roles.length; d++) {
-          const element = roles[d]
-          if (element.roleCode === '1007' && this.deptInfo.id === this.carryParam.deptId) { // 具有审核权限的用户
-            this.editBtnShow = true
-            break
-          } else {
-            this.editBtnShow = false
-          }
-        }
+      if (this.deptInfo.id === this.carryParam.deptId) { // 本单位的人
+        this.editBtnShow = true
+      } else {
+        this.editBtnShow = false
       }
-
       this.queryDetailById() // 查详情
     },
     queryDetailById() { // 通过id查询详情

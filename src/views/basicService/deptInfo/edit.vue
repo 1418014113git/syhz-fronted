@@ -80,8 +80,8 @@
           </el-form-item>
         </el-col>
         <el-col :span="24" align="center" style="margin-bottom:10px;">
-          <el-button size="mini" @click="cancel()" class="cancelBtn" :loading="formLoading">取消</el-button>
-          <el-button size="mini" @click="handleSave('departmentForm')" class="saveBtn" :loading="formLoading" style="margin-left:20px;">保存</el-button>
+          <el-button size="mini" @click="cancel()" class="cancelBtn" :loading="formLoading" v-if="$isViewBtn('169003')">取消</el-button>
+          <el-button size="mini" @click="handleSave('departmentForm')" class="saveBtn" :loading="formLoading" style="margin-left:20px;" v-if="$isViewBtn('169003')">保存</el-button>
         </el-col>
       </el-form>
       <!-- </el-row> -->
@@ -297,8 +297,12 @@ export default {
         if (response.code === '000000') {
           this.administrativeData = response.data ? response.data : []
           if (this.carryParam.deptId) {
-            this.queryDetailById() // 查详情
+            // 列表进来的
+          } else {
+            // 首页进来的
+            this.carryParam.deptId = this.deptInfo.id // 将当前机构的id 放到 this.carryParam.deptId
           }
+          this.queryDetailById() // 查详情
         }
       })
     },
@@ -395,8 +399,8 @@ export default {
   mounted() {
     if (this.$route.query) {
       this.carryParam = this.$route.query
-      this.init()
     }
+    this.init()
   },
   watch: {
 
