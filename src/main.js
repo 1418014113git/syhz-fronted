@@ -15,7 +15,7 @@ import Attachment from '@/api/attachment'
 import { isResView, isResDisabled } from '@/utils/auth'
 import { isViewBtn, gotoid, closePath, parseTime, handlerDateTime, thousSplit, str2ArrBuf, resetSetItem, drawWaterMark, echartOptionToContent, getLabelByValue, pickerOptionChange, setCurrentUser, buildTime, getDictName, getDicts } from '@/utils/public'
 import { query, queryAsyns, save, update, updateAsyns, remove, download, zdryhc, download_http } from '@/api/http'
-import { validatePhone, regEnCnNumber, regEnNumber, regNumber, regCn, regEn, regEmail, regQQ, regWx, regAddress, regCode } from '@/utils/validate'
+import { validatePhone, regEnCnNumber, regEnNumber, regNumber, regCn, regEn, regEmail, regQQ, regWx, regAddress, regCode, regCnName, validateIdCard } from '@/utils/validate'
 import Watermark from '@/utils/watermark'
 Vue.prototype.isResView = isResView
 Vue.prototype.isResDisabled = isResDisabled
@@ -57,6 +57,8 @@ Vue.prototype.$setCurrentUser = setCurrentUser
 Vue.prototype.$buildTime = buildTime
 Vue.prototype.$getDictName = getDictName // 取字典 value对应的name
 Vue.prototype.$getDicts = getDicts // 根据key取字典
+Vue.prototype.$regCnName = regCnName
+Vue.prototype.$validateIdCard = validateIdCard
 
 // Vue.use(ElementUI)
 Vue.use(ElementUI, { size: 'small' }) // 全局配置组件使用small
