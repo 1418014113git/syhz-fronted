@@ -90,14 +90,16 @@
 </template>
 
 <script>
-import { regCode, regCnName } from '@/utils/validate'
+import { regCode } from '@/utils/validate'
 // import { getTree } from '@/api/dept'
 
 export default {
   name: 'add',
   data() {
     return {
-      departmentForm: {}, // 机构信息
+      departmentForm: {
+        administrative: [] // 行政区划
+      }, // 机构信息
       formLoading: false, // 表单loading
       carryParam: {}, // 列表带过来的参数
       administrativeData: [], // 行政区划
@@ -138,7 +140,7 @@ export default {
         departLevel: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入机构级别的内容'))
+              callback(new Error('请选择机构级别的内容'))
             } else {
               callback()
             }
@@ -155,10 +157,22 @@ export default {
             }
           }
         }],
+        compileNum: [{
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            var reg = /^[1-9]{1}\d{0,2}$/
+            if (value === null || value === undefined || value === '') {
+              callback(new Error('请输入编制人数的内容'))
+            } else if (reg.test(value)) {
+              callback()
+            } else {
+              callback(new Error('请输入正确的编制人数'))
+            }
+          }
+        }],
         administrative: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入所属行政区划的内容'))
+            if (value === null || value === undefined || value === '' || value === []) {
+              callback(new Error('请选择所属行政区划的内容'))
             } else {
               callback()
             }
@@ -175,6 +189,15 @@ export default {
             }
           }
         }],
+        foundingTime: {
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            if (value === null || value === undefined || value === '') {
+              callback(new Error('请选择成立时间'))
+            } else {
+              callback()
+            }
+          }
+        },
         postcode: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             var reg = /^[0-9]{6}$/
@@ -187,15 +210,6 @@ export default {
             }
           }
         }],
-        foundingTime: {
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请选择成立时间'))
-            } else {
-              callback()
-            }
-          }
-        },
         linkmanPhone: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             var reg = /^1[3|4|5|6|7|8]\d{9}$/
@@ -205,6 +219,18 @@ export default {
               callback()
             } else {
               callback(new Error('请输入正确的手机号码'))
+            }
+          }
+        }],
+        faxNumber: [{
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            var reg = /^(\d{3,4}-)?\d{7,8}$/
+            if (value === null || value === undefined || value === '') {
+              callback(new Error('请输入传真号码的内容'))
+            } else if (reg.test(value)) {
+              callback()
+            } else {
+              callback(new Error('请输入正确的传真号码'))
             }
           }
         }],
@@ -223,9 +249,8 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
               callback(new Error('请输入分管局领导的内容'))
-            } else if (regCnName.test(value)) {
-              // callback(new Error('请不要输入特殊字符'))
-              callback()
+            } else if (regCode.test(value)) {
+              callback(new Error('请不要输入特殊字符'))
             } else {
               callback()
             }
@@ -246,23 +271,8 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
               callback(new Error('请选择机构设置模式的内容'))
-            } else if (regCode.test(value)) {
-              // callback(new Error('请不要输入特殊字符'))
-              callback()
             } else {
               callback()
-            }
-          }
-        }],
-        faxNumber: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            var reg = /^(\d{3,4}-)?\d{7,8}$/
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入传真号码的内容'))
-            } else if (reg.test(value)) {
-              callback()
-            } else {
-              callback(new Error('请输入正确的传真号码'))
             }
           }
         }]
@@ -377,7 +387,10 @@ export default {
               this.$message({
                 message: '机构信息保存成功', type: 'success'
               })
-              this.$router.push({ path: '/basicService/deptInfo/detail' })
+              // 停留三秒跳转到详情页面
+              setTimeout(() => {
+                this.$router.push({ path: '/basicService/deptInfo/detail' })
+              }, 3000)
             } else {
               this.$message({
                 message: '机构信息保存失败，请联系管理员！', type: 'success'
