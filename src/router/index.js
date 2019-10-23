@@ -278,7 +278,24 @@ export const constantRouterMap = [
       { path: '/basicService/deptInfo/edit', component: () => import('@/views/basicService/deptInfo/edit'), name: '编辑机构信息' },
       { path: '/basicService/deptInfo/deptStatistical', component: () => import('@/views/basicService/deptInfo/deptStatistical'), name: '单位机构基本情况' },
       { path: '/basicService/personInfo', component: () => import('@/views/basicService/personInfo/index'), name: '人员信息' }, // 人员信息
-      { path: '/basicService/personList', component: () => import('@/views/basicService/personInfo/personList'), name: '人员信息列表' } // 人员信息
+      { path: '/basicService/personList', component: () => import('@/views/basicService/personInfo/personList'), name: '人员信息列表' },
+      {
+        path: '/groups/groupsList',
+        component: () => import('@/views/groups/groupsList'),
+        name: '常用组列表'
+      }, {
+        path: '/groups/groupsSave',
+        component: () => import('@/views/groups/groupsSave'),
+        name: '添加常用组'
+      }, {
+        path: '/groups/groupsEdit',
+        component: () => import('@/views/groups/groupsEdit'),
+        name: '编辑常用组'
+      }, {
+        path: '/groups/groupsDetail',
+        component: () => import('@/views/groups/groupsDetail'),
+        name: '常用组详情'
+      } // 人员信息
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
