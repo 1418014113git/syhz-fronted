@@ -118,7 +118,7 @@ export default {
         departName: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入机构全称的内容'))
+              callback(new Error('请输入机构全称'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -129,7 +129,7 @@ export default {
         departCode: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入机构代码的内容'))
+              callback(new Error('请输入机构代码'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -140,7 +140,7 @@ export default {
         departLevel: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请选择机构级别的内容'))
+              callback(new Error('请选择机构级别'))
             } else {
               callback()
             }
@@ -149,7 +149,7 @@ export default {
         mainAssignment: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入主要职责任务的内容'))
+              callback(new Error('请输入主要职责任务'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -161,7 +161,7 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             var reg = /^[1-9]{1}\d{0,2}$/
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入编制人数的内容'))
+              callback(new Error('请输入编制人数'))
             } else if (reg.test(value)) {
               callback()
             } else {
@@ -172,7 +172,7 @@ export default {
         administrative: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '' || value === []) {
-              callback(new Error('请选择所属行政区划的内容'))
+              callback(new Error('请选择所属行政区划'))
             } else {
               callback()
             }
@@ -181,7 +181,7 @@ export default {
         address: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入机构详细地址的内容'))
+              callback(new Error('请输入机构详细地址'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -202,7 +202,7 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             var reg = /^[0-9]{6}$/
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入邮编的内容'))
+              callback(new Error('请输入邮编'))
             } else if (reg.test(value)) {
               callback()
             } else {
@@ -214,7 +214,7 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             var reg = /^1[3|4|5|6|7|8]\d{9}$/
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入联系电话的内容'))
+              callback(new Error('请输入联系电话'))
             } else if (reg.test(value)) {
               callback()
             } else {
@@ -226,7 +226,7 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             var reg = /^(\d{3,4}-)?\d{7,8}$/
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入传真号码的内容'))
+              callback(new Error('请输入传真号码'))
             } else if (reg.test(value)) {
               callback()
             } else {
@@ -237,7 +237,7 @@ export default {
         mainLeader: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入主要负责人的内容'))
+              callback(new Error('请输入主要负责人'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -248,7 +248,7 @@ export default {
         subofficeLeader: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入分管局领导的内容'))
+              callback(new Error('请输入分管局领导'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -259,7 +259,7 @@ export default {
         dailyLeader: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入日常联系人的内容'))
+              callback(new Error('请输入日常联系人'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -270,7 +270,7 @@ export default {
         designMode: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请选择机构设置模式的内容'))
+              callback(new Error('请选择机构设置模式'))
             } else {
               callback()
             }
@@ -387,10 +387,10 @@ export default {
               this.$message({
                 message: '机构信息保存成功', type: 'success'
               })
-              // 停留三秒跳转到详情页面
+              // 停留2秒跳转到详情页面
               setTimeout(() => {
                 this.$router.push({ path: '/basicService/deptInfo/detail' })
-              }, 3000)
+              }, 2000)
             } else {
               this.$message({
                 message: '机构信息保存失败，请联系管理员！', type: 'success'
