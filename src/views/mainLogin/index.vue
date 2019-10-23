@@ -1,43 +1,51 @@
 <template>
   <div class="login-container">
+    <div class="slideshow" :style="{height:imgHeights}">
+      <transition-group name="fadeIn" tag="ul" >
+        <li v-for='(image,index) in imgList' :key='index' v-show='index===mark' class="bannerImg" >
+					 <img :src="'/static/image/login_images/'+loginImgStyle"  :style="{height:imgHeights}"/>
+				</li>
+      </transition-group>
+    </div>
     <!--下载提示层上方的标题 -->
     <div class="TopTitBox" v-show="isShowTopTit">
-      <img class="loginbglog"  src="/static/image/login_images/loginbglog.png" alt="">
-      <img class="loginbgtit"  src="/static/image/login_images/loginbgtext.png" alt="">
+      <img class="loginbgtit"  src="/static/image/login_images/logo.png" alt="">
     </div>
 
-    <!--登录页面标题 -->
+    <!--登录页面区域 -->
     <div class="login-box" v-show="isShowLogin">
-      <img class="loginbglog"  src="/static/image/login_images/loginbglog.png" alt="">
-      <img class="loginbgtit"  src="/static/image/login_images/loginbgtext.png" alt="">
-    <el-form class="login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
-      <div class="login-form-tit">用户登录</div>
-      <el-form-item prop="username" class="username">
-        <span class="svg-container svg-container_login">
-          <svg-icon icon-class="user" />
-        </span>
-        <span class="inputtext">用户名</span>
-        <el-input name="username" type="text" v-model="loginForm.username" autoComplete="off" placeholder=""  @keyup.enter.native="handleLogin" clearable/>
-      </el-form-item>
-      <el-form-item prop="password" class="password">
-        <span class="svg-container svg-container_key">
-          <svg-icon icon-class="key"></svg-icon>
-        </span>
-        <span class="inputtext">密&nbsp;&nbsp;&nbsp;码</span>
-        <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
-          placeholder="" clearable></el-input>
-      </el-form-item>
+       <div>
+        <img class="loginbgtit"  src="/static/image/login_images/logo.png" alt="">
+        <el-form class="login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
+          <div class="login-form-tit">用户登录</div>
+          <el-form-item prop="username" class="username">
+            <span class="svg-container svg-container_login">
+              <svg-icon icon-class="user" />
+            </span>
+            <span class="inputtext">用户名</span>
+            <el-input name="username" type="text" v-model="loginForm.username" autoComplete="off" placeholder=""  @keyup.enter.native="handleLogin" clearable/>
+          </el-form-item>
+          <el-form-item prop="password" class="password">
+            <span class="svg-container svg-container_key">
+              <svg-icon icon-class="key"></svg-icon>
+            </span>
+            <span class="inputtext">密&nbsp;&nbsp;&nbsp;码</span>
+            <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
+              placeholder="" clearable></el-input>
+          </el-form-item>
 
-        <el-row class="disflex loginbtnbox">
-          <el-button type="primary" class="loginbtn" :loading="loading" @click="handleLogin">登&nbsp;&nbsp;录</el-button>
-        </el-row>
-        <div class="pkiLogin">
-          <span class="pkiSpan" @click="pkiLogin">
-            <svg-icon icon-class="usb" />
-            <span style="cursor: pointer">PKI登录</span>
-          </span>
-        </div>
-    </el-form>
+            <el-row class="disflex loginbtnbox">
+              <el-button type="primary" class="loginbtn" :loading="loading" @click="handleLogin">登&nbsp;&nbsp;录</el-button>
+            </el-row>
+            <div class="pkiLogin">
+              <span class="pkiSpan" @click="pkiLogin">
+                <svg-icon icon-class="usb" />
+                <span style="cursor: pointer">PKI登录</span>
+              </span>
+            </div>
+        </el-form>
+      </div>
+
     </div>
     <footer class="footer">
       <div class="footerText">
@@ -66,16 +74,16 @@
         </div>
         <div class="tipCont">
           <div class="disflex">
-            <img class="copyIcon" src="/static/image/login_images/google.png" alt="">
+            <img class="download" src="/static/image/login_images/google.png" alt="">
             <p class="tipContText">
-              <span>谷歌浏览器</span>
+              <span style="color:#333;">谷歌浏览器</span>
               <span class="clickDown" @click="downloadBrowser">(点击下载)</span>
             </p>
           </div>
           <div class="disflex">
             <img class="user_guide" src="/static/image/login_images/user_guide.png" alt="">
             <p class="tipContText">
-              <span>使用手册</span>
+              <span style="color:#333;">使用手册</span>
               <span class="clickDown"  @click="downloadManual" >(点击下载)</span>
             </p>
           </div>
@@ -84,12 +92,14 @@
       </div>
       <input id="input" v-model="inputData" style="display:none;">
     </div>
-    <div id="tipImg" style="position:absolute; cursor: pointer;" @mouseenter="floatOver()" @mouseleave="floatOut()" @click="floatTipShow">
+    <!-- <div id="tipImg" style="position:absolute; cursor: pointer;" @mouseenter="floatOver()" @mouseleave="floatOut()" @click="floatTipShow">
       <img src="/static/image/login_images/tipmsg.jpg" border="0">
-    </div>
-    <el-dialog :visible.sync="tipShow">
-      <float-tip-msg></float-tip-msg>
-    </el-dialog>
+    </div> -->
+     <!-- <div class="floatMsgBox">
+      <el-dialog :visible.sync="tipShow">
+        <float-tip-msg></float-tip-msg>
+      </el-dialog>
+    </div> -->
   </div>
 </template>
 
@@ -167,7 +177,14 @@ export default {
         delay: 10,
         obj: {}
       },
-      itl: ''
+      itl: '',
+      imgList: ['bmy.jpg', 'jsx.jpg', 'dyt.jpg', 'sp.jpg', 'pb.jpg', 'yp.jpg', 'bts.jpg', 'qlsb.jpg'],
+      currImgs: [],
+      index: 0,
+      loginImgStyle: 'bmy.jpg',
+      cur: 0,
+      mark: 0,
+      imgHeights: document.documentElement.clientHeight + 'px'
     }
   },
   methods: {
@@ -187,6 +204,9 @@ export default {
           _this.$store.dispatch('Login', _this.loginForm).then(() => {
             _this.loading = false
             _this.$store.dispatch('GetInfo').then(() => {
+              _this.$store.dispatch('GetConfig').then(() => {
+                _this.addJF()
+              })
               _this.$router.push({ path: '/' })
             })
           }).catch(() => {
@@ -197,6 +217,36 @@ export default {
           return false
         }
       })
+    },
+    addJF() {
+      const data = JSON.parse(sessionStorage.getItem('depToken'))
+      if (data !== undefined && data !== null && data.length > 0) {
+        // 0登陆 1学习资料 2资料上传 3资料下载 4学习时长
+        const config = JSON.parse(sessionStorage.getItem('config'))
+        const currentTypeConfig = config['ruleType0']
+        const param = this.$setCurrentUser({})
+        const para = {
+          belongSys: '', // 0知识库 1网上培训
+          belongMode: '',
+          belongType: '',
+          tableId: '',
+          branch: currentTypeConfig.oneNumber,
+          maxBranch: currentTypeConfig.maxNumber,
+          fractionType: '0',
+          fractionReckon: '0',
+          fractionTime: this.$parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}'),
+          fractionUserId: param.creationId,
+          fractionUserName: param.creationName,
+          fractionAreaCode: param.areaCode,
+          fractionDeptCode: param.belongDepCode,
+          fractionDeptName: param.belongDepName,
+          creationId: param.creationId,
+          creationName: param.creationName,
+          remark: '获得积分'
+        }
+        this.$save('trainFraction', para).then(response => {
+        })
+      }
     },
     // PKI登录
     pkiLogin() {
@@ -355,11 +405,25 @@ export default {
     },
     floatTipShow() {
       this.tipShow = true
+    },
+    autoPlay() {
+      if (this.mark < this.imgList.length - 1) {
+        this.mark++
+      } else {
+        this.mark = 0
+      }
+      this.loginImgStyle = this.imgList[this.mark]
+    },
+    play() {
+      setInterval(this.autoPlay, 3000)
     }
+  },
+  created() {
+    this.play()
   },
   mounted() {
     this.tipMsg.obj = document.getElementById('tipImg')
-    this.floatOut()
+    // this.floatOut()
   }
 }
 </script>
@@ -368,7 +432,6 @@ export default {
 /* reset element-ui css */
 .login-container {
   .el-input {
-    // display: inline-block;
     width: 65%;
     input {
       background: transparent;
@@ -377,7 +440,6 @@ export default {
       border-radius: 0px;
       height: 45px;
       line-height: 45px;
-      // padding: 12px 5px 12px 15px;
       &:-webkit-autofill {
         -webkit-box-shadow: 0 0 0px 1000px #2d3a4b inset !important;
         -webkit-text-fill-color: #fff !important;
@@ -432,33 +494,38 @@ export default {
 </style>
 <style rel="stylesheet/scss" lang="scss">
 .login-container {
-  height: 100%;
   width: 100%;
-  background: url(/static/image/login_images/loginbg.png) no-repeat center
-    center;
+   height: 100%;
+  background: url(/static/image/login_images/loginbg.jpg) no-repeat center center;
   background-size: 100% 100%;
   overflow: hidden;
   .login-box {
-    width: 80%;
-    margin: 10% 0 0 8%;
+    width: 100%;
+    margin: 0 auto;
+    // margin: 10% 0 0 8%;
     overflow: hidden;
-
     .loginbglog {
       width: 20%;
       margin: 4% 0 0 0%;
     }
     .loginbgtit {
-      width: 43%;
-      margin: 7% 0 0 0;
+      width: 73%;
+      // margin: 4% 0 0 0;
+      padding-left: 50px;
+      position: absolute;
+      top:4%;
     }
     .login-form {
-      width: 30%;
-      max-width: 350px;
-      float: right;
+      width: 21%;
+      min-width: 350px;
+      z-index: 300;
+      position: absolute;
+      right: 55px;
+      top:0;
       height: auto;
-      margin: 2% 1% 0 0;
+      margin: 14% 0 0 0;
       padding-bottom: 35px;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.2);
       　　　filter: progid:DXImageTransform.Microsoft.gradient(startcolorstr=#66000000,endcolorstr=#66000000);
       border-radius: 5px;
       -moz-border-radius: 5px;
@@ -500,7 +567,7 @@ export default {
     }
     .loginbtnbox {
       font-size: 20px;
-      margin-top: 45px;
+      margin-top: 60px;
     }
     .loginbtn {
       width: 80%;
@@ -517,14 +584,14 @@ export default {
     }
   }
   .TopTitBox {
-    width: 65%;
-    margin: 2% auto 0 auto;
+    width: 95%;
+    margin: 0 auto;
     overflow: hidden;
-    .loginbglog {
-      width: 16%;
-    }
     .loginbgtit {
-      width: 43%;
+      width: 70.5%;
+      padding-left: 2px;
+      position: absolute;
+      top:4%;
     }
   }
   .footer {
@@ -539,12 +606,15 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 200;
 
     .footerText {
       max-width: 442px;
       margin-right: 50px;
       text-align: left;
       line-height: 1.3;
+      font-weight: bold;
+      text-shadow: 0 0 1px #000;
     }
   }
   .inputtext {
@@ -559,18 +629,18 @@ export default {
     .pkiSpan {
       position: relative;
       display: inline-block;
-      font-size: 15px;
-      &::after {
-        display: block;
-        content: "";
-        width: 100%;
-        height: 1px;
-        background: #fff;
-        box-shadow: #414a59 0px 1px 2px;
-        position: absolute;
-        top: 20px;
-        right: 0;
-      }
+      font-size: 16px;
+      // &::after {
+      //   display: block;
+      //   content: "";
+      //   width: 100%;
+      //   height: 1px;
+      //   background: #fff;
+      //   box-shadow: #414a59 0px 1px 2px;
+      //   position: absolute;
+      //   top: 20px;
+      //   right: 0;
+      // }
     }
   }
   .downloadText {
@@ -582,6 +652,7 @@ export default {
       position: relative;
       font-size: 16px;
       font-weight: bold;
+      text-shadow: 0 0 1px #000;
       &::after {
         display: block;
         content: "";
@@ -624,6 +695,7 @@ export default {
       position: relative;
       letter-spacing: 3px;
       top: 6%;
+      z-index: 100;
       .tipTop {
         padding: 18px 10px 16px 12px;
         display: flex;
@@ -651,7 +723,7 @@ export default {
         }
       }
       .tipCont {
-        width: 65%;
+        width: 70%;
         margin: 18vh auto 0 auto;
         display: flex;
         justify-content: space-between;
@@ -660,7 +732,6 @@ export default {
           line-height: 61px;
           font-size: 20px;
           margin-left: 18px;
-          color: #333;
           .clickDown {
             color: #f77d01;
             cursor: pointer;
@@ -672,6 +743,10 @@ export default {
         .user_guide {
           width: 52px;
           height: 58px;
+        }
+        .download{
+          width: 60px;
+          height: 60px;
         }
       }
       .closeBtn {
@@ -695,6 +770,11 @@ export default {
       }
     }
   }
+  .floatMsgBox{
+    .el-dialog__header {
+      border-bottom: 0;
+    }
+  }
 }
 .disflex {
   display: -webkit-box;
@@ -709,22 +789,31 @@ export default {
   flex: 1;
 }
 
-@media only screen and (min-width: 1910px) {
-  .login-form {
-    margin: 6% 8% 0 0 !important;
+ .slideshow{
+    width: 100%;
+    img{
+      width: 100%;
+      height: 100%;
+    }
   }
-  .footerText {
-    font-size: 14px;
+
+@media only screen and (max-width: 1367px) {
+  .login-container .tipMask .tipBox .tipCont .download {
+    width: 50px;
+    height: 50px;
   }
-}
-@media only screen and (max-width: 1366px) {
+  .login-container .login-box .login-form {
+    margin: 10% 0 0 0;
+  }
   .login-container .tipMask .tipBox .tipCont {
-    width: 80%;
+    width: 78%;
   }
-}
-@media only screen and (max-width: 1280px) {
-  .login-container .tipMask .tipBox .tipCont {
-    width: 88%;
+  .login-container .tipMask .tipBox .tipCont .user_guide {
+    width: 44px;
+    height: 50px;
+  }
+  .login-container .TopTitBox .loginbgtit {
+    padding-left: 16px;
   }
 }
 </style>

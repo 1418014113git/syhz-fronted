@@ -5,13 +5,17 @@ const app = {
     sidebar: [],
     istotop: 0, // 是否回到顶部，0:否，1：是
     rightfixeddata: [
-      { 'name': '舆情分析', 'path': '/lyricalInfo/alarmInfo', 'appcode': 'A', 'icon': '/static/image/portal_images/zhyp.png', 'src': '/static/image/portal_newImg/zhyp.png' },
-      { 'name': '案件管理', 'path': '/caseManage', 'appcode': 'B', 'icon': '/static/image/portal_images/ajgl.png', 'src': '/static/image/portal_newImg/ajgl.png' },
-      { 'name': '基础业务', 'path': '/baseInfoCount/index', 'appcode': 'C', 'icon': '/static/image/portal_images/zxrw.png', 'src': '/static/image/portal_newImg/zxrw.png' },
-      { 'name': '刑嫌信息', 'path': '/inforCollection', 'appcode': 'D', 'icon': '/static/image/portal_images/xxcj.png', 'src': '/static/image/portal_newImg/xxcj.png' },
-      { 'name': '检验鉴定', 'path': '/inspection', 'appcode': 'E', 'icon': '/static/image/portal_images/jyjd.png', 'src': '/static/image/portal_newImg/jyjd.png' },
-      { 'name': '教育训练', 'path': '/handlingGuide', 'appcode': 'F', 'icon': '/static/image/portal_images/bazy.png', 'src': '/static/image/portal_newImg/bazy.png' },
-      { 'name': '情报管理', 'path': '/intellSystem', 'appcode': 'G', 'icon': '/static/image/portal_images/qbcj.png', 'src': '/static/image/portal_newImg/qbhcfx.png' }
+      // { 'name': '舆情分析', 'path': '/lyricalInfo/alarmInfo', 'appcode': 'A', 'icon': '/static/image/portal_images/zhyp.png', 'src': '/static/image/portal_newImg/zhyp.png' },
+      // { 'name': '案件管理', 'path': '/caseManage', 'appcode': 'B', 'icon': '/static/image/portal_images/ajgl.png', 'src': '/static/image/portal_newImg/ajgl.png' },
+      // { 'name': '基础业务', 'path': '/baseInfoCount/index', 'appcode': 'C', 'icon': '/static/image/portal_images/zxrw.png', 'src': '/static/image/portal_newImg/zxrw.png' },
+      // { 'name': '刑嫌信息', 'path': '/inforCollection', 'appcode': 'D', 'icon': '/static/image/portal_images/xxcj.png', 'src': '/static/image/portal_newImg/xxcj.png' },
+      // { 'name': '检验鉴定', 'path': '/inspection', 'appcode': 'E', 'icon': '/static/image/portal_images/jyjd.png', 'src': '/static/image/portal_newImg/jyjd.png' },
+      // { 'name': '教育训练', 'path': '/handlingGuide/knowLedgeBase', 'appcode': 'F', 'icon': '/static/image/portal_images/bazy.png', 'src': '/static/image/portal_newImg/bazy.png' },
+      // { 'name': '情报管理', 'path': '/intellSystem', 'appcode': 'G', 'icon': '/static/image/portal_images/qbcj.png', 'src': '/static/image/portal_newImg/qbhcfx.png' }
+      { 'name': '案件管理', 'path': '/caseManage', 'appcode': 'B', 'icon': '/static/image/portal_newImg/ajgl_new.png', 'src': '/static/image/portal_newImg/ajgl_new.png' },
+      { 'name': '情报管理', 'path': '/intellSystem', 'appcode': 'G', 'icon': '/static/image/portal_newImg/qbgl_new.png', 'src': '/static/image/portal_newImg/qbgl_new.png' },
+      { 'name': '教育训练', 'path': '/handlingGuide/knowLedgeBase', 'appcode': 'F', 'icon': '/static/image/portal_newImg/jyxl_new.png', 'src': '/static/image/portal_newImg/jyxl_new.png' },
+      { 'name': '基础业务', 'path': '/baseInfoCount/index', 'appcode': 'C', 'icon': '/static/image/portal_newImg/jcyw_new.png', 'src': '/static/image/portal_newImg/jcyw_new.png' }
     ],
     menuIcons: ['xgcx', 'gxhcx', 'afqs', 'gwdqaffx', 'gfhyfx', 'whclgjfx', 'ztajmxfxyc', 'dyatslb', 'gfajlbtj', 'zdrylkgl', 'ajrl', 'ajlb', 'ajdb', 'ajxc',
       'qgxxc', 'zxrwlb', 'tjzxrw', 'zxrwfxzx', 'jyjdlb', 'sqjyjd', 'qgjyjdjgml', 'flfg', 'hybz', 'alzy', 'spwkt', 'xslb', 'xscj', 'xstjfx', 'hycj', 'rycj',

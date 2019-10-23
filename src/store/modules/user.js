@@ -28,7 +28,7 @@ import {
   // removeUserInfo
 } from '@/utils/auth'
 import { handleMenu, handleRes, setAppMenus } from '@/utils/menus'
-
+import { getConfig } from '@/api/trainRuleConfig'
 const user = {
   state: {
     token: getToken(),
@@ -41,7 +41,8 @@ const user = {
     departments: getDepToken(), // 部门列表
     menus: getMenuToken(), // 菜单列表
     resources: getResToken(), // 资源列表
-    userId: '' // 当前用户ID
+    userId: '', // 当前用户ID
+    config: []
     // roleCodeList: ['syh_admin']
   },
 
@@ -86,6 +87,9 @@ const user = {
     },
     SET_RES: (state, resources) => {
       state.resources = resources
+    },
+    SET_CONFIG: (state, config) => {
+      state.config = config
     }
   },
 
@@ -158,23 +162,23 @@ const user = {
             const depStr = JSON.stringify(deps)
             setDepToken(depStr)
             commit('SET_DEPS', depStr) // 部门列表
-            data.menus.forEach(function(item) {
-              if (item.menuName === '要素查询') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '业务查询') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '关联查询') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '新谷查询') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '从案到人分析') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '从人到案分析') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '人案关联引擎') {
-                item.url = 'http://znjs.gat.nm'
-              }
-            })
+            // data.menus.forEach(function(item) {
+            //   if (item.menuName === '要素查询') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '业务查询') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '关联查询') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '新谷查询') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '从案到人分析') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '从人到案分析') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '人案关联引擎') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   }
+            // })
             const menus = handleMenu(data.menus)
             sessionStorage.setItem('menusData', JSON.stringify(data.menus))
             // const apps = handleApp(data.apps)
@@ -222,6 +226,27 @@ const user = {
       return new Promise(resolve => {
         sessionStorage.clear()
         resolve()
+      })
+    },
+    GetConfig({ commit, state }) {
+      const params = {
+        token: state.userToken
+      }
+      return new Promise((resolve, reject) => {
+        getConfig(params).then((response) => {
+          const configObject = {}
+          if (response.data !== null && response.data !== undefined) {
+            for (let i = 0; i < response.data.length; i++) {
+              const item = response.data[i]
+              configObject['ruleType' + item.ruleType] = item
+            }
+          }
+          sessionStorage.setItem('config', JSON.stringify(configObject))
+          commit('SET_CONFIG', configObject) // 资源列表
+          resolve(response)
+        }).catch(error => {
+          reject(error)
+        })
       })
     }
   }

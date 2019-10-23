@@ -77,16 +77,15 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .myWork{
     border-radius: 8px;
-    border: 2px solid #00a0e9;
-    background: rgba(0, 89, 130, 0.7);
-    padding: 3px 0;
+    padding: 3px 8px;
     height: 88px;
   .myWorkTitle{
-    padding-left:38px;
+    padding: 6px 0 0 38px;
     margin-bottom: 5px;
     color: #bce8fc;
     text-shadow: 0 0 2px #fff;
     background: url('/static/image/portal_newImg/corwLine.png') no-repeat 3px center;
+    border-top:  1px dashed #5b8dd8;
   }
   .myWorkUl{
     overflow: hidden;
@@ -108,7 +107,7 @@ export default {
 }
 @media only screen and (max-width: 1367px) {
   .myWork{
-    padding: 5px 0 10px 0;
+    // padding: 5px 0 10px 0;
   }
   // .myWork .myWorkTitle{
   //   margin-bottom: 10px;

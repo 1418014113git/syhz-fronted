@@ -5,9 +5,9 @@ export function getDictName(value, dictType) {
   var dict
   var result = ''
   // dict = this.$store.state.dictionary.dict
-  dict = JSON.parse(localStorage.getItem('dictdata'))
+  dict = JSON.parse(sessionStorage.getItem('dictdata'))
   if (!dict[dictType]) {
-    console.log('找不到字典类型：' + dictType)
+    // console.log('找不到字典类型：' + dictType)
   } else {
     dict[dictType].forEach(item => {
       if (item.dictKey === value) {
@@ -112,9 +112,9 @@ export function getFacilitator(param) {
 export function getDicts(dictType) {
   var dict
   // dict = this.$store.state.dictionary.dict
-  dict = JSON.parse(localStorage.getItem('dictdata'))
+  dict = JSON.parse(sessionStorage.getItem('dictdata'))
   if (!dict[dictType]) {
-    console.log('找不到字典类型：' + dictType)
+    // console.log('找不到字典类型：' + dictType)
     return []
   }
   return dict[dictType]
@@ -495,4 +495,43 @@ export function pickerOptionChange(val, pickerName, type) {
       }
     })
   }
+}
+
+export function setCurrentUser(param) {
+  const curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+  const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+  param.creationId = curUser.id
+  param.creationName = curUser.realName
+  param.areaCode = curDept.areaCode
+  param.belongDepCode = curDept.depCode
+  param.belongDepName = curDept.depName
+  param.depType = curDept.depType
+  return param
+}
+
+export function buildTime(time) {
+  var secondTime = parseInt(time) // 秒
+  var minuteTime = 0 // 分
+  var hourTime = 0 // 小时
+  if (secondTime > 60) { // 如果秒数大于60，将秒数转换成整数
+    // 获取分钟，除以60取整数，得到整数分钟
+    minuteTime = parseInt(secondTime / 60)
+    // 获取秒数，秒数取佘，得到整数秒数
+    secondTime = parseInt(secondTime % 60)
+    // 如果分钟大于60，将分钟转换成小时
+    if (minuteTime > 60) {
+      // 获取小时，获取分钟除以60，得到整数小时
+      hourTime = parseInt(minuteTime / 60)
+      // 获取小时后取佘的分，获取分钟除以60取佘的分
+      minuteTime = parseInt(minuteTime % 60)
+    }
+  }
+  var result = '' + parseInt(secondTime) + '秒'
+  if (minuteTime > 0) {
+    result = '' + parseInt(minuteTime) + '分' + result
+  }
+  if (hourTime > 0) {
+    result = '' + parseInt(hourTime) + '小时' + result
+  }
+  return result
 }

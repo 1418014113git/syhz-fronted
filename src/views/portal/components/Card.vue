@@ -2,8 +2,15 @@
 <template>
   <el-col :span="colSpan" class="carddiv" :class="cls">
     <el-card class="box-card">
-      <div slot="header" class="clearfix" v-if="content!=='Gndh'">
-        <!-- <img class="iconImg" :src="icon"> -->
+      <div slot="header" class="clearfix" v-if="content==='Gndh'">
+        <span class="zxbz">
+          <img src="/static/image/portal_newImg/zxbz.png">
+          <span @click="clickHovList">在线帮助</span>
+        </span>
+        <span>{{title}}</span>
+        <el-button style="float: right; padding: 3px 0;color: #bce8fc;text-shadow: 0 0 2px #fff;" type="text" @click="addMenu">{{moreBtn}}</el-button>
+      </div>
+      <div slot="header" class="clearfix" v-else>
         <span>{{title}}</span>
         <el-button v-if="moreBtn !== '' && more !== ''" style="float: right; padding: 3px 0;color: #bce8fc;text-shadow: 0 0 2px #fff;" type="text" @click="toMore(more)">{{moreBtn}}</el-button>
       </div>
@@ -18,6 +25,8 @@
       <statistical v-else-if="content=='Statistical'"></statistical>
       <an-jian v-else-if="content=='AnJian'"></an-jian>
       <gndh v-else-if="content=='Gndh'"></gndh>
+      <exam v-else-if="content=='Exam'"></exam>
+      <train v-else-if="content=='Train'"></train>
     </el-card>
   </el-col>
 </template>
@@ -33,6 +42,8 @@
   import Statistical from './Statistical'
   import AnJian from './AnJian'
   import Gndh from './Gndh'
+  import Exam from './Exam'
+  import Train from './Train'
 
   export default {
     components: {
@@ -46,7 +57,9 @@
       CommunityDataEchart,
       Statistical,
       AnJian,
-      Gndh
+      Gndh,
+      Exam,
+      Train
     },
     name: 'Card',
     props: {
@@ -91,12 +104,37 @@
           }
         }
         this.$router.push({ path: val })
+      },
+      addMenu() {
+        this.$store.dispatch('ClickAll', true)
+      },
+      clickHovList() {
+        this.$router.push({ path: '/micro/difficult' })
       }
     }
   }
 </script>
 
-<style scoped>
+<style rel="stylesheet/scss" lang="scss">
+.carddiv{
+  width: 32.6%;
+}
+.carddiv:nth-child(1),
+.carddiv:nth-child(2),
+.carddiv:nth-child(3),
+.carddiv:nth-child(4),
+.carddiv:nth-child(5),
+.carddiv:nth-child(6){
+  margin-bottom: 15px;
+}
+
+.carddiv:nth-child(2),
+.carddiv:nth-child(5),
+.carddiv:nth-child(8){
+  margin-left: 1%;
+  margin-right: 1%;
+}
+
 .text {
 	font-size: 14px;
 }
@@ -116,7 +154,7 @@
 }
 
 .box-card {
-  height: 340px;
+  height: 350px;
   margin: 0;
 }
 .iconImg {
@@ -144,9 +182,70 @@
 	width: 17px;
 	height: 20px;
 }
+.Echart .el-card__header div{
+  padding-left: 60px;
+}
+.zxbz{
+  float: left;
+  font-weight: initial;
+  font-size: 14px;
+  cursor: pointer;
+  img{
+    width: 14px;
+  }
+}
+.Exam .el-card__header .el-button{
+  margin-right: 15px !important;
+}
+
+
+.List{
+    .el-card__header {
+      padding: 8px 15px 8px 70px;
+    }
+  }
+  .Statistical{
+    .el-card__header {
+      padding: 8px 15px 8px 70px;
+    }
+  }
+  .Exam{
+    .el-card__header {
+      padding: 8px 5px 8px 70px;
+    }
+  }
+  .Tab{
+    .el-card__header {
+      padding: 8px 5px 8px 30px;
+    }
+  }
+  .High{
+    .el-card__header {
+      padding: 8px 5px 8px 76px;
+    }
+  }
+  .Echart{
+    .el-card__header {
+      padding: 8px 15px 5px 17px;
+    }
+  }
+  .Train{
+    .el-card__header {
+      padding: 8px 15px 5px 60px;
+    }
+  }
+
+
+
+
 @media screen and (min-width:1368px) and (max-width:1600px){
 	.carddiv .el-button {
     margin-right: 5px;
+  }
+}
+@media only screen and (max-width: 1367px) {
+  .zxbz {
+    font-size: 12px;
   }
 }
 </style>
