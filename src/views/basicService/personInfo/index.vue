@@ -91,4 +91,12 @@ export default {
     font-size:22px;
   }
 }
+@media only screen and (max-width: 1367px) {
+  .personInfo{
+    width: 80%;
+  }
+  .personInfo .maxh {
+    height: 72vh;
+  }
+}
 </style>
