@@ -47,7 +47,7 @@
             <span  @click="changeShowAll($event,'showAllzyzzrw')" :class="showAllzyzzrw?'showAll':'showPart'">{{departmentForm.mainAssignment}}</span>
           </el-form-item>
           <el-form-item label="实有人数" prop="realityNum" class="clearfix">
-            <span v-if="departmentForm.realityNum > 0">{{departmentForm.realityNum}}人</span>
+            <span v-if="departmentForm.realityNum > 0">{{departmentForm.realityNum}} 人</span>
             <span v-else>0 人</span>
           </el-form-item>
           <el-form-item label="机构详细地址" prop="address" class="clearfix">
