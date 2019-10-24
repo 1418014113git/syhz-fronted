@@ -12,7 +12,7 @@
         </el-cascader>
       </el-form-item>
       <el-form-item label="单位机构" prop="examStatus">
-        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>11)===true?'tooltipShow':'tooltipHide'">
+        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
           <el-cascader
             :options="deptOptions"
             v-model="filters.department"
@@ -25,9 +25,9 @@
         </el-tooltip>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="queryList(true)">查询</el-button>
-        <el-button type="info" @click="reset">重置</el-button>
-        <el-button type="info" @click="exportDeptExcel">导出</el-button>
+        <el-button type="primary" @click="queryList(true)" v-if="$isViewBtn('169001')">查询</el-button>
+        <el-button type="info" @click="reset" v-if="$isViewBtn('169001')">重置</el-button>
+        <el-button type="info" @click="exportDeptExcel" v-if="$isViewBtn('169002')">导出</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
@@ -44,13 +44,13 @@
         </template>
       </el-table-column>
       <el-table-column prop="realityNum" label="实有人数" width="100" align="center"></el-table-column>
-      <el-table-column prop="areaName" label="所属行政区划" width="160" align="center"></el-table-column>
+      <el-table-column prop="areaName" label="所属行政区划" width="180" align="center"></el-table-column>
       <el-table-column prop="mainLeader" label="主要负责人" width="160" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column prop="subofficeLeader" label="分管局领导" width="160" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
-          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" v-if="scope.row.setFlag===1"></el-button>
+          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" v-if="scope.row.setFlag===1 && ($isViewBtn('169003'))"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -106,6 +106,8 @@ export default {
   methods: {
     handleAreaChange(val) { // 行政区划
       if (val.length > 0) {
+        this.deptOptions = [] // 清空单位机构数据
+        this.selectCurDep = { name: '' } // 清空当前选中的单位机构
         var param = {
           provinceCode: val[0] || '',
           cityCode: val[1] || '',
@@ -124,10 +126,18 @@ export default {
                 })
               }
               this.deptOptions = getTree(arr) // 机构
-              if (this.deptInfo.depType === '4') {
-                this.filters.department = [this.deptInfo.depCode.substring(0, 7) + '00000', this.deptInfo.depCode]
-                this.queryList(true) // 查列表
+              if (this.deptInfo.depType === '-1') { // 省
+                this.filters.department = [this.deptInfo.depCode]
+              } else if (this.deptInfo.depType === '1') { // 总队
+                this.filters.department = [this.deptInfo.parentDepCode, this.deptInfo.depCode]
+              } else if (this.deptInfo.depType === '2') { // 支队
+                this.filters.department = [this.deptInfo.depCode]
+              } else if (this.deptInfo.depType === '3') { // 大队
+                this.filters.department = [this.deptInfo.depCode]
+              } else if (this.deptInfo.depType === '4') { // 派出所
+                this.filters.department = [this.deptInfo.parentDepCode, this.deptInfo.depCode]
               }
+              this.queryList(true) // 查列表
             }
           }
         }).catch(() => {
@@ -159,21 +169,24 @@ export default {
         if (response.code === '000000') {
           this.xzqhOptions = response.data ? response.data : []
           var currentArea = []
-          if (this.deptInfo.depType === '-1' || this.deptInfo.depType === '1') { // 总队 省
+          if (this.deptInfo.depType === '-1' || this.deptInfo.depType === '1') { // 省 总队
             currentArea = [this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '2') { // 支队
             currentArea = ['610000', this.deptInfo.areaCode]
-          } else if (this.deptInfo.depType === '3' || this.deptInfo.depType === '4') { // 大队 派出所
+          } else if (this.deptInfo.depType === '3') { // 大队 派出所
             currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
+          } else if (this.deptInfo.depType === '4') {
+            if (this.deptInfo.areaCode === '610403') { // 杨凌例外
+              currentArea = ['610000', '610403']
+            } else { // 正常的派出所
+              currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
+            }
           }
           this.filters.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
-          if (this.deptInfo.depType !== '4') { // 非派出所
-            this.queryList(true) // 查列表
-          }
         }
       }).catch(() => {
-        this.formLoading = false
+        this.listLoading = false
       })
     },
     queryList(flag, hand) { // 列表数据查询
@@ -205,16 +218,16 @@ export default {
       }
       this.$query('page/hsyzdepart', para, 'upms').then((response) => {
         this.listLoading = false
-        if (response.data && response.data.list.length > 0) {
+        if (response.data) {
+          // && response.data.list.length > 0
           this.total = response.data.totalCount
           this.page = response.data.pageNum
           this.pageSize = response.data.pageSize
           this.tableData = response.data.list
-        } else {
-          this.tableData = []
         }
       }).catch(() => {
         this.tableData = []
+        this.total = 0
         this.listLoading = false
       })
     },
