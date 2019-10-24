@@ -123,25 +123,25 @@ export default {
       this.getPersonInfoTip()
     },
     getPersonInfoTip() {
-      // if (this.curDept && this.curDept.length > 0) {
-      //   this.$query('', {}).then(response => {
-      //     if (response.data.length > 0) {
-      //       this.$confirm('您的个人信息还没有完善，未避免影响您的正常使用，请尽快完善个人信息！', '提示', {
-      //         confirmButtonText: '立即完善',
-      //         cancelButtonText: '稍后再说',
-      //         type: 'warning'
-      //       }).then(() => {
-      //         this.$router.push({ path: '/basicService/personInfo', query: { type: 'mainEdit', id: this.curUser.id }})
-      //       }).catch(() => {
-      //         // 点击 稍后再说
-      //         this.getDeptInfoTip()
-      //       })
-      //     } else {
-      //       // 人员信息已完善
-      //       this.getDeptInfoTip()
-      //     }
-      //   })
-      // }
+      if (this.curDept && this.curDept.length > 0) {
+        this.$query('USERCOMPLETE/' + this.curUser.id, {}, true).then(response => {
+          if (!response.data || !response.data.complete) {
+            this.$confirm('您的个人信息还没有完善，未避免影响您的正常使用，请尽快完善个人信息！', '提示', {
+              confirmButtonText: '>>立即完善',
+              cancelButtonText: '稍后再说',
+              type: 'warning'
+            }).then(() => {
+              this.$router.push({ path: '/basicService/personInfo', query: { type: 'mainEdit', id: this.curUser.id }})
+            }).catch(() => {
+              // 点击 稍后再说
+              this.getDeptInfoTip()
+            })
+          } else {
+            // 人员信息已完善
+            this.getDeptInfoTip()
+          }
+        })
+      }
     },
     getDeptInfoTip() {
       if (isViewBtn('169003') && sessionStorage.getItem('depToken')) { // 拥有审核权限  本单位的人
@@ -211,20 +211,20 @@ export default {
     },
     getDist() { // 获取字典
       this.$query('personMessage', {}).then(response => {
-        if (response.data.length > 0) {
+        if (response.data) {
           sessionStorage.setItem('dictdata', JSON.stringify(response.data))
         }
       })
     }
   },
   mounted() {
-    this.curDept = sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode : ''
+    this.curDept = sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken')) : ''
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     this.init()
   },
   created() {
     this.lastTime = new Date().getTime() // 网页第一次打开时，记录当前时间
-    // this.getDist()
+    this.getDist()
   }
 }
 </script>

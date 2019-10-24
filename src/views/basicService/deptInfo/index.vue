@@ -12,7 +12,7 @@
         </el-cascader>
       </el-form-item>
       <el-form-item label="单位机构" prop="examStatus">
-        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>11)===true?'tooltipShow':'tooltipHide'">
+        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
           <el-cascader
             :options="deptOptions"
             v-model="filters.department"

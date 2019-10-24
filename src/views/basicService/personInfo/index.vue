@@ -20,7 +20,9 @@ export default {
   data() {
     return {
       isShowDetail: true, // 是否显示详情页
-      isShowEditBtn: true // 是否显示编辑按钮
+      isShowEditBtn: true, // 是否显示编辑按钮
+      curId: '',
+      curUser: {}
     }
   },
   components: {
@@ -43,12 +45,18 @@ export default {
     }
   },
   mounted() {
+    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+    this.curId = this.$route.query.id
     if (this.$route.query.type === 'mainEdit') { // 从首页弹框的点击“立即完善”进来的。
       this.isShowDetail = false // 隐藏详情页
       this.isShowEditBtn = false // 隐藏编辑按钮
     } else if (this.$route.query.type === 'listDetail') { // 从列表点击详情按钮进来的
       this.isShowDetail = true // 显示详情页
-      this.isShowEditBtn = true // 显示编辑按钮
+      if (this.curUser.id === this.curId) {
+        this.isShowEditBtn = true // 显示编辑按钮
+      } else {
+        this.isShowEditBtn = false // 隐藏编辑按钮
+      }
     } else if (this.$route.query.type === 'listEdit') { // 从列表点击编辑按钮进来的
       this.isShowDetail = false // 隐藏详情页
       this.isShowEditBtn = false // 隐藏编辑按钮
@@ -81,6 +89,14 @@ export default {
   .floatr{
     float: right;
     font-size:22px;
+  }
+}
+@media only screen and (max-width: 1367px) {
+  .personInfo{
+    width: 80%;
+  }
+  .personInfo .maxh {
+    height: 72vh;
   }
 }
 </style>

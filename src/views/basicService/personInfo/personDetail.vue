@@ -11,7 +11,7 @@
               <span>{{personForm.userName}}</span>
             </el-form-item>
              <el-form-item label="身份证号码">
-              <span>{{personForm.userIdNumber}}</span>
+              <span v-if='personForm.userIdNumber'>{{personForm.userIdNumber}}</span>
             </el-form-item>
             <el-form-item label="出生日期">
               <span>{{personForm.birthTime}}</span>
@@ -46,7 +46,7 @@
               <span>{{personForm.realName}}</span>
             </el-form-item>
             <el-form-item label="性　　别">
-              <span>{{getSex(personForm.userSex)}}</span>
+              <span v-if="!!personForm.userSex">{{getSex(personForm.userSex)}}</span>
             </el-form-item>
             <el-form-item label="年　　龄">
               <span>{{personForm.age}}</span>
@@ -91,7 +91,8 @@ export default {
       userInfo: {}, // 当前登录用户信息
       loading: false,
       curUserState: '', // 根据人员类别存储对应的在职状态key值。 'userStatefj': 辅警、工勤, 'userStatemj':民警
-      xrzw: '' // 根据当前用户角色是总队，还是支队，存储对应的字典key值， ‘xrzwzod’：总队， 'xrzwzhd':支队
+      xrzw: '', // 根据当前用户角色是总队，还是支队，存储对应的字典key值， ‘xrzwzod’：总队， 'xrzwzhd':支队
+      curUser: {}
     }
   },
   methods: {
@@ -138,6 +139,7 @@ export default {
     }
   },
   mounted() {
+    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     this.init()
   }
 }
