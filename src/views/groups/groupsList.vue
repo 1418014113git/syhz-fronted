@@ -7,7 +7,7 @@
         <el-row>
           <el-col style="text-align:center">
           <el-form-item>
-            <el-input size="large" placeholder="请输入关键字进行检索" v-model="filterQuery.keywords" style="width:700px;margin:0 auto">
+            <el-input size="large" placeholder="请输入关键字进行检索" v-model="filterQuery.keywords" style="width:700px;margin:0 auto;" @keydown.enter.native="searchFun">
               <el-button slot="append"  v-on:click="queryGroup(true)" icon="el-icon-search" style="width: 100px; font-size: 20px; color: #fff; line-height: 30px;background-color: #1e98d2;"></el-button>
             </el-input>
           </el-form-item>
@@ -97,6 +97,12 @@ export default {
   },
 
   methods: {
+    searchFun(e) {
+      var keyCode = window.event ? e.keyCode : e.which
+      if (keyCode === 13) {
+        this.queryGroup()
+      }
+    },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
