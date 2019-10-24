@@ -40,9 +40,6 @@
             <el-form-item label="办公电话" prop="workerPhone">
               <el-input v-model.trim="personForm.workerPhone" clearable maxlength="13" placeholder="区号-固定电话或手机号码"  class="inputw"></el-input>
             </el-form-item>
-            <el-form-item label="电脑IP地址" prop="ip">
-              <el-input v-model.trim="personForm.ip" clearable maxlength="15" placeholder="请输入"  class="inputw"></el-input>
-            </el-form-item>
           </el-col>
           <el-col :span="10">
             <el-form-item label="状　　态" prop="userState">
@@ -86,13 +83,13 @@
             <el-form-item label="手机号码" prop="phone">
               <el-input v-model.trim="personForm.phone" clearable maxlength="11" placeholder="请输入"  class="inputw"></el-input>
             </el-form-item>
-            <el-form-item label="" prop="">
-
-            </el-form-item>
           </el-col>
         </el-row>
          <el-row type="flex" justify="center" >
            <el-col :span="22">
+            <el-form-item label="电脑IP地址" prop="ip">
+              <el-input v-model.trim="personForm.ip" clearable maxlength="15" placeholder="请输入"  class="inputw"></el-input>
+            </el-form-item>
             <el-form-item label="备　　注" prop="remark">
               <el-input v-model.trim="personForm.remark" type="textarea" :rows="2" clearable maxlength="500" placeholder="最多输入500个字符" class="textAreaw"></el-input>
             </el-form-item>
