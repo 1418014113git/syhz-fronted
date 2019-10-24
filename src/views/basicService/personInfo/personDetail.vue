@@ -46,7 +46,7 @@
               <span>{{personForm.realName}}</span>
             </el-form-item>
             <el-form-item label="性　　别">
-              <span>{{getSex(personForm.userSex)}}</span>
+              <span v-if="!!personForm.userSex">{{getSex(personForm.userSex)}}</span>
             </el-form-item>
             <el-form-item label="年　　龄">
               <span>{{personForm.age}}</span>
