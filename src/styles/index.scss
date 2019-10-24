@@ -1589,3 +1589,19 @@ label {
   border-top: 2px solid #00a0e9;
 }
 
+// 下拉检索框背景样式
+.el-autocomplete-suggestion {
+  border: 1px solid #00a0e9;
+}
+.el-autocomplete-suggestion__wrap {
+  background-color: #005982 !important;
+  border: 0 !important;
+}
+.el-autocomplete-suggestion li {
+  color: #fff;
+}
+.el-autocomplete-suggestion.is-loading li:hover,
+.el-autocomplete-suggestion li.highlighted,
+.el-autocomplete-suggestion li:hover {
+  background-color: rgba(188, 232, 252, 0.1);
+}
