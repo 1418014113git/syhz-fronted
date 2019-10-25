@@ -36,6 +36,11 @@
                   >
                 </el-transfer>
               </el-form-item>
+                 <el-form-item style="text-align:right">
+
+              <el-button type="primary" @click="goback" disabled>取消</el-button>
+              <el-button type="primary" @click="submit"  disabled :loading="btnLoading">保存</el-button>
+            </el-form-item>
           </el-form>
         </el-col>
       </el-row>

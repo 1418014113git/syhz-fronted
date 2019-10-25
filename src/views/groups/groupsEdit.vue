@@ -46,9 +46,10 @@
                 </el-transfer>
 
               </el-form-item>
-              <el-form-item>
-              <el-button type="primary" @click="submit" :loading="btnLoading">提交</el-button>
+              <el-form-item style="text-align:right">
+
               <el-button type="primary" @click="goback">取消</el-button>
+               <el-button type="primary" @click="submit" :loading="btnLoading">保存</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -91,7 +92,11 @@ export default {
         groupName: [{
           required: true, min: 1, max: 50, trigger: 'blur', validator: (rule, value, callback) => {
             const groupName = value
-            if (!groupName || groupName.length > 50) {
+            if (!groupName) {
+              callback(new Error('请输入组名'))
+              return
+            }
+            if (groupName.length > 50) {
               callback(new Error('组名长度应为1-50个字符'))
               return
             }
@@ -111,6 +116,10 @@ export default {
         deptIds: [
           {
             required: true, message: '请选择组成员', trigger: 'blur'
+          }
+        ], desc: [
+          {
+            required: false, message: '说明长度应为1-500个字符', max: 500, trigger: 'blur'
           }
         ]
 
@@ -141,8 +150,15 @@ export default {
           this.$update('group/' + this.groupId, this.group).then(res => {
             this.btnLoading = false
             if (res.code === '000000') {
-              this.$message({ message: '修改成功', type: 'success' })
-              this.goToList()
+              this.$message({ message: '常用组修改成功', type: 'success' })
+              setTimeout(() => {
+                this.goToList()
+              }, 2000)
+            } else {
+              this.$message({ message: '常用组修改失败，请联系管理员！', type: 'error' })
+              setTimeout(() => {
+                this.goToList()
+              }, 2000)
             }
           }).catch(() => {
             this.btnLoading = false

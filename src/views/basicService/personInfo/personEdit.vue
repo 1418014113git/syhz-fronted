@@ -1,9 +1,9 @@
 <template>
 <!--人员信息编辑页 -->
   <div class="personInfoEdit">
-      <el-form :model="personForm" size="small" ref="personForm" :rules="rules" label-width="180px" v-loading="loading">
+      <el-form :model="personForm" size="small" ref="personForm" :rules="rules" label-width="170px" v-loading="loading">
         <el-row type="flex" justify="center">
-          <el-col :span="9" class="margr">
+          <el-col :span="10" class="margr">
             <el-form-item label="人员类别" prop="userSort">
               <span v-if="personForm.userSort">{{ $getDictName(personForm.userSort+'', 'rylx') }}</span>
             </el-form-item>
@@ -37,11 +37,11 @@
             <el-form-item label="参加公安工作时间" prop="joinPoliceTime">
               <el-date-picker v-model="personForm.joinPoliceTime" type="date" value-format="yyyy-MM-dd" format="yyyy-MM-dd" class="inputw" :picker-options="pickerOptions"></el-date-picker>
             </el-form-item>
-            <el-form-item label="办公电话:" prop="workerPhone">
-              <el-input v-model.trim="personForm.workerPhone" clearable maxlength="13" placeholder="请输入"  class="inputw"></el-input>
+            <el-form-item label="办公电话" prop="workerPhone">
+              <el-input v-model.trim="personForm.workerPhone" clearable maxlength="13" placeholder="区号-固定电话或手机号码"  class="inputw"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="9">
+          <el-col :span="10">
             <el-form-item label="状　　态" prop="userState">
               <el-select v-if="personForm.userState" v-model.trim="personForm.userState"  placeholder="请选择" clearable  class="inputw" :disabled="!$isViewBtn('170001')">
                 <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts(curUserState)" :key="item.dictKey"></el-option>
@@ -86,16 +86,12 @@
           </el-col>
         </el-row>
          <el-row type="flex" justify="center" >
-           <el-col :span="20">
-            <el-form-item label="电脑IP地址:" prop="ip">
+           <el-col :span="22">
+            <el-form-item label="电脑IP地址" prop="ip">
               <el-input v-model.trim="personForm.ip" clearable maxlength="15" placeholder="请输入"  class="inputw"></el-input>
             </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row type="flex" justify="center" >
-          <el-col :span="20">
             <el-form-item label="备　　注" prop="remark">
-              <el-input v-model.trim="personForm.remark" type="textarea" :rows="2" clearable maxlength="500" placeholder="最多输入500个字符"></el-input>
+              <el-input v-model.trim="personForm.remark" type="textarea" :rows="2" clearable maxlength="500" placeholder="最多输入500个字符" class="textAreaw"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -347,7 +343,7 @@ export default {
                 //   if (value < this.personForm.joinPoliceTime) {
                 //     return callback(new Error('参加环食药工作时间不能小于参加公安工作时间！'))
                 //   } else {
-                //     // this.$refs.personForm.validateField('joinPoliceTime', (joinPoliceTimeError) => {})
+                //     this.$refs.personForm.validateField('joinPoliceTime', (joinPoliceTimeError) => {})
                 //     callback()
                 //   }
                 // } else {
@@ -399,7 +395,7 @@ export default {
           this.xrzw = 'xrzwpcs'
         }
       }
-      var id = this.$route.query.id
+      var id = this.$route.query.id ? this.$route.query.id : this.curUser.id
       this.loading = true
       this.$query('USERMESSAGE/' + id, {}, true).then((response) => {
         this.loading = false
@@ -425,11 +421,7 @@ export default {
         response.data.userIdNumber ? this.personForm.userIdNumber = response.data.userIdNumber + '' : this.personForm.userIdNumber = ''
         response.data.ip ? this.personForm.ip = response.data.ip : this.personForm.ip = sessionStorage.getItem('currentIp')
         response.data.remark ? this.personForm.remark = response.data.remark : this.personForm.remark = ''
-        if (response.data.userSex) {
-          this.personForm.userSex = response.data.userSex
-        } else {
-          this.personForm.userSex = ''
-        }
+        response.data.userSex + '' ? this.personForm.userSex = response.data.userSex : this.personForm.userSex = ''
         if (this.personForm.userSort) {
           if (this.personForm.userSort === '1') { // 民警
             this.curUserState = 'ryztmj'
@@ -519,10 +511,30 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .personInfoEdit{
   .margr{
-    margin-right: 102px;
+    margin-right: 8.5%;
   }
   .inputw{
-    width: 220px;
+    width: 270px;
+  }
+  .textAreaw{
+    width: 101%;
+  }
+  .el-col-22 {
+    width: 92%;
+  }
+}
+@media only screen and (max-width: 1367px) {
+  .personInfoEdit{
+    .textAreaw {
+       width: 103%;
+    }
+  }
+}
+@media screen and (min-width: 1920px) {
+  .personInfoEdit{
+    .textAreaw{
+      width: 92%;
+    }
   }
 }
 
