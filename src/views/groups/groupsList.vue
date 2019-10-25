@@ -100,6 +100,7 @@ export default {
     searchFun(e) {
       var keyCode = window.event ? e.keyCode : e.which
       if (keyCode === 13) {
+        this.page = 1
         this.queryGroup()
       }
     },
