@@ -2,19 +2,22 @@
   <section class="personList">
    <!--人员信息列表页-->
     <el-col :span="24" class="toolbar" style="padding-bottom: 0;">
-      <el-form :inline="true" :model="filters" ref="filters" label-width="97px" class="form">
+      <el-form :inline="true" :model="filters" ref="filters" label-width="90px" class="form">
        <el-form-item label="行政区划">
-        <el-cascader
-          :options="xzqhOptions"
-          v-model="area"
-          :props="props"
-          change-on-select
-          @change="handleAreaChange"
-          placeholder="全部">
-        </el-cascader>
+        <el-tooltip effect="dark" :content="selectCurxzqhDep.cityName" placement="top-start" :popper-class="(selectCurxzqhDep.cityName&&selectCurxzqhDep.cityName.length>10)===true?'tooltipShow':'tooltipHide'">
+          <el-cascader
+            :options="xzqhOptions"
+            v-model="area"
+            :props="props"
+            change-on-select
+            @change="handleAreaChange"
+            :show-all-levels="false"
+            placeholder="全部">
+          </el-cascader>
+        </el-tooltip>
       </el-form-item>
       <el-form-item label="单位机构">
-        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>11)===true?'tooltipShow':'tooltipHide'">
+        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
           <el-cascader
             :options="deptOptions"
             v-model="department"
@@ -60,20 +63,20 @@
     <!--列表-->
     <el-table :data="list" v-loading="listLoading" style="width: 100%;"  class="testList"  :max-height="tableHeight">
       <el-table-column type="index" label="序号" width="60"></el-table-column>
-      <el-table-column prop="realName" label="姓名"  show-overflow-tooltip>
+      <el-table-column prop="realName" label="姓名" width="120" show-overflow-tooltip>
         <template slot-scope="scope">
           <a class="ajbh-color" @click="handleDetail(scope.$index, scope.row)">{{scope.row.realName}}</a>
         </template>
       </el-table-column>
-      <el-table-column prop="userName" label="警号"  show-overflow-tooltip></el-table-column>
-      <el-table-column prop="userIdNumber" label="身份证号" width="200" show-overflow-tooltip>
+      <el-table-column prop="userName" label="警号"  width="120" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="userIdNumber" label="身份证号" width="180" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if='scope.row.userIdNumber'>{{getAfterSix(scope.row.userIdNumber)}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="userSex" label="性别" >
         <template slot-scope="scope">
-          <span v-if='scope.row.userSex'>{{getSex(scope.row.userSex)}}</span>
+          <span v-if="scope.row.userSex+''">{{getSex(scope.row.userSex)}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="createDate" label="现任职级" width="150" show-overflow-tooltip>
@@ -105,7 +108,7 @@
         <template slot-scope="scope">
           <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
           <el-button size="mini" title="编辑信息"  type="primary" icon="el-icon-edit" circle  v-if='scope.row.id===curUser.id'  @click="handleEdit(scope.$index, scope.row)"></el-button>
-          <el-button size="mini" title="编辑状态"  type="primary"  icon="el-icon-edit-outline"  circle  v-if="$isViewBtn('170001')"  @click="editStatus(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="编辑状态"  type="primary"  icon="el-icon-edit-outline"  circle  v-if="(scope.row.departCode===curDept.depCode) && $isViewBtn('170001')"  @click="editStatus(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -190,6 +193,7 @@ export default {
         children: 'children'
       },
       selectCurDep: { name: '' }, // 当前选中的部门
+      selectCurxzqhDep: { cityName: '' }, // 当前行政区划
       editPerStatus: '', // 点击列表当前行，根据当前行的人员类别， 判断出人员状态的字典key值并存储。
       downLoadUrl: http.LoginModuleName, // nginx配置的文件下载
       tableHeight: null,
@@ -232,13 +236,30 @@ export default {
           }
           this.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
+          // 默认选择本单位
+          if (this.curDept.depType === '-1') { // 省
+            this.department = [this.curDept.depCode]
+          } else if (this.curDept.depType === '1') { // 总队
+            this.department = [this.curDept.parentDepCode, this.curDept.depCode]
+          } else if (this.curDept.depType === '2') { // 支队
+            this.department = [this.curDept.depCode]
+          } else if (this.curDept.depType === '3') { // 大队
+            this.department = [this.curDept.depCode]
+          } else if (this.curDept.depType === '4') { // 派出所
+            this.department = [this.curDept.parentDepCode, this.curDept.depCode]
+          }
+          this.handleDeptChange(this.department)
+          this.query(true) // 查询列表
         }
       }).catch(() => {
         this.listLoading = false
       })
     },
     handleAreaChange(val) { // 行政区划
+      this.department = []
+      this.selectCurDep = { name: '' } // 当前选中的部门
       if (val.length > 0) {
+        this.xzqhDepChange(val)
         this.deptOptions = [] // 清空单位机构数据
         this.selectCurDep = { name: '' } // 清空当前选中的单位机构
         var param = {
@@ -259,18 +280,6 @@ export default {
                 })
               }
               this.deptOptions = getTree(arr) // 机构
-              if (this.curDept.depType === '-1') { // 省
-                this.department = [this.curDept.depCode]
-              } else if (this.curDept.depType === '1') { // 总队
-                this.department = [this.curDept.parentDepCode, this.curDept.depCode]
-              } else if (this.curDept.depType === '2') { // 支队
-                this.department = [this.curDept.depCode]
-              } else if (this.curDept.depType === '3') { // 大队
-                this.department = [this.curDept.depCode]
-              } else if (this.curDept.depType === '4') { // 派出所
-                this.department = [this.curDept.parentDepCode, this.curDept.depCode]
-              }
-              this.query(true) // 查询列表
             }
           }
         }).catch(() => {
@@ -280,8 +289,29 @@ export default {
         this.deptOptions = []
       }
     },
+    xzqhDepChange(val) { // 行政区划获取当前tiptop信息
+      if (val.length > 0) {
+        var xzqhOptions = this.xzqhOptions[0].children
+        for (let i = 0; i < xzqhOptions.length; i++) {
+          const dept = xzqhOptions[i]
+          if (dept.cityCode === val[val.length - 1]) {
+            this.selectCurxzqhDep = dept
+          } else {
+            if (dept.children && dept.children.length > 0) {
+              for (let j = 0; j < dept.children.length; j++) {
+                const depts = dept.children[j]
+                if (depts.cityCode === val[val.length - 1]) {
+                  this.selectCurxzqhDep = depts
+                }
+              }
+            }
+          }
+        }
+      } else {
+        this.selectCurxzqhDep = { cityName: '' }
+      }
+    },
     handleDeptChange(val) { // 单位机构
-      // console.log(val)
       if (val.length > 0) {
         var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
         for (let i = 0; i < deptArr.length; i++) {
@@ -292,6 +322,7 @@ export default {
           }
         }
       } else {
+        this.department = []
         this.selectCurDep = { name: '' }
       }
     },
@@ -503,6 +534,7 @@ export default {
           setTimeout(() => {
             this.btnLoading = false
             this.isShowEditStatus = false
+            this.query(true)
           }, 3000)
         }
       }).catch(() => {

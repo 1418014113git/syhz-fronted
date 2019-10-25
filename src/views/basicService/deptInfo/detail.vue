@@ -23,8 +23,8 @@
             <span v-if="departmentForm.compileNum > 0">{{departmentForm.compileNum}}人</span>
             <span v-else>0 人</span>
           </el-form-item>
-          <el-form-item label="所属行政区划" prop="areaCode" class="clearfix">
-            {{departmentForm.areaCode}}
+          <el-form-item label="所属行政区划" prop="orgName" class="clearfix">
+            {{departmentForm.orgName}}
           </el-form-item>
           <el-form-item label="成立时间" prop="foundingTime" class="clearfix">
             {{departmentForm.foundingTime}}
@@ -133,16 +133,17 @@ export default {
         this.formLoading = false
         if (response.code === '000000') {
           this.departmentForm = response.data
-          this.departmentForm.administrative = [] // 行政区划
-          if (response.data.provinceCode) { // 省
-            this.departmentForm.administrative.push(response.data.provinceCode)
-          }
-          if (response.data.cityCode) { // 市
-            this.departmentForm.administrative.push(response.data.cityCode)
-          }
-          if (response.data.reginCode) { // 区
-            this.departmentForm.administrative.push(response.data.reginCode)
-          }
+          this.departmentForm.foundingTime = this.departmentForm.foundingTime.substring(0, 10) // 成立时间
+          // this.departmentForm.administrative = [] // 行政区划
+          // if (response.data.provinceCode) { // 省
+          //   this.departmentForm.administrative.push(response.data.provinceCode)
+          // }
+          // if (response.data.cityCode) { // 市
+          //   this.departmentForm.administrative.push(response.data.cityCode)
+          // }
+          // if (response.data.reginCode) { // 区
+          //   this.departmentForm.administrative.push(response.data.reginCode)
+          // }
         }
       }).catch(() => {
         this.formLoading = false
@@ -195,8 +196,9 @@ export default {
   }
   .showAll {
     cursor: pointer;
+    display: inline-block;
     width: 100%;
-    height: auto;
+    overflow: auto;
   }
 }
 </style>

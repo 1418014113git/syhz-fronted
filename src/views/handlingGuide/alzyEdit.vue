@@ -130,12 +130,10 @@
           documentId: ''
         },
         categoryOptions: [
-          { label: '法律', value: 1 },
-          { label: '行政法规', value: 2 },
-          { label: '地方性行政法规', value: 201 },
-          { label: '部门规章', value: 202 },
-          { label: '司法解释', value: 3 },
-          { label: '其他规范性文件', value: 4 }
+          { label: '案例', value: 1 },
+          { label: '判例', value: 2 },
+          { label: '办案指引', value: 3 },
+          { label: '技战法', value: 4 }
         ],
         rules: {
           title: [
