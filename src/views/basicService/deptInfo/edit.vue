@@ -22,13 +22,14 @@
           <el-form-item label="编制人数" prop="compileNum" class="clearfix">
             <el-input type="text" size="small" v-model.trim="departmentForm.compileNum" clearable placeholder="请输入" maxlength="3"></el-input>
           </el-form-item>
-          <el-form-item label="所属行政区划" prop="administrative" class="clearfix">
+          <el-form-item label="所属行政区划" prop="administrative" class="xzqhWrap">
             <el-cascader
               :options="administrativeData"
               v-model="departmentForm.administrative"
               placeholder="请选择行政区划"
               change-on-select
               @change="areaChange"
+              :disabled="true"
               :props="props">
             </el-cascader>
           </el-form-item>
@@ -449,6 +450,9 @@ export default {
   }
   .el-collapse-item__content {
     padding: 0 20px;
+  }
+  .xzqhWrap .el-cascader__label {
+    cursor: not-allowed;
   }
 }
 </style>
