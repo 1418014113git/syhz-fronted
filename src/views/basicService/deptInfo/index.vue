@@ -9,7 +9,7 @@
           change-on-select
           @change="handleAreaChange"
           :show-all-levels="false"
-          placeholder="全部">
+          clearable placeholder="全部">
         </el-cascader>
       </el-form-item>
       <el-form-item label="单位机构" prop="examStatus">
@@ -21,7 +21,7 @@
             change-on-select
             :show-all-levels="false"
             @change="handleDeptChange"
-            placeholder="全部">
+            clearable placeholder="全部">
           </el-cascader>
         </el-tooltip>
       </el-form-item>
