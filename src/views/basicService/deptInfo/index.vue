@@ -8,11 +8,12 @@
           :props="props"
           change-on-select
           @change="handleAreaChange"
-          clearable placeholder="全部">
+          :show-all-levels="false"
+          placeholder="全部">
         </el-cascader>
       </el-form-item>
       <el-form-item label="单位机构" prop="examStatus">
-        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>11)===true?'tooltipShow':'tooltipHide'">
+        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
           <el-cascader
             :options="deptOptions"
             v-model="filters.department"
@@ -20,7 +21,7 @@
             change-on-select
             :show-all-levels="false"
             @change="handleDeptChange"
-            clearable placeholder="全部">
+            placeholder="全部">
           </el-cascader>
         </el-tooltip>
       </el-form-item>
@@ -105,6 +106,7 @@ export default {
   },
   methods: {
     handleAreaChange(val) { // 行政区划
+      this.filters.department = []
       if (val.length > 0) {
         this.deptOptions = [] // 清空单位机构数据
         this.selectCurDep = { name: '' } // 清空当前选中的单位机构
@@ -126,18 +128,6 @@ export default {
                 })
               }
               this.deptOptions = getTree(arr) // 机构
-              if (this.deptInfo.depType === '-1') { // 省
-                this.filters.department = [this.deptInfo.depCode]
-              } else if (this.deptInfo.depType === '1') { // 总队
-                this.filters.department = [this.deptInfo.parentDepCode, this.deptInfo.depCode]
-              } else if (this.deptInfo.depType === '2') { // 支队
-                this.filters.department = [this.deptInfo.depCode]
-              } else if (this.deptInfo.depType === '3') { // 大队
-                this.filters.department = [this.deptInfo.depCode]
-              } else if (this.deptInfo.depType === '4') { // 派出所
-                this.filters.department = [this.deptInfo.parentDepCode, this.deptInfo.depCode]
-              }
-              this.queryList(true) // 查列表
             }
           }
         }).catch(() => {
@@ -184,6 +174,19 @@ export default {
           }
           this.filters.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
+          // 默认选择本单位
+          if (this.deptInfo.depType === '-1') { // 省
+            this.filters.department = [this.deptInfo.depCode]
+          } else if (this.deptInfo.depType === '1') { // 总队
+            this.filters.department = [this.deptInfo.parentDepCode, this.deptInfo.depCode]
+          } else if (this.deptInfo.depType === '2') { // 支队
+            this.filters.department = [this.deptInfo.depCode]
+          } else if (this.deptInfo.depType === '3') { // 大队
+            this.filters.department = [this.deptInfo.depCode]
+          } else if (this.deptInfo.depType === '4') { // 派出所
+            this.filters.department = [this.deptInfo.parentDepCode, this.deptInfo.depCode]
+          }
+          this.queryList(true) // 查列表
         }
       }).catch(() => {
         this.listLoading = false

@@ -1,7 +1,7 @@
 <template>
 <!--人员信息详情页 -->
   <div class="personInfoDetail">
-      <el-form :model="personForm" size="small" ref="personForm" label-width="180px" v-loading="loading">
+      <el-form :model="personForm" size="small" ref="personForm" label-width="170px" v-loading="loading">
         <el-row type="flex" justify="center">
           <el-col :span="9" class="margr">
             <el-form-item label="人员类别">
@@ -11,7 +11,7 @@
               <span>{{personForm.userName}}</span>
             </el-form-item>
              <el-form-item label="身份证号码">
-              <span>{{personForm.userIdNumber}}</span>
+              <span v-if='personForm.userIdNumber'>{{getAfterSix(personForm.userIdNumber)}}</span>
             </el-form-item>
             <el-form-item label="出生日期">
               <span>{{personForm.birthTime}}</span>
@@ -31,10 +31,10 @@
             <el-form-item label="参加公安工作时间">
               <span>{{personForm.joinPoliceTime}}</span>
             </el-form-item>
-            <el-form-item label="办公电话:">
+            <el-form-item label="办公电话">
               <span>{{personForm.workerPhone}}</span>
             </el-form-item>
-            <el-form-item label="电脑IP地址:">
+            <el-form-item label="电脑IP地址">
               <span>{{personForm.ip}}</span>
             </el-form-item>
           </el-col>
@@ -46,7 +46,7 @@
               <span>{{personForm.realName}}</span>
             </el-form-item>
             <el-form-item label="性　　别">
-              <span>{{getSex(personForm.userSex)}}</span>
+              <span v-if="personForm.userSex+''">{{getSex(personForm.userSex)}}</span>
             </el-form-item>
             <el-form-item label="年　　龄">
               <span>{{personForm.age}}</span>
@@ -91,7 +91,8 @@ export default {
       userInfo: {}, // 当前登录用户信息
       loading: false,
       curUserState: '', // 根据人员类别存储对应的在职状态key值。 'userStatefj': 辅警、工勤, 'userStatemj':民警
-      xrzw: '' // 根据当前用户角色是总队，还是支队，存储对应的字典key值， ‘xrzwzod’：总队， 'xrzwzhd':支队
+      xrzw: '', // 根据当前用户角色是总队，还是支队，存储对应的字典key值， ‘xrzwzod’：总队， 'xrzwzhd':支队
+      curUser: {}
     }
   },
   methods: {
@@ -110,7 +111,7 @@ export default {
           this.xrzw = 'xrzwpcs'
         }
       }
-      var id = this.$route.query.id
+      var id = this.$route.query.id ? this.$route.query.id : this.curUser.id
       this.$query('USERMESSAGE/' + id, {}, true).then((response) => {
         this.loading = false
         this.personForm = response.data
@@ -135,9 +136,19 @@ export default {
         name = '未知'
       }
       return name
+    },
+    getAfterSix(val) {
+      var number = ''
+      if (val.length === 18) {
+        number = val.substring(0, 12) + '******'
+      } else if (val.length === 15) {
+        number = val.substring(0, 10) + '******'
+      }
+      return number
     }
   },
   mounted() {
+    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     this.init()
   }
 }
@@ -146,11 +157,17 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .personInfoDetail{
   .margr{
-    margin-right: 102px;
+    margin-right: 8%;
   }
   .inputw{
     width: 100%;
   }
 }
-
+@media only screen and (max-width: 1367px) {
+  .personInfoDetail{
+    .margr{
+      margin-right: 75px;
+    }
+  }
+}
 </style>
