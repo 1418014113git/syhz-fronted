@@ -190,8 +190,8 @@ export default {
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-    this.query()
-    this.init()
+    // this.queryEquipList()
+    // this.init()
   }
 }
 </script>
