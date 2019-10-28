@@ -121,6 +121,21 @@ export function download_http(url, params) {
   })
 }
 
+// 下载文件
+export function download_http_mg(url, params) {
+  axios({
+    method: 'get',
+    url: url,
+    params: params,
+    responseType: 'arraybuffer'
+  }).then(response => {
+    downloadFile_view(response, params.fileName)
+    return response
+  }).catch((error) => {
+    Promise.reject(error)
+  })
+}
+
 // 下载文件到本地
 function downloadFile(res) {
   if (!res.data) {
