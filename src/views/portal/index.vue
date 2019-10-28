@@ -40,7 +40,7 @@ export default {
       cardData: [],
       curDept: null,
       cardData1: [ // 全部菜单（省厅权限）
-        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
+        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/notice/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
         { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
         { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
@@ -54,7 +54,7 @@ export default {
 
       ],
       cardData2: [ // 市
-        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
+        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/notice/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
         { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
         { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
@@ -67,7 +67,7 @@ export default {
         // { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' }
       ],
       cardData3: [ // 旗县
-        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
+        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/notice/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
         { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
         { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
