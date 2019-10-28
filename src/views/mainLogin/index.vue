@@ -23,14 +23,14 @@
               <svg-icon icon-class="user" />
             </span>
             <span class="inputtext">用户名</span>
-            <el-input name="username" type="text" v-model="loginForm.username" autoComplete="off" placeholder=""  @keyup.enter.native="handleLogin" clearable/>
+            <el-input name="username" type="text" v-model.trim="loginForm.username" autoComplete="off" placeholder=""  @keyup.enter.native="handleLogin" clearable/>
           </el-form-item>
           <el-form-item prop="password" class="password">
             <span class="svg-container svg-container_key">
               <svg-icon icon-class="key"></svg-icon>
             </span>
             <span class="inputtext">密&nbsp;&nbsp;&nbsp;码</span>
-            <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
+            <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin"  v-model.trim="loginForm.password" autoComplete="on"
               placeholder="" clearable></el-input>
           </el-form-item>
 

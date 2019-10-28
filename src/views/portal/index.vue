@@ -21,6 +21,7 @@ import TopMessage from './components/TopMessage'
 // import OnlineHelp from './components/onlineHelp'
 import Foot from './components/foot'
 import WorkMenu from './components/WorkMenu'
+import { isViewBtn } from '@/utils/public'
 
 export default {
   name: 'index',
@@ -37,6 +38,7 @@ export default {
     return {
       sysnotice: [],
       cardData: [],
+      curDept: null,
       cardData1: [ // 全部菜单（省厅权限）
         { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
@@ -118,6 +120,52 @@ export default {
       }
       this.accessControlModel()
       this.getSysconfig()
+      this.getPersonInfoTip()
+    },
+    getPersonInfoTip() {
+      if (this.curDept && this.curDept.length > 0) {
+        this.$query('USERCOMPLETE/' + this.curUser.id, {}, true).then(response => {
+          if (!response.data || !response.data.complete) {
+            this.$confirm('您的个人信息还没有完善，未避免影响您的正常使用，请尽快完善个人信息！', '提示', {
+              confirmButtonText: '>>立即完善',
+              cancelButtonText: '稍后再说',
+              type: 'warning'
+            }).then(() => {
+              this.$router.push({ path: '/basicService/personInfo', query: { type: 'mainEdit', id: this.curUser.id }})
+            }).catch(() => {
+              // 点击 稍后再说
+              this.getDeptInfoTip()
+            })
+          } else {
+            // 人员信息已完善
+            this.getDeptInfoTip()
+          }
+        })
+      }
+    },
+    getDeptInfoTip() {
+      if (isViewBtn('169003') && sessionStorage.getItem('depToken')) { // 拥有审核权限  本单位的人
+        var deptId = JSON.parse(sessionStorage.getItem('depToken'))[0].id
+        this.$query('hsyzdepartmessage', { id: deptId }, 'upms').then(response => {
+          if (response.code === '000000') {
+            // data的size等于0 未完善，等于1 已完善
+            if (response.data.length === 0) {
+              this.$confirm('您所在的机构信息还没有完善，为避免影响后期的数据统计及分析，请尽快完善机构信息！', '提示', {
+                confirmButtonText: '>>立即完善',
+                cancelButtonText: '稍后再说',
+                type: 'warning'
+              }).then(() => {
+                this.$router.push({ path: '/basicService/deptInfo/edit', query: { type: 'mainEdit' }})
+              }).catch(() => {
+
+              })
+            } else {
+              // 已完善
+            }
+          }
+        }).catch(() => {
+        })
+      }
     },
     getSysconfig() { // 获取upms地址
       this.$query('sysconfig', { configKey: 'upms_url' }).then(response => {
@@ -160,13 +208,23 @@ export default {
       } else {
         this.lastTime = new Date().getTime() // 如果在30分钟内鼠标移动，则把这次鼠标移动的时间记录覆盖掉之前存的最后一次鼠标移动的时间
       }
+    },
+    getDist() { // 获取字典
+      this.$query('personMessage', {}).then(response => {
+        if (response.data) {
+          sessionStorage.setItem('dictdata', JSON.stringify(response.data))
+        }
+      })
     }
   },
   mounted() {
+    this.curDept = sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken')) : ''
+    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     this.init()
   },
   created() {
     this.lastTime = new Date().getTime() // 网页第一次打开时，记录当前时间
+    this.getDist()
   }
 }
 </script>
@@ -187,9 +245,9 @@ export default {
     min-height: 93%;
     padding: 0 10px 0 20px;
   }
-  .el-card{
+  .el-card {
     color: #fff;
-    background: url('/static/image/portal_newImg/moudBg.png') no-repeat center;
+    background: url("/static/image/portal_newImg/moudBg.png") no-repeat center;
     background-size: 100% 100%;
   }
 }

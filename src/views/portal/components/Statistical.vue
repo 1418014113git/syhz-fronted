@@ -110,7 +110,7 @@ export default {
   }
 }
 @media only screen and (max-width: 1367px) {
-  .el-table{
+  .poajBox .el-table{
     font-size: 12px;
   }
 }

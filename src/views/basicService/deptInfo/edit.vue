@@ -2,7 +2,7 @@
   <section class="deptWrap">
     <el-row>
       <!-- <img src="@/assets/icon/back.png"  class="goBack" @click="back"> -->
-      <el-button size="mini" class="right" @click="lookMoreDept" icon="el-icon-menu">更多机构信息</el-button>
+      <el-button size="mini" class="right" @click="lookMoreDept" icon="el-icon-menu" style="margin-right:10px;">更多机构信息</el-button>
     </el-row>
     <el-card style="margin-top:10px;">
       <div slot="header">
@@ -12,20 +12,26 @@
       <el-form :model="departmentForm" ref="departmentForm" :rules="rules" label-width="120px" label-position="left" v-loading="formLoading" class="clearfix">
         <el-col :span="11">
           <el-form-item label="机构全称" prop="departName">
-            <el-input type="text" size="small" v-model="departmentForm.departName" clearable placeholder="请输入" maxlength="50" ></el-input>
+            <el-input type="text" size="small" v-model.trim="departmentForm.departName" clearable placeholder="请输入" maxlength="50" ></el-input>
           </el-form-item>
-          <el-form-item label="机构级别" prop="adminLevel" class="clearfix">
-            <el-select v-model="departmentForm.adminLevel" placeholder="请选择" class="left" >
-              <el-option v-for="item in paperType" :key="item.value" :label="item.label" :value="item.value"></el-option>
+          <el-form-item label="机构级别" prop="departLevel" class="clearfix">
+            <el-select v-model="departmentForm.departLevel" placeholder="请选择" class="left" >
+              <el-option v-for="item in $getDicts('zyzz')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="编制人数" prop="compileNum" class="clearfix">
-            <el-input type="text" size="small" v-model="departmentForm.compileNum" clearable placeholder="请输入" maxlength="3"></el-input>
+            <el-input type="text" size="small" v-model.trim="departmentForm.compileNum" clearable placeholder="请输入" maxlength="3"></el-input>
           </el-form-item>
-          <el-form-item label="所属行政区划" prop="areaCode" class="clearfix">
-            <el-select v-model="departmentForm.areaCode" placeholder="请选择" class="left" >
-              <el-option v-for="item in paperType" :key="item.value" :label="item.label" :value="item.value"></el-option>
-            </el-select>
+          <el-form-item label="所属行政区划" prop="administrative" class="xzqhWrap">
+            <el-cascader
+              :options="administrativeData"
+              v-model="departmentForm.administrative"
+              placeholder="请选择行政区划"
+              change-on-select
+              @change="areaChange"
+              :disabled="true"
+              :props="props">
+            </el-cascader>
           </el-form-item>
           <el-form-item label="成立时间" prop="foundingTime" class="clearfix">
             <el-date-picker v-model="departmentForm.foundingTime" type="date" :picker-options="pickerOptions" value-format="yyyy-MM-dd" placeholder="选择日期时间" @change="dateChange" class="left" ></el-date-picker>
@@ -34,52 +40,48 @@
             <el-input type="text" v-model="departmentForm.linkmanPhone" clearable placeholder="请输入" maxlength="11" class="left" ></el-input>
           </el-form-item>
           <el-form-item label="主要负责人" prop="mainLeader" class="clearfix">
-            <el-input type="text" v-model="departmentForm.mainLeader" clearable placeholder="请输入" maxlength="20" class="left" ></el-input>
+            <el-input type="text" v-model.trim="departmentForm.mainLeader" clearable placeholder="请输入" maxlength="20" class="left" ></el-input>
           </el-form-item>
-          <el-form-item label="日常联系人" prop="dayLeader" class="clearfix">
-            <el-input type="text" v-model="departmentForm.dayLeader" clearable placeholder="请输入" maxlength="20" class="left" ></el-input>
+          <el-form-item label="日常联系人" prop="dailyLeader" class="clearfix">
+            <el-input type="text" v-model.trim="departmentForm.dailyLeader" clearable placeholder="请输入" maxlength="20" class="left" ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="11" :offset="2">
           <el-form-item label="机构代码" prop="departCode" class="clearfix">
-            <el-input type="text" v-model="departmentForm.departCode" clearable placeholder="请输入" maxlength="20" class="left" :disabled="true"></el-input>
+            <el-input type="text" v-model.trim="departmentForm.departCode" clearable placeholder="请输入" maxlength="50" class="left" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="主要职责任务" prop="mainAssignment" class="clearfix">
-            <el-input type="text" v-model="departmentForm.mainAssignment" clearable placeholder="请输入" maxlength="3" class="left" ></el-input>
+            <el-input type="text" v-model.trim="departmentForm.mainAssignment" clearable placeholder="请输入" maxlength="100" class="left" ></el-input>
           </el-form-item>
           <el-form-item label="实有人数" prop="realityNum" class="clearfix">
-            <el-input type="text" v-model="departmentForm.realityNum" clearable placeholder="请输入" maxlength="3" class="left" :disabled="true"></el-input>
+            <el-input type="text" v-model.trim="departmentForm.realityNum" clearable placeholder="请输入" maxlength="3" class="left" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="机构详细地址" prop="address" class="clearfix">
-            <el-input type="text" v-model="departmentForm.address" clearable placeholder="请输入" maxlength="3" class="left" ></el-input>
+            <el-input type="text" v-model.trim="departmentForm.address" clearable placeholder="请输入" maxlength="100" class="left" ></el-input>
           </el-form-item>
           <el-form-item label="邮编" prop="postcode" class="clearfix">
-            <el-input type="text" v-model="departmentForm.postcode" clearable placeholder="请输入" maxlength="6" class="left" ></el-input>
+            <el-input type="text" v-model.trim="departmentForm.postcode" clearable placeholder="请输入" maxlength="6" class="left" ></el-input>
           </el-form-item>
           <el-form-item label="传真号码" prop="faxNumber" class="clearfix">
-            <el-input type="text" v-model="departmentForm.faxNumber" clearable placeholder="请输入" maxlength="11" class="left" ></el-input>
+            <el-input type="text" v-model.trim="departmentForm.faxNumber" clearable placeholder="请输入" maxlength="11" class="left" ></el-input>
           </el-form-item>
           <el-form-item label="分管局领导" prop="subofficeLeader" class="clearfix">
-            <el-input type="text" v-model="departmentForm.subofficeLeader" clearable placeholder="请输入" maxlength="3" class="left" ></el-input>
+            <el-input type="text" v-model.trim="departmentForm.subofficeLeader" clearable placeholder="请输入" maxlength="20" class="left" ></el-input>
           </el-form-item>
           <el-form-item label="机构设置模式" prop="designMode">
             <el-select v-model="departmentForm.designMode" placeholder="请选择" >
-              <!-- <el-option v-for="item in examinationTypeData" :key="item.value" :label="item.label" :value="item.value"></el-option> -->
-              <option label="单设为省/市/县级公安机关内设部门" value="1">单设为省/市/县级公安机关内设部门</option>
-              <option label="列为省/市/县级公安机关经侦、治安等部门内设机构" value="2"></option>
-              <option label="在省/市/县级公安机关刑侦、治安等部分加挂牌子" value="3"></option>
-              <option></option>
+              <el-option v-for="item in $getDicts('jgszms')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="备注" class="clearfix" prop="remark">
-            <el-input type="textarea" :rows="2" v-model="departmentForm.remark" maxlength="500" placeholder="最多可输入500文字！"></el-input>
+            <el-input type="textarea" :rows="2" v-model.trim="departmentForm.remark" maxlength="500" placeholder="最多可输入500文字！"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="24" align="center" style="margin-bottom:10px;">
-          <el-button size="mini" @click="cancel()" class="cancelBtn" :loading="formLoading">取消</el-button>
-          <el-button size="mini" @click="handleSave('departmentForm')" class="saveBtn" :loading="formLoading" style="margin-left:20px;">保存</el-button>
+          <el-button size="mini" @click="cancel()" class="cancelBtn" :loading="formLoading" v-if="$isViewBtn('169003')">取消</el-button>
+          <el-button size="mini" @click="handleSave('departmentForm')" class="saveBtn" :loading="formLoading" style="margin-left:20px;" v-if="$isViewBtn('169003')">保存</el-button>
         </el-col>
       </el-form>
       <!-- </el-row> -->
@@ -88,8 +90,6 @@
 </template>
 
 <script>
-import { uploadImg } from '@/utils/editorUpload'
-import { examPaperType, systemClassify } from '@/utils/codetotext'
 import { regCode } from '@/utils/validate'
 // import { getTree } from '@/api/dept'
 
@@ -97,42 +97,28 @@ export default {
   name: 'add',
   data() {
     return {
-      paperList: [], // 只能选择本单位组织的试卷
-      openDeptsList: [], // 开放单位只能是本单位或者下级单位，无法选择上级及其他单位
-      departmentForm: {}, // 机构信息
-      editorHeight: '', // 右侧内容的高度
-      markingPeopleData: [], // 阅卷人员data
-      value: [],
-      paperType: examPaperType(), // 试卷类型
-      examinationTypeData: systemClassify(), // 试卷分类
-      deptProps: {
-        value: 'deptCode',
-        label: 'deptName'
-      },
+      departmentForm: {
+        administrative: [] // 行政区划
+      }, // 机构信息
+      formLoading: false, // 表单loading
+      carryParam: {}, // 列表带过来的参数
+      administrativeData: [], // 行政区划
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
         }
       },
-      formLoading: false, // 表单loading
-      allSystemPeople: [], // 系统所有人员
-      markPerFormattingOwn: [], // 自己单位人员
-      markPerFormattingAll: [], // 格式化后的所有人员
-      markPerOwn: [],
-      carryParam: {}, // 列表带过来的参数
-      yjry: '', // 阅卷人员筛选框
-      endDateDisabled: true, // 结束时间禁用
-      treeLoading: true, // 开放单位加载的loading
-      defaultExpandedKeys: [], // 默认展开的节点的 key 的数组
-      defaultCheckedKeys: [], // 默认勾选的节点的 key 的数组
-      markFilterFlag: false, // 阅卷老师是否筛选过
+      props: {
+        value: 'cityCode',
+        label: 'cityName'
+      },
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       rules: {
         departName: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入机构全称的内容'))
+              callback(new Error('请输入机构全称'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -143,7 +129,7 @@ export default {
         departCode: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入机构代码的内容'))
+              callback(new Error('请输入机构代码'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -151,10 +137,10 @@ export default {
             }
           }
         }],
-        adminLevel: [{
+        departLevel: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入机构级别的内容'))
+              callback(new Error('请选择机构级别'))
             } else {
               callback()
             }
@@ -163,7 +149,7 @@ export default {
         mainAssignment: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入主要职责任务的内容'))
+              callback(new Error('请输入主要职责任务'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -171,10 +157,22 @@ export default {
             }
           }
         }],
-        areaCode: [{
+        compileNum: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            var reg = /^[1-9]{1}\d{0,2}$/
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入所属行政区划的内容'))
+              callback(new Error('请输入编制人数'))
+            } else if (reg.test(value)) {
+              callback()
+            } else {
+              callback(new Error('请输入正确的编制人数'))
+            }
+          }
+        }],
+        administrative: [{
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            if (value === null || value === undefined || value === '' || value === []) {
+              callback(new Error('请选择所属行政区划'))
             } else {
               callback()
             }
@@ -183,18 +181,7 @@ export default {
         address: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入机构详细地址的内容'))
-            } else if (regCode.test(value)) {
-              callback(new Error('请不要输入特殊字符'))
-            } else {
-              callback()
-            }
-          }
-        }],
-        postcode: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入邮编的内容'))
+              callback(new Error('请输入机构详细地址'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -205,31 +192,52 @@ export default {
         foundingTime: {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请选择开始时间'))
-            } else if (new Date(this.departmentForm.startDate).getTime() < new Date().getTime()) {
-              callback(new Error('开始时间不能小于当前时间'))
-            } else if (new Date(this.departmentForm.startDate).getTime() > new Date(this.departmentForm.endDate).getTime()) {
-              callback(new Error('开始时间不能大于截至时间'))
+              callback(new Error('请选择成立时间'))
             } else {
               callback()
             }
           }
         },
+        postcode: [{
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            var reg = /^[0-9]{6}$/
+            if (value === null || value === undefined || value === '') {
+              callback(new Error('请输入邮编'))
+            } else if (reg.test(value)) {
+              callback()
+            } else {
+              callback(new Error('请输入6位数字'))
+            }
+          }
+        }],
         linkmanPhone: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            var reg = /^1[3|4|5|6|7|8]\d{9}$/
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入联系电话的内容'))
-            } else if (regCode.test(value)) {
-              callback(new Error('请不要输入特殊字符'))
-            } else {
+              callback(new Error('请输入联系电话'))
+            } else if (reg.test(value)) {
               callback()
+            } else {
+              callback(new Error('请输入正确的手机号码'))
+            }
+          }
+        }],
+        faxNumber: [{
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            var reg = /^(\d{3,4}-)?\d{7,8}$/
+            if (value === null || value === undefined || value === '') {
+              callback(new Error('请输入传真号码'))
+            } else if (reg.test(value)) {
+              callback()
+            } else {
+              callback(new Error('请输入正确的传真号码'))
             }
           }
         }],
         mainLeader: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入主要负责人的内容'))
+              callback(new Error('请输入主要负责人'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -240,7 +248,7 @@ export default {
         subofficeLeader: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入分管局领导的内容'))
+              callback(new Error('请输入分管局领导'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -248,10 +256,10 @@ export default {
             }
           }
         }],
-        dayLeader: [{
+        dailyLeader: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入日常联系人的内容'))
+              callback(new Error('请输入日常联系人'))
             } else if (regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else {
@@ -263,19 +271,6 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
               callback(new Error('请选择机构设置模式'))
-            } else if (regCode.test(value)) {
-              callback(new Error('请不要输入特殊字符'))
-            } else {
-              callback()
-            }
-          }
-        }],
-        faxNumber: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入传真'))
-            } else if (regCode.test(value)) {
-              callback(new Error('请不要输入特殊字符'))
             } else {
               callback()
             }
@@ -292,76 +287,66 @@ export default {
       const res = new Map()
       return arr.filter((arr) => !res.has(arr.deptId) && res.set(arr.deptId, 1))
     },
-    init() {
-      // 查upms下的人员数
-      // this.$query('/', {}).then((response) => {
-      //   if (response.code === '000000') {
-
-      //   }
-      // }).catch(() => {
-      //   this.formLoading = false
-      // })
-      if (this.carryParam.examId) {
-        this.queryDetailById() // 查详情
+    areaChange(val) { // 行政区划 change事件
+      if (val.length > 1) {
+        var curCityCode = val[1]
+        for (let index = 0; index < this.administrativeData[0].children.length; index++) {
+          const element = this.administrativeData[0].children[index]
+          if (curCityCode === element.cityCode) {
+            this.departmentForm.areaName = element.cityName
+            break
+          }
+        }
+      } else {
+        this.departmentForm.areaName = ''
       }
+    },
+    init() {
+      // 盟市
+      this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.administrativeData = response.data ? response.data : []
+          if (this.carryParam.deptId) {
+            // 列表进来的
+          } else {
+            // 首页进来的
+            this.carryParam.deptId = this.deptInfo.id // 将当前机构的id 放到 this.carryParam.deptId
+          }
+          this.queryDetailById() // 查详情
+        }
+      })
     },
     queryDetailById() { // 通过id查询详情
       this.formLoading = true
       this.departmentForm.openDepts = []
-      this.$query('examination/' + this.carryParam.examId, {}).then((response) => {
+      this.$query('hsyzdepart/' + this.carryParam.deptId, {}, 'upms').then((response) => {
+        this.formLoading = false
         if (response.code === '000000') {
-          response.data.examinationType = response.data.examinationType + '' // 分类
-          response.data.type = response.data.type + '' // 试卷类型
-          this.examPaperTypeChange(response.data.type) // 查试卷
-
-          var choosedDepts = response.data.openDepts.split(',') // 开放单位
-          var newDeptsArr = []
-          for (let index = 0; index < choosedDepts.length; index++) {
-            var element = Number(choosedDepts[index])
-            newDeptsArr.push(element)
-          }
-          this.$refs.depTree.setCheckedKeys(newDeptsArr)
-
-          if (response.data.markPeople) { // 阅卷人员
-            var choosedPers = response.data.markPeople.split(',')
-            var newPersArr = []
-            for (let index = 0; index < choosedPers.length; index++) {
-              var item = Number(choosedPers[index])
-              newPersArr.push(item)
-            }
-          }
           this.departmentForm = response.data
-          // this.departmentForm.openDepts = newDeptsArr
-          this.departmentForm.markPeople = newPersArr
+          if (this.departmentForm.departLevel) { // 机构级别
+            this.departmentForm.departLevel = this.departmentForm.departLevel + ''
+          }
+          if (this.departmentForm.designMode) { // 设置模式
+            this.departmentForm.designMode = this.departmentForm.designMode + ''
+          }
+
+          this.departmentForm.administrative = [] // 行政区划
+          if (response.data.provinceCode) { // 省
+            this.departmentForm.administrative.push(response.data.provinceCode)
+          }
+          if (response.data.cityCode) { // 市
+            this.departmentForm.administrative.push(response.data.cityCode)
+          }
+          if (response.data.reginCode) { // 区
+            this.departmentForm.administrative.push(response.data.reginCode)
+          }
+          if (this.departmentForm.administrative.length > 0) {
+            this.areaChange(this.departmentForm.administrative)
+          }
         }
       }).catch(() => {
         this.formLoading = false
       })
-    },
-    handleImageAdded(file, Editor, cursorLocation, resetUploader) {
-      const formData = new FormData()
-      formData.append('file', file)
-      uploadImg(formData).then((response) => {
-        if (response.code === '000000') {
-          Editor.insertEmbed(cursorLocation, 'image', response.data)
-          resetUploader()
-        }
-      }).catch((e) => { })
-    },
-    startDateChange(val) {
-      if (val) {
-        this.endDateDisabled = false
-        this.$refs.departmentForm.validateField('endDate', (error) => {
-          console.log(error)
-        })
-        // this.endPickerOptions = Object.assign({}, this.endPickerOptions, {
-        //   disabledDate: (time) => {
-        //     return time.getTime() < new Date(val).getTime()
-        //   }
-        // })
-      } else {
-        this.endDateDisabled = true
-      }
     },
     dateChange(val) {
       if (val) {
@@ -377,129 +362,48 @@ export default {
         type: 'warning'
       }).then(() => {
         // 跳转到详情画面
-        this.$router.push({ path: '/basicService/deptInfo/detail', query: {}})
+        this.$router.push({ path: '/basicService/deptInfo/detail', query: { deptId: this.carryParam.deptId }})
       }).catch(() => {
         // 留在编辑页面
       })
-      // this.$router.push({ path: '/handlingGuide/examineManage' })
     },
     handleSave(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           // console.log(this.questionForm)
           var param = JSON.parse(JSON.stringify(this.departmentForm))
-          var checkedNodes = this.$refs.depTree.getCheckedNodes()
-          var checkedIdsArr = []
-          for (let w = 0; w < checkedNodes.length; w++) {
-            const element = checkedNodes[w]
-            checkedIdsArr.push(element.deptId)
+          if (this.departmentForm.administrative && this.departmentForm.administrative.length > 0) {
+            param.provinceCode = this.departmentForm.administrative[0]
+            param.cityCode = this.departmentForm.administrative[1] || ''
+            param.reginCode = this.departmentForm.administrative[2] || ''
+            param.administrative = this.departmentForm.administrative[this.departmentForm.administrative.length - 1] // 为最后一级的code
           }
-          param.openDepts = checkedIdsArr.join(',') // 开放单位
-          if (param.markPeople && param.markPeople.length > 0) { // 阅卷老师
-            param.markPeople = param.markPeople.join(',')
-          } else {
-            param.markPeople = ''
-          }
-          param.deptCode = this.deptInfo.depCode // 当前部门code
-          param.deptName = this.deptInfo.depName
-          if (this.carryParam.examId) {
-            param.modifier = this.userInfo.userName
-          } else {
-            param.creator = this.userInfo.userName
-          }
+          param.userId = this.userInfo.id
           // console.log(param)
           this.formLoading = true
-          if (this.carryParam.examId) {
-            // 编辑
-            this.$update('examination/update', param).then((response) => {
-              this.formLoading = false
-              if (response.code === '000000') {
-                this.$message({
-                  message: '机构信息保存成功', type: 'success'
-                })
+          this.$update('hsyzdepart/' + this.carryParam.deptId, param, 'upms').then((response) => {
+            this.formLoading = false
+            if (response.code === '000000') {
+              this.$message({
+                message: '机构信息保存成功', type: 'success'
+              })
+              // 停留2秒跳转到详情页面
+              setTimeout(() => {
                 this.$router.push({ path: '/basicService/deptInfo/detail' })
-              } else {
-                this.$message({
-                  message: '机构信息保存失败，请联系管理员！', type: 'success'
-                })
-              }
-            }).catch(() => {
+              }, 2000)
+            } else {
               this.$message({
                 message: '机构信息保存失败，请联系管理员！', type: 'success'
               })
-              this.formLoading = false
+            }
+          }).catch(() => {
+            this.$message({
+              message: '机构信息保存失败，请联系管理员！', type: 'success'
             })
-          } else {
-            // 添加
-            this.$update('examination/save', param).then((response) => {
-              if (response.code === '000000') {
-                this.formLoading = false
-                this.$message({
-                  type: 'success',
-                  message: '添加成功!'
-                })
-                this.$router.push({ path: '/handlingGuide/examineManage' })
-              }
-            }).catch(() => {
-              this.formLoading = false
-            })
-          }
+            this.formLoading = false
+          })
         }
       })
-    },
-    examPaperTypeChange(val) { // 试卷类型change，只能选择本单位组织的试卷，其他单位的无法选择
-      if (val) {
-        this.formLoading = true
-        var param = {
-          paperStatus: 2, // 已发布
-          deptCode: this.deptInfo.depCode,
-          paperType: val
-        }
-        this.$query('exampaper', param).then((response) => {
-          this.formLoading = false
-          if (response.code === '000000') {
-            this.paperList = response.data
-          } else {
-            this.paperList = []
-          }
-        }).catch(() => {
-          this.formLoading = false
-          this.paperList = []
-        })
-      } else {
-        this.paperList = []
-      }
-    },
-    timeDifference(time1, time2) { // 计算时间相减
-      // 定义两个变量time1,time2分别保存开始和结束时间
-      // var time1 = '2017-12-03 12:01'
-      // var time2 = '2017-12-03 12:35'
-      // 判断开始时间是否大于结束日期
-      // if (time1 > time2) {
-      //   alert('开始时间不能大于结束时间！')
-      //   return false
-      // }
-      // 截取字符串，得到日期部分"2009-12-02",用split把字符串分隔成数组
-      var begin1 = time1.substr(0, 10).split('-')
-      var end1 = time2.substr(0, 10).split('-')
-      // 将拆分的数组重新组合，并实例成化新的日期对象
-      var date1 = new Date(begin1[1] + -+begin1[2] + -+begin1[0])
-      var date2 = new Date(end1[1] + -+end1[2] + -+end1[0])
-      // 得到两个日期之间的差值m，以分钟为单位
-      // Math.abs(date2-date1)计算出以毫秒为单位的差值
-      // Math.abs(date2-date1)/1000得到以秒为单位的差值
-      // Math.abs(date2-date1)/1000/60得到以分钟为单位的差值
-      var m = parseInt(Math.abs(date2 - date1) / 1000 / 60)
-      // 小时数和分钟数相加得到总的分钟数
-      // time1.substr(11,2)截取字符串得到时间的小时数
-      // parseInt(time1.substr(11,2))*60把小时数转化成为分钟
-      var min1 = parseInt(time1.substr(11, 2)) * 60 + parseInt(time1.substr(14, 2))
-      var min2 = parseInt(time2.substr(11, 2)) * 60 + parseInt(time2.substr(14, 2))
-      // 两个分钟数相减得到时间部分的差值，以分钟为单位
-      var n = min2 - min1
-      // 将日期和时间两个部分计算出来的差值相加，即得到两个时间相减后的分钟数
-      var minutes = m + n
-      return minutes
     },
     back() {
       this.$router.back(-1)
@@ -526,15 +430,12 @@ export default {
     padding: 20px 40px;
   }
   .el-select,
-  .el-input {
+  .el-input,
+  .el-cascader {
     width: 100%;
   }
-
-  .el-transfer-panel {
-    width: 360px;
-  }
-  .el-transfer__buttons {
-    padding: 0 20px;
+  .el-cascader__label {
+    font-size: 15px;
   }
   .left {
     float: left;
@@ -550,16 +451,8 @@ export default {
   .el-collapse-item__content {
     padding: 0 20px;
   }
-  .dept-tree {
-    max-height: 400px;
-    overflow-y: auto;
-    // padding: 5px;
+  .xzqhWrap .el-cascader__label {
+    cursor: not-allowed;
   }
-}
-.node_block {
-  display: inline-block;
-}
-.node_none {
-  display: none;
 }
 </style>
