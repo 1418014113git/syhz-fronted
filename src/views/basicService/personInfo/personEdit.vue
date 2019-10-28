@@ -359,11 +359,11 @@ export default {
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
               const reg = /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/
               if (rule.required) {
-                if (value === '' || value === undefined) {
+                if (value === '' || value === undefined || value === null) {
                   return callback(new Error('请输入手机号'))
                 }
               }
-              if (value !== '' && value !== undefined) {
+              if (value !== '' && value !== undefined && value !== null) {
                 if (value.replace(/\s/g, '') === '') {
                   return callback(new Error('不能输入纯空格'))
                 } else if (!reg.test(value)) {
