@@ -423,6 +423,10 @@ export default {
   },
   mounted() {
     this.tipMsg.obj = document.getElementById('tipImg')
+    this.loginForm = {
+      username: '',
+      password: ''
+    }
     // this.floatOut()
   }
 }
