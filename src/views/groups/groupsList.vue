@@ -1,8 +1,5 @@
 <template>
   <section class="examNotice">
-
-
-
     <el-form :inline="true" :model="filterQuery" size="small"  label-width="76px">
         <el-row>
           <el-col style="text-align:center">
