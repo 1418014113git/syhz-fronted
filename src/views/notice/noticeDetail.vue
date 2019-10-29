@@ -161,7 +161,7 @@
     methods: {
       downFile(item) {
         const arr = item.path.split('/file')
-        const path = '/file' + arr[1]
+        const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
         this.$download_http_mg(path, { fileName: item.name })
       },
       isClick(row) {
