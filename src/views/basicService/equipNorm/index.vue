@@ -2,14 +2,13 @@
   <section class="equipNorm">
     <el-form :inline="true" :model="equipNormForm" label-width="78px" label-position="left" class="clearfix">
       <el-form-item  label="装备分类">
-        <el-select v-model="equipNormForm.departLevel" placeholder="全部">
-          <option label="警用车辆" value="1"></option>
-          <!-- <el-option v-for="item in $getDicts('zyzz')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option> -->
+        <el-select v-model="equipNormForm.groupId" clearable filterable placeholder="全部" @change="equipGroupChange">
+          <el-option v-for="item in classifyOptions" :key="item.id" :label="item.groupName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="配备项目">
-        <el-select v-model="equipNormForm.departLevel" placeholder="全部">
-          <!-- <el-option v-for="item in $getDicts('zyzz')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option> -->
+        <el-select v-model="equipNormForm.allocateId" clearable filterable placeholder="全部">
+          <el-option v-for="item in projectOptions" :key="item.id" :label="item.allocateName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -22,22 +21,52 @@
       </el-form-item>
     </el-form>
     <!-- :cell-class-name="tableRowClassName" -->
-    <el-table :data="list" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight"
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight"
        :span-method="objectSpanMethod" class="table_th_center equipNormTable">
       <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
-      <el-table-column prop="XZQH" label="装备分类" align="center" width="160"></el-table-column>
-      <el-table-column prop="SL" label="配备项目" align="center" width="200"></el-table-column>
-      <el-table-column prop="DSL" label="单位" align="center" width="100"></el-table-column>
-      <el-table-column prop="TSL" label="总队（省）" align="center" width="140"></el-table-column>
-      <el-table-column prop="TSL" label="支队（市）" align="center" width="140"></el-table-column>
-      <el-table-column prop="TSL" label="大队（区县）" align="center" width="140"></el-table-column>
-      <el-table-column prop="TSL" label="参考更新年限" align="center" width="120"></el-table-column>
-      <el-table-column prop="TSL" label="配备类型" align="center" width="100"></el-table-column>
-      <el-table-column prop="TSL" label="说明" min-width="200" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="groupName" label="装备分类" align="center" width="160"></el-table-column>
+      <el-table-column prop="allocateName" label="配备项目" align="center" width="200"></el-table-column>
+      <el-table-column prop="unitType" label="单位" align="center" width="100">
+        <template slot-scope="scope">
+            {{$getDictName(scope.row.unitType+'','zbjl')}}
+        </template>
+      </el-table-column>
+      <el-table-column prop="provinceCondition" label="总队（省）" align="center" width="140">
+        <template slot-scope="scope">
+          <span v-if="scope.row.provinceCondition === 1 ||scope.row.provinceCondition === 2 ">{{equipCondition[scope.row.provinceCondition-1].label}}</span>
+          <span v-else-if="scope.row.provinceCondition === 3">{{scope.row.provinceValue1}} / {{scope.row.provinceValue2}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="cityCondition" label="支队（市）" align="center" width="140">
+        <template slot-scope="scope">
+          <span v-if="scope.row.cityCondition === 1 ||scope.row.cityCondition === 2 ">{{equipCondition[scope.row.cityCondition-1].label}}</span>
+          <span v-else-if="scope.row.cityCondition === 3">{{scope.row.cityValue1}} / {{scope.row.cityValue2}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="areaCondition" label="大队（区县）" align="center" width="140">
+        <template slot-scope="scope">
+          <span v-if="scope.row.areaCondition === 1 ||scope.row.areaCondition === 2 ">{{equipCondition[scope.row.areaCondition-1].label}}</span>
+          <span v-else-if="scope.row.areaCondition === 3">{{scope.row.areaValue1}} / {{scope.row.areaValue2}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="updateYear" label="参考更新年限" align="center" width="120">
+        <template slot-scope="scope">
+          <span v-if="scope.row.updateYear">{{scope.row.updateYear}}</span>
+          <span v-else>- -</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="allocateType" label="配备类型" align="center" width="120">
+        <template slot-scope="scope">
+          <!-- <span v-if="scope.row.allocateType===3">- -</span> -->
+          <span>{{$getDictName(scope.row.allocateType+'','zblx')}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="remark" label="说明" min-width="200" show-overflow-tooltip></el-table-column>
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
           <el-button title="编辑" size="mini" type="primary" circle icon="el-icon-edit-outline" @click="handleEdit(scope.$index, scope.row)"></el-button>
-          <el-button title="停用" size="mini" type="primary" circle icon="el-icon-minus" @click="handleStatus(scope.$index, scope.row)"></el-button>
+          <el-button v-if="scope.row.enabled===1" title="停用" size="mini" type="primary" circle icon="el-icon-minus" @click="handleEnable(scope.$index, scope.row)"></el-button>
+          <el-button v-else-if="scope.row.enabled===0" title="启用" size="mini" type="primary" circle icon="el-icon-caret-right" @click="handleEnable(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -49,14 +78,12 @@
     </el-col>
     <!-- 配备项目弹框 -->
     <el-dialog title="配备项目信息" :visible.sync="dialogVisible" size="small" @close="closeDia" :close-on-click-modal="false" class="comDialog" width="50%">
-      <equipped-project :equipItem="curEquip" @closeDia="closeDia"></equipped-project>
+      <equipped-project ref="myEquip" :equipItem="curEquip" @closeDia="closeDia"></equipped-project>
     </el-dialog>
 
   </section>
 </template>
 <script>
-import { removeAjCheckOrganization } from '@/api/inspectIdent'
-// import { getCityTree } from '@/api/citys'
 import equippedProject from './equippedProject'
 export default {
   name: 'list',
@@ -69,24 +96,37 @@ export default {
       listLoading: false,
       dialogVisible: false, // 弹框是否显示
       curEquip: {},
-      list: [],
+      tableData: [],
       options: [],
       tableHeight: null,
       spanArr: [],
-      position: 0
+      position: 0,
+      classifyOptions: [], // 装备分类
+      projectOptions: [], // 配备项目
+      equipCondition: [{ value: 1, label: '无要求' }, { value: 2, label: '按相关规定配' }, { value: 3, label: '设定数量' }], // 不同部门配备的设置
+      userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
   },
   components: {
     equippedProject
   },
   methods: {
+    equipGroupChange(val) { // 装备分类change
+      if (val) {
+        //
+        this.initPbxm(val)
+      } else {
+        this.projectOptions = []
+      }
+    },
     rowspan() {
-      this.list.forEach((item, index) => {
+      this.tableData.forEach((item, index) => {
         if (index === 0) {
           this.spanArr.push(1)
           this.position = 0
         } else {
-          if (this.list[index].XZQH === this.list[index - 1].XZQH) {
+          if (this.tableData[index].groupName === this.tableData[index - 1].groupName) {
             this.spanArr[this.position] += 1
             this.spanArr.push(0)
           } else {
@@ -111,21 +151,41 @@ export default {
     },
     handleEdit(index, row) {
       this.dialogVisible = true
+      this.curEquip = row
     },
-    handleStatus: function(index, row) {
-      this.$confirm('确认删除该记录吗?', '提示', {
+    handleEnable(index, row) {
+      var tipText = ''
+      var param = {
+        lastId: this.userInfo.id,
+        lastName: this.userInfo.userName
+      }
+      if (row.enabled === 0) {
+        param.enabled = '1' // 启用
+        tipText = '启用'
+      } else if (row.enabled === 1) {
+        param.enabled = '0' // 停用
+        tipText = '停用'
+      }
+      this.$confirm('确认' + tipText + '该配备项目吗?', '提示', {
         type: 'warning'
       }).then(() => {
-        const para = {
-          id: row.ID
-        }
-        removeAjCheckOrganization(para).then((response) => {
+        this.$update('basicAllocateEnabled/' + row.id, param).then((response) => {
+          this.formLoading = false
+          if (response.code === '000000') {
+            this.$message({
+              message: '配备项目' + tipText + '成功', type: 'success'
+            })
+            this.queryEquipList(true) // 刷新列表
+          } else {
+            this.$message({
+              message: '配备项目保存失败，请联系管理员！', type: 'error'
+            })
+          }
+        }).catch(() => {
           this.$message({
-            message: '删除成功',
-            type: 'success'
+            message: '配备项目保存失败，请联系管理员！', type: 'error'
           })
-          this.page = 1
-          this.query()
+          this.formLoading = false
         })
       }).catch(() => {
       })
@@ -139,24 +199,22 @@ export default {
       this.queryEquipList(true, true)
     },
     queryEquipList(flag, hand) {
+      this.spanArr = []
+      this.position = 0
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
-        pageNum: this.page,
-        pageSize: this.pageSize,
-        userId: this.userInfo.id
+        groupId: this.equipNormForm.groupId || '', // 装备分类
+        allocateId: this.equipNormForm.allocateId || '' // 配备项目
+        // userId: this.userInfo.id
       }
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
-      this.$query('page/hsyzdepart', para, 'upms').then((response) => {
+      this.$query('basicEquipAllocateList', para).then((response) => {
         this.listLoading = false
         if (response.data) {
-          // && response.data.list.length > 0
-          this.total = response.data.totalCount
-          this.page = response.data.pageNum
-          this.pageSize = response.data.pageSize
-          this.tableData = response.data.list
+          this.tableData = response.data
           this.rowspan()
         }
       }).catch(() => {
@@ -166,10 +224,10 @@ export default {
       })
     },
     closeDia(type) { // 关闭弹框
-      // this.resetForm('')
       this.dialogVisible = false
+      this.$refs.myEquip.resetForm('allocateForm') // 调用子组件的清空表单方法
       if (type === '1') {
-        this.query() // 刷新列表
+        this.queryEquipList() // 刷新列表
       }
     },
     resetSearch() {
@@ -183,15 +241,39 @@ export default {
     },
     addProject() { // 添加配备项目
       this.dialogVisible = true
+      // this.$refs.myEquip.resetForm('allocateForm') // 调用子组件的清空表单方法
+      this.curEquip = {}
     },
     init() {
-
+      this.initZbfl()
+    },
+    initZbfl() {
+      this.$query('basicequipgroup', {}).then((response) => {
+        this.formLoading = false
+        if (response.data) {
+          this.classifyOptions = response.data
+        }
+      }).catch(() => {
+        this.classifyOptions = []
+        this.formLoading = false
+      })
+    },
+    initPbxm(groupId) {
+      this.$query('BASICEQUIPALLOCATENAME', { groupId: groupId }).then((response) => {
+        this.formLoading = false
+        if (response.data) {
+          this.projectOptions = response.data
+        }
+      }).catch(() => {
+        this.classifyOptions = []
+        this.formLoading = false
+      })
     }
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-    // this.queryEquipList()
-    // this.init()
+    this.queryEquipList()
+    this.init()
   }
 }
 </script>

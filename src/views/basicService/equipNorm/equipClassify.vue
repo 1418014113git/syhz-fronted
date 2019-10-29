@@ -4,7 +4,7 @@
       <el-button class="right" type="primary" size="small" @click="addEquipClassify" icon="el-icon-plus" style="margin-top:3px;">添加装备分类</el-button>
       <img src="@/assets/icon/back.png" class="goBack" @click="back" style="margin-right: 10px;">
     </el-row>
-    <el-table :data="list" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
+    <el-table :data="tableList" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
       <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
       <el-table-column prop="groupName" label="装备分类名称" align="center" width="400"></el-table-column>
       <el-table-column prop="orderIndex" label="显示次序" align="center" width="120"></el-table-column>
@@ -13,7 +13,8 @@
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
           <el-button title="编辑" size="mini" type="primary" circle icon="el-icon-edit-outline" @click="handleEdit(scope.$index, scope.row)"></el-button>
-          <el-button title="停用" size="mini" type="primary" circle icon="el-icon-minus" @click="handleEnable(scope.$index, scope.row)"></el-button>
+          <el-button v-if="scope.row.groupStatus===1" title="停用" size="mini" type="primary" circle icon="el-icon-minus" @click="handleEnable(scope.$index, scope.row)"></el-button>
+          <el-button v-else-if="scope.row.groupStatus===0" title="启用" size="mini" type="primary" circle icon="el-icon-caret-right" @click="handleEnable(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -28,13 +29,13 @@
       <el-form ref="equipClassifyInfo" size="small" :rules="rules" :model="equipClassifyInfo" label-width="100px" class="equipProject" v-loading="formLoading">
         <el-row>
           <el-form-item label="装备分类" prop="groupName">
-              <el-input v-model.trim="equipClassifyInfo.groupName" maxlength="20"></el-input>
+              <el-input v-model.trim="equipClassifyInfo.groupName" maxlength="20" placeholder="请输入"></el-input>
           </el-form-item>
           <el-form-item label="显示次序" prop="orderIndex">
             <el-input-number v-model.trim="equipClassifyInfo.orderIndex" :min="1" :max="999"></el-input-number>
           </el-form-item>
           <el-form-item label="说明" prop="remark">
-            <el-input v-model="equipClassifyInfo.remark" type="textarea" auto-complete="off" maxlength="500" :autosize="{minRows: 2, maxRows: 10}"></el-input>
+            <el-input v-model="equipClassifyInfo.remark" type="textarea" auto-complete="off" maxlength="500" rows="3"></el-input>
           </el-form-item>
           <el-col align="center">
             <el-button @click="cancelEquipClassify('equipClassifyInfo')" class="cancelBtn" :loading="formLoading">取消</el-button>
@@ -46,7 +47,7 @@
   </section>
 </template>
 <script>
-import { removeAjCheckOrganization } from '@/api/inspectIdent'
+import { regCn } from '@/utils/validate'
 export default {
   name: 'list',
   data() {
@@ -59,20 +60,33 @@ export default {
       equipClassifyInfo: {}, // 装备分类信息
       dialogVisible: false, // 添加弹框
       formLoading: false, // 弹框的loading
-      list: [],
-      options: [],
-      props: {
-        label: 'cityName',
-        value: 'cityCode'
-      },
+      tableList: [],
       tableHeight: null,
+      userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       rules: {
         groupName: {
-          required: true, trigger: 'change', validator: (rule, value, callback) => {
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
               callback(new Error('请输入装备分类'))
+            } else if (!(regCn.test(value))) {
+              callback(new Error('请输入汉字'))
             } else {
-              callback()
+              this.formLoading = true
+              var para = { groupName: value }
+              if (this.equipClassifyInfo.id) {
+                para.id = this.equipClassifyInfo.id
+              }
+              this.$query('basicequip', para).then((response) => {
+                this.formLoading = false
+                if (response.data && response.data.length > 0) {
+                  callback(new Error('装备 ' + value + ' 已添加，请确认后重试！'))
+                } else {
+                  callback()
+                }
+              }).catch(() => {
+
+              })
             }
           }
         }
@@ -82,6 +96,33 @@ export default {
   methods: {
     addEquipClassify() { // 添加装备分类信息
       this.dialogVisible = true
+      this.equipClassifyInfo = {} // 清空
+    },
+    queryClassify(flag, hand) {
+      this.listLoading = true
+      this.page = flag ? 1 : this.page
+      const para = {
+        pageNum: this.page,
+        pageSize: this.pageSize
+        // userId: this.userInfo.id
+      }
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
+      this.$query('page/basicequipgroup', para).then((response) => {
+        this.listLoading = false
+        if (response.data) {
+          // && response.data.list.length > 0
+          this.total = response.data.totalCount
+          this.page = response.data.pageNum
+          this.pageSize = response.data.pageSize
+          this.tableList = response.data.list
+        }
+      }).catch(() => {
+        this.tableList = []
+        this.total = 0
+        this.listLoading = false
+      })
     },
     cancelEquipClassify() { // 装备分类信息 取消
       this.$confirm('是否要放弃当前编辑的装备信息', '提示', {
@@ -99,40 +140,112 @@ export default {
     submitEquipClassify(formName) { // 装备分类信息 确定
       this.$refs[formName].validate(valid => {
         if (valid) {
-          // console.log(this.questionForm)
-          var param = JSON.parse(JSON.stringify(this.departmentForm))
-          if (this.departmentForm.administrative && this.departmentForm.administrative.length > 0) {
-            param.provinceCode = this.departmentForm.administrative[0]
-            param.cityCode = this.departmentForm.administrative[1] || ''
-            param.reginCode = this.departmentForm.administrative[2] || ''
-            param.administrative = this.departmentForm.administrative[this.departmentForm.administrative.length - 1] // 为最后一级的code
-          }
-          param.userId = this.userInfo.id
+          var param = JSON.parse(JSON.stringify(this.equipClassifyInfo))
           // console.log(param)
           this.formLoading = true
-          this.$update('hsyzdepart/' + this.carryParam.deptId, param, 'upms').then((response) => {
-            this.formLoading = false
-            if (response.code === '000000') {
-              this.$message({
-                message: '装备信息保存成功', type: 'success'
-              })
-              // 停留2秒跳转到详情页面
-              setTimeout(() => {
-                this.$router.push({ path: '/basicService/deptInfo/detail' })
-              }, 2000)
-            } else {
+          if (this.equipClassifyInfo.id) { // 编辑
+            param.lastId = this.userInfo.id
+            param.lastName = this.userInfo.userName
+            this.$update('basicequipgroup/' + this.equipClassifyInfo.id, param).then((response) => {
+              this.formLoading = false
+              if (response.code === '000000') {
+                this.$message({
+                  message: '装备信息保存成功', type: 'success'
+                })
+                // 停留2秒跳转到详情页面
+                setTimeout(() => {
+                  this.dialogVisible = false
+                  this.queryClassify(true) // 刷新列表
+                }, 2000)
+              } else {
+                this.$message({
+                  message: '装备信息保存失败，请联系管理员！', type: 'error'
+                })
+              }
+            }).catch(() => {
               this.$message({
                 message: '装备信息保存失败，请联系管理员！', type: 'error'
               })
-            }
-          }).catch(() => {
+              this.formLoading = false
+            })
+          } else { // 添加
+            param.groupStatus = 1 // 状态
+            param.creationId = this.userInfo.id
+            param.creationName = this.userInfo.userName
+            this.$save('basicequipgroup', param).then((response) => {
+              this.formLoading = false
+              if (response.code === '000000') {
+                this.$message({
+                  message: '装备信息保存成功', type: 'success'
+                })
+                // 停留2秒
+                setTimeout(() => {
+                  this.dialogVisible = false
+                  this.queryClassify(true) // 刷新列表
+                }, 2000)
+              } else {
+                this.$message({
+                  message: '装备信息保存失败，请联系管理员！', type: 'error'
+                })
+              }
+            }).catch(() => {
+              this.$message({
+                message: '装备信息保存失败，请联系管理员！', type: 'error'
+              })
+              this.formLoading = false
+            })
+          }
+        }
+      })
+    },
+    handleEdit(index, row) { // 编辑
+      this.dialogVisible = true
+      this.equipClassifyInfo = JSON.parse(JSON.stringify(row))
+    },
+    handleEnable(index, row) { // 停用 启用
+      var tipText = ''
+      var param = {
+        lastId: this.userInfo.id,
+        lastName: this.userInfo.userName
+      }
+      if (row.groupStatus === 0) {
+        param.groupStatus = '1' // 启用
+        tipText = '启用'
+      } else if (row.groupStatus === 1) {
+        param.groupStatus = '0' // 停用
+        tipText = '停用'
+      }
+      this.$confirm('确认' + tipText + '该装备分类吗?', '提示', {
+        type: 'warning'
+      }).then(() => {
+        this.$update('basicGroupStatus/' + row.id, param).then((response) => {
+          this.formLoading = false
+          if (response.code === '000000') {
+            this.$message({
+              message: '装备分类' + tipText + '成功', type: 'success'
+            })
+            this.queryClassify(true) // 刷新列表
+          } else {
             this.$message({
               message: '装备信息保存失败，请联系管理员！', type: 'error'
             })
-            this.formLoading = false
+          }
+        }).catch(() => {
+          this.$message({
+            message: '装备信息保存失败，请联系管理员！', type: 'error'
           })
-        }
+          this.formLoading = false
+        })
+      }).catch(() => {
       })
+    },
+    handleCurrentChange(currentPage) {
+      this.page = currentPage
+      this.queryClassify(false, true)
+    },
+    handleSizeChange(val) {
+      this.pageSize = val
+      this.queryClassify(true, true)
     },
     resetForm(formName) {
       this.$refs[formName].resetFields()
@@ -143,91 +256,12 @@ export default {
     },
     back() {
       this.$router.back(-1)
-    },
-    handleEdit(index, row) {
-      this.dialogVisible = true
-    },
-    handleEnable: function(index, row) {
-      this.$confirm('确认停用该分类吗?', '提示', {
-        type: 'warning'
-      }).then(() => {
-        const para = {
-          id: row.ID
-        }
-        removeAjCheckOrganization(para).then((response) => {
-          this.$message({
-            message: '删除成功',
-            type: 'success'
-          })
-          this.page = 1
-          this.query()
-        })
-      }).catch(() => {
-      })
-    },
-    handleCurrentChange(currentPage) {
-      this.page = currentPage
-      this.query()
-    },
-    handleSizeChange(val) {
-      this.page = 1
-      this.pageSize = val
-      this.query()
-    },
-    queryClassify(flag, hand) {
-      this.listLoading = true
-      this.page = flag ? 1 : this.page
-      const para = {
-        pageNum: this.page,
-        pageSize: this.pageSize,
-        userId: this.userInfo.id
-      }
-      if (hand) { // 手动点击时，添加埋点参数
-        para.logFlag = 1
-      }
-      this.$query('page/hsyzdepart', para, 'upms').then((response) => {
-        this.listLoading = false
-        if (response.data) {
-          // && response.data.list.length > 0
-          this.total = response.data.totalCount
-          this.page = response.data.pageNum
-          this.pageSize = response.data.pageSize
-          this.tableData = response.data.list
-          this.rowspan()
-        }
-      }).catch(() => {
-        this.tableData = []
-        this.total = 0
-        this.listLoading = false
-      })
-    },
-    search() {
-      this.page = 1
-      this.query(true)
-    },
-    resetSearch() {
-      this.filters = {
-        name: '', ywfw: '', citys: []
-      }
-      this.page = 1
-      this.query(true)
-    },
-    goAdd() {
-      console.log('------go')
-      this.$router.push({ path: '/basic/equip/add' })
-    },
-    init() {
-      // getCityTree().then((response) => {
-      //   const data = response.data
-      //   this.options = data
-      //   this.filters.citys = [610000]
-      // })
     }
   },
   mounted() {
-    // this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-    this.query()
-    this.init()
+    this.tableHeight = document.documentElement.clientHeight
+    // - document.querySelector('.el-form').offsetHeight - 180
+    this.queryClassify(true)
   }
 }
 </script>
