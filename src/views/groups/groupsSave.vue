@@ -1,71 +1,30 @@
 <template>
-<div>
+  <div class="groupSave">
     <el-row class="card_width">
       <img src="@/assets/icon/back.png" class="goBack" @click="goToList"/> <!--返回-->
     </el-row>
     <el-card class="card_width">
-      <el-row class="examNotice_spe_save">
-        <el-col :span="18" style="margin-top: 24px;">
-          <el-form ref="groupsSaveForm" :model="group" :rules="rules" label-width="200px">
-            <el-form-item label="组名：" prop="groupName">
-              <el-input
-                v-model.trim="group.groupName"
-                placeholder="请输入组名"
-                maxlength="500"
-                clearable
-                style="width: 675px;"
-              ></el-input>
+      <el-row type="flex" justify="center" style="margin-top:15px;">
+        <el-col :span="18">
+          <el-form ref="groupsSaveForm" :model="group" :rules="rules" label-width="120px">
+            <el-form-item label="组名" prop="groupName">
+              <el-input v-model.trim="group.groupName" auto-complete="off" clearable maxlength="50"></el-input>
             </el-form-item>
-            <el-form-item label="说明：" prop="desc">
-              <el-input
-                v-model="group.desc"
-                maxlength="500"
-                style="width: 675px;"
-              ></el-input>
+            <el-form-item label="说明" prop="desc">
+              <el-input v-model="group.desc" type="textarea" maxlength="200" placeholder="最多可输入200个字符！"></el-input>
             </el-form-item>
-
-            <!-- <el-form-item label="内　容：" prop="content">
-              <el-input
-                type="textarea"
-                :rows="2"
-                placeholder="请输入内容"
-                v-model="notice.content"
-                @change="onContentChange"
-              ></el-input>
-            </el-form-item>-->
-
-
-            <!--<el-input type="text" v-model="group.items" clearable class="left" style="width:360px;" @keyup.enter.native="filterMarkPeople(yjry)" placeholder="请输入关键字，回车键搜索"></el-input>-->
             <el-form-item label="组成员" prop="deptIds" class="clearfix">
-
-                  <!-- filterable
-                  :filter-method="filterMethod" -->
-                <el-transfer class="left"
-                  filter-placeholder="请输入关键字检索人员"
-                  v-model="target"
-                  :button-texts="['移除', '选中']"
-                  :titles="['部门列表','已选中的部门']"
-                  :data="childDeptArr"
-                  @change="groupDeptChange"
-                  >
-
-                </el-transfer>
-
-              </el-form-item>
-            <el-form-item style="text-align:right">
-
-              <el-button type="primary" @click="goback">取消</el-button>
-               <el-button type="primary" @click="submit" :loading="btnLoading">保存</el-button>
+              <el-transfer v-model="target" :titles="['单位名称','单位名称']" :data="childDeptArr" @change="groupDeptChange"></el-transfer>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="goback" class="cancelBtn">取消</el-button>
+              <el-button type="primary" class="saveBtn" @click="submit" :loading="btnLoading">保存</el-button>
             </el-form-item>
           </el-form>
         </el-col>
-        <!-- <el-col :span="14" style="text-align: center;">
-          <el-button type="primary" @click="submit" :loading="btnLoading">提交</el-button>
-          <el-button type="primary" @click="goback">取消</el-button>
-        </el-col> -->
       </el-row>
     </el-card>
-</div>
+  </div>
 </template>
 
 <script>
@@ -83,18 +42,15 @@ export default {
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       target: [], // 当前已选择的部门
       deptIds: [], // 当前选择的部门Id ，参数之一
-
       btnLoading: false, // 提交按钮加载loading
       group: {
         groupName: '', // 组名
         desc: '', // 说明
         deptIds: [], // 组成员Id
         itemCount: 0
-
       },
 
       rules: {
-
         groupName: [{
           required: true, min: 1, max: 50, trigger: 'blur', validator: (rule, value, callback) => {
             const groupName = value
@@ -106,7 +62,7 @@ export default {
               callback(new Error('组名长度应为1-50个字符'))
               return
             }
-            this.$query('/group/checkGroupNameRepeat', { groupName: groupName, creatorId: this.userInfo.id }).then(res => {
+            this.$update('group/checkGroupNameRepeat', { groupName: groupName, creatorId: this.userInfo.id }).then(res => {
               this.btnLoading = false
               if (res.code === '000000' && res.data.type === 1) {
                 callback(new Error('组名重复，请确认后重新输入！'))
@@ -220,19 +176,18 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.card_width {
-  width: 80%;
-  min-width: 1200px;
-  margin: 0 auto;
-}
-.el-transfer-panel {
-  width: 360px;
-}
-
-@media only screen and (max-width: 1367px) {
-  .el-col-14 {
-    width: 85.3% !important;
+  .groupSave .card_width{
+    width: 80%;
+    min-width: 1200px;
+    margin: 0 auto;
   }
-}
+  .groupSave .card_width .el-transfer-panel {
+    width: 44%;
+  }
+  @media only screen and (max-width: 1367px) {
+    .el-col-14 {
+      width: 85.3% !important;
+    }
+  }
 </style>
 
