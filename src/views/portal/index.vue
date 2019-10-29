@@ -117,10 +117,10 @@ export default {
             }
           }
         })
+        this.getPersonInfoTip() // 个人信息 部门信息 维护提醒
       }
       this.accessControlModel()
       this.getSysconfig()
-      this.getPersonInfoTip()
     },
     getPersonInfoTip() {
       if (this.curDept && this.curDept.length > 0) {
