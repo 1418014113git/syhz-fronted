@@ -284,7 +284,14 @@ export const constantRouterMap = [
       // { path: '/basicService/equip/detailArea', component: () => import('@/views/basicService/equip/detailArea'), name: '各区分布装备汇总' }, // 各区装备详细
       // { path: '/basicService/equip/detail', component: () => import('@/views/basicService/equip/detail'), name: '各区分布装备汇总' }, // 装备详细
       { path: '/basicService/equipNorm', component: () => import('@/views/basicService/equipNorm/index'), name: '装备配备标准' }, // 装备配备标准
-      { path: '/basicService/equipNorm/classify', component: () => import('@/views/basicService/equipNorm/equipClassify'), name: '装备分类管理' } // 装备分类管理
+      { path: '/basicService/equipNorm/classify', component: () => import('@/views/basicService/equipNorm/equipClassify'), name: '装备分类管理' }, // 装备分类管理
+      { path: '/notice/index', component: () => import('@/views/notice/noticeList'), name: '站内通知' },
+      { path: '/notice/add', component: () => import('@/views/notice/noticeEdit'), name: '发布站内通知' },
+      { path: '/notice/edit', component: () => import('@/views/notice/noticeEdit'), name: '编辑站内通知' },
+      { path: '/notice/forward', component: () => import('@/views/notice/noticeEdit'), name: '转发站内通知' },
+      { path: '/notice/detail', component: () => import('@/views/notice/noticeDetail'), name: '站内通知详情' },
+      { path: '/notice/message', component: () => import('@/views/notice/noticeMessageList'), name: '站内消息' },
+      { path: '/notice/webSocket', component: () => import('@/views/notice/webSocket'), name: '消息提醒' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
