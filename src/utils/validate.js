@@ -177,9 +177,9 @@ export function validateIdCard(rule, num, callback) {
   return callback(new Error('请输入正确的身份证号码！'))
 }
 
-export const regEnCnNumber = /^[A-Za-z0-9\u4e00-\u9fa5]+$/
+export const regEnCnNumber = /^[A-Za-z0-9\u2E80-\uFE4F]+$/
 export const regNumber = /^\d+(\.\d{1,2})?$/
-export const regCn = /^[\u4e00-\u9fa5]+$/
+export const regCn = /^[\u2E80-\uFE4F]+$/
 export const regEn = /^[A-Za-z]+$/
 export const regEnNumber = /^[A-Za-z0-9]+$/
 export const regCnNumber = /^[0-9\u4e00-\u9fa5]+$/

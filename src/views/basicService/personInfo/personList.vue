@@ -65,7 +65,7 @@
       <el-table-column type="index" label="序号" width="60"></el-table-column>
       <el-table-column prop="realName" label="姓名" width="120" show-overflow-tooltip>
         <template slot-scope="scope">
-          <a class="ajbh-color" @click="handleDetail(scope.$index, scope.row)">{{scope.row.realName}}</a>
+          <span class="linkColor" @click="handleDetail(scope.$index, scope.row)">{{scope.row.realName}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="userName" label="警号"  width="120" show-overflow-tooltip></el-table-column>
@@ -291,17 +291,19 @@ export default {
     },
     xzqhDepChange(val) { // 行政区划获取当前tiptop信息
       if (val.length > 0) {
-        var xzqhOptions = this.xzqhOptions[0].children
-        for (let i = 0; i < xzqhOptions.length; i++) {
-          const dept = xzqhOptions[i]
-          if (dept.cityCode === val[val.length - 1]) {
-            this.selectCurxzqhDep = dept
-          } else {
-            if (dept.children && dept.children.length > 0) {
-              for (let j = 0; j < dept.children.length; j++) {
-                const depts = dept.children[j]
-                if (depts.cityCode === val[val.length - 1]) {
-                  this.selectCurxzqhDep = depts
+        if (this.xzqhOptions && this.xzqhOptions[0].children) {
+          var xzqhOptions = this.xzqhOptions[0].children
+          for (let i = 0; i < xzqhOptions.length; i++) {
+            const dept = xzqhOptions[i]
+            if (dept.cityCode === val[val.length - 1]) {
+              this.selectCurxzqhDep = dept
+            } else {
+              if (dept.children && dept.children.length > 0) {
+                for (let j = 0; j < dept.children.length; j++) {
+                  const depts = dept.children[j]
+                  if (depts.cityCode === val[val.length - 1]) {
+                    this.selectCurxzqhDep = depts
+                  }
                 }
               }
             }
@@ -505,7 +507,7 @@ export default {
       this.$refs.editPerForm.validate(valid => {
         if (valid) {
           if (this.editPerForm.userState === '1') { // 在职
-            this.saveData()
+            this.saveData(1)
           } else {
             var status = this.$getDictName(this.editPerForm.userState, this.editPerStatus)
             this.$confirm('是否确定将人员状态设置为' + status + '，设置以后该人员将不能再正常登录系统及办理相关业务！', '提示', {
@@ -513,7 +515,7 @@ export default {
               cancelButtonText: '否',
               type: 'warning'
             }).then(() => {
-              this.saveData()
+              this.saveData(0)
             }).catch(() => {
               // this.isShowEditStatus = false
             })
@@ -521,10 +523,11 @@ export default {
         }
       })
     },
-    saveData() {
+    saveData(enabled) {
       this.btnLoading = true
       this.editPerForm.lastId = this.curUser.id // 最后修改人id
       this.editPerForm.lastName = this.curUser.realName // 最后修改人姓名
+      this.editPerForm.enabled = enabled // 人员的启用/禁用状态，在职状态，传1，非在职状态，传0
       this.$update('userState/' + this.curRow.id, this.editPerForm, true).then((response) => {
         if (response.code === '000000') {
           this.$message({
