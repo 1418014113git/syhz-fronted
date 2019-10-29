@@ -6,7 +6,7 @@
     <el-card class="noticeCard">
       <el-row type="flex" justify="center" style="margin-top:15px;">
         <el-col :span="18">
-          <el-form :model="noticeForm" ref="noticeForm" :rules="rules" label-width="120px">
+          <el-form :model="noticeForm" ref="noticeForm" :rules="rules" v-loading="formLoading" label-width="120px">
             <el-form-item label="标题" prop="title">
               <el-input v-model="noticeForm.title" auto-complete="off" clearable maxlength="50" :disabled="isDisabled" v-loading="titleLoading"></el-input>
             </el-form-item>
@@ -59,6 +59,7 @@
     },
     data() {
       return {
+        formLoading: false,
         groupDialogVisible: false,
         titleLoading: false,
         isDisabled: false,
@@ -298,11 +299,13 @@
         })
       },
       detail() {
+        this.formLoading = true
         let id = this.id
         if (this.noticeForm.parentId) {
           id = this.noticeForm.parentId
         }
         this.$query('notice/' + id).then(response => {
+          this.formLoading = false
           if (this.noticeForm.parentId) {
             this.noticeForm.title = '（转发）' + response.data.title
             this.noticeForm.content = response.data.content
@@ -328,6 +331,8 @@
               this.uploadImgs = JSON.parse(response.data.attachements)
             }
           }
+        }).catch(() => {
+          this.formLoading = false
         })
       },
       addGroup() {
