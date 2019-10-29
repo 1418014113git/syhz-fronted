@@ -91,10 +91,17 @@
       async titleCheckAsyns(callback) {
         this.titleLoading = true
         // 同步处理
-        const response = await this.$updateAsyns('notice/validName', { title: this.noticeGroupForm.title, userId: this.curUser.id })
+        const response = await this.$updateAsyns('group/checkGroupNameRepeat', { groupName: this.noticeGroupForm.groupName, creatorId: this.curUser.id })
         const data = response.data
         if (this.id !== '') {
-          if (data.data === null || data.data.length === 0 || (this.id === data.data[0].id && data.data.length === 1)) {
+          // if (data.data === null || data.data.length === 0 || (this.id === data.data[0].id && data.data.length === 1)) {
+          //   this.titleCheckFlag = true
+          //   callback = callback()
+          // } else {
+          //   this.titleCheckFlag = false
+          //   callback = callback(Error('组名不能重复'))
+          // }
+          if (data.type !== 1) {
             this.titleCheckFlag = true
             callback = callback()
           } else {
@@ -102,7 +109,14 @@
             callback = callback(Error('组名不能重复'))
           }
         } else {
-          if (data.data === undefined || data.data === null || data.data.length === 0) {
+          // if (data.data === undefined || data.data === null || data.data.length === 0) {
+          //   this.titleCheckFlag = true
+          //   callback = callback()
+          // } else {
+          //   this.titleCheckFlag = false
+          //   callback = callback(Error('组名不能重复'))
+          // }
+          if (data.type !== 1) {
             this.titleCheckFlag = true
             callback = callback()
           } else {
