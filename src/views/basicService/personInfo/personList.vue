@@ -65,7 +65,7 @@
       <el-table-column type="index" label="序号" width="60"></el-table-column>
       <el-table-column prop="realName" label="姓名" width="120" show-overflow-tooltip>
         <template slot-scope="scope">
-          <a class="ajbh-color" @click="handleDetail(scope.$index, scope.row)">{{scope.row.realName}}</a>
+          <span class="linkColor" @click="handleDetail(scope.$index, scope.row)">{{scope.row.realName}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="userName" label="警号"  width="120" show-overflow-tooltip></el-table-column>
