@@ -4,20 +4,16 @@
       <el-row>
         <el-col :span="24">
           <el-form-item label="装备分类" prop="groupId">
-            <el-select v-model="allocateForm.groupId" clearable filterable remote reserve-keyword placeholder="请输入关键词搜索">
-              <el-option v-for="item in orgOptions" :key="item.value" :label="item.orgName" :value="item.id"></el-option>
+            <el-select v-model="allocateForm.groupId" clearable filterable placeholder="请选择" :disabled="equipItem.id?true:false">
+              <el-option v-for="item in classifyOptions" :key="item.id" :label="item.groupName" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="配备项目" prop="allocateName">
-            <el-select v-model="allocateForm.allocateName" clearable filterable remote reserve-keyword placeholder="请输入关键词搜索">
-              <el-option v-for="item in orgOptions" :key="item.value" :label="item.orgName" :value="item.id"></el-option>
-            </el-select>
+            <el-input v-model="allocateForm.allocateName" maxlength="20"></el-input>
           </el-form-item>
           <el-form-item label="总队（省）" prop="provinceCondition">
             <el-radio-group v-model="allocateForm.provinceCondition">
-              <el-radio :label="1">无要求</el-radio>
-              <el-radio :label="2">按相关规定配</el-radio>
-              <el-radio :label="3">设定数量</el-radio>
+              <el-radio  v-for="(item,index) in equipCondition" :key="index" :label="item.value">{{item.label}}</el-radio>
             </el-radio-group>
             <div class="deptSetNumWrap" v-if="allocateForm.provinceCondition===3">
               <el-input v-model="allocateForm.provinceValue1" class="deptSetNumInput"></el-input>&nbsp;&nbsp;/&nbsp;&nbsp;<el-input v-model="allocateForm.provinceValue2" class="deptSetNumInput"></el-input>
@@ -25,9 +21,7 @@
           </el-form-item>
           <el-form-item label="支队（市）" prop="cityCondition" class="clearfix">
             <el-radio-group v-model="allocateForm.cityCondition">
-              <el-radio :label="1">无要求</el-radio>
-              <el-radio :label="2">按相关规定配</el-radio>
-              <el-radio :label="3">设定数量</el-radio>
+              <el-radio  v-for="(item,index) in equipCondition" :key="index" :label="item.value">{{item.label}}</el-radio>
             </el-radio-group>
             <div class="deptSetNumWrap" v-if="allocateForm.cityCondition===3">
               <el-input v-model="allocateForm.cityValue1" class="deptSetNumInput"></el-input>&nbsp;&nbsp;/&nbsp;&nbsp;<el-input v-model="allocateForm.cityValue2" class="deptSetNumInput"></el-input>
@@ -35,9 +29,7 @@
           </el-form-item>
           <el-form-item label="大队（区县）" prop="areaCondition">
             <el-radio-group v-model="allocateForm.areaCondition">
-              <el-radio :label="1">无要求</el-radio>
-              <el-radio :label="2">按相关规定配</el-radio>
-              <el-radio :label="3">设定数量</el-radio>
+              <el-radio  v-for="(item,index) in equipCondition" :key="index" :label="item.value">{{item.label}}</el-radio>
             </el-radio-group>
             <div class="deptSetNumWrap" v-if="allocateForm.areaCondition===3">
               <el-input v-model="allocateForm.areaValue1" class="deptSetNumInput"></el-input>&nbsp;&nbsp;/&nbsp;&nbsp;<el-input v-model="allocateForm.areaValue2" class="deptSetNumInput"></el-input>
@@ -47,7 +39,7 @@
         <el-col :span="11">
           <el-form-item label="配备类型" prop="allocateType">
             <el-select v-model="allocateForm.allocateType" clearable filterable placeholder="请选择">
-              <el-option v-for="item in orgOptions" :key="item.value" :label="item.orgName" :value="item.id"></el-option>
+              <el-option v-for="item in $getDicts('zblx')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="更新年限" prop="updateYear">
@@ -57,7 +49,7 @@
         <el-col :span="11" :offset="2">
           <el-form-item label="计量单位" prop="unitType">
             <el-select v-model="allocateForm.unitType" clearable filterable placeholder="请选择">
-              <el-option v-for="item in orgOptions" :key="item.value" :label="item.orgName" :value="item.id"></el-option>
+              <el-option v-for="item in $getDicts('zbjl')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="显示次序" prop="allocateIndex">
@@ -79,37 +71,107 @@
 </template>
 
 <script>
+import { regCn } from '@/utils/validate'
 export default {
   name: 'equippedProject',
+  props: {
+    equipItem: {
+      type: Object,
+      default() {
+        return {}
+      }
+    }
+  },
   data() {
     return {
       formLoading: false,
+      classifyOptions: [], // 装备分类的数据源
       orgOptions: [],
-      allocateForm: {
-        citys: [],
-        JGMC: '',
-        ZBSL: '',
-        ZBLX: '',
-        MS: ''
-      },
+      allocateForm: {}, // 表单信息
       loading: false,
-      optionsZblx: [],
       options: [],
+      equipCondition: [{ value: 1, label: '无要求' }, { value: 2, label: '按相关规定配' }, { value: 3, label: '设定数量' }], // 不同部门配备的设置
+      userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       rules: {
         groupId: [
           { required: true, message: '请选择装备分类', trigger: 'change' }
         ],
         allocateName: [
-          { required: true, message: '请选择配备项目', trigger: 'change' }
+          { required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            if (value === null || value === undefined || value === '') {
+              callback(new Error('请输入配备项目'))
+            } else if (!(regCn.test(value))) {
+              callback(new Error('请输入汉字'))
+            } else {
+              this.formLoading = true
+              var para = { allocateName: value }
+              if (this.allocateForm.id) {
+                para.id = this.allocateForm.id
+              }
+              this.$query('equipgroup', para).then((response) => {
+                this.formLoading = false
+                if (response.data && response.data.length > 0) {
+                  callback(new Error('项目 ' + value + ' 已添加，请确认后重试！'))
+                } else {
+                  callback()
+                }
+              }).catch(() => {
+
+              })
+            }
+          } }
         ],
         provinceCondition: [
-          { required: true, message: '请选择总队（省）', trigger: 'change' }
+          {
+            required: true, trigger: 'change', validator: (rule, value, callback) => {
+              if (value === null || value === undefined || value === '') {
+                callback(new Error('请选择总队（省）'))
+              } else if (value === 3) {
+                if (this.allocateForm.provinceValue1 && this.allocateForm.provinceValue2) {
+                  callback()
+                } else {
+                  callback(new Error('请填写设定数量，须为数字'))
+                }
+              } else {
+                callback()
+              }
+            }
+          }
         ],
         cityCondition: [
-          { required: true, message: '请选择支队（市）', trigger: 'change' }
+          {
+            required: true, trigger: 'change', validator: (rule, value, callback) => {
+              if (value === null || value === undefined || value === '') {
+                callback(new Error('请选择支队（市）'))
+              } else if (value === 3) {
+                if (this.allocateForm.cityValue1 && this.allocateForm.cityValue2) {
+                  callback()
+                } else {
+                  callback(new Error('请填写设定数量，须为数字'))
+                }
+              } else {
+                callback()
+              }
+            }
+          }
         ],
         areaCondition: [
-          { required: true, message: '请选择大队（区县）', trigger: 'change' }
+          {
+            required: true, trigger: 'change', validator: (rule, value, callback) => {
+              if (value === null || value === undefined || value === '') {
+                callback(new Error('请选择大队（区县）'))
+              } else if (value === 3) {
+                if (this.allocateForm.areaValue1 && this.allocateForm.areaValue2) {
+                  callback()
+                } else {
+                  callback(new Error('请填写设定数量，须为数字'))
+                }
+              } else {
+                callback()
+              }
+            }
+          }
         ],
         allocateType: [
           { required: true, message: '请选择配备类型', trigger: 'change' }
@@ -120,52 +182,82 @@ export default {
       }
     }
   },
+  watch: {
+    equipItem: {
+      immediate: true,
+      handler(val) {
+        console.log('watch:' + JSON.stringify(val))
+        this.allocateForm = JSON.parse(JSON.stringify(val)) || {}
+        if (val) {
+          this.initData()
+        }
+      }
+    }
+  },
   methods: {
     handleSave(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          // console.log(this.questionForm)
-          var param = JSON.parse(JSON.stringify(this.departmentForm))
-          if (this.departmentForm.administrative && this.departmentForm.administrative.length > 0) {
-            param.provinceCode = this.departmentForm.administrative[0]
-            param.cityCode = this.departmentForm.administrative[1] || ''
-            param.reginCode = this.departmentForm.administrative[2] || ''
-            param.administrative = this.departmentForm.administrative[this.departmentForm.administrative.length - 1] // 为最后一级的code
-          }
-          param.userId = this.userInfo.id
-          // console.log(param)
+          var param = JSON.parse(JSON.stringify(this.allocateForm))
           this.formLoading = true
-          this.$update('hsyzdepart/' + this.carryParam.deptId, param, 'upms').then((response) => {
-            this.formLoading = false
-            if (response.code === '000000') {
-              this.$message({
-                message: '装备信息保存成功', type: 'success'
-              })
-              // 停留2秒跳转到详情页面
-              setTimeout(() => {
-                // this.$router.push({ path: '/basicService/deptInfo/detail' })
-              }, 2000)
-            } else {
+          if (this.equipItem.id) { // 编辑
+            param.lastId = this.userInfo.id
+            param.lastName = this.userInfo.userName // 用户名
+            this.$update('basicEquipAllocate/' + this.equipItem.id, param).then((response) => {
+              this.formLoading = false
+              if (response.code === '000000') {
+                this.$message({
+                  message: '装备信息保存成功', type: 'success'
+                })
+                // 停留2秒跳转到详情页面
+                setTimeout(() => {
+                  this.$emit('closeDia', '1')
+                }, 2000)
+              } else {
+                this.$message({
+                  message: '装备信息保存失败，请联系管理员！', type: 'error'
+                })
+              }
+            }).catch(() => {
               this.$message({
                 message: '装备信息保存失败，请联系管理员！', type: 'error'
               })
-            }
-          }).catch(() => {
-            this.$message({
-              message: '装备信息保存失败，请联系管理员！', type: 'error'
+              this.formLoading = false
             })
-            this.formLoading = false
-          })
+          } else { // 添加
+            param.creationId = this.userInfo.id
+            param.creationName = this.userInfo.userName // 用户名
+            param.enabled = 1 // 默认启用
+            this.$save('basicEquipAllocate', param).then((response) => {
+              this.formLoading = false
+              if (response.code === '000000') {
+                this.$message({
+                  message: '装备信息保存成功', type: 'success'
+                })
+                // 停留2秒跳转到详情页面
+                setTimeout(() => {
+                  this.$emit('closeDia', '1')
+                }, 2000)
+              } else {
+                this.$message({
+                  message: '装备信息保存失败，请联系管理员！', type: 'error'
+                })
+              }
+            }).catch(() => {
+              this.$message({
+                message: '装备信息保存失败，请联系管理员！', type: 'error'
+              })
+              this.formLoading = false
+            })
+          }
         }
       })
     },
-    toList() {
-      this.$router.push({
-        path: '/basic/equip'
-      })
-    },
     resetForm(formName) {
-      this.$refs[formName].resetFields()
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
+        this.allocateForm = {}
+      }
     },
     handleCancel() {
       this.$confirm('是否要放弃编辑的装备信息', '提示', {
@@ -174,69 +266,38 @@ export default {
         type: 'warning'
       }).then(() => {
         // 调父页面的关闭弹框的方法 刷新列表页面
-        this.resetForm('allocateForm')
+        // this.resetForm('allocateForm')
         this.$emit('closeDia', '1')
       }).catch(() => {
         // 留在编辑页面
       })
     },
-    getCityByCode(citys, cityCode) {
-      for (let i = 0; i < citys.length; i++) {
-        if (citys[i].cityCode === cityCode) {
-          return citys[i]
+    initData() {
+      this.formLoading = true
+      this.$query('basicequipgroup', {}).then((response) => {
+        this.formLoading = false
+        if (response.data) {
+          this.classifyOptions = response.data
         }
+      }).catch(() => {
+        this.classifyOptions = []
+        this.formLoading = false
+      })
+      if (this.equipItem.unitType) {
+        this.allocateForm.unitType = this.allocateForm.unitType + ''
       }
-    },
-    getCityByName(citys, cityName) {
-      for (let i = 0; i < citys.length; i++) {
-        if (citys[i].cityName === cityName) {
-          return citys[i]
-        }
+      if (this.equipItem.allocateType) {
+        this.allocateForm.allocateType = this.allocateForm.allocateType + ''
       }
-    },
-    setCitys() {
-      this.allocateForm.citys = []
-      if (this.allocateForm.SSXQ) {
-        const prov = this.allocateForm.SSXQ.split('|')
-        const province = this.getCityByName(this.options, prov[0])
-        this.allocateForm.citys.push(province.cityCode)
-        if (prov[1]) {
-          const city = this.getCityByName(province.children, prov[1])
-          this.allocateForm.citys.push(city.cityCode)
-          if (prov[2]) {
-            const county = this.getCityByName(city.children, prov[2])
-            this.allocateForm.citys.push(county.cityCode)
-          }
-        }
-      }
-    },
-    detail() {
-      this.loading = true
-      // const para = {
-      //   id: this.allocateForm.id
-      // }
-      // getAjCheckOrganizationOne(para).then((response) => {
-      //   response.data.enable = response.data.enable ? '1' : '0'
-      //   this.form = response.data
-      //   this.setCitys()
-      //   this.loading = false
-      // }).catch(() => {
-      //   this.loading = false
-      // })
-    },
-    cityTree() {
-
     }
+
   },
   mounted() {
-    this.optionsZblx = [
-      { 'zbName': '单警装备', 'zbCode': 1 },
-      { 'zbName': '特勤装备', 'zbCode': 1 }
-    ]
-    if (this.$route.query.id) {
-      this.loading = true
+    console.log('mounted:' + JSON.stringify(this.equipItem))
+    if (this.equipItem) {
+      this.allocateForm = this.equipItem
+      this.initData()
     }
-    this.cityTree()
   }
 }
 </script>

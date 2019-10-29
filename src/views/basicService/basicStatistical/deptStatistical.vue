@@ -1,182 +1,93 @@
 <template>
-  <div class="examStatistical">
-    <el-card style="margin-bottom: 10px;">
-      <el-table :data="tableData6" :span-method="objectSpanMethod" border style="width: 100%; margin-top: 20px">
-        <el-table-column
-          prop="id"
-          label="ID"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          label="姓名">
-        </el-table-column>
-        <el-table-column
-          prop="amount1"
-          label="数值 1（元）">
-        </el-table-column>
-        <el-table-column
-          prop="amount2"
-          label="数值 2（元）">
-        </el-table-column>
-        <el-table-column
-          prop="amount3"
-          label="数值 3（元）">
-        </el-table-column>
-      </el-table>
-      <el-form :inline="true" :model="filterQuery" label-width="84px">
-        <el-form-item label="发布单位"  prop="deptCode">
-          <!-- <el-select v-model="filterQuery.deptRange" placeholder="请选择">
-            <el-option label="全部" value=""></el-option>
-            <el-option label="省厅" value="1"></el-option>
-            <el-option label="地市" value="2"></el-option>
-          </el-select> -->
-          <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>11)?'tooltipShow':'tooltipHide'">
-            <el-cascader
-              :options="deptOptions"
-              v-model="filterQuery.deptCode"
-              :props="deptProps"
-              :show-all-levels=false
-              change-on-select
-              @change="handleDeptChange"
-              clearable placeholder="全部">
-            </el-cascader>
-          </el-tooltip>
-        </el-form-item>
-        <el-form-item label="考试名称"  prop="examinationName">
-          <!-- <el-input v-model="filterQuery.examinationName" clearable maxlength="20" placeholder="关键字检索考试名称" ></el-input> -->
-          <el-autocomplete clearable
-            class="autoInput"
-            v-model="filterQuery.examinationName"
-            :fetch-suggestions="querySearchExam"
-            :trigger-on-focus="false"
-            placeholder="关键字检索考试名称"
-            @select="handleSelectExam"
-          ></el-autocomplete>
-        </el-form-item>
-        <el-form-item label="考试日期" prop="type">
-          <el-radio-group v-model="filterQuery.type" @change="filterTypeChange">
-            <el-radio label="timePeriod">时间段</el-radio>
-            <el-radio label="year">本年度</el-radio>
-            <el-radio label="quarter">本季度</el-radio>
-            <el-radio label="month">本月</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="" prop="startTime">
-          <el-date-picker v-model="filterQuery.startDate" type="date" value-format="yyyy-MM-dd" :picker-options="startPickerOptions" placeholder="请选择开始时间" :disabled="startDateDisabled" @change="startDateChange"></el-date-picker>
-          <el-date-picker v-model="filterQuery.endDate" type="date"  value-format="yyyy-MM-dd" :picker-options="endPickerOptions" placeholder="请选择结束时间" :disabled="endDateDisabled"  @change="endDateChange"></el-date-picker>
-        </el-form-item>
-        <!-- <el-form-item label="筛选类型">
-          <el-select v-model="filterQuery.type" filterable clearable placeholder="请选择" @change="filterTypeChange">
-            <el-option label="本年度" value="year"></el-option>
-            <el-option label="本季度" value="quarter"></el-option>
-            <el-option label="本月" value="month"></el-option>
-          </el-select>
-        </el-form-item> -->
-        <el-form-item>
-          <el-button type="primary" @click="queryExamStatistical(true)">查询</el-button>
-          <el-button type="info" @click="reset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+  <div class="deptStatistical">
     <!--考试信息-->
-    <el-card style="margin-bottom: 10px;">
+    <!-- <el-card style="margin-bottom: 10px;">
       <div slot="header" class="clearfix">
-        <span>考试统计&nbsp;</span>
-          <!-- <el-tooltip class="item" effect="dark" content="" placement="top"> -->
-            <i class="el-icon-question"></i>
-            <span style="font-size:12px;">&nbsp;选中考试后，可按单条或多条考试信息统计地市考试情况。</span>
-          <!-- </el-tooltip> -->
-      </div>
-      <el-table :data="examinations"  style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange"
+        <span>陕西省西安市公安局环食药侦支队_队伍基本情况</span>
+      </div> -->
+      <div style="margin: 10px 0;">陕西省西安市公安局环食药侦支队_队伍基本情况</div>
+      <el-table :data="examinations"  style="width: 100%;" :max-height="tableHeight"
       :row-class-name="getRowClassExam" v-loading="examLoading" class="table_th_center">
-       <!-- show-summary :summary-method="getSummaries" -->
-        <el-table-column type="selection" width="50"></el-table-column>
-        <el-table-column prop="index" label="序号" width="70" align="center">
-          <template slot-scope="scope">
-            <span v-if="scope.row.isHj">总计</span>
-            <span v-else>{{scope.row.index}}</span>
-          </template>
+        <el-table-column prop="index" label="合计" width="60" align="center"></el-table-column>
+        <el-table-column prop="examinationName" label="民警">
+          <el-table-column prop="totalNum" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
+          <el-table-column prop="totalNum" label="平均年龄" width="60" align="center"></el-table-column>
+          <el-table-column prop="totalNum" label="性别" align="center">
+            <el-table-column prop="totalNum" label="男" :width="smallItemWidth" align="center"></el-table-column>
+            <el-table-column prop="totalNum" label="女" :width="smallItemWidth" align="center"></el-table-column>
+          </el-table-column>
+          <el-table-column prop="totalNum" label="学历" align="center">
+            <el-table-column prop="totalNum" label="研" :width="smallItemWidth" align="center"></el-table-column>
+            <el-table-column prop="totalNum" label="本" :width="smallItemWidth" align="center"></el-table-column>
+            <el-table-column prop="totalNum" label="专" :width="smallItemWidth" align="center"></el-table-column>
+          </el-table-column>
         </el-table-column>
-        <el-table-column prop="examinationName" label="考试名称" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="totalNum" label="应考人数" width="160" align="center">
+        <el-table-column prop="examinationName" label="辅警">
+          <el-table-column prop="totalNum" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
+          <el-table-column prop="totalNum" label="平均年龄" width="60" align="center"></el-table-column>
+          <el-table-column prop="totalNum" label="性别" align="center">
+            <el-table-column prop="totalNum" label="男" :width="smallItemWidth" align="center"></el-table-column>
+            <el-table-column prop="totalNum" label="女" :width="smallItemWidth" align="center"></el-table-column>
+          </el-table-column>
+          <el-table-column prop="totalNum" label="学历" align="center">
+            <el-table-column prop="totalNum" label="研" :width="smallItemWidth" align="center"></el-table-column>
+            <el-table-column prop="totalNum" label="本" :width="smallItemWidth" align="center"></el-table-column>
+            <el-table-column prop="totalNum" label="专" :width="smallItemWidth" align="center"></el-table-column>
+          </el-table-column>
         </el-table-column>
-        <el-table-column prop="realNum" label="实考人数" width="160" align="center"></el-table-column>
-        <el-table-column prop="y" label="优" width="100" align="center">
+        <el-table-column prop="examinationName" label="工勤">
+          <el-table-column prop="totalNum" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
+          <el-table-column prop="totalNum" label="平均年龄" width="60" align="center"></el-table-column>
+          <el-table-column prop="totalNum" label="性别" align="center">
+            <el-table-column prop="totalNum" label="男" :width="smallItemWidth" align="center"></el-table-column>
+            <el-table-column prop="totalNum" label="女" :width="smallItemWidth" align="center"></el-table-column>
+          </el-table-column>
+          <el-table-column prop="totalNum" label="学历" align="center">
+            <el-table-column prop="totalNum" label="研" :width="smallItemWidth" align="center"></el-table-column>
+            <el-table-column prop="totalNum" label="本" :width="smallItemWidth" align="center"></el-table-column>
+            <el-table-column prop="totalNum" label="专" :width="smallItemWidth" align="center"></el-table-column>
+          </el-table-column>
+        </el-table-column>
+
+        <!-- <el-table-column prop="y" label="优" width="100" align="center">
           <template slot-scope="scope">
             <span v-if="scope.row.y">{{scope.row.y}}</span>
             <span v-else>0</span>
           </template>
-        </el-table-column>
-        <el-table-column prop="l" label="良" width="100" align="center">
+        </el-table-column> -->
+        <!-- <el-table-column label="操作" width="130">
           <template slot-scope="scope">
-            <span v-if="scope.row.l">{{scope.row.l}}</span>
-            <span v-else>0</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z" label="中" width="100" align="center">
-          <template slot-scope="scope">
-            <span v-if="scope.row.z">{{scope.row.z}}</span>
-            <span v-else>0</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="c" label="差" width="100" align="center">
-          <template slot-scope="scope">
-            <span v-if="scope.row.c">{{scope.row.c}}</span>
-            <span v-else>0</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="130">
-          <template slot-scope="scope">
-            <!-- <span v-if="scope.row.totalNum" class="canClick" @click="watchReport">考试报告</span> -->
             <el-button @click="watchReport(scope.$index, scope.row)" icon="el-icon-document">考试报告</el-button>
             <el-tooltip v-if="scope.row.isHj" class="item" effect="dark" content="可生成查询结果汇总考试报告" placement="top">
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
-      <!--工具条-->
-      <el-col :span="24" class="toolbar clearfix">
-        <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize"
-                      :current-page="page" :total="total" style="float:right;">
-        </el-pagination>
-      </el-col>
-    </el-card>
+    <!-- </el-card> -->
     <!--地市统计-->
-    <el-card style="margin-bottom: 10px;" v-loading="cityLoading">
+    <!-- <el-card style="margin-bottom: 10px;" v-loading="cityLoading">
       <div slot="header" class="clearfix">
-        <span>省市考试统计</span>
-      </div>
-      <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight" :row-class-name="getRowClass">
-        <!-- :expand-row-keys="expends" -->
-        <el-table-column type="expand">
-          <template slot-scope="scope">
-            <el-table :data="scope.row.child" style="width: 100%;" max-height="400">
-              <el-table-column prop="" label="" width="110px" style="opacity:0;"></el-table-column>
-              <el-table-column prop="deptName" label="单位" min-width="25%"></el-table-column>
-              <el-table-column prop="totalNum" label="应考总人数" width="160"></el-table-column>
-              <el-table-column prop="realNum" label="实考总人数" width="160"></el-table-column>
-              <el-table-column prop="y" label="优" width="100"> </el-table-column>
-              <el-table-column prop="l" label="良" width="100"></el-table-column>
-              <el-table-column prop="z" label="中" width="100"></el-table-column>
-              <el-table-column prop="c" label="差" width="100"></el-table-column>
-            </el-table>
-          </template>
-        </el-table-column>
-        <el-table-column type="index" label="序号" width="60" class-name="xuhao">
+        <span>陕西省西安市公安局环食药侦支队_相关人员及联系人</span>
+      </div> -->
+      <div style="margin: 30px 0 10px 0;">陕西省西安市公安局环食药侦支队_相关人员及联系人</div>
+      <el-table :data="cityData"  style="width: 100%" :max-height="tableHeight" :row-class-name="getRowClass" class="table_th_center">
+        <el-table-column type="index" label="主要负责人" width="100" class-name="xuhao">
           <template slot-scope="scope">
             <span>{{scope.row.index}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="areaName" label="省市" min-width="15%" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="ykNum" label="应考总人数" width="160" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="skNum" label="实考总人数" width="160"></el-table-column>
-        <el-table-column prop="yNum" label="优" width="100"></el-table-column>
-        <el-table-column prop="lNum" label="良" width="100"></el-table-column>
-        <el-table-column prop="zNum" label="中" width="100"></el-table-column>
-        <el-table-column prop="cNum" label="差" width="100"></el-table-column>
+        <el-table-column prop="areaName" label="主要负责人职务" width="200" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="ykNum" label="主要负责人联系方式" min-width="160" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="skNum" label="日常联系人" width="160" align="center"></el-table-column>
+        <el-table-column prop="yNum" label="日常联系人职务" width="200" align="center"></el-table-column>
+        <el-table-column prop="lNum" label="日常联系人联系方式" min-width="100" align="center"></el-table-column>
       </el-table>
+    <!-- </el-card> -->
+    <el-card style="margin-bottom: 10px;" v-loading="cityLoading">
+      <div slot="header" class="clearfix">
+        <span>统计</span>
+      </div>
       <!-- 饼状图 -->
       <div class="clearfix" style="margin: 50px 0 80px;" v-if="showEchart">
         <div id="echartScore" style="width: 49%; height: 400px; float:left;"></div>
@@ -185,10 +96,6 @@
       <!-- 柱状图 -->
       <div id="cityStatistical" style="height: 400px;" v-if="showEchart"></div>
     </el-card>
-    <!-- 考试报告 -->
-    <el-dialog title="考试报告" :visible.sync="dialogReportVisible" size="small" @close="closeDia" class="reportDialog" width="60%">
-      <test-report :examItem="currentExam" @isShowDialog="closeDia"></test-report>
-    </el-dialog>
   </div>
 </template>
 <script>
@@ -197,6 +104,7 @@ export default {
   name: 'examinationStatistical',
   data() {
     return {
+      smallItemWidth: 70, // 表格最小格子的宽度
       filterQuery: {
         deptCode: [],
         startDate: '',
@@ -240,7 +148,6 @@ export default {
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       multipleSelection: [], // 选中的多行
       showEchart: false,
-      dialogReportVisible: false, // 考试报告弹框
       currentExam: {}, // 当前点击的考试报告
       deptProps: {
         value: 'depCode',
@@ -309,29 +216,6 @@ export default {
         }
       } else {
         this.selectCurTingDep = { name: '' }
-      }
-    },
-    handleSelectionChange(val) { // 多选表格
-      this.multipleSelection = val
-      // console.log(this.multipleSelection)
-      var choosedArr = []
-      var choosedStr = ''
-      this.showEchart = true
-      if (this.multipleSelection.length > 0) {
-        for (let index = 0; index < this.multipleSelection.length; index++) {
-          const element = this.multipleSelection[index]
-          if (element.examinationId) {
-            choosedArr.push(element.examinationId)
-          }
-        }
-        choosedStr = choosedArr.join(',')
-        this.queryCityStatisticalByExam(choosedStr)
-      } else {
-        this.showEchart = false
-        this.cityData = []
-        this.drawChartScore()
-        this.drawChartPerNum()
-        this.drawCityStatistical()
       }
     },
     initStaticData() {
@@ -830,10 +714,6 @@ export default {
         this.currentExam.startTitle = this.filterQuery.startDate.substr(0, 4) + '年' + this.filterQuery.startDate.substr(5, 2) + '月' + this.filterQuery.startDate.substr(8, 2) + '日'
         this.currentExam.endTitle = this.filterQuery.endDate.substr(0, 4) + '年' + this.filterQuery.endDate.substr(5, 2) + '月' + this.filterQuery.endDate.substr(8, 2) + '日'
       }
-      this.dialogReportVisible = true
-    },
-    closeDia() {
-      this.dialogReportVisible = false
     },
     getdate() {
       var now = new Date()
@@ -965,7 +845,7 @@ export default {
   mounted() {
     var dept = this.getTree(JSON.parse(sessionStorage.getItem('DeptSelect')))
     this.deptOptions = dept
-    this.getSysTime()
+    // this.getSysTime()
     // this.initStaticData()
     // if (sessionStorage.getItem(this.$route.path)) {
     //   var carryParam = JSON.parse(sessionStorage.getItem(this.$route.path))
@@ -993,17 +873,18 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.examStatistical {
-  .el-table__expanded-cell {
-    width: 500px;
-    margin-left: 100px;
-    padding: 0;
+.deptStatistical {
+  .el-table--border th {
+    border-bottom: 1px solid #45758b;
+    border-right: 1px solid #45758b;
   }
-  .autoInput {
-    width: 230px;
+  .el-table--border,
+  .el-table--group {
+    border: 1px solid #45758b;
   }
-  .el-radio {
-    margin-bottom: 0 !important;
+  .el-table--border::after,
+  .el-table--group::after {
+    width: 0;
   }
 }
 .tooltipShow {
@@ -1030,25 +911,6 @@ export default {
   // 合计行去掉 复选框
   opacity: 0;
   pointer-events: none;
-}
-.reportDialog {
-  .el-dialog {
-    background: #ffffff;
-    border: 1px solid #bebebe;
-  }
-  .el-dialog__header {
-    border-bottom: 2px solid #aaaaaa;
-    .el-dialog__title {
-      color: #000000;
-    }
-    .el-dialog__headerbtn .el-dialog__close {
-      color: #000000;
-    }
-  }
-  .el-dialog__body {
-    background: #ffffff;
-    color: #000000;
-  }
 }
 .el-autocomplete-suggestion {
   border: 1px solid #00a0e9;
