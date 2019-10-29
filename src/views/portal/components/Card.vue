@@ -18,7 +18,7 @@
       <e-chart v-if="content=='Echart'"></e-chart>
       <community-data-echart v-else-if="content=='CommunityDataEchart'"></community-data-echart>
       <carousel v-else-if="content=='Carousel'"></carousel>
-      <list v-else-if="content=='List'"></list>
+      <list ref="noticeList" v-else-if="content=='List'"></list>
       <tab v-else-if="content=='Tab'"></tab>
       <high v-else-if="content=='High'"></high>
       <work v-else-if="content=='Work'"></work>
@@ -99,11 +99,19 @@
           if (arr[0] === 'zhyp') {
             localStorage.setItem('curAppCode', '002')
           }
-          if (arr[0] === 'tztg') {
-            localStorage.setItem('curAppCode', '001')
+          if (arr[0] === 'notice') {
+            localStorage.setItem('curAppCode', 'C')
           }
         }
-        this.$router.push({ path: val })
+        if (arr[0] === 'notice') {
+          const para = {}
+          if (this.$refs.noticeList.curIndex === 1) {
+            para.signStatus = '1'
+          }
+          this.$gotoid(val, JSON.stringify(para))
+        } else {
+          this.$router.push({ path: val })
+        }
       },
       addMenu() {
         this.$store.dispatch('ClickAll', true)

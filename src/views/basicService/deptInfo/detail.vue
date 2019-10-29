@@ -8,7 +8,7 @@
       <div slot="header">
         <span>机构信息</span>
         <!-- 非本单位机构用户审核权限用户登录 不显示编辑按钮，业务审核人员 只能对本单位的机构信息进行维护 -->
-        <el-button style="float: right; padding: 3px 0;font-size:22px;margin-top:-5px;" type="text" icon="el-icon-edit-outline" title="编辑" @click="editDepartment" v-if="editBtnShow"></el-button>
+        <el-button style="float: right; padding: 3px 0;font-size:22px;margin-top:-5px;" type="text" icon="el-icon-edit-outline" title="编辑" @click="editDepartment" v-if="editBtnShow && ($isViewBtn('169003'))"></el-button>
       </div>
         <!-- <el-row type="flex" justify="center" class="clearfix"> -->
       <el-form :model="departmentForm" ref="departmentForm" label-width="120px" label-position="left" v-loading="formLoading" class="clearfix">
@@ -23,8 +23,8 @@
             <span v-if="departmentForm.compileNum > 0">{{departmentForm.compileNum}}人</span>
             <span v-else>0 人</span>
           </el-form-item>
-          <el-form-item label="所属行政区划" prop="areaCode" class="clearfix">
-            {{departmentForm.areaCode}}
+          <el-form-item label="所属行政区划" prop="orgName" class="clearfix">
+            {{departmentForm.orgName}}
           </el-form-item>
           <el-form-item label="成立时间" prop="foundingTime" class="clearfix">
             {{departmentForm.foundingTime}}
@@ -47,7 +47,7 @@
             <span  @click="changeShowAll($event,'showAllzyzzrw')" :class="showAllzyzzrw?'showAll':'showPart'">{{departmentForm.mainAssignment}}</span>
           </el-form-item>
           <el-form-item label="实有人数" prop="realityNum" class="clearfix">
-            <span v-if="departmentForm.realityNum > 0">{{departmentForm.realityNum}}人</span>
+            <span v-if="departmentForm.realityNum > 0">{{departmentForm.realityNum}} 人</span>
             <span v-else>0 人</span>
           </el-form-item>
           <el-form-item label="机构详细地址" prop="address" class="clearfix">
@@ -88,7 +88,7 @@ export default {
       carryParam: {}, // 列表带过来的参数
       showAllzyzzrw: false, // 主要职责任务 是否全部展示
       showAllXxdz: false, // 机构详细地址 是否全部展示
-      editBtnShow: false, // 编辑按钮
+      editBtnShow: false, // 编辑按钮 是否为本部门
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -119,19 +119,11 @@ export default {
         // 菜单进来的
         this.carryParam.deptId = this.deptInfo.id // 将当前机构的id 放到 this.carryParam.deptId
       }
-      if (sessionStorage.getItem('roles')) {
-        var roles = JSON.parse(sessionStorage.getItem('roles'))
-        for (let d = 0; d < roles.length; d++) {
-          const element = roles[d]
-          if (element.roleCode === '1007' && this.deptInfo.id === this.carryParam.deptId) { // 具有审核权限的用户
-            this.editBtnShow = true
-            break
-          } else {
-            this.editBtnShow = false
-          }
-        }
+      if (this.deptInfo.id === this.carryParam.deptId) { // 本单位的人
+        this.editBtnShow = true
+      } else {
+        this.editBtnShow = false
       }
-
       this.queryDetailById() // 查详情
     },
     queryDetailById() { // 通过id查询详情
@@ -141,16 +133,17 @@ export default {
         this.formLoading = false
         if (response.code === '000000') {
           this.departmentForm = response.data
-          this.departmentForm.administrative = [] // 行政区划
-          if (response.data.provinceCode) { // 省
-            this.departmentForm.administrative.push(response.data.provinceCode)
-          }
-          if (response.data.cityCode) { // 市
-            this.departmentForm.administrative.push(response.data.cityCode)
-          }
-          if (response.data.reginCode) { // 区
-            this.departmentForm.administrative.push(response.data.reginCode)
-          }
+          this.departmentForm.foundingTime = this.departmentForm.foundingTime.substring(0, 10) // 成立时间
+          // this.departmentForm.administrative = [] // 行政区划
+          // if (response.data.provinceCode) { // 省
+          //   this.departmentForm.administrative.push(response.data.provinceCode)
+          // }
+          // if (response.data.cityCode) { // 市
+          //   this.departmentForm.administrative.push(response.data.cityCode)
+          // }
+          // if (response.data.reginCode) { // 区
+          //   this.departmentForm.administrative.push(response.data.reginCode)
+          // }
         }
       }).catch(() => {
         this.formLoading = false
@@ -203,8 +196,9 @@ export default {
   }
   .showAll {
     cursor: pointer;
+    display: inline-block;
     width: 100%;
-    height: auto;
+    overflow: auto;
   }
 }
 </style>

@@ -21,6 +21,7 @@ import TopMessage from './components/TopMessage'
 // import OnlineHelp from './components/onlineHelp'
 import Foot from './components/foot'
 import WorkMenu from './components/WorkMenu'
+import { isViewBtn } from '@/utils/public'
 
 export default {
   name: 'index',
@@ -39,7 +40,7 @@ export default {
       cardData: [],
       curDept: null,
       cardData1: [ // 全部菜单（省厅权限）
-        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
+        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/notice/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
         { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
         { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
@@ -53,7 +54,7 @@ export default {
 
       ],
       cardData2: [ // 市
-        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
+        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/notice/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
         { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
         { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
@@ -66,7 +67,7 @@ export default {
         // { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' }
       ],
       cardData3: [ // 旗县
-        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/tztg/index' },
+        { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/notice/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
         { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
         { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
@@ -116,45 +117,34 @@ export default {
             }
           }
         })
+        this.getPersonInfoTip() // 个人信息 部门信息 维护提醒
       }
       this.accessControlModel()
       this.getSysconfig()
-      this.getPersonInfoTip()
     },
     getPersonInfoTip() {
-      // if (this.curDept && this.curDept.length > 0) {
-      //   this.$query('', {}).then(response => {
-      //     if (response.data.length > 0) {
-      //       this.$confirm('您的个人信息还没有完善，未避免影响您的正常使用，请尽快完善个人信息！', '提示', {
-      //         confirmButtonText: '立即完善',
-      //         cancelButtonText: '稍后再说',
-      //         type: 'warning'
-      //       }).then(() => {
-      //         this.$router.push({ path: '/basicService/personInfo', query: { type: 'mainEdit', id: this.curUser.id }})
-      //       }).catch(() => {
-      //         // 点击 稍后再说
-      //         this.judgeRoleAudit()
-      //       })
-      //     } else {
-      //       // 人员信息已完善
-      //       this.judgeRoleAudit()
-      //     }
-      //   })
-      // }
-    },
-    judgeRoleAudit() { // 判断当前用户是否有审核权限
-      if (sessionStorage.getItem('roles')) {
-        var roles = JSON.parse(sessionStorage.getItem('roles'))
-        for (let d = 0; d < roles.length; d++) {
-          const element = roles[d]
-          if (element.roleCode === '1007') { // 具有审核权限的用户
-            this.getDeptInfoTip() // 是否完善机构信息
+      if (this.curDept && this.curDept.length > 0) {
+        this.$query('USERCOMPLETE/' + this.curUser.id, {}, true).then(response => {
+          if (!response.data || !response.data.complete) {
+            this.$confirm('您的个人信息还没有完善，未避免影响您的正常使用，请尽快完善个人信息！', '提示', {
+              confirmButtonText: '>>立即完善',
+              cancelButtonText: '稍后再说',
+              type: 'warning'
+            }).then(() => {
+              this.$router.push({ path: '/basicService/personInfo', query: { type: 'mainEdit', id: this.curUser.id }})
+            }).catch(() => {
+              // 点击 稍后再说
+              this.getDeptInfoTip()
+            })
+          } else {
+            // 人员信息已完善
+            this.getDeptInfoTip()
           }
-        }
+        })
       }
     },
     getDeptInfoTip() {
-      if (sessionStorage.getItem('depToken')) {
+      if (isViewBtn('169003') && sessionStorage.getItem('depToken')) { // 拥有审核权限  本单位的人
         var deptId = JSON.parse(sessionStorage.getItem('depToken'))[0].id
         this.$query('hsyzdepartmessage', { id: deptId }, 'upms').then(response => {
           if (response.code === '000000') {
@@ -221,20 +211,20 @@ export default {
     },
     getDist() { // 获取字典
       this.$query('personMessage', {}).then(response => {
-        if (response.data.length > 0) {
+        if (response.data) {
           sessionStorage.setItem('dictdata', JSON.stringify(response.data))
         }
       })
     }
   },
   mounted() {
-    this.curDept = sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode : ''
+    this.curDept = sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken')) : ''
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     this.init()
   },
   created() {
     this.lastTime = new Date().getTime() // 网页第一次打开时，记录当前时间
-    // this.getDist()
+    this.getDist()
   }
 }
 </script>
