@@ -33,9 +33,9 @@
               <el-transfer v-model="noticeForm.receiveDept" :titles="['我的组', '我的组']" :data="transferCYLXRData"></el-transfer>
             </el-form-item>
             <el-form-item>
-              <el-button v-if="showSave" type="primary" class="saveBtn" @click="onSubmit(0)" :loading="noticeForm.messageStatus === 0 && loading">保 存</el-button>
-              <el-button type="primary" class="saveBtn" @click="onSubmit(1)" :loading="noticeForm.messageStatus === 1 && loading">提 交</el-button>
-              <el-button @click="cancelEdit" class="cancelBtn">取 消</el-button>
+              <el-button v-if="showSave" type="primary" class="saveBtn" @click="onSubmit(0)" :loading="noticeForm.messageStatus === 0 && loading" :disabled="noticeForm.messageStatus === 1 && loading">保 存</el-button>
+              <el-button type="primary" class="saveBtn" @click="onSubmit(1)" :loading="noticeForm.messageStatus === 1 && loading" :disabled="noticeForm.messageStatus === 0 && loading">提 交</el-button>
+              <el-button @click="cancelEdit" class="cancelBtn" :disabled="loading">取 消</el-button>
             </el-form-item>
           </el-form>
         </el-col>
@@ -421,7 +421,10 @@
     text-align: center;
   }
   .noticeEdit .noticeGroupEdit .btn{
-    text-align: center;
+    text-align: right;
+    width: 100%;
+    padding-right: 0;
+    margin-bottom: 0;
   }
   .noticeEdit .el-dialog{
     width: 57%;
