@@ -139,8 +139,7 @@ export default {
           this.childDepts.forEach((dept, index) => {
             this.childDeptArr.push({
               label: dept.deptName,
-              key: dept.id,
-              disabled: true
+              key: dept.id
 
             })
           })
@@ -184,18 +183,18 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-  .groupEdit .card_width{
-    width: 80%;
-    min-width: 1200px;
-    margin: 0 auto;
+.groupEdit .card_width {
+  width: 80%;
+  min-width: 1200px;
+  margin: 0 auto;
+}
+.groupEdit .card_width .el-transfer-panel {
+  width: 44%;
+}
+@media only screen and (max-width: 1367px) {
+  .el-col-14 {
+    width: 85.3% !important;
   }
-  .groupEdit .card_width .el-transfer-panel {
-    width: 44%;
-  }
-  @media only screen and (max-width: 1367px) {
-    .el-col-14 {
-      width: 85.3% !important;
-    }
-  }
+}
 </style>
 
