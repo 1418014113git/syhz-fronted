@@ -446,13 +446,13 @@ export default {
           this.$update('userMessage/' + id, this.personForm, true).then((response) => {
             this.$message({
               message: '人员信息保存成功！',
-              type: 'success'
+              type: 'success',
+              duration: 2000
             })
-            setTimeout(() => {
-              this.btnLoading = false
-              this.$emit('cancelEdit', true)
-              // this.$router.push({ path: '/basicService/personList' })
-            }, 3000)
+            // setTimeout(() => {
+            this.btnLoading = false
+            this.$emit('cancelEdit', true)
+            // }, 2000)
           }).catch(() => {
             this.btnLoading = false
           })
