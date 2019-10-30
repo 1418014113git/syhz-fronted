@@ -9,7 +9,18 @@
       <el-table-column prop="groupName" label="装备分类名称" align="center" width="400"></el-table-column>
       <el-table-column prop="orderIndex" label="显示次序" align="center" width="120"></el-table-column>
       <el-table-column prop="lastTime" label="最新编辑时间" align="center" width="240"></el-table-column>
-      <el-table-column prop="remark" label="说明" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="groupStatus" label="状态" align="center" width="100">
+        <template slot-scope="scope">
+          <span v-if="scope.row.groupStatus===0" style="color:#f72929;">停用</span>
+          <span v-else-if="scope.row.groupStatus===1" style="color:#67C23A;">启用</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="remark" label="说明" min-width="200" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.groupStatus===0">{{(scope.row.remark||'')+" 停用时间："+ formatDateTime(scope.row.stopTime)}}</span>
+          <span v-else-if="scope.row.groupStatus===1">{{scope.row.remark}}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
           <el-button title="编辑" size="mini" type="primary" circle icon="el-icon-edit-outline" @click="handleEdit(scope.$index, scope.row)"></el-button>
@@ -26,7 +37,7 @@
     </el-col>
     <!-- 装备分类信息 -->
     <el-dialog title="装备分类信息" :visible.sync="dialogVisible" size="small" @close="closeDia('equipClassifyInfo')" class="comDialog" :close-on-click-modal="false">
-      <el-form ref="equipClassifyInfo" size="small" :rules="rules" :model="equipClassifyInfo" label-width="100px" class="equipProject" v-loading="formLoading">
+      <el-form ref="equipClassifyInfo" size="small" :rules="rules" :model="equipClassifyInfo" label-width="100px" class="equipClassify" v-loading="formLoading">
         <el-row>
           <el-form-item label="装备分类" prop="groupName">
               <el-input v-model.trim="equipClassifyInfo.groupName" maxlength="20" placeholder="请输入"></el-input>
@@ -123,6 +134,10 @@ export default {
         this.total = 0
         this.listLoading = false
       })
+    },
+    formatDateTime(value) {
+      var val = value.substring(0, 4) + '年' + parseInt(value.substring(5, 7)) + '月' + parseInt(value.substring(8, 10)) + '日' + value.substr(10)
+      return val
     },
     cancelEquipClassify() { // 装备分类信息 取消
       this.$confirm('是否要放弃当前编辑的装备信息', '提示', {
@@ -266,7 +281,7 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.equipProject {
+.equipClassify {
   width: 94%;
   margin: 10px auto 0;
 }

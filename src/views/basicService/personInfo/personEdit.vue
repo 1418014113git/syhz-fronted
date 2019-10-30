@@ -446,13 +446,13 @@ export default {
           this.$update('userMessage/' + id, this.personForm, true).then((response) => {
             this.$message({
               message: '人员信息保存成功！',
-              type: 'success'
+              type: 'success',
+              duration: 2000
             })
-            setTimeout(() => {
-              this.btnLoading = false
-              this.$emit('cancelEdit', true)
-              // this.$router.push({ path: '/basicService/personList' })
-            }, 3000)
+            // setTimeout(() => {
+            this.btnLoading = false
+            this.$emit('cancelEdit', true)
+            // }, 2000)
           }).catch(() => {
             this.btnLoading = false
           })
@@ -521,6 +521,13 @@ export default {
   }
   .el-col-22 {
     width: 92%;
+  }
+  .el-radio__input.is-disabled.is-checked .el-radio__inner {
+    background-color: #E6A23C;
+    border-color: #E6A23C;
+  }
+  .el-radio__input.is-disabled.is-checked .el-radio__inner::after {
+    background-color: #00a0e9;
   }
 }
 @media only screen and (max-width: 1367px) {

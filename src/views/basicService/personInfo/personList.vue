@@ -130,7 +130,7 @@
           <span v-if='curRow.userIdNumber'>{{getAfterSix(curRow.userIdNumber)}}</span>
         </el-form-item>
         <el-form-item label="排列次序" prop="order" :label-width="formLabelWidth">
-          <el-input-number v-model.trim="editPerForm.order" :min="1" :max="999"  @change="inputChange(editPerForm.order)"></el-input-number>
+          <el-input-number v-model.trim="editPerForm.order" :min="1" :max="999"></el-input-number>
         </el-form-item>
         <el-form-item label="人员状态" prop="userState">
           <el-select  v-model="editPerForm.userState" size="small" placeholder="" clearable>
@@ -176,7 +176,6 @@ export default {
       formLabelWidth: '100px',
       btnLoading: false,
       curRow: {}, // 存储当前被点击行数据
-      CurshiOrgCode: [], // 存储从案件统计表跳转进来存在的市code
       curUserState: '', // 根据人员类别存储对应的在职状态key值。 'userStatefj': 辅警、工勤, 'userStatemj':民警
       xrzw: '', // 根据当前用户角色是总队，还是支队，存储对应的字典key值， ‘xrzwzod’：总队， 'xrzwzhd':支队
       editPerForm: {
@@ -489,11 +488,6 @@ export default {
          '&realName=' + para.realName + '&userSort=' + para.userSort + '&userState=' + para.userState
       window.open(url)
     },
-    inputChange(num) {
-      if (!num) {
-        this.editPerForm.num = 1
-      }
-    },
     rylbChange(val) { // 人员类别change事件
       if (val) {
         if (val === '1') { // 民警
@@ -532,13 +526,14 @@ export default {
         if (response.code === '000000') {
           this.$message({
             message: '人员状态设置成功！',
-            type: 'success'
+            type: 'success',
+            duration: 2000
           })
-          setTimeout(() => {
-            this.btnLoading = false
-            this.isShowEditStatus = false
-            this.query(true)
-          }, 3000)
+          // setTimeout(() => {
+          this.btnLoading = false
+          this.isShowEditStatus = false
+          this.query(true)
+          // }, 2000)
         }
       }).catch(() => {
         this.btnLoading = false

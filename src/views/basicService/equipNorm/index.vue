@@ -33,19 +33,22 @@
       </el-table-column>
       <el-table-column prop="provinceCondition" label="总队（省）" align="center" width="140">
         <template slot-scope="scope">
-          <span v-if="scope.row.provinceCondition === 1 ||scope.row.provinceCondition === 2 ">{{equipCondition[scope.row.provinceCondition-1].label}}</span>
+          <span v-if="scope.row.provinceCondition === 1">- -</span>
+          <span v-else-if="scope.row.provinceCondition === 2">{{equipCondition[scope.row.provinceCondition-1].label}}</span>
           <span v-else-if="scope.row.provinceCondition === 3">{{scope.row.provinceValue1}} / {{scope.row.provinceValue2}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="cityCondition" label="支队（市）" align="center" width="140">
         <template slot-scope="scope">
-          <span v-if="scope.row.cityCondition === 1 ||scope.row.cityCondition === 2 ">{{equipCondition[scope.row.cityCondition-1].label}}</span>
+          <span v-if="scope.row.cityCondition === 1">- -</span>
+          <span v-else-if="scope.row.cityCondition === 2">{{equipCondition[scope.row.cityCondition-1].label}}</span>
           <span v-else-if="scope.row.cityCondition === 3">{{scope.row.cityValue1}} / {{scope.row.cityValue2}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="areaCondition" label="大队（区县）" align="center" width="140">
         <template slot-scope="scope">
-          <span v-if="scope.row.areaCondition === 1 ||scope.row.areaCondition === 2 ">{{equipCondition[scope.row.areaCondition-1].label}}</span>
+          <span v-if="scope.row.areaCondition === 1">- -</span>
+          <span v-else-if="scope.row.areaCondition === 2 ">{{equipCondition[scope.row.areaCondition-1].label}}</span>
           <span v-else-if="scope.row.areaCondition === 3">{{scope.row.areaValue1}} / {{scope.row.areaValue2}}</span>
         </template>
       </el-table-column>
@@ -55,13 +58,23 @@
           <span v-else>- -</span>
         </template>
       </el-table-column>
+      <el-table-column prop="enabled" label="状态" align="center" width="100">
+        <template slot-scope="scope">
+          <span v-if="scope.row.enabled===0" style="color:#f72929;">停用</span>
+          <span v-else-if="scope.row.enabled===1" style="color:#67C23A;">启用</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="allocateType" label="配备类型" align="center" width="120">
         <template slot-scope="scope">
-          <!-- <span v-if="scope.row.allocateType===3">- -</span> -->
           <span>{{$getDictName(scope.row.allocateType+'','zblx')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="remark" label="说明" min-width="200" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="remark" label="说明" min-width="200" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.enabled===0">{{(scope.row.remark||'')+" 停用时间："+ formatDateTime(scope.row.stopTime)}}</span>
+          <span v-else-if="scope.row.enabled===1">{{scope.row.remark}}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
           <el-button title="编辑" size="mini" type="primary" circle icon="el-icon-edit-outline" @click="handleEdit(scope.$index, scope.row)"></el-button>
@@ -103,7 +116,7 @@ export default {
       position: 0,
       classifyOptions: [], // 装备分类
       projectOptions: [], // 配备项目
-      equipCondition: [{ value: 1, label: '无要求' }, { value: 2, label: '按相关规定配' }, { value: 3, label: '设定数量' }], // 不同部门配备的设置
+      equipCondition: [{ value: 1, label: '无要求' }, { value: 2, label: '按相关规定配备' }, { value: 3, label: '设定数量' }], // 不同部门配备的设置
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -113,6 +126,7 @@ export default {
   },
   methods: {
     equipGroupChange(val) { // 装备分类change
+      this.equipNormForm.allocateId = '' // 清空配备项目
       if (val) {
         //
         this.initPbxm(val)
@@ -223,11 +237,16 @@ export default {
         this.listLoading = false
       })
     },
+    formatDateTime(value) {
+      var val = value.substring(0, 4) + '年' + parseInt(value.substring(5, 7)) + '月' + parseInt(value.substring(8, 10)) + '日' + value.substr(10)
+      return val
+    },
     closeDia(type) { // 关闭弹框
       this.dialogVisible = false
       this.$refs.myEquip.resetForm('allocateForm') // 调用子组件的清空表单方法
+      this.curEquip = {} // 清空curEquip，以免点击两次相同的行 不触发watch
       if (type === '1') {
-        this.queryEquipList() // 刷新列表
+        this.queryEquipList(true, true) // 刷新列表
       }
     },
     resetSearch() {
