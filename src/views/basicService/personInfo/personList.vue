@@ -176,7 +176,6 @@ export default {
       formLabelWidth: '100px',
       btnLoading: false,
       curRow: {}, // 存储当前被点击行数据
-      CurshiOrgCode: [], // 存储从案件统计表跳转进来存在的市code
       curUserState: '', // 根据人员类别存储对应的在职状态key值。 'userStatefj': 辅警、工勤, 'userStatemj':民警
       xrzw: '', // 根据当前用户角色是总队，还是支队，存储对应的字典key值， ‘xrzwzod’：总队， 'xrzwzhd':支队
       editPerForm: {
@@ -488,11 +487,6 @@ export default {
         '&provinceCode=' + para.provinceCode + '&cityCode=' + para.cityCode + '&reginCode=' + para.reginCode + '&departCode=' + para.departCode +
          '&realName=' + para.realName + '&userSort=' + para.userSort + '&userState=' + para.userState
       window.open(url)
-    },
-    inputChange(num) {
-      if (!num) {
-        this.editPerForm.num = 1
-      }
     },
     rylbChange(val) { // 人员类别change事件
       if (val) {

@@ -18,18 +18,18 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" @click="query(true,true)">查询</el-button>
+        <el-button type="primary" size="small" @click="query(true)">查询</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
-    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;margin-top: 15px;"  border :max-height="tableHeight"  :span-method="objectSpanMethod">
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;margin-top: 15px;" class="equipInfoTable" :max-height="tableHeight"  :span-method="objectSpanMethod">
       <el-table-column type="index" label="序号" width="70" align="center">
         <template slot-scope="scope">
           <span :class="{'redColor':scope.row.equipStatus === 1}">{{scope.$index + 1}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="groupName" label="装备分类" align="center"  show-overflow-tooltip></el-table-column>
-      <el-table-column prop="allocateName" label="装备项目" align="center" show-overflow-tooltip>
+      <el-table-column prop="groupName" label="装备分类" align="center"  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="allocateName" label="装备项目" align="center" min-width="150" show-overflow-tooltip>
         <template slot-scope="scope">
           <span :class="{'redColor':scope.row.equipStatus === 1}"  class="linkStyle"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.allocateName}}</span>
         </template>
@@ -65,12 +65,6 @@
         </template>
       </el-table-column>
     </el-table>
-     <!--工具条-->
-    <el-col :span="24" class="toolbar clearfix">
-      <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize"
-          :current-page="page" :total="total" style="float:right;">
-      </el-pagination>
-    </el-col>
   </section>
 </template>
 <script>
@@ -81,11 +75,8 @@ export default {
       filters: {
         groupId: '', // 分类id
         allocateId: '', // 项目id
-        allocateType: '' // 配备项类型(1必配 2选配 3按规定配备 )
+        allocateType: '' // 配备项类型(1必配 2选配 3无要求 )
       },
-      total: 0,
-      page: 1,
-      pageSize: 15,
       isShowfl: false, // 是否显示分类查询框，若分类下拉列表查不出数据，则分类查询框和配备项目查询框都不显示。
       spanArr: [], // 表示某一行所需合并的列数
       zblbList: [], // 装备分类下拉列表
@@ -100,12 +91,11 @@ export default {
           value: 2
         },
         {
-          label: '按规定配备',
+          label: '无要求',
           value: 3
         }
       ],
       tableData: [], // 列表数据
-      // isShowZbfl: false, // 是否显示装备分类查询项
       listLoading: false,
       tableHeight: null
     }
@@ -113,7 +103,7 @@ export default {
   methods: {
     init() {
       this.equipgroupselect() // 装备分类下拉框
-      this.query(true)
+      this.query()
     },
     equipgroupselect() { // 装备分类下拉框
       this.$query('equipgroupselect', {}).then((response) => {
@@ -131,26 +121,21 @@ export default {
         this.pbxmList = response.data
       })
     },
-    query(flag, hand) { // 列表查询
+    query(hand) { // 列表查询
       this.listLoading = true
-      this.page = flag ? 1 : this.page
       const para = {
         groupId: this.filters.groupId, // 分类id
         allocateId: this.filters.allocateId, // 项目id
         allocateType: this.filters.allocateType, // 配备项类型(1必配 2选配 3按规定配备 )
-        pageNum: this.page, // 页数
-        pageSize: this.pageSize, // 条数
         belongDepCode: JSON.parse(sessionStorage.getItem('depToken')) ? JSON.parse(sessionStorage.getItem('depToken'))[0].depCode : '' // 部门code
       }
       if (hand) {
         para.logFlag = 1 // 添加埋点参数
       }
-      this.$query('page/basicequipinfo', para).then((response) => {
+      this.$query('basicequipinfo', para).then((response) => {
         this.listLoading = false
-        if (response.data.list && response.data.list.length > 0) {
-          this.tableData = response.data.list
-          this.total = response.data.totalCount
-          this.pageSize = response.data.pageSize
+        if (response.data && response.data.length > 0) {
+          this.tableData = response.data
           this.getSpanArr(this.tableData)
         } else {
           this.initData()
@@ -168,18 +153,8 @@ export default {
         this.filters.allocateId = ''
       }
     },
-    handleCurrentChange(val) { // 分页查询
-      this.page = val
-      this.query(false, true)
-    },
-    handleSizeChange(val) { // 分条查询
-      this.pageSize = val
-      this.query(true, true)
-    },
     initData() {
       this.tableData = []
-      this.total = 0
-      this.pageSize = 15
     },
     getSpanArr(datas) {
       this.spanArr = []
@@ -230,7 +205,7 @@ export default {
     }
   },
   mounted() {
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 150
     this.init()
   },
   activated() {
@@ -240,17 +215,22 @@ export default {
 </script>
 <style rel="stylesheet/scss" lang="scss">
 .equipInfo{
-  .el-year-table td .cell {
-    color: #fff;
-  }
-  .el-table__body-wrapper,.el-table--border td, .el-table--border th {
-    border-right: 1px solid #ebeef5;
-  }
-  .el-table td, .el-table th.is-leaf {
-    border-bottom: 1px solid #ebeef5;
-  }
-  .el-table__body-wrapper tr:nth-child(even) {
-    background-color: transparent;
+  // table 样式
+  .equipInfoTable {
+    table {
+      border: 1px solid #2f627a;
+      border-bottom: none;
+    }
+    thead th {
+      border-right: 1px solid #2f627a;
+    }
+    .el-table__body td {
+      border-right: 1px solid #2f627a;
+      border-bottom: 1px solid #2f627a;
+    }
+    .el-table__body-wrapper tr:nth-child(even) {
+      background-color: transparent;
+    }
   }
   .ellipsis-twoWords {
     overflow: hidden;
