@@ -130,7 +130,7 @@
           <span v-if='curRow.userIdNumber'>{{getAfterSix(curRow.userIdNumber)}}</span>
         </el-form-item>
         <el-form-item label="排列次序" prop="order" :label-width="formLabelWidth">
-          <el-input-number v-model.trim="editPerForm.order" :min="1" :max="999"  @change="inputChange(editPerForm.order)"></el-input-number>
+          <el-input-number v-model.trim="editPerForm.order" :min="1" :max="999"></el-input-number>
         </el-form-item>
         <el-form-item label="人员状态" prop="userState">
           <el-select  v-model="editPerForm.userState" size="small" placeholder="" clearable>
@@ -532,13 +532,14 @@ export default {
         if (response.code === '000000') {
           this.$message({
             message: '人员状态设置成功！',
-            type: 'success'
+            type: 'success',
+            duration: 2000
           })
-          setTimeout(() => {
-            this.btnLoading = false
-            this.isShowEditStatus = false
-            this.query(true)
-          }, 3000)
+          // setTimeout(() => {
+          this.btnLoading = false
+          this.isShowEditStatus = false
+          this.query(true)
+          // }, 2000)
         }
       }).catch(() => {
         this.btnLoading = false

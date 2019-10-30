@@ -106,9 +106,8 @@ export default {
           if (response.data.length > 1) {
             sessionStorage.setItem('currentIp', response.data[0].ip_address)
             // this.$drawWaterMark() // 水印
-            if (response.data[0].ip_address !== response.data[1].ip_address) {
+            if (response.data[0].ip_address !== response.data[1].ip_address) { // ip 不同时
               sessionStorage.setItem('loginFlag', '1')
-
               this.$notify({
                 title: '提示',
                 message: '您的账号上次在[' + response.data[1].ip_address + ']登录过，请妥善保管您的账号密码',
@@ -117,8 +116,13 @@ export default {
             }
           }
         })
+      }
+      if (sessionStorage.getItem('firstFlag') && sessionStorage.getItem('firstFlag') === '1') { // 非首次登录
+        // 仅首次登录提醒
+      } else { // 首次登录
         this.getPersonInfoTip() // 个人信息 部门信息 维护提醒
       }
+      sessionStorage.setItem('firstFlag', '1')
       this.accessControlModel()
       this.getSysconfig()
     },
