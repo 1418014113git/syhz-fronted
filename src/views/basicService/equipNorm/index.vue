@@ -60,8 +60,8 @@
       </el-table-column>
       <el-table-column prop="enabled" label="状态" align="center" width="100">
         <template slot-scope="scope">
-          <span v-if="scope.row.enabled===0">停用</span>
-          <span v-else-if="scope.row.enabled===1">启用</span>
+          <span v-if="scope.row.enabled===0" style="color:#f72929;">停用</span>
+          <span v-else-if="scope.row.enabled===1" style="color:#67C23A;">启用</span>
         </template>
       </el-table-column>
       <el-table-column prop="allocateType" label="配备类型" align="center" width="120">
