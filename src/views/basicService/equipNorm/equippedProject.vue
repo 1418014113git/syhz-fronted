@@ -16,7 +16,7 @@
               <el-radio  v-for="(item,index) in equipCondition" :key="index" :label="item.value"  @change="provinceConditionChange">{{item.label}}</el-radio>
             </el-radio-group>
             <div class="deptSetNumWrap" v-if="allocateForm.provinceCondition===3">
-              <el-input v-model="allocateForm.provinceValue1" class="deptSetNumInput"></el-input>&nbsp;&nbsp;/&nbsp;&nbsp;<el-input v-model="allocateForm.provinceValue2" class="deptSetNumInput"></el-input>
+              <el-input v-model="allocateForm.provinceValue1" maxlength="3" class="deptSetNumInput"></el-input>&nbsp;&nbsp;/&nbsp;&nbsp;<el-input v-model="allocateForm.provinceValue2" maxlength="3" class="deptSetNumInput"></el-input>
             </div>
           </el-form-item>
           <el-form-item label="支队（市）" prop="cityCondition" class="clearfix">
@@ -24,7 +24,7 @@
               <el-radio  v-for="(item,index) in equipCondition" :key="index" :label="item.value"  @change="cityConditionChange">{{item.label}}</el-radio>
             </el-radio-group>
             <div class="deptSetNumWrap" v-if="allocateForm.cityCondition===3">
-              <el-input v-model="allocateForm.cityValue1" class="deptSetNumInput"></el-input>&nbsp;&nbsp;/&nbsp;&nbsp;<el-input v-model="allocateForm.cityValue2" class="deptSetNumInput"></el-input>
+              <el-input v-model="allocateForm.cityValue1" maxlength="3" class="deptSetNumInput"></el-input>&nbsp;&nbsp;/&nbsp;&nbsp;<el-input v-model="allocateForm.cityValue2" maxlength="3" class="deptSetNumInput"></el-input>
             </div>
           </el-form-item>
           <el-form-item label="大队（区县）" prop="areaCondition">
@@ -32,7 +32,7 @@
               <el-radio  v-for="(item,index) in equipCondition" :key="index" :label="item.value" @change="areaConditionChange">{{item.label}}</el-radio>
             </el-radio-group>
             <div class="deptSetNumWrap" v-if="allocateForm.areaCondition===3">
-              <el-input v-model="allocateForm.areaValue1" class="deptSetNumInput"></el-input>&nbsp;&nbsp;/&nbsp;&nbsp;<el-input v-model="allocateForm.areaValue2" class="deptSetNumInput"></el-input>
+              <el-input v-model="allocateForm.areaValue1" maxlength="3" class="deptSetNumInput"></el-input>&nbsp;&nbsp;/&nbsp;&nbsp;<el-input v-model="allocateForm.areaValue2" maxlength="3" class="deptSetNumInput"></el-input>
             </div>
           </el-form-item>
         </el-col>
@@ -186,7 +186,7 @@ export default {
   },
   watch: {
     equipItem: {
-      immediate: true,
+      // immediate: true,
       handler(val) {
         console.log('watch:' + JSON.stringify(val))
         this.allocateForm = JSON.parse(JSON.stringify(val)) || {}
@@ -209,7 +209,7 @@ export default {
               this.formLoading = false
               if (response.code === '000000') {
                 this.$message({
-                  message: '装备信息保存成功', type: 'success'
+                  message: '配备项目保存成功', type: 'success'
                 })
                 // 停留2秒跳转到详情页面
                 setTimeout(() => {
@@ -217,12 +217,12 @@ export default {
                 }, 2000)
               } else {
                 this.$message({
-                  message: '装备信息保存失败，请联系管理员！', type: 'error'
+                  message: '配备项目保存失败，请联系管理员！', type: 'error'
                 })
               }
             }).catch(() => {
               this.$message({
-                message: '装备信息保存失败，请联系管理员！', type: 'error'
+                message: '配备项目保存失败，请联系管理员！', type: 'error'
               })
               this.formLoading = false
             })
@@ -234,7 +234,7 @@ export default {
               this.formLoading = false
               if (response.code === '000000') {
                 this.$message({
-                  message: '装备信息保存成功', type: 'success'
+                  message: '配备项目保存成功', type: 'success'
                 })
                 // 停留2秒跳转到详情页面
                 setTimeout(() => {
@@ -242,12 +242,12 @@ export default {
                 }, 2000)
               } else {
                 this.$message({
-                  message: '装备信息保存失败，请联系管理员！', type: 'error'
+                  message: '配备项目保存失败，请联系管理员！', type: 'error'
                 })
               }
             }).catch(() => {
               // this.$message({
-              //   message: '装备信息保存失败，请联系管理员！', type: 'error'
+              //   message: '配备项目保存失败，请联系管理员！', type: 'error'
               // })
               this.formLoading = false
             })
@@ -262,7 +262,7 @@ export default {
       }
     },
     handleCancel() {
-      this.$confirm('是否要放弃编辑的装备信息', '提示', {
+      this.$confirm('是否要放弃编辑的配备项目', '提示', {
         confirmButtonText: '是',
         cancelButtonText: '否',
         type: 'warning'
@@ -276,7 +276,7 @@ export default {
     },
     initData() {
       this.formLoading = true
-      this.$query('basicequipgroup', {}).then((response) => {
+      this.$query('BASICEQUIPGROUPSTART', {}).then((response) => {
         this.formLoading = false
         if (response.data) {
           this.classifyOptions = response.data
@@ -314,7 +314,7 @@ export default {
   mounted() {
     console.log('mounted:' + JSON.stringify(this.equipItem))
     if (this.equipItem) {
-      this.allocateForm = this.equipItem
+      this.allocateForm = JSON.parse(JSON.stringify(this.equipItem)) || {}
       this.initData()
     }
   }
