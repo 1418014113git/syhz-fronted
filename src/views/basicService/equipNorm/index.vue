@@ -244,6 +244,7 @@ export default {
     closeDia(type) { // 关闭弹框
       this.dialogVisible = false
       this.$refs.myEquip.resetForm('allocateForm') // 调用子组件的清空表单方法
+      this.curEquip = {} // 清空curEquip，以免点击两次相同的行 不触发watch
       if (type === '1') {
         this.queryEquipList(true, true) // 刷新列表
       }
