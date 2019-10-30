@@ -522,6 +522,13 @@ export default {
   .el-col-22 {
     width: 92%;
   }
+  .el-radio__input.is-disabled.is-checked .el-radio__inner {
+    background-color: #E6A23C;
+    border-color: #E6A23C;
+  }
+  .el-radio__input.is-disabled.is-checked .el-radio__inner::after {
+    background-color: #00a0e9;
+  }
 }
 @media only screen and (max-width: 1367px) {
   .personInfoEdit{
