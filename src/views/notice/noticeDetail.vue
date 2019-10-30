@@ -73,7 +73,7 @@
             <el-table-column label="操作" width="100">
               <template slot-scope="scope">
                 <span v-if="String(scope.row.signStatus) === '2'">--</span>
-                <el-button v-if="String(scope.row.signStatus) === '1' && detailData.creatorId === curUser.id" :disabled="isClick(scope.row)" title="提醒签收" @click="remaindReceive(scope.row)" size="mini" icon="el-icon-warning" circle></el-button>
+                <el-button v-if="String(scope.row.signStatus) === '1' && detailData.creatorId === curUser.id" :disabled="isClick(scope.row)" title="提醒签收" @click="remaindReceive(scope.row)" size="mini" icon="el-icon-warning" type="primary" circle></el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -110,9 +110,9 @@
             </el-table-column>
           </el-table>
           <el-col :span="24" class="toolbar">
-            <el-pagination v-if="auditTotal > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange_audit" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange_audit"
-                           :page-size="auditPageSize" :current-page="auditPage" :total="auditTotal" style="float:right;">
-            </el-pagination>
+            <!--<el-pagination v-if="auditTotal > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange_audit" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange_audit"-->
+                           <!--:page-size="auditPageSize" :current-page="auditPage" :total="auditTotal" style="float:right;">-->
+            <!--</el-pagination>-->
           </el-col>
         </div>
       </el-col>
@@ -268,11 +268,12 @@
       },
       auditQuery() {
         this.auditListLoading = true
-        this.$query('page/basemessageflowlsit', { messageId: this.id, pageNum: this.auditPage, pageSize: this.auditPageSize }).then(response => {
-          this.auditList = response.data.list
-          this.auditPage = response.data.pageNum
-          this.auditTotal = response.data.totalCount
-          this.auditPageSize = response.data.pageSize
+        this.$query('basemessageflowlsit', { messageId: this.id, pageNum: this.auditPage, pageSize: this.auditPageSize }).then(response => {
+          this.auditList = response.data
+          // this.auditList = response.data.list
+          // this.auditPage = response.data.pageNum
+          // this.auditTotal = response.data.totalCount
+          // this.auditPageSize = response.data.pageSize
           this.auditListLoading = false
         }).catch(() => {
           this.auditListLoading = false
