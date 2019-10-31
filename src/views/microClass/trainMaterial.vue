@@ -334,9 +334,17 @@
               type: 'success',
               message: '删除成功'
             })
-            // // 调用删除硬盘附件接口
-            // this.$update('/upload/delFile', { files: response.data.join(';') }).then(response => {
-            // })
+            if (response.data !== null && response.data !== undefined && response.data.length > 0) {
+              const arr = []
+              for (let i = 0; i < response.data.length; i++) {
+                const item = response.data[i]
+                arr.push(item.newPath)
+                arr.push(item.oldPath)
+              }
+              // 调用删除硬盘附件接口
+              this.$updateFile('/upload/delFile', { files: arr.join(';') }).then(response => {
+              })
+            }
             this.query()
           })
         }).catch(() => {
