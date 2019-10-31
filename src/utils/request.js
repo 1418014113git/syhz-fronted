@@ -70,19 +70,23 @@ service.interceptors.response.use(
     } else if (res.code === ACCESS_TOKEN_EXPIRE) { // accessToken过期
       console.log('accessToken过期')
     } else {
-      // 非000000以外的其他异常提示
-      var message = res.message ? res.message : '请求无法受理，请稍后再试!'
-      if (!mb_flag) {
-        mb_flag = true
-        MessageBox.alert(message, '提示', {
-          confirmButtonText: '确定',
-          type: 'warning'
-        }).then(() => {
-          mb_flag = false
-        }).catch(() => {
-          mb_flag = false
-        })
-        return Promise.reject('error')
+      if (res === 'ok') {
+        console.info('附件删除成功')
+      } else {
+        // 非000000以外的其他异常提示
+        var message = res.message ? res.message : '请求无法受理，请稍后再试!'
+        if (!mb_flag) {
+          mb_flag = true
+          MessageBox.alert(message, '提示', {
+            confirmButtonText: '确定',
+            type: 'warning'
+          }).then(() => {
+            mb_flag = false
+          }).catch(() => {
+            mb_flag = false
+          })
+          return Promise.reject('error')
+        }
       }
     }
   },

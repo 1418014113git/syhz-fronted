@@ -4,97 +4,114 @@
         <router-view></router-view>
       </navigation>
     <lg-preview></lg-preview>
+    <webSocket ref="webSocket"></webSocket>
   </div>
 </template>
 
 <script>
-export default {
-  name: 'App',
-  data() {
-    return {
-      messageInterval: null,
-      messageTime: 1000, // 首次进页面，1s请求一次
-      lastQueryMessageTime: null,
-      index: 1,
-      notifyInstance: null
-    }
-  },
-  created() {
-    this.$navigation.on('forward', (to, from) => {
-      if (to.route.path === '/login') {
-        this.clearMessageInterval()
-      }
-      if (to.route.path === '/portal' && this.messageInterval === null) {
-        this.messageTimeInterval()
-      }
-    })
-    this.$navigation.on('back', (to, from) => {
-      if (to.route.path === '/login') {
-        this.clearMessageInterval()
-      }
-    })
-    if (sessionStorage.getItem('userInfo')) {
-      this.messageTimeInterval()
-    }
-  },
-  methods: {
-    messageTimeInterval() {
-      const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-      const curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      const _this = this
-      this.messageInterval = setInterval(function() {
-        _this.$query('message/unread/' + curUser.id, { time: _this.lastQueryMessageTime, deptCode: curDept.depCode }).then(response => {
-          if (response.data !== undefined && response.data !== null) {
-            _this.lastQueryMessageTime = response.data.time
-            if (response.data.num > 0) {
-              _this.systemMessageBox(response.data)
-            }
-          }
-        }).catch(() => {
-          _this.clearMessageInterval()
-        })
-        if (_this.index === 1) {
-          _this.index = 10
-          _this.clearMessageInterval()
-          _this.messageTimeInterval()
-        }
-      }, this.messageTime * this.index)
+  import webSocket from '@/views/notice/webSocket'
+  export default {
+    name: 'App',
+    components: {
+      webSocket
     },
-    systemMessageBox(data) {
-      const _this = this
-      if (this.notifyInstance) {
-        this.notifyInstance.close()
+    data() {
+      return {
+        messageInterval: null,
+        messageTime: 1000, // 首次进页面，1s请求一次
+        lastQueryMessageTime: null,
+        index: 1,
+        notifyInstance: null
       }
-      const h = this.$createElement
-      this.notifyInstance = this.$notify({
-        title: '您有 ' + data.num + ' 条未读消息',
-        dangerouslyUseHTMLString: true,
-        message: h('p', null, [
-          h('span', {
-            on: {
-              click: function() {
-                _this.notifyInstance.close()
-                _this.$gotoid('/message/list')
+    },
+    created() {
+      this.$navigation.on('forward', (to, from) => {
+        if (to.route.path === '/login') {
+          // this.clearMessageInterval()
+          if (this.$refs.webSocket) {
+            this.$refs.webSocket.closeWeb()
+          }
+        }
+        if (to.route.path === '/portal' && this.messageInterval === null) {
+          // this.messageTimeInterval()
+          if (this.$refs.webSocket) {
+            this.$refs.webSocket.init()
+          }
+        }
+      })
+      this.$navigation.on('back', (to, from) => {
+        if (to.route.path === '/login') {
+          // this.clearMessageInterval()
+          if (this.$refs.webSocket) {
+            this.$refs.webSocket.closeWeb()
+          }
+        }
+      })
+      if (sessionStorage.getItem('userInfo')) {
+        // this.messageTimeInterval()
+        if (this.$refs.webSocket) {
+          this.$refs.webSocket.init()
+        }
+      }
+    },
+    methods: {
+      messageTimeInterval() {
+        const curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+        const curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+        const _this = this
+        this.messageInterval = setInterval(function() {
+          _this.$query('message/unread/' + curUser.id, { time: _this.lastQueryMessageTime, deptCode: curDept.depCode }).then(response => {
+            if (response.data !== undefined && response.data !== null) {
+              _this.lastQueryMessageTime = response.data.time
+              if (response.data.num > 0) {
+                _this.systemMessageBox(response.data)
               }
             }
-          }, data.title)
-        ]),
-        showClose: true,
-        position: 'bottom-right',
-        customClass: 'messageBox_class',
-        duration: 0,
-        iconClass: 'warning_icon'
-        // onClick: function() {
-        //   this.close()
-        //   _this.$gotoid('/message/list')
-        // }
-      })
-    },
-    clearMessageInterval() {
-      clearInterval(this.messageInterval)
+          }).catch(() => {
+            _this.clearMessageInterval()
+          })
+          if (_this.index === 1) {
+            _this.index = 10
+            _this.clearMessageInterval()
+            _this.messageTimeInterval()
+          }
+        }, this.messageTime * this.index)
+      },
+      systemMessageBox(data) {
+        const _this = this
+        if (this.notifyInstance) {
+          this.notifyInstance.close()
+        }
+        const h = this.$createElement
+        this.notifyInstance = this.$notify({
+          title: '您有 ' + data.num + ' 条未读消息',
+          dangerouslyUseHTMLString: true,
+          message: h('p', null, [
+            h('span', {
+              on: {
+                click: function() {
+                  _this.notifyInstance.close()
+                  _this.$gotoid('/message/list')
+                }
+              }
+            }, data.title)
+          ]),
+          showClose: true,
+          position: 'bottom-right',
+          customClass: 'messageBox_class',
+          duration: 0,
+          iconClass: 'warning_icon'
+          // onClick: function() {
+          //   this.close()
+          //   _this.$gotoid('/message/list')
+          // }
+        })
+      },
+      clearMessageInterval() {
+        clearInterval(this.messageInterval)
+      }
     }
   }
-}
 </script>
 <style>
 @import '../src/styles/font.css';
