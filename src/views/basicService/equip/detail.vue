@@ -24,27 +24,27 @@
     <el-table :data="tableData" v-loading="listLoading" style="width: 100%;margin-top: 15px;"  :max-height="tableHeight">
       <el-table-column type="index" label="序号" width="70">
         <template slot-scope="scope">
-          <span :class="{'redColor':detailRow.equipStatus === 1}">{{scope.$index + 1}}</span>
+          <span :class="{'redColor':scope.row.equipStatus === 1}">{{scope.$index + 1}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="allocateName" label="配备项目" show-overflow-tooltip>
         <template slot-scope="scope">
-          <span :class="{'redColor':detailRow.equipStatus === 1}">{{scope.row.allocateName}}</span>
+          <span :class="{'redColor':scope.row.equipStatus === 1}">{{scope.row.allocateName}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="detailNumber" label="配备数量">
         <template slot-scope="scope">
-          <span :class="{'redColor':detailRow.equipStatus === 1}">{{scope.row.detailNumber}}</span>
+          <span :class="{'redColor':scope.row.equipStatus === 1}">{{scope.row.detailNumber}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="purchaseTime" label="采购日期">
         <template slot-scope="scope">
-          <span :class="{'redColor':detailRow.equipStatus === 1}">{{scope.row.purchaseTime}}</span>
+          <span :class="{'redColor':scope.row.equipStatus === 1}">{{scope.row.purchaseTime}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="detailStatus" label="状态">
+      <el-table-column prop="equipStatus" label="状态">
         <template slot-scope="scope">
-          <span :class="{'redColor':scope.row.equipStatus === 1}">{{getTypeStatus(scope.row.detailStatus)}}</span>
+          <span :class="{'redColor':scope.row.equipStatus === 1}">{{getTypeStatus(scope.row.equipStatus)}}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="120" align="center">

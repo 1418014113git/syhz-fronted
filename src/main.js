@@ -96,6 +96,6 @@ new Vue({
   template: '<App/>',
   components: { App },
   mounted() {
-    this.$drawWaterMark()
+    // this.$drawWaterMark()
   }
 })

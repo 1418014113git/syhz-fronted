@@ -272,6 +272,7 @@ export const constantRouterMap = [
       { path: '/basicService/deptInfo/index', component: () => import('@/views/basicService/deptInfo/index'), name: '机构信息列表' },
       { path: '/basicService/deptInfo/detail', component: () => import('@/views/basicService/deptInfo/detail'), name: '机构信息' },
       { path: '/basicService/deptInfo/edit', component: () => import('@/views/basicService/deptInfo/edit'), name: '编辑机构信息' },
+      { path: '/basicService/teamStatistical', component: () => import('@/views/basicService/basicStatistical/teamStatistical'), name: '队伍基本情况统计' },
       { path: '/basicService/deptStatistical', component: () => import('@/views/basicService/basicStatistical/deptStatistical'), name: '单位机构基本情况' },
       { path: '/basicService/personInfo', component: () => import('@/views/basicService/personInfo/index'), name: '人员信息' }, // 人员信息
       { path: '/basicService/personList', component: () => import('@/views/basicService/personInfo/personList'), name: '人员信息列表' },
