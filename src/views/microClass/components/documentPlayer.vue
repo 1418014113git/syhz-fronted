@@ -37,7 +37,7 @@
         </el-card>
         <p :class="'arrow' + (playType !== '5' ? ' dialog_c' : '')">
           <span @click="changePdfPage(0)" class="turn" :class="{grey: currentPage === 1}">上一页</span>
-          {{currentPage}} / {{pageCount}}&nbsp;&nbsp;&nbsp;
+          {{currentPage}} / {{pageCount ? pageCount : 0}}&nbsp;&nbsp;&nbsp;
           <span @click="changePdfPage(1)" class="turn" :class="{grey: currentPage === pageCount}">下一页</span>
         </p>
       </el-col>
@@ -80,9 +80,6 @@
         }
         this.detailData = playerDetail
         this.detailLoading = true
-        setTimeout(() => {
-          this.detailLoading = false
-        }, 500)
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })
@@ -182,6 +179,11 @@
     watch: {
       'playerDetail': function(playerDetail) {
         this.setDetail(playerDetail)
+      },
+      'pageCount': function(val) {
+        if (val !== undefined && val !== null && val > 0) {
+          this.detailLoading = false
+        }
       }
     },
     // created() {
