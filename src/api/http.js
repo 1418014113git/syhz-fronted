@@ -64,6 +64,15 @@ export function update(url, params, moduleType) {
   })
 }
 
+// 修改操作
+export function updateFile(url, params) {
+  return request({
+    url: url,
+    method: 'post',
+    data: params
+  })
+}
+
 // 同步查询
 export function updateAsyns(url, params, moduleType) {
   let moduleName = ModuleName

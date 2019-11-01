@@ -16,7 +16,10 @@
               <li><span></span><span @click="handlerDown"><el-button type="text" icon="el-icon-download" title="下载"></el-button></span></li>
             </ul>
           </div>
+          <!--<div id="player" :style="{height: tableHeight}">-->
           <div id="player">
+            <!--<button type="button" @click="changePdfPage(0)" :disabled="currentPage === 1" class="el-carousel__arrow el-carousel__arrow&#45;&#45;left"><i class="el-icon-arrow-left"></i></button>-->
+            <!--<button type="button" @click="changePdfPage(1)" :disabled="currentPage === pageCount" class="el-carousel__arrow el-carousel__arrow&#45;&#45;right"><i class="el-icon-arrow-right"></i></button>-->
             <div class="pdf">
               <pdf :src="detailData.enPath"
                 :page="currentPage"
@@ -24,14 +27,19 @@
                 @page-loaded="currentPage=$event"
                 @loaded="loadPdfHandler">
               </pdf>
-              <p class="arrow">
-                <span @click="changePdfPage(0)" class="turn" :class="{grey: currentPage === 1}">上一页</span>
-                {{currentPage}} / {{pageCount}}&nbsp;&nbsp;&nbsp;
-                <span @click="changePdfPage(1)" class="turn" :class="{grey: currentPage === pageCount}">下一页</span>
-              </p>
+              <!--<p class="arrow">-->
+                <!--<span @click="changePdfPage(0)" class="turn" :class="{grey: currentPage === 1}">上一页</span>-->
+                <!--{{currentPage}} / {{pageCount}}&nbsp;&nbsp;&nbsp;-->
+                <!--<span @click="changePdfPage(1)" class="turn" :class="{grey: currentPage === pageCount}">下一页</span>-->
+              <!--</p>-->
             </div>
           </div>
         </el-card>
+        <p :class="'arrow' + (playType !== '5' ? ' dialog_c' : '')">
+          <span @click="changePdfPage(0)" class="turn" :class="{grey: currentPage === 1}">上一页</span>
+          {{currentPage}} / {{pageCount}}&nbsp;&nbsp;&nbsp;
+          <span @click="changePdfPage(1)" class="turn" :class="{grey: currentPage === pageCount}">下一页</span>
+        </p>
       </el-col>
     </el-row>
   </div>
@@ -49,6 +57,7 @@
     },
     data() {
       return {
+        tableHeight: null,
         notTake: false,
         currentPage: 0,
         pageCount: 0,
@@ -124,6 +133,7 @@
         } else {
           location.hash = '#navBar_doc'
         }
+        // document.getElementById('player').scrollTop = 0
         if (this.detailData.flag && this.notTake) {
           const time = new Date()
           const longC = parseFloat((time.getTime() - this.currentTime.getTime()) / 1000).toFixed(3)
@@ -186,6 +196,11 @@
       })
     },
     mounted() {
+      if (this.playType === '5') {
+        this.tableHeight = document.documentElement.clientHeight - 400 - 24 + 'px'
+      } else {
+        this.tableHeight = document.documentElement.clientHeight - 270 + 'px'
+      }
       this.initSplit()
       this.setDetail(this.playerDetail)
     }
@@ -256,14 +271,57 @@
   }
   .classRoom_documentPlayer .arrow span{
     background-color: #005178;
-    padding: 4px 15px;
+    padding: 10px 30px;
     border: 1px solid #00A0E9;
     border-radius: 4px;
     margin-right: 15px;
-    font-size: 14px;
+    font-size: 18px;
   }
   .classRoom_documentPlayer .arrow span:hover{
     background-color: #0077af;
     cursor: pointer;
+  }
+  .classRoom_documentPlayer .el-carousel__arrow--right{
+    right: 15%;
+    position: fixed;
+    top: 70%;
+  }
+  .classRoom_documentPlayer .el-carousel__arrow--left{
+    left: 15%;
+    position: fixed;
+    top: 70%;
+  }
+  .classRoom_documentPlayer .el-carousel__arrow{
+    height: 52px;
+    width: 52px;
+  }
+  .classRoom_documentPlayer .el-col {
+    position: relative;
+  }
+  /*.classRoom_documentPlayer #player {*/
+    /*overflow: auto;*/
+    /*clear: both;*/
+  /*}*/
+  .classRoom_documentPlayer .el-col > .arrow{
+    position: fixed;
+    margin: 0;
+    z-index: 2;
+    width: 100%;
+    /*width: 79.5%;*/
+    left: 0;
+    bottom: 0;
+    background: #014571b3;
+    padding: 20px;
+  }
+  .classRoom_documentPlayer .el-col > .arrow.dialog_c{
+    position: fixed;
+    margin: 0;
+    z-index: 2;
+    width: 100%;
+    /*width: 78.4%;*/
+    left: 0;
+    bottom: 0;
+    background: #014571b3;
+    padding: 20px;
   }
 </style>

@@ -1,181 +1,185 @@
 <template>
   <div class="deptStatistical">
-    <!--考试信息-->
-    <!-- <el-card style="margin-bottom: 10px;">
-      <div slot="header" class="clearfix">
-        <span>陕西省西安市公安局环食药侦支队_队伍基本情况</span>
-      </div> -->
-      <div style="margin: 10px 0;"><i class="el-icon-info"></i>&nbsp;&nbsp;队伍基本情况只统计到大队，杨凌示范区没有大队只统计到支队！</div>
-      <el-table :data="teamData"  style="width: 100%;" :max-height="tableHeight"
-      v-loading="teamLoading" class="table_th_center"
-      show-summary sum-text="合计" :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick">
-        <el-table-column type="expand" width="40">
-          <template slot-scope="scope">
-            <el-table :data="scope.row.child" style="border-left: none;" v-loading="listChildLoading" max-height="400">
-              <!-- margin-left: 41px; -->
-              <el-table-column type="index"  label="序号" align="center" :width="smallItemWidth-30"></el-table-column>
-              <el-table-column prop="name" label="单位机构" align="center" :width="smallItemWidth+110"></el-table-column>
-              <el-table-column prop="count" label="合计" :width="smallItemWidth" align="center"></el-table-column>
-              <el-table-column prop="" label="民警">
-                <el-table-column prop="count1" label="数量" :width="smallItemWidth" align="center"></el-table-column>
-                <el-table-column prop="age1" label="平均年龄" :width="smallItemWidth-10" align="center"></el-table-column>
-                <el-table-column prop="" label="性别" align="center">
-                  <el-table-column prop="sex01" label="男" :width="smallItemWidth" align="center"></el-table-column>
-                  <el-table-column prop="sex11" label="女" :width="smallItemWidth" align="center"></el-table-column>
-                </el-table-column>
-                <el-table-column prop="" label="学历" align="center">
-                  <el-table-column prop="culture11" label="研" :width="smallItemWidth" align="center"></el-table-column>
-                  <el-table-column prop="culture21" label="本" :width="smallItemWidth" align="center"></el-table-column>
-                  <el-table-column prop="culture31" label="专" :width="smallItemWidth" align="center"></el-table-column>
-                </el-table-column>
+    <el-form :inline="true" :model="filters" ref="filters" label-width="80px" style="text-align: left;">
+      <el-form-item label="行政区划" prop="examStatus">
+        <el-cascader
+          :options="xzqhOptions"
+          v-model="filters.area"
+          :props="props"
+          change-on-select
+          @change="handleAreaChange"
+          :show-all-levels="false"
+          clearable placeholder="全部">
+        </el-cascader>
+      </el-form-item>
+      <el-form-item label="单位机构" prop="examStatus">
+        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
+          <el-cascader
+            :options="deptOptions"
+            v-model="filters.department"
+            :props="deptProps"
+            change-on-select
+            :show-all-levels="false"
+            @change="handleDeptChange"
+            clearable placeholder="全部">
+          </el-cascader>
+        </el-tooltip>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="queryTeamStatistical(true)" >查询</el-button>
+        <el-button type="info" @click="reset">重置</el-button>
+        <el-button type="info" @click="exportDeptExcel" v-if="exportBtn">导出</el-button>
+      </el-form-item>
+    </el-form>
+    <div style="margin: 10px 0;"><i class="el-icon-info"></i>&nbsp;&nbsp;队伍基本情况只统计到大队，杨凌示范区没有大队只统计到支队！</div>
+    <el-table :data="teamData"  style="width: 100%;" :max-height="tableHeight" v-loading="teamLoading" class="table_th_center"
+     show-summary :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick">
+      <el-table-column type="expand" width="40" v-if="firstCanJump===false">
+        <template slot-scope="scope">
+          <el-table :data="scope.row.child||[]" style="width: 100%;border-left: none;" v-loading="listChildLoading" max-height="400">
+            <el-table-column type="index" label="序号" align="center" :width="smallItemWidth-20"></el-table-column>
+            <el-table-column prop="name" label="单位机构" align="center" :width="smallItemWidth+120" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <span class="canClick" @click="goDeptStatistical(scope.row)">{{scope.row.name}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="count" label="合计" :width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="" label="民警">
+              <el-table-column prop="count1" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
+              <el-table-column prop="age1" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+              <el-table-column prop="" label="性别" align="center">
+                <el-table-column prop="sex01" label="男" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="sex11" label="女" :width="smallItemWidth" align="center"></el-table-column>
               </el-table-column>
-              <el-table-column prop="" label="辅警">
-                <el-table-column prop="count2" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-                <el-table-column prop="age2" label="平均年龄" width="60" align="center"></el-table-column>
-                <el-table-column prop="" label="性别" align="center">
-                  <el-table-column prop="sex02" label="男" :width="smallItemWidth" align="center"></el-table-column>
-                  <el-table-column prop="sex12" label="女" :width="smallItemWidth" align="center"></el-table-column>
-                </el-table-column>
-                <el-table-column prop="" label="学历" align="center">
-                  <el-table-column prop="culture12" label="研" :width="smallItemWidth" align="center"></el-table-column>
-                  <el-table-column prop="culture22" label="本" :width="smallItemWidth" align="center"></el-table-column>
-                  <el-table-column prop="culture32" label="专" :width="smallItemWidth" align="center"></el-table-column>
-                </el-table-column>
+              <el-table-column prop="" label="学历" align="center">
+                <el-table-column prop="culture11" label="研" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture21" label="本" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture31" label="专" :width="smallItemWidth" align="center"></el-table-column>
               </el-table-column>
-              <el-table-column prop="" label="工勤">
-                <el-table-column prop="count3" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-                <el-table-column prop="age3" label="平均年龄" width="60" align="center"></el-table-column>
-                <el-table-column prop="" label="性别" align="center">
-                  <el-table-column prop="sex03" label="男" :width="smallItemWidth" align="center"></el-table-column>
-                  <el-table-column prop="sex13" label="女" :width="smallItemWidth" align="center"></el-table-column>
-                </el-table-column>
-                <el-table-column prop="" label="学历" align="center">
-                  <el-table-column prop="culture13" label="研" :width="smallItemWidth" align="center"></el-table-column>
-                  <el-table-column prop="culture23" label="本" :width="smallItemWidth" align="center"></el-table-column>
-                  <el-table-column prop="culture33" label="专" :width="smallItemWidth" align="center"></el-table-column>
-                </el-table-column>
+            </el-table-column>
+            <el-table-column prop="" label="辅警">
+              <el-table-column prop="count2" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
+              <el-table-column prop="age2" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+              <el-table-column prop="" label="性别" align="center">
+                <el-table-column prop="sex02" label="男" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="sex12" label="女" :width="smallItemWidth" align="center"></el-table-column>
               </el-table-column>
-            </el-table>
-          </template>
+              <el-table-column prop="" label="学历" align="center">
+                <el-table-column prop="culture12" label="研" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture22" label="本" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture32" label="专" :width="smallItemWidth" align="center"></el-table-column>
+              </el-table-column>
+            </el-table-column>
+            <el-table-column prop="" label="工勤">
+              <el-table-column prop="count3" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
+              <el-table-column prop="age3" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+              <el-table-column prop="" label="性别" align="center">
+                <el-table-column prop="sex03" label="男" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="sex13" label="女" :width="smallItemWidth" align="center"></el-table-column>
+              </el-table-column>
+              <el-table-column prop="" label="学历" align="center">
+                <el-table-column prop="culture13" label="研" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture23" label="本" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture33" label="专" :width="smallItemWidth" align="center"></el-table-column>
+              </el-table-column>
+            </el-table-column>
+          </el-table>
+        </template>
+      </el-table-column>
+      <el-table-column type="index" :width="smallItemWidth-10" label="序号" align="center"></el-table-column>
+      <el-table-column prop="name" :label="firstCanJump===true?'单位机构':'省市'" :width="smallItemWidth+70" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.canClickJump===true" class="canClick" @click="goDeptStatistical(scope.row)">{{scope.row.name}}</span>
+          <span v-else>{{scope.row.name}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="count" label="合计" :width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="" label="民警">
+        <el-table-column prop="count1" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
+        <el-table-column prop="age1" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+        <el-table-column prop="" label="性别" align="center">
+          <el-table-column prop="sex01" label="男" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex11" label="女" :width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
-        <el-table-column type="index" :width="smallItemWidth-10" label="序号" align="center"></el-table-column>
-        <el-table-column prop="name" label="省市" :width="smallItemWidth+50" align="center"></el-table-column>
-        <el-table-column prop="count" label="合计" :width="smallItemWidth" align="center"></el-table-column>
-        <el-table-column prop="" label="民警">
-          <el-table-column prop="count1" label="数量" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="age1" label="平均年龄" :width="smallItemWidth-10" align="center"></el-table-column>
-          <el-table-column prop="" label="性别" align="center">
-            <el-table-column prop="sex01" label="男" :width="smallItemWidth" align="center"></el-table-column>
-            <el-table-column prop="sex11" label="女" :width="smallItemWidth" align="center"></el-table-column>
-          </el-table-column>
-          <el-table-column prop="" label="学历" align="center">
-            <el-table-column prop="culture11" label="研" :width="smallItemWidth" align="center"></el-table-column>
-            <el-table-column prop="culture21" label="本" :width="smallItemWidth" align="center"></el-table-column>
-            <el-table-column prop="culture31" label="专" :width="smallItemWidth" align="center"></el-table-column>
-          </el-table-column>
+        <el-table-column prop="" label="学历" align="center">
+          <el-table-column prop="culture11" label="研" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture21" label="本" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture31" label="专" :width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
-        <el-table-column prop="" label="辅警">
-          <el-table-column prop="count2" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-          <el-table-column prop="age2" label="平均年龄" width="60" align="center"></el-table-column>
-          <el-table-column prop="" label="性别" align="center">
-            <el-table-column prop="sex02" label="男" :width="smallItemWidth" align="center"></el-table-column>
-            <el-table-column prop="sex12" label="女" :width="smallItemWidth" align="center"></el-table-column>
-          </el-table-column>
-          <el-table-column prop="" label="学历" align="center">
-            <el-table-column prop="culture12" label="研" :width="smallItemWidth" align="center"></el-table-column>
-            <el-table-column prop="culture22" label="本" :width="smallItemWidth" align="center"></el-table-column>
-            <el-table-column prop="culture32" label="专" :width="smallItemWidth" align="center"></el-table-column>
-          </el-table-column>
+      </el-table-column>
+      <el-table-column prop="" label="辅警">
+        <el-table-column prop="count2" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
+        <el-table-column prop="age2" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+        <el-table-column prop="" label="性别" align="center">
+          <el-table-column prop="sex02" label="男" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex12" label="女" :width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
-        <el-table-column prop="" label="工勤">
-          <el-table-column prop="count3" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-          <el-table-column prop="age3" label="平均年龄" width="60" align="center"></el-table-column>
-          <el-table-column prop="" label="性别" align="center">
-            <el-table-column prop="sex03" label="男" :width="smallItemWidth" align="center"></el-table-column>
-            <el-table-column prop="sex13" label="女" :width="smallItemWidth" align="center"></el-table-column>
-          </el-table-column>
-          <el-table-column prop="" label="学历" align="center">
-            <el-table-column prop="culture13" label="研" :width="smallItemWidth" align="center"></el-table-column>
-            <el-table-column prop="culture23" label="本" :width="smallItemWidth" align="center"></el-table-column>
-            <el-table-column prop="culture33" label="专" :width="smallItemWidth" align="center"></el-table-column>
-          </el-table-column>
+        <el-table-column prop="" label="学历" align="center">
+          <el-table-column prop="culture12" label="研" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture22" label="本" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture32" label="专" :width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
-      </el-table>
-    <!-- </el-card> -->
-    <el-card style="margin-bottom: 10px;" v-loading="cityLoading">
-      <div slot="header" class="clearfix">
-        <span>统计</span>
-      </div>
-      <!-- 饼状图 -->
-      <div class="clearfix" style="margin: 50px 0 80px;" v-if="showEchart">
-        <div id="echartScore" style="width: 49%; height: 400px; float:left;"></div>
-        <div id="echartPerNum" style="width: 49%; height: 400px; float:right;"></div>
-      </div>
-      <!-- 柱状图 -->
-      <div id="cityStatistical" style="height: 400px;" v-if="showEchart"></div>
-    </el-card>
+      </el-table-column>
+      <el-table-column prop="" label="工勤">
+        <el-table-column prop="count3" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
+        <el-table-column prop="age3" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+        <el-table-column prop="" label="性别" align="center">
+          <el-table-column prop="sex03" label="男" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex13" label="女" :width="smallItemWidth" align="center"></el-table-column>
+        </el-table-column>
+        <el-table-column prop="" label="学历" align="center">
+          <el-table-column prop="culture13" label="研" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture23" label="本" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture33" label="专" :width="smallItemWidth" align="center"></el-table-column>
+        </el-table-column>
+      </el-table-column>
+    </el-table>
+    <!-- 柱状图 -->
+    <div id="cityStatistical" style="height: 550px;margin:40px 0;" v-if="showEchart"></div>
+    <!-- 饼状图 -->
+    <div class="clearfix" style="margin: 50px 0 80px;" v-if="showEchart">
+      <div id="echartAge" style="width: 33%; height: 400px; float:left;"></div>
+      <div id="echartGender" style="width: 33%; height: 400px; float:left;"></div>
+      <div id="echartEducation" style="width: 33%; height: 400px; float:left;"></div>
+    </div>
   </div>
 </template>
 <script>
 import echarts from 'echarts'
+import { getTree } from '@/api/dept'
 export default {
   name: 'examinationStatistical',
   data() {
     return {
-      smallItemWidth: 70, // 表格最小格子的宽度
-      listChildLoading: false, // 子列表loading
-      filterQuery: {
-        deptCode: [],
-        startDate: '',
-        endDate: '',
-        examinationName: '',
-        type: 'year' // 默认查本年
+      smallItemWidth: 60, // 表格最小格子的宽度
+      filters: {
+        area: [],
+        department: []
       },
       teamData: [], // 队伍统计
-      childCityData: [],
-      expandstab: [], // 设置当前的展开行
-      caseData: [], // 市的列表数据
-      // subDeptCaseData: [], // 下级部门列表数据
-      subLoading: false, // 子列表loading
-      pageSize: 15,
-      page: 1,
-      total: 0,
-      tableHeight: null,
-      startPickerOptions: {
-        disabledDate(time) {
-          return time.getTime() > Date.now()
-        }
+      xzqhOptions: [], // 行政区划数据
+      deptOptions: [], // 部门数据
+      props: {
+        value: 'cityCode',
+        label: 'cityName'
       },
-      endPickerOptions: {},
-      cityData: [], // 盟市统计的
-      startTime: '', // 开始时间，页面是绑定的modle
-      endTime: '', // 结束时间
-      yearDate: '', // 年份
-      quarterDate: '', // 季度
-      monthDate: '', // 月份
-      quarterDisabled: true,
-      monthDisabled: true,
-      systemTime: '', // 系统时间
-      startDateDisabled: true, // 开始时间禁用
-      endDateDisabled: true, // 结束时间禁用
-      teamLoading: false, // 考试统计loading
-      cityLoading: false, // 盟市统计loading
-      echartScore: {},
-      echartPerNum: {},
-      cityStatistical: {},
-      userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
-      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
-      multipleSelection: [], // 选中的多行
-      showEchart: false,
-      currentExam: {}, // 当前点击的考试报告
       deptProps: {
         value: 'depCode',
         label: 'name',
         children: 'children'
       },
+      firstCanJump: false, // 表格的一级是否可跳转
+      tableHeight: null,
+      cityData: [], // 盟市统计的
+      teamLoading: false, // 统计loading
+      listChildLoading: false, // 子列表loading
+      userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
+      showEchart: true,
       selectCurDep: { name: '' },
-      expands: [],
-      deptOptions: [], // 部门数据
+      expands: [], // 展开的行
+      echartAllData: {}, // 三个饼状图的数据源
+      exportBtn: false,
       curDept: {} // 当前部门
     }
   },
@@ -186,70 +190,170 @@ export default {
       return row.departCode
     },
     rowClick(row) {
-      if (row.departCode === '610000530000') { // 省厅
-        if (this.expands.indexOf(row.departCode) > -1) {
-          this.expands.splice(this.expands.indexOf(row.departCode), 1)
+      if (this.expands.indexOf(row.departCode) > -1) { // 展开项中存在
+        this.expands.splice(this.expands.indexOf(row.departCode), 1)
+      } else { // 展开项中不存在
+        this.expands.push(row.departCode)
+        if (row.departCode === '610000530000') { // 省厅
+          this.queryTeamStatistical(true, row.departCode) // 根据部门code查
         } else {
-          this.expands.push(row.departCode)
-          this.queryTeamStatistical(true, row.departCode)
-        }
-      } else {
-        if (this.expands.indexOf(row.cityCode) > -1) {
-          this.expands.splice(this.expands.indexOf(row.cityCode), 1)
-        } else {
-          this.expands.push(row.cityCode)
-          this.queryTeamStatistical(true, row.cityCode)
+          if (row.cityCode) {
+            this.queryTeamStatistical(true, row.cityCode) // 根据盟市code查
+          } else {
+            //
+          }
         }
       }
     },
     getSummaries(param) {
-      // const { columns, data } = param
-      // const sums = []
-      // columns.forEach((column, index) => {
-      //   if (index === 1) {
-      //     sums[index] = '总计'
-      //     return
-      //   }
-      //   const values = data.map(item => Number(item[column.property]))
-      //   if (!values.every(value => isNaN(value))) {
-      //     sums[index] = values.reduce((prev, curr) => {
-      //       const value = Number(curr)
-      //       if (!isNaN(value)) {
-      //         return prev + curr
-      //       } else {
-      //         return prev
-      //       }
-      //     }, 0)
-      //     if (index === 2) { // 考试名称列
-      //       sums[index] = ''
-      //     } else {
-      //       sums[index] = sums[index]
-      //     }
-      //   } else {
-      //     sums[index] = ''
-      //   }
-      // })
-      // return sums
+      const { columns, data } = param
+      const sums = []
+      columns.forEach((column, index) => {
+        if (this.firstCanJump === true) {
+          if (index === 1) {
+            sums[index] = '合计'
+            return
+          }
+        } else {
+          if (index === 2) {
+            sums[index] = '合计'
+            return
+          }
+        }
+
+        const values = data.map(item => Number(item[column.property]))
+        if (!values.every(value => isNaN(value))) {
+          sums[index] = values.reduce((prev, curr) => {
+            const value = Number(curr)
+            if (!isNaN(value)) {
+              return prev + curr
+            } else {
+              return prev
+            }
+          }, 0)
+        } else {
+          sums[index] = ''
+        }
+      })
+      return sums
+    },
+    handleAreaChange(val) { // 行政区划
+      this.filters.department = []
+      if (val.length > 0) {
+        this.deptOptions = [] // 清空单位机构数据
+        this.selectCurDep = { name: '' } // 清空当前选中的单位机构
+        var param = {
+          provinceCode: val[0] || '',
+          cityCode: val[1] || '',
+          reginCode: val[2] || ''
+        }
+        this.$query('hsyzdeparttree', param, 'upms').then((response) => {
+          if (response.code === '000000') {
+            if (response.data && response.data.length > 0) {
+              var arr = []
+              const data = response.data
+              for (let i = 0; i < data.length; i++) {
+                const obj = data[i]
+                if (obj.depType !== '4') { // 去掉派出所
+                  arr.push({
+                    id: obj.id, name: obj.dep_name, cityCode: obj.city_code,
+                    depCode: obj.dep_code, parentCode: obj.super_dep_code, depType: obj.depType
+                  })
+                }
+              }
+              this.deptOptions = getTree(arr) // 机构
+            }
+          }
+        }).catch(() => {
+          this.formLoading = false
+        })
+      } else {
+        this.deptOptions = []
+      }
+    },
+    handleDeptChange(val) { // 单位机构
+      // console.log(val)
+      if (val.length > 0) {
+        var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+        for (let i = 0; i < deptArr.length; i++) {
+          const dept = deptArr[i]
+          if (dept.depCode === val[val.length - 1]) {
+            this.selectCurDep = dept
+            break
+          }
+        }
+      } else {
+        this.selectCurDep = { name: '' }
+      }
+    },
+    initData() { // 初始化筛选条件
+      // 行政区划
+      this.teamLoading = true
+      this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.xzqhOptions = response.data ? response.data : []
+          var currentArea = []
+          if (this.deptInfo.depType === '-1' || this.deptInfo.depType === '1') { // 省 总队
+            currentArea = [this.deptInfo.areaCode]
+          } else if (this.deptInfo.depType === '2') { // 支队
+            currentArea = ['610000', this.deptInfo.areaCode]
+          } else if (this.deptInfo.depType === '3') { // 大队 派出所
+            currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
+          } else if (this.deptInfo.depType === '4') {
+            if (this.deptInfo.areaCode === '610403') { // 杨凌例外
+              currentArea = ['610000', '610403']
+            } else { // 正常的派出所
+              currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
+            }
+          }
+          this.filters.area = currentArea
+          this.handleAreaChange(currentArea) // 查单位机构
+          // 默认选择本单位
+          // if (this.deptInfo.depType === '-1') { // 省
+          //   this.filters.department = [this.deptInfo.depCode]
+          // } else if (this.deptInfo.depType === '1') { // 总队
+          //   this.filters.department = [this.deptInfo.parentDepCode, this.deptInfo.depCode]
+          // } else if (this.deptInfo.depType === '2') { // 支队
+          //   this.filters.department = [this.deptInfo.depCode]
+          // } else if (this.deptInfo.depType === '3') { // 大队
+          //   this.filters.department = [this.deptInfo.depCode]
+          // }
+          this.queryTeamStatistical()
+        }
+      }).catch(() => {
+        this.listLoading = false
+      })
     },
     queryTeamStatistical(hand, city) { // 队伍统计
+      var param = {}
+      this.exportBtn = false // 导出按钮 显隐
       if (hand) { // 手动点击时，添加埋点参数
-        this.filterQuery.logFlag = 1
+        param.logFlag = 1
       }
-      var param = {
-        provinceCode: '610000'
-        // startDate: this.filterQuery.startDate || '',
-        // endDate: this.filterQuery.endDate || '',
-        // examinationName: this.filterQuery.examinationName || ''
-      }
-      if (city) {
+      if (city) { // 点击表格展开的查询
         this.listChildLoading = true
         if (city === '610000530000') { // 省厅
           param.departCode = city
         } else {
           param.cityCode = city
         }
-      } else {
+      } else { // 一级表格的查询
+        this.expands = [] // 初始化 所有行 均不展开
         this.teamLoading = true
+        if (this.filters.department && this.filters.department.length > 0) { // 如果选了 筛选条件的单位机构
+          param.departCode = this.filters.department[this.filters.department.length - 1] // 部门code
+          param.provinceCode = ''
+          param.cityCode = ''
+        } else if (this.filters.area && this.filters.area.length === 3) { // 区县 大队
+          param.reginCode = this.filters.area[this.filters.area.length - 1] // 部门code
+          param.departCode = ''
+          param.provinceCode = ''
+          param.cityCode = ''
+        } else if (this.filters.area && this.filters.area.length === 2) { // 市 支队
+          param.cityCode = this.filters.area[this.filters.area.length - 1]
+        } else {
+          param.provinceCode = '610000'
+        }
       }
       this.$query('hsyzusertotal', param, 'upms').then((response) => {
         if (response.code === '000000') {
@@ -257,55 +361,103 @@ export default {
             this.listChildLoading = false
             for (let i = 0; i < this.teamData.length; i++) {
               const item = this.teamData[i]
-              if (item.departCode === city) {
-                item.child = response.data
+              if (city === '610000530000') { // 省厅
+                if (item.departCode === city) {
+                  item.child = response.data
+                }
+              } else {
+                if (item.cityCode === city) {
+                  item.child = response.data
+                }
               }
             }
           } else {
             this.teamLoading = false
             this.teamData = response.data
+            this.drawCityStatistical()
+            var canClick = true
+            if (param.provinceCode === '610000') {
+              this.exportBtn = true // 导出按钮显示
+              this.firstCanJump = false
+              canClick = false
+            } else {
+              this.firstCanJump = true // 控制 表头显示 省市 还是单位机构
+              canClick = true // 一级的表格可跳转
+            }
+            for (let index = 0; index < this.teamData.length; index++) {
+              const element = this.teamData[index]
+              element.canClickJump = canClick // 是否可点击跳转
+            }
           }
         }
       }).catch(() => {
         this.teamLoading = false
       })
+      if (city) {
+        // 不需要刷新统计图
+      } else {
+        this.queryEchart(param)
+      }
+    },
+    queryEchart(param) {
+      this.$query('hsyzgusertotal', param, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.echartAllData = response.data[0]
+          this.drawChartAge()
+          this.drawChartGender()
+          this.drawChartEducation()
+        }
+      }).catch(() => {
+        this.teamLoading = false
+      })
+    },
+    goDeptStatistical(row) { // 跳转到机构 页面
+      this.$router.push({ path: '/basicService/deptStatistical', query: { departCode: row.departCode }})
     },
     createStateFilter(queryString) {
       return (state) => {
         return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) !== -1)
       }
     },
-    drawChartScore() { // 考试成绩 饼状图
-      var scoreArr = []
-      if (this.cityData.length > 0) {
-        var yNumAll = 0
-        var lNumALl = 0
-        var zNumAll = 0
-        var cNumAll = 0
-        for (let p = 0; p < this.cityData.length; p++) {
-          const element = this.cityData[p]
-          yNumAll += element.yNum
-          lNumALl += element.lNum
-          zNumAll += element.zNum
-          cNumAll += element.cNum
-        }
-        scoreArr = [
-          { value: yNumAll, name: '优' },
-          { value: lNumALl, name: '良' },
-          { value: zNumAll, name: '中' },
-          { value: cNumAll, name: '差' }
-        ]
-      }
-      this.echartScore = echarts.init(document.getElementById('echartScore'))
-      this.echartScore.setOption({
-        color: ['#23ce7b', '#537ff7', '#ffb337', '#f46470', '#a257ed', '#fee344', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
+    drawChartAge() { // 年龄 饼状图
+      // var scoreArr = []
+      // if (this.cityData.length > 0) {
+      var scoreArr = [
+        { value: this.echartAllData.age1, name: '30岁以下' },
+        { value: this.echartAllData.age2, name: '30-40岁' },
+        { value: this.echartAllData.age3, name: '40-50岁' },
+        { value: this.echartAllData.age4, name: '50-60岁' },
+        { value: this.echartAllData.age5, name: '60岁以上' }
+      ]
+      // }
+      var echartAge = echarts.init(document.getElementById('echartAge'))
+      echartAge.setOption({
+        color: ['#1088F6', '#04E4E4', '#FFDB56', '#F67C4E', '#F84C6E', '#fee344', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
         title: {
-          text: '考试成绩分析',
+          text: '人员年龄构成',
           subtext: '',
-          x: 'center',
-          // top: 10,
+          x: 'left',
           textStyle: {
-            color: '#fff'
+            color: '#ddd'
+          }
+        },
+        toolbox: {
+          show: true,
+          orient: 'horizontal',
+          right: 30,
+          top: 0,
+          feature: {
+            saveAsImage: {
+              show: true,
+              icon: 'image://static/image/download.png'
+              // emphasis: {
+              //   icon: 'image://static/image/download_b.png'
+              // }
+            }
+          },
+          itemSize: 20,
+          iconStyle: {
+            emphasis: { color: '#fff' }
           }
         },
         tooltip: {
@@ -316,7 +468,7 @@ export default {
           type: 'scroll',
           bottom: 0,
           itemGap: 15,
-          data: ['优', '良', '中', '差'],
+          data: ['30岁以下', '30-40岁', '40-50岁', '50-60岁', '60岁以上'],
           textStyle: {
             color: '#bbbbbb',
             fontSize: 14
@@ -342,32 +494,39 @@ export default {
         ]
       })
     },
-    drawChartPerNum() { // 参考人数 饼状图
-      var joinPerArr = []
-      if (this.cityData.length > 0) {
-        var ykNumAll = 0 // 应考
-        var skNumALl = 0 // 实考
-        var qkNum = 0 // 缺考
-        for (let p = 0; p < this.cityData.length; p++) {
-          const element = this.cityData[p]
-          ykNumAll += element.ykNum
-          skNumALl += element.skNum
-        }
-        qkNum = Number(ykNumAll) - Number(skNumALl)
-        joinPerArr = [
-          { value: skNumALl, name: '实考人数' },
-          { value: qkNum, name: '缺考人数' }
-        ]
-      }
-      this.echartPerNum = echarts.init(document.getElementById('echartPerNum'))
-      this.echartPerNum.setOption({
-        color: ['#0ECACA', '#1088F6', '#ffb337', '#23ce7b', '#a257ed', '#fee344', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
+    drawChartGender() { // 性别 饼状图
+      var joinPerArr = [
+        { value: this.echartAllData.sex0, name: '男性' },
+        { value: this.echartAllData.sex1, name: '女性' }
+      ]
+      var echartGender = echarts.init(document.getElementById('echartGender'))
+      echartGender.setOption({
+        color: ['#1088F6', '#FAD14A', '#ffb337', '#23ce7b', '#a257ed', '#fee344', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
         title: {
-          text: '参考情况分析',
+          text: '人员性别构成',
           subtext: '',
-          x: 'center',
+          x: 'left',
           textStyle: {
-            color: '#fff'
+            color: '#ddd'
+          }
+        },
+        toolbox: {
+          show: true,
+          orient: 'horizontal',
+          right: 30,
+          top: 0,
+          feature: {
+            saveAsImage: {
+              show: true,
+              icon: 'image://static/image/download.png'
+              // emphasis: {
+              //   icon: 'image://static/image/download_b.png'
+              // }
+            }
+          },
+          itemSize: 20,
+          iconStyle: {
+            emphasis: { color: '#fff' }
           }
         },
         tooltip: {
@@ -378,7 +537,7 @@ export default {
           type: 'scroll',
           bottom: 0,
           itemGap: 15,
-          data: ['实考人数', '缺考人数'],
+          data: ['男性', '女性'],
           textStyle: {
             color: '#bbbbbb',
             fontSize: 14
@@ -405,261 +564,281 @@ export default {
         ]
       })
     },
-    drawCityStatistical() { // 地市考试分析柱状图
-      var cityArr = [['product', '应考人数', '实考人数']]
-      if (this.cityData.length > 0) {
-        for (let p = 0; p < this.cityData.length; p++) {
-          const element = this.cityData[p]
-          var arr = [element.areaName, element.ykNum, element.skNum]
-          cityArr.push(arr)
-        }
-      }
-      this.cityStatistical = echarts.init(document.getElementById('cityStatistical'))
-      this.cityStatistical.setOption({
+    drawChartEducation() { // 学历 饼状图
+      // var scoreArr = []
+      // if (this.cityData.length > 0) {
+      var scoreArr = [
+        { value: this.echartAllData.culture1, name: '研究生' },
+        { value: this.echartAllData.culture2, name: '本科' },
+        { value: this.echartAllData.culture3, name: '专科' },
+        { value: this.echartAllData.culture4, name: '高中' },
+        { value: this.echartAllData.culture5, name: '初中' },
+        { value: this.echartAllData.culture6, name: '小学' }
+      ]
+      // }
+      var echartEducation = echarts.init(document.getElementById('echartEducation'))
+      echartEducation.setOption({
+        color: ['#1088F6', '#00C9E9', '#2CEC8B', '#FAD345', '#F67C4E', '#F84C6E', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
         title: {
-          text: '地市考试分析',
+          text: '人员学历构成',
           subtext: '',
           x: 'left',
           textStyle: {
-            color: '#fff'
+            color: '#ddd'
           }
+        },
+        toolbox: {
+          show: true,
+          orient: 'horizontal',
+          right: 30,
+          top: 0,
+          feature: {
+            saveAsImage: {
+              show: true,
+              icon: 'image://static/image/download.png'
+              // emphasis: {
+              //   icon: 'image://static/image/download_b.png'
+              // }
+            }
+          },
+          itemSize: 20,
+          iconStyle: {
+            emphasis: { color: '#fff' }
+          }
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
         },
         legend: {
           type: 'scroll',
           bottom: 0,
           itemGap: 15,
-          textStyle: { color: '#bbbbbb' }
-        },
-        tooltip: {},
-        dataset: {
-          source: cityArr
-        },
-        xAxis: {
-          type: 'category',
-          axisLabel: {
-            interval: 0,
-            rotate: 40,
+          data: ['研究生', '本科', '专科', '高中', '初中', '小学'],
+          textStyle: {
+            color: '#bbbbbb',
             fontSize: 14
-          },
-          axisLine: {
-            lineStyle: {
-              color: '#bbbbbb'
-            }
           }
-        },
-        yAxis: {
-          axisLine: {
-            lineStyle: {
-              color: '#bbbbbb'
-            }
-          }
-        },
-        grid: {
-          // left: '3%',
-          // right: '4%',
-          bottom: '3%',
-          containLabel: true
         },
         series: [
-          { type: 'bar', barWidth: 30, itemStyle: { color: '#5DB1FF' }},
-          { type: 'bar', barWidth: 30, barGap: 0, itemStyle: { color: '#20CF53' }}
+          {
+            name: '数量',
+            type: 'pie',
+            radius: ['0', '60%'],
+            data: scoreArr,
+            itemStyle: {
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            },
+            label: {
+              fontSize: 14
+            }
+          }
         ]
       })
     },
-    startDateChange(val) { // 开始时间change事件
-      if (val) {
-        // this.filterQuery.type = ''
-        this.endDateDisabled = false
-        this.endPickerOptions = this.$pickerOptionChange(val, this.startPickerOptions, 'end')
-      } else {
-        this.endDateDisabled = true
-        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
+    drawCityStatistical() { // 机构人员柱状图
+      var cityArr = []
+      var mjArr = []
+      var fjArr = []
+      var gqArr = []
+      for (let index = 0; index < this.teamData.length; index++) {
+        const element = this.teamData[index]
+        cityArr.push(element.name)
+        mjArr.push(element.count1)
+        fjArr.push(element.count2)
+        gqArr.push(element.count3)
       }
-    },
-    endDateChange(val) { // 结束时间change事件
-      if (val) {
-        this.startPickerOptions = this.$pickerOptionChange(val, this.startPickerOptions, 'start')
-      } else {
-        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
+      this.cityStatistical = echarts.init(document.getElementById('cityStatistical'))
+      var posList = [
+        'left', 'right', 'top', 'bottom',
+        'inside',
+        'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+        'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+      ]
+      var app = {}
+      app.configParameters = {
+        rotate: {
+          min: -90,
+          max: 90
+        },
+        align: {
+          options: {
+            left: 'left',
+            center: 'center',
+            right: 'right'
+          }
+        },
+        verticalAlign: {
+          options: {
+            top: 'top',
+            middle: 'middle',
+            bottom: 'bottom'
+          }
+        },
+        position: {
+          options: echarts.util.reduce(posList, function(map, pos) {
+            map[pos] = pos
+            return map
+          }, {})
+        },
+        distance: {
+          min: 0,
+          max: 100
+        }
       }
-    },
-    watchReport(index, row) { // 考试报告
-      this.currentExam = row // 当前选中的考试
-      if (row.isHj) { // 合计行的考试报告
-        var hjArrIds = [] // 当前页的id
-        for (let m = 0; m < this.examinations.length; m++) {
-          const element = this.examinations[m]
-          if (element.examinationId) {
-            hjArrIds.push(element.examinationId)
+      app.config = {
+        rotate: 90,
+        align: 'left',
+        verticalAlign: 'middle',
+        position: 'insideBottom',
+        distance: 15,
+        onChange: function() {
+          var labelOption = {
+            normal: {
+              rotate: app.config.rotate,
+              align: app.config.align,
+              verticalAlign: app.config.verticalAlign,
+              position: app.config.position,
+              distance: app.config.distance
+            }
+          }
+          this.cityStatistical.setOption({
+            series: [{
+              label: labelOption
+            }, {
+              label: labelOption
+            }, {
+              label: labelOption
+            }, {
+              label: labelOption
+            }]
+          })
+        }
+      }
+      var labelOption = {
+        normal: {
+          show: true,
+          position: app.config.position,
+          distance: app.config.distance,
+          align: app.config.align,
+          verticalAlign: app.config.verticalAlign,
+          rotate: app.config.rotate,
+          formatter: '{c}  {name|{a}}',
+          fontSize: 16,
+          rich: {
+            name: {
+              textBorderColor: '#fff'
+            }
           }
         }
-        this.currentExam.hjIds = hjArrIds.join(',')
-        this.currentExam.startDate = this.filterQuery.startDate // 开始时间
-        this.currentExam.endDate = this.filterQuery.endDate // 截至时间
-        this.currentExam.examNum = hjArrIds.length // 总数
-        this.currentExam.startTitle = this.filterQuery.startDate.substr(0, 4) + '年' + this.filterQuery.startDate.substr(5, 2) + '月' + this.filterQuery.startDate.substr(8, 2) + '日'
-        this.currentExam.endTitle = this.filterQuery.endDate.substr(0, 4) + '年' + this.filterQuery.endDate.substr(5, 2) + '月' + this.filterQuery.endDate.substr(8, 2) + '日'
       }
+      this.cityStatistical.setOption({
+        color: ['#08A0EC', '#4cabce', '#e5323e'],
+        title: {
+          text: '机构人员',
+          subtext: '',
+          x: 'left',
+          textStyle: {
+            color: '#ddd'
+          }
+        },
+        toolbox: {
+          show: true,
+          orient: 'horizontal',
+          right: 0,
+          top: 0,
+          feature: {
+            saveAsImage: {
+              show: true,
+              icon: 'image://static/image/download.png'
+              // emphasis: {
+              //   icon: 'image://static/image/download_b.png'
+              // }
+            }
+          },
+          itemSize: 20,
+          iconStyle: {
+            emphasis: { color: '#fff' }
+          }
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          }
+        },
+        legend: {
+          data: ['民警', '辅警', '工勤'],
+          type: 'scroll',
+          top: 0,
+          itemGap: 15,
+          textStyle: { color: '#bbbbbb' }
+        },
+        grid: {
+          left: '5%',
+          right: '5%'
+        },
+        calculable: true,
+        xAxis: [
+          {
+            type: 'category',
+            axisTick: { show: false },
+            data: cityArr,
+            axisLine: {
+              lineStyle: {
+                color: '#bbbbbb'
+              }
+            }
+          }
+        ],
+        yAxis: [
+          {
+            type: 'value',
+            axisLine: {
+              lineStyle: {
+                color: '#bbbbbb'
+              }
+            }
+          }
+        ],
+        series: [
+          { name: '民警', type: 'bar', barGap: 0, label: labelOption, data: mjArr },
+          { name: '辅警', type: 'bar', barGap: 0, label: labelOption, data: fjArr },
+          { name: '工勤', type: 'bar', barGap: 0, label: labelOption, data: gqArr }
+        ]
+      })
     },
-    getdate() {
-      var now = new Date()
-      var y = now.getFullYear()
-      var m = now.getMonth() + 1
-      var d = now.getDate()
-      return y + '-' + (m < 10 ? '0' + m : m) + '-' + (d < 10 ? '0' + d : d)
-      // + ' ' + now.toTimeString().substr(0, 8)
+    exportDeptExcel() { // 导出excel
+      const param = {
+        data: this.teamData
+      }
+      this.$gotoid('/exportTeam', JSON.stringify(param))
+      // this.$router.push({ path: '/exportTeam', query: param })
     },
     reset() { // 重置
-      this.filterQuery = {
-        deptCode: [],
-        startDate: '',
-        endDate: '',
-        examinationName: '',
-        type: 'year' // 默认查本年
+      this.filters = {
+        area: [],
+        department: []
       }
-      // this.dateRange = []
-      // this.yearDate = '' // 年份
-      // this.quarterDate = '' // 季度
-      // this.monthDate = '' // 月份
-      // this.startTime = '' // 开始时间
-      // this.endTime = '' // 结束时间
-      this.queryTeamStatistical(true)
-    },
-    yearChange(val) { // 按年查询
-      this.endDateDisabled = true // 禁用结束时间选择框
-      this.quarterDate = '' // 清空季度
-      this.monthDate = '' // 清空月
-      if (val) {
-        this.filters.type = '' // 清空掉筛选类型框
-        this.startTime = ''
-        this.endTime = ''
-        this.quarterDisabled = false // 激活季度选择框
-        this.monthDisabled = false
-        const date = new Date(val + '-01-01')
-        this.filters.startTime = this.$parseTime(new Date(date.getFullYear(), 0, 1), '{y}-{m}-{d}')
-        this.filters.endTime = this.$parseTime(new Date(date.getFullYear(), 12, 0), '{y}-{m}-{d}')
-      } else {
-        this.quarterDisabled = true // 禁用季度选择
-        this.monthDisabled = true // 禁用月份选择
-      }
-    },
-    quarterChange(val) {
-      if (val) {
-        this.monthDisabled = true
-        this.startTime = ''
-        this.endTime = ''
-        this.monthDisabled = true
-        let date = new Date()
-        if (this.yearDate) {
-          date = new Date(this.yearDate + '-01-01')
-        }
-        this.filters.startTime = this.$parseTime(new Date(date.getFullYear(), (val * 3 - 3), 1), '{y}-{m}-{d}')
-        this.filters.endTime = this.$parseTime(new Date(date.getFullYear(), (val * 3), 0), '{y}-{m}-{d}')
-      } else {
-        this.monthDisabled = false
-      }
-    },
-    monthChange(val) {
-      if (val) {
-        this.quarterDisabled = true
-        this.startTime = ''
-        this.endTime = ''
-        let date = new Date()
-        if (this.yearDate) {
-          date = new Date(this.yearDate + '-01-01')
-        }
-        this.filters.startTime = this.$parseTime(new Date(date.getFullYear(), (val - 1), 1), '{y}-{m}-{d}')
-        this.filters.endTime = this.$parseTime(new Date(date.getFullYear(), val, 0), '{y}-{m}-{d}')
-      } else {
-        this.quarterDisabled = false
-      }
-    },
-    linkAjrl(canClick, level, cityCode, deptId, deptCode, type) { // 跳转到案件认领列表
-      if (!canClick) {
-        return false
-      }
-      var param = {
-        origin: 'statistical', // 表示从统计跳转过去的
-        deptLevel: level, // 区分是一级还是二级
-        cityCode: cityCode,
-        deptCode: deptCode, // 当前点击的code
-        curFirstLevelCode: this.curFirstLevelCode, // 展开一级的，有可能展开一级后点一级的跳转 所以不能用这个字段判断
-        type: type, // 待认领...等
-        yearDate: this.yearDate, // 筛选框的值
-        quarterDate: this.quarterDate,
-        monthDate: this.monthDate,
-        queryType: this.filters.type,
-        startTime: this.startTime,
-        endTime: this.endTime,
-        filtStartTime: this.filters.startTime, // 查询的参数，认领页面需要用到
-        filtEndTime: this.filters.endTime
-      }
-      console.log(param)
-      this.$gotoid('/caseManage/ajrl', JSON.stringify(param))
-    },
-    getTree(treeArray) {
-      const r = []
-      const tmpMap = {}
-      for (let i = 0, l = treeArray.length; i < l; i++) {
-        tmpMap[treeArray[i]['depCode']] = treeArray[i]
-      }
-      for (let i = 0, l = treeArray.length; i < l; i++) {
-        const key = tmpMap[treeArray[i]['parentCode']]
-        if (key && key.depType !== '4') { // 去掉派出所的层级
-          if (!key['children']) {
-            if (treeArray[i].depType !== '4') {
-              key['children'] = []
-              key['children'].push(treeArray[i])
-            }
-          } else {
-            if (treeArray[i].depType !== '4') {
-              key['children'].push(treeArray[i])
-            }
-          }
-        } else {
-          if (treeArray[i].depType !== '4') {
-            r.push(treeArray[i])
-          }
-        }
-      }
-      return r
+      this.initData()
     }
   },
   destroyed() {
     // sessionStorage.removeItem('/caseManage/caseClaimStatistical')
   },
   mounted() {
-    var dept = this.getTree(JSON.parse(sessionStorage.getItem('DeptSelect')))
-    this.deptOptions = dept
-    this.queryTeamStatistical() // 考试统计
-    // if (sessionStorage.getItem(this.$route.path)) {
-    //   var carryParam = JSON.parse(sessionStorage.getItem(this.$route.path))
-    //   this.yearDate = carryParam.yearDate || '' // 筛选框的值
-    //   this.quarterDate = carryParam.quarterDate || ''
-    //   this.monthDate = carryParam.monthDate || ''
-    //   this.filters.type = carryParam.queryType || ''
-    //   this.startTime = carryParam.startTime || ''
-    //   this.endTime = carryParam.endTime || ''
-    //   this.yearChange(this.yearDate)
-    //   this.quarterChange(this.quarterDate)
-    //   this.monthChange(this.monthDate)
-    //   if (this.filters.type) {
-    //     this.queryByType(this.filters.type)
-    //   }
-    //   this.startDateChange(this.startTime)
-    //   this.endDateChange(this.endTime)
-    // } else {
-    //   // 需求176 默认查询本年度
-    //   var curYear = new Date().getFullYear() + ''
-    //   this.yearDate = curYear
-    //   this.yearChange(curYear)
-    // }
+    this.initData() // 初始化筛选条件数据
   }
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
 .deptStatistical {
   .el-table__expanded-cell {
+    display: inherit;
     padding: 0;
   }
   //修改表格边框颜色

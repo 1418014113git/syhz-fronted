@@ -14,7 +14,7 @@ import '@/permission' // permission control
 import Attachment from '@/api/attachment'
 import { isResView, isResDisabled } from '@/utils/auth'
 import { isViewBtn, gotoid, closePath, parseTime, handlerDateTime, thousSplit, str2ArrBuf, resetSetItem, drawWaterMark, echartOptionToContent, getLabelByValue, pickerOptionChange, setCurrentUser, buildTime, getDictName, getDicts } from '@/utils/public'
-import { query, queryAsyns, save, update, updateAsyns, remove, download, zdryhc, download_http, download_http_mg } from '@/api/http'
+import { query, queryAsyns, save, update, updateAsyns, remove, download, zdryhc, download_http, download_http_mg, updateFile } from '@/api/http'
 import { validatePhone, regEnCnNumber, regEnNumber, regNumber, regCn, regEn, regEmail, regQQ, regWx, regAddress, regCode, regCnName, validateIdCard } from '@/utils/validate'
 import Watermark from '@/utils/watermark'
 Vue.prototype.isResView = isResView
@@ -33,6 +33,7 @@ Vue.prototype.$remove = remove
 Vue.prototype.$download = download
 Vue.prototype.$download_http = download_http
 Vue.prototype.$download_http_mg = download_http_mg
+Vue.prototype.$updateFile = updateFile
 Vue.prototype.$validatePhone = validatePhone
 Vue.prototype.$regEnCnNumber = regEnCnNumber
 Vue.prototype.$regEnNumber = regEnNumber

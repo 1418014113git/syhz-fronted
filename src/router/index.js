@@ -295,6 +295,7 @@ export const constantRouterMap = [
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
   { path: '/exportanjtb', component: () => import('@/views/caseManage/exportanjtb'), name: '案件侦办统计表导出页' },
+  { path: '/exportTeam', component: () => import('@/views/basicService/basicStatistical/exportTeam'), name: '队伍基本情况统计导出页' },
   { path: '*', redirect: '/404', hidden: true } // 全不匹配的情况下，返回404，路由按顺序从上到下，依次匹配。最后一个*能匹配全部
 ]
 
