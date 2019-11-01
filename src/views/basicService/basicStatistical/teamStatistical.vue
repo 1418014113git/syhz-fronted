@@ -843,7 +843,7 @@ export default {
   mounted() {
     this.initData() // 初始化筛选条件数据
     this.$nextTick(() => { // 页面渲染完成后的回调
-      console.log(this.$refs.teamStatistical.$el.clientWidth)
+      // console.log(this.$refs.teamStatistical.$el.clientWidth)
       this.screenWidth = this.$refs.teamStatistical.$el.clientWidth + 'px'
       // this.screenWidth = document.body.clientWidth + 'px'
       this.expandTableStyle = 'width:' + this.screenWidth + ';border-left: none;border-right: none;overflow-x:auto;'
