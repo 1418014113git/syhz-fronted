@@ -180,11 +180,12 @@ export default {
         toolbox: {
           show: true,
           orient: 'horizontal',
-          right: 30,
+          right: 50,
           top: 0,
           feature: {
             saveAsImage: {
               show: true,
+              title: '人员年龄构成保存为图片',
               icon: 'image://static/image/download.png'
               // emphasis: {
               //   icon: 'image://static/image/download_b.png'
@@ -252,11 +253,12 @@ export default {
         toolbox: {
           show: true,
           orient: 'horizontal',
-          right: 30,
+          right: 50,
           top: 0,
           feature: {
             saveAsImage: {
               show: true,
+              title: '人员性别构成保存为图片',
               icon: 'image://static/image/download.png'
               // emphasis: {
               //   icon: 'image://static/image/download_b.png'
@@ -329,11 +331,12 @@ export default {
         toolbox: {
           show: true,
           orient: 'horizontal',
-          right: 30,
+          right: 50,
           top: 0,
           feature: {
             saveAsImage: {
               show: true,
+              title: '人员学历构成保存为图片',
               icon: 'image://static/image/download.png'
               // emphasis: {
               //   icon: 'image://static/image/download_b.png'
