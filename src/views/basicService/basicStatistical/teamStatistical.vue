@@ -26,19 +26,21 @@
         </el-tooltip>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="queryTeamStatistical(true)" >查询</el-button>
+        <el-button type="primary" @click="queryTeamStatistical(true)">查询</el-button>
         <el-button type="info" @click="reset">重置</el-button>
-        <el-button type="info" @click="exportDeptExcel" v-if="exportBtn">导出</el-button>
+        <el-button type="info" @click="exportDeptExcel" v-if="exportBtn && $isViewBtn('182001')">导出</el-button>
       </el-form-item>
     </el-form>
     <div style="margin: 10px 0;"><i class="el-icon-info"></i>&nbsp;&nbsp;队伍基本情况只统计到大队，杨凌示范区没有大队只统计到支队！</div>
     <el-table :data="teamData"  style="width: 100%;" :max-height="tableHeight" v-loading="teamLoading" class="table_th_center"
-     show-summary :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick">
+     show-summary :summary-method="getSummaries" :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick"
+     ref="teamStatistical">
       <el-table-column type="expand" width="40" v-if="firstCanJump===false">
         <template slot-scope="scope">
-          <el-table :data="scope.row.child||[]" style="width: 100%;border-left: none;" v-loading="listChildLoading" max-height="400">
-            <el-table-column type="index" label="序号" align="center" :width="smallItemWidth-20"></el-table-column>
-            <el-table-column prop="name" label="单位机构" align="center" :width="smallItemWidth+120" show-overflow-tooltip>
+          <el-table :data="scope.row.child||[]" :style="expandTableStyle" v-loading="listChildLoading" max-height="400">
+            <el-table-column prop="" label="" width="40"></el-table-column>
+            <el-table-column type="index" label="序号" align="center" :width="smallItemWidth-10"></el-table-column>
+            <el-table-column prop="name" label="单位机构" align="center" :min-width="smallItemWidth+70" show-overflow-tooltip>
               <template slot-scope="scope">
                 <span class="canClick" @click="goDeptStatistical(scope.row)">{{scope.row.name}}</span>
               </template>
@@ -87,7 +89,7 @@
         </template>
       </el-table-column>
       <el-table-column type="index" :width="smallItemWidth-10" label="序号" align="center"></el-table-column>
-      <el-table-column prop="name" :label="firstCanJump===true?'单位机构':'省市'" :width="smallItemWidth+70" align="center" show-overflow-tooltip>
+      <el-table-column prop="name" :label="firstCanJump===true?'单位机构':'省市'" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if="scope.row.canClickJump===true" class="canClick" @click="goDeptStatistical(scope.row)">{{scope.row.name}}</span>
           <span v-else>{{scope.row.name}}</span>
@@ -180,6 +182,8 @@ export default {
       expands: [], // 展开的行
       echartAllData: {}, // 三个饼状图的数据源
       exportBtn: false,
+      screenWidth: '', // 屏幕宽度
+      expandTableStyle: '', // 展开表格的样式 宽度需要动态获取
       curDept: {} // 当前部门
     }
   },
@@ -309,6 +313,9 @@ export default {
           this.filters.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
           // 默认选择本单位
+          if (this.deptInfo.depType === '3') { // 有可能区县下有多个大队  所以要默认选择一个行政区划+当前的单位机构
+            this.filters.department = [this.deptInfo.depCode]
+          }
           // if (this.deptInfo.depType === '-1') { // 省
           //   this.filters.department = [this.deptInfo.depCode]
           // } else if (this.deptInfo.depType === '1') { // 总队
@@ -444,11 +451,12 @@ export default {
         toolbox: {
           show: true,
           orient: 'horizontal',
-          right: 30,
+          right: 50,
           top: 0,
           feature: {
             saveAsImage: {
               show: true,
+              title: '人员年龄构成保存为图片',
               icon: 'image://static/image/download.png'
               // emphasis: {
               //   icon: 'image://static/image/download_b.png'
@@ -513,11 +521,12 @@ export default {
         toolbox: {
           show: true,
           orient: 'horizontal',
-          right: 30,
+          right: 50,
           top: 0,
           feature: {
             saveAsImage: {
               show: true,
+              title: '人员性别构成保存为图片',
               icon: 'image://static/image/download.png'
               // emphasis: {
               //   icon: 'image://static/image/download_b.png'
@@ -590,11 +599,12 @@ export default {
         toolbox: {
           show: true,
           orient: 'horizontal',
-          right: 30,
+          right: 50,
           top: 0,
           feature: {
             saveAsImage: {
               show: true,
+              title: '人员学历构成保存为图片',
               icon: 'image://static/image/download.png'
               // emphasis: {
               //   icon: 'image://static/image/download_b.png'
@@ -832,6 +842,12 @@ export default {
   },
   mounted() {
     this.initData() // 初始化筛选条件数据
+    this.$nextTick(() => { // 页面渲染完成后的回调
+      console.log(this.$refs.teamStatistical.$el.clientWidth)
+      this.screenWidth = this.$refs.teamStatistical.$el.clientWidth + 'px'
+      // this.screenWidth = document.body.clientWidth + 'px'
+      this.expandTableStyle = 'width:' + this.screenWidth + ';border-left: none;border-right: none;overflow-x:auto;'
+    })
   }
 }
 </script>
@@ -866,10 +882,12 @@ export default {
   opacity: 0;
 }
 .canClick {
+  color: #00a0e9;
+  text-decoration: underline;
   cursor: pointer;
 }
 .canClick:hover {
-  text-decoration: underline;
+  // text-decoration: underline;
 }
 .el-table .row-sheng .cell .el-table__expand-icon {
   display: none;

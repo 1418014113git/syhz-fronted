@@ -6,7 +6,7 @@
     <div style="margin: 0 0 10px 0;" v-if="deptPerData && deptPerData.length > 0">{{deptPerData[0].name}}_队伍基本情况</div>
     <el-table :data="deptPerData"  style="width: 100%;" :max-height="tableHeight"
       v-loading="teamLoading" class="table_th_center">
-      <el-table-column prop="count" label="合计" :width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="count" label="合计" :min-width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column prop="" label="民警">
         <el-table-column prop="count1" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
         <el-table-column prop="age1" label="平均年龄" :width="smallItemWidth-10" align="center"></el-table-column>
