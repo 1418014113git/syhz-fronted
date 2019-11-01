@@ -39,100 +39,100 @@
         <template slot-scope="scope">
           <el-table :data="scope.row.child||[]" :style="expandTableStyle" v-loading="listChildLoading" max-height="400">
             <el-table-column prop="" label="" width="40"></el-table-column>
-            <el-table-column type="index" label="序号" align="center" :width="smallItemWidth-10"></el-table-column>
+            <el-table-column type="index" label="序号" align="center" :min-width="smallItemWidth-10"></el-table-column>
             <el-table-column prop="name" label="单位机构" align="center" :min-width="smallItemWidth+70" show-overflow-tooltip>
               <template slot-scope="scope">
                 <span class="canClick" @click="goDeptStatistical(scope.row)">{{scope.row.name}}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="count" label="合计" :width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="count" label="合计" :min-width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
             <el-table-column prop="" label="民警">
-              <el-table-column prop="count1" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-              <el-table-column prop="age1" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+              <el-table-column prop="count1" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
+              <el-table-column prop="age1" label="平均年龄" :min-width="smallItemWidth" align="center"></el-table-column>
               <el-table-column prop="" label="性别" align="center">
-                <el-table-column prop="sex01" label="男" :width="smallItemWidth" align="center"></el-table-column>
-                <el-table-column prop="sex11" label="女" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="sex01" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="sex11" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
               </el-table-column>
               <el-table-column prop="" label="学历" align="center">
-                <el-table-column prop="culture11" label="研" :width="smallItemWidth" align="center"></el-table-column>
-                <el-table-column prop="culture21" label="本" :width="smallItemWidth" align="center"></el-table-column>
-                <el-table-column prop="culture31" label="专" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture11" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture21" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture31" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
               </el-table-column>
             </el-table-column>
             <el-table-column prop="" label="辅警">
-              <el-table-column prop="count2" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-              <el-table-column prop="age2" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+              <el-table-column prop="count2" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
+              <el-table-column prop="age2" label="平均年龄" :min-width="smallItemWidth" align="center"></el-table-column>
               <el-table-column prop="" label="性别" align="center">
-                <el-table-column prop="sex02" label="男" :width="smallItemWidth" align="center"></el-table-column>
-                <el-table-column prop="sex12" label="女" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="sex02" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="sex12" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
               </el-table-column>
               <el-table-column prop="" label="学历" align="center">
-                <el-table-column prop="culture12" label="研" :width="smallItemWidth" align="center"></el-table-column>
-                <el-table-column prop="culture22" label="本" :width="smallItemWidth" align="center"></el-table-column>
-                <el-table-column prop="culture32" label="专" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture12" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture22" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture32" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
               </el-table-column>
             </el-table-column>
             <el-table-column prop="" label="工勤">
-              <el-table-column prop="count3" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-              <el-table-column prop="age3" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+              <el-table-column prop="count3" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
+              <el-table-column prop="age3" label="平均年龄" :min-width="smallItemWidth" align="center"></el-table-column>
               <el-table-column prop="" label="性别" align="center">
-                <el-table-column prop="sex03" label="男" :width="smallItemWidth" align="center"></el-table-column>
-                <el-table-column prop="sex13" label="女" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="sex03" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="sex13" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
               </el-table-column>
               <el-table-column prop="" label="学历" align="center">
-                <el-table-column prop="culture13" label="研" :width="smallItemWidth" align="center"></el-table-column>
-                <el-table-column prop="culture23" label="本" :width="smallItemWidth" align="center"></el-table-column>
-                <el-table-column prop="culture33" label="专" :width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture13" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture23" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
+                <el-table-column prop="culture33" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
               </el-table-column>
             </el-table-column>
           </el-table>
         </template>
       </el-table-column>
-      <el-table-column type="index" :width="smallItemWidth-10" label="序号" align="center"></el-table-column>
+      <el-table-column type="index" :min-width="smallItemWidth-10" label="序号" align="center"></el-table-column>
       <el-table-column prop="name" :label="firstCanJump===true?'单位机构':'省市'" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if="scope.row.canClickJump===true" class="canClick" @click="goDeptStatistical(scope.row)">{{scope.row.name}}</span>
           <span v-else>{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="count" label="合计" :width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="count" label="合计" :min-width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column prop="" label="民警">
-        <el-table-column prop="count1" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-        <el-table-column prop="age1" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+        <el-table-column prop="count1" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
+        <el-table-column prop="age1" label="平均年龄" :min-width="smallItemWidth" align="center"></el-table-column>
         <el-table-column prop="" label="性别" align="center">
-          <el-table-column prop="sex01" label="男" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="sex11" label="女" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex01" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex11" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
         <el-table-column prop="" label="学历" align="center">
-          <el-table-column prop="culture11" label="研" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture21" label="本" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture31" label="专" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture11" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture21" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture31" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
       </el-table-column>
       <el-table-column prop="" label="辅警">
-        <el-table-column prop="count2" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-        <el-table-column prop="age2" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+        <el-table-column prop="count2" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
+        <el-table-column prop="age2" label="平均年龄" :min-width="smallItemWidth" align="center"></el-table-column>
         <el-table-column prop="" label="性别" align="center">
-          <el-table-column prop="sex02" label="男" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="sex12" label="女" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex02" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex12" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
         <el-table-column prop="" label="学历" align="center">
-          <el-table-column prop="culture12" label="研" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture22" label="本" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture32" label="专" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture12" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture22" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture32" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
       </el-table-column>
       <el-table-column prop="" label="工勤">
-        <el-table-column prop="count3" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-        <el-table-column prop="age3" label="平均年龄" :width="smallItemWidth" align="center"></el-table-column>
+        <el-table-column prop="count3" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
+        <el-table-column prop="age3" label="平均年龄" :min-width="smallItemWidth" align="center"></el-table-column>
         <el-table-column prop="" label="性别" align="center">
-          <el-table-column prop="sex03" label="男" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="sex13" label="女" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex03" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex13" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
         <el-table-column prop="" label="学历" align="center">
-          <el-table-column prop="culture13" label="研" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture23" label="本" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture33" label="专" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture13" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture23" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture33" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
       </el-table-column>
     </el-table>
