@@ -52,7 +52,7 @@
                          multiple>
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                <div class="el-upload__tip" slot="tip">支持Word、PDF、视频、音频和PPT文件！最多可一次性上传5个文件！过大的视频文件建议单个上传！（视频支持MP4、AVI、WMV，最大2G；音频支持MP3，最大512M）</div>
+                <div class="el-upload__tip" slot="tip">视频支持MP4、AVI、WMV，最大2G；音频支持PM3，最大512M；文档最大64M；</div>
               </el-upload>
             </el-form-item>
             <el-form-item>
@@ -387,9 +387,9 @@
         if (wordReg.test(file.type) || pdfReg.test(file.type) || pptReg.test(file.type)) {
           this.uploadFileType = '0'
           flag = true
-          if (file.size / 1024 / 1024 > 10) {
+          if (file.size / 1024 / 1024 > 64) {
             this.$message({
-              message: '文件上传失败！上传文档大小不得超过10M！',
+              message: '文件上传失败！上传文档大小不得超过64M！',
               type: 'error'
             })
             return false
