@@ -432,7 +432,7 @@
         return item.label.indexOf(query) > -1
       },
       checkLXR() {
-        this.$query('departuser', {}, true).then(response => {
+        this.$query('departuser', { type: 0 }, true).then(response => {
           this.lXRData = response.data
           const tData = []
           for (let i = 0; i < response.data.length; i++) {

@@ -474,6 +474,9 @@
   .play_dialog .el-dialog .el-dialog__header{
     border: none;
   }
+  .play_dialog .el-dialog .el-dialog__body .caseEdit{
+    min-width: 100%;
+  }
   .play_dialog .el-dialog .el-dialog__body .caseEdit.el-row {
     width: 100%;
   }

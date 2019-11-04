@@ -194,36 +194,36 @@ export default {
       }
     },
     isViewBtnAdd(store, data, node) { // “添加”按钮显隐的权限控制
-      // if (this.$isViewBtn('132')) {
-      //   if (this.departId) {
-      //     return this.checkParentId(node, this.departId)
-      //   } else {
-      //     return true
-      //   }
-      // }
-      return true
+      if (this.$isViewBtn('181001')) {
+        //   if (this.departId) {
+        //     return this.checkParentId(node, this.departId)
+        //   } else {
+        //     return true
+        //   }
+        return true
+      }
     },
     isViewBtnEdit(store, data, node) { // “编辑”按钮显隐的权限控制
-      // if (this.$isViewBtn('133')) {
-      //   if (this.departId) {
-      //     return this.checkParentId(node, this.departId)
-      //   } else {
-      //     return true
-      //   }
-      // }
-      return true
+      if (this.$isViewBtn('181001')) {
+        //   if (this.departId) {
+        //     return this.checkParentId(node, this.departId)
+        //   } else {
+        //     return true
+        //   }
+        return true
+      }
     },
     isViewBtnDelete(store, data, node) { // “删除”按钮显隐的权限控制
-      // if (this.$isViewBtn('134')) {
-      //   if (this.departId === data.id) {
-      //     return false
-      //   } else if (this.departId) {
-      //     return this.checkParentId(node, this.departId)
-      //   } else {
-      //     return true
-      //   }
-      // }
-      return true
+      if (this.$isViewBtn('181001')) {
+        //   if (this.departId === data.id) {
+        //     return false
+        //   } else if (this.departId) {
+        //     return this.checkParentId(node, this.departId)
+        //   } else {
+        //     return true
+        //   }
+        return true
+      }
     },
     checkParentId(node, value) {
       if (node.data.parentId !== null && node.data.parentId !== undefined) {
