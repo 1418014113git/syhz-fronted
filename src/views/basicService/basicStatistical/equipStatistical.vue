@@ -36,7 +36,7 @@
         <el-button type="primary" size="small"  @click="resetForm">重置</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-if="exportBtn" @click="exportList">导出</el-button>
+        <el-button type="primary" size="small" v-if="exportBtn && $isViewBtn('182002')"  @click="exportList">导出</el-button>
       </el-form-item>
       </el-form>
     </el-col>
@@ -45,13 +45,13 @@
     </div>
 
     <!--列表-->
-    <el-table :data="tableData"  v-loading="listLoading" style="width: 100%;margin-top: 15px;"  :max-height="tableHeight"  :span-method="arraySpanMethod" :row-key="getRowKeys"  :expand-row-keys="expands" @expand-change="rowClick">
+    <el-table :data="tableData"  v-loading="listLoading" style="width: 100%;margin-top: 15px;"  :class="{'tableHj':firstCanShow}" :max-height="tableHeight"  :span-method="arraySpanMethod" :row-key="getRowKeys"  :expand-row-keys="expands" @expand-change="rowClick">
       <el-table-column type="expand" v-if="firstCanShow">
         <template slot-scope="scope">
           <el-table :data="scope.row.tableDataList"  v-loading="listChildLoading" >
             <el-table-column prop="" width="47"></el-table-column>
             <el-table-column type="index" width="60" label="序号" align="center"></el-table-column>
-            <el-table-column prop="areaName" align="center" label="机构单位"  width="150"  show-overflow-tooltip></el-table-column>
+            <el-table-column prop="areaName" align="center" label="机构单位"  width="200"  show-overflow-tooltip></el-table-column>
             <el-table-column  v-for="(itemExpand,index) in tableHead" :key="index" :label="itemExpand.label" align="center">
               <el-table-column v-for="(itChild,indexs) in itemExpand.children" :key="indexs" :label="itChild.label" :prop="itChild.prop" align="center" width="120">
                 <template slot-scope="scope">
@@ -70,13 +70,13 @@
             <span v-else>合计</span>
         </template>
       </el-table-column>
-      <el-table-column prop="areaName" align="center" :label="firstCanShow?'省市':'机构单位'"   min-width="150" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="areaName" align="center" :label="firstCanShow?'省市':'机构单位'"   min-width="200" show-overflow-tooltip></el-table-column>
       <el-table-column   v-for="(item,index1) in tableHead" :key="index1" :label="item.label"  align="center">
         <el-table-column v-for="(it, index2) in item.children" :key="index2" :label="it.label" :prop="it.prop" align="center" min-width="120">
           <template slot-scope="scope">
-            <span class="" v-if="it.label==='必配装备' " :class="{'redColor':(scope.row['value1'+it.groupId]<scope.row['value2'+it.groupId])}">{{scope.row[scope.column.property]}}</span>
-            <span class="" v-else-if="it.label==='有待更新'"  :class="{'redColor':(it.label==='有待更新'&& scope.row[scope.column.property]>0)}">{{scope.row[scope.column.property]}}</span>
-            <span class="" v-else>{{scope.row[scope.column.property]}}</span>
+            <span class="" v-if="it.label==='必配装备' " :class="[{'redColor':(scope.row['value1'+it.groupId]<scope.row['value2'+it.groupId])},{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}]">{{scope.row[scope.column.property]}}</span>
+            <span class="" v-else-if="it.label==='有待更新'"  :class="[{'redColor':(it.label==='有待更新'&& scope.row[scope.column.property]>0)},{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}]">{{scope.row[scope.column.property]}}</span>
+            <span class="" v-else :class="{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}">{{scope.row[scope.column.property]}}</span>
           </template>
         </el-table-column>
       </el-table-column>
@@ -573,6 +573,9 @@ export default {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
     this.init()
+  },
+  activated() {
+    this.init()
   }
 }
 
@@ -607,11 +610,53 @@ export default {
     border: 1px solid #2f627a;
   }
   .el-table--border td {
-    border-right: 1px solid #2f627a;
+    // border-right: 1px solid #2f627a;
+    border-right-color: #2f627a;
   }
   .el-table--border::after,
   .el-table--group::after {
     width: 0;
+  }
+  .tableHj{
+    .el-table__body-wrapper{
+      tbody{
+        .el-table__expanded-cell{
+          .el-table__body-wrapper{
+            .el-table__row:last-child{
+              .el-table__expand-icon {
+                color: transparent;
+              }
+              td:nth-child(1){
+                border-right: 0;
+              }
+              td:nth-child(2){
+                text-align: center;
+                border-left: 0;
+                .cell{
+                  padding-left: 0;
+                }
+              }
+            }
+          }
+        }
+        .el-table__row:last-child{
+          .el-table__expand-icon {
+            color: transparent;
+          }
+          td:nth-child(1){
+            border-right: 0;
+          }
+          td:nth-child(2){
+            text-align: left;
+            border-left: 0;
+            padding-left: 10px;
+            .cell{
+              padding-left: 0;
+            }
+          }
+        }
+      }
+    }
   }
   .el-table__body-wrapper{
     tbody{
@@ -622,11 +667,12 @@ export default {
               color: transparent;
             }
             td:nth-child(1){
-              border-right: 0;
+              // border-right: 0;
             }
             td:nth-child(2){
               text-align: center;
-              border-left: 1px solid #2f627a;
+              // border-left: 1px solid #2f627a;
+              border-left:0;
               .cell{
                 padding-left: 10px;
               }
@@ -639,14 +685,15 @@ export default {
           color: transparent;
         }
         td:nth-child(1){
-          border-right: 0;
+          // border-right: 0;
         }
         td:nth-child(2){
           text-align: center;
-          border-left: 1px solid #2f627a;
-          padding-left: 10px;
+          // border-left: 1px solid #2f627a;
+          border-left:0;
+          // padding-left: 10px;
           .cell{
-            padding-left: 0;
+            // padding-left: 0;
           }
         }
       }

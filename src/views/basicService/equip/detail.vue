@@ -74,6 +74,7 @@ export default {
         groupId: '', // 分类id
         allocateId: '' // 项目id
       },
+      belongDepCode: '',
       curType: '', // 弹框类型  0： 添加， 1：编辑
       title: '',
       zblbList: [], // 装备分类下拉列表
@@ -122,7 +123,7 @@ export default {
         allocateId: this.filters.allocateId, // 项目id
         pageNum: this.page, // 页数
         pageSize: this.pageSize, // 条数
-        belongDepCode: JSON.parse(sessionStorage.getItem('depToken')) ? JSON.parse(sessionStorage.getItem('depToken'))[0].depCode : '' // 部门code
+        belongDepCode: this.belongDepCode // 部门code
       }
       if (hand) {
         para.logFlag = 1 // 添加埋点参数
@@ -232,10 +233,12 @@ export default {
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.belongDepCode = JSON.parse(sessionStorage.getItem('depToken')) ? JSON.parse(sessionStorage.getItem('depToken'))[0].depCode : '' // 部门code
     if (this.$route.query.groupId) {
       this.detailRow = this.$route.query
       this.detailRow.groupId = Number(this.detailRow.groupId)
       this.detailRow.allocateId = Number(this.detailRow.allocateId)
+      this.belongDepCode = this.$route.query.belongDepCode
       this.init()
     }
   }
