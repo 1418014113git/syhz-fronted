@@ -6,59 +6,59 @@
     <div style="margin: 0 0 10px 0;" v-if="deptPerData && deptPerData.length > 0">{{deptPerData[0].name}}_队伍基本情况</div>
     <el-table :data="deptPerData"  style="width: 100%;" :max-height="tableHeight"
       v-loading="teamLoading" class="table_th_center">
-      <el-table-column prop="count" label="合计" :width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="count" label="合计" :min-width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column prop="" label="民警">
-        <el-table-column prop="count1" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-        <el-table-column prop="age1" label="平均年龄" :width="smallItemWidth-10" align="center"></el-table-column>
+        <el-table-column prop="count1" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
+        <el-table-column prop="age1" label="平均年龄" :min-width="smallItemWidth-10" align="center"></el-table-column>
         <el-table-column prop="" label="性别" align="center">
-          <el-table-column prop="sex01" label="男" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="sex11" label="女" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex01" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex11" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
         <el-table-column prop="" label="学历" align="center">
-          <el-table-column prop="culture11" label="研" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture21" label="本" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture31" label="专" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture11" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture21" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture31" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
       </el-table-column>
       <el-table-column prop="" label="辅警">
-        <el-table-column prop="count2" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-        <el-table-column prop="age2" label="平均年龄" :width="smallItemWidth-10" align="center"></el-table-column>
+        <el-table-column prop="count2" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
+        <el-table-column prop="age2" label="平均年龄" :min-width="smallItemWidth-10" align="center"></el-table-column>
         <el-table-column prop="" label="性别" align="center">
-          <el-table-column prop="sex02" label="男" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="sex12" label="女" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex02" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex12" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
         <el-table-column prop="" label="学历" align="center">
-          <el-table-column prop="culture12" label="研" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture22" label="本" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture32" label="专" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture12" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture22" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture32" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
       </el-table-column>
       <el-table-column prop="" label="工勤">
-        <el-table-column prop="count3" label="数量" :width="smallItemWidth+10" align="center"></el-table-column>
-        <el-table-column prop="age3" label="平均年龄" :width="smallItemWidth-10" align="center"></el-table-column>
+        <el-table-column prop="count3" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
+        <el-table-column prop="age3" label="平均年龄" :min-width="smallItemWidth-10" align="center"></el-table-column>
         <el-table-column prop="" label="性别" align="center">
-          <el-table-column prop="sex03" label="男" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="sex13" label="女" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex03" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="sex13" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
         <el-table-column prop="" label="学历" align="center">
-          <el-table-column prop="culture13" label="研" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture23" label="本" :width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture33" label="专" :width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture13" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture23" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
+          <el-table-column prop="culture33" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
         </el-table-column>
       </el-table-column>
     </el-table>
 
     <div style="margin: 30px 0 10px 0;" v-if="deptPerData && deptPerData.length > 0">{{deptPerData[0].name}}_相关人员及联系人</div>
     <el-table :data="deptDetail" style="width: 100%;border-left: none;" v-loading="detailLoading" max-height="400">
-      <el-table-column prop="mainName" label="主要负责人" align="center" :width="smallItemWidth+100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="mainDuty" label="主要负责人职务" :width="smallItemWidth+100" align="center" show-overflow-tooltip>
+      <el-table-column prop="mainName" label="主要负责人" align="center" :min-width="smallItemWidth+100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="mainDuty" label="主要负责人职务" :min-width="smallItemWidth+100" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
           {{ $getDictName(scope.row.mainDuty+'', xrzw) }}
         </template>
       </el-table-column>
       <el-table-column prop="mainPhone" label="主要负责人联系方式" :min-width="smallItemWidth+160" align="center"  show-overflow-tooltip></el-table-column>
-      <el-table-column prop="dailyName" label="日常联系人" align="center" :width="smallItemWidth+100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="dailyDuty" label="日常联系人职务" :width="smallItemWidth+100" align="center" show-overflow-tooltip>
+      <el-table-column prop="dailyName" label="日常联系人" align="center" :min-width="smallItemWidth+100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="dailyDuty" label="日常联系人职务" :min-width="smallItemWidth+100" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
           {{ $getDictName(scope.row.mainDuty+'', xrzw) }}
         </template>
@@ -180,11 +180,12 @@ export default {
         toolbox: {
           show: true,
           orient: 'horizontal',
-          right: 30,
+          right: 50,
           top: 0,
           feature: {
             saveAsImage: {
               show: true,
+              title: '人员年龄构成保存为图片',
               icon: 'image://static/image/download.png'
               // emphasis: {
               //   icon: 'image://static/image/download_b.png'
@@ -252,11 +253,12 @@ export default {
         toolbox: {
           show: true,
           orient: 'horizontal',
-          right: 30,
+          right: 50,
           top: 0,
           feature: {
             saveAsImage: {
               show: true,
+              title: '人员性别构成保存为图片',
               icon: 'image://static/image/download.png'
               // emphasis: {
               //   icon: 'image://static/image/download_b.png'
@@ -329,11 +331,12 @@ export default {
         toolbox: {
           show: true,
           orient: 'horizontal',
-          right: 30,
+          right: 50,
           top: 0,
           feature: {
             saveAsImage: {
               show: true,
+              title: '人员学历构成保存为图片',
               icon: 'image://static/image/download.png'
               // emphasis: {
               //   icon: 'image://static/image/download_b.png'

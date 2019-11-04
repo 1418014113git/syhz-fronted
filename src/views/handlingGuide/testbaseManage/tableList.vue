@@ -1,11 +1,11 @@
 <template>
   <section class="testTableList">
     <div class="addTestQuestion">
-      <el-button type="primary" size="small" @click="addTestQuestion" icon="el-icon-plus" v-if="menuItemNode.deleteable==='0'">添加试题</el-button>
+      <el-button type="primary" size="small" @click="addTestQuestion" icon="el-icon-plus" v-if="menuItemNode.id && $isViewBtn('181002')">添加试题</el-button>
       <a :href="downLoadUrl+'试题导入模板.xlsx'"  download="试题导入模板.xlsx" style="margin:0 10px;">
-        <el-button type="primary" icon="el-icon-upload2">模板导出</el-button>
+        <el-button type="primary" icon="el-icon-upload2" v-if="$isViewBtn('181005')">模板导出</el-button>
       </a>
-      <el-button type="primary" @click="importTem('importInfo')" :loading="importLoading" icon="el-icon-download">批量导入</el-button>
+      <el-button type="primary" @click="importTem('importInfo')" :loading="importLoading" icon="el-icon-download" v-if="$isViewBtn('181006')">批量导入</el-button>
     </div>
     <el-form :inline="true" :model="filters" ref="filters" label-width="76px" style="text-align: left;">
       <el-form-item label="" prop="">
@@ -36,8 +36,8 @@
       <el-table-column label="操作" width="150">
         <template slot-scope="scope">
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
-          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑"></el-button>
-          <el-button size="mini" circle type="danger" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除"></el-button>
+          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" v-if="$isViewBtn('181003')"></el-button>
+          <el-button size="mini" circle type="danger" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除" v-if="$isViewBtn('181004')"></el-button>
           <!-- <el-button size="mini" circle type="danger" v-if="scope.row.deleteable=='1'" @click="handleRevord(scope.$index, scope.row)" title="发布">
             <svg-icon icon-class="audit"></svg-icon>
           </el-button> -->
