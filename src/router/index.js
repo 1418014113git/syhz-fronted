@@ -272,6 +272,7 @@ export const constantRouterMap = [
       { path: '/basicService/deptInfo/index', component: () => import('@/views/basicService/deptInfo/index'), name: '机构信息列表' },
       { path: '/basicService/deptInfo/detail', component: () => import('@/views/basicService/deptInfo/detail'), name: '机构信息' },
       { path: '/basicService/deptInfo/edit', component: () => import('@/views/basicService/deptInfo/edit'), name: '编辑机构信息' },
+      { path: '/basicService/teamStatistical', component: () => import('@/views/basicService/basicStatistical/teamStatistical'), name: '队伍基本情况统计' },
       { path: '/basicService/deptStatistical', component: () => import('@/views/basicService/basicStatistical/deptStatistical'), name: '单位机构基本情况' },
       { path: '/basicService/personInfo', component: () => import('@/views/basicService/personInfo/index'), name: '人员信息' }, // 人员信息
       { path: '/basicService/personList', component: () => import('@/views/basicService/personInfo/personList'), name: '人员信息列表' },
@@ -283,17 +284,36 @@ export const constantRouterMap = [
       { path: '/basicService/equip/detail', component: () => import('@/views/basicService/equip/detail'), name: '配备项目明细' }, // 配备项目明细
       { path: '/basicService/equipNorm', component: () => import('@/views/basicService/equipNorm/index'), name: '装备配备标准' }, // 装备配备标准
       { path: '/basicService/equipNorm/classify', component: () => import('@/views/basicService/equipNorm/equipClassify'), name: '装备分类管理' }, // 装备分类管理
+      { path: '/basicService/equipStatistical', component: () => import('@/views/basicService/basicStatistical/equipStatistical'), name: '装备信息统计' }, // 装备信息统计
       { path: '/notice/index', component: () => import('@/views/notice/noticeList'), name: '站内通知' },
       { path: '/notice/add', component: () => import('@/views/notice/noticeEdit'), name: '发布站内通知' },
       { path: '/notice/edit', component: () => import('@/views/notice/noticeEdit'), name: '编辑站内通知' },
       { path: '/notice/forward', component: () => import('@/views/notice/noticeEdit'), name: '转发站内通知' },
       { path: '/notice/detail', component: () => import('@/views/notice/noticeDetail'), name: '站内通知详情' },
       { path: '/notice/message', component: () => import('@/views/notice/noticeMessageList'), name: '站内消息' },
-      { path: '/notice/webSocket', component: () => import('@/views/notice/webSocket'), name: '消息提醒' }
+      { path: '/notice/webSocket', component: () => import('@/views/notice/webSocket'), name: '消息提醒' },
+      {
+        path: 'ajdeptreceive/save',
+        component: () => import('@/views/ajdeptreceive/save'),
+        name: '保存案件认领关系'
+      }, // 案件认领关系
+      {
+        path: 'ajdeptreceive/edit',
+        component: () => import('@/views/ajdeptreceive/edit'),
+        name: '修改案件认领关系'
+      }, // 案件认领关系
+      {
+        path: 'ajdeptreceive/list',
+        component: () => import('@/views/ajdeptreceive/list'),
+        name: '案件认关系领列表'
+      }
+
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
   { path: '/exportanjtb', component: () => import('@/views/caseManage/exportanjtb'), name: '案件侦办统计表导出页' },
+  { path: '/exportTeam', component: () => import('@/views/basicService/basicStatistical/exportTeam'), name: '队伍基本情况统计导出页' },
+  { path: '/exportEquip', component: () => import('@/views/basicService/basicStatistical/exportEquip'), name: '装备信息统计导出页' },
   { path: '*', redirect: '/404', hidden: true } // 全不匹配的情况下，返回404，路由按顺序从上到下，依次匹配。最后一个*能匹配全部
 ]
 

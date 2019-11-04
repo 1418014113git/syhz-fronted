@@ -415,4 +415,26 @@
     background-color: #0077af;
     cursor: pointer;
   }
+  /*.classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover,*/
+  /*.classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:active,*/
+  /*.classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal.vjs-slider-active{*/
+    /*width: 4em;*/
+  /*}*/
+  .classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover .vjs-volume-control.vjs-control.vjs-volume-horizontal{
+    z-index: 99;
+  }
+  .classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover{
+    background: rgba(43, 51, 63, 0.8);
+  }
+  .classRoom_videoPlayer .vjs-volume-control.vjs-control.vjs-volume-horizontal{
+    /*position: absolute!important;*/
+    /*bottom: 36px;*/
+    /*left: 0;*/
+    background: rgba(43, 51, 63, 0.8);
+    width: 6em !important;
+    padding-right: 10px;
+    /*-webkit-transform: rotate(-90deg);!*Safari 4+,Google Chrome 1+ *!*/
+    /*-moz-transform: rotate(-90deg);!*Firefox 3.5+*!*/
+    /*filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);!*ie*!*/
+  }
 </style>

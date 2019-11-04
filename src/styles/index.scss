@@ -1605,9 +1605,14 @@ label {
 }
 // 文字链接样式
 .linkColor{
-  color: #3da1ff;
+  color: #00a0e9;
+  cursor: pointer;
+}
+.linkColor:hover{
   text-decoration:underline;
 }
 .redColor{
   color: #f72929 !important;
+  text-decoration:underline;
 }
+

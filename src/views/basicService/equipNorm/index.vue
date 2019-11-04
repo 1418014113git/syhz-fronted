@@ -60,8 +60,8 @@
       </el-table-column>
       <el-table-column prop="enabled" label="状态" align="center" width="100">
         <template slot-scope="scope">
-          <span v-if="scope.row.enabled===0">停用</span>
-          <span v-else-if="scope.row.enabled===1">启用</span>
+          <span v-if="scope.row.enabled===0" style="color:#f72929;">停用</span>
+          <span v-else-if="scope.row.enabled===1" style="color:#67C23A;">启用</span>
         </template>
       </el-table-column>
       <el-table-column prop="allocateType" label="配备类型" align="center" width="120">
@@ -244,6 +244,7 @@ export default {
     closeDia(type) { // 关闭弹框
       this.dialogVisible = false
       this.$refs.myEquip.resetForm('allocateForm') // 调用子组件的清空表单方法
+      this.curEquip = {} // 清空curEquip，以免点击两次相同的行 不触发watch
       if (type === '1') {
         this.queryEquipList(true, true) // 刷新列表
       }

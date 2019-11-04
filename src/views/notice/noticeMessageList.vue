@@ -50,7 +50,7 @@
     <el-row>
       <el-col :span="4" style="padding-left: 14px; padding-top: 10px;">
         <el-checkbox v-model="checkBox" @change="checkBoxChange">全选</el-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;
-        <el-button v-if="$isViewBtn('159003')" title="删除" size="small" type="primary" @click="batchDelete" :disabled="multipleSelection.length === 0">批量删除</el-button>
+        <el-button v-if="$isViewBtn('159003')" title="删除" size="small" type="primary" class="disabledBtn" @click="batchDelete" :disabled="multipleSelection.length === 0">批量删除</el-button>
       </el-col>
       <el-col :span="20" class="toolbar">
         <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
@@ -60,7 +60,7 @@
     </el-row>
 
     <el-dialog title="发送消息" :visible.sync="addDialogVisible" :close-on-click-modal="false" :close-on-press-escape="false" class="add_dialog" @close="closeDialog">
-      <el-form :model="addForm" ref="addForm" :rules="addRules" label-width="90px">
+      <el-form :model="addForm" ref="addForm" :rules="addRules" v-loading="addBtnLoading" label-width="90px" style="margin-top: 15px;">
         <el-form-item label="标题" prop="title">
           <el-input v-model="addForm.title" maxlength="50" size="small" placeholder="最多可输入500个字符！"></el-input>
         </el-form-item>
@@ -432,7 +432,7 @@
         return item.label.indexOf(query) > -1
       },
       checkLXR() {
-        this.$query('departuser', {}, true).then(response => {
+        this.$query('departuser', { type: 0 }, true).then(response => {
           this.lXRData = response.data
           const tData = []
           for (let i = 0; i < response.data.length; i++) {
@@ -465,6 +465,9 @@
   .noticeMessageList .el-dialog__body{
     padding: 10px 25px 0;
   }
+  .noticeMessageList .el-dialog__footer{
+    padding: 10px 25px 20px;
+  }
   .noticeMessageList .add_content {
     margin-bottom: 10px;
   }
@@ -477,6 +480,11 @@
   .noticeMessageList .detail_dialog .break-word{
     word-wrap: break-word;
     word-break: break-all;
+  }
+  .noticeMessageList .disabledBtn.el-button--primary.is-disabled, .noticeMessageList .disabledBtn.el-button--primary.is-disabled:hover{
+    background-color: rgb(3, 94, 151);
+    color: #bbb;
+    border-color: #ccc;
   }
   @media screen and (min-width: 1700px) and (max-width: 1920px) {
     .noticeMessageList .el-transfer-panel {

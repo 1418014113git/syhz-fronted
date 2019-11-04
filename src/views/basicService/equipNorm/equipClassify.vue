@@ -11,8 +11,8 @@
       <el-table-column prop="lastTime" label="最新编辑时间" align="center" width="240"></el-table-column>
       <el-table-column prop="groupStatus" label="状态" align="center" width="100">
         <template slot-scope="scope">
-          <span v-if="scope.row.groupStatus===0">停用</span>
-          <span v-else-if="scope.row.groupStatus===1">启用</span>
+          <span v-if="scope.row.groupStatus===0" style="color:#f72929;">停用</span>
+          <span v-else-if="scope.row.groupStatus===1" style="color:#67C23A;">启用</span>
         </template>
       </el-table-column>
       <el-table-column prop="remark" label="说明" min-width="200" show-overflow-tooltip>
