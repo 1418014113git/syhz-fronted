@@ -284,6 +284,7 @@ export const constantRouterMap = [
       { path: '/basicService/equip/detail', component: () => import('@/views/basicService/equip/detail'), name: '配备项目明细' }, // 配备项目明细
       { path: '/basicService/equipNorm', component: () => import('@/views/basicService/equipNorm/index'), name: '装备配备标准' }, // 装备配备标准
       { path: '/basicService/equipNorm/classify', component: () => import('@/views/basicService/equipNorm/equipClassify'), name: '装备分类管理' }, // 装备分类管理
+      { path: '/basicService/equipStatistical', component: () => import('@/views/basicService/basicStatistical/equipStatistical'), name: '装备信息统计' }, // 装备信息统计
       { path: '/notice/index', component: () => import('@/views/notice/noticeList'), name: '站内通知' },
       { path: '/notice/add', component: () => import('@/views/notice/noticeEdit'), name: '发布站内通知' },
       { path: '/notice/edit', component: () => import('@/views/notice/noticeEdit'), name: '编辑站内通知' },
@@ -296,6 +297,7 @@ export const constantRouterMap = [
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
   { path: '/exportanjtb', component: () => import('@/views/caseManage/exportanjtb'), name: '案件侦办统计表导出页' },
   { path: '/exportTeam', component: () => import('@/views/basicService/basicStatistical/exportTeam'), name: '队伍基本情况统计导出页' },
+  { path: '/exportEquip', component: () => import('@/views/basicService/basicStatistical/exportEquip'), name: '装备信息统计导出页' },
   { path: '*', redirect: '/404', hidden: true } // 全不匹配的情况下，返回404，路由按顺序从上到下，依次匹配。最后一个*能匹配全部
 ]
 
