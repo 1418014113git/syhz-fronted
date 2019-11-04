@@ -193,12 +193,10 @@ export default {
       })
     },
     changeSelect(val) { // 装备分类change事件
+      this.pbxmList = []
       this.filters.allocateId = ''
       if (val) {
         this.equipallocateselect(val)
-      } else {
-        this.pbxmList = []
-        this.filters.groupId = ''
       }
       this.query(true)
     },

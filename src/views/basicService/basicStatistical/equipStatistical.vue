@@ -74,9 +74,9 @@
       <el-table-column   v-for="(item,index1) in tableHead" :key="index1" :label="item.label"  align="center">
         <el-table-column v-for="(it, index2) in item.children" :key="index2" :label="it.label" :prop="it.prop" align="center" min-width="120">
           <template slot-scope="scope">
-            <span class="" v-if="it.label==='必配装备' " :class="[{'redColor':(scope.row['value1'+it.groupId]<scope.row['value2'+it.groupId])},{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}]">{{scope.row[scope.column.property]}}</span>
-            <span class="" v-else-if="it.label==='有待更新'"  :class="[{'redColor':(it.label==='有待更新'&& scope.row[scope.column.property]>0)},{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}]">{{scope.row[scope.column.property]}}</span>
-            <span class="" v-else :class="{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}">{{scope.row[scope.column.property]}}</span>
+            <span class="" v-if="it.label==='必配装备' " :class="[{'redColor':(scope.row['value1'+it.groupId]<scope.row['value2'+it.groupId])},{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}]" @click="handleDetail(it,scope.row)">{{scope.row[scope.column.property]}}</span>
+            <span class="" v-else-if="it.label==='有待更新'"  :class="[{'redColor':(it.label==='有待更新'&& scope.row[scope.column.property]>0)},{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}]" @click="handleDetail(it,scope.row)">{{scope.row[scope.column.property]}}</span>
+            <span class="" v-else :class="{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}" @click="handleDetail(it,scope.row)">{{scope.row[scope.column.property]}}</span>
           </template>
         </el-table-column>
       </el-table-column>

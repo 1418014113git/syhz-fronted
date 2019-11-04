@@ -116,7 +116,7 @@ export default {
         this.loading = false
         this.personForm = response.data
         if (this.personForm.userSort) {
-          if (this.personForm.userSort === '1') { // 民警
+          if (this.personForm.userSort === 1) { // 民警
             this.curUserState = 'ryztmj'
           } else { // 辅警，工勤
             this.curUserState = 'ryztfj'
