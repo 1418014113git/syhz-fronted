@@ -306,7 +306,8 @@ export const constantRouterMap = [
         path: 'ajdeptreceive/list',
         component: () => import('@/views/ajdeptreceive/list'),
         name: '案件认关系领列表'
-      }
+      },
+      { path: '/caseAssist/caseType', component: () => import('@/views/caseAssist/caseType'), name: '案件类别与罪名' }
 
     ]
   },
