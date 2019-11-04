@@ -290,7 +290,23 @@ export const constantRouterMap = [
       { path: '/notice/forward', component: () => import('@/views/notice/noticeEdit'), name: '转发站内通知' },
       { path: '/notice/detail', component: () => import('@/views/notice/noticeDetail'), name: '站内通知详情' },
       { path: '/notice/message', component: () => import('@/views/notice/noticeMessageList'), name: '站内消息' },
-      { path: '/notice/webSocket', component: () => import('@/views/notice/webSocket'), name: '消息提醒' }
+      { path: '/notice/webSocket', component: () => import('@/views/notice/webSocket'), name: '消息提醒' },
+      {
+        path: 'ajdeptreceive/save',
+        component: () => import('@/views/ajdeptreceive/save'),
+        name: '保存案件认领关系'
+      }, // 案件认领关系
+      {
+        path: 'ajdeptreceive/edit',
+        component: () => import('@/views/ajdeptreceive/edit'),
+        name: '修改案件认领关系'
+      }, // 案件认领关系
+      {
+        path: 'ajdeptreceive/list',
+        component: () => import('@/views/ajdeptreceive/list'),
+        name: '案件认关系领列表'
+      }
+
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
