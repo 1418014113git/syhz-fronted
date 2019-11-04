@@ -219,6 +219,7 @@
           creatorName: this.detailData.creatorName,
           creatorDate: this.detailData.createTime,
           userId: this.curUser.id,
+          userName: this.curUser.realName,
           curDeptCode: this.curDept.depCode,
           curDeptName: this.curDept.depName,
           acceptDeptId: row.receiverDeptId,
