@@ -1,6 +1,7 @@
 <template>
 <!--装备信息首页-->
   <section class="equipInfo">
+    <img src="@/assets/icon/back.png"  class="goBack"  v-if="isShowBack"  @click="toback">   <!--返回-->
     <el-form :inline="true" :model="filters">
       <el-form-item label="装备类别" v-if="isShowfl">
         <el-select  v-model="filters.groupId" size="small" placeholder="全部" clearable  @change="changeSelect">
@@ -31,7 +32,7 @@
       <el-table-column prop="groupName" label="装备分类" align="center"  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="allocateName" label="装备项目" align="center" min-width="150" show-overflow-tooltip>
         <template slot-scope="scope">
-          <span :class="{'redColor':scope.row.equipStatus === 1}"  class="linkStyle"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.allocateName}}</span>
+          <span :class="{'redColor':scope.row.equipStatus === 1}"  class="linkColor"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.allocateName}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="allocateType" label="配备类型" align="center" min-width="100">
@@ -77,6 +78,8 @@ export default {
         allocateId: '', // 项目id
         allocateType: '' // 配备项类型(1必配 2选配 3无要求 )
       },
+      belongDepCode: '',
+      isShowBack: false, // 是否显示返回按钮
       isShowfl: false, // 是否显示分类查询框，若分类下拉列表查不出数据，则分类查询框和配备项目查询框都不显示。
       spanArr: [], // 表示某一行所需合并的列数
       zblbList: [], // 装备分类下拉列表
@@ -127,7 +130,7 @@ export default {
         groupId: this.filters.groupId, // 分类id
         allocateId: this.filters.allocateId, // 项目id
         allocateType: this.filters.allocateType, // 配备项类型(1必配 2选配 3按规定配备 )
-        belongDepCode: JSON.parse(sessionStorage.getItem('depToken')) ? JSON.parse(sessionStorage.getItem('depToken'))[0].depCode : '' // 部门code
+        belongDepCode: this.belongDepCode // 部门code
       }
       if (hand) {
         para.logFlag = 1 // 添加埋点参数
@@ -202,10 +205,24 @@ export default {
         allocateId: row.allocateId // 项目id
       }
       this.$router.push({ path: '/basicService/equip/detail', query: param })
+    },
+    toback() { // 返回
+      this.$router.back(-1)
+      this.filters = {
+        groupId: '', // 分类id
+        allocateId: '' // 项目id
+      }
     }
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 150
+    this.belongDepCode = JSON.parse(sessionStorage.getItem('depToken')) ? JSON.parse(sessionStorage.getItem('depToken'))[0].depCode : '' // 部门code
+    if (this.$route.query.groupId) { // 从装备统计页面进来的。
+      this.isShowBack = true
+      this.filters.groupId = this.$route.query.groupId
+      this.filters.allocateType = this.$route.query.allocateType
+      this.belongDepCode = this.$route.query.belongDepCode
+    }
     this.init()
   },
   activated() {
