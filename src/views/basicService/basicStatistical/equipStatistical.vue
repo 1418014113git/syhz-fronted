@@ -36,7 +36,7 @@
         <el-button type="primary" size="small"  @click="resetForm">重置</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-if="exportBtn && $isViewBtn('182001')"  @click="exportList">导出</el-button>
+        <el-button type="primary" size="small" v-if="exportBtn && $isViewBtn('182002')"  @click="exportList">导出</el-button>
       </el-form-item>
       </el-form>
     </el-col>
