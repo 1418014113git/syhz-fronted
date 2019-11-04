@@ -130,10 +130,10 @@ export default {
               if (value === null || value === undefined || value === '') {
                 callback(new Error('请选择总队（省）'))
               } else if (value === 3) {
-                if (this.allocateForm.provinceValue1 && this.allocateForm.provinceValue2) {
+                if (this.allocateForm.provinceValue1 && this.allocateForm.provinceValue2 && Number(this.allocateForm.provinceValue1) > 0 && Number(this.allocateForm.provinceValue2) > 0) {
                   callback()
                 } else {
-                  callback(new Error('请填写设定数量，须为大于1的数字'))
+                  callback(new Error('请填写设定数量，须为大于0的数字'))
                 }
               } else {
                 callback()
@@ -147,10 +147,10 @@ export default {
               if (value === null || value === undefined || value === '') {
                 callback(new Error('请选择支队（市）'))
               } else if (value === 3) {
-                if (this.allocateForm.cityValue1 && this.allocateForm.cityValue2) {
+                if (this.allocateForm.cityValue1 && this.allocateForm.cityValue2 && Number(this.allocateForm.cityValue1) > 0 && Number(this.allocateForm.cityValue2) > 0) {
                   callback()
                 } else {
-                  callback(new Error('请填写设定数量，须为大于1的数字'))
+                  callback(new Error('请填写设定数量，须为大于0的数字'))
                 }
               } else {
                 callback()
@@ -164,10 +164,10 @@ export default {
               if (value === null || value === undefined || value === '') {
                 callback(new Error('请选择大队（区县）'))
               } else if (value === 3) {
-                if (this.allocateForm.areaValue1 && this.allocateForm.areaValue2) {
+                if (this.allocateForm.areaValue1 && this.allocateForm.areaValue2 && Number(this.allocateForm.areaValue1) > 0 && Number(this.allocateForm.areaValue2) > 0) {
                   callback()
                 } else {
-                  callback(new Error('请填写设定数量，须为大于1的数字'))
+                  callback(new Error('请填写设定数量，须为大于0的数字'))
                 }
               } else {
                 callback()
