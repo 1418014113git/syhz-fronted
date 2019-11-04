@@ -78,7 +78,7 @@
           pageSize: 5,
           curDeptId: this.curDept.id,
           userId: this.curUser.id,
-          checkFlag: this.$isViewBtn('149007')
+          checkFlag: this.$isViewBtn('149005')
         }
         this.$query('notice/home', param).then((response) => {
           const data = response.data
