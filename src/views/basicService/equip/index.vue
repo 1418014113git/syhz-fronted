@@ -202,7 +202,8 @@ export default {
     handleDetail(index, row) { // 详情
       const param = {
         groupId: row.groupId, // 分类id
-        allocateId: row.allocateId // 项目id
+        allocateId: row.allocateId, // 项目id
+        belongDepCode: this.belongDepCode // 部门code
       }
       this.$router.push({ path: '/basicService/equip/detail', query: param })
     },
