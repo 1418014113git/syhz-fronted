@@ -39,8 +39,8 @@
         ></el-autocomplete>
       </el-form-item>
       <el-form-item label="人员类别" prop="userSort">
-        <el-select  v-model="filters.userSort" size="small" placeholder="请选择" clearable>
-          <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('rylx')" :key="item.dictKey" @change="rylbChange"></el-option>
+        <el-select  v-model="filters.userSort" size="small" placeholder="请选择" clearable  @change="rylbChange">
+          <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('rylx')" :key="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="userState">
@@ -489,6 +489,8 @@ export default {
       window.open(url)
     },
     rylbChange(val) { // 人员类别change事件
+      this.filters.userState = ''
+      this.curUserState = ''
       if (val) {
         if (val === '1') { // 民警
           this.curUserState = 'ryztmj'

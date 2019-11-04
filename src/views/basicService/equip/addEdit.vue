@@ -114,19 +114,22 @@
       init() {
         this.btnLoading = false
         this.initData()
-        this.equipgroupselect() // 装备分类下拉框
         if (this.tkType === 1) { // 编辑  则查详情接口
-          this.$query('basicequipdetail/' + this.curInfo.dtatilId, {}).then((response) => {
-            if (response.data.id) {
-              this.addEditForm.groupId = response.data.groupId ? response.data.groupId : ''
-              var allocateId = response.data.allocateId ? response.data.allocateId : ''
-              this.addEditForm.equipNumber = response.data.equipNumber ? response.data.equipNumber : 0
-              this.addEditForm.purchaseTime = response.data.purchaseTime ? response.data.purchaseTime : ''
-              this.addEditForm.remark = response.data.remark ? response.data.remark : ''
-              this.equipallocateselect(this.addEditForm.groupId, allocateId)
-            }
+          this.$query('equipgroupselect', {}).then((response) => { // 装备分类下拉框
+            this.zbflData = response.data
+            this.$query('basicequipdetail/' + this.curInfo.dtatilId, {}).then((response) => {
+              if (response.data.id) {
+                this.addEditForm.groupId = response.data.groupId ? response.data.groupId : ''
+                var allocateId = response.data.allocateId ? response.data.allocateId : ''
+                this.addEditForm.equipNumber = response.data.equipNumber ? response.data.equipNumber : 0
+                this.addEditForm.purchaseTime = response.data.purchaseTime ? response.data.purchaseTime : ''
+                this.addEditForm.remark = response.data.remark ? response.data.remark : ''
+                this.equipallocateselect(this.addEditForm.groupId, allocateId)
+              }
+            })
           })
         } else { // 添加
+          this.equipgroupselect() // 装备分类下拉框
           this.equipallocateselect(this.curInfo.groupId ? Number(this.curInfo.groupId) : '', this.curInfo.allocateId ? Number(this.curInfo.allocateId) : '')
         }
       },
