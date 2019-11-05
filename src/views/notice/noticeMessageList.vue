@@ -177,7 +177,6 @@
         curUser: {},
         curDept: {},
         multipleSelection: [],
-        checkFlag: this.$isViewBtn('149007'),
         leftCheck: [],
         rightCheck: []
       }
@@ -278,7 +277,6 @@
         const para = {
           pageNum: this.page,
           pageSize: this.pageSize,
-          checkFlag: this.checkFlag,
           userId: this.curUser.id,
           startTime: this.filters.time && this.filters.time.length > 0 ? (this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00') : '',
           endTime: this.filters.time && this.filters.time.length > 0 ? (this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59') : ''
