@@ -130,10 +130,10 @@
           <span v-if='curRow.userIdNumber'>{{getAfterSix(curRow.userIdNumber)}}</span>
         </el-form-item>
         <el-form-item label="排列次序" prop="order" :label-width="formLabelWidth">
-          <el-input-number v-model.trim="editPerForm.order" :min="1" :max="999"></el-input-number>
+          <el-input-number v-model.trim="editPerForm.order" :min="1" :max="999" @change="sortChange(editPerForm)"></el-input-number>
         </el-form-item>
         <el-form-item label="人员状态" prop="userState">
-          <el-select  v-model="editPerForm.userState" size="small" placeholder="" clearable>
+          <el-select  v-model="editPerForm.userState" size="small" placeholder="">
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts(editPerStatus)" :key="item.dictKey"></el-option>
           </el-select>
       </el-form-item>
@@ -179,7 +179,7 @@ export default {
       curUserState: '', // 根据人员类别存储对应的在职状态key值。 'userStatefj': 辅警、工勤, 'userStatemj':民警
       xrzw: '', // 根据当前用户角色是总队，还是支队，存储对应的字典key值， ‘xrzwzod’：总队， 'xrzwzhd':支队
       editPerForm: {
-        order: '', // 排列次序
+        order: 1, // 排列次序
         userState: '' // 人员状态
       },
       props: {
@@ -200,11 +200,12 @@ export default {
         order: [ // 序号
           {
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
-              if (!value) {
-                callback(new Error('请输入序号'))
-              } else {
-                callback()
-              }
+              // if (!value) {
+              //   callback(new Error('请输入序号'))
+              // } else {
+              //   callback()
+              // }
+              callback()
             }
           }
         ],
@@ -563,6 +564,13 @@ export default {
         number = val.substring(0, 10) + '******'
       }
       return number
+    },
+    sortChange(obj) {
+      if (!obj.order) {
+        setTimeout(() => {
+          this.$set(obj, 'order', 1)
+        }, 50)
+      }
     }
   },
   mounted() {
