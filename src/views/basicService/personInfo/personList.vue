@@ -44,7 +44,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="userState">
-        <el-select  v-model="filters.userState" size="small" placeholder="请选择" clearable>
+        <el-select  v-model="filters.userState" size="small" placeholder="请选择" clearable :disabled="statusDisabled">
           <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts(curUserState)" :key="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
@@ -196,6 +196,7 @@ export default {
       editPerStatus: '', // 点击列表当前行，根据当前行的人员类别， 判断出人员状态的字典key值并存储。
       downLoadUrl: http.LoginModuleName, // nginx配置的文件下载
       tableHeight: null,
+      statusDisabled: true,
       editPerRules: {
         order: [ // 序号
           {
@@ -492,12 +493,14 @@ export default {
     rylbChange(val) { // 人员类别change事件
       this.filters.userState = ''
       this.curUserState = ''
+      this.statusDisabled = true
       if (val) {
         if (val === '1') { // 民警
           this.curUserState = 'ryztmj'
         } else { // 辅警，工勤
           this.curUserState = 'ryztfj'
         }
+        this.statusDisabled = false
       }
     },
     save() { // 保存
@@ -606,6 +609,9 @@ export default {
   .tipText{
     margin: 8px 0;
     color: #ffe617;
+  }
+  .el-select .el-input--small .el-input__inner {
+    height: 25px !important;
   }
 }
 .el-table--scrollable-x .el-table__body-wrapper {
