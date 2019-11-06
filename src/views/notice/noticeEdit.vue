@@ -121,7 +121,7 @@
         curDept: {},
         curUser: {},
         titleCheckFlag: false,
-        checkFlag: this.$isViewBtn('149007'),
+        checkFlag: this.$isViewBtn('149005'),
         id: ''
       }
     },
