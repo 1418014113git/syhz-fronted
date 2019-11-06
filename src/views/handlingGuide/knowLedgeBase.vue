@@ -91,7 +91,7 @@
                   <template slot-scope="scope">
                     <el-button size="mini" v-if="$isViewBtn('129403')" title="查看" type="primary" icon="el-icon-view" circle @click="handleRowView(scope.$index, scope.row)"></el-button>
                     <el-button size="mini" v-if="$isViewBtn('129407') && editBtn(scope.row)" title="编辑" type="primary" icon="el-icon-edit" circle @click="handleRowEdit(scope.$index, scope.row)"></el-button>
-                    <el-button size="mini" v-if="$isViewBtn('129404') && removeBtn(scope.row)" title="删除" type="primary" icon="el-icon-delete" circle @click="handleRowDel(scope.$index, scope.row)"></el-button>
+                    <el-button size="mini" v-if="removeBtn(scope.row)" title="删除" type="primary" icon="el-icon-delete" circle @click="handleRowDel(scope.$index, scope.row)"></el-button>
                     <el-button size="mini" v-if="$isViewBtn('129405') && scope.row.auditStatus2 === '0' && scope.row.auditStatus !== '4' && curDept.depType !== '4'" title="审核" type="primary" circle @click="handleAudit(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
                     <el-button size="mini" v-if="$isViewBtn('129406') && scope.row.auditStatus !== '4'" title="审核记录" type="primary" icon="el-icon-document" circle @click="handleAuditList(scope.$index, scope.row)"></el-button>
                   </template>
@@ -221,13 +221,18 @@
         }
       },
       removeBtn(row) {
-        if (this.curUser.id === row.userId) {
-          return row.auditStatus === '0' || row.auditStatus === '3' || row.auditStatus === '4'
+        if (this.curDept.depType === '1' && this.$isViewBtn('129404') && !this.isNormal) {
+          return true
         } else {
-          if (!this.isNormal) {
-            return row.auditStatus === '0' || row.auditStatus === '3'
+          if (this.$isViewBtn('129404')) {
+            if (this.curUser.id === row.userId) {
+              return row.auditStatus === '0' || row.auditStatus === '3' || row.auditStatus === '4'
+            } else {
+              return false
+            }
+          } else {
+            return false
           }
-          return false
         }
       },
       handleCurrentChange(val) {
