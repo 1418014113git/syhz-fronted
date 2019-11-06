@@ -1615,4 +1615,9 @@ label {
   color: #f72929 !important;
   text-decoration:underline;
 }
-
+.tooltipShow {
+  opacity: 1;
+}
+.tooltipHide {
+  opacity: 0;
+}
