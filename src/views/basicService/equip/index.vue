@@ -149,11 +149,10 @@ export default {
       })
     },
     changeSelect(val) { // 装备分类change事件
+      this.pbxmList = []
+      this.filters.allocateId = ''
       if (val) {
         this.equipallocateselect(val)
-      } else {
-        this.pbxmList = []
-        this.filters.allocateId = ''
       }
     },
     initData() {
@@ -223,6 +222,7 @@ export default {
       this.filters.groupId = this.$route.query.groupId
       this.filters.allocateType = this.$route.query.allocateType
       this.belongDepCode = this.$route.query.belongDepCode
+      this.equipallocateselect(this.filters.groupId)
     }
     this.init()
   },

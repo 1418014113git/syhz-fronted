@@ -134,7 +134,7 @@
         tableHeight: null,
         curUser: {},
         curDept: {},
-        checkFlag: this.$isViewBtn('149007')
+        checkFlag: this.$isViewBtn('149005')
       }
     },
     methods: {
