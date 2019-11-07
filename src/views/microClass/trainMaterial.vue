@@ -20,7 +20,7 @@
                   <el-input placeholder="请输入关键字" v-model="filters.title" maxlength="50" style="width: 222px"></el-input>
                 </el-form-item>
                 <el-form-item label="类别">
-                  <el-select v-model="filters.type" placeholder="请选择">
+                  <el-select v-model="filters.type" placeholder="请选择" clearable>
                     <el-option label="环境" value="3"></el-option>
                     <el-option label="食品" value="1"></el-option>
                     <el-option label="药品" value="2"></el-option>
@@ -158,7 +158,7 @@
         deptUserList: [],
         filters: {
           title: '',
-          type: '',
+          type: '3',
           auditStatus: '',
           belongDepCode: '',
           creationId: '',
@@ -260,7 +260,7 @@
       query(flag) {
         this.listLoading = true
         this.page = flag ? 1 : this.page
-        this.filters.type = this.active
+        this.active = this.filters.type
         const para = {
           title: this.filters.title.trim(),
           type: this.filters.type,
