@@ -67,7 +67,19 @@
                   <el-option v-for="item in openDeptsList" :key="item.id" :label="item.deptName" :value="item.id"></el-option>
                 </el-select> -->
                 <el-collapse class="left" style="width:calc(100% - 30px)">
-                  <el-collapse-item title="选择部门" name="1">
+                  <el-collapse-item name="1">
+                     <template slot="title">
+                      <div style="position:relative;">
+                        <span>选择部门</span>
+                        <el-checkbox-group v-model="checkListDeps" style="position:absolute;top: 0;left: 100px;">
+                          <!-- 当前登录部门的 所有上级复选框 禁用 -->
+                          <el-checkbox :label="1" :disabled="Number(deptInfo.depType)>1" @change="handleCheckedDepts($event,'1')">总队</el-checkbox>
+                          <el-checkbox :label="2" :disabled="Number(deptInfo.depType)>2" @change="handleCheckedDepts($event,'2')">支队</el-checkbox>
+                          <el-checkbox :label="3" :disabled="Number(deptInfo.depType)>3" @change="handleCheckedDepts($event,'3')">大队</el-checkbox>
+                          <el-checkbox :label="4" :disabled="Number(deptInfo.depType)>4" @change="handleCheckedDepts($event,'4')">派出所</el-checkbox>
+                        </el-checkbox-group>
+                      </div>
+                    </template>
                     <div class="dept-tree" v-loading="treeLoading">
                       <el-tree class="filter-tree" :data="openDeptsList"
                         :props="{children: 'child',label: 'deptName',value: 'deptId'}"
@@ -181,6 +193,8 @@ export default {
       defaultExpandedKeys: [], // 默认展开的节点的 key 的数组
       defaultCheckedKeys: [], // 默认勾选的节点的 key 的数组
       markFilterFlag: false, // 阅卷老师是否筛选过
+      checkListDeps: [], // 开放部门复选框的v-model
+      returnedItem: [], // 开放部门 复选框 递归时用到的数组
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       rules: {
@@ -313,7 +327,6 @@ export default {
       var checkNodes = this.$refs.depTree.getCheckedNodes()
       // checkNodes = this.unique(checkNodes.concat([data])) // 包含当前节点
       var newArr = this.unique(checkNodes.concat(data.child))
-      console.log(newArr)
       this.$refs.depTree.setCheckedNodes(newArr) // 设置选中的节点
     },
     noCheckedSonDept(data, $event) { // 取消选中子部门
@@ -333,6 +346,42 @@ export default {
     unique(arr) {
       const res = new Map()
       return arr.filter((arr) => !res.has(arr.deptId) && res.set(arr.deptId, 1))
+    },
+    handleCheckedDepts(value, curType) { // 开放部门checklist变化
+      // console.log(value + '---' + curType)
+      var checkedNodes = this.$refs.depTree.getCheckedNodes()
+      var byTypeArr = []
+      this.returnedItem = [] // 递归方法调用前 先将数组置为空
+      byTypeArr = this.findByLeafType(this.openDeptsList, curType)
+      // console.log(byTypeArr)
+      if (value) { // 选中 当前类型的所有部门
+        var newArr = this.unique(checkedNodes.concat(byTypeArr))
+        this.$refs.depTree.setCheckedNodes(newArr) // 设置选中的节点
+      } else { // 取消 当前类型的所有部门
+        for (let q = 0; q < byTypeArr.length; q++) { // 当前类型的所有节点
+          const childItem = byTypeArr[q]
+          for (let w = 0; w < checkedNodes.length; w++) { // 遍历现有选中的节点
+            const element = checkedNodes[w]
+            if (childItem.deptId === element.deptId) {
+              checkedNodes.splice(w, 1)
+              break
+            }
+          }
+        }
+        this.$refs.depTree.setCheckedNodes(checkedNodes) // 设置选中的节点
+      }
+    },
+    findByLeafType(nodes, type) { // 通过type找所有类型相同的部门
+      for (let index = 0; index < nodes.length; index++) {
+        const item = nodes[index]
+        if (item.departType === type) {
+          this.returnedItem.push(item)
+        }
+        if (item.child && item.child.length > 0) { // 判断chlidren是否有数据
+          this.findByLeafType(item.child, type) // 递归调用
+        }
+      }
+      return this.returnedItem
     },
     init() {
       // 开放单位：获取本单位和下级单位
@@ -647,6 +696,9 @@ export default {
     max-height: 400px;
     overflow-y: auto;
     // padding: 5px;
+  }
+  .el-checkbox__input.is-disabled .el-checkbox__inner {
+    background: rgba(184, 184, 185, 0.5);
   }
 }
 .spt_report {
