@@ -110,8 +110,8 @@
             this.videoList = response.data.enType1
             this.audioList = response.data.enType2
             this.documentList = response.data.enType0
-            this.total = this.videoList.length + this.audioList.length + this.documentList.length
-            this.$emit('changeList', this.videoList, this.audioList, this.documentList, this.filters)
+            this.total = response.data.enType1Length + response.data.enType2Length + response.data.enType0Length
+            this.$emit('changeList', this.videoList, this.audioList, this.documentList, this.filters, response.data.enType1Length, response.data.enType2Length, response.data.enType0Length)
           }).catch(() => {
             this.loading = false
           })
