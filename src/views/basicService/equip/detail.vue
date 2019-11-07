@@ -17,7 +17,7 @@
         <el-button type="primary" size="small" @click="query(true,true)">查询</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" @click="add" v-if="$isViewBtn('180001')">添加</el-button>
+        <el-button type="primary" size="small" @click="add" v-if="isShowAdd && $isViewBtn('180001')">添加</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
@@ -84,6 +84,7 @@ export default {
       curRow: {}, // 存储当前被点击行的row数据
       detailRow: {}, // 存储列表页传递过来的被点击行的row数据
       listLoading: false,
+      isShowAdd: false,
       tableHeight: null
     }
   },
@@ -238,6 +239,10 @@ export default {
       this.detailRow.allocateId = Number(this.detailRow.allocateId)
       this.belongDepCode = this.$route.query.belongDepCode
       this.init()
+    }
+    var depCode = JSON.parse(sessionStorage.getItem('depToken')) ? JSON.parse(sessionStorage.getItem('depToken'))[0].depCode : ''
+    if (depCode === this.belongDepCode) {
+      this.isShowAdd = true
     }
   }
 }

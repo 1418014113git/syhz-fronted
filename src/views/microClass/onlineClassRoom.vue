@@ -3,19 +3,19 @@
     <filter-common ref="filterCommon" :isMore="false" :postfix="postfix" @changeList="changeList" :uploadFlag="true"></filter-common>
     <el-row>
       <div class="file_data">
-        <p><span>视频（{{ videoList.length }}）</span><span><el-button type="text" icon="el-icon-menu" v-if="$isViewBtn('139004')" @click="more('1')">更多 >></el-button></span></p>
+        <p><span>视频（{{ videoListLength }}）</span><span><el-button type="text" icon="el-icon-menu" v-if="$isViewBtn('139004')" @click="more('1')">更多 >></el-button></span></p>
         <div>
           <video-list ref="videoList" :data="videoList" :dataLoading="dataLoading" :filters="filters"></video-list>
         </div>
       </div>
       <div class="file_data">
-        <p><span>音频（{{ audioList.length }}）</span><span><el-button type="text" icon="el-icon-menu" v-if="$isViewBtn('139004')" @click="more('2')">更多 >></el-button></span></p>
+        <p><span>音频（{{ audioListLength }}）</span><span><el-button type="text" icon="el-icon-menu" v-if="$isViewBtn('139004')" @click="more('2')">更多 >></el-button></span></p>
         <div>
           <audio-list ref="audioList" :data="audioList" :dataLoading="dataLoading" :filters="filters"></audio-list>
         </div>
       </div>
       <div class="file_data">
-        <p><span>文档（{{ documentList.length }}）</span><span><el-button type="text" icon="el-icon-menu" v-if="$isViewBtn('139004')" @click="more('0')">更多 >></el-button></span></p>
+        <p><span>文档（{{ documentListLength }}）</span><span><el-button type="text" icon="el-icon-menu" v-if="$isViewBtn('139004')" @click="more('0')">更多 >></el-button></span></p>
         <div>
           <document-list ref="documentList" :data="documentList" :dataLoading="dataLoading" :filters="filters"></document-list>
         </div>
@@ -41,17 +41,23 @@
         postfix: '',
         activeName: '0',
         videoList: [],
+        videoListLength: 0,
         audioList: [],
+        audioListLength: 0,
         documentList: [],
+        documentListLength: 0,
         dataLoading: true,
         filters: {}
       }
     },
     methods: {
-      changeList(arr1, arr2, arr3, filters) {
+      changeList(arr1, arr2, arr3, filters, arr1L, arr2L, arr3L) {
         this.videoList = arr1
         this.audioList = arr2
         this.documentList = arr3
+        this.videoListLength = arr1L
+        this.audioListLength = arr2L
+        this.documentListLength = arr3L
         if (this.enType === '0') {
           this.$refs.documentList.setList(this.documentList)
         }
@@ -161,5 +167,13 @@
   }
   .online_classroom .file_data .file_data_list .time > span:last-child {
     float: right;
+  }
+  .online_classroom .file_data > div > div {
+    height: 309px;
+    width: 100%;
+    text-align: center;
+    line-height: 309px;
+    color: #c9edfc;
+    text-shadow: 0 0 2px #fff;
   }
 </style>
