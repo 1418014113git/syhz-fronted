@@ -401,7 +401,7 @@ export default {
       this.loading = true
       this.$query('USERMESSAGE/' + this.curId, {}, true).then((response) => {
         this.loading = false
-        response.data.userSort ? this.personForm.userSort = response.data.userSort + '' : this.personForm.userSort = ''
+        response.data.userSort ? this.personForm.userSort = response.data.userSort : ''
         response.data.userState ? this.personForm.userState = response.data.userState + '' : this.personForm.userState = ''
         response.data.cultureDegree ? this.personForm.cultureDegree = response.data.cultureDegree + '' : this.personForm.cultureDegree = ''
         response.data.workerGrade ? this.personForm.workerGrade = response.data.workerGrade + '' : this.personForm.workerGrade = ''

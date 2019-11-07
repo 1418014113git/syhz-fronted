@@ -1,19 +1,22 @@
 <template>
-  <section class="online_classroom">
+  <section class="online_classroom_more">
     <filter-common ref="filterCommon" :isMore="true" :postfix="postfix" @changeList="changeList" :uploadFlag="true"></filter-common>
     <div class="file_data" v-if="enType === '1'">
       <div>
         <video-list ref="videoList" :data="videoList" :dataLoading="dataLoading" :filters="filters"></video-list>
+        <div v-if="videoList.length === 0">暂无数据</div>
       </div>
     </div>
     <div class="file_data" v-if="enType === '2'">
       <div>
         <audio-list ref="audioList" :data="audioList" :dataLoading="dataLoading" :filters="filters"></audio-list>
+        <div v-if="audioList.length === 0">暂无数据</div>
       </div>
     </div>
     <div class="file_data" v-if="enType === '0'">
       <div>
         <document-list ref="documentList" :data="documentList" :dataLoading="dataLoading" :filters="filters"></document-list>
+        <div v-if="documentList.length === 0">暂无数据</div>
       </div>
     </div>
     <el-col :span="24" class="toolbar">
@@ -114,26 +117,26 @@
 </script>
 
 <style>
-  .online_classroom .file_data{
+  .online_classroom_more .file_data{
     margin-bottom: 20px;
     min-height: 360px;
   }
-  .online_classroom .file_data > p{
+  .online_classroom_more .file_data > p{
     width: 100%;
     display: inline-block;
     height: 40px;
     line-height: 40px;
     border-bottom: 2px solid #fff;
   }
-  .online_classroom .file_data > p > span{
+  .online_classroom_more .file_data > p > span{
     float: left;
   }
-  .online_classroom .file_data > p > span:last-child{
+  .online_classroom_more .file_data > p > span:last-child{
     float: right;
     margin-right: 10px;
     cursor: pointer;
   }
-  .online_classroom .file_data .file_data_list{
+  .online_classroom_more .file_data .file_data_list{
     width: 23%;
     float: left;
     margin-right: 38px;
@@ -141,24 +144,24 @@
     border: 1px solid transparent;
     border-radius: 4px;
   }
-  .online_classroom .file_data .file_data_list:hover, .online_classroom .file_data .file_data_list:active{
+  .online_classroom_more .file_data .file_data_list:hover, .online_classroom_more .file_data .file_data_list:active{
     border: 1px solid #00A0E9;
     border-radius: 4px;
     background-color: #003F5E;
     background-color: rgba(0,63,94,0.6);
     cursor: pointer;
   }
-  .online_classroom .file_data .file_data_list:nth-child(4n){
+  .online_classroom_more .file_data .file_data_list:nth-child(4n){
     margin-right: 0;
   }
-  .online_classroom .file_data .file_data_list .img {
+  .online_classroom_more .file_data .file_data_list .img {
     position: relative;
   }
-  .online_classroom .file_data .file_data_list .img > img{
+  .online_classroom_more .file_data .file_data_list .img > img{
     width: 100%;
     height: 200px;
   }
-  .online_classroom .file_data .file_data_list .img .tag{
+  .online_classroom_more .file_data .file_data_list .img .tag{
     position: absolute;
     bottom: 0;
     height: 30px;
@@ -170,7 +173,7 @@
     font-size: 14px;
     /*opacity: 0.1;*/
   }
-  .online_classroom .file_data .file_data_list .title{
+  .online_classroom_more .file_data .file_data_list .title{
     margin: 20px 0 5px;
     text-overflow: ellipsis;
     width: 100%;
@@ -178,15 +181,23 @@
     overflow: hidden;
     white-space: nowrap;
   }
-  .online_classroom .file_data .file_data_list .time{
+  .online_classroom_more .file_data .file_data_list .time{
     color: #ccc;
     font-size: 14px;
     margin-top: 20px;
   }
-  .online_classroom .file_data .file_data_list .time > span {
+  .online_classroom_more .file_data .file_data_list .time > span {
     float: left;
   }
-  .online_classroom .file_data .file_data_list .time > span:last-child {
+  .online_classroom_more .file_data .file_data_list .time > span:last-child {
     float: right;
+  }
+  .online_classroom_more .file_data > div > div {
+    height: 309px;
+    width: 100%;
+    text-align: center;
+    line-height: 309px;
+    color: #c9edfc;
+    text-shadow: 0 0 2px #fff;
   }
 </style>
