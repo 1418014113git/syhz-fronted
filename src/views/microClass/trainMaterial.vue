@@ -20,7 +20,7 @@
                   <el-input placeholder="请输入关键字" v-model="filters.title" maxlength="50" style="width: 222px"></el-input>
                 </el-form-item>
                 <el-form-item label="类别">
-                  <el-select v-model="filters.type" placeholder="请选择" clearable>
+                  <el-select v-model="filters.type" placeholder="请选择" clearable style="width: 222px">
                     <el-option label="环境" value="3"></el-option>
                     <el-option label="食品" value="1"></el-option>
                     <el-option label="药品" value="2"></el-option>
@@ -28,7 +28,7 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item label="审核状态">
-                  <el-select v-model="filters.auditStatus" placeholder="请选择" clearable>
+                  <el-select v-model="filters.auditStatus" placeholder="请选择" clearable style="width: 222px">
                     <el-option label="未提交" value="4"></el-option>
                     <el-option label="待审核" value="0"></el-option>
                     <el-option label="审核中" value="1"></el-option>
@@ -37,12 +37,12 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item label="上传单位"><!--clearable-->
-                  <el-select v-model="filters.belongDepCode" placeholder="请选择" @change="deptChange" clearable :disabled="isNormal">
+                  <el-select v-model="filters.belongDepCode" placeholder="请选择" @change="deptChange" clearable :disabled="isNormal" style="width: 222px">
                     <el-option v-for="item in deptList" :key="item.index" :value="item.departCode" :label="item.departName"></el-option>
                   </el-select>
                 </el-form-item>
                 <el-form-item label="上传者">
-                  <el-select v-model="filters.creationId" placeholder="请选择" clearable :disabled="isNormal">
+                  <el-select v-model="filters.creationId" placeholder="请选择" clearable :disabled="isNormal" style="width: 222px">
                     <el-option v-for="item in deptUserList" :key="item.index" :value="item.id" :label="item.realName"></el-option>
                   </el-select>
                 </el-form-item>
@@ -58,8 +58,13 @@
               <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" :selectable="selectable"></el-table-column>
                 <el-table-column type="index" label="序号" width="60"></el-table-column>
-                <el-table-column prop="enName" label="资料名称"></el-table-column>
-                <el-table-column prop="enType" label="资料类型">
+                <el-table-column prop="enName" label="资料名称">
+                  <template slot-scope="scope">
+                    <span v-if="$isViewBtn('139007')" @click="handleRowView(scope.$index, scope.row)" class="url_text">{{scope.row.enName}}</span>
+                    <span v-else>{{scope.row.enName}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="enType" label="资料类型" width="100px">
                   <template slot-scope="scope">
                     <span v-if="scope.row.enType === 1">视频</span>
                     <span v-if="scope.row.enType === 2">音频</span>
@@ -74,9 +79,9 @@
                     <span v-if="scope.row.type === 4">综合</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="belongOrgName" label="上传单位"></el-table-column>
-                <el-table-column prop="creationName" label="上传者"></el-table-column>
-                <el-table-column prop="creationTime" label="上传时间"></el-table-column>
+                <el-table-column prop="belongOrgName" label="上传单位" width="200px"></el-table-column>
+                <el-table-column prop="creationName" label="上传者" width="100px"></el-table-column>
+                <el-table-column prop="creationTime" label="上传时间" width="120px"></el-table-column>
                 <el-table-column prop="auditStatus" label="审核状态" width="100px">
                   <template slot-scope="scope">
                     <span v-if="scope.row.auditStatus === '0'">待审核</span>
@@ -623,5 +628,8 @@
   .trainMaterial .el-dialog__wrapper.audit_dialog .el-dialog .el-dialog__body{
     padding-left: 40px;
     padding-right: 40px;
+  }
+  .trainMaterial .url_text{
+    cursor: pointer;
   }
 </style>
