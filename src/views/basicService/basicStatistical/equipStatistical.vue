@@ -49,7 +49,7 @@
       <el-table-column type="expand" v-if="firstCanShow">
         <template slot-scope="scope">
           <el-table :data="scope.row.tableDataList"  :style="expandStyle"  v-loading="listChildLoading" >
-            <el-table-column prop="" width="48"></el-table-column>
+            <el-table-column prop="" width="47"></el-table-column>
             <el-table-column type="index" width="60" label="序号" align="center"></el-table-column>
             <el-table-column prop="areaName" align="center" label="机构单位"  min-width="200"  show-overflow-tooltip></el-table-column>
             <el-table-column  v-for="(itemExpand,index) in tableHead" :key="index" :label="itemExpand.label" align="center">
