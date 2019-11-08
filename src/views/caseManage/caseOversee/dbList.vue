@@ -10,10 +10,11 @@
           change-on-select
           @change="handleAreaChange"
           :show-all-levels="false"
-          clearable placeholder="全部">
+          clearable placeholder="全部"
+          :disabled="deptInfo.depType>2">
         </el-cascader>
       </el-form-item>
-      <el-form-item label="申请单位" prop="examStatus">
+      <el-form-item label="督办单位" prop="examStatus">
         <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
           <el-cascader
             :options="deptOptions"
@@ -22,26 +23,27 @@
             change-on-select
             :show-all-levels="false"
             @change="handleDeptChange"
-            clearable placeholder="全部">
+            clearable placeholder="全部"
+            :disabled="deptInfo.depType>2">
           </el-cascader>
         </el-tooltip>
       </el-form-item>
       <el-form-item label="状态">
-        <el-select v-model="filters.designMode" placeholder="请选择" >
-          <el-option v-for="item in $getDicts('jgszms')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
+        <el-select v-model="filters.status" placeholder="请选择" >
+          <el-option v-for="item in $getDicts('dbajzt')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="督办级别">
-        <el-select v-model="filters.designMode" placeholder="请选择" >
-          <el-option v-for="item in $getDicts('jgszms')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
+        <el-select v-model="filters.superviseLevel" placeholder="请选择" >
+          <el-option v-for="item in $getDicts('dbjb')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="申请人">
-        <el-input v-model="filters.caseName" clearable placeholder="案件名称" size="small" maxlength="30"></el-input>
+        <el-input v-model="filters.applyPersonName" clearable placeholder="案件名称" size="small" maxlength="30"></el-input>
       </el-form-item>
       <el-form-item label="截止日期">
         <el-date-picker
-          v-model="filters.rlStartTime"
+          v-model="filters.startDate"
           type="date"
           value-format="yyyy-MM-dd"
           :picker-options="startPickerOptions"
@@ -51,7 +53,7 @@
       </el-form-item>
       <el-form-item label="至">
         <el-date-picker
-          v-model="filters.rlEndTime"
+          v-model="filters.endDate"
           type="date"
           value-format="yyyy-MM-dd"
           :picker-options="endPickerOptions"
@@ -60,11 +62,11 @@
           :disabled="endDateDisabled">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="关键词">
-        <el-input v-model="filters.caseName" clearable placeholder="请输入关键词" size="small" maxlength="30"></el-input>
+      <el-form-item label="关键词" prop="keyword">
+        <el-input v-model="filters.keyword" clearable placeholder="请输入关键词" size="small" maxlength="30"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-if="$isViewBtn('100801')"  v-on:click="query(true,true)">查询</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100801')"  v-on:click="queryDb(true,true)">查询</el-button>
         <el-button type="primary" size="small"  v-on:click="resetForm">重置</el-button>
       </el-form-item>
       <!--<el-form-item>-->
@@ -78,21 +80,21 @@
     </el-form>
     <el-row style="margin:0px 0 16px;">
       <el-button class="right" type="primary" size="small"  v-on:click="handleDbBatchRelease('apply')">督办批次发布</el-button>
-      <span class="right" style="margin-right:10px;color: #00a0e9;cursor: pointer;text-decoration:underline;">挂牌督办办法</span>
+      <a :href="downLoadUrl+'挂牌督办测试.pdf'" target="_blank" class="right" style="margin-right:10px;color: #00a0e9;cursor: pointer;text-decoration:underline;">挂牌督办办法</a>
     </el-row>
     <el-table :data="dbData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
       <el-table-column label="序号" type="index" width="60"></el-table-column>
-      <el-table-column label="案件名称" min-width="10%">
+      <el-table-column label="案件名称" min-width="10%" prop="caseName">
         <!-- <template slot-scope="scope">
           <a class="ajbh-color" @click="toAjDetail(scope.row.case_id)">{{scope.row.AJMC}}</a>
         </template> -->
       </el-table-column>
       <el-table-column label="案件编号" min-width="10%">
         <template slot-scope="scope">
-          <a class="ajbh-color" @click="toAjDetail(scope.row.case_id)">{{scope.row.AJBH}}</a>
+          <a class="ajbh-color" @click="toAjDetail(scope.row.caseId)">{{scope.row.caseNumber}}</a>
         </template>
       </el-table-column>
-      <el-table-column prop="AJLB_NAME" label="督办批次" min-width="10%"></el-table-column>
+      <el-table-column prop="title" label="督办批次" min-width="10%"></el-table-column>
       <!-- <el-table-column label="立案时间" width="140">
         <template slot-scope="scope">
           {{$handlerDateTime(scope.row.LARQ)}}
@@ -104,23 +106,22 @@
           {{scope.row.create_time | formatDate}}
         </template>
       </el-table-column> -->
-      <el-table-column prop="apply_dept_name" label="申请单位" min-width="15%"></el-table-column>
-      <el-table-column prop="apply_dept_name" label="申请人" min-width="15%"></el-table-column>
-      <el-table-column prop="apply_dept_name" label="申请日期" min-width="15%"></el-table-column>
-      <el-table-column prop="supervise_level" label="督办级别" :formatter="formatterLevel" width="100"></el-table-column>
-      <!-- <el-table-column label="督办状态" width="100">
+      <el-table-column prop="applyDeptName" label="申请单位" min-width="15%"></el-table-column>
+      <el-table-column prop="applyPersonName" label="申请人" min-width="15%"></el-table-column>
+      <el-table-column prop="applyDate" label="申请日期" min-width="15%"></el-table-column>
+      <el-table-column prop="superviseLevel" label="督办级别" width="100">
         <template slot-scope="scope">
-          {{filterStateText(scope.row.status)}}
+          {{$getDictName(scope.row.superviseLevel+'','dbjb')}}
         </template>
-      </el-table-column> -->
+      </el-table-column>
       <el-table-column label="截止日期" width="150">
         <template slot-scope="scope">
-          <span v-if="scope.row.end_date">{{scope.row.end_date | formatDate}}</span>
+          <span v-if="scope.row.endDate">{{scope.row.endDate | formatDate}}</span>
         </template>
       </el-table-column>
       <el-table-column label="状态" width="100">
         <template slot-scope="scope">
-          {{filterStateText(scope.row.status)}}
+          {{$getDictName(scope.row.superviseLevel+'','dbajzt')}}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="140">
@@ -151,7 +152,7 @@
 
 <script>
 import { getTree } from '@/api/dept'
-import { getSupervisePage, deleteSupervise } from '@/api/supervise'
+import { deleteSupervise } from '@/api/supervise'
 import {
   getDBLevelText, getAssistStatusText
 } from '@/utils/codetotext'
@@ -159,6 +160,7 @@ import {
   parseTime
 } from '@/utils/index'
 import AssessScores from '@/views/caseAssist/components/assessScores'
+import importexport from '@/api/importexport'
 export default {
   name: 'dblist',
   components: {
@@ -166,6 +168,7 @@ export default {
   },
   data() {
     return {
+      downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
       xzqhOptions: [], // 行政区划数据
       deptOptions: [], // 部门数据
       props: {
@@ -180,17 +183,14 @@ export default {
       selectCurDep: { name: '' }, // 当前选中的部门
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
+      pcsParentDept: {},
       assessForm: {
         content: ''
       },
       assessScoresForm: {},
       assessScoresVisible: false,
       currentDeptId: '',
-      filters: {
-        caseName: '',
-        createTime: '',
-        deptName: ''
-      },
+      filters: {},
       ajbh: '',
       toEdit: {},
       pageSize: 15,
@@ -217,23 +217,6 @@ export default {
     }
   },
   methods: {
-    startDateChange(val) {
-      if (val) {
-        this.endDateDisabled = false
-        this.endPickerOptions = this.$pickerOptionChange(val, this.endPickerOptions, 'end')
-      } else {
-        this.filters.rlEndTime = '' // 结束时间清空
-        this.endDateDisabled = true
-        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
-      }
-    },
-    endDateChange(val) { // 结束时间change事件
-      if (val) {
-        this.startPickerOptions = this.$pickerOptionChange(val, this.startPickerOptions, 'start')
-      } else {
-        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
-      }
-    },
     handleAreaChange(val) { // 行政区划
       this.filters.department = []
       if (val.length > 0) {
@@ -251,10 +234,12 @@ export default {
               const data = response.data
               for (let i = 0; i < data.length; i++) {
                 const obj = data[i]
-                arr.push({
-                  id: obj.id, name: obj.dep_name, cityCode: obj.city_code,
-                  depCode: obj.dep_code, parentCode: obj.super_dep_code, depType: obj.depType
-                })
+                if (obj.depType !== '4') { // 不展示派出所
+                  arr.push({
+                    id: obj.id, name: obj.dep_name, cityCode: obj.city_code,
+                    depCode: obj.dep_code, parentCode: obj.super_dep_code, depType: obj.depType
+                  })
+                }
               }
               this.deptOptions = getTree(arr) // 机构
             }
@@ -284,6 +269,7 @@ export default {
     initData() { // 初始化筛选条件
       // 行政区划
       this.listLoading = true
+      var _this = this
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
           this.xzqhOptions = response.data ? response.data : []
@@ -292,14 +278,24 @@ export default {
             currentArea = [this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '2') { // 支队
             currentArea = ['610000', this.deptInfo.areaCode]
+            for (let index = 0; index < this.xzqhOptions[0].children.length; index++) {
+              const element = this.xzqhOptions[0].children[index]
+              if (element.cityCode === this.deptInfo.areaCode) {
+                _this.xzqhOptions[0].children[index].disabled = false
+              } else {
+                _this.xzqhOptions[0].children[index].disabled = true
+              }
+            }
+            // console.log(this.xzqhOptions)
           } else if (this.deptInfo.depType === '3') { // 大队 派出所
             currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '4') {
-            if (this.deptInfo.areaCode === '610403') { // 杨凌例外
-              currentArea = ['610000', '610403']
-            } else { // 正常的派出所
-              currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
-            }
+            currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.parentDepCode]
+            // if (this.deptInfo.areaCode === '610403') { // 杨凌例外
+            //   currentArea = ['610000', '610403']
+            // } else { // 正常的派出所
+            //   currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
+            // }
           }
           this.filters.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
@@ -313,14 +309,79 @@ export default {
           } else if (this.deptInfo.depType === '3') { // 大队
             this.filters.department = [this.deptInfo.depCode]
           } else if (this.deptInfo.depType === '4') { // 派出所
-            this.filters.department = [this.deptInfo.parentDepCode, this.deptInfo.depCode]
+            this.filters.department = [this.deptInfo.parentDepCode] // 派出所当作上级处理
+            // 调接口查 派出所的上级
+            this.$query('hsyzparentdepart/' + this.deptInfo.depCode, {}, 'upms').then((response) => {
+              if (response.code === '000000') {
+                this.pcsParentDept = response.data
+              }
+            }).catch(() => {
+              this.caseLoading = false
+            })
           }
-          // this.queryList(true) // 查列表
-          this.listLoading = false
+          this.queryDb(true) // 查列表
         }
       }).catch(() => {
         this.listLoading = false
       })
+    },
+    handleCurrentChange(val) {
+      this.page = val
+      this.queryDb(false, true)
+    },
+    handleSizeChange(val) {
+      this.page = 1
+      this.pageSize = val
+      this.queryDb(false, true)
+    },
+    queryDb(flag, hand) {
+      this.listLoading = true
+      this.page = flag ? 1 : this.page
+      const para = JSON.parse(JSON.stringify(this.filters))
+      para.area = ''
+      para.department = ''
+      // para.ajbh = this.ajbh || '' // 案件编号
+      para.pageNum = this.page
+      para.pageSize = this.pageSize
+      // para.deptId = this.currentDeptId
+      if (this.filters.department) {
+        para.departCode = this.filters.department[this.filters.department.length - 1]
+      } else {
+        para.departCode = this.deptInfo.depCode // 所属部门code
+      }
+      para.supType = this.deptInfo.depType === '4' ? this.pcsParentDept.depType : this.deptInfo.depType // 当前部门类型
+      para.departCode = this.filters.department[this.filters.department.length - 1] // 部门code
+
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
+      this.$query('page/casesupervise', para).then((response) => {
+        if (response.code === '000000') {
+          this.listLoading = false
+          this.dbData = response.data.list
+          this.listTotal = response.data.totalCount
+          this.pageSize = response.data.pageSize
+        }
+      }).catch(() => {
+        this.listLoading = false
+      })
+    },
+    startDateChange(val) {
+      if (val) {
+        this.endDateDisabled = false
+        this.endPickerOptions = this.$pickerOptionChange(val, this.endPickerOptions, 'end')
+      } else {
+        this.filters.rlEndTime = '' // 结束时间清空
+        this.endDateDisabled = true
+        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
+      }
+    },
+    endDateChange(val) { // 结束时间change事件
+      if (val) {
+        this.startPickerOptions = this.$pickerOptionChange(val, this.startPickerOptions, 'start')
+      } else {
+        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
+      }
     },
     handleDialog(index, row) {
       this.assessScoresVisible = true
@@ -351,8 +412,8 @@ export default {
         cancelButtonText: '取消',
         inputType: 'password',
         customClass: 'myPropt',
-        inputPattern: /^[a-zA-Z0-9]{6,8}$/,
-        inputErrorMessage: '密码格式不正确（6-8位的字母或者数字）'
+        inputPattern: /^[a-zA-Z0-9]{6,16}$/,
+        inputErrorMessage: '密码格式不正确（6-16位的字母或者数字）'
       }).then(({ value }) => {
         // this.$message({
         //   type: 'success',
@@ -398,35 +459,6 @@ export default {
         this.listLoading = false
       })
     },
-    handleCurrentChange(val) {
-      this.page = val
-      this.query(false, true)
-    },
-    handleSizeChange(val) {
-      this.page = 1
-      this.pageSize = val
-      this.query(false, true)
-    },
-    query(flag, hand) {
-      this.listLoading = true
-      this.page = flag ? 1 : this.page
-      const para = this.filters
-      para.ajbh = this.ajbh || '' // 案件编号
-      para.pageNum = this.page
-      para.pageSize = this.pageSize
-      para.deptId = this.currentDeptId
-      if (hand) { // 手动点击时，添加埋点参数
-        para.logFlag = 1
-      }
-      getSupervisePage(para).then((response) => {
-        this.listLoading = false
-        this.dbData = response.data.list
-        this.listTotal = response.data.totalCount
-        this.pageSize = response.data.pageSize
-      }).catch(() => {
-        this.listLoading = false
-      })
-    },
     saveDBInfo(type) {
       this.$router.push({
         path: '/caseManage/dbedit/' + type
@@ -450,7 +482,7 @@ export default {
         deptName: ''
       }
       this.ajbh = ''
-      this.query(true, true)
+      this.queryDb(true, true)
     },
     toAjDetail(id) {
       // this.$router.push({ path: '/caseManage/detailSyh/' + id })
@@ -503,9 +535,9 @@ export default {
     // }
     // if (depToken) {
     //   this.currentDeptId = depToken['id']
-    //   this.query(true)
+    // this.queryDb(true)
     // }
-    this.dbData = [{ ajmc: '测试' }]
+    // this.dbData = [{ ajmc: '测试' }]
     this.initData()
   },
   activated() {
@@ -552,5 +584,14 @@ export default {
       margin-left: 5px;
     }
   }
+}
+.el-cascader.is-disabled .el-cascader__label {
+  cursor: not-allowed;
+}
+.el-cascader-menu__item.is-disabled,
+.el-cascader-menu__item.is-disabled:hover {
+  color: #c0c4cc;
+  background-color: rgba(0, 89, 130, 0.7);
+  cursor: not-allowed;
 }
 </style>

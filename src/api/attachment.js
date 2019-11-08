@@ -2,7 +2,7 @@ const attachmentModule = process.env.ATTACHMENT_MODULE
 const uploadFileUrl = attachmentModule + 'file/uploadFile'
 const getVideoUrl = attachmentModule + 'file/attachmentList'
 const uploadFilesUrl = attachmentModule + 'file/uploadFiles'
-const tipText = '只能上传txt、doc、docx、xls、xlsx、pdf、png、zip、jpg格式文件，且大小不超过500M'
+const tipText = '支持上传txt、doc、docx、xls、xlsx、pdf、jpg、png、zip、rar格式文件，且单个文件大小不超过500M'
 const tipTextImg = '只能上传png、jpg、jpeg、bmp格式文件，且大小不超过500M'
 const tipTextOther = '只能上传doc、docx、zip、rar、pdf格式文件，且大小不超过500M'
 const tipTextNoWs = '只能上传doc、docx、zip、rar、pdf、png、jpg、jpeg、bmp格式文件，且大小不超过500M'
@@ -17,15 +17,15 @@ function fileValid(file) {
     var fileM = (file.size / Math.pow(num, 2)).toFixed(0)
     console.log(file.size + ',' + fileM)
     if (parseInt(fileM) > 500) {
-      return '上传txt、doc、docx、xls、xlsx、pdf、png、zip、jpg格式文件，且大小不超过500M'
+      return '上传txt、doc、docx、xls、xlsx、pdf、jpg、png、zip、rar格式文件，且大小不超过500M'
     }
   }
   const name = file.name.split('.')
   const arrayLength = name.length
   const fileType = name[arrayLength - 1]
-  const reg = /^(txt)|(doc)|(docx)|(xls)|(xlsx)|(pdf)|(png)|(zip)|(jpg)$/
+  const reg = /^(txt)|(doc)|(docx)|(xls)|(xlsx)|(pdf)|(jpg)|(png)|(zip)|(rar)$/
   if (!reg.test(fileType)) {
-    return '上传txt、doc、docx、xls、xlsx、pdf、png、zip、jpg格式文件，且大小不超过500M'
+    return '上传txt、doc、docx、xls、xlsx、pdf、jpg、png、zip、rar格式文件，且大小不超过500M'
   }
   return ''
 }
