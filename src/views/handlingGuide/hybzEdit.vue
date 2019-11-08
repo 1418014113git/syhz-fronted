@@ -191,13 +191,14 @@
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
               if (value === null || value === '') {
                 return callback(new Error('请选择施行日期'))
-              } else if (new Date() < value) {
-                callback(new Error('施行日期不能大于当前日期'))
               } else if (new Date(this.lawInfo.publishTime) > value) {
                 callback(new Error('施行日期不能小于颁布日期'))
               } else {
                 callback()
               }
+              // else if (new Date() < value) {
+              //   callback(new Error('施行日期不能大于当前日期'))
+              // }
             }
           }]
         },
