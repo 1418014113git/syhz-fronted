@@ -45,15 +45,15 @@
     </div>
 
     <!--列表-->
-    <el-table :data="tableData"  v-loading="listLoading" style="width: 100%;margin-top: 15px;"  :class="{'tableHj':firstCanShow}" :max-height="tableHeight"  :span-method="arraySpanMethod" :row-key="getRowKeys"  :expand-row-keys="expands" @expand-change="rowClick">
+    <el-table :data="tableData"  v-loading="listLoading" ref="equipStatistical" style="width: 100%;margin-top: 15px;"  :class="{'tableHj':firstCanShow}" :max-height="tableHeight"  :span-method="arraySpanMethod" :row-key="getRowKeys"  :expand-row-keys="expands" @expand-change="rowClick">
       <el-table-column type="expand" v-if="firstCanShow">
         <template slot-scope="scope">
-          <el-table :data="scope.row.tableDataList"  v-loading="listChildLoading" >
+          <el-table :data="scope.row.tableDataList"  :style="expandStyle"  v-loading="listChildLoading" >
             <el-table-column prop="" width="47"></el-table-column>
             <el-table-column type="index" width="60" label="序号" align="center"></el-table-column>
-            <el-table-column prop="areaName" align="center" label="机构单位"  width="200"  show-overflow-tooltip></el-table-column>
+            <el-table-column prop="areaName" align="center" label="机构单位"  min-width="200"  show-overflow-tooltip></el-table-column>
             <el-table-column  v-for="(itemExpand,index) in tableHead" :key="index" :label="itemExpand.label" align="center">
-              <el-table-column v-for="(itChild,indexs) in itemExpand.children" :key="indexs" :label="itChild.label" :prop="itChild.prop" align="center" width="120">
+              <el-table-column v-for="(itChild,indexs) in itemExpand.children" :key="indexs" :label="itChild.label" :prop="itChild.prop" align="center" min-width="120">
                 <template slot-scope="scope">
                   <span class="" v-if="itChild.label==='必配装备'" :class="[{'redColor':(scope.row['value1'+itChild.groupId]<scope.row['value2'+itChild.groupId])},{'linkColor':(itChild.groupId!=='a')}]" @click="handleDetail(itChild,scope.row)">{{scope.row[scope.column.property]}}</span>
                   <span class="" v-else-if="itChild.label==='有待更新'"  :class="[{'redColor':(itChild.label==='有待更新'&& scope.row[scope.column.property]>0)},{'linkColor':(itChild.groupId!=='a')}]" @click="handleDetail(itChild,scope.row)">{{scope.row[scope.column.property]}}</span>
@@ -72,7 +72,7 @@
       </el-table-column>
       <el-table-column prop="areaName" align="center" :label="firstCanShow?'省市':'机构单位'"   min-width="200" show-overflow-tooltip></el-table-column>
       <el-table-column   v-for="(item,index1) in tableHead" :key="index1" :label="item.label"  align="center">
-        <el-table-column v-for="(it, index2) in item.children" :key="index2" :label="it.label" :prop="it.prop" align="center" min-width="120">
+        <el-table-column v-for="(it, index2) in item.children" :key="index2" :label="it.label" :prop="it.prop" align="center"  min-width="120">
           <template slot-scope="scope">
             <span class="" v-if="it.label==='必配装备' " :class="[{'redColor':(scope.row['value1'+it.groupId]<scope.row['value2'+it.groupId])},{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}]" @click="handleDetail(it,scope.row)">{{scope.row[scope.column.property]}}</span>
             <span class="" v-else-if="it.label==='有待更新'"  :class="[{'redColor':(it.label==='有待更新'&& scope.row[scope.column.property]>0)},{'linkColor':(it.groupId!=='a' && scope.row.cityCode !== 'a' && !firstCanShow)}]" @click="handleDetail(it,scope.row)">{{scope.row[scope.column.property]}}</span>
@@ -111,6 +111,7 @@ export default {
         label: 'name',
         children: 'children'
       },
+      expandStyle: '', // 展开表格宽度,将它的父级table宽度赋值给它。
       selectCurDep: { name: '' }, // 当前选中的部门
       selectCurxzqhDep: { cityName: '' }, // 当前行政区划
       downLoadUrl: http.LoginModuleName, // nginx配置的文件下载
@@ -572,6 +573,8 @@ export default {
   mounted() {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    var screenWidth = this.$refs.equipStatistical.$el.clientWidth + 'px'
+    this.expandStyle = 'width:' + screenWidth + ';'
     this.init()
   },
   activated() {
