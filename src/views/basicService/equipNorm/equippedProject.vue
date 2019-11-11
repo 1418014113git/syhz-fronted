@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import { regCn } from '@/utils/validate'
+// import { regCn } from '@/utils/validate'
 export default {
   name: 'equippedProject',
   props: {
