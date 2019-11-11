@@ -78,14 +78,6 @@ export const constantRouterMap = [
       { path: '/jysp', component: () => import('@/views/inspection/jysp'), name: '检验鉴定审批' },
       // { path: '/caseManage/ajxcqs', component: () => import('@/views/caseManage/ajxcqs'), name: '案件协查签收' },
       // { path: '/caseManage/ajxcsh', component: () => import('@/views/caseManage/ajxcsh'), name: '案件协查审核' },
-      { path: '/caseManage/dblist', component: () => import('@/views/caseManage/dblist'), name: '案件督办列表' },
-      { path: '/caseManage/dbdetail/:id', component: () => import('@/views/caseManage/dbdetail'), name: '督办详情' },
-      { path: '/caseManage/dbedit/apply', component: () => import('@/views/caseManage/dbedit'), name: '申请案件督办' },
-      { path: '/caseManage/dbedit/apply/:id', component: () => import('@/views/caseManage/dbedit'), name: '修改案件督办' },
-      { path: '/caseManage/dbedit/demand', component: () => import('@/views/caseManage/dbeditfq'), name: '发起案件督办' },
-      { path: '/caseManage/dbedit/demand/:id', component: () => import('@/views/caseManage/dbeditfq'), name: '修改督办' },
-      { path: '/caseManage/dbendreport/:id', component: () => import('@/views/caseManage/components/dbEndReport'), name: '督办上报结案报告' },
-      { path: '/caseManage/dbendreport/:id/:reportId', component: () => import('@/views/caseManage/components/dbEndReport'), name: '督办修改结案报告' },
       { path: '/caseManage/ajrl', component: () => import('@/views/caseManage/ajrl'), name: '案件认领' },
       { path: '/caseManage/detail/:id', component: () => import('@/views/caseManage/detail'), name: '案件详情' },
       { path: '/caseManage/investigation', component: () => import('@/views/caseManage/investigation'), name: '集群战役列表' },
@@ -253,11 +245,11 @@ export const constantRouterMap = [
       { path: '/handlingGuide/examineManage/edit', component: () => import('@/views/handlingGuide/examineManage/edit'), name: '编辑考试' },
       { path: '/handlingGuide/examineManage/add', component: () => import('@/views/handlingGuide/examineManage/edit'), name: '添加考试' },
       { path: '/handlingGuide/examineManage/detail', component: () => import('@/views/handlingGuide/examineManage/detail'), name: '考试详情' },
-      { path: '/handlingGuide/educationalFreeSettings_detail/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_detail'), name: '考试管理详情' },
-      { path: '/handlingGuide/educationalFreeSettings_edit/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_edit'), name: '考试管理编辑' },
-      { path: '/handlingGuide/educationalFreeSettings_setting/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_setting'), name: '设置考题' },
-      { path: '/handlingGuide/educationalFreeSettings_stk/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_stk'), name: '选择考题' },
-      { path: '/handlingGuide/educationalFreeSettings_rule/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_rule'), name: '规则设置' },
+      // { path: '/handlingGuide/educationalFreeSettings_detail/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_detail'), name: '考试管理详情' },
+      // { path: '/handlingGuide/educationalFreeSettings_edit/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_edit'), name: '考试管理编辑' },
+      // { path: '/handlingGuide/educationalFreeSettings_setting/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_setting'), name: '设置考题' },
+      // { path: '/handlingGuide/educationalFreeSettings_stk/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_stk'), name: '选择考题' },
+      // { path: '/handlingGuide/educationalFreeSettings_rule/:id', component: () => import('@/views/handlingGuide/educationalFreeSettings_rule'), name: '规则设置' },
       { path: '/handlingGuide/examPaperManage', component: () => import('@/views/handlingGuide/examPaperManage/index'), name: '试卷管理' }, // 试卷列表
       { path: '/handlingGuide/addExamPaper', component: () => import('@/views/handlingGuide/examPaperManage/addExamPaper'), name: '添加试卷' }, // 添加试卷
       { path: '/handlingGuide/editExamPaper', component: () => import('@/views/handlingGuide/examPaperManage/editExamPaper'), name: '修改试卷' }, // 修改试卷
@@ -284,6 +276,7 @@ export const constantRouterMap = [
       { path: '/basicService/equip/detail', component: () => import('@/views/basicService/equip/detail'), name: '配备项目明细' }, // 配备项目明细
       { path: '/basicService/equipNorm', component: () => import('@/views/basicService/equipNorm/index'), name: '装备配备标准' }, // 装备配备标准
       { path: '/basicService/equipNorm/classify', component: () => import('@/views/basicService/equipNorm/equipClassify'), name: '装备分类管理' }, // 装备分类管理
+      { path: '/basicService/equipStatistical', component: () => import('@/views/basicService/basicStatistical/equipStatistical'), name: '装备信息统计' }, // 装备信息统计
       { path: '/notice/index', component: () => import('@/views/notice/noticeList'), name: '站内通知' },
       { path: '/notice/add', component: () => import('@/views/notice/noticeEdit'), name: '发布站内通知' },
       { path: '/notice/edit', component: () => import('@/views/notice/noticeEdit'), name: '编辑站内通知' },
@@ -291,27 +284,21 @@ export const constantRouterMap = [
       { path: '/notice/detail', component: () => import('@/views/notice/noticeDetail'), name: '站内通知详情' },
       { path: '/notice/message', component: () => import('@/views/notice/noticeMessageList'), name: '站内消息' },
       { path: '/notice/webSocket', component: () => import('@/views/notice/webSocket'), name: '消息提醒' },
-      {
-        path: 'ajdeptreceive/save',
-        component: () => import('@/views/ajdeptreceive/save'),
-        name: '保存案件认领关系'
-      }, // 案件认领关系
-      {
-        path: 'ajdeptreceive/edit',
-        component: () => import('@/views/ajdeptreceive/edit'),
-        name: '修改案件认领关系'
-      }, // 案件认领关系
-      {
-        path: 'ajdeptreceive/list',
-        component: () => import('@/views/ajdeptreceive/list'),
-        name: '案件认关系领列表'
-      }
-
+      { path: 'ajdeptreceive/save', component: () => import('@/views/ajdeptreceive/save'), name: '保存案件认领关系' }, // 案件认领关系
+      { path: 'ajdeptreceive/edit', component: () => import('@/views/ajdeptreceive/edit'), name: '修改案件认领关系' }, // 案件认领关系
+      { path: 'ajdeptreceive/list', component: () => import('@/views/ajdeptreceive/list'), name: '案件认关系领列表' },
+      { path: '/caseAssist/caseType', component: () => import('@/views/caseAssist/caseType'), name: '案件类别与罪名' },
+      { path: '/caseManage/dbList', component: () => import('@/views/caseManage/caseOversee/dbList'), name: '案件督办列表' },
+      { path: '/caseManage/dbApply', component: () => import('@/views/caseManage/caseOversee/dbApply'), name: '申请案件督办' },
+      { path: '/caseManage/dbDetail', component: () => import('@/views/caseManage/caseOversee/dbDetail'), name: '案件督办详情' },
+      { path: '/caseManage/db/batchList', component: () => import('@/views/caseManage/caseOversee/batchList'), name: '案件督办批次列表' },
+      { path: '/caseManage/db/batchRelease', component: () => import('@/views/caseManage/caseOversee/batchRelease'), name: '督办批次发布' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
   { path: '/exportanjtb', component: () => import('@/views/caseManage/exportanjtb'), name: '案件侦办统计表导出页' },
   { path: '/exportTeam', component: () => import('@/views/basicService/basicStatistical/exportTeam'), name: '队伍基本情况统计导出页' },
+  { path: '/exportEquip', component: () => import('@/views/basicService/basicStatistical/exportEquip'), name: '装备信息统计导出页' },
   { path: '*', redirect: '/404', hidden: true } // 全不匹配的情况下，返回404，路由按顺序从上到下，依次匹配。最后一个*能匹配全部
 ]
 

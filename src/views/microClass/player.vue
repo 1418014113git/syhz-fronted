@@ -1,5 +1,5 @@
 <template>
-  <section class="online_classroom_player">
+  <section class="online_classroom_player" :style="{height: tableHeight}">
     <filter-common v-if="auditView" ref="filterCommon" :isMore="false" :postfix="postfix" @changeList="changeList" :uploadFlag="false"></filter-common>
     <el-row type="flex" justify="center">
       <el-col :span="20">
@@ -154,9 +154,18 @@
         }
         this.detail()
       }
+      this.tableHeight = document.documentElement.clientHeight - 125 + 'px'
     }
   }
 </script>
 
-<style scoped>
+<style>
+  .online_classroom_player{
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+  .online_classroom_player::-webkit-scrollbar {
+    width: 0px;
+    height: 1px;
+  }
 </style>

@@ -12,8 +12,8 @@
             <div><span>发布单位：</span><span>{{detailData.creatorDeptName}}</span></div>
             <div><span>发布人：</span><span>{{detailData.creatorName}}</span></div>
             <div><span>发布时间：</span><span>{{this.$parseTime(detailData.createTime, '{y}-{m}-{d} {h}:{i}:{s}')}}</span></div>
-            <div v-if="detailData.signInfo !== undefined && String(detailData.signInfo.signStatus) === '1' && detailData.creatorId !== this.curUser.id"><span>未签收</span><el-button v-if="$isViewBtn('149007')" icon="el-icon-edit-outline" @click="signHandler">签收</el-button></div>
-            <div v-if="detailData.signInfo !== undefined && String(detailData.signInfo.signStatus) === '2' && detailData.creatorId !== this.curUser.id"><span>已签收</span><el-button v-if="$isViewBtn('149002') && (detailData.parentId === undefined || detailData.parentId === null || detailData.parentId === '') && curDept.depType === '2'" @click="forwardHandler"><svg-icon icon-class="forward" style="margin-right: 5px;"></svg-icon>转发</el-button></div>
+            <div v-if="detailData.signInfo !== undefined && String(detailData.signInfo.signStatus) === '1'"><span>未签收</span><el-button v-if="$isViewBtn('149007')" icon="el-icon-edit-outline" @click="signHandler">签收</el-button></div>
+            <div v-if="detailData.signInfo !== undefined && String(detailData.signInfo.signStatus) === '2'"><span>已签收</span><el-button v-if="$isViewBtn('149002') && (detailData.parentId === undefined || detailData.parentId === null || detailData.parentId === '') && curDept.depType === '2'" @click="forwardHandler"><svg-icon icon-class="forward" style="margin-right: 5px;"></svg-icon>转发</el-button></div>
           </div>
           <div class="lineDetail" v-if="detailData.parentId">
             <div><span>转发单位：</span><span>{{detailData.forwardDeptName}}</span></div>
@@ -219,6 +219,7 @@
           creatorName: this.detailData.creatorName,
           creatorDate: this.detailData.createTime,
           userId: this.curUser.id,
+          userName: this.curUser.realName,
           curDeptCode: this.curDept.depCode,
           curDeptName: this.curDept.depName,
           acceptDeptId: row.receiverDeptId,

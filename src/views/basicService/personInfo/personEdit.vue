@@ -146,6 +146,8 @@ export default {
       userInfo: {}, // 当前登录用户信息
       loading: false,
       btnLoading: false,
+      curUser: {},
+      curId: '',
       curUserState: '', // 根据人员类别存储对应的在职状态key值。 'userStatefj': 辅警、工勤, 'userStatemj':民警
       xrzw: '', // 根据当前用户角色是总队，还是支队，存储对应的字典key值， ‘xrzwzod’：总队， 'xrzwzhd':支队
       pickerOptions: { // 控制日期只能小于等于当前日期
@@ -395,12 +397,11 @@ export default {
           this.xrzw = 'xrzwpcs'
         }
       }
-      var id = this.$route.query.id ? this.$route.query.id : this.curUser.id
+      this.curId = this.$route.query.id ? this.$route.query.id : this.curUser.id
       this.loading = true
-      this.$query('USERMESSAGE/' + id, {}, true).then((response) => {
+      this.$query('USERMESSAGE/' + this.curId, {}, true).then((response) => {
         this.loading = false
-        // this.personForm = response.data
-        response.data.userSort ? this.personForm.userSort = response.data.userSort + '' : this.personForm.userSort = ''
+        response.data.userSort ? this.personForm.userSort = response.data.userSort : ''
         response.data.userState ? this.personForm.userState = response.data.userState + '' : this.personForm.userState = ''
         response.data.cultureDegree ? this.personForm.cultureDegree = response.data.cultureDegree + '' : this.personForm.cultureDegree = ''
         response.data.workerGrade ? this.personForm.workerGrade = response.data.workerGrade + '' : this.personForm.workerGrade = ''
@@ -423,7 +424,7 @@ export default {
         response.data.remark ? this.personForm.remark = response.data.remark : this.personForm.remark = ''
         response.data.userSex + '' ? this.personForm.userSex = response.data.userSex : this.personForm.userSex = ''
         if (this.personForm.userSort) {
-          if (this.personForm.userSort === '1') { // 民警
+          if (this.personForm.userSort === 1) { // 民警
             this.curUserState = 'ryztmj'
           } else { // 辅警，工勤
             this.curUserState = 'ryztfj'
@@ -439,11 +440,10 @@ export default {
     save() { // 保存
       this.$refs.personForm.validate(valid => {
         if (valid) {
-          var id = this.$route.query.id
           this.personForm.lastId = this.curUser.id // 最后修改人id
           this.personForm.lastName = this.curUser.realName // 最后修改人姓名
           this.btnLoading = true
-          this.$update('userMessage/' + id, this.personForm, true).then((response) => {
+          this.$update('userMessage/' + this.curId, this.personForm, true).then((response) => {
             this.$message({
               message: '人员信息保存成功！',
               type: 'success',

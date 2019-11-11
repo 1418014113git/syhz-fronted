@@ -430,10 +430,10 @@ export default {
       // var scoreArr = []
       // if (this.cityData.length > 0) {
       var scoreArr = [
-        { value: this.echartAllData.age1, name: '30岁以下' },
-        { value: this.echartAllData.age2, name: '30-40岁' },
-        { value: this.echartAllData.age3, name: '40-50岁' },
-        { value: this.echartAllData.age4, name: '50-60岁' },
+        { value: this.echartAllData.age1, name: '30岁及以下' },
+        { value: this.echartAllData.age2, name: '31-40岁' },
+        { value: this.echartAllData.age3, name: '41-50岁' },
+        { value: this.echartAllData.age4, name: '51-60岁' },
         { value: this.echartAllData.age5, name: '60岁以上' }
       ]
       // }
@@ -476,7 +476,7 @@ export default {
           type: 'scroll',
           bottom: 0,
           itemGap: 15,
-          data: ['30岁以下', '30-40岁', '40-50岁', '50-60岁', '60岁以上'],
+          data: ['30岁及以下', '31-40岁', '41-50岁', '51-60岁', '60岁以上'],
           textStyle: {
             color: '#bbbbbb',
             fontSize: 14

@@ -39,12 +39,12 @@
         ></el-autocomplete>
       </el-form-item>
       <el-form-item label="人员类别" prop="userSort">
-        <el-select  v-model="filters.userSort" size="small" placeholder="请选择" clearable>
-          <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('rylx')" :key="item.dictKey" @change="rylbChange"></el-option>
+        <el-select  v-model="filters.userSort" size="small" placeholder="请选择" clearable  @change="rylbChange">
+          <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('rylx')" :key="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="userState">
-        <el-select  v-model="filters.userState" size="small" placeholder="请选择" clearable>
+        <el-select  v-model="filters.userState" size="small" placeholder="请选择" clearable :disabled="statusDisabled">
           <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts(curUserState)" :key="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
@@ -130,10 +130,10 @@
           <span v-if='curRow.userIdNumber'>{{getAfterSix(curRow.userIdNumber)}}</span>
         </el-form-item>
         <el-form-item label="排列次序" prop="order" :label-width="formLabelWidth">
-          <el-input-number v-model.trim="editPerForm.order" :min="1" :max="999"></el-input-number>
+          <el-input-number v-model.trim="editPerForm.order" :min="1" :max="999" @change="sortChange(editPerForm)"></el-input-number>
         </el-form-item>
         <el-form-item label="人员状态" prop="userState">
-          <el-select  v-model="editPerForm.userState" size="small" placeholder="" clearable>
+          <el-select  v-model="editPerForm.userState" size="small" placeholder="">
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts(editPerStatus)" :key="item.dictKey"></el-option>
           </el-select>
       </el-form-item>
@@ -179,7 +179,7 @@ export default {
       curUserState: '', // 根据人员类别存储对应的在职状态key值。 'userStatefj': 辅警、工勤, 'userStatemj':民警
       xrzw: '', // 根据当前用户角色是总队，还是支队，存储对应的字典key值， ‘xrzwzod’：总队， 'xrzwzhd':支队
       editPerForm: {
-        order: '', // 排列次序
+        order: 1, // 排列次序
         userState: '' // 人员状态
       },
       props: {
@@ -196,15 +196,17 @@ export default {
       editPerStatus: '', // 点击列表当前行，根据当前行的人员类别， 判断出人员状态的字典key值并存储。
       downLoadUrl: http.LoginModuleName, // nginx配置的文件下载
       tableHeight: null,
+      statusDisabled: true,
       editPerRules: {
         order: [ // 序号
           {
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
-              if (!value) {
-                callback(new Error('请输入序号'))
-              } else {
-                callback()
-              }
+              // if (!value) {
+              //   callback(new Error('请输入序号'))
+              // } else {
+              //   callback()
+              // }
+              callback()
             }
           }
         ],
@@ -489,12 +491,16 @@ export default {
       window.open(url)
     },
     rylbChange(val) { // 人员类别change事件
+      this.filters.userState = ''
+      this.curUserState = ''
+      this.statusDisabled = true
       if (val) {
         if (val === '1') { // 民警
           this.curUserState = 'ryztmj'
         } else { // 辅警，工勤
           this.curUserState = 'ryztfj'
         }
+        this.statusDisabled = false
       }
     },
     save() { // 保存
@@ -561,6 +567,13 @@ export default {
         number = val.substring(0, 10) + '******'
       }
       return number
+    },
+    sortChange(obj) {
+      if (!obj.order) {
+        setTimeout(() => {
+          this.$set(obj, 'order', 1)
+        }, 50)
+      }
     }
   },
   mounted() {
@@ -596,6 +609,9 @@ export default {
   .tipText{
     margin: 8px 0;
     color: #ffe617;
+  }
+  .el-select .el-input--small .el-input__inner {
+    height: 25px !important;
   }
 }
 .el-table--scrollable-x .el-table__body-wrapper {
