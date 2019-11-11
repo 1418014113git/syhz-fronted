@@ -1,7 +1,7 @@
 <template>
   <div id="navBar_doc" class="classRoom_documentPlayer" v-loading="detailLoading">
     <el-row type="flex" justify="center">
-      <el-col  :span="playType !== '5' ? 24 : 20">
+      <el-col  :span="playType !== '5' ? 24 : 20" class="document_content">
         <el-card>
           <div v-if="playType === '5'" class="documentPlayer_title">
             <svg-icon icon-class="pdf1"></svg-icon>
@@ -17,9 +17,9 @@
             </ul>
           </div>
           <!--<div id="player" :style="{height: tableHeight}">-->
-          <div id="player">
-            <!--<button type="button" @click="changePdfPage(0)" :disabled="currentPage === 1" class="el-carousel__arrow el-carousel__arrow&#45;&#45;left"><i class="el-icon-arrow-left"></i></button>-->
-            <!--<button type="button" @click="changePdfPage(1)" :disabled="currentPage === pageCount" class="el-carousel__arrow el-carousel__arrow&#45;&#45;right"><i class="el-icon-arrow-right"></i></button>-->
+          <div id="player" class="player">
+            <button type="button" @click="changePdfPage(0)" class="el-carousel__arrow el-carousel__arrow--left"><i class="el-icon-arrow-left"></i></button>
+            <button type="button" @click="changePdfPage(1)" class="el-carousel__arrow el-carousel__arrow--right"><i class="el-icon-arrow-right"></i></button>
             <div class="pdf">
               <pdf :src="detailData.enPath"
                 :page="currentPage"
@@ -35,17 +35,18 @@
             </div>
           </div>
         </el-card>
-        <p :class="'arrow' + (playType !== '5' ? ' dialog_c' : '')">
-          <span @click="changePdfPage(0)" class="turn" :class="{grey: currentPage === 1}">上一页</span>
-          {{currentPage}} / {{pageCount ? pageCount : 0}}&nbsp;&nbsp;&nbsp;
-          <span @click="changePdfPage(1)" class="turn" :class="{grey: currentPage === pageCount}">下一页</span>
-        </p>
+        <!--<p :class="'arrow' + (playType !== '5' ? ' dialog_c' : '')">-->
+          <!--<span @click="changePdfPage(0)" class="turn" :class="{grey: currentPage === 1}">上一页</span>-->
+          <!--{{currentPage}} / {{pageCount ? pageCount : 0}}&nbsp;&nbsp;&nbsp;-->
+          <!--<span @click="changePdfPage(1)" class="turn" :class="{grey: currentPage === pageCount}">下一页</span>-->
+        <!--</p>-->
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
+  import $ from 'jquery'
   import pdf from 'vue-pdf'
   export default {
     props: [
@@ -119,18 +120,34 @@
         })
       },
       changePdfPage(val) {
+        if (val === 0 && this.currentPage === 1) {
+          this.$message({
+            message: '已经是第一页',
+            type: 'info'
+          })
+          return false
+        }
+        if (val === 1 && this.pageCount === this.currentPage) {
+          this.$message({
+            message: '已经是最后一页',
+            type: 'info'
+          })
+          return false
+        }
         if (val === 0 && this.currentPage > 1) {
           this.currentPage--
         }
         if (val === 1 && this.currentPage < this.pageCount) {
           this.currentPage++
         }
-        if (this.playType === 5) {
-          this.$store.dispatch('ToTop', 1)
-        } else {
-          location.hash = '#navBar_doc'
+        if (this.detailData.enClass !== '.pptx' && this.detailData.enClass !== '.ppt') {
+          if (this.playType === '5') {
+            $('.online_classroom_player').animate({ scrollTop: 278 }, 0)
+          } else {
+            $('.play_dialog').animate({ scrollTop: 260 }, 0)
+          }
         }
-        // document.getElementById('player').scrollTop = 0
+        document.getElementById('player').scrollTop = 0
         if (this.detailData.flag && this.notTake) {
           const time = new Date()
           const longC = parseFloat((time.getTime() - this.currentTime.getTime()) / 1000).toFixed(3)
@@ -198,11 +215,11 @@
       })
     },
     mounted() {
-      if (this.playType === '5') {
-        this.tableHeight = document.documentElement.clientHeight - 400 - 24 + 'px'
-      } else {
-        this.tableHeight = document.documentElement.clientHeight - 270 + 'px'
-      }
+      // if (this.playType === '5') {
+      //   this.tableHeight = document.documentElement.clientHeight - 400 - 24 + 'px'
+      // } else {
+      //   this.tableHeight = document.documentElement.clientHeight - 270 + 'px'
+      // }
       this.initSplit()
       this.setDetail(this.playerDetail)
     }
@@ -283,19 +300,29 @@
     background-color: #0077af;
     cursor: pointer;
   }
+  /*.classRoom_documentPlayer .el-carousel__arrow--right{*/
+    /*right: 15%;*/
+    /*position: fixed;*/
+    /*top: 70%;*/
+  /*}*/
+  /*.classRoom_documentPlayer .el-carousel__arrow--left{*/
+    /*left: 15%;*/
+    /*position: fixed;*/
+    /*top: 70%;*/
+  /*}*/
   .classRoom_documentPlayer .el-carousel__arrow--right{
-    right: 15%;
-    position: fixed;
-    top: 70%;
+    right: 8%;
+    position: absolute;
+    top: 50%;
   }
   .classRoom_documentPlayer .el-carousel__arrow--left{
-    left: 15%;
-    position: fixed;
-    top: 70%;
+    left: 8%;
+    position: absolute;
+    top: 50%;
   }
   .classRoom_documentPlayer .el-carousel__arrow{
-    height: 52px;
-    width: 52px;
+    height: 72px;
+    width: 72px;
   }
   .classRoom_documentPlayer .el-col {
     position: relative;
