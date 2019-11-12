@@ -50,7 +50,7 @@ export const constantRouterMap = [
         ]
       },
       // { path: '/jyjglist', component: () => import('@/views/inspection/jyjglist'), name: '检验机构列表' },
-      { path: '/intellSystem', component: () => import('@/views/intellSystem/index'), name: '线索列表' },
+      // { path: '/intellSystem', component: () => import('@/views/intellSystem/index'), name: '线索列表' },
       { path: '/handlingGuide/alzyList', component: () => import('@/views/handlingGuide/alzy_list'), name: '案例指引列表' },
       { path: '/handlingGuide/alzy/add', component: () => import('@/views/handlingGuide/alzyEdit'), name: '案例指引添加' },
       { path: '/handlingGuide/alzy/edit', component: () => import('@/views/handlingGuide/alzyEdit'), name: '案例指引编辑' },
@@ -80,10 +80,10 @@ export const constantRouterMap = [
       // { path: '/caseManage/ajxcsh', component: () => import('@/views/caseManage/ajxcsh'), name: '案件协查审核' },
       { path: '/caseManage/ajrl', component: () => import('@/views/caseManage/ajrl'), name: '案件认领' },
       { path: '/caseManage/detail/:id', component: () => import('@/views/caseManage/detail'), name: '案件详情' },
-      { path: '/caseManage/investigation', component: () => import('@/views/caseManage/investigation'), name: '集群战役列表' },
-      { path: '/caseManage/investigation/add', component: () => import('@/views/caseManage/investigation_edit'), name: '添加集群战役' },
-      { path: '/caseManage/investigation/edit/:id', component: () => import('@/views/caseManage/investigation_edit'), name: '编辑集群战役' },
-      { path: '/caseManage/investigation/detail/:id', component: () => import('@/views/caseManage/investigation_detail'), name: '集群战役详情' },
+      // { path: '/caseManage/investigation', component: () => import('@/views/caseManage/investigation'), name: '集群战役列表' },
+      // { path: '/caseManage/investigation/add', component: () => import('@/views/caseManage/investigation_edit'), name: '添加集群战役' },
+      // { path: '/caseManage/investigation/edit/:id', component: () => import('@/views/caseManage/investigation_edit'), name: '编辑集群战役' },
+      // { path: '/caseManage/investigation/detail/:id', component: () => import('@/views/caseManage/investigation_detail'), name: '集群战役详情' },
       { path: '/specialTasks/add', component: () => import('@/views/specialTasks/edit'), name: '添加任务' },
       { path: '/specialTasks/edit/:id', component: () => import('@/views/specialTasks/edit'), name: '专项任务编辑' },
       { path: '/specialTasks/results/:taskId', component: () => import('@/views/specialTasks/results'), name: '成果列表' },
@@ -102,7 +102,7 @@ export const constantRouterMap = [
       { path: '/caseManage/index', component: () => import('@/views/caseManage/index'), name: '案件列表' },
       { path: '/caseManage/ajrl', component: () => import('@/views/caseManage/ajrl'), name: '案件认领列表' },
       { path: '/caseManage/statistics', component: () => import('@/views/caseManage/caseStatistics'), name: '考核评比' },
-      { path: '/caseManage/statisInvestigation', component: () => import('@/views/caseManage/statisInvestigation'), name: '集群战役' }, // 此集群战役针对案件侦办与打击处理情况统计表单独写的
+      // { path: '/caseManage/statisInvestigation', component: () => import('@/views/caseManage/statisInvestigation'), name: '集群战役' }, // 此集群战役针对案件侦办与打击处理情况统计表单独写的
       { path: '/caseManage/statisHandle', component: () => import('@/views/caseManage/statisHandle'), name: '打击处理人员信息' }, // 此打击处理人员情况针对案件统计表单独写的，查询的是人员信息
       { path: '/caseManage/statisDblist', component: () => import('@/views/caseManage/statisDblist'), name: '大案侦办' }, //  此大案侦办列表针对案件侦办与打击处理情况统计表单独写的
       { path: '/intellSystem/edit/:id', component: () => import('@/views/intellSystem/edit'), name: '信息采集编辑' },
@@ -292,7 +292,12 @@ export const constantRouterMap = [
       { path: '/caseManage/dbApply', component: () => import('@/views/caseManage/caseOversee/dbApply'), name: '申请案件督办' },
       { path: '/caseManage/dbDetail', component: () => import('@/views/caseManage/caseOversee/dbDetail'), name: '案件督办详情' },
       { path: '/caseManage/db/batchList', component: () => import('@/views/caseManage/caseOversee/batchList'), name: '案件督办批次列表' },
-      { path: '/caseManage/db/batchRelease', component: () => import('@/views/caseManage/caseOversee/batchRelease'), name: '督办批次发布' }
+      { path: '/caseManage/db/batchRelease', component: () => import('@/views/caseManage/caseOversee/batchRelease'), name: '督办批次发布' },
+
+      { path: '/jqcampaign', component: () => import('@/views/caseManage/jqCampaign/mainList'), name: '集群战役' },
+      { path: '/jqcampaign/clueList', component: () => import('@/views/caseManage/jqCampaign/clueList'), name: '线索列表' },
+      { path: '/jqCampaign/detail', component: () => import('@/views/caseManage/jqCampaign/mainDetail'), name: '集群战役详情 ' },
+      { path: '/jqCampaign/jqzyAdd', component: () => import('@/views/caseManage/jqCampaign/jqzyAdd'), name: '申请集群战役 ' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
