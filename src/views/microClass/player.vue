@@ -39,6 +39,7 @@
     },
     data() {
       return {
+        tableHeight: null,
         postfix: '',
         enType: '',
         filters: {},
