@@ -126,24 +126,24 @@
         helpList: [
           {
             src: '/static/image/question_images/handbook.png',
-            describe: '系统使用手册',
-            downloadUrl: '/file/用户使用手册_[公安食药环侦实战应用平台建设].doc'
+            describe: 'PPT转换PDF格式说明',
+            downloadUrl: '/file/PPT转换PDF格式说明.docx'
           },
-          {
-            src: '/static/image/question_images/browser.png',
-            describe: '浏览器',
-            downloadUrl: '/file/谷歌and插件and安装插件说明.zip'
-          },
+          // {
+          //   src: '/static/image/question_images/browser.png',
+          //   describe: '浏览器',
+          //   downloadUrl: '/file/谷歌and插件and安装插件说明.zip'
+          // },
           {
             src: '/static/image/question_images/certificate.png',
-            describe: 'PKI数字证书',
-            downloadUrl: '/file/谷歌and插件and安装插件说明.zip'
-          },
-          {
-            src: '/static/image/question_images/specification.png',
-            describe: '插件安装说明',
-            downloadUrl: '/file/谷歌and插件and安装插件说明.zip'
+            describe: '视频格式工厂',
+            downloadUrl: '/file/视频格式工厂.zip'
           }
+          // {
+          //   src: '/static/image/question_images/specification.png',
+          //   describe: '视频格式工厂',
+          //   downloadUrl: '/file/视频格式工厂.zip'
+          // }
         ]
       }
     },
