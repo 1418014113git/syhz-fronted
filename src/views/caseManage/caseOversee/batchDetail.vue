@@ -5,41 +5,49 @@
     </el-row>
     <el-card style="margin-top:10px;">
       <!-- <div slot="header">
-        <span>督办批次发布</span>
+        <span>督办批次详情</span>
       </div> -->
       <!-- <el-row type="flex" justify="center" class="clearfix"> -->
-      <el-form :model="dbBatchForm" ref="dbBatchForm" :rules="rules" label-width="120px" label-position="left" v-loading="formLoading" class="clearfix">
-        <el-col :span="11">
+      <el-form :model="dbBatchForm" ref="dbBatchForm" label-width="120px" label-position="left" v-loading="formLoading" class="clearfix">
+        <el-col :span="12">
           <el-form-item label="批次名称" prop="title">
-            <el-input type="text" size="small" v-model.trim="dbBatchForm.title" clearable placeholder="请输入" maxlength="20" ></el-input>
-          </el-form-item>
-          <el-form-item label="开始日期" prop="startDate" class="clearfix">
-            <el-date-picker v-model="dbBatchForm.startDate" type="date" :picker-options="startPickerOptions" value-format="yyyy-MM-dd" placeholder="选择日期时间" @change="startDateChange" class="left" ></el-date-picker>
+            <span  @click="changeShowAll($event,'showAllPcmc')" :class="showAllPcmc?'showAll':'showPart'">{{dbBatchForm.title}}</span>
           </el-form-item>
           <el-form-item label="督办级别" prop="superviseLevel" class="clearfix">
-            <el-select v-model="dbBatchForm.superviseLevel" placeholder="请选择督办级别" class="db_create_input" @visible-change="levelVisibleChange" @change="superviseLevelChange">
-              <el-option label="部督办" value="1" v-if="deptInfo.depType==='1'"></el-option>
-              <el-option label="厅督办" value="2" v-if="deptInfo.depType==='1'"></el-option>
-              <el-option label="市督办" value="3" v-if="deptInfo.depType==='2'"></el-option>
-              <!-- <el-option v-for="item in $getDicts('dbjb')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option> -->
-            </el-select>
+            {{$getDictName(dbBatchForm.superviseLevel+'', 'dbjb')}}
           </el-form-item>
-        </el-col>
-        <el-col :span="11" :offset="2">
-          <el-form-item label="文号" prop="referenceNumber" class="clearfix">
-            <el-input type="text" v-model.trim="dbBatchForm.referenceNumber" clearable placeholder="请输入" maxlength="50" class="left"></el-input>
+          <el-form-item label="发布单位" prop="publishDepartName">
+            {{dbBatchForm.publishDepartName}}
+          </el-form-item>
+          <el-form-item label="发布时间" prop="publishDate" class="clearfix">
+            {{dbBatchForm.publishDate}}
+          </el-form-item>
+          <el-form-item label="开始日期" prop="startDate" class="clearfix">
+            {{dbBatchForm.startDate}}
           </el-form-item>
           <el-form-item label="截止日期" prop="endDate" class="clearfix">
-            <el-date-picker v-model="dbBatchForm.endDate" type="date" :picker-options="endPickerOptions" value-format="yyyy-MM-dd" placeholder="选择日期时间" @change="endDateChange" class="left" ></el-date-picker>
+            {{dbBatchForm.endDate}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="11" :offset="1">
+          <el-form-item label="文号" prop="referenceNumber" class="clearfix">
+            {{dbBatchForm.referenceNumber}}
+          </el-form-item>
+          <el-form-item label="状态" prop="status" class="clearfix">
+            {{$getDictName(dbBatchForm.status+'', 'dbajpczt')}}
+          </el-form-item>
+          <el-form-item label="发布人" prop="publishPersonName" class="clearfix">
+            {{dbBatchForm.publishPersonName}}
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="提醒时限" class="clearfix" prop="remindDate">
-            截止日期前 <el-input-number v-model.trim="dbBatchForm.remindDate" :min="2" :max="999"></el-input-number> 天提醒督办申请单位提交结案报告
+          <el-form-item label="提醒时限" class="clearfix" prop="remark">
+            截止日期前 {{dbBatchForm.remindDate}} 天提醒督办申请单位提交结案报告
           </el-form-item>
           <el-form-item label="正文" class="clearfix" prop="content">
-            <vue-editor v-model="dbBatchForm.content" useCustomImageHandler @imageAdded="handleImageAdded"
-                          style="width: 100%; min-width: 500px;"></vue-editor>
+            <div v-html="dbBatchForm.content"></div>
+            <!-- <vue-editor v-model="dbBatchForm.content" useCustomImageHandler @imageAdded="handleImageAdded"
+                          style="width: 100%; min-width: 500px;"></vue-editor> -->
           </el-form-item>
           <el-form-item label="附件" class="clearfix" prop="remark">
             <el-upload drag multiple :action="uploadAction"
@@ -57,14 +65,14 @@
             </el-upload>
           </el-form-item>
           <el-form-item label="督办案件" class="clearfix" prop="cases">
-            <div class="clearfix">
+            <!-- <div class="clearfix">
               <el-select v-model="oneCase.id" filterable clearable
               placeholder="请输入案件名称或者案件编号搜索" :filter-method="filterDbCase"
                        value-key="id" class="left" @change="dbCaseChange" style="width:80%">
                 <el-option v-for="item in dbAjData" :key="item.id" :label="item.ajmc+'-'+item.ajbh" :value="item.id"></el-option>
               </el-select>
               <el-button size="mini" @click="addDbCaseList" class="right">加入列表</el-button>
-            </div>
+            </div> -->
             <el-table :data="choosedCases" style="width: 100%;" :max-height="tableHeight">
               <el-table-column type="expand" width="30">
                 <template slot-scope="scope">
@@ -86,18 +94,8 @@
               <el-table-column prop="ajzt" label="案件状态" width="100" show-overflow-tooltip></el-table-column>
               <el-table-column prop="sajz" label="涉案价值" min-width="10%" show-overflow-tooltip></el-table-column>
               <el-table-column prop="applyDepartName" label="申请单位" min-width="10%" show-overflow-tooltip></el-table-column>
-              <el-table-column prop="AJLB_NAME" label="操作" width="60">
-                <template slot-scope="scope">
-                  <el-button title="移除" size="mini" type="primary" @click="handleDeleteAj(scope.$index, scope.row)" icon="el-icon-close" circle></el-button>
-                </template>
-              </el-table-column>
             </el-table>
           </el-form-item>
-        </el-col>
-        <el-col :span="24" align="center" style="margin-bottom:10px;">
-          <el-button size="mini" @click="handleSave('1','dbBatchForm')" class="saveBtn" :loading="formLoading" style="margin-left:20px;">保存</el-button>
-          <el-button size="mini" @click="cancel()" class="cancelBtn" :loading="formLoading">取消</el-button>
-          <el-button size="mini" @click="handleSave('2','dbBatchForm')" class="saveBtn" :loading="formLoading" style="margin-left:20px;">发布</el-button>
         </el-col>
       </el-form>
       <!-- </el-row> -->
@@ -106,7 +104,7 @@
 </template>
 
 <script>
-import { regCode } from '@/utils/validate'
+// import { regCode } from '@/utils/validate'
 // import { getTree } from '@/api/dept'
 import VueEditor from '@/components/Editor/VueEditor'
 import { uploadImg } from '@/utils/editorUpload'
@@ -117,21 +115,18 @@ export default {
       uploadAction: this.UploadAttachment.uploadFileUrl,
       uploadFiles: [], // 附件
       dbBatchForm: {
-        superviseLevel: '', // 督办级别
-        remindDate: 2 // 提醒时限
+        administrative: [] // 行政区划
       }, // 机构信息
+      showAllPcmc: false, // 批次名称是否全部显示
       formLoading: false, // 表单loading
       carryParam: {}, // 列表带过来的参数
-      startPickerOptions: { // 开始日期 默认为本日，可选本日和本日之后
-        disabledDate(time) {
-          return time.getTime() < Date.now() - 86400000
-        }
+      administrativeData: [], // 行政区划
+      startPickerOptions: {
+        // disabledDate(time) {
+        //   return time.getTime() > Date.now()
+        // }
       },
-      endPickerOptions: {
-        disabledDate(time) {
-          return time.getTime() < Date.now() + 86400000
-        }
-      },
+      endPickerOptions: {},
       props: {
         value: 'cityCode',
         label: 'cityName'
@@ -139,102 +134,19 @@ export default {
       dbData: [],
       tableHeight: 400,
       dbAjData: [],
-      dbAjDataAll: [],
       oneCase: {}, // 督办案件，当前选中的案件
       choosedCases: [], // 选中的案件，存选中案件的完整数据
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
-      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
-      rules: {
-        title: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入批次名称'))
-            } else if (regCode.test(value)) {
-              callback(new Error('请不要输入特殊字符'))
-            } else {
-              callback()
-            }
-          }
-        }],
-        referenceNumber: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入文号'))
-            } else if (regCode.test(value)) {
-              callback(new Error('请不要输入特殊字符'))
-            } else {
-              callback()
-            }
-          }
-        }],
-        startDate: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请选择开始日期'))
-            } else {
-              callback()
-            }
-          }
-        }],
-        endDate: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请选择截止日期'))
-            } else {
-              callback()
-            }
-          }
-        }],
-        superviseLevel: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请选择督办级别'))
-            } else {
-              callback()
-            }
-          }
-        }],
-        remindDate: [{
-          required: true, trigger: 'change', validator: (rule, value, callback) => {
-            var reg = /^[1-9]{1}\d{0,2}$/
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入提醒时限'))
-            } else if (reg.test(value)) {
-              // 判断开始时间和结束时间
-              if (this.dbBatchForm.startDate && this.dbBatchForm.endDate) {
-                var days = this.getDays(this.dbBatchForm.startDate, this.dbBatchForm.endDate)
-                console.log(days)
-                if (days < value) {
-                  callback(new Error('提醒时限不能大于开始时间和结束时间的间隔！'))
-                } else {
-                  callback()
-                }
-              }
-            } else {
-              callback(new Error('请输入正确的提醒时限'))
-            }
-          }
-        }],
-        content: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入正文'))
-            } else {
-              callback()
-            }
-          }
-        }]
-      }
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
   },
   components: {
     VueEditor
   },
-  watch: {
-  },
-  computed: {
-  },
   methods: {
+    changeShowAll(e, type) {
+      this[type] = !this[type]
+    },
     handleImageAdded(file, Editor, cursorLocation, resetUploader) {
       const formData = new FormData()
       formData.append('file', file)
@@ -286,41 +198,18 @@ export default {
         // return false
       }
     },
-    levelVisibleChange(val) {
-      // if (val) {
-      //   this.$confirm('调整督办级别会清空已选督办案件，是否继续调整？', '提示', {
-      //     confirmButtonText: '确定',
-      //     cancelButtonText: '取消',
-      //     type: 'warning'
-      //   }).then(() => {
-      //     return true
-      //   }).catch(() => {
-      //     return false
-      //   })
-      // }
-    },
-    superviseLevelChange(val) { // 督办级别change
-      // console.log(event)
-      // this.beforeStorageValue = this.dbBatchForm.superviseLevel
-      if (this.deptInfo.depType === '1' || this.deptInfo.depType === '-1') {
-        if (val) {
-          this.$confirm('调整督办级别会清空已选督办案件，是否继续调整？', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-
-          }).catch(() => {
-            if (val === '1') {
-              this.dbBatchForm.superviseLevel = '2'
-            }
-            if (val === '2') {
-              this.dbBatchForm.superviseLevel = '1'
-            }
-          })
-        }
-      }
+    superviseLevelChange(event) { // 督办级别change
+      console.log(event)
       this.queryDbCase()
+      this.$confirm('调整督办级别会清空已选督办案件，是否继续调整？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+
+      }).catch(() => {
+
+      })
     },
     queryDbCase() {
       // if (!val) {
@@ -334,28 +223,14 @@ export default {
       }).then((response) => {
         // this.caseLoading = false
         this.dbAjData = response.data
-        this.dbAjDataAll = response.data
-        // console.log(this.dbAjData)
+        console.log(this.dbAjData)
       }).catch(() => {
         this.caseLoading = false
       })
     },
     filterDbCase(query, item) { // 督办案件的 自定义选择方法
       // 下拉支持关键字检索案，包括案件名称、案件编号、简要案情
-      if (query) {
-        if (item) {
-          this.dbAjData = this.dbAjDataAll.filter((item) => {
-            if (item.ajmc.indexOf(query) > -1) {
-              return true
-              // return item.ajmc.indexOf(query) > -1
-            }
-          })
-        } else {
-          this.dbAjData = this.dbAjDataAll
-        }
-      } else {
-        this.dbAjData = this.dbAjDataAll
-      }
+      return item.ajmc.indexOf(query) > -1
     },
     dbCaseChange(val) { // 督办案件 change
 
@@ -457,51 +332,16 @@ export default {
       if (val) {
         this.endPickerOptions = Object.assign({}, 'endPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime() + 86400000
+            return (time.getTime() < new Date(val).getTime() - 86400000)
           }
         })
-        if (this.dbBatchForm.endDate && this.dbBatchForm.remindDate) { // 开始时间和结束时间 提醒时限均存在
-          this.$refs.dbBatchForm.validateField('remindDate') // 校验提醒时限
-        }
       } else {
         this.dbBatchForm.endDate = ''
-        this.startPickerOptions = Object.assign({}, 'endPickerOptions', {
-          disabledDate: (time) => {
-            return time.getTime() < Date.now() - 86400000
-          }
-        })
+        // this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
       }
     },
     endDateChange(val) {
-      // 计算时间间隔 多少天
-      if (val) {
-        this.startPickerOptions = Object.assign({}, 'endPickerOptions', {
-          disabledDate: (time) => {
-            return time.getTime() < Date.now() - 86400000
-          }
-        })
-        if (this.dbBatchForm.startDate && this.dbBatchForm.remindDate) { // 开始时间和结束时间 提醒时限均存在
-          this.$refs.dbBatchForm.validateField('remindDate') // 校验提醒时限
-        }
-      } else {
-        this.endPickerOptions = Object.assign({}, 'endPickerOptions', {
-          disabledDate: (time) => {
-            return time.getTime() < Date.now() + 86400000
-          }
-        })
-      }
-    },
-    getDays(strDateStart, strDateEnd) {
-      var strSeparator = '-' // 日期分隔符
-      var oDate1
-      var oDate2
-      var iDays
-      oDate1 = strDateStart.split(strSeparator)
-      oDate2 = strDateEnd.split(strSeparator)
-      var strDateS = new Date(oDate1[0], oDate1[1] - 1, oDate1[2])
-      var strDateE = new Date(oDate2[0], oDate2[1] - 1, oDate2[2])
-      iDays = parseInt(Math.abs(strDateS - strDateE) / 1000 / 60 / 60 / 24)// 把相差的毫秒数转换为天数
-      return iDays
+
     },
     cancel() { // 取消
       this.$confirm('是否要放弃编辑机构信息', '提示', {
@@ -518,19 +358,27 @@ export default {
     handleSave(type, formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
+          // console.log(this.questionForm)
           var param = JSON.parse(JSON.stringify(this.dbBatchForm))
-          param.departCode = this.deptInfo.depCode // 部门code
-          param.areaCode = this.deptInfo.areaCode // 行政区划
-          param.departName = this.deptInfo.depName // 部门名称
-          param.userId = this.userInfo.id // 用户id
-          param.userName = this.userInfo.realName // 用户姓名
-          param.status = type // 1保存，2发布
+          // if (this.dbBatchForm.administrative && this.dbBatchForm.administrative.length > 0) {
+          //   param.provinceCode = this.dbBatchForm.administrative[0]
+          //   param.cityCode = this.dbBatchForm.administrative[1] || ''
+          //   param.reginCode = this.dbBatchForm.administrative[2] || ''
+          //   param.administrative = this.dbBatchForm.administrative[this.dbBatchForm.administrative.length - 1] // 为最后一级的code
+          // }
+          param.departCode = this.deptInfo.depCode
+          param.areaCode = this.deptInfo.areaCode
+          param.departName = this.deptInfo.depName
+
+          param.userId = this.userInfo.id
+          param.userName = this.userInfo.userName
+          param.status = type
           var caseIds = []
           for (let m = 0; m < this.choosedCases.length; m++) {
             const element = this.choosedCases[m]
             caseIds.push(element.id)
           }
-          param.caseIds = caseIds.join(',') // 督办案件 案件id用逗号隔开
+          param.caseIds = caseIds.join(',') // 督办案件
           // console.log(param)
           this.formLoading = true
           this.$save('casesupervisebatch', param).then((response) => {
@@ -562,10 +410,13 @@ export default {
     }
   },
   mounted() {
-    if (this.$route.query.dbBatchId) {
+    if (this.$route.query) {
       this.carryParam = this.$route.query
       this.init()
     }
+  },
+  watch: {
+
   }
 }
 </script>
@@ -602,6 +453,20 @@ export default {
   }
   .xzqhWrap .el-cascader__label {
     cursor: not-allowed;
+  }
+  .showPart {
+    cursor: pointer;
+    display: inline-block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .showAll {
+    cursor: pointer;
+    display: inline-block;
+    width: 100%;
+    overflow: auto;
   }
 }
 </style>
