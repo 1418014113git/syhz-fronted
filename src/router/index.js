@@ -290,10 +290,11 @@ export const constantRouterMap = [
       { path: '/caseAssist/caseType', component: () => import('@/views/caseAssist/caseType'), name: '案件类别与罪名' },
       { path: '/caseManage/dbList', component: () => import('@/views/caseManage/caseOversee/dbList'), name: '案件督办列表' },
       { path: '/caseManage/dbApply', component: () => import('@/views/caseManage/caseOversee/dbApply'), name: '申请案件督办' },
+      { path: '/caseManage/toup/dbApply', component: () => import('@/views/caseManage/caseOversee/dbApply'), name: '申请上级督办' },
       { path: '/caseManage/dbDetail', component: () => import('@/views/caseManage/caseOversee/dbDetail'), name: '案件督办详情' },
       { path: '/caseManage/db/batchList', component: () => import('@/views/caseManage/caseOversee/batchList'), name: '案件督办批次列表' },
       { path: '/caseManage/db/batchRelease', component: () => import('@/views/caseManage/caseOversee/batchRelease'), name: '督办批次发布' },
-
+      { path: '/caseManage/db/batchDetail', component: () => import('@/views/caseManage/caseOversee/batchDetail'), name: '督办批次详情' },
       { path: '/jqcampaign', component: () => import('@/views/caseManage/jqCampaign/mainList'), name: '集群战役' },
       { path: '/jqcampaign/clueList', component: () => import('@/views/caseManage/jqCampaign/clueList'), name: '线索列表' },
       { path: '/jqCampaign/detail', component: () => import('@/views/caseManage/jqCampaign/mainDetail'), name: '集群战役详情 ' },

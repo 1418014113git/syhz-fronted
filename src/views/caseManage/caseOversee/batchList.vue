@@ -1,6 +1,8 @@
 <template>
   <div class="dblist">
-    <img src="@/assets/icon/back.png"  class="goBack" @click="toback">   <!--返回-->
+    <el-row class="clearfix">
+      <img src="@/assets/icon/back.png"  class="goBack" @click="toback">   <!--返回-->
+    </el-row>
     <el-form ref="dbqueryForm" :inline="true" :model="filters" label-width="78px">
       <el-form-item label="行政区划" prop="examStatus">
         <el-cascader
@@ -10,7 +12,8 @@
           change-on-select
           @change="handleAreaChange"
           :show-all-levels="false"
-          clearable placeholder="全部">
+          clearable placeholder="全部"
+          :disabled="Number(deptInfo.depType)>2">
         </el-cascader>
       </el-form-item>
       <el-form-item label="创建单位" prop="examStatus">
@@ -22,29 +25,35 @@
             change-on-select
             :show-all-levels="false"
             @change="handleDeptChange"
-            clearable placeholder="全部">
+            clearable placeholder="全部"
+            :disabled="Number(deptInfo.depType)>2">
           </el-cascader>
         </el-tooltip>
       </el-form-item>
+      <el-form-item label="督办级别" prop="superviseLevel">
+        <el-select v-model="filters.superviseLevel" placeholder="全部" >
+          <el-option v-for="item in $getDicts('dbjb')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="状态">
-        <el-select v-model="filters.designMode" placeholder="请选择" >
+        <el-select v-model="filters.designMode" placeholder="全部" >
           <el-option v-for="item in $getDicts('dbajpczt')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="批次名称" prop="title">
-        <el-input v-model="filters.title" clearable placeholder="批次名称" size="small" maxlength="30"></el-input>
+        <el-input v-model="filters.title" clearable placeholder="全部" size="small" maxlength="30"></el-input>
       </el-form-item>
       <el-form-item label="文号" prop="referenceNumber">
-        <el-input v-model="filters.referenceNumber" clearable placeholder="文号" size="small" maxlength="30"></el-input>
+        <el-input v-model="filters.referenceNumber" clearable placeholder="请输入文号" size="small" maxlength="30"></el-input>
       </el-form-item>
       <el-form-item label="开始日期">
         <el-date-picker
           v-model="filters.startDate1"
           type="date"
           value-format="yyyy-MM-dd"
-          :picker-options="startPickerOptions"
+          :picker-options="ksStartPickerOptions"
           placeholder="请选择开始时间"
-          @change="startDateChange">
+          @change="ksStartDateChange">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="至">
@@ -52,10 +61,10 @@
           v-model="filters.startDate2"
           type="date"
           value-format="yyyy-MM-dd"
-          :picker-options="endPickerOptions"
+          :picker-options="ksEndPickerOptions"
           placeholder="请选择结束时间"
-          @change="endDateChange"
-          :disabled="endDateDisabled">
+          @change="ksEndDateChange"
+          :disabled="ksEndDateDisabled">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="结束日期" prop="endDate1">
@@ -63,9 +72,9 @@
           v-model="filters.endDate1"
           type="date"
           value-format="yyyy-MM-dd"
-          :picker-options="startPickerOptions"
+          :picker-options="jsStartPickerOptions"
           placeholder="请选择开始时间"
-          @change="startDateChange">
+          @change="jsStartDateChange">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="至" prop="endDate2">
@@ -73,19 +82,14 @@
           v-model="filters.endDate2"
           type="date"
           value-format="yyyy-MM-dd"
-          :picker-options="endPickerOptions"
+          :picker-options="jsEndPickerOptions"
           placeholder="请选择结束时间"
-          @change="endDateChange"
-          :disabled="endDateDisabled">
+          @change="jsEndDateChange"
+          :disabled="jsEndDateDisabled">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="督办级别" prop="superviseLevel">
-        <el-select v-model="filters.superviseLevel" placeholder="请选择" >
-          <el-option v-for="item in $getDicts('dbjb')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
-        </el-select>
-      </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="query(true,true)">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="queryDbBatch(true,true)">查询</el-button>
         <el-button type="primary" size="small"  v-on:click="resetForm">重置</el-button>
       </el-form-item>
       <el-form-item>
@@ -133,8 +137,8 @@
       <el-table-column label="操作" width="140">
         <template slot-scope="scope">
           <el-button title="详情" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle></el-button>
-          <el-button title="修改" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
-          <el-button title="删除" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
+          <el-button title="修改" size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
+          <el-button title="删除" size="mini" type="primary" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
           <!-- <el-button v-if="(scope.row.status === '0' || scope.row.status === '2')  && $isViewBtn('100806') && scope.row.apply_dept_id === String(currentDeptId)" title="修改" size="mini" type="primary"
                      @click="editDBInfo(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
           <el-button v-if="(scope.row.status === '0' || scope.row.status === '2') && $isViewBtn('100807') && scope.row.apply_dept_id === String(currentDeptId)" title="删除" size="mini" type="danger"
@@ -158,7 +162,6 @@
 
 <script>
 import { getTree } from '@/api/dept'
-import { deleteSupervise } from '@/api/supervise'
 import {
   getDBLevelText, getAssistStatusText
 } from '@/utils/codetotext'
@@ -209,13 +212,12 @@ export default {
       dbBatchData: [], // 列表数据
       deptTree: [],
       tableHeight: null,
-      startPickerOptions: {
-        disabledDate(time) {
-          return time.getTime() > Date.now()
-        }
-      },
-      endPickerOptions: {},
-      endDateDisabled: true
+      ksStartPickerOptions: {}, // 开始日期
+      ksEndPickerOptions: {},
+      jsStartPickerOptions: {}, // 结束日期
+      jsEndPickerOptions: {},
+      ksEndDateDisabled: true,
+      jsEndDateDisabled: true
     }
   },
   filters: {
@@ -225,6 +227,16 @@ export default {
   },
   methods: {
     handleAreaChange(val) { // 行政区划
+      if (val.length === 1 && this.deptInfo.depType === '2') {
+        this.queryBtn = false
+        this.$message({
+          message: '请至少选择到市',
+          type: 'error'
+        })
+        return false
+      } else {
+        this.queryBtn = true
+      }
       this.filters.department = []
       if (val.length > 0) {
         this.deptOptions = [] // 清空单位机构数据
@@ -303,10 +315,19 @@ export default {
           } else if (this.deptInfo.depType === '3') { // 大队
             this.filters.department = [this.deptInfo.depCode]
           } else if (this.deptInfo.depType === '4') { // 派出所
-            this.filters.department = [this.deptInfo.parentDepCode, this.deptInfo.depCode]
+            this.filters.department = [this.deptInfo.parentDepCode] // 派出所当作上级处理
+            // 调接口查 派出所的上级
+            this.$query('hsyzparentdepart/' + this.deptInfo.depCode, {}, 'upms').then((response) => {
+              if (response.code === '000000') {
+                this.pcsParentDept = response.data
+              }
+            }).catch(() => {
+              this.caseLoading = false
+            })
           }
-          this.queryDbBatch(true) // 查列表
         }
+        this.handleDeptChange(this.filters.department)
+        this.queryDbBatch(true) // 查列表
       }).catch(() => {
         this.listLoading = false
       })
@@ -323,7 +344,9 @@ export default {
     queryDbBatch(flag, hand) {
       this.listLoading = true
       this.page = flag ? 1 : this.page
-      const param = this.filters
+      const param = JSON.parse(JSON.stringify(this.filters))
+      param.area = ''
+      param.department = ''
       param.pageNum = this.page
       param.pageSize = this.pageSize
       param.deptId = this.currentDeptId
@@ -355,21 +378,70 @@ export default {
         this.caseLoading = false
       })
     },
-    startDateChange(val) {
+    ksStartDateChange(val) {
       if (val) {
-        this.endDateDisabled = false
-        this.endPickerOptions = this.$pickerOptionChange(val, this.endPickerOptions, 'end')
+        this.ksEndDateDisabled = false
+        this.ksEndPickerOptions = Object.assign({}, 'ksEndPickerOptions', {
+          disabledDate: (time) => {
+            return time.getTime() < new Date(val).getTime()
+          }
+        })
       } else {
-        this.filters.rlEndTime = '' // 结束时间清空
-        this.endDateDisabled = true
-        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
+        this.filters.startDate2 = '' // 结束时间清空
+        this.ksEndDateDisabled = true
+        this.ksStartPickerOptions = Object.assign({}, 'ksStartPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
       }
     },
-    endDateChange(val) { // 结束时间change事件
+    ksEndDateChange(val) { // 结束时间change事件
       if (val) {
-        this.startPickerOptions = this.$pickerOptionChange(val, this.startPickerOptions, 'start')
+        this.ksStartPickerOptions = Object.assign({}, 'ksStartPickerOptions', {
+          disabledDate: (time) => {
+            return time.getTime() > new Date(val).getTime()
+          }
+        })
       } else {
-        this.startPickerOptions = this.$pickerOptionChange('', this.startPickerOptions, 'default')
+        this.ksStartPickerOptions = Object.assign({}, 'ksStartPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+      }
+    },
+    jsStartDateChange(val) {
+      if (val) {
+        this.jsEndDateDisabled = false
+        this.jsEndPickerOptions = Object.assign({}, 'jsEndPickerOptions', {
+          disabledDate: (time) => {
+            return time.getTime() < new Date(val).getTime()
+          }
+        })
+      } else {
+        this.filters.endDate2 = '' // 结束时间清空
+        this.jsEndDateDisabled = true
+        this.jsStartPickerOptions = Object.assign({}, 'jsStartPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+      }
+    },
+    jsEndDateChange(val) { // 结束时间change事件
+      if (val) {
+        this.jsStartPickerOptions = Object.assign({}, 'jsStartPickerOptions', {
+          disabledDate: (time) => {
+            return time.getTime() > new Date(val).getTime()
+          }
+        })
+      } else {
+        this.jsStartPickerOptions = Object.assign({}, 'jsStartPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
       }
     },
     handleDialog(index, row) {
@@ -396,50 +468,52 @@ export default {
     },
     handleDetail(index, row) {
       // 判断是否有查阅密码
-      this.$prompt('请输入查阅密码', '查阅密码', {
-        confirmButtonText: '验证',
-        cancelButtonText: '取消',
-        inputType: 'password',
-        customClass: 'myPropt',
-        inputPattern: /^[a-zA-Z0-9]{6,8}$/,
-        inputErrorMessage: '密码格式不正确（6-8位的字母或者数字）'
-      }).then(({ value }) => {
-        // this.$message({
-        //   type: 'success',
-        //   message: '你的邮箱是: ' + value
-        // })
-        this.$router.push({ path: '/caseManage/dbDetail', query: { dbId: row.id }})
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消输入'
-        })
-      })
+      // this.$prompt('请输入查阅密码', '查阅密码', {
+      //   confirmButtonText: '验证',
+      //   cancelButtonText: '取消',
+      //   inputType: 'password',
+      //   customClass: 'myPropt',
+      //   inputPattern: /^[a-zA-Z0-9]{6,8}$/,
+      //   inputErrorMessage: '密码格式不正确（6-8位的字母或者数字）'
+      // }).then(({ value }) => {
+      //   // this.$message({
+      //   //   type: 'success',
+      //   //   message: '你的邮箱是: ' + value
+      //   // })
+      // }).catch(() => {
+      //   this.$message({
+      //     type: 'info',
+      //     message: '取消输入'
+      //   })
+      // })
+      this.$router.push({ path: '/caseManage/db/batchDetail', query: { dbBatchId: row.id }})
+    },
+    handleEdit(index, row) { // 编辑 督办批次
+      this.$router.push({ path: '/caseManage/db/batchRelease', query: { dbBatchId: row.id }})
     },
     handleBatchAdd() { // 督办批次发布
       this.$router.push({ path: '/caseManage/db/batchRelease' })
     },
-    handleDel(index, row) {
-      this.$confirm('确认删除该记录吗?', '提示', {
+    handleDelete(index, row) { // 删除督办批次
+      this.$confirm('确认删除该督办批次吗?', '提示', {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        const para = {
-          id: row.id,
-          logFlag: 1
+        const param = {
+          enable: '1' // 删除
         }
-        deleteSupervise(para).then((res) => {
+        this.$update('casesupervisebatchdel/' + row.id, param).then((response) => {
           this.listLoading = false
-          if (res.code === '000000') {
+          if (response.code === '000000') {
             this.$message({
               message: '删除成功',
               type: 'success'
             })
+            this.queryDbBatch(true) // 刷新列表
           }
-          this.queryDbBatch(true)
+        }).catch(() => {
+          this.listLoading = false
         })
-      }).catch(() => {
-        this.listLoading = false
       })
     },
     saveDBInfo(type) {
@@ -518,7 +592,7 @@ export default {
     // }
     // if (depToken) {
     //   this.currentDeptId = depToken['id']
-    this.queryDbBatch(true)
+    this.initData()
     // }
     // this.dbData = [{ ajmc: '测试' }]
   },
