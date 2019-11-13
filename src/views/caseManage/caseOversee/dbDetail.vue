@@ -8,17 +8,17 @@
      <el-row>
        <!-- 左侧导航区 -->
         <el-col class="leftCont" :span="3" :style="{height:countHeight}">
-          <left-nav class="bg"  :cardId="cardId"></left-nav>
+          <left-nav class="bg" :leftNumber="leftData"></left-nav>
         </el-col>
         <!-- 右侧内容区 -->
         <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
-            <base-info class="marb bg jbxx" :cardId="cardId"></base-info>
-            <audit-info class="marb bg shxx" :cardId="cardId"></audit-info>
-            <endcase-report class="marb bg dsqs" :cardId="cardId"></endcase-report>
-            <evaluation-score class="marb bg dsfk" :cardId="cardId"></evaluation-score>
-            <urge-info class="marb bg qxqs" :cardId="cardId"></urge-info>
-            <new-progress class="marb bg qxfk" :cardId="cardId"></new-progress>
+            <base-info class="marb bg jbxx" :jbxxData="dbDetailData.jbxx"></base-info>
+            <audit-info class="marb bg shxx" :shxxData="dbDetailData.shxx"></audit-info>
+            <endcase-report class="marb bg jabg" :dbId="dbDetailData"></endcase-report>
+            <evaluation-score class="marb bg pjdf" :dbId="dbDetailData"></evaluation-score>
+            <urge-info class="marb bg cbxx" :dbId="dbDetailData"></urge-info>
+            <new-progress class="marb bg zxjz" :dbId="dbDetailData"></new-progress>
           </div>
         </el-col>
      </el-row>
@@ -40,8 +40,10 @@ export default {
   data() {
     return {
       countHeight: document.documentElement.clientHeight - 130 + 'px',
-      cardId: '', // 从详情页面返回的是身份证号码、案件编号或线索编号
-      classList: ['jbxx', 'shxx', 'dsqs', 'dsfk', 'qxqs', 'qxfk']
+      dbId: '', // 从详情页面返回的是身份证号码、案件编号或线索编号
+      classList: ['jbxx', 'shxx', 'jabg', 'pjdf', 'cbxx', 'zxjz'],
+      leftData: {},
+      dbDetailData: {} // 督办详情
     }
   },
   components: {
@@ -100,19 +102,33 @@ export default {
     }
   },
   created() {
-    if (this.$route.query.cardId) { // 正式
-      this.cardId = this.$route.query.cardId
+    if (this.$route.query.dbId) { // 正式
+      this.dbId = this.$route.query.dbId
+      // 查详情
+      this.$query('casesupervise', { id: this.dbId }).then((response) => {
+        // this.formLoading = false
+        if (response.code === '000000') {
+          this.dbDetailData = response.data.data
+          this.leftData = response.data.th
+          // this.choosedCases = this.dbBatchForm.caseList // 督办案件列表
+          // if (this.dbBatchForm.superviseLevel) { // 督办级别
+          //   this.dbBatchForm.superviseLevel = this.dbBatchForm.superviseLevel + ''
+          // }
+        }
+      }).catch(() => {
+        // this.formLoading = false
+      })
     }
     // 测试
-    // this.cardId = '152224199005230516'
+    // this.dbId = '152224199005230516'
   },
   mounted() {
     const _this = this
     document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
   },
   activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
-    if (this.$route.query.cardId) { // 正式
-      this.cardId = this.$route.query.cardId
+    if (this.$route.query.dbId) { // 正式
+      this.dbId = this.$route.query.dbId
     }
     document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
   }
@@ -217,6 +233,22 @@ export default {
   }
   .rightCont {
     // width: 80%;
+  }
+}
+
+// 带按钮的 标题栏
+.titleWrap {
+  width: 100%;
+  padding: 7px 0 7px 7px;
+  border-bottom: 2px solid #00a0e9;
+  overflow: hidden;
+  color: #bce8fc;
+  text-shadow: 0 0 2px #fff;
+  font-size: 17px;
+  margin-bottom: 10px;
+  .left {
+    float: left;
+    letter-spacing: 3px;
   }
 }
 </style>

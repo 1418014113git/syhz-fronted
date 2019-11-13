@@ -3,17 +3,27 @@
     <!-- 审核信息 -->
     <div class="auditInfo">
       <title-pub :title="title" url=""></title-pub>
-      <el-table :data="dataList" style="width: 100%;" v-loading="loading" max-height="156">
-        <!-- <el-table-column type="index" label="序号" width="60"></el-table-column> -->
-        <el-table-column prop="CBABH" label="申请部门"></el-table-column>
-        <el-table-column prop="CAZT_NAME" label="申请人"></el-table-column>
-        <el-table-column prop="CBFXBH" label="申请时间"></el-table-column>
-        <el-table-column prop="AJMC" label="督办级别" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="AJLB_NAME" label="审核部门" ></el-table-column>
-        <el-table-column prop="CZDW_NAME" label="审核人" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="CZR_NAME" label="审核时间"></el-table-column>
-        <el-table-column prop="CZR_NAME" label="审核状态"></el-table-column>
-        <el-table-column prop="CZR_NAME" label="审核意见"></el-table-column>
+      <el-table :data="shDataList" style="width: 100%;" v-loading="loading" max-height="156">
+        <el-table-column type="index" label="序号" width="60"></el-table-column>
+        <el-table-column prop="applyDepartName" label="申请部门"></el-table-column>
+        <el-table-column prop="applyUserName" label="申请人"></el-table-column>
+        <el-table-column prop="applyDate" label="申请时间"></el-table-column>
+        <el-table-column prop="superviseLevel" label="督办级别" show-overflow-tooltip>
+
+        </el-table-column>
+        <el-table-column prop="auditDepartName" label="审核部门" ></el-table-column>
+        <el-table-column prop="auditUserName" label="审核人" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="auditTime" label="审核时间"></el-table-column>
+        <el-table-column prop="flowStatus" label="审核状态"></el-table-column>
+        <el-table-column prop="auditContent" label="审核意见" show-overflow-tooltip></el-table-column>
+        <el-table-column label="操作" width="80">
+          <template slot-scope="scope">
+            <!-- v-if="$isViewBtn('100805')" -->
+             <!-- v-if="(scope.row.status === 0) &&((deptInfo.depType!=='4'&&scope.row.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.applyDeptCode === deptInfo.parentDepCode))" -->
+            <el-button
+                      title="审核" size="mini" type="primary" @click="handlerAudit(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
+          </template>
+        </el-table-column>
 
         <!-- <el-table-column label="操作时间">
           <template slot-scope="scope">
@@ -35,7 +45,7 @@
 import titlePub from './titlePub'
 import { getAJDETAILBUNCH } from '@/api/caseManage'
 export default {
-  props: ['ajbh'],
+  props: ['shxxData'],
   name: 'index',
   components: {
     titlePub
@@ -47,17 +57,18 @@ export default {
       page: 1,
       total: 0,
       pageSize: 5,
-      dataList: [],
+      shDataList: [], // 审核数据
       AJBH: '' // 案件编号
     }
   },
   watch: {
-    ajbh(val) {
-      this.loading = true
-      this.initData() // 初始化数据
+    shxxData(val) {
+      // this.loading = true
+      // this.initData() // 初始化数据
       if (val) {
-        this.AJBH = val
-        this.init(true)
+        this.shDataList = val
+        // this.AJBH = val
+        // this.init(true)
       }
     }
   },
@@ -102,6 +113,9 @@ export default {
       this.pageSize = val
       this.page = 1
       this.init()
+    },
+    handlerAudit() { // 审核
+
     }
   },
   mounted() {

@@ -1,10 +1,10 @@
 <template>
 <!-- 基本信息 -->
   <div class="baseInfo pubStyle" v-loading="loading">
-    <div class="title">
-      <div class="left">基本信息</div>
+    <div class="titleWrap">
+      <div class="left">{{title}}</div>
       <div class="right">
-        <el-button type="primary" size="small"  @click="zhpj">审核</el-button>
+        <el-button type="primary" size="small"  @click="handleAudit">审核</el-button>
         <el-button type="primary" size="small"  @click="cxsq">申请上级督办</el-button>
         <el-button type="primary" size="small"  @click="audit">上报结案报告</el-button>
         <el-button type="primary" size="small"  @click="xsff">下发催办</el-button>
@@ -17,43 +17,84 @@
             <el-form-item label="标题：" prop="xm">
               <span class="whiteColor">{{baseInfo.xm}}</span>
             </el-form-item>
-            <el-form-item label="申请人：" prop="cym">
-              <span class="whiteColor">{{baseInfo.cym}}</span>
+            <el-form-item label="申请人：" prop="applyUserName">
+              <span class="whiteColor">{{baseInfo.applyUserName}}</span>
             </el-form-item>
-            <el-form-item label="申请时间：" prop="mzMc">
-              <span class="whiteColor">{{baseInfo.mzMc}}</span>
+            <el-form-item label="申请时间：" prop="applyDate">
+              <span class="whiteColor">{{baseInfo.applyDate}}</span>
             </el-form-item>
             <el-form-item label="开始日期：" prop="sg">
-              <span class="whiteColor" v-if="baseInfo.sg">{{baseInfo.sg}}(cm)</span>
+              <span class="whiteColor">{{baseInfo.sg}}</span>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
-            <el-form-item label="发起单位：" prop="xbMc">
-              <span class="whiteColor">{{baseInfo.xbMc}}</span>
-            </el-form-item>
-            <el-form-item label="发起人：" prop="csrq">
-                <span class="whiteColor">{{baseInfo.xbMc}}</span>
-            </el-form-item>
-            <el-form-item label="开始时间：" prop="hyzkMc">
-              <span class="whiteColor">{{baseInfo.hyzkMc}}</span>
-            </el-form-item>
-            <el-form-item label="" prop=""></el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="状态：" prop="ryztMc">
-              <span class="whiteColor">{{baseInfo.ryztMc}}</span>
-            </el-form-item>
-            <el-form-item label="发起人电话：" prop="zylbMc">
-              <span class="whiteColor">{{baseInfo.zylbMc}}</span>
-            </el-form-item>
-            <el-form-item label="结束时间" prop="hyzkMc">
-              <span class="whiteColor">{{baseInfo.hyzkMc}}</span>
-            </el-form-item>
-            <el-form-item label="" prop=""></el-form-item>
+          <el-col :span="16">
+            <el-col :span="12">
+              <el-form-item label="督办状态：" prop="status">
+                <span class="whiteColor">{{$getDictName(baseInfo.status+'','dbajzt')}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="督办级别：" prop="superviseLevel">
+                <span class="whiteColor">{{$getDictName(baseInfo.superviseLevel+'','dbjb')}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="申请部门：" prop="applyDepartName">
+                  <span class="whiteColor">{{baseInfo.applyDepartName}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="督办负责人：" prop="supervisePerson">
+                <span class="whiteColor">{{baseInfo.supervisePerson}}</span>
+              </el-form-item>
+              <el-form-item label="截止日期：" prop="endDate">
+                <span class="whiteColor">{{baseInfo.endDate}}</span>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="负责人联系电话：" prop="personLiablePhone" label-width="140px">
+                <span class="whiteColor">{{baseInfo.personLiablePhone}}</span>
+              </el-form-item>
+            </el-col>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="正文：" prop="csdssxqMc">
-              <span></span>
+            <el-form-item label="申请原因：" prop="superviseDesc">
+              <span class="whiteColor" v-html="baseInfo.superviseDesc"></span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="案件名称：" prop="ajmc">
+              <span class="whiteColor">{{baseInfo.ajmc}}</span>
+            </el-form-item>
+            <el-form-item label="案件类别：" prop="zylbMc">
+              <span class="whiteColor">{{baseInfo.zylbMc}}</span>
+            </el-form-item>
+            <el-form-item label="涉案价值" prop="sajz">
+              <span class="whiteColor">{{baseInfo.sajz}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="案件编号：" prop="ryztMc">
+              <span class="whiteColor">{{baseInfo.ryztMc}}</span>
+            </el-form-item>
+            <el-form-item label="案件类型：" prop="ajlb">
+              <span class="whiteColor">{{baseInfo.ajlb}}</span>
+            </el-form-item>
+            <el-form-item label="嫌疑人数" prop="zars">
+              <span class="whiteColor">{{baseInfo.zars}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="案件状态：" prop="ryztMc">
+              <span class="whiteColor">{{baseInfo.ryztMc}}</span>
+            </el-form-item>
+            <el-form-item label="立案单位：" prop="ladw">
+              <span class="whiteColor">{{baseInfo.ladw}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="简要案情：" prop="jyaq">
+              <span class="whiteColor">{{baseInfo.jyaq}}</span>
             </el-form-item>
             <el-form-item label="附件：" prop="">
               <span v-for="item in fjList" :key="item.id">
@@ -66,7 +107,7 @@
 
     <!-- 审核弹框-->
     <el-dialog title="审核" :visible.sync="isShowshDialog"  class="stshForm" :close-on-click-modal="false">
-      <audit-com  :isShowDialog="isShowshDialog"  @closeDialog="closeshDialog"></audit-com>
+      <audit-com  :isShowDialog="isShowshDialog" :dbId="baseInfo.dbId" @closeDialog="closeshDialog"></audit-com>
     </el-dialog>
   </div>
 </template>
@@ -75,10 +116,11 @@
 import titlePub from './titlePub'
 import auditCom from './auditCom' // 审核弹框
 export default {
-  props: ['cardId'],
+  props: ['jbxxData'],
   name: 'baseInfo',
   data() {
     return {
+      title: '基本信息',
       baseInfo: {}, // 基础信息
       curUser: {}, // sessionStorage获取用户信息
       stshForm: { // 省厅审核
@@ -116,9 +158,9 @@ export default {
 
   },
   watch: {
-    cardId(val) {
-      this.cardNumber = val
-      this.detail()
+    jbxxData(val) {
+      this.baseInfo = val
+      // this.detail()
     }
   },
   filters: {
@@ -157,8 +199,8 @@ export default {
       //   this.loading = false
       // })
     },
-    zhpj() { // 综合评价
-
+    handleAudit() { // 审核
+      this.isShowshDialog = true
     },
     cxsq() { // 重新申请
       this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { id: 1 }}) // 跳转到集群战役申请页
@@ -203,19 +245,6 @@ export default {
   .el-form-item__label {
     color: #bce8fc;
     text-shadow: 0 0 1px #fff;
-  }
-  .title {
-    width: 100%;
-    padding: 7px 0 7px 7px;
-    border-bottom: 2px solid #00a0e9;
-    overflow: hidden;
-    color: #bce8fc;
-    text-shadow: 0 0 2px #fff;
-    font-size: 17px;
-    .left {
-      float: left;
-      letter-spacing: 3px;
-    }
   }
   .cardcom {
     position: absolute;
