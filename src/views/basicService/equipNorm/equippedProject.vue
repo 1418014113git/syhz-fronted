@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import { regCn } from '@/utils/validate'
+// import { regCn } from '@/utils/validate'
 export default {
   name: 'equippedProject',
   props: {
@@ -102,8 +102,8 @@ export default {
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
               if (value === null || value === undefined || value === '') {
                 callback(new Error('请输入配备项目'))
-              } else if (!(regCn.test(value))) {
-                callback(new Error('请输入汉字'))
+                // } else if (!(regCn.test(value))) { 11.11 去掉汉字限制
+                // callback(new Error('请输入汉字'))
               } else {
                 this.formLoading = true
                 var para = { allocateName: value }

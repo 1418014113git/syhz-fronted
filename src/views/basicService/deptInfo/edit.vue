@@ -212,7 +212,7 @@ export default {
         }],
         linkmanPhone: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            var reg = /^1[3|4|5|6|7|8]\d{9}$/
+            var reg = /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/
             if (value === null || value === undefined || value === '') {
               callback(new Error('请输入联系电话'))
             } else if (reg.test(value)) {
