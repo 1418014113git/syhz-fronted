@@ -116,5 +116,11 @@ export default {
     }
   }
 }
+@media only screen and (max-width: 1367px) {
+  .headers .logo img {
+    width: 290px;
+    height: 25px;
+  }
+}
 </style>
 

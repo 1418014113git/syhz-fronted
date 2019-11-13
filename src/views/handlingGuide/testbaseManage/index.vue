@@ -19,7 +19,7 @@
 
       <!-- 右侧列表区 -->
       <el-col :span="18" class="rightCont" :style="{height:countHeight}">
-        <table-list :menuItemNode="menuItemNode"></table-list>
+        <table-list :menuItemNode="menuItemNode" :dataList="dataList"></table-list>
       </el-col>
     </el-row>
 
@@ -47,6 +47,7 @@
 <script>
 import TreePub from '@/components/TreePub'
 import TableList from './tableList'
+import { regEnCode, regCnCode } from '@/utils/validate'
 export default {
   data() {
     return {
@@ -75,12 +76,12 @@ export default {
         categoryName: [ // 模块名称
           {
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
-              // const reg = /^[A-Za-z0-9\u4e00-\u9fa5]+$/
-              const reg = /[^!@#￥%\^&\*]+$/i
-              if (value === '' || value === undefined || value === null) {
+              if (value === '') {
                 callback(new Error('请输入模块名称'))
-              } else if (!reg.test(value)) {
-                callback(new Error('输入内容不能包含以下字符：！@#￥%……&*'))
+              } else if (regEnCode.test(value)) {
+                callback(new Error('请不要输入特殊字符'))
+              } else if (regCnCode.test(value)) {
+                callback(new Error('请不要输入特殊字符'))
               } else {
                 callback()
               }
@@ -148,25 +149,33 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        if (data.leaf === 1) { // 包含子模块
-          this.$message({
-            type: 'error',
-            message: '该模块包含子模块，不允许删除'
-          })
-          return false
-        } else {
-          this.loading = true
-          this.$remove('subjectCategory/delete', { id: data.id }).then((response) => {
-            this.loading = false
-            this.$message({
-              message: '删除成功',
-              type: 'success'
-            })
-            this.init() // 刷新页面
-          }).catch(() => {
-            this.loading = false
-          })
+        var param = {
+          id: data.id
         }
+        if (data.leaf === 1) { // 包含子模块,则将模块下的所有子模块一起删除。
+          var chidArry = []
+          var idString = ''
+          if (data.children && data.children.length > 0) {
+            var children = data.children
+            children.forEach(item => {
+              chidArry.push(item.id)
+            })
+          }
+          chidArry.push(data.id)
+          idString = chidArry.join(',')
+          param.id = idString
+        }
+        this.loading = true
+        this.$remove('subjectCategory/delete', param).then((response) => {
+          this.loading = false
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
+          this.init() // 刷新页面
+        }).catch(() => {
+          this.loading = false
+        })
       }).catch(() => {
         this.loading = false
         this.$message({
@@ -178,41 +187,43 @@ export default {
     getNode(data, node) { // 点击tree节点，获取id，查询对应的菜单详情
       if (data.id) {
         this.menuItemNode = data
+        sessionStorage.setItem('/menuItemNode', JSON.stringify(this.menuItemNode))
       } else {
         this.menuItemNode = {}
+        sessionStorage.setItem('/menuItemNode', JSON.stringify({}))
       }
     },
     isViewBtnAdd(store, data, node) { // “添加”按钮显隐的权限控制
-      // if (this.$isViewBtn('132')) {
-      //   if (this.departId) {
-      //     return this.checkParentId(node, this.departId)
-      //   } else {
-      //     return true
-      //   }
-      // }
-      return true
+      if (this.$isViewBtn('181001')) {
+        //   if (this.departId) {
+        //     return this.checkParentId(node, this.departId)
+        //   } else {
+        //     return true
+        //   }
+        return true
+      }
     },
     isViewBtnEdit(store, data, node) { // “编辑”按钮显隐的权限控制
-      // if (this.$isViewBtn('133')) {
-      //   if (this.departId) {
-      //     return this.checkParentId(node, this.departId)
-      //   } else {
-      //     return true
-      //   }
-      // }
-      return true
+      if (this.$isViewBtn('181001')) {
+        //   if (this.departId) {
+        //     return this.checkParentId(node, this.departId)
+        //   } else {
+        //     return true
+        //   }
+        return true
+      }
     },
     isViewBtnDelete(store, data, node) { // “删除”按钮显隐的权限控制
-      // if (this.$isViewBtn('134')) {
-      //   if (this.departId === data.id) {
-      //     return false
-      //   } else if (this.departId) {
-      //     return this.checkParentId(node, this.departId)
-      //   } else {
-      //     return true
-      //   }
-      // }
-      return true
+      if (this.$isViewBtn('181001')) {
+        //   if (this.departId === data.id) {
+        //     return false
+        //   } else if (this.departId) {
+        //     return this.checkParentId(node, this.departId)
+        //   } else {
+        //     return true
+        //   }
+        return true
+      }
     },
     checkParentId(node, value) {
       if (node.data.parentId !== null && node.data.parentId !== undefined) {

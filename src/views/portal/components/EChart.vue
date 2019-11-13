@@ -5,7 +5,7 @@
       <el-carousel-item v-for="item in chartData" :key="item.id">
         <!-- <div v-for="item in chartData" :key="item.id" :id="item.id" style="width: 100%; height: 270px;"></div> -->
         <div class="chartTit"><img src="/static/image/portal_newImg/ajzb.png" alt="">{{item.title}}</div>
-        <div :id="item.id" style="width: 100%; height: 265px;"></div>
+        <div :id="item.id"  style="width: 100%; height: 250px;"></div>
       </el-carousel-item>
     </el-carousel>
     <div v-if="chartData.length < 1" style="line-height: 260px; text-align: center; color: #fff;font-size:15px;">
@@ -126,7 +126,7 @@ export default {
             }
           },
           nameTextStyle: {
-            fontSize: 14
+            fontSize: 13
           },
           data: this.citys
         },
@@ -142,7 +142,7 @@ export default {
             }
           },
           nameTextStyle: {
-            fontSize: 14
+            fontSize: 13
           },
           splitLine: { show: false }
         },
@@ -186,7 +186,7 @@ export default {
             }
           },
           nameTextStyle: {
-            fontSize: 14
+            fontSize: 13
           }
         },
         yAxis: {
@@ -199,7 +199,7 @@ export default {
             }
           },
           nameTextStyle: {
-            fontSize: 14
+            fontSize: 13
           }
         },
         series: [{
@@ -305,11 +305,20 @@ export default {
   background-color: #d3dce6;
 }
 .chartTit {
-  font-size: 16px;
+  font-size: 14px;
   text-align: center;
   color: #38dc98;
+  padding: 12px 0;
 }
 .chartTit img {
   margin: -3px 8px 0 0;
+}
+@media only screen and (max-width: 1367px) {
+  canvas{
+    left: -6px !important;
+  }
+  .el-carousel__indicator{
+    padding: 0px 4px;
+  }
 }
 </style>

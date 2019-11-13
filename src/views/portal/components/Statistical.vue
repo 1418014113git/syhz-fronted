@@ -4,7 +4,7 @@
       暂无数据
     </div>
     <el-table v-else :data="tableData" style="width: 100%" class="statisticCollect">
-      <el-table-column type="index" width="52" label="序号" align="center"></el-table-column>
+      <el-table-column type="index" width="30" label="序号" align="center"></el-table-column>
       <el-table-column prop="cityName" label="市" align="center" min-width="80"></el-table-column>
       <el-table-column label="破获案件数" align="center">
         <el-table-column prop="sp" label="食品类" align="center" min-width="70"></el-table-column>
@@ -95,6 +95,7 @@ export default {
 </script>
 <style rel="stylesheet/scss" lang="scss">
 .poajBox {
+   margin-top: 10px;
   .el-table--scrollable-x .el-table__body-wrapper {
     overflow-x: hidden;
   }
@@ -104,5 +105,15 @@ export default {
     color: #38dc98;
     padding-top: 3px;
   }
+  .el-table thead .cell {
+    padding: 2px 0;
+  }
 }
+@media only screen and (max-width: 1367px) {
+  .poajBox .el-table{
+    font-size: 12px;
+  }
+}
+
+
 </style>

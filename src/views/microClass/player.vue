@@ -1,78 +1,172 @@
 <template>
-  <div class="player">
+  <section class="online_classroom_player" :style="{height: tableHeight}">
+    <filter-common v-if="auditView" ref="filterCommon" :isMore="false" :postfix="postfix" @changeList="changeList" :uploadFlag="false"></filter-common>
     <el-row type="flex" justify="center">
-      <el-col :span="16" style="padding: 0 100px;margin-bottom: 20px;">
-        <!-- <el-button type="primary" @click="toList" style="float: right;">返回列表</el-button> -->
-        <img src="@/assets/icon/back.png"  class="goBack" @click="toList">   <!--返回-->
+      <el-col :span="20">
+        <img src="@/assets/icon/back.png" class="goBack" @click="callback">
       </el-col>
     </el-row>
-
-    <el-row type="flex" justify="center">
-      <el-col :span="16" style="padding: 0 100px 50px;">
-        <el-card>
-          <div id="player">
-            <video-player class="video-player vjs-custom-skin"
-                          ref="videoPlayer"
-                          :playsinline="true"
-                          :options="playerOptions">
-            </video-player>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-  </div>
+    <div class="file_data" v-if="enType === '1'">
+      <div>
+        <video-player ref="videoPlayer" :playType="'5'" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></video-player>
+      </div>
+    </div>
+    <div class="file_data" v-if="enType === '2'">
+      <div>
+        <audio-player ref="audioPlayer" :playType="'5'" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></audio-player>
+      </div>
+    </div>
+    <div class="file_data" v-if="enType === '0'">
+      <div>
+        <document-player ref="documentPlayer" :playType="'5'" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></document-player>
+      </div>
+    </div>
+  </section>
 </template>
 
 <script>
-  require('video.js/dist/video-js.css')
-  require('vue-video-player/src/custom-theme.css')
+  import filterCommon from './components/filterCommon'
+  import videoPlayer from './components/videoPlayer'
+  import audioPlayer from './components/audioPlayer'
+  import documentPlayer from './components/documentPlayer'
   export default {
     name: 'player',
-    components: {},
+    components: {
+      filterCommon,
+      videoPlayer,
+      audioPlayer,
+      documentPlayer
+    },
     data() {
       return {
-        playerOptions: {
-          playbackRates: [0.7, 1.0, 1.5, 2.0], // 播放速度
-          autoplay: false, // 如果true,浏览器准备好时开始回放。
-          muted: false, // 默认情况下将会消除任何音频。
-          loop: false, // 导致视频一结束就重新开始。
-          preload: 'auto', // 建议浏览器在<video>加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
-          language: 'zh-CN',
-          aspectRatio: '16:9', // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如"16:9"或"4:3"）
-          fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
-          sources: [{
-            type: '',
-            src: 'https://bpic.588ku.com/video_listen/588ku_preview/18/01/12/11/23/51/11/video5a582a47b4153.mp4' // url地址
-          }],
-          poster: '../../static/images/test.jpg', // 你的封面地址
-          // width: document.documentElement.clientWidth,
-          notSupportedMessage: '此视频暂无法播放，请稍后再试', // 允许覆盖Video.js无法播放媒体源时显示的默认信息。
-          controlBar: {
-            timeDivider: true,
-            durationDisplay: true,
-            remainingTimeDisplay: false,
-            fullscreenToggle: true // 全屏按钮
-          }
-        }
+        tableHeight: null,
+        postfix: '',
+        enType: '',
+        filters: {},
+        source: '',
+        active: '',
+        rowId: '',
+        viewId: '',
+        auditView: true,
+        playerDetail: {}
       }
     },
     methods: {
-      toList() {
-        this.$router.push({
-          path: '/micro/index',
-          query: {
-            t: 1
+      callback() {
+        const param = JSON.stringify(this.filters)
+        this.filters.enType = ''
+        if (this.$refs.audioPlayer) {
+          this.$refs.audioPlayer.clearTimeInterval()
+        }
+        if (this.$refs.videoPlayer) {
+          this.$refs.videoPlayer.clearTimeInterval()
+        }
+        if (this.$refs.documentPlayer) {
+          this.$refs.documentPlayer.clearTimeInterval()
+        }
+        if (this.source === 'online') {
+          this.$gotoid('/micro/onlineClassRoom', param)
+        }
+        if (this.source === 'trainMaterial') {
+          const para = {
+            filters: this.filters,
+            active: this.active
+          }
+          this.$gotoid('/micro/trainMaterial', JSON.stringify(para))
+        }
+      },
+      changeList() {
+        if (this.$refs.audioPlayer) {
+          this.$refs.audioPlayer.clearTimeInterval()
+        }
+        if (this.$refs.videoPlayer) {
+          this.$refs.videoPlayer.clearTimeInterval()
+        }
+        if (this.$refs.documentPlayer) {
+          this.$refs.documentPlayer.clearTimeInterval()
+        }
+      },
+      viewLog(type) {
+        let para = {
+          courseId: this.rowId,
+          stopTime: '',
+          remark: '',
+          type: type,
+          ip: sessionStorage.getItem('currentIp')
+        }
+        para = this.$setCurrentUser(para)
+        this.$save('traincourselog', para).then(response => {
+          if (type === '0') {
+            this.viewId = response.data
+          }
+        })
+      },
+      uploadViewLog(stopTime) {
+        let para = {
+          id: this.viewId,
+          stopTime: stopTime
+        }
+        para = this.$setCurrentUser(para)
+        para.lastId = para.creationId
+        para.lastName = para.creationName
+        this.$update('traincourselog/' + this.viewId, para).then(response => {
+          console.info('更新停留时间')
+        })
+      },
+      detail() {
+        this.$query('traincourselist/' + this.rowId).then(response => {
+          this.playerDetail = response.data
+          this.playerDetail.flag = (this.source !== 'trainMaterial')
+          if (this.enType === '1') {
+            this.$refs.videoPlayer.setDetail(this.playerDetail)
+          }
+          if (this.enType === '2') {
+            this.$refs.audioPlayer.setDetail(this.playerDetail)
+          }
+          if (this.enType === '0') {
+            this.$refs.documentPlayer.setDetail(this.playerDetail)
           }
         })
       }
     },
     mounted() {
-      if (this.$route.query.path) {
-        this.playerOptions.sources[0].src = this.$route.query.path
+      const param = sessionStorage.getItem(this.$route.path)
+      if (param !== undefined && param !== null && param !== '') {
+        const filters = JSON.parse(param)
+        this.enType = filters.enType
+        this.source = filters.jumpType
+        this.rowId = filters.id
+        if (this.enType === '0') {
+          this.postfix = '文档'
+        }
+        if (this.enType === '1') {
+          this.postfix = '视频'
+        }
+        if (this.enType === '2') {
+          this.postfix = '音频'
+        }
+        if (filters.auditView) {
+          this.active = filters.active
+          this.filters = filters.filters
+          this.auditView = filters.auditView
+        } else {
+          this.filters = filters.filters
+          this.$refs.filterCommon.setFilter(filters.filters)
+        }
+        this.detail()
       }
+      this.tableHeight = document.documentElement.clientHeight - 125 + 'px'
     }
   }
 </script>
 
-<style scoped>
+<style>
+  .online_classroom_player{
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+  .online_classroom_player::-webkit-scrollbar {
+    width: 0px;
+    height: 1px;
+  }
 </style>

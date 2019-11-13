@@ -11,31 +11,53 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/upms': {
-        target: 'http://192.168.42.204:9001',
+        // target: 'http://192.168.1.103:8082',
+        // target: 'http://192.168.42.229:9001',
+        // target: 'http://192.168.1.107:8081',
+        target: 'http://192.168.1.116:8082',
         changeOrigin: true,
         pathRewrite: {
           '^/upms': '/upms'
         }
       },
+      // '/syhz': {
+      //   target: 'http://192.168.42.204:9002',
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     '^/syhz': '/syhz'
+      //   }
+      // },
       '/syhz': {
-        target: 'http://192.168.42.204:9002',
+        target: 'http://192.168.1.116:9012',
+        // target: 'http://192.168.1.103:9002',
+        // target: 'http://192.168.1.107:9002',
+        // target: 'http://192.168.1.102:9002',
         changeOrigin: true,
         pathRewrite: {
           '^/syhz': '/syhz'
         }
       },
       '/trajectory-search': {
-        target: 'http://127.0.0.1:9003',
+        target: 'http://192.168.1.116:9003',
         changeOrigin: true,
         pathRewrite: {
           '^/trajectory-search': '/trajectory-search'
         }
       },
-      '/attachment': {
-        target: 'http://127.0.0.1:9004',
+      '/file/downloadFile': { // MongoDB附件下载
+        // target: 'http://192.168.42.204:81',
+        target: 'http://192.168.43.32:9003',
         changeOrigin: true,
         pathRewrite: {
-          '^/attachment': '/attachment'
+          '^/file': '/file'
+        }
+      },
+      '/attachment': {
+        // target: 'http://192.168.42.204:8084',
+        target: 'http://192.168.43.32:9003',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/attachment': '/'
         }
       },
       '/file': {
@@ -52,6 +74,20 @@ module.exports = {
           '^/zdry/': '/'
         }
       },
+      '/upload': {
+        target: 'http://192.168.42.189:9012',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/upload': '/upload'
+        }
+      },
+      '/opt/syhz/upload/fileupload/files': {
+        target: 'http://192.168.42.189:85/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/opt/syhz/upload/fileupload/files': '/files'
+        }
+      }
     },
 
     // Various Dev Server settings

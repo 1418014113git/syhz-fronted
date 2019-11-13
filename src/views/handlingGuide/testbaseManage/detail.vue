@@ -12,18 +12,22 @@
         <span>{{$getLabelByValue(questionForm.type+'', txData)}}</span>
       </el-form-item>
       <el-form-item label="题目内容" class="clearfix" prop="subjectName">
-        {{questionForm.subjectName}}
+        <span v-html="questionForm.subjectName" class="richTextWrap"></span>
       </el-form-item>
       <el-form-item label="选项" v-if="questionForm.type===1 || questionForm.type===2">
         <p v-for="(item,index) in questionForm.points" :key="index">
-          {{item.point}}、{{item.pointValue}}
+          <span v-html="item.point"></span>、<span v-html="item.pointValue" class="richTextWrap"></span>
         </p>
       </el-form-item>
-      <el-form-item label="正确答案" prop="answer">
+      <el-form-item label="正确答案" prop="answer" v-if="questionForm.type===1 || questionForm.type===2|| questionForm.type===3">
         {{questionForm.answer}}
       </el-form-item>
+      <el-form-item label="正确答案" prop="answer" v-if="questionForm.type===4">
+        <span v-if="questionForm.answer === 1">正确</span>
+        <span v-else-if="questionForm.answer === 2">错误</span>
+      </el-form-item>
       <el-form-item label="题目解析">
-        {{questionForm.analysis}}
+        <span v-html="questionForm.analysis" class="richTextWrap"></span>
       </el-form-item>
       <el-form-item label="出处" prop="source">
         <el-tag>{{questionForm.source}}</el-tag>
@@ -70,13 +74,26 @@ export default {
       }
       this.$query('questions/questionbyid', para).then((response) => {
         this.listLoading = false
-        if (response.data.subjectName.indexOf('[]') > 0) {
-          response.data.subjectName = response.data.subjectName.replace(/\[/g, '___').replace(/\]/g, '___')
+        if (response.code === '000000') {
+          if (response.data.type === 3) { // 填空题
+            if (response.data.subjectName.indexOf('[]') > 0) {
+              response.data.subjectName = response.data.subjectName.replace(/\[/g, '___').replace(/\]/g, '___')
+            }
+            if (response.data.answer.indexOf('|') > 0) { // 竖线 替换为顿号
+              response.data.answer = response.data.answer.replace(/\|/g, '、')
+            }
+            if (response.data.answer.indexOf(',') > 0) { // 逗号 替换为或
+              response.data.answer = response.data.answer.replace(/\,/g, '或')
+            }
+            if (response.data.answer.indexOf('，') > 0) { // 逗号 替换为或
+              response.data.answer = response.data.answer.replace(/\，/g, '或')
+            }
+          }
+          this.questionForm = response.data
         }
-        this.questionForm = response.data
       }).catch(() => {
         this.listLoading = false
-        this.tableData = []
+        this.questionForm = {}
       })
     },
     cancel() {
