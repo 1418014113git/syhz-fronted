@@ -648,25 +648,7 @@ export default {
         }
       })
     },
-    getDepts(paramCode, type) { // 根据code 查上级单位
-      this.$query('hsyzparentdepart/' + paramCode, {}, 'upms').then((response) => {
-        if (response.code === '000000') {
-          if (type === 'audit') {
-            this.exDeptData = [response.data] // 审核单位 数据源
-          } else if (type === 'parent') {
-            this.curDeptParent = response.data // 当前部门的父级部门
-          }
-          if (this.deptInfo.depType === '4') { // 派出所
-            this.dbApplyForm.superviseLevel = this.curDeptParent.departType// 督办级别
-          } else {
-            this.dbApplyForm.superviseLevel = this.deptInfo.depType
-          }
-        }
-      }).catch(() => {
-        this.caseLoading = false
-      })
-    },
-    queryDepartByCode(type) { // 查单位
+    getDepts(type) { // 根据code 查上级单位
       var paramCode = ''
       if (type === 'audit') { // 查审核单位
         if (this.deptInfo.depType === '4') { // 派出所
@@ -677,7 +659,23 @@ export default {
       } else if (type === 'parent') { // 查父级单位
         paramCode = this.deptInfo.depCode
       }
-      this.getDepts(paramCode, type)
+      this.$query('hsyzparentdepart/' + paramCode, {}, 'upms').then((response) => {
+        if (response.code === '000000') {
+          if (type === 'audit') {
+            this.exDeptData = [response.data] // 审核单位 数据源
+          } else if (type === 'parent') {
+            this.curDeptParent = response.data // 当前部门的父级部门
+          }
+          // 督办级别 处理
+          if (this.deptInfo.depType === '4') { // 派出所
+            this.dbApplyForm.superviseLevel = this.curDeptParent.departType
+          } else {
+            this.dbApplyForm.superviseLevel = this.deptInfo.depType
+          }
+        }
+      }).catch(() => {
+        this.caseLoading = false
+      })
     },
     judgeInitForm() {
       if (this.$route.query.dbId && this.$route.query.type === 'up') { // 向上申请
@@ -688,11 +686,11 @@ export default {
     }
   },
   mounted() {
-    this.queryDepartByCode('audit') // 查审核单位
+    this.getDepts('audit') // 查审核单位
     // 查督办负责人
     if (this.deptInfo.depType === '4') { // 派出所
       this.getUsers([this.deptInfo.parentDepCode])
-      this.queryDepartByCode('parent') // 查父级单位
+      this.getDepts('parent') // 查父级单位
     } else {
       this.getUsers([this.deptInfo.depCode])
     }
