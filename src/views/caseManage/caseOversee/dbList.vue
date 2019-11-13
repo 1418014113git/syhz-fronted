@@ -564,6 +564,7 @@ export default {
     passwordCheck() { // 验证查阅密码
       this.$refs.checkForm.validate(valid => {
         if (valid) {
+          this.checkPasswordVisible = false
           this.$router.push({ path: '/caseManage/dbDetail', query: { dbId: this.currentDb.recordId }})
         }
       })

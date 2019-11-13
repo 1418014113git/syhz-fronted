@@ -14,11 +14,11 @@
         <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
             <base-info class="marb bg jbxx" :cardId="cardId"></base-info>
-            <!-- <verify-info class="marb bg shxx" :cardId="cardId"></verify-info>
-            <area-sign class="marb bg dsqs" :cardId="cardId"></area-sign>
-            <area-back class="marb bg dsfk" :cardId="cardId"></area-back>
-            <county-sign class="marb bg qxqs" :cardId="cardId"></county-sign>
-            <county-back class="marb bg qxfk" :cardId="cardId"></county-back> -->
+            <audit-info class="marb bg shxx" :cardId="cardId"></audit-info>
+            <endcase-report class="marb bg dsqs" :cardId="cardId"></endcase-report>
+            <evaluation-score class="marb bg dsfk" :cardId="cardId"></evaluation-score>
+            <urge-info class="marb bg qxqs" :cardId="cardId"></urge-info>
+            <new-progress class="marb bg qxfk" :cardId="cardId"></new-progress>
           </div>
         </el-col>
      </el-row>
@@ -29,11 +29,11 @@
 <script>
 import LeftNav from './components/leftNav' // 左侧菜单
 import BaseInfo from './components/baseInfo' // 右侧--基本信息
-// import VerifyInfo from './components/verifyInfo' // 右侧--审核信息
-// import AreaSign from './components/areaSign' // 右侧--地市签收
-// import AreaBack from './components/areaBack' // 右侧--地市反馈
-// import CountySign from './components/countySign' // 右侧--区县签收
-// import CountyBack from './components/countyBack' // 右侧--区县反馈
+import AuditInfo from './components/auditInfo' // 右侧--审核信息
+import EndcaseReport from './components/endcaseReport' // 右侧--结案报告
+import EvaluationScore from './components/evaluationScore' // 右侧--评价打分
+import UrgeInfo from './components/urgeInfo' // 右侧--催办信息
+import NewProgress from './components/newProgress' // 右侧--最新进展
 import $ from 'jquery'
 export default {
   name: 'personnelFile',
@@ -46,12 +46,12 @@ export default {
   },
   components: {
     LeftNav,
-    BaseInfo
-    // VerifyInfo,
-    // AreaSign,
-    // AreaBack,
-    // CountySign,
-    // CountyBack
+    BaseInfo,
+    AuditInfo,
+    EndcaseReport,
+    EvaluationScore,
+    UrgeInfo,
+    NewProgress
   },
   computed: {
     getIstotop() {
