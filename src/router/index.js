@@ -298,7 +298,9 @@ export const constantRouterMap = [
       { path: '/jqcampaign', component: () => import('@/views/caseManage/jqCampaign/mainList'), name: '集群战役' },
       { path: '/jqcampaign/clueList', component: () => import('@/views/caseManage/jqCampaign/clueList'), name: '线索列表' },
       { path: '/jqCampaign/detail', component: () => import('@/views/caseManage/jqCampaign/mainDetail'), name: '集群战役详情 ' },
-      { path: '/jqCampaign/jqzyAdd', component: () => import('@/views/caseManage/jqCampaign/jqzyAdd'), name: '申请集群战役 ' }
+      { path: '/jqCampaign/jqzyAdd', component: () => import('@/views/caseManage/jqCampaign/jqzyAdd'), name: '申请集群战役 ' },
+      { path: '/reportTemplate', component: () => import('@/views/reportTemplate/index'), name: '常规报表模板' },
+      { path: '/caseManage/caseList', component: () => import('@/views/caseManage/caseList'), name: '案件查询统计' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
