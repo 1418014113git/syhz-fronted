@@ -97,7 +97,7 @@
         <el-button type="primary" size="small"  v-on:click="handleBatchAdd('apply')">督办批次发布</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="dbBatchData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
+    <el-table :data="dbBatchData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
       <el-table-column label="序号" type="index" width="60"></el-table-column>
       <el-table-column prop="title" label="批次名称" min-width="10%" show-overflow-tooltip></el-table-column>
       <!-- <el-table-column label="案件编号" min-width="10%">
