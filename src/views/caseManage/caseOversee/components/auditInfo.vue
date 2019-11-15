@@ -3,25 +3,31 @@
     <!-- 审核信息 -->
     <div class="auditInfo">
       <title-pub :title="title" url=""></title-pub>
-      <el-table :data="shDataList" style="width: 100%;" v-loading="loading" max-height="156">
-        <el-table-column type="index" label="序号" width="60"></el-table-column>
-        <el-table-column prop="applyDepartName" label="申请部门"></el-table-column>
-        <el-table-column prop="applyUserName" label="申请人"></el-table-column>
-        <el-table-column prop="applyDate" label="申请时间"></el-table-column>
-        <el-table-column prop="superviseLevel" label="督办级别" show-overflow-tooltip>
-
+      <el-table :data="shDataList" style="width: 100%;" v-loading="loading" max-height="156" class="table_th_center">
+        <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
+        <el-table-column prop="applyDepartName" label="申请部门"  min-width="240" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="applyUserName" label="申请人" min-width="120" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="applyDate" label="申请时间" width="170" align="center"></el-table-column>
+        <el-table-column prop="superviseLevel" label="督办级别" width="100" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            {{$getDictName(scope.row.superviseLevel+'','dbjb')}}
+          </template>
         </el-table-column>
-        <el-table-column prop="auditDepartName" label="审核部门" ></el-table-column>
-        <el-table-column prop="auditUserName" label="审核人" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="auditTime" label="审核时间"></el-table-column>
-        <el-table-column prop="flowStatus" label="审核状态"></el-table-column>
-        <el-table-column prop="auditContent" label="审核意见" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="auditDepartName" label="审核部门"  min-width="240" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="auditUserName" label="审核人" min-width="120" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="auditTime" label="审核时间" width="170" align="center"></el-table-column>
+        <el-table-column prop="flowStatus" label="审核状态"  width="120" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            {{$getDictName(scope.row.flowStatus+'','dbajzt')}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="auditContent" label="审核意见" min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column label="操作" width="80">
           <template slot-scope="scope">
             <!-- v-if="$isViewBtn('100805')" -->
-             <!-- v-if="(scope.row.status === 0) &&((deptInfo.depType!=='4'&&scope.row.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.applyDeptCode === deptInfo.parentDepCode))" -->
-            <el-button
-                      title="审核" size="mini" type="primary" @click="handlerAudit(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
+            <el-button  v-if="scope.row.auditDeptCode === deptInfo.depCode && scope.row.flowStatus==='1'"
+                      title="审核" size="mini" type="primary" @click="handlerAudit(scope.$index, scope.row)" circle>
+                       <svg-icon icon-class="audit"></svg-icon></el-button>
           </template>
         </el-table-column>
 
@@ -43,9 +49,8 @@
 </template>
 <script>
 import titlePub from './titlePub'
-import { getAJDETAILBUNCH } from '@/api/caseManage'
 export default {
-  props: ['shxxData'],
+  props: ['dbId'],
   name: 'index',
   components: {
     titlePub
@@ -57,16 +62,19 @@ export default {
       page: 1,
       total: 0,
       pageSize: 5,
+      db_Id: '',
       shDataList: [], // 审核数据
-      AJBH: '' // 案件编号
+      AJBH: '', // 案件编号
+      userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
   },
   watch: {
-    shxxData(val) {
+    dbId(val) {
       // this.loading = true
       // this.initData() // 初始化数据
       if (val) {
-        this.shDataList = val
+        this.db_Id = val
         // this.AJBH = val
         // this.init(true)
       }
@@ -74,22 +82,15 @@ export default {
   },
   methods: {
     init(flag) {
-      if (this.ajbh) {
+      if (this.dbId) {
         this.loading = true
-        this.AJBH = this.ajbh
-        getAJDETAILBUNCH({
-          pageNum: flag ? 1 : this.page,
-          pageSize: this.pageSize,
-          AJBH: this.AJBH
-        }).then((res) => {
-          this.loading = false
-          if (res.code === '000000') {
-            this.dataList = res.data.list
-            this.total = res.data.totalCount
-            this.pageSize = res.data.pageSize
-            if (this.dataList.length > 0) {
-              this.$resetSetItem('aj9', this.total) // 将总数存在session中
-            }
+        this.db_Id = this.dbId
+        this.$query('page/casesuperviseaudit', { id: this.db_Id }).then((response) => {
+          if (response.code === '000000') {
+            this.loading = false
+            this.shDataList = response.data.list
+            this.total = response.data.totalCount
+            this.pageSize = response.data.pageSize
           }
         }).catch(() => {
           this.loading = false
