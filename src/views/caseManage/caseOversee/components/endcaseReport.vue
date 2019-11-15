@@ -85,7 +85,7 @@
         </el-form>
         <el-row class="tabC" style="margin: 20px auto 10px;">
           <el-button  @click="jabgCancel" class="cancelBtn">取 消</el-button>
-          <el-button  type="primary" @click="jabgSubmit('jabgForm','1')"  class="saveBtn" :loading="formLoading">上 报</el-button>
+          <el-button  type="primary" @click="jabgSubmit('jabgForm')"  class="saveBtn" :loading="formLoading">上 报</el-button>
         </el-row>
       </el-dialog>
       <!-- 结案报告审核 -->
@@ -105,7 +105,8 @@
   </section>
 </template>
 <script>
-import { regCode } from '@/utils/validate'
+import Bus from '@/utils/bus.js'
+// import { regCode } from '@/utils/validate'
 import titlePub from './titlePub'
 import VueEditor from '@/components/Editor/VueEditor'
 import { uploadImg } from '@/utils/editorUpload'
@@ -144,9 +145,7 @@ export default {
         title: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入批次名称'))
-            } else if (regCode.test(value)) {
-              callback(new Error('请不要输入特殊字符'))
+              callback(new Error('请输入标题'))
             } else {
               callback()
             }
@@ -155,7 +154,7 @@ export default {
         content: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
-              callback(new Error('请输入正文'))
+              callback(new Error('请输入结案报告'))
             } else {
               callback()
             }
@@ -271,7 +270,7 @@ export default {
     jabgCancel() {
       this.isShowJabg = false
     },
-    jabgSubmit(formName, type) {
+    jabgSubmit(formName) {
       // 上传结案报告
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -280,7 +279,9 @@ export default {
             this.handleFile()
           }
           var param = JSON.parse(JSON.stringify(this.jabgForm))
-          if (type === '1') { // 上报结案报告
+          if (this.jabgInfo.id) { // 修改结案报告
+            param.status = this.jabgInfo.reportStatus // 修改结案报告时 传上一次的状态
+          } else {
             param.status = 1 // 上传 规定为1
           }
           param.dbId = this.jabgInfo.dbId // 督办id
@@ -309,6 +310,7 @@ export default {
                   message: '提交成功', type: 'success'
                 })
                 this.isShowJabg = false
+                this.$parent.queryDbDetail() // 调用父级的查详情方法
               } else {
                 // this.$message({
                 //   message: '机构信息保存失败，请联系管理员！', type: 'success'
@@ -436,6 +438,13 @@ export default {
     closeDialog(formName) {
       this.resetForm(formName)
     }
+  },
+  created: function() { // 监听 无文书提交申请后 更新案件梗概的状态显示
+    Bus.$on('shangbaoJabg', message => {
+      // if (this.ajbh) {
+      this.handleReport()
+      // }
+    })
   },
   mounted() {
     this.init(true)

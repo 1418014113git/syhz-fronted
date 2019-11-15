@@ -30,12 +30,6 @@
                        <svg-icon icon-class="audit"></svg-icon></el-button>
           </template>
         </el-table-column>
-
-        <!-- <el-table-column label="操作时间">
-          <template slot-scope="scope">
-            <span v-if="scope.row.CZSJ">{{formatTime(scope.row.CZSJ)}}</span>
-          </template>
-        </el-table-column> -->
       </el-table>
       <el-row>
         <el-col :span="24" class="toolbar">
@@ -44,16 +38,23 @@
           </el-pagination>
         </el-col>
       </el-row>
+      <el-dialog title="审核" :visible.sync="isShowshDialog"  class="stshForm" :close-on-click-modal="false">
+        <!-- :isShowDialog="isShowshDialog" @closeDialog="closeshDialog" -->
+        <audit-com :dsh="curAudit" :dbId="db_Id"></audit-com>
+      </el-dialog>
     </div>
   </section>
 </template>
 <script>
+import auditCom from './auditCom' // 审核弹框
 import titlePub from './titlePub'
 export default {
   props: ['dbId'],
   name: 'index',
   components: {
-    titlePub
+    titlePub,
+    auditCom
+
   },
   data() {
     return {
@@ -64,7 +65,8 @@ export default {
       pageSize: 5,
       db_Id: '',
       shDataList: [], // 审核数据
-      AJBH: '', // 案件编号
+      curAudit: {}, // 当前行的审核
+      isShowshDialog: false, // 审核弹框
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -76,7 +78,7 @@ export default {
       if (val) {
         this.db_Id = val
         // this.AJBH = val
-        // this.init(true)
+        this.init(true)
       }
     }
   },
@@ -115,8 +117,9 @@ export default {
       this.page = 1
       this.init()
     },
-    handlerAudit() { // 审核
-
+    handlerAudit(index, row) { // 审核
+      this.curAudit = row
+      this.isShowshDialog = true
     }
   },
   mounted() {

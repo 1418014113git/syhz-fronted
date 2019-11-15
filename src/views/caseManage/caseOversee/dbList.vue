@@ -135,8 +135,7 @@
           </el-button>
           <!-- 草稿状态 或者 审核不通过 有 编辑按钮 -->
           <!-- && $isViewBtn('100806') -->
-           <!--  -->
-          <el-button v-if="(scope.row.status === 0) &&
+          <el-button v-if="(scope.row.status === 0||scope.row.status === 4) &&
                     ((deptInfo.depType!=='4'&&scope.row.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.applyDeptCode === deptInfo.parentDepCode))"
                     title="编辑" size="mini" type="primary" @click="editDBInfo(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
           <el-button v-if="(scope.row.superviseDeptCode === deptInfo.depCode) && scope.row.superviseLevel>1 && (scope.row.wdStatus==='0'||scope.row.wdStatus==='4')"

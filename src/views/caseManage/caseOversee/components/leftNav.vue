@@ -46,7 +46,7 @@ export default {
     },
     leftNumber(val) {
       // this.baseInfo = {}
-      console.log(val)
+      // console.log(val)
       if (val) {
         this.leftData = val
         this.init()
