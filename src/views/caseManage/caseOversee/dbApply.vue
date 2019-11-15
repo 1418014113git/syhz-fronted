@@ -264,6 +264,7 @@ export default {
         this.fzrChange(this.dbApplyForm.supervisePersonId) // 督办负责人
         this.lxrChange(this.dbApplyForm.connectionPersonId) // 督办联系人
         // 申请原因和附件沿用上一次的申请
+        this.dbApplyForm.wdStatus = response.data.wdStatus // wdStatus 上级督办的状态
         this.dbApplyForm.superviseDesc = response.data.superviseDesc // 申请原因
         if (response.data.attachment) {
           for (let i = 0; i < response.data.attachment.length; i++) { // 附件
@@ -276,9 +277,9 @@ export default {
             }
           }
         }
-        this.dbApplyForm.status = response.data.status // 状态
-        this.dbApplyForm.recordId = response.data.recordId //
-        this.dbApplyForm.superviseId = response.data.superviseId //
+        this.dbApplyForm.status = '1' // 状态
+        this.dbApplyForm.recordId = response.data.recordId // 督办id
+        this.dbApplyForm.superviseId = response.data.superviseId // 案件督办的主id
         console.log(this.dbApplyForm)
       }).catch(() => {
         this.formLoading = false
@@ -423,7 +424,7 @@ export default {
         req.applyAreaCode = this.deptInfo.areaCode // 申请人行政区划
       }
       req.category = 'apply' // 督办类型
-      console.log(req)
+      // console.log(req)
       this.$update('CaseSuperviseAuidt/' + this.carryParam.dbId, req).then((response) => {
         if (response.code === '000000') {
           this.saveLoading = false

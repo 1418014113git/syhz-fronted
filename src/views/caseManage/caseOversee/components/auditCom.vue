@@ -3,7 +3,7 @@
   <div class="auditCom">
     <el-form ref="auditForm" :rules="rules" :model="auditForm" size="small" label-width="100px">
       <el-form-item label="审核意见" prop="content">
-        <el-input v-model.trim="auditForm.content" type="textarea" :rows="3" clearable  maxlength="500" placeholder="" class="inputW"></el-input>
+        <el-input v-model.trim="auditForm.content" type="textarea" :rows="3" clearable  maxlength="500" placeholder="最多输入500个字符" class="inputW"></el-input>
       </el-form-item>
     </el-form>
     <el-row class="tabC dialogBtnUpLine">
@@ -16,7 +16,7 @@
 <script>
 import titlePub from './titlePub'
 export default {
-  props: ['cardId', 'isShowDialog'],
+  props: ['dbId', 'isShowDialog'],
   name: 'baseInfo',
   data() {
     return {
@@ -31,7 +31,7 @@ export default {
       rules: {
         remark: [ // 审核意见校验
           { required: false, trigger: 'blur', validator: (rule, value, callback) => {
-            if (this.remarkType === 2) { // 不通过
+            if (this.remarkType === '4') { // 不通过
               if (!value) {
                 callback(new Error('审核意见不能为空'))
               } else {
@@ -64,8 +64,8 @@ export default {
   methods: {
     init() {
       this.initData()
-      // if (this.cardId) {
-      //   this.cardNumber = this.cardId
+      // if (this.dbId) {
+      //   this.cardNumber = this.dbId
       //   this.detail()
       // }
     },
@@ -77,7 +77,7 @@ export default {
         this.$refs[formName].resetFields()
       }
     },
-    auditSubmit(type) { // 审核 type:1 通过， 2：不通过
+    auditSubmit(type) { // 审核 type:3 通过， 4不通过
       this.remarkType = type
       this.$refs.auditForm.validate(valid => {
         if (valid) {

@@ -5,19 +5,19 @@
       <img src="@/assets/icon/back.png" class="goBack" @click="toback">   <!--返回-->
     </el-row>
      <div class="personnelFile">
-     <el-row>
+     <el-row v-loading="loading">
        <!-- 左侧导航区 -->
         <el-col class="leftCont" :span="3" :style="{height:countHeight}">
           <left-nav class="bg" :leftNumber="leftData"></left-nav>
         </el-col>
         <!-- 右侧内容区 -->
-        <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
+        <el-col :span="21" class="rightCont" :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
             <base-info class="marb bg jbxx" :jbxxData="dbDetailData.jbxx"></base-info>
-            <audit-info class="marb bg shxx" :shxxData="dbDetailData.shxx"></audit-info>
-            <endcase-report class="marb bg jabg" :dbId="dbDetailData"></endcase-report>
-            <evaluation-score class="marb bg pjdf" :dbId="dbDetailData"></evaluation-score>
-            <urge-info class="marb bg cbxx" :dbId="dbDetailData"></urge-info>
+            <audit-info class="marb bg shxx" :dbId="dbId"></audit-info>
+            <endcase-report class="marb bg jabg" :jabgData="dbDetailData.jabg"></endcase-report>
+            <evaluation-score class="marb bg pjdf" :pjdfData="dbDetailData.pjdf"></evaluation-score>
+            <urge-info class="marb bg cbxx"  :dbId="dbId"></urge-info>
             <new-progress class="marb bg zxjz" :dbId="dbDetailData"></new-progress>
           </div>
         </el-col>
@@ -42,8 +42,11 @@ export default {
       countHeight: document.documentElement.clientHeight - 130 + 'px',
       dbId: '', // 从详情页面返回的是身份证号码、案件编号或线索编号
       classList: ['jbxx', 'shxx', 'jabg', 'pjdf', 'cbxx', 'zxjz'],
+      loading: true,
       leftData: {},
-      dbDetailData: {} // 督办详情
+      dbDetailData: {}, // 督办详情
+      userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
   },
   components: {
@@ -105,22 +108,37 @@ export default {
     if (this.$route.query.dbId) { // 正式
       this.dbId = this.$route.query.dbId
       // 查详情
+      this.loading = true
       this.$query('casesupervise', { id: this.dbId }).then((response) => {
-        // this.formLoading = false
+        this.loading = false
         if (response.code === '000000') {
           this.dbDetailData = response.data.data
           this.leftData = response.data.th
+          // 基本信息
+          this.dbDetailData.jbxx.jabgTitle = this.dbDetailData.jabg.title // 是否有结案报告
+
+          // 结案报告
+          this.dbDetailData.jabg.dbId = this.dbId // 将督办id存入 结案报告中
+          // this.dbDetailData.jabg.createDeptCode = this.dbDetailData.jabg.createDeptCode // 申请部门code
+          // this.dbDetailData.jabg.reportStatus = this.dbDetailData.jabg.reportStatus // 结案报告状态
+          // this.dbDetailData.jabg.dbStatus = this.dbDetailData.jabg.dbStatus // 本级督办状态
+          // this.dbDetailData.jabg.upDbStatus = this.dbDetailData.jabg.upDbStatus // 上级督办状态
+          // this.dbDetailData.jabg.wdStatus = this.dbDetailData.jabg.wdStatus // 是否有上级督办
+
+          // 评价打分
+          this.dbDetailData.pjdf.dbId = this.dbId // 将督办id存入 评价打分中
+          this.dbDetailData.pjdf.status = this.dbDetailData.jbxx.status // 将督办状态存入 评价打分中
+          this.dbDetailData.pjdf.superviseDepartCode = this.dbDetailData.jbxx.superviseDepartCode // 将审核单位存入 评价打分中
+
           // this.choosedCases = this.dbBatchForm.caseList // 督办案件列表
           // if (this.dbBatchForm.superviseLevel) { // 督办级别
           //   this.dbBatchForm.superviseLevel = this.dbBatchForm.superviseLevel + ''
           // }
         }
       }).catch(() => {
-        // this.formLoading = false
+        this.loading = false
       })
     }
-    // 测试
-    // this.dbId = '152224199005230516'
   },
   mounted() {
     const _this = this

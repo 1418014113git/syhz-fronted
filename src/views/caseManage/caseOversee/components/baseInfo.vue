@@ -4,11 +4,25 @@
     <div class="titleWrap">
       <div class="left">{{title}}</div>
       <div class="right">
-        <el-button type="primary" size="small"  @click="handleAudit">审核</el-button>
-        <el-button type="primary" size="small"  @click="cxsq">申请上级督办</el-button>
-        <el-button type="primary" size="small"  @click="audit">上报结案报告</el-button>
-        <el-button type="primary" size="small"  @click="xsff">下发催办</el-button>
-        <el-button type="primary" size="small"  @click="qs">签收</el-button>
+        <!--
+          基本信息-【审核】，审核单位人员，有审核权限，且存在待审核记录时显示，点击显示审核页面进行审核工作。其他情况隐藏。
+          基本信息-【申请上级督办】，审核单位人员，有审核权限，且不存在待审核、审核中、督办中、督办结束、评价打分的上一级（督办级别）督办记录（部督办、厅督办、市督办三级从上到下排序）时可申请上级督办。其他情况隐藏。
+          基本信息-【上报结案报告】，申请单位人员，案件督办状态为督办中、督办结束或评价打分，且不存在审核通过的结案报告时可上报结案报告。其他情况隐藏。
+          基本信息-【下发催办】，审核单位人员，案件督办状态为督办中、督办结束或评价打分时可下发催办给申请单位。其他情况隐藏。
+          基本信息-【签收】，申请单位人员，案件督办状态为督办中、督办结束或评价打分时，且本单位未签收时可点击签收。其他情况隐藏。
+          基本信息-【申请部门】，所有人可见，案件督办状态为督办中、督办结束或评价打分时，且申请单位未签收时显示“待签收”。申请单位签收后，显示“已签收”。
+        -->
+        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode"
+          type="primary" size="small" @click="handleAudit">审核</el-button>
+        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode&&(deptInfo.wdStauts===0||deptInfo.wdStauts===4)"
+          type="primary" size="small" @click="cxsq">申请上级督办</el-button>
+        <el-button v-if="((deptInfo.depType!=='4'&&baseInfo.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDeptCode === deptInfo.parentDepCode))&&
+          (baseInfo.dbStatus===5||baseInfo.dbStatus===6||baseInfo.dbStatus===7) && !baseInfo.jabgTitle"
+          type="primary" size="small"  @click="audit">上报结案报告</el-button>
+        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode"
+          type="primary" size="small"  @click="xsff">下发催办</el-button>
+        <el-button v-if="((deptInfo.depType!=='4'&&baseInfo.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDeptCode === deptInfo.parentDepCode))"
+          type="primary" size="small"  @click="qs">签收</el-button>
       </div>
      </div>
      <el-row class="xddw zwbj">
@@ -147,7 +161,9 @@ export default {
           id: 3,
           fileName: '附件3.zip'
         }
-      ]
+      ],
+      userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
+      deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
   },
   components: {
@@ -159,7 +175,9 @@ export default {
   },
   watch: {
     jbxxData(val) {
-      this.baseInfo = val
+      if (val) {
+        this.baseInfo = val
+      }
       // this.detail()
     }
   },
@@ -175,9 +193,12 @@ export default {
     init() {
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.paramDept = JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode
-      if (this.cardId) {
-        this.cardNumber = this.cardId
-        this.detail()
+      // if (this.cardId) {
+      //   this.cardNumber = this.cardId
+      //   this.detail()
+      // }
+      if (this.jbxxData) {
+        this.baseInfo = this.jbxxData
       }
     },
     detail() {

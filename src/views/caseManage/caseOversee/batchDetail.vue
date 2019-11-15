@@ -355,56 +355,6 @@ export default {
         // 留在编辑页面
       })
     },
-    handleSave(type, formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          // console.log(this.questionForm)
-          var param = JSON.parse(JSON.stringify(this.dbBatchForm))
-          // if (this.dbBatchForm.administrative && this.dbBatchForm.administrative.length > 0) {
-          //   param.provinceCode = this.dbBatchForm.administrative[0]
-          //   param.cityCode = this.dbBatchForm.administrative[1] || ''
-          //   param.reginCode = this.dbBatchForm.administrative[2] || ''
-          //   param.administrative = this.dbBatchForm.administrative[this.dbBatchForm.administrative.length - 1] // 为最后一级的code
-          // }
-          param.departCode = this.deptInfo.depCode
-          param.areaCode = this.deptInfo.areaCode
-          param.departName = this.deptInfo.depName
-
-          param.userId = this.userInfo.id
-          param.userName = this.userInfo.userName
-          param.status = type
-          var caseIds = []
-          for (let m = 0; m < this.choosedCases.length; m++) {
-            const element = this.choosedCases[m]
-            caseIds.push(element.id)
-          }
-          param.caseIds = caseIds.join(',') // 督办案件
-          // console.log(param)
-          this.formLoading = true
-          this.$save('casesupervisebatch', param).then((response) => {
-            this.formLoading = false
-            if (response.code === '000000') {
-              this.$message({
-                message: '批次信息保存成功', type: 'success'
-              })
-              // 停留2秒跳转到详情页面
-              // setTimeout(() => {
-              //   this.$router.push({ path: '/basicService/deptInfo/detail' })
-              // }, 2000)
-            } else {
-              // this.$message({
-              //   message: '机构信息保存失败，请联系管理员！', type: 'success'
-              // })
-            }
-          }).catch(() => {
-            this.$message({
-              message: '机构信息保存失败，请联系管理员！', type: 'success'
-            })
-            this.formLoading = false
-          })
-        }
-      })
-    },
     back() {
       this.$router.back(-1)
     }
