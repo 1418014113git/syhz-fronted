@@ -62,10 +62,10 @@
     <el-dialog title="发送消息" :visible.sync="addDialogVisible" :close-on-click-modal="false" :close-on-press-escape="false" class="add_dialog" @close="closeDialog">
       <el-form :model="addForm" ref="addForm" :rules="addRules" v-loading="addBtnLoading" label-width="90px" style="margin-top: 15px;">
         <el-form-item label="标题" prop="title">
-          <el-input v-model="addForm.title" maxlength="50" size="small" placeholder="最多可输入500个字符！"></el-input>
+          <el-input v-model="addForm.title" maxlength="50" size="small" placeholder="最多可输入50个字符！"></el-input>
         </el-form-item>
         <el-form-item label="内容" prop="content">
-          <el-input v-model="addForm.content" type="textarea" maxlength="200" size="small" placeholder="最多可输入200个字符！" class="add_content"></el-input>
+          <el-input v-model="addForm.content" type="textarea" maxlength="500" size="small" placeholder="最多可输入500个字符！" class="add_content"></el-input>
         </el-form-item>
         <el-form-item label="接收人" prop="recipientUser">
           <el-transfer
@@ -153,8 +153,8 @@
               if (value === undefined || value === null || value === '') {
                 return callback(new Error('请输入消息内容！'))
               }
-              if (value.length > 200) {
-                return callback(new Error('消息内容最多可输入200个字符！'))
+              if (value.length > 500) {
+                return callback(new Error('消息内容最多可输入500个字符！'))
               }
               return callback()
             }

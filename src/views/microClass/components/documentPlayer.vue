@@ -18,8 +18,16 @@
           </div>
           <!--<div id="player" :style="{height: tableHeight}">-->
           <div id="player" class="player">
-            <button type="button" @click="changePdfPage(0)" class="el-carousel__arrow el-carousel__arrow--left"><i class="el-icon-arrow-left"></i></button>
-            <button type="button" @click="changePdfPage(1)" class="el-carousel__arrow el-carousel__arrow--right"><i class="el-icon-arrow-right"></i></button>
+            <button type="button" @click="changePdfPage(0)" class="el-carousel__arrow el-carousel__arrow--left">
+              <i class="el-icon-arrow-left"></i>
+              <!--<br>-->
+              {{currentPage}}
+            </button>
+            <button type="button" @click="changePdfPage(1)" class="el-carousel__arrow el-carousel__arrow--right">
+              {{pageCount ? pageCount : 0}}
+              <i class="el-icon-arrow-right"></i>
+              <!--<br>-->
+            </button>
             <div class="pdf">
               <pdf :src="detailData.enPath"
                 :page="currentPage"
@@ -300,29 +308,30 @@
     background-color: #0077af;
     cursor: pointer;
   }
-  /*.classRoom_documentPlayer .el-carousel__arrow--right{*/
-    /*right: 15%;*/
-    /*position: fixed;*/
-    /*top: 70%;*/
-  /*}*/
-  /*.classRoom_documentPlayer .el-carousel__arrow--left{*/
-    /*left: 15%;*/
-    /*position: fixed;*/
-    /*top: 70%;*/
-  /*}*/
   .classRoom_documentPlayer .el-carousel__arrow--right{
-    right: 8%;
-    position: absolute;
-    top: 50%;
+    right: 15%;
+    position: fixed;
+    top: 70%;
   }
   .classRoom_documentPlayer .el-carousel__arrow--left{
-    left: 8%;
-    position: absolute;
-    top: 50%;
+    left: 15%;
+    position: fixed;
+    top: 70%;
   }
+  /*.classRoom_documentPlayer .el-carousel__arrow--right{*/
+    /*right: 8%;*/
+    /*position: absolute;*/
+    /*top: 50%;*/
+  /*}*/
+  /*.classRoom_documentPlayer .el-carousel__arrow--left{*/
+    /*left: 8%;*/
+    /*position: absolute;*/
+    /*top: 50%;*/
+  /*}*/
   .classRoom_documentPlayer .el-carousel__arrow{
-    height: 72px;
-    width: 72px;
+    height: 85px;
+    width: 85px;
+    font-size: 22px;
   }
   .classRoom_documentPlayer .el-col {
     position: relative;
