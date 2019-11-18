@@ -5,7 +5,7 @@
       <li v-for="(item,index) in navList" :key="index" :class="{'on':curIndex === index}" @click="clickNav(item.class,index)" >
         <div>
           <span class="navName" :class="{'gray':item.number === 0 && index!==0}">{{item.name}}</span>
-          <span class="number"  v-if="item.number>0 && item.number<99 && index!==0" >（{{item.number}}）</span>
+          <span class="number"  v-if="item.number>0 && item.number<99 && index!==0" >{{item.number}}</span>
           <span class="number pdm"  v-else-if="item.number>99 && index!==0">99+</span>
           <span class="numberzw" v-else></span>
         </div>
@@ -15,7 +15,7 @@
 </template>
 <script>
 export default {
-  props: ['cardId'],
+  props: ['leftNumber'],
   name: 'personnelFile',
   data() {
     return {
@@ -32,19 +32,7 @@ export default {
         { name: '催办信息', number: 0, type: 't4', class: 'cbxx' },
         { name: '最新进展', number: 0, type: 't5', class: 'zxjz' }
       ],
-      navList1: [ // 总队,支队
-        { name: '基本信息', number: 0, type: 't0', class: 'jbxx' },
-        { name: '审核信息', number: 0, type: 't1', class: 'shxx' },
-        { name: '地市签收', number: 0, type: 't2', class: 'dsqs' },
-        { name: '地市反馈', number: 0, type: 't3', class: 'dsfk' }
-      ],
-      navList2: [ // 大队，派出所
-        { name: '基本信息', number: 0, type: 't0', class: 'jbxx' },
-        { name: '审核信息', number: 0, type: 't1', class: 'shxx' },
-        { name: '区县签收', number: 0, type: 't4', class: 'qxqs' },
-        { name: '区县反馈', number: 0, type: 't5', class: 'qxfk' }
-      ],
-      cardNumber: ''
+      leftData: {}
     }
   },
   computed: {
@@ -56,18 +44,30 @@ export default {
     getModuleClass(val) {
       this.getCurItem(val)
     },
-    cardId(val) {
-      this.baseInfo = {}
+    leftNumber(val) {
+      // this.baseInfo = {}
+      // console.log(val)
       if (val) {
-        this.cardNumber = val
+        this.leftData = val
         this.init()
       }
     }
   },
   methods: {
     init() {
-      this.detail()
-      this.getItemTotal() // 获取菜单对应的内容条数
+      // this.detail()
+      // this.getItemTotal() // 获取菜单对应的内容条数
+      for (const key in this.leftData) {
+        if (this.leftData.hasOwnProperty(key)) {
+          const element = this.leftData[key]
+          for (let index = 0; index < this.navList.length; index++) {
+            const item = this.navList[index]
+            if (item.class === key) {
+              item.number = element
+            }
+          }
+        }
+      }
     },
     detail() {
       // this.loading = true
@@ -131,8 +131,8 @@ export default {
       //   this.navList = this.navList2
       // }
     }
-    if (this.cardId) { // 正式
-      this.cardNumber = this.cardId
+    if (this.leftNumber) { // 正式
+      this.leftData = this.leftNumber
       // this.init()
     }
   }

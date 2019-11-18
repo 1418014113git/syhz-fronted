@@ -2,7 +2,7 @@
   <!-- 人员档案升级版 -->
   <div class="leftNavPer" v-loading="loading">
     <ul class="navList">
-      <li v-for="(item,index) in navList" :key="index" :class="{'on':curIndex === index}" @click="clickNav(item.class,index)" >
+      <li v-for="(item,index) in navList" :key="index" :class="{'on':curClass === item.class}" @click="clickNav(item.class,index)" >
         <div>
           <span class="navName" :class="{'gray':item.number === 0 && index!==0}">{{item.name}}</span>
           <span class="number"  v-if="item.number>0 && item.number<99 && index!==0" >（{{item.number}}）</span>
@@ -23,14 +23,15 @@ export default {
       curUser: {}, // sessionStorage获取用户信息
       curDept: {}, // sessionStorage获取机构信息
       curIndex: 0, // 菜单当前索引
+      curClass: 'jbxx',
       loading: false, // 页面加载进度条
       navList: [
-        { name: '基本信息', number: 0, type: 't0', class: 'jbxx' },
-        { name: '审核信息', number: 0, type: 't1', class: 'shxx' },
-        { name: '地市签收', number: 0, type: 't2', class: 'dsqs' },
-        { name: '地市反馈', number: 0, type: 't3', class: 'dsfk' },
-        { name: '区县签收', number: 0, type: 't4', class: 'qxqs' },
-        { name: '区县反馈', number: 0, type: 't5', class: 'qxfk' }
+        // { name: '基本信息', number: 0, type: 't0', class: 'jbxx' },
+        // { name: '审核信息', number: 0, type: 't1', class: 'shxx' },
+        // { name: '地市签收', number: 0, type: 't2', class: 'dsqs' },
+        // { name: '地市反馈', number: 0, type: 't3', class: 'dsfk' },
+        // { name: '区县签收', number: 0, type: 't4', class: 'qxqs' },
+        // { name: '区县反馈', number: 0, type: 't5', class: 'qxfk' }
       ],
       navList1: [ // 总队,支队
         { name: '基本信息', number: 0, type: 't0', class: 'jbxx' },
@@ -43,8 +44,7 @@ export default {
         { name: '审核信息', number: 0, type: 't1', class: 'shxx' },
         { name: '区县签收', number: 0, type: 't4', class: 'qxqs' },
         { name: '区县反馈', number: 0, type: 't5', class: 'qxfk' }
-      ],
-      cardNumber: ''
+      ]
     }
   },
   computed: {
@@ -91,7 +91,8 @@ export default {
     },
 
     clickNav(selector, index) {
-      this.curIndex = index
+      // this.curIndex = index
+      this.curClass = selector
       this.$store.dispatch('Personeltotop', selector)
     },
     getItemTotal() {
@@ -125,11 +126,11 @@ export default {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      // if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 总队，支队
-      //   this.navList = this.navList1
-      // } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
-      //   this.navList = this.navList2
-      // }
+      if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 总队，支队
+        this.navList = this.navList1
+      } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
+        this.navList = this.navList2
+      }
     }
     if (this.cardId) { // 正式
       this.cardNumber = this.cardId

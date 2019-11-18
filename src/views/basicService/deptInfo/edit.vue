@@ -393,12 +393,12 @@ export default {
               }, 2000)
             } else {
               this.$message({
-                message: '机构信息保存失败，请联系管理员！', type: 'success'
+                message: '机构信息保存失败，请联系管理员！', type: 'error'
               })
             }
           }).catch(() => {
             this.$message({
-              message: '机构信息保存失败，请联系管理员！', type: 'success'
+              message: '机构信息保存失败，请联系管理员！', type: 'error'
             })
             this.formLoading = false
           })

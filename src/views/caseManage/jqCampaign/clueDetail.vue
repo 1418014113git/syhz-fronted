@@ -1,9 +1,9 @@
 <template>
   <section class="clueDetail">
-   <!--线索详情-->
-   <!-- <el-col :span="24" style="padding-bottom: 0;"> -->
+   <!--线索列表详情-->
       <el-form label-width="120px" class="form">
         <el-form-item label="核查情况：">
+          <!-- <span v-if="hcqk.status">{{ $getDictName(hcqk.status+'', 'qbxsfkzt') }}</span> -->
           <span>查实</span>
         </el-form-item>
         <el-form-item label="移送案件">
