@@ -12,25 +12,27 @@
           基本信息-【签收】，申请单位人员，案件督办状态为督办中、督办结束或评价打分时，且本单位未签收时可点击签收。其他情况隐藏。
           基本信息-【申请部门】，所有人可见，案件督办状态为督办中、督办结束或评价打分时，且申请单位未签收时显示“待签收”。申请单位签收后，显示“已签收”。
         -->
-        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode"
+        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode && dsh_Info.applyDate"
           type="primary" size="small" @click="handleAudit">审核</el-button>
         <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode&&(deptInfo.wdStauts===0||deptInfo.wdStauts===4)"
-          type="primary" size="small" @click="cxsq">申请上级督办</el-button>
-        <el-button v-if="((deptInfo.depType!=='4'&&baseInfo.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDeptCode === deptInfo.parentDepCode))&&
+          type="primary" size="small" @click="handleApplyToUp">申请上级督办</el-button>
+        <el-button v-if="((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))&&
           (baseInfo.dbStatus===5||baseInfo.dbStatus===6||baseInfo.dbStatus===7) && !baseInfo.jabgTitle"
-          type="primary" size="small"  @click="audit">上报结案报告</el-button>
-        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode"
-          type="primary" size="small"  @click="xsff">下发催办</el-button>
-        <el-button v-if="((deptInfo.depType!=='4'&&baseInfo.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDeptCode === deptInfo.parentDepCode))"
-          type="primary" size="small"  @click="qs">签收</el-button>
+          type="primary" size="small"  @click="handleReport">上报结案报告</el-button>
+        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode && (baseInfo.dbStatus===5||baseInfo.dbStatus===6||baseInfo.dbStatus===7)"
+          type="primary" size="small"  @click="handleIssueUrge">下发催办</el-button>
+        <el-button
+          v-if="baseInfo.signStatus==='1' && ((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))"
+          type="primary" size="small"  @click="handleDbSign">签收</el-button>
+
       </div>
      </div>
      <el-row class="xddw zwbj">
         <el-form ref="form" :model="baseInfo" size="small" label-width="115px" label-position="left">
           <el-col :span="8">
-            <el-form-item label="标题：" prop="xm">
-              <span class="whiteColor">{{baseInfo.xm}}</span>
-            </el-form-item>
+            <el-form-item label="督办级别：" prop="superviseLevel">
+                <span class="whiteColor">{{$getDictName(baseInfo.superviseLevel+'','dbjb')}}</span>
+              </el-form-item>
             <el-form-item label="申请人：" prop="applyUserName">
               <span class="whiteColor">{{baseInfo.applyUserName}}</span>
             </el-form-item>
@@ -48,8 +50,9 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="督办级别：" prop="superviseLevel">
-                <span class="whiteColor">{{$getDictName(baseInfo.superviseLevel+'','dbjb')}}</span>
+              <el-form-item label="督办签收状态：" prop="status" label-width="126px">
+                <span style="color:#409EFF" v-if="baseInfo.signStatus==='1'">待签收</span>
+                <span style="color:#67C23A" v-if="baseInfo.signStatus==='2'">已签收</span>
               </el-form-item>
             </el-col>
             <el-col :span="24">
@@ -121,28 +124,32 @@
 
     <!-- 审核弹框-->
     <el-dialog title="审核" :visible.sync="isShowshDialog"  class="stshForm" :close-on-click-modal="false">
-      <audit-com  :isShowDialog="isShowshDialog" :dbId="baseInfo.dbId" @closeDialog="closeshDialog"></audit-com>
+      <audit-com  :isShowDialog="isShowshDialog" :dbId="baseInfo.dbId" :dsh="dsh_Info" @closeDialog="closeshDialog"></audit-com>
     </el-dialog>
+    <!-- 下发催办 -->
+    <!-- <el-dialog title="下发催办" :visible.sync="xfcbDiaVisible">
+      <issued-urge :bcbData="bcbData"></issued-urge>
+    </el-dialog> -->
+    <!-- 结案报告 -->
+
+
+
   </div>
 </template>
 
 <script>
+import Bus from '@/utils/bus.js'
 import titlePub from './titlePub'
 import auditCom from './auditCom' // 审核弹框
 export default {
-  props: ['jbxxData'],
+  props: ['jbxxData', 'dshData'],
   name: 'baseInfo',
   data() {
     return {
       title: '基本信息',
       baseInfo: {}, // 基础信息
       curUser: {}, // sessionStorage获取用户信息
-      stshForm: { // 省厅审核
-        num: '', // 编号
-        startTime: '', // 开始时间
-        endTime: '', // 截止时间
-        remark: '' // 审核意见
-      },
+      dsh_Info: {}, // 待审核的督办
       roleType: '', // 角色类型，  1： 省厅， 2：地市
       loading: false, // 页面加载进度条
       isShowshDialog: false, // 是否显示审核弹框
@@ -177,8 +184,16 @@ export default {
     jbxxData(val) {
       if (val) {
         this.baseInfo = val
+        this.init()
       }
       // this.detail()
+    },
+    dshData(val) {
+      console.log(val)
+      if (val) {
+        this.dsh_Info = val
+        this.init()
+      }
     }
   },
   filters: {
@@ -193,10 +208,9 @@ export default {
     init() {
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.paramDept = JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode
-      // if (this.cardId) {
-      //   this.cardNumber = this.cardId
-      //   this.detail()
-      // }
+      if (this.dshData) {
+        this.dsh_Info = this.dshData
+      }
       if (this.jbxxData) {
         this.baseInfo = this.jbxxData
       }
@@ -223,20 +237,36 @@ export default {
     handleAudit() { // 审核
       this.isShowshDialog = true
     },
-    cxsq() { // 重新申请
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { id: 1 }}) // 跳转到集群战役申请页
+    handleApplyToUp() { // 申请上级督办
+      this.$router.push({ path: '/caseManage/toup/dbApply', query: { dbId: this.baseInfo.dbId, type: 'up' }})
     },
-    audit() { // 审核
-      // this.isShowshDialog = true
+    handleReport() { // 上报结案报告
+      Bus.$emit('shangbaoJabg')
     },
-    xsff() { // 线索分发
-
+    handleIssueUrge() { // 下发催办
+      Bus.$emit('xiafaCuiban')
     },
-    xsfk() { // 线索反馈
-
-    },
-    qs() { // 签收
-
+    handleDbSign() { // 督办签收
+      const req = {
+        id: this.baseInfo.signId,
+        dbId: this.baseInfo.dbId,
+        signUserId: this.userInfo.id,
+        updateUserId: this.userInfo.id,
+        status: 2,
+        userId: this.userInfo.id,
+        userName: this.userInfo.realName
+      }
+      this.$update('CaseSuperviseSign/' + this.baseInfo.signId, req).then((response) => {
+        if (response.code === '000000') {
+          this.$alert('<p><i class="el-icon-success" style="color:#67c23a;margin-right:20px;font-size:20px;"></i><span style="font-size:16px;">签收催办成功</span></p>', '提示', {
+            dangerouslyUseHTMLString: true,
+            confirmButtonText: '知道了'
+          })
+          this.init()
+        }
+      }).catch(() => {
+        this.loading = false
+      })
     },
     upLoadFile(item) { // 下载附件
       window.open(this.downLoadUrl + item.fileName)

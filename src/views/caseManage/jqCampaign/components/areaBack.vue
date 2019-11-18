@@ -82,13 +82,18 @@
           </el-form-item>
         </el-form>
       </el-dialog>
+
+      <!-- 分发线索-->
+      <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false">
+        <jqzy-disib  :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="curRow.clusterId" source="detail"></jqzy-disib>
+      </el-dialog>
     </div>
   </section>
 </template>
 <script>
 import titlePub from './titlePub'
 export default {
-  props: ['cardId'],
+  props: ['id'],
   name: 'index',
   components: {
     titlePub
@@ -111,10 +116,11 @@ export default {
       isShowpjdf: false, // 评价打分弹出框
       isShowpjdfdetail: false, // 评价打分弹出框
       btnLoading: false, // 评价打分按钮loading
+      isShowdrffxsDialog: false, // 是否显示分发线索弹出框
       pageSize: 5,
       page: 1,
       total: 0,
-      cardNumber: '', // 存储身份证号
+      clusterId: '', // 存储列表传递过来的id
       rules: {
         score: [ // 评价打分
           {
@@ -131,22 +137,22 @@ export default {
     }
   },
   watch: {
-    cardId(val) {
-      this.cardNumber = val
-      // this.query(true)
+    id(val) {
+      this.clusterId = val
+      this.query(true)
     }
   },
   methods: {
     init() {
-      if (this.cardId) {
-        this.cardNumber = this.cardId
+      if (this.id) {
+        this.clusterId = this.id
       }
       this.query(true)
     },
     query(flag) {
       this.listLoading = true
       var param = {
-        cardNumber: this.cardNumber,
+        clusterId: this.clusterId,
         pageSize: this.pageSize,
         pageNum: flag ? 1 : this.page
       }
@@ -183,6 +189,7 @@ export default {
     },
     handlefenfa(index, row) { // 线索分发
       this.curRow = row
+      this.isShowdrffxsDialog = true
     },
     handlefankui(index, row) { // 线索反馈
       this.curRow = row
@@ -193,6 +200,10 @@ export default {
     },
     handleDetail(index, row) { // 评价详情
       this.isShowpjdfdetail = true
+    },
+    closeffxsDialog(val) { // 关闭分发线索弹框
+      this.isShowdrffxsDialog = val
+      this.query(true)
     },
     getSummaries(param) { // 总计
       const { columns, data } = param
@@ -282,6 +293,18 @@ export default {
   }
   textarea{
     // min-height: 80px;
+  }
+  .ffxsForm{
+    .el-dialog{
+      width: 80%;
+      height: 80vh;
+      overflow: auto;
+    }
+  }
+}
+@media only screen and (max-width: 1367px) {
+  .areaBack .ffxsForm .el-dialog {
+    width: 85%;
   }
 }
 </style>
