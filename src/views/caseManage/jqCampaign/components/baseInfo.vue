@@ -5,8 +5,8 @@
       <div class="left">基本信息</div>
       <div class="right">
         <el-button type="primary" size="small"  @click="zhpj">综合评价</el-button>
-        <el-button type="primary" size="small"  @click="cxsq">重新申请</el-button>
-        <el-button type="primary" size="small"  @click="audit">审核</el-button>
+        <el-button type="primary" size="small" v-if="isShowsqbtn"  @click="cxsq">重新申请</el-button>
+        <el-button type="primary" size="small" v-if="isShowshbtn"  @click="audit">审核</el-button>
         <el-button type="primary" size="small"  @click="xsff">线索分发</el-button>
         <el-button type="primary" size="small"  @click="xsfk">线索反馈</el-button>
         <el-button type="primary" size="small"  @click="qs">签收</el-button>
@@ -15,50 +15,52 @@
      <el-row class="xddw zwbj">
         <el-form ref="form" :model="baseInfo" size="small" label-width="115px" label-position="left">
           <el-col :span="8">
-            <el-form-item label="标题：" prop="xm">
-              <span class="whiteColor">{{baseInfo.xm}}</span>
+            <el-form-item label="标题：" prop="">
+              <span class="whiteColor">{{baseInfo.title}}</span>
             </el-form-item>
-            <el-form-item label="发起日期：" prop="cym">
-              <span class="whiteColor">{{baseInfo.cym}}</span>
+            <el-form-item label="发起日期：" prop="">
+              <span class="whiteColor" v-if="baseInfo.createDate">{{baseInfo.createDate}}</span>
             </el-form-item>
-            <el-form-item label="编号：" prop="mzMc">
-              <span class="whiteColor">{{baseInfo.mzMc}}</span>
+            <el-form-item label="编号：" prop="">
+              <span class="whiteColor" v-if="baseInfo.clusterNumber">{{baseInfo.clusterNumber}}</span>
             </el-form-item>
-            <el-form-item label="涉及省/市数：" prop="sg">
-              <span class="whiteColor" v-if="baseInfo.sg">{{baseInfo.sg}}(cm)</span>
+            <el-form-item label="涉及省/市数：" prop="">
+              <span class="whiteColor">{{baseInfo.clusterCitys}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="发起单位：" prop="xbMc">
-              <span class="whiteColor">{{baseInfo.xbMc}}</span>
+            <el-form-item label="发起单位：" prop="">
+              <span class="whiteColor">{{baseInfo.applyDeptName}}</span>
             </el-form-item>
-            <el-form-item label="发起人：" prop="csrq">
-                <span class="whiteColor">{{baseInfo.xbMc}}</span>
+            <el-form-item label="发起人：" prop="">
+                <span class="whiteColor">{{baseInfo.applyPersonName}}</span>
             </el-form-item>
-            <el-form-item label="开始时间：" prop="hyzkMc">
-              <span class="whiteColor">{{baseInfo.hyzkMc}}</span>
+            <el-form-item label="开始时间：" prop="">
+              <span class="whiteColor" v-if="baseInfo.startDate">{{baseInfo.startDate}}</span>
             </el-form-item>
             <el-form-item label="" prop=""></el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="状态：" prop="ryztMc">
-              <span class="whiteColor">{{baseInfo.ryztMc}}</span>
+            <el-form-item label="状态：" prop="">
+              <span v-if="baseInfo.status">{{ $getDictName(baseInfo.status+'', 'jqzyzt') }}</span>
             </el-form-item>
-            <el-form-item label="发起人电话：" prop="zylbMc">
-              <span class="whiteColor">{{baseInfo.zylbMc}}</span>
+            <el-form-item label="发起人电话：" prop="">
+              <span class="whiteColor">{{baseInfo.applyPersonPhone}}</span>
             </el-form-item>
-            <el-form-item label="结束时间" prop="hyzkMc">
-              <span class="whiteColor">{{baseInfo.hyzkMc}}</span>
+            <el-form-item label="结束时间" prop="">
+              <span class="whiteColor" v-if="baseInfo.endDate">{{baseInfo.endDate}}</span>
             </el-form-item>
             <el-form-item label="" prop=""></el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="正文：" prop="csdssxqMc">
-              <span></span>
+            <el-form-item label="正文：" prop="">
+              <span v-html="baseInfo.assistContent"></span>
             </el-form-item>
             <el-form-item label="附件：" prop="">
-              <span v-for="item in fjList" :key="item.id">
-                 <a class="fjlink" @click="upLoadFile(item)">{{item.fileName}}</a>&nbsp;&nbsp;&nbsp;
+              <span v-if="baseInfo.attachment && baseInfo.attachment.lenght>0">
+                 <span v-for="(item, index) in baseInfo.attachment" :key="index">
+                    <a @click="upLoadFile(item)">{{item.name}}</a>&nbsp;&nbsp;&nbsp;
+                </span>
               </span>
             </el-form-item>
           </el-col>
@@ -67,7 +69,12 @@
 
     <!-- 审核弹框-->
     <el-dialog title="审核" :visible.sync="isShowshDialog"  class="stshForm" :close-on-click-modal="false">
-      <audit-com  :isShowDialog="isShowshDialog"  @closeDialog="closeshDialog"></audit-com>
+      <audit-com  :isShowDialog="isShowshDialog"  @closeDialog="closeshDialog" :id="clusterId" :info="baseInfo" :row="shlbRow"></audit-com>
+    </el-dialog>
+
+    <!-- 分发线索-->
+    <el-dialog title="分发线索" :visible.sync="isShowffxsDialog"  class="ffxsForm" :close-on-click-modal="false">
+      <jqzy-disib  :isShowDialog="isShowffxsDialog"  @closeDialog="closeffxsDialog" :id="clusterId"  :xcstatus="baseInfo.status"  source="detail"></jqzy-disib>
     </el-dialog>
   </div>
 </template>
@@ -75,12 +82,15 @@
 <script>
 import titlePub from './titlePub'
 import auditCom from './auditCom' // 审核弹框
+import JqzyDisib from './jqzyDisib' // 分发线索
+import Bus from '@/utils/bus.js'
 export default {
-  props: ['cardId'],
+  props: ['id', 'info'],
   name: 'baseInfo',
   data() {
     return {
       baseInfo: {}, // 基础信息
+      shlbRow: {}, // 审核列表当前行的审核按钮显示时，将当前行数据传递过来
       curUser: {}, // sessionStorage获取用户信息
       stshForm: { // 省厅审核
         num: '', // 编号
@@ -88,38 +98,29 @@ export default {
         endTime: '', // 截止时间
         remark: '' // 审核意见
       },
+      isShowsqbtn: false, // 是否显示申请按钮
+      isShowshbtn: false, // 是否显示审核按钮
       roleType: '', // 角色类型，  1： 省厅， 2：地市
       loading: false, // 页面加载进度条
       isShowshDialog: false, // 是否显示审核弹框
-      cardNumber: '', // 存储身份证号
-      downLoadUrl: process.env.ATTACHMENT_MODULE + 'file/downloadTemplate/', // 下载附件
-      fjList: [ // 附件列表
-        {
-          id: 1,
-          fileName: '附件1.doc'
-        },
-        {
-          id: 2,
-          fileName: '附件2.doc'
-        },
-        {
-          id: 3,
-          fileName: '附件3.zip'
-        }
-      ]
+      isShowffxsDialog: false, // 是否显示分发线索弹出框
+      clusterId: '', // 存储列表传递过来的id
+      downLoadUrl: process.env.ATTACHMENT_MODULE + 'file/downloadTemplate/' // 下载附件
     }
   },
   components: {
     titlePub,
-    auditCom
+    auditCom,
+    JqzyDisib
   },
   computed: {
 
   },
   watch: {
-    cardId(val) {
-      this.cardNumber = val
-      this.detail()
+    id(val) {
+      this.clusterId = val
+      this.baseInfo = this.info
+      // this.detail()
     }
   },
   filters: {
@@ -134,53 +135,60 @@ export default {
     init() {
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.paramDept = JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode
-      if (this.cardId) {
-        this.cardNumber = this.cardId
-        this.detail()
+      if (this.id) {
+        this.clusterId = this.id
+        this.baseInfo = this.info
+        // this.detail()
       }
+      Bus.$on('isShowsqbtn', (data) => {
+        console.log('isShowsqbtn', data)
+        this.isShowsqbtn = data
+      })
+      Bus.$on('isShowshbtn', (data) => {
+        console.log('isShowshbtn', data)
+        this.isShowshbtn = data
+      })
+      Bus.$on('row', (data) => {
+        console.log('row', JSON.stringify(data))
+        this.shlbRow = data
+      })
     },
-    detail() {
-      this.baseInfo = {}
-      // 根据身份证号码查询人员详细信息
-      // const para = {
-      //   method: 'Query',
-      //   byUserCard: this.cardNumber,
-      //   userCardId: this.curUser.cardNumber,
-      //   userCertId: this.curUser.cardNumber,
-      //   userDept: this.paramDept,
-      //   userName: this.curUser.realName
-      // }
-      // this.loading = true
-      // personByCardId(para).then((response) => {
-      //   this.loading = false
-      //   this.baseInfo = response.data
-      // }).catch(() => {
-      //   this.loading = false
-      // })
-    },
+    // detail() { // 查询详情
+    //   this.loading = true
+    //   this.$query('casecluster/' + this.clusterId, {}).then((response) => {
+    //     this.loading = false
+    //     this.baseInfo = response.data
+    //   }).catch(() => {
+    //     this.loading = false
+    //   })
+    // },
     zhpj() { // 综合评价
 
     },
     cxsq() { // 重新申请
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { id: 1 }}) // 跳转到集群战役申请页
+      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'edit', id: this.clusterId }}) // 跳转到集群战役申请页
     },
     audit() { // 审核
-      // this.isShowshDialog = true
+      this.isShowshDialog = true
     },
     xsff() { // 线索分发
-
+      this.isShowffxsDialog = true
     },
     xsfk() { // 线索反馈
-
+      // this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId }}) // 跳转到线索反馈页
     },
     qs() { // 签收
 
     },
     upLoadFile(item) { // 下载附件
-      window.open(this.downLoadUrl + item.fileName)
+      window.open(this.downLoadUrl + item.name)
     },
     closeshDialog(val) { // 关闭审核弹框 点击"通过/不通过"时，页面需要重新加载，更新审核状态。
       this.isShowshDialog = val
+      location.reload()
+    },
+    closeffxsDialog(val) { // 关闭分发线索弹框
+      this.isShowffxsDialog = val
       location.reload()
     }
   },
@@ -188,11 +196,6 @@ export default {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      // if (this.curDept.depType === '1') { //  省厅 总队
-      //   this.roleType = 1
-      // } else if (this.curDept.depType === '2') { //地市  支队
-      //   this.roleType = 2
-      // }
     }
     this.init()
   }
@@ -222,6 +225,13 @@ export default {
     position: absolute;
     bottom: 1px;
     left: 318px;
+  }
+  .ffxsForm{
+    .el-dialog{
+      width: 80%;
+      height: 80vh;
+      overflow: auto;
+    }
   }
 }
 .whiteColor {
@@ -254,7 +264,9 @@ export default {
   }
 }
 @media only screen and (max-width: 1367px) {
-
+  .baseInfo .ffxsForm .el-dialog {
+    width: 85%;
+  }
 }
 </style>
 

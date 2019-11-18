@@ -8,17 +8,17 @@
      <el-row>
        <!-- 左侧导航区 -->
         <el-col class="leftCont" :span="3" :style="{height:countHeight}">
-          <left-nav class="bg"  :cardId="cardId"></left-nav>
+          <left-nav class="bg"  :id="id"></left-nav>
         </el-col>
         <!-- 右侧内容区 -->
         <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
-            <base-info class="marb bg jbxx" :cardId="cardId"></base-info>
-            <verify-info class="marb bg shxx" :cardId="cardId"></verify-info>
-            <area-sign class="marb bg dsqs" :cardId="cardId"></area-sign>
-            <area-back class="marb bg dsfk" :cardId="cardId"></area-back>
-            <county-sign class="marb bg qxqs" :cardId="cardId"></county-sign>
-            <county-back class="marb bg qxfk" :cardId="cardId"></county-back>
+            <base-info class="marb bg jbxx" :id="id" :info="baseInfo"></base-info>
+            <verify-info class="marb bg shxx" :id="id" :info="baseInfo"></verify-info>
+            <area-sign class="marb bg dsqs" :id="id" v-if="isShow"></area-sign>
+            <area-back class="marb bg dsfk" :id="id" v-if="isShow"></area-back>
+            <county-sign class="marb bg qxqs" :id="id" v-if="!isShow"></county-sign>
+            <county-back class="marb bg qxfk" :id="id" v-if="!isShow"></county-back>
           </div>
         </el-col>
      </el-row>
@@ -40,8 +40,12 @@ export default {
   data() {
     return {
       countHeight: document.documentElement.clientHeight - 130 + 'px',
-      cardId: '', // 从详情页面返回的是身份证号码、案件编号或线索编号
-      classList: ['jbxx', 'shxx', 'dsqs', 'dsfk', 'qxqs', 'qxfk']
+      classList: ['jbxx', 'shxx', 'dsqs', 'dsfk', 'qxqs', 'qxfk'],
+      curUser: {}, // sessionStorage获取用户信息
+      curDept: {}, // sessionStorage获取机构信息
+      isShow: false,
+      id: '',
+      baseInfo: {}
     }
   },
   components: {
@@ -73,12 +77,20 @@ export default {
     }
   },
   methods: {
+    detail(id) { // 查询详情
+      this.$query('casecluster/' + id, {}).then((response) => {
+        this.id = id
+        this.baseInfo = response.data
+      }).catch(() => {
+      })
+    },
     jump(val) {
       var total = document.querySelector('.' + val).offsetTop
       $('.rightCont').animate({ scrollTop: total }, 0)
     },
     toback() {
-      this.$router.back(-1)
+      // this.$router.back(-1)
+      this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
     },
     // 监听滚动条变化
     handleScroll() {
@@ -93,28 +105,36 @@ export default {
         } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 10 && document.querySelector('.rightCont').scrollTop < difference) {
           this.$store.dispatch('MouleClass', this.classList[i])
         } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
-          // console.log('到底了')
-          this.$store.dispatch('MouleClass', this.classList[7])
+          console.log('到底了')
+          this.$store.dispatch('MouleClass', this.classList[4])
         }
       }
     }
   },
   created() {
-    if (this.$route.query.cardId) { // 正式
-      this.cardId = this.$route.query.cardId
+    if (this.$route.query.id) {
+      this.detail(this.$route.query.id)
     }
-    // 测试
-    // this.cardId = '152224199005230516'
   },
   mounted() {
     const _this = this
     document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
+    if (sessionStorage.getItem('depToken')) {
+      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+      if (this.curDept.depType === '-1' || this.curDept.depType === '1' || this.curDept.depType === '2') { // 省 总队 支队
+        this.navList = this.navList1
+        this.isShow = true
+      } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
+        this.navList = this.navList2
+        this.isShow = false
+      }
+    }
   },
   activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
-    if (this.$route.query.cardId) { // 正式
-      this.cardId = this.$route.query.cardId
-    }
-    document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
+    // if (this.$route.query.id) {
+    //   this.id = this.$route.query.id
+    // }
+    // document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
   }
 }
 </script>

@@ -63,9 +63,14 @@
         <el-table-column prop="" align="center" label='批准逮捕（人）'  min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column prop="" align="center" label='涉案金额（万元）'  min-width="100" show-overflow-tooltip></el-table-column>
       </el-table-column>
-      <el-table-column v-for="(item, index) in tableHead" :key="index" :label="item.label" :prop="item.prop" align="center" min-width="100">
+      <!-- <el-table-column v-for="(item, index) in tableHead" :key="index" :label="item.label" :prop="item.prop" align="center" min-width="100">
         <template slot-scope="scope">
           <span>{{scope.row[scope.column.property]}}</span>
+        </template>
+      </el-table-column> -->
+      <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"  align="center" min-width="100">
+        <template>
+          <span>{{listData.data[index]}}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="100">

@@ -1,32 +1,17 @@
 <template>
 <!-- 导入线索 -->
 <div class="drForm">
-  <el-form ref="drForm" :rules="rules" :model="drForm" size="small" label-width="100px">
+  <el-form ref="drForm" :rules="rules"  :model="drForm" size="small" label-width="100px">
     <el-row type="flex" justify="center">
       <el-col :span="22">
-        <el-form-item label="分类" prop="type">
-          <el-select v-model="drForm.type" placeholder="请选择分类" class="inputW">
-            <el-option :label="item.name" :value="item.value" v-for="item in typeData" :key="item.value"></el-option>
+        <el-form-item label="分类" prop="category">
+          <el-select v-model="drForm.category" placeholder="请选择分类" class="inputW">
+            <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('fllb')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="">
-          <el-upload class="upload-demo" drag multiple
-              :action="uploadAction"
-              :file-list="attachment"
-              :on-success="imgSuccess"
-              :on-remove="imgRemove"
-              :on-preview="imgPreview"
-              :before-remove="imgBfRemove"
-              :before-upload="beforeUpload"
-              :on-exceed="handleExceed"
-              :limit="10"
-            >
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">
-              <span>点击或将文件拖拽到这里上传，最多10个，单个文件最大500M</span><br>
-              <span>支持扩展名： .xls .xlsx...</span>
-            </div>
-          </el-upload>
+        <el-form-item label="导入线索：">
+          <input type="file" @change="getFile" clearable name="file" id="excelFile"
+                  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
         </el-form-item>
       </el-col>
     </el-row>
@@ -53,25 +38,27 @@
 
 <script>
 import titlePub from './titlePub'
+import { getSessionDeptSelect } from '@/api/depts'
+import axios from 'axios'
 export default {
-  props: ['cardId', 'isShowDialog'],
+  props: ['isShowDialog', 'id'],
   name: 'baseInfo',
   data() {
     return {
       curUser: {}, // sessionStorage获取用户信息
+      curDept: {}, // sessionStorage获取部门信息
+      depCode: '', // 存储当前部门id
+      depName: '', // 存储当前部门名称
       drForm: {
-        type: '' // 分类
+        category: '' // 分类
       },
-      attachment: [], // 导入的文件集合
+      // attachment: [], // 导入的文件集合
       btnLoading: false, // 省厅弹框按钮loading
       uploadAction: this.UploadAttachment.uploadFileUrl,
-      typeData: [ // 分类
-        { value: '1', name: '环境' },
-        { value: '2', name: '食品' },
-        { value: '3', name: '药品' }
-      ],
+      fileCon: '', // 导入线索列表
+      assistId: '', // 集群id
       rules: {
-        type: [ // 分类
+        category: [ // 分类
           { required: true, message: '请选择分类', trigger: 'change' }
         ]
       }
@@ -84,85 +71,109 @@ export default {
 
   },
   watch: {
-    cardId(val) {
-      this.cardNumber = val
-    },
     isShowDialog: {
       handler: function(val, oldeval) {
         this.init()
+      }
+    },
+    id: {
+      handler: function(val, oldeval) {
+        this.assistId = val
       }
     }
   },
   methods: {
     init() {
       this.initData()
-      // if (this.cardId) {
-      //   this.cardNumber = this.cardId
-      //   this.detail()
-      // }
     },
     initData() {
-      this.drForm.type = ''
-      this.attachment = []
+      this.drForm.category = ''
+      this.fileCon = ''
       this.btnLoading = false
+      const file = document.getElementById('excelFile')
+      file.value = ''
       this.resetForm('drForm')
     },
     resetForm(formName) { // 重置表单
       this.$refs[formName].resetFields()
     },
-    imgSuccess(res, file, fileList) {
-      this.attachment = fileList
-    },
-    imgRemove(file, fileList) {
-      this.attachment = fileList
-    },
-    imgBfRemove(file, fileList) {
-      if (file && file.status === 'success') {
-        return this.$confirm('确定移除' + file.name + '？')
+    getfqDepts() { // 如果登上来的是派出所 发起单位显示成大队
+      var tfdwData = getSessionDeptSelect()
+      var parentDepCode = this.curDept.parentDepCode
+      for (let i = 0; i < tfdwData.length; i++) {
+        if (parentDepCode === tfdwData[i].depCode) {
+          this.depName = tfdwData[i].name // 当前部门名称
+          this.depCode = tfdwData[i].depCode // 当前部门code
+        }
       }
     },
-    imgPreview(file) {
-
-    },
-    beforeUpload(file) {
-      const msg = this.UploadAttachment.fileValid(file)
-      if (msg.length > 0) {
-        this.$message({
-          message: msg, type: 'warning'
-        })
-        return false
-      }
-    },
-    handleExceed() { // 上传文件超过最大限制时，提示信息
-      this.$message.error(`最多上传10个文件`)
-    },
-    importFile(type) { //   导入线索
+    importFile() { //   导入线索
       this.$refs.drForm.validate(valid => {
         if (valid) {
-          if (this.attachment.length === 0) {
-            this.$message({
-              message: '请点击或将文件拖拽到上面的框中上传', type: 'warning'
-            })
+          if (this.fileCon === '') {
+            this.$message.error('请选择要导入的线索！')
             return false
           }
-          // this.btnLoading = true // 加载进度条
-          // this.$update('', this.drForm).then((response) => {
-          //   this.btnLoading = false // 关闭加载条
-          //   this.$emit('closeDialog', false)
-          // }).catch(() => {
-          //   this.btnLoading = false // 关闭加载条
-          // })
+          if (this.curDept.depType === '4') { // 派出所
+            this.getfqDepts() // 如果登上来的是派出所 发起单位显示成大队
+          } else {
+            this.depCode = this.curDept.depCode
+            this.depName = this.curDept.depName
+          }
+          this.btnLoading = true
+          const formData = new FormData()
+          formData.append('file', this.fileCon) // 文件
+          formData.append('category', this.drForm.category) // 食药环分类
+          formData.append('userId', this.curUser.id) // 当前用户id
+          formData.append('userName', this.curUser.userName) // 当前用户名称
+          formData.append('curDeptCode', this.depCode) // 当前部门code
+          formData.append('curDeptName', this.depName) // 当前部门名称
+          formData.append('assistId', this.assistId) // 集群id
+          formData.append('type', 2) // 集群战役
+          const config = {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'userId': this.curUser.id,
+              'userName': this.curUser.userName
+            }
+          }
+          axios.post('syhz/caseassistclue/upload', formData, config).then((response) => {
+            this.btnLoading = false
+            if (response.data.code === '000000') {
+              this.$message({
+                message: '导入成功', type: 'success'
+              })
+              this.$emit('closeDialog', false)
+              this.$emit('result', response.data.data)
+            } else {
+              const file = document.getElementById('excelFile')
+              file.value = ''
+              this.$message({
+                message: response.data.message, type: 'error'
+              })
+              this.fileCon = ''
+            }
+          }).catch((response) => {
+            this.btnLoading = false
+            this.$message({
+              message: '导入失败', type: 'error'
+            })
+          })
         } else {
-          this.btnLoading = false // 关闭进度条
+          this.btnLoading = false
           return false
         }
       })
     },
-    explain() { // 说明
-
-    },
     cancel() { // 取消
       this.$emit('closeDialog', false)
+    },
+    getFile() {
+      if (event.target.files[0]) {
+        this.fileCon = event.target.files[0]
+      } else {
+        this.fileCon = ''
+      }
     }
   },
   mounted() {
@@ -170,6 +181,7 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
+    this.assistId = this.id
     this.init()
   }
 }
