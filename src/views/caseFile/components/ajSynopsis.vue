@@ -89,12 +89,12 @@
             </div>
             <div class="shadow_text right_cell" v-show="showLaData"  >
               立案日期
-              <el-date-picker v-model="laDate" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" class="ajgg_date"
+              <el-date-picker v-model="laDate" type="date" value-format="yyyyMMdd"  placeholder="选择日期" class="ajgg_date"
                               :picker-options="laPickerOpt" @change="laPickerChange" :disabled="disableLa"></el-date-picker>
             </div>
             <div class="shadow_text right_cell" v-show="showPaData">
               破案日期
-              <el-date-picker v-model="paDate" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" class="ajgg_date"
+              <el-date-picker v-model="paDate" type="date" value-format="yyyyMMdd" placeholder="选择日期" class="ajgg_date"
                               :picker-options="paPickerOpt" @change="paPickerChange" :disabled="disablePa"></el-date-picker>
             </div>
             <el-button class="case_btn"  v-if ="rlBtn" @click="rlSave()" :loading="rlLoading">案件认领</el-button>
@@ -214,17 +214,29 @@ export default {
         if (this.$route.query) {
           this.carryParam = this.$route.query
         }
-        if (this.ajInfo.LARQ) {
+
+        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8) {
           this.disableLa = true
+
+          // var y = this.ajInfo.LARQ.substr(0, 4)
+          // var m = this.ajInfo.LARQ.substr(6, 6)
+          // var d = this.ajInfo.LARQ.substr(6, 8)
+
+          // this.laDate = y + '-' + m + '-' + d
           this.laDate = this.ajInfo.LARQ
+
           this.laPickerChange(this.laDate)
         }
-        if (this.ajInfo.PARQ) {
+        if (this.ajInfo.PARQ && this.ajInfo.PARQ.length === 8) {
+          // var y1 = this.ajInfo.PARQ.substr(0, 4)
+          // var m1 = this.ajInfo.PARQ.substr(6, 6)
+          // var d1 = this.ajInfo.PARQ.substr(6, 8)
+          // this.paDate = y1 + '-' + m1 + '-' + d1
           this.disablePa = true
           this.paDate = this.ajInfo.PARQ
           this.paPickerChange(this.paDate)
         }
-        if (this.ajInfo.LARQ && Number(this.ajInfo.LARQ.substr(0, 4)) < 2019) {
+        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2019) {
           this.showYear = false
         } else {
           this.showYear = true
@@ -514,7 +526,7 @@ export default {
       }
       // 案件年份大于2018年  立案后且未破案案件，必须完善立案日期。 已破案案件，必须完善立案日期、破案日期。
       // alert('etl的案件年份' + this.ajInfo.larq)
-      if (!this.ajYear || (this.ajInfo.larq && Number(this.ajInfo.larq.substr(0, 4)) > 2018 && !this.ajYear)) {
+      if ((this.ajInfo.larq && (Number(this.ajInfo.larq.substr(0, 4)) > 2018 && !this.ajYear))) {
         this.$message({
           type: 'error',
           message: '请选择案件年份'
@@ -535,6 +547,13 @@ export default {
             this.$message({
               type: 'error',
               message: '请选择破案日期'
+            })
+            return false
+          }
+
+          if (Number(this.laDate) > Number(this.paDate)) {
+            this.$message({
+              message: '破案日期不能小于立案日期', type: 'error'
             })
             return false
           }
@@ -776,11 +795,21 @@ export default {
       this.AJID = this.ajid
       this.interFaceType = this.type
       this.isRls = this.Rl
-      if (this.ajInfo.LARQ) {
+      if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8) {
+        // var y = this.ajInfo.LARQ.substr(0, 4)
+        // var m = this.ajInfo.LARQ.substr(6, 6)
+        // var d = this.ajInfo.LARQ.substr(6, 8)
+
+        // ldaDate = y + '-' + m + '-' + d
+        alert('in')
         this.laDate = this.ajInfo.LARQ
       }
-      if (this.ajInfo.PARQ) {
-        this.paDate = this.ajInfo.PARQ
+      if (this.ajInfo.PARQ && this.ajInfo.PARQ.length === 8) {
+        var y1 = this.ajInfo.PARQ.substr(0, 4)
+        var m1 = this.ajInfo.PARQ.substr(6, 6)
+        var d1 = this.ajInfo.PARQ.substr(6, 8)
+        this.paDate = y1 + '-' + m1 + '-' + d1
+        // this.paDate = this.ajInfo.PARQ
       }
       this.getAjztCodes()
     }
