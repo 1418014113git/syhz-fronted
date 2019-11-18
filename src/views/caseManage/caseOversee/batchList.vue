@@ -89,12 +89,11 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="queryDbBatch(true,true)">查询</el-button>
-        <el-button type="primary" size="small"  v-on:click="resetForm">重置</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100808') && queryBtn" v-on:click="queryDbBatch(true,true)">查询</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100808')" v-on:click="resetForm">重置</el-button>
       </el-form-item>
       <el-form-item>
-        <!-- v-if="$isViewBtn('100804')" -->
-        <el-button type="primary" size="small"  v-on:click="handleBatchAdd('apply')">督办批次发布</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100809')" v-on:click="handleBatchAdd('apply')">督办批次发布</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="dbBatchData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
@@ -136,9 +135,9 @@
       </el-table-column>
       <el-table-column label="操作" width="140">
         <template slot-scope="scope">
-          <el-button title="详情" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle></el-button>
-          <el-button title="修改" size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
-          <el-button title="删除" size="mini" type="primary" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
+          <el-button title="详情" v-if="$isViewBtn('100810')" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle></el-button>
+          <el-button title="修改" v-if="$isViewBtn('100811')" size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
+          <el-button title="删除" v-if="$isViewBtn('100812')" size="mini" type="primary" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
           <!-- <el-button v-if="(scope.row.status === '0' || scope.row.status === '2')  && $isViewBtn('100806') && scope.row.apply_dept_id === String(currentDeptId)" title="修改" size="mini" type="primary"
                      @click="editDBInfo(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
           <el-button v-if="(scope.row.status === '0' || scope.row.status === '2') && $isViewBtn('100807') && scope.row.apply_dept_id === String(currentDeptId)" title="删除" size="mini" type="danger"
@@ -217,7 +216,8 @@ export default {
       jsStartPickerOptions: {}, // 结束日期
       jsEndPickerOptions: {},
       ksEndDateDisabled: true,
-      jsEndDateDisabled: true
+      jsEndDateDisabled: true,
+      queryBtn: false // 查询按钮是否可点击
     }
   },
   filters: {
@@ -350,19 +350,19 @@ export default {
       param.pageNum = this.page
       param.pageSize = this.pageSize
       param.deptId = this.currentDeptId
-      if (this.filters.department && this.filters.department.length > 0) { // 如果选了 筛选条件的单位机构
-        param.departCode = this.filters.department[this.filters.department.length - 1] // 部门code
-        param.provinceCode = ''
-        param.cityCode = ''
-      } else if (this.filters.area && this.filters.area.length === 3) { // 区县 大队
-        param.reginCode = this.filters.area[this.filters.area.length - 1] // 部门code
-        param.departCode = ''
-        param.provinceCode = ''
-        param.cityCode = ''
-      } else if (this.filters.area && this.filters.area.length === 2) { // 市 支队
-        param.cityCode = this.filters.area[this.filters.area.length - 1]
+      if (this.filters.area && this.filters.area.length > 0) { // 行政区划
+        param.provinceCode = this.filters.area[0] || '' // 省code
+        param.cityCode = this.filters.area[1] || '' // 市code
+        param.reginCode = this.filters.area[2] || '' // 区code
       } else {
-        param.provinceCode = '610000'
+        param.provinceCode = '' // 省code
+        param.cityCode = '' // 市code
+        param.reginCode = '' // 区code
+      }
+      if (this.filters.department) { // 单位机构
+        param.departCode = this.filters.department[this.filters.department.length - 1] // 部门code
+      } else {
+        param.departCode = this.deptInfo.depCode // 所属部门code
       }
       if (hand) { // 手动点击时，添加埋点参数
         param.logFlag = 1

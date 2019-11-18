@@ -11,10 +11,10 @@
             【上报结案报告】，申请单位人员，案件督办状态为督办中、督办结束或评价打分，且不存在结案报告时。其他情况隐藏。
             审核结案报告页面-【通过且向上上报】，审核单位人员，有审核权限，该案件存在上级督办记录，且上级督办记录案件督办状态为督办中、督办结束或评价打分，且没有上报结案报告时显示该按钮
            -->
-          <el-button v-if="((deptInfo.depType!=='4'&&jabgInfo.createDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&jabgInfo.createDeptCode === deptInfo.parentDepCode))
+          <el-button v-if="$isViewBtn('100815')&&((deptInfo.depType!=='4'&&jabgInfo.createDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&jabgInfo.createDeptCode === deptInfo.parentDepCode))
               && jabgInfo.title && jabgInfo.reportStatus!==3"
               type="primary" size="small"  @click="handleReportEdit">修改结案报告</el-button>
-          <el-button v-if="((deptInfo.depType!=='4'&&jabgInfo.createDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&jabgInfo.createDeptCode === deptInfo.parentDepCode))
+          <el-button v-if="$isViewBtn('100814')&&((deptInfo.depType!=='4'&&jabgInfo.createDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&jabgInfo.createDeptCode === deptInfo.parentDepCode))
               && (jabgInfo.dbStatus===5||jabgInfo.dbStatus===6||jabgInfo.dbStatus===7) && !jabgInfo.title"
               type="primary" size="small"  @click="handleReport">上报结案报告</el-button>
         </div>

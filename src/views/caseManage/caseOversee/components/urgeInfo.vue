@@ -6,7 +6,7 @@
         <div class="left">{{title}}</div>
         <div class="right">
           <!-- 【下发催办】，审核单位人员，案件督办状态为督办中、督办结束或评价打分时可下发催办给申请单位。 -->
-          <el-button v-if="dbInfo.superviseDepartCode===deptInfo.depCode&&(dbInfo.status===5||dbInfo.status===6||dbInfo.status===7)"
+          <el-button v-if="$isViewBtn('100816')&&dbInfo.superviseDepartCode===deptInfo.depCode&&(dbInfo.status===5||dbInfo.status===6||dbInfo.status===7)"
               type="primary" size="small" @click="handleXfcb">下发催办</el-button>
         </div>
       </div>
@@ -28,12 +28,13 @@
         </el-table-column>
         <el-table-column label="操作" width="100">
           <template slot-scope="scope">
-            <!-- v-if="$isViewBtn('100805')" -->
-            <!-- v-if="scope.row.auditDeptCode === deptInfo.depCode && scope.row.flowStatus==='1'" -->
-            <el-button
+            <!-- 0: {codeDesc: "催办状态", codeLx: "cbzt", dictName: "待签收", dictKey: "1"}
+            1: {codeDesc: "催办状态", codeLx: "cbzt", dictName: "已签收", dictKey: "2"}
+            2: {codeDesc: "催办状态", codeLx: "cbzt", dictName: "已反馈", dictKey: "3"} -->
+            <el-button v-if="$isViewBtn('100817') && scope.row.urgedDeptId === deptInfo.id && scope.row.status==='2'"
                       title="反馈" size="mini" type="primary" @click="handlerFeedback(scope.$index, scope.row)" circle icon="el-icon-edit-outline">
                       </el-button>
-            <el-button
+            <el-button v-if="$isViewBtn('100818') && scope.row.urgedDeptId === deptInfo.id && scope.row.status==='1'"
                       title="签收" size="mini" type="primary" @click="handlerUrgeSign(scope.$index, scope.row)" circle icon="el-icon-check">
                       </el-button>
           </template>
