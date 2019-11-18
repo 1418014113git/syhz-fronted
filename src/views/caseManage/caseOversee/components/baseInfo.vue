@@ -12,19 +12,17 @@
           基本信息-【签收】，申请单位人员，案件督办状态为督办中、督办结束或评价打分时，且本单位未签收时可点击签收。其他情况隐藏。
           基本信息-【申请部门】，所有人可见，案件督办状态为督办中、督办结束或评价打分时，且申请单位未签收时显示“待签收”。申请单位签收后，显示“已签收”。
         -->
-        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode && dsh_Info.applyDate"
+        <el-button v-if="$isViewBtn('100813')&&deptInfo.depCode===baseInfo.superviseDepartCode && dsh_Info.applyDate"
           type="primary" size="small" @click="handleAudit">审核</el-button>
-        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode&&(deptInfo.wdStauts===0||deptInfo.wdStauts===4)"
+        <el-button v-if="$isViewBtn('100807')&&deptInfo.depCode===baseInfo.superviseDepartCode&&(deptInfo.wdStauts===0||deptInfo.wdStauts===4)"
           type="primary" size="small" @click="handleApplyToUp">申请上级督办</el-button>
-        <el-button v-if="((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))&&
+        <el-button v-if="$isViewBtn('100814')&&((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))&&
           (baseInfo.dbStatus===5||baseInfo.dbStatus===6||baseInfo.dbStatus===7) && !baseInfo.jabgTitle"
           type="primary" size="small"  @click="handleReport">上报结案报告</el-button>
-        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode && (baseInfo.dbStatus===5||baseInfo.dbStatus===6||baseInfo.dbStatus===7)"
+        <el-button v-if="$isViewBtn('100816')&&deptInfo.depCode===baseInfo.superviseDepartCode && (baseInfo.dbStatus===5||baseInfo.dbStatus===6||baseInfo.dbStatus===7)"
           type="primary" size="small"  @click="handleIssueUrge">下发催办</el-button>
-        <el-button
-          v-if="baseInfo.signStatus==='1' && ((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))"
+        <el-button v-if="$isViewBtn('100819')&&baseInfo.signStatus==='1' && ((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))"
           type="primary" size="small"  @click="handleDbSign">签收</el-button>
-
       </div>
      </div>
      <el-row class="xddw zwbj">
@@ -114,6 +112,7 @@
               <span class="whiteColor">{{baseInfo.jyaq}}</span>
             </el-form-item>
             <el-form-item label="附件：" prop="">
+              <span class="whiteColor">{{baseInfo.attachment}}</span>
               <span v-for="item in fjList" :key="item.id">
                  <a class="fjlink" @click="upLoadFile(item)">{{item.fileName}}</a>&nbsp;&nbsp;&nbsp;
               </span>
@@ -163,10 +162,6 @@ export default {
         {
           id: 2,
           fileName: '附件2.doc'
-        },
-        {
-          id: 3,
-          fileName: '附件3.zip'
         }
       ],
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
@@ -189,7 +184,6 @@ export default {
       // this.detail()
     },
     dshData(val) {
-      console.log(val)
       if (val) {
         this.dsh_Info = val
         this.init()

@@ -6,7 +6,7 @@
         <div class="left">{{title}}</div>
         <div class="right">
           <!-- 【评价打分】，审核单位，督办中或督办结束状态显示。 -->
-          <el-button v-if="pjdfInfo.superviseDepartCode===deptInfo.depCode&&(pjdfInfo.status==='5'||pjdfInfo.status==='6')"
+          <el-button v-if="$isViewBtn('100820')&&pjdfInfo.superviseDepartCode===deptInfo.depCode&&(pjdfInfo.status==='5'||pjdfInfo.status==='6')"
               type="primary" size="small" @click="handleSettingScore">评价打分</el-button>
         </div>
      </div>
