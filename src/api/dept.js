@@ -30,29 +30,34 @@ export function getQXDept(deptList, deptCode) {
 }
 
 // 查询案件认领下发部门
-export function getAjrlDept(deptList, deptCode) {
+export function getAjrlDept(deptList, deptCode, depType) {
   const arry = []
   for (let i = 0; i < deptList.length; i++) {
     const dept = deptList[i]
-    if (deptCode.substring(0, 4) === '1500') {
-      if (dept.parentCode.substring(0, 8) === deptCode.substring(0, 8)) {
+    if (depType === '1') {
+      // 总队
+      if (dept.parentCode === deptCode) {
+        // 查所有支队
         arry.push(dept)
       }
-    } else {
-      if (dept.parentCode.substring(0, 4) === deptCode.substring(0, 4)) {
+    } else if (depType === '2') {
+      // 支队
+      if (dept.parentCode === deptCode && dept.depType === '3') {
+        // 查所有大队
         arry.push(dept)
       }
     }
   }
   return arry
 }
-// 查询案件认领上报部门
-export function getAjrlParentDept(deptList, parentCode, depCode) {
+// 查询案件认领上报部门(转发)
+export function getAjrlParentDept(deptList, parentCode, depCode, depType) {
   const arry = []
   for (let i = 0; i < deptList.length; i++) {
     const dept = deptList[i]
-    if (dept.depCode !== depCode && dept.depCode !== '610000532500' && dept.depCode !== '610000533100' && dept.depCode !== '610000000000') {
-      if (dept.depCode.substr(0, 6) === parentCode.substr(0, 6) || dept.depCode.substr(0, 6) === depCode.substr(0, 6) || getNs(dept.depCode, depCode)) {
+    // 支队或大队
+    if (depType === '2' || depType === '3') {
+      if (dept.depCode === parentCode) {
         arry.push(dept)
       }
     }
@@ -60,15 +65,31 @@ export function getAjrlParentDept(deptList, parentCode, depCode) {
   return arry
 }
 
-export function getAjrlNSXJ(deptList, deptCode) {
-  const arry = []
-  for (let i = 0; i < deptList.length; i++) {
-    const dept = deptList[i]
-    if (dept.depCode === deptCode || getXj(dept, deptCode) || getNs(dept.depCode, deptCode)) {
-      arry.push(dept)
+// 案件认领恢复案件指定的部门 本级和下级直属
+export function getAjrlNSXJ(deptList, deptCode, depType) {
+  if (depType === '1' || depType === '2') {
+    const arry = []
+    for (let i = 0; i < deptList.length; i++) {
+      const dept = deptList[i]
+
+      if (dept.depCode === deptCode || dept.parentCode === deptCode) {
+        arry.push(dept)
+      }
     }
+
+    return arry
+  } else {
+    const arry = []
+    for (let i = 0; i < deptList.length; i++) {
+      const dept = deptList[i]
+
+      if (dept.depCode === deptCode) {
+        arry.push(dept)
+      }
+    }
+
+    return arry
   }
-  return arry
 }
 // 案件认领列表
 export function ajrlListDepts(deptList, deptCode) {
@@ -134,9 +155,10 @@ export function getParentDeptArray(deptList, deptCode) {
   }
   return arry
 }
-
+// 是否下级
 function getXj(dept, str2) {
   if (str2.substring(0, 6) === '610000') {
+    // 总队的直属下级
     return dept.parentCode === str2
   } else {
     return dept.depCode.substring(0, 4) === str2.substring(0, 4) && dept.depCode.substring(4, 6) !== '00'
@@ -151,6 +173,7 @@ function getSj(str1, str2) {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function getNs(str1, str2) {
   return str1.substring(0, 4) === str2.substring(0, 4) && str1.substring(8, 10) !== '00'
 }

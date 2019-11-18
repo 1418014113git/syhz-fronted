@@ -38,6 +38,9 @@ export default {
   data() {
     return {
       deptId: '',
+      deptCode: '',
+      pcsDeptId: '', // 派出所父Id
+      pcsDeptCode: '', // 派出所父Code
       listData: [
         {
           'span': 6, 'title': '审核待办：', 'data': [
@@ -73,7 +76,8 @@ export default {
       otherData: {
         ajrl: []
       },
-      currentDep: {}
+      currentDep: {},
+      pcsParentDept: {}
     }
   },
   methods: {
@@ -110,8 +114,10 @@ export default {
       if (index === 1) {
         if (node.data_op === '案件认领') {
           localStorage.setItem('curAppCode', '003')
+
           this.$router.push({
-            path: '/caseManage/ajrl', query: {}
+
+            path: '/caseManage/ajrl', params: { source: 'portal' }
           })
         }
         if (node.data_op === '线索流转' || node.data_op === '案件督办催办' || node.data_op === '案件协查' || node.data_op === '全国性协查' || node.data_op === '案件督办' || node.business_type === '10') {
@@ -139,7 +145,7 @@ export default {
         if (node.business_type === '2') {
           localStorage.setItem('curAppCode', '003')
           this.$router.push({
-            path: '/caseManage/ajrl', query: {}
+            path: '/caseManage/ajrl?from=portal', param: {}
           })
         }
         if (node.business_type === 'djsaj') { // 待接收案件
@@ -261,11 +267,20 @@ export default {
       })
     },
     getAjrl() {
-      getSignAjrl({
-        businessType: 2,
-        noticeOrgId: this.deptId,
-        status: 3
-      }).then((res) => {
+      console.log('pcsParent' + JSON.stringify(this.pcsParentDept))
+      var para = {
+
+      }
+      if (this.currentDep.depType === '4') {
+        para.businessType = 2
+        para.noticeOrgId = this.pcsDeptCode
+        para.status = 3
+      } else {
+        para.businessType = 2
+        para.noticeOrgId = this.deptCode
+        para.status = 3
+      }
+      getSignAjrl(para).then((res) => {
         if (res.code === '000000' && res.data && res.data.length > 0) {
           this.otherData.ajrl = [{
             data_op: '案件认领', num: res.data[0]['num'], business_type: res.data[0]['business_type']
@@ -291,15 +306,31 @@ export default {
   mounted() {
     this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
     if (this.currentDep) {
+      if (this.currentDep.depType === '4') {
+        // 调接口查 派出所的上级
+        this.$query('hsyzparentdepart/' + this.currentDep.depCode, {}, 'upms').then((response) => {
+          if (response.code === '000000') {
+            this.pcsParentDept = response.data
+            // console.log('-->' + JSON.stringify(this.pcsParentDept))
+            this.pcsDeptId = this.pcsParentDept.id
+            this.pcsDeptCode = this.pcsParentDept.departCode
+            this.getAjrl()
+          }
+        }).catch(() => {
+          this.caseLoading = false
+        })
+      }
       this.deptId = this.currentDep.id
-      this.getWorkFlow()
-      this.getCBAJCount()
-      this.getSignCount()
-      this.getAjrl()
-      this.getDjsaj()
+      this.deptCode = this.currentDep.depCode
     }
+    this.getWorkFlow()
+    this.getCBAJCount()
+    this.getSignCount()
+    this.getAjrl()
+    this.getDjsaj()
   }
 }
+
 </script>
 <style rel="stylesheet/scss" lang="scss">
 .waitThing {
@@ -311,8 +342,9 @@ export default {
     margin-bottom: 3px;
     color: #bce8fc;
     text-shadow: 0 0 2px #fff;
-    background: url("/static/image/portal_newImg/corwLine.png") no-repeat 3px center;
-    border-top:  1px dashed #5b8dd8;
+    background: url("/static/image/portal_newImg/corwLine.png") no-repeat 3px
+      center;
+    border-top: 1px dashed #5b8dd8;
   }
   .myWorkUl {
     overflow: hidden;
