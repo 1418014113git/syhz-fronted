@@ -7,7 +7,7 @@
     </div>
     <div class="bg ajInfo">
       <!-- <title-pub :title="title" url=""></title-pub> -->
-      <el-form ref="form" :model="ajInfo" size="small" label-width="120px" :rules="rules" label-position="left" class="infoSupplement">
+      <el-form ref="form" :model="ajInfo" size="small" label-width="110px" :rules="rules" label-position="left" class="infoSupplement">
         <el-tabs class="archiveTab" v-model="activeName" @tab-click="handleClick">
           <el-tab-pane label="基本信息" name="first">
             <div slot="label">
@@ -16,12 +16,12 @@
             </div>
             <el-row>
               <el-col :span="8" class="pdr">
-                <el-form-item label="案件类型" prop="fllb">
+                <el-form-item label="案件类型" prop="fllb" label-width="80px">
                   <el-cascader v-model="ajInfo.fllb" change-on-select filterable :options="fllbList"  :disabled="fllbDisabled"></el-cascader>
-                  <el-button type="success" style="margin-left: 20px;" @click="saveFllb()" :loading="saveLoading" v-if="!fllbDisabled">确认</el-button>
+                  <el-button type="success" style="margin-left: 10px;" @click="saveFllb()" :loading="saveLoading" v-if="!fllbDisabled">确认</el-button>
                   <img v-if="carryParam && carryParam.isRl==='1'" src="/static/image/caseFile_images/edit.png" alt="" srcset="" class="featureImg" @click="editCaseType">
                 </el-form-item>
-                <el-form-item label="案件类别1" prop="AJLB1_NAME" class="pdl">
+                <el-form-item label="案件类别1" prop="AJLB1_NAME" class="pdl" label-width="90px">
                   <span class="whiteColor">{{ajInfo.AJLB1_NAME}}</span>
                 </el-form-item>
                 <el-form-item label="涉案价值" prop="SAJZ" class="pdl">
@@ -36,6 +36,9 @@
                  <el-form-item label="作案人数" prop="ZARS" class="pdl">
                   <span class="whiteColor">{{ajInfo.ZARS}}</span>
                 </el-form-item>
+                <el-form-item label="案件来源" prop="AJLY_NAME">
+                  <span class="whiteColor">{{ajInfo.AJLY_NAME}}</span>
+                </el-form-item>
                 <el-form-item label="受理时间" prop="SLSJ" class="pdl">
                   <span class="whiteColor" v-if="ajInfo.SLSJ">{{$handlerDateTime(ajInfo.SLSJ)}}</span>
                 </el-form-item>
@@ -47,8 +50,12 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8" class="pdr">
-                <el-form-item label="案件来源" prop="AJLY_NAME">
-                  <span class="whiteColor">{{ajInfo.AJLY_NAME}}</span>
+                <el-form-item label="立案日期" prop="" label-width="80px">
+                  <el-date-picker v-show="laDateUpdFlag && carryParam.isRl==='1'" v-model="laDate" type="date" value-format="yyyy-MM-dd"
+                                  placeholder="选择日期" :disabled="larqDisabled" :picker-options="laPickerOpt" @change="laPickerChange"></el-date-picker>
+                  <span class="whiteColor" v-show="!laDateUpdFlag && carryParam.isRl==='1'">{{laDate}}</span>
+                  <el-button type="success" style="margin-left: 10px;" @click="saveLAPARQ(1)" :loading="saveLoading" v-if="!larqDisabled">确认</el-button>
+                  <img v-if="laDateUpdFlag && carryParam && carryParam.isRl==='1'" src="/static/image/caseFile_images/edit.png" alt="修改" srcset="" class="featureImg" @click="editLarq">
                 </el-form-item>
                 <el-form-item label="案件类别2" prop="AJLB2_NAME">
                   <span class="whiteColor">{{ajInfo.AJLB2_NAME}}</span>
@@ -65,6 +72,9 @@
                 <el-form-item label="抓获人员数" prop="ZHRYS">
                   <span class="whiteColor">{{ajInfo.ZHRYS}}</span>
                 </el-form-item>
+                <el-form-item label="报案人" prop="BARXM">
+                  <span class="whiteColor">{{ajInfo.BARXM}}</span>
+                </el-form-item>
                 <el-form-item label="受理人" prop="SLR_NAME">
                   <span class="whiteColor">{{ajInfo.SLR_NAME}}</span>
                 </el-form-item>
@@ -76,8 +86,12 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item label="报案人" prop="BARXM">
-                  <span class="whiteColor">{{ajInfo.BARXM}}</span>
+                <el-form-item label="破案日期" prop="" label-width="80px">
+                  <el-date-picker v-show="paDateUpdFlag && carryParam.isRl==='1'" v-model="paDate" type="date" value-format="yyyy-MM-dd"
+                                  placeholder="选择日期" :disabled="parqDisabled" :picker-options="paPickerOpt" @change="paPickerChange"></el-date-picker>
+                  <span class="whiteColor" v-show="!paDateUpdFlag && carryParam.isRl==='1'">{{paDate}}</span>
+                  <el-button type="success" style="margin-left: 10px;" @click="saveLAPARQ(2)" :loading="saveLoading" v-if="!parqDisabled">确认</el-button>
+                  <img v-if="paDateUpdFlag && carryParam && carryParam.isRl==='1'" src="/static/image/caseFile_images/edit.png" alt="修改" srcset="" class="featureImg" @click="editParq">
                 </el-form-item>
                 <el-form-item label="是否单位作案" prop="SFDWZA_NAME">
                   <span class="whiteColor">{{ajInfo.SFDWZA_NAME}}</span>
@@ -93,6 +107,10 @@
                 </el-form-item>
                  <el-form-item label="案件集团人数" prop="JTRS">
                   <span class="whiteColor">{{ajInfo.JTRS}}</span>
+                </el-form-item>
+                <!-- 透明的占位 -->
+                <el-form-item label="受理单位" prop="SLDW_NAME" style="opacity:0;">
+                  <span :title="ajInfo.SLDW_NAME" class="whiteColor ellipsis-word">{{ajInfo.SLDW_NAME}}</span>
                 </el-form-item>
                 <el-form-item label="受理单位" prop="SLDW_NAME">
                   <span :title="ajInfo.SLDW_NAME" class="whiteColor ellipsis-word">{{ajInfo.SLDW_NAME}}</span>
@@ -214,6 +232,12 @@ export default {
   },
   data() {
     return {
+      laDateUpdFlag: false,
+      paDateUpdFlag: false,
+      larqDisabled: true,
+      parqDisabled: true,
+      laDate: '',
+      paDate: '',
       activeName: 'first',
       ajInfo: {},
       carryParam: {},
@@ -222,7 +246,9 @@ export default {
       fllbList: getSYHFLLBList(), // 案件分类类别
       rules: {
         fllb: [{ required: true, message: '请选择案件类型', trigger: 'blur' }]
-      }
+      },
+      laPickerOpt: {},
+      paPickerOpt: {}
     }
   },
   watch: {
@@ -234,15 +260,73 @@ export default {
     }
   },
   methods: {
+    laPickerChange(val) {
+      if (val) {
+        this.paPickerOpt = Object.assign({}, this.paPickerOpt, {
+          disabledDate: (time) => {
+            return time.getTime() < (new Date(val).getTime() - 86400000)
+          }
+        })
+      } else {
+        this.paPickerOpt = this.paPickerOpt = Object.assign({}, this.paPickerOpt, {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+      }
+    },
+    paPickerChange(val) {
+      if (val) {
+        this.laPickerOpt = Object.assign({}, this.laPickerOpt, {
+          disabledDate: (time) => {
+            return time.getTime() > new Date(val).getTime()
+          }
+        })
+      } else {
+        this.laPickerOpt = Object.assign({}, this.laPickerOpt, {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+      }
+    },
     handleClick(tab, event) {
       // console.log(tab, event)
     },
     init() {
-      if (this.ajInfo && this.ajInfo.SYH_FLLB) { // 案件详情存在 案件类型
+      if (this.ajInfo && this.ajInfo.SYH_FLLB) {
+        // 案件详情存在 案件类型
         this.ajInfo.fllb = this.ajInfo.SYH_FLLB.split(',')
       }
+      this.laDate = this.$handlerDateTime(this.ajInfo.LARQ)
+      this.paDate = this.$handlerDateTime(this.ajInfo.PARQ)
       if (this.$route.query) {
         this.carryParam = this.$route.query
+      }
+      const curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+
+      // 杨凌区的派出所,当支队
+      if (curDept.parentDepCode === '610403390000') {
+        curDept.depCode = curDept.parentDepCode
+      }
+
+      if ((this.laDate === '' || this.laDate === '0' || (this.laDate && this.laDate.length !== 10)) && this.$route.query.rlDept === curDept.depCode) {
+        this.laPickerChange(this.laDate)
+        this.laDateUpdFlag = true
+      } else {
+        this.laDateUpdFlag = false
+      }
+      if ((this.paDate === '' || this.paDate === '0' || (this.paDate && this.paDate.length !== 10)) && this.$route.query.rlDept === curDept.depCode) {
+        this.paPickerChange(this.paDate)
+        this.paDateUpdFlag = true
+      } else {
+        this.paDateUpdFlag = false
+      }
+      // 是否为厅角色
+      const leader = curDept.depCode.substring(0, 4) === '6100'
+      if (leader) {
+        this.paDateUpdFlag = true
+        this.laDateUpdFlag = true
       }
     },
     formatTime(date) {
@@ -278,7 +362,53 @@ export default {
       })
     },
     rowClick() {
-
+    },
+    saveLAPARQ(flag) {
+      const params = { id: this.ajInfo.AJBH }
+      if (flag === 1) {
+        if (!this.laDate) {
+          this.$message({
+            type: 'error',
+            message: '请选择立案日期'
+          })
+          return false
+        }
+        params.larq = this.laDate.replace(/-/g, '')
+      }
+      if (flag === 2) {
+        if (!this.paDate) {
+          this.$message({
+            type: 'error',
+            message: '请选择破案日期'
+          })
+          return false
+        }
+        params.parq = this.paDate.replace(/-/g, '')
+      }
+      this.$update('ajrlajtime/' + this.ajInfo.AJBH, params).then((response) => {
+        if (response.success === true) {
+          // 更新食药环表
+          this.$message({
+            message: '修改成功', type: 'success'
+          })
+          // this.detail()
+          location.reload()
+        }
+      })
+    },
+    detail() {
+      // this.$query('ajjbxxsyh/' + this.ajInfo.AJBH, {}).then((response) => {
+      //   if (response.code === '000000') {
+      //     this.ajInfo = response.data
+      //     this.init()
+      //   }
+      // })
+    },
+    editLarq() {
+      this.larqDisabled = !this.larqDisabled
+    },
+    editParq() {
+      this.parqDisabled = !this.parqDisabled
     },
     editCaseType() { // 修改案件类型
       this.fllbDisabled = !this.fllbDisabled

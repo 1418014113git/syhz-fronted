@@ -1,7 +1,7 @@
 <template>
   <section style="margin-top:12px;">
     <el-table ref="goodTable" :data="nowsData" v-loading="nowsLoading" max-height="186" class="statisticCollect" style="width:100%;">
-      <el-table-column type="index" label="序号" width="60px"></el-table-column>
+      <el-table-column type="index" label="序号" width="56px"></el-table-column>
       <el-table-column prop="content" label="申请事由" show-overflow-tooltip min-width="140"></el-table-column>
       <el-table-column prop="deptName" label="申请单位" show-overflow-tooltip min-width="140"></el-table-column>
       <el-table-column prop="userName" label="申请人" show-overflow-tooltip width="120"></el-table-column>
@@ -73,7 +73,7 @@ export default {
       this.nowsLoading = true
       var param = {
         ajbh: this.AJBH,
-        // ajbh: 'J6104296813050800001',
+        // ajbh: 'J1504296813050800001',
         pageSize: this.pageSizeNows,
         pageNum: flag ? 1 : this.pageNows
       }
@@ -91,7 +91,9 @@ export default {
               break
             }
           }
-          this.$emit('totalNows', this.totalNows)
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.$emit('totalNows', this.totalNows)
+          }
         }
       }).catch(() => {
         this.nowsLoading = false
