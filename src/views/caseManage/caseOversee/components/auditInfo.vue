@@ -24,10 +24,8 @@
         <el-table-column prop="auditContent" label="审核意见" min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column label="操作" width="80">
           <template slot-scope="scope">
-            <!-- v-if="$isViewBtn('100805')" -->
-            <el-button  v-if="scope.row.auditDeptCode === deptInfo.depCode && scope.row.flowStatus==='1'"
-                      title="审核" size="mini" type="primary" @click="handlerAudit(scope.$index, scope.row)" circle>
-                       <svg-icon icon-class="audit"></svg-icon></el-button>
+            <el-button  v-if="$isViewBtn('100813')&&scope.row.auditDeptCode === deptInfo.depCode && scope.row.flowStatus==='1'"
+              title="审核" size="mini" type="primary" @click="handlerAudit(scope.$index, scope.row)" circle><svg-icon icon-class="audit"></svg-icon></el-button>
           </template>
         </el-table-column>
       </el-table>
