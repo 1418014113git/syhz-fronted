@@ -15,7 +15,7 @@
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
         <el-table :data="qgxxcData" style="width: 100%;" v-loading="qgxxcLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+          <el-table-column type="index" label="序号" width="54"></el-table-column>
           <el-table-column prop="assist_title" label="标题" width="200" show-overflow-tooltip></el-table-column>
           <el-table-column prop="apply_dept_name" label="申请部门" min-width="200" show-overflow-tooltip></el-table-column>
           <el-table-column prop="create_time" label="申请时间" show-overflow-tooltip width="180"></el-table-column>
@@ -34,10 +34,10 @@
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
         <el-table :data="ajxcData" style="width: 100%;" v-loading="ajxcLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+          <el-table-column type="index" label="序号" width="54"></el-table-column>
           <el-table-column prop="ajbh" label="案件编号" show-overflow-tooltip></el-table-column>
           <el-table-column prop="ajmc" label="案件名称" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="DWXZ_NAME" label="立案日期" width="140" show-overflow-tooltip>
+          <el-table-column prop="DWXZ_NAME" label="立案日期" width="120" show-overflow-tooltip>
             <template slot-scope="scope">
               <span v-if="scope.row.larq">{{$handlerDateTime(scope.row.larq)}}</span>
             </template>
@@ -45,8 +45,8 @@
           <el-table-column prop="ajlbName" label="案件类别" show-overflow-tooltip></el-table-column>
           <el-table-column prop="applyDeptName" label="申请部门" show-overflow-tooltip></el-table-column>
           <el-table-column prop="applyPersonName" label="申请人" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="assistType" label="协查级别" :formatter="formatType" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="createTime" label="申请时间" show-overflow-tooltip>
+          <el-table-column prop="assistType" label="协查级别" :formatter="formatType" show-overflow-tooltip  width="100"></el-table-column>
+          <el-table-column prop="createTime" label="申请时间"  width="160" show-overflow-tooltip>
             <template slot-scope="scope">
               <span v-if="scope.row.createTime">{{scope.row.createTime | formatDate}}</span>
             </template>
@@ -66,33 +66,33 @@
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
         <el-table :data="ajdbData" style="width: 100%;" v-loading="ajdbLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
-          <el-table-column prop="AJBH" label="案件编号" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="AJMC" label="案件名称" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="DWXZ_NAME" label="立案日期" width="140" show-overflow-tooltip>
+          <el-table-column type="index" label="序号" width="54"></el-table-column>
+          <el-table-column prop="ajbh" label="案件编号" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="ajmc" label="案件名称" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="larq" label="立案日期" width="120" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.LARQ">{{$handlerDateTime(scope.row.LARQ)}}</span>
+              <span v-if="scope.row.larq">{{$handlerDateTime(scope.row.larq)}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="AJLB_NAME" label="案件类别" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="DWXZ_NAME" label="发起时间" show-overflow-tooltip>
+          <el-table-column prop="ajlbName" label="案件类别" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="createTime" label="发起时间"  width="160" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.create_time">{{scope.row.create_time | formatDate}}</span>
+              <span v-if="scope.row.createTime">{{scope.row.createTime | formatDate}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="supervise_level" label="督办级别" show-overflow-tooltip>
+          <el-table-column prop="dbLevel" label="督办级别" width="100" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.supervise_level">{{formatterLevel(scope.row.supervise_level)}}</span>
+              <span v-if="scope.row.dbLevel">{{formatterLevel(scope.row.dbLevel)}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="DWXZ_NAME" label="督办状态" show-overflow-tooltip>
+          <el-table-column prop="dbStatus" label="督办状态" width="100" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.status">{{filterStateText(scope.row.status)}}</span>
+              <span v-if="scope.row.dbStatus">{{filterStateText(scope.row.dbStatus)}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="DWXZ_NAME" label="截止时间" show-overflow-tooltip>
+          <el-table-column prop="endTime" label="截止时间" width="160" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.end_date">{{scope.row.end_date | formatDate}}</span>
+              <span v-if="scope.row.endTime">{{scope.row.endTime | formatDate}}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -109,7 +109,7 @@
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
         <el-table :data="zxrwData" style="width: 100%;" v-loading="zxrwLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+          <el-table-column type="index" label="序号" width="54"></el-table-column>
           <el-table-column prop="task_name" label="任务名称"></el-table-column>
           <el-table-column prop="AJMC" label="开始时间" show-overflow-tooltip>
             <template slot-scope="scope">
@@ -151,7 +151,7 @@
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
         <el-table :data="jyjdData" style="width: 100%;" v-loading="jyjdLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+          <el-table-column type="index" label="序号" width="54"></el-table-column>
           <el-table-column prop="AJBH" label="申请单位">
             <template slot-scope="scope">
               <p :title="scope.row.apply_dept_name" class="ellipsis-word">{{scope.row.apply_dept_name}}</p>
@@ -184,7 +184,7 @@
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
         <el-table :data="ajrlData" style="width: 100%;" v-loading="ajrlLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+          <el-table-column type="index" label="序号" width="54"></el-table-column>
           <el-table-column prop="time" label="时间" width="180"></el-table-column>
           <el-table-column prop="optStr" label="操作" show-overflow-tooltip></el-table-column>
           <el-table-column prop="optOrg" label="操作单位" show-overflow-tooltip></el-table-column>
@@ -375,8 +375,10 @@ export default {
           this.qgxxcData = res.data.list
           this.totalQgxxc = res.data.totalCount
           this.pageSizeQgxxc = res.data.pageSize
-          this.moduleAllTotal.push(this.totalQgxxc)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalQgxxc)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.qgxxcLoading = false
@@ -396,8 +398,10 @@ export default {
           this.ajxcData = res.data.list
           this.totalAjxc = res.data.totalCount
           this.pageSizeAjxc = res.data.pageSize
-          this.moduleAllTotal.push(this.totalAjxc)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalAjxc)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.ajxcLoading = false
@@ -417,8 +421,10 @@ export default {
           this.ajdbData = res.data.list
           this.totalAjdb = res.data.totalCount
           this.pageSizeAjdb = res.data.pageSize
-          this.moduleAllTotal.push(this.totalAjdb)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalAjdb)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.ajdbLoading = false
@@ -438,8 +444,10 @@ export default {
           this.zxrwData = res.data.list
           this.totalZxrw = res.data.totalCount
           this.pageSizeZxrw = res.data.pageSize
-          this.moduleAllTotal.push(this.totalZxrw)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalZxrw)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.zxrwLoading = false
@@ -459,8 +467,10 @@ export default {
           this.jyjdData = res.data.list
           this.totalJyjd = res.data.totalCount
           this.pageSizeJyjd = res.data.pageSize
-          this.moduleAllTotal.push(this.totalJyjd)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalJyjd)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.jyjdLoading = false
@@ -489,13 +499,13 @@ export default {
             str = '案件认领'
           }
           if (obj.status === '9') {
-            if (obj.notice_lx === 1) {
+            if (String(obj.notice_lx) === '1') {
               str = '案件下发'
             }
-            if (obj.notice_lx === 2) {
+            if (String(obj.notice_lx) === '2') {
               str = '案件转发'
             }
-            if (obj.notice_lx === 3) {
+            if (String(obj.notice_lx) === '3') {
               str = '恢复案件'
             }
           }
@@ -528,8 +538,10 @@ export default {
           }
         }
         this.totalAjrl = this.ajrlData.length
-        this.moduleAllTotal.push(this.totalAjrl)
-        this.calculateAll()
+        if (flag) { // 切换条数时 总数不变，不必要重新计算
+          this.moduleAllTotal.push(this.totalAjrl)
+          this.calculateAll()
+        }
       }).catch(() => {
         this.ajrlLoading = false
       })
@@ -659,7 +671,7 @@ export default {
   },
   mounted() {
     const depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    if (depToken.depCode.substring(0, 6) === '610000') {
+    if (depToken.depCode.substring(0, 6) === '150000') {
       this.isMore = true
     }
     if (this.ajbh) {

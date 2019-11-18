@@ -4,7 +4,7 @@
     <div class="ajParallel">
       <title-pub :title="title" url=""></title-pub>
       <el-table :data="dataList" style="width: 100%;" v-loading="loading" max-height="156">
-        <el-table-column type="index" label="序号" width="60"></el-table-column>
+        <el-table-column type="index" label="序号" width="52"></el-table-column>
         <el-table-column prop="CBABH" label="串并编号"></el-table-column>
         <el-table-column prop="CAZT_NAME" label="串案状态"></el-table-column>
         <el-table-column prop="CBFXBH" label="分析编号"></el-table-column>
@@ -107,10 +107,11 @@ export default {
 }
 </script>
 <style  rel="stylesheet/scss" lang="scss">
-.ajParallel {
+.ajParallel{
   width: 100%;
   border: 2px solid #00a0e9;
   padding: 0 8px 8px 8px;
   border-radius: 8px;
 }
+
 </style>
