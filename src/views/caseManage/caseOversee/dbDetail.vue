@@ -13,12 +13,12 @@
         <!-- 右侧内容区 -->
         <el-col :span="21" class="rightCont" :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
-            <base-info class="marb bg jbxx" :jbxxData="dbDetailData.jbxx"></base-info>
-            <audit-info class="marb bg shxx" :dbId="dbId"></audit-info>
+            <base-info class="marb bg jbxx" :jbxxData="dbDetailData.jbxx" :dshData="dbDetailData.shxx"></base-info>
+            <audit-info class="marb bg shxx" :dbId="dbId" ></audit-info>
             <endcase-report class="marb bg jabg" :jabgData="dbDetailData.jabg"></endcase-report>
             <evaluation-score class="marb bg pjdf" :pjdfData="dbDetailData.pjdf"></evaluation-score>
-            <urge-info class="marb bg cbxx"  :dbId="dbId"></urge-info>
-            <new-progress class="marb bg zxjz" :dbId="dbDetailData"></new-progress>
+            <urge-info class="marb bg cbxx" :cbData="dbDetailData.cbxx"></urge-info>
+            <new-progress class="marb bg zxjz" :zxjzData="dbDetailData.zxjz"></new-progress>
           </div>
         </el-col>
      </el-row>
@@ -102,53 +102,53 @@ export default {
           this.$store.dispatch('MouleClass', this.classList[7])
         }
       }
+    },
+    queryDbDetail() {
+      if (this.$route.query.dbId) { // 正式
+        this.dbId = this.$route.query.dbId
+        // 查详情
+        this.loading = true
+        this.$query('casesupervise', { id: this.dbId }).then((response) => {
+          this.loading = false
+          if (response.code === '000000') {
+            this.dbDetailData = response.data.data
+            this.leftData = response.data.th
+            // 基本信息
+            this.dbDetailData.jbxx.jabgTitle = this.dbDetailData.jabg.title // 是否有结案报告
+            // 审核（待审核的一条记录）
+
+            // 结案报告
+            this.dbDetailData.jabg.dbId = this.dbId // 将督办id存入 结案报告中
+
+            // 评价打分
+            this.dbDetailData.pjdf.dbId = this.dbId // 将督办id存入 评价打分中
+            this.dbDetailData.pjdf.status = this.dbDetailData.jbxx.status // 将督办状态存入 评价打分中
+            this.dbDetailData.pjdf.superviseDepartCode = this.dbDetailData.jbxx.superviseDepartCode // 将审核单位存入 评价打分中
+            // 催办
+            this.dbDetailData.cbxx.dbId = this.dbId // 将督办id存入 催办
+            this.dbDetailData.cbxx.status = this.dbDetailData.jbxx.status // 将督办状态存入 催办
+            this.dbDetailData.cbxx.superviseDepartCode = this.dbDetailData.jbxx.superviseDepartCode // 将审核单位存入催办
+          }
+        }).catch(() => {
+          this.loading = false
+        })
+      }
     }
   },
   created() {
-    if (this.$route.query.dbId) { // 正式
-      this.dbId = this.$route.query.dbId
-      // 查详情
-      this.loading = true
-      this.$query('casesupervise', { id: this.dbId }).then((response) => {
-        this.loading = false
-        if (response.code === '000000') {
-          this.dbDetailData = response.data.data
-          this.leftData = response.data.th
-          // 基本信息
-          this.dbDetailData.jbxx.jabgTitle = this.dbDetailData.jabg.title // 是否有结案报告
 
-          // 结案报告
-          this.dbDetailData.jabg.dbId = this.dbId // 将督办id存入 结案报告中
-          // this.dbDetailData.jabg.createDeptCode = this.dbDetailData.jabg.createDeptCode // 申请部门code
-          // this.dbDetailData.jabg.reportStatus = this.dbDetailData.jabg.reportStatus // 结案报告状态
-          // this.dbDetailData.jabg.dbStatus = this.dbDetailData.jabg.dbStatus // 本级督办状态
-          // this.dbDetailData.jabg.upDbStatus = this.dbDetailData.jabg.upDbStatus // 上级督办状态
-          // this.dbDetailData.jabg.wdStatus = this.dbDetailData.jabg.wdStatus // 是否有上级督办
-
-          // 评价打分
-          this.dbDetailData.pjdf.dbId = this.dbId // 将督办id存入 评价打分中
-          this.dbDetailData.pjdf.status = this.dbDetailData.jbxx.status // 将督办状态存入 评价打分中
-          this.dbDetailData.pjdf.superviseDepartCode = this.dbDetailData.jbxx.superviseDepartCode // 将审核单位存入 评价打分中
-
-          // this.choosedCases = this.dbBatchForm.caseList // 督办案件列表
-          // if (this.dbBatchForm.superviseLevel) { // 督办级别
-          //   this.dbBatchForm.superviseLevel = this.dbBatchForm.superviseLevel + ''
-          // }
-        }
-      }).catch(() => {
-        this.loading = false
-      })
-    }
   },
   mounted() {
     const _this = this
     document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
+    this.queryDbDetail()
   },
   activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
     if (this.$route.query.dbId) { // 正式
       this.dbId = this.$route.query.dbId
     }
     document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
+    this.queryDbDetail()
   }
 }
 </script>
