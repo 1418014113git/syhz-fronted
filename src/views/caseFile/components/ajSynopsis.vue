@@ -801,15 +801,14 @@ export default {
         // var d = this.ajInfo.LARQ.substr(6, 8)
 
         // ldaDate = y + '-' + m + '-' + d
-        alert('in')
         this.laDate = this.ajInfo.LARQ
       }
       if (this.ajInfo.PARQ && this.ajInfo.PARQ.length === 8) {
-        var y1 = this.ajInfo.PARQ.substr(0, 4)
-        var m1 = this.ajInfo.PARQ.substr(6, 6)
-        var d1 = this.ajInfo.PARQ.substr(6, 8)
-        this.paDate = y1 + '-' + m1 + '-' + d1
-        // this.paDate = this.ajInfo.PARQ
+        // var y1 = this.ajInfo.PARQ.substr(0, 4)
+        // var m1 = this.ajInfo.PARQ.substr(6, 6)
+        // var d1 = this.ajInfo.PARQ.substr(6, 8)
+        // this.paDate = y1 + '-' + m1 + '-' + d1
+        this.paDate = this.ajInfo.PARQ
       }
       this.getAjztCodes()
     }
