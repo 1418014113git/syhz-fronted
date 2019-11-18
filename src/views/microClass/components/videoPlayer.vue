@@ -62,6 +62,7 @@
     },
     data() {
       return {
+        notTake: false,
         playerOptions: {
           playbackRates: [0.7, 1.0, 1.5, 2.0], // 播放速度
           autoplay: false, // 如果true,浏览器准备好时开始回放。
@@ -107,7 +108,7 @@
       },
       // listen event
       onPlayerPlay(player) {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           if (this.num === 0) {
             if (this.playType === '5') {
               this.$emit('viewLog', '0')
@@ -119,15 +120,16 @@
           this.bindSetInterval()
           this.bindSetTimeOut()
         }
+        this.bindWaitInterval()
       },
       onPlayerPause(player) {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.uploadViewLog()
         }
         this.clearTimeInterval()
       },
       onPlayerEnded(player) {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.uploadViewLog()
         }
         this.clearTimeInterval()
@@ -163,6 +165,12 @@
         console.log('example 01: the player is readied', player)
       },
       setDetail(playerDetail) {
+        const data = JSON.parse(sessionStorage.getItem('depToken'))
+        if (data !== undefined && data !== null && data.length > 0) {
+          this.notTake = true
+        } else {
+          this.notTake = false
+        }
         this.detailData = playerDetail
         this.playerOptions.poster = this.src()
         this.playerOptions.sources[0].src = this.detailData.enPath
@@ -201,7 +209,7 @@
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.addJF('3')
           this.$emit('viewLog', '1', '1')
         }
@@ -232,7 +240,7 @@
         }
         this.$save('trainFraction', para).then(response => {
           if (type === '4' && response.data === '999') {
-            this.clearTimeInterval()
+            this.clearJFInterval()
           }
         })
       },
@@ -240,18 +248,26 @@
         this.$emit('uploadViewLog', this.waitTime)
       },
       bindSetInterval() {
+        if (this.waitTime * 1000 < this.intervalSplit) {
+          this.intervalSplit = this.intervalSplit - this.waitTime * 1000
+        } else if (this.waitTime * 1000 > this.intervalSplit) {
+          this.intervalSplit = this.waitTime * 1000 - this.intervalSplit
+        }
         this.timeInterval = setInterval(() => {
           this.addJF('4')
+          this.initSplit()
         }, this.intervalSplit)
         this.autoUpdateInterval = setInterval(() => {
           this.uploadViewLog()
         }, this.learningTime)
+      },
+      bindWaitInterval() {
         this.waitInterval = setInterval(() => {
           this.waitTime += 1
         }, 1000)
       },
-      clearWaitInterval() {
-        clearInterval(this.waitInterval)
+      clearJFInterval() {
+        clearInterval(this.timeInterval)
       },
       clearTimeInterval() {
         clearInterval(this.timeInterval)
@@ -398,5 +414,27 @@
   .classRoom_videoPlayer .video_player_fj ul li:hover{
     background-color: #0077af;
     cursor: pointer;
+  }
+  /*.classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover,*/
+  /*.classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:active,*/
+  /*.classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal.vjs-slider-active{*/
+    /*width: 4em;*/
+  /*}*/
+  .classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover .vjs-volume-control.vjs-control.vjs-volume-horizontal{
+    z-index: 99;
+  }
+  .classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover{
+    background: rgba(43, 51, 63, 0.8);
+  }
+  .classRoom_videoPlayer .vjs-volume-control.vjs-control.vjs-volume-horizontal{
+    /*position: absolute!important;*/
+    /*bottom: 36px;*/
+    /*left: 0;*/
+    background: rgba(43, 51, 63, 0.8);
+    width: 6em !important;
+    padding-right: 10px;
+    /*-webkit-transform: rotate(-90deg);!*Safari 4+,Google Chrome 1+ *!*/
+    /*-moz-transform: rotate(-90deg);!*Firefox 3.5+*!*/
+    /*filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);!*ie*!*/
   }
 </style>

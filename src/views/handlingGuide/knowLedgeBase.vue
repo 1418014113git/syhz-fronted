@@ -20,7 +20,7 @@
                   <el-input placeholder="请输入关键字" v-model="filters.title" maxlength="50" style="width: 222px"></el-input>
                 </el-form-item>
                 <el-form-item label="类别">
-                  <el-select v-model="filters.articleType" placeholder="请选择" clearable>
+                  <el-select v-model="filters.articleType" placeholder="请选择" clearable style="width: 222px">
                     <el-option label="环境" value="3"></el-option>
                     <el-option label="食品" value="1"></el-option>
                     <el-option label="药品" value="2"></el-option>
@@ -28,19 +28,21 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item label="审核状态">
-                  <el-select v-model="filters.auditStatus" placeholder="请选择" clearable>
-                    <el-option label="待审核" value="1"></el-option>
+                  <el-select v-model="filters.auditStatus" placeholder="请选择" clearable style="width: 222px">
+                    <el-option label="未提交" value="4"></el-option>
+                    <el-option label="待审核" value="0"></el-option>
+                    <el-option label="审核中" value="1"></el-option>
                     <el-option label="审核通过" value="2"></el-option>
                     <el-option label="审核不通过" value="3"></el-option>
                   </el-select>
                 </el-form-item>
                 <el-form-item label="上传单位"><!--clearable-->
-                  <el-select v-model="filters.belongDepCode" placeholder="请选择" @change="deptChange" clearable :disabled="isNormal">
+                  <el-select v-model="filters.belongDepCode" placeholder="请选择" @change="deptChange" clearable :disabled="isNormal" style="width: 222px">
                     <el-option v-for="item in deptList" :key="item.index" :value="item.departCode" :label="item.departName"></el-option>
                   </el-select>
                 </el-form-item>
                 <el-form-item label="上传者">
-                  <el-select v-model="filters.creationId" placeholder="请选择" clearable :disabled="isNormal">
+                  <el-select v-model="filters.creationId" placeholder="请选择" clearable :disabled="isNormal" style="width: 222px">
                     <el-option v-for="item in deptUserList" :key="item.index" :value="item.id" :label="item.realName"></el-option>
                   </el-select>
                 </el-form-item>
@@ -50,14 +52,19 @@
                 <el-form-item>
                   <el-button type="primary" v-if="$isViewBtn('129401')" @click="query(true)" icon="el-icon-search">查询</el-button>
                   <el-button type="primary" v-if="$isViewBtn('129402')" @click="uploadFile" icon="el-icon-upload">添加</el-button>
-                  <el-button type="primary" v-if="$isViewBtn('129405')" @click="batchAudit"><svg-icon icon-class="audit" style="margin-right:2px;"></svg-icon>批量审核</el-button>
+                  <el-button type="primary" v-if="$isViewBtn('129405') && curDept.depType !== '4'" @click="batchAudit"><svg-icon icon-class="audit" style="margin-right:2px;"></svg-icon>批量审核</el-button>
                 </el-form-item>
               </el-form>
               <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" :selectable="selectable"></el-table-column>
-                <el-table-column type="index" ></el-table-column>
-                <el-table-column prop="title" label="标题"></el-table-column>
-                <el-table-column prop="type" label="知识分类">
+                <el-table-column type="index" label="序号" width="60"></el-table-column>
+                <el-table-column prop="title" label="标题">
+                  <template slot-scope="scope">
+                    <span v-if="$isViewBtn('129403')" @click="handleRowView(scope.$index, scope.row)" class="url_text">{{scope.row.title}}</span>
+                    <span v-else>{{scope.row.title}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="type" label="知识分类" width="100px">
                   <template slot-scope="scope">
                     <span v-if="scope.row.type === '1' || active === '1'">法律法规</span>
                     <span v-if="scope.row.type === '2' || active === '2'">行业标准</span>
@@ -73,23 +80,25 @@
                     <span v-if="scope.row.articleType === 4">综合</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="belongDepName" label="上传单位"></el-table-column>
-                <el-table-column prop="creationName" label="上传者"></el-table-column>
-                <el-table-column prop="creationTime" label="上传时间"></el-table-column>
+                <el-table-column prop="belongDepName" label="上传单位" width="200px"></el-table-column>
+                <el-table-column prop="creationName" label="上传者" width="100px"></el-table-column>
+                <el-table-column prop="creationTime" label="上传时间" width="120px"></el-table-column>
                 <el-table-column prop="auditStatus" label="审核状态" width="100px">
                   <template slot-scope="scope">
-                    <span v-if="scope.row.auditStatus === '1'">待审核</span>
+                    <span v-if="scope.row.auditStatus === '0'">待审核</span>
+                    <span v-if="scope.row.auditStatus === '1'">审核中</span>
                     <span v-if="scope.row.auditStatus === '2'">审核通过</span>
                     <span v-if="scope.row.auditStatus === '3'">审核不通过</span>
+                    <span v-if="scope.row.auditStatus === '4'">未提交</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="操作" width="200px">
                   <template slot-scope="scope">
                     <el-button size="mini" v-if="$isViewBtn('129403')" title="查看" type="primary" icon="el-icon-view" circle @click="handleRowView(scope.$index, scope.row)"></el-button>
-                    <el-button size="mini" v-if="$isViewBtn('129407') && scope.row.auditStatus === '1'" title="编辑" type="primary" icon="el-icon-edit" circle @click="handleRowEdit(scope.$index, scope.row)"></el-button>
-                    <el-button size="mini" v-if="$isViewBtn('129404') && scope.row.auditStatus !== '2'" title="删除" type="primary" icon="el-icon-delete" circle @click="handleRowDel(scope.$index, scope.row)"></el-button>
-                    <el-button size="mini" v-if="$isViewBtn('129405') && scope.row.auditStatus === '1'" title="审核" type="primary" circle @click="handleAudit(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
-                    <el-button size="mini" v-if="$isViewBtn('129406')" title="审核记录" type="primary" icon="el-icon-document" circle @click="handleAuditList(scope.$index, scope.row)"></el-button>
+                    <el-button size="mini" v-if="$isViewBtn('129407') && editBtn(scope.row)" title="编辑" type="primary" icon="el-icon-edit" circle @click="handleRowEdit(scope.$index, scope.row)"></el-button>
+                    <el-button size="mini" v-if="removeBtn(scope.row)" title="删除" type="primary" icon="el-icon-delete" circle @click="handleRowDel(scope.$index, scope.row)"></el-button>
+                    <el-button size="mini" v-if="$isViewBtn('129405') && scope.row.auditStatus2 === '0' && scope.row.auditStatus !== '4' && curDept.depType !== '4'" title="审核" type="primary" circle @click="handleAudit(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
+                    <el-button size="mini" v-if="$isViewBtn('129406') && scope.row.auditStatus !== '4'" title="审核记录" type="primary" icon="el-icon-document" circle @click="handleAuditList(scope.$index, scope.row)"></el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -120,9 +129,11 @@
         <el-table-column property="auditTime" label="审核时间" width="150"></el-table-column>
         <el-table-column property="auditStatus" label="审核结果" width="100">
           <template slot-scope="scope">
-            <span v-if="scope.row.auditStatus === '1'">待审核</span>
+            <span v-if="scope.row.auditStatus === '0'">待审核</span>
+            <span v-if="scope.row.auditStatus === '1'">审核中</span>
             <span v-if="scope.row.auditStatus === '2'">审核通过</span>
             <span v-if="scope.row.auditStatus === '3'">审核不通过</span>
+            <span v-if="scope.row.auditStatus === '4'">未提交</span>
           </template>
         </el-table-column>
         <el-table-column property="remark" label="审核意见"></el-table-column>
@@ -204,6 +215,31 @@
       }
     },
     methods: {
+      editBtn(row) {
+        if (!this.isNormal) {
+          return true
+        }
+        if (this.curUser.id === row.userId) {
+          return row.auditStatus === '0' || row.auditStatus === '3' || row.auditStatus === '4'
+        } else {
+          return true
+        }
+      },
+      removeBtn(row) {
+        if (this.curDept.depType === '1' && this.$isViewBtn('129404') && !this.isNormal) {
+          return true
+        } else {
+          if (this.$isViewBtn('129404')) {
+            if (this.curUser.id === row.userId) {
+              return row.auditStatus === '0' || row.auditStatus === '3' || row.auditStatus === '4'
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        }
+      },
       handleCurrentChange(val) {
         this.page = val
         this.query()
@@ -216,7 +252,7 @@
       handleMenuClick(type) {
         this.filters.type = type
         this.active = type
-        this.query()
+        this.query(true)
       },
       uploadFile() {
         const para = {
@@ -253,6 +289,7 @@
           articleType: this.filters.articleType
         }
         para.currentDeptCode = this.curDept.depCode
+        para.depType = this.curDept.depType
         para.personId = this.curUser.id
         para.belongDeptCode = this.filters.belongDepCode
         this.$query('page/knowledgeBase', para).then((response) => {
@@ -267,8 +304,10 @@
       },
       queryTotal() {
         const para = {}
+        para.creationId = this.filters.creationId
         para.currentDeptCode = this.curDept.depCode
         para.personId = this.curUser.id
+        para.depType = this.curDept.depType
         para.belongDeptCode = this.filters.belongDepCode
         this.$query('KnowledgeBaseTotal', para).then((response) => {
           this.totalData.type1 = response.data.totalCount1
@@ -328,6 +367,17 @@
               type: 'success',
               message: '删除成功'
             })
+            if (response.data !== null && response.data !== undefined && response.data.length > 0) {
+              const arr = []
+              for (let i = 0; i < response.data.length; i++) {
+                const item = response.data[i]
+                arr.push(item.newPath)
+                arr.push(item.oldPath)
+              }
+              // 调用删除硬盘附件接口
+              this.$updateFile('/upload/delFile', { files: arr.join(';') }).then(response => {
+              })
+            }
             this.query()
           })
         }).catch(() => {
@@ -493,6 +543,9 @@
           para.departCode = para.belongDepCode
           this.$query('departchildren', para, true).then(response => {
             this.deptList = response.data
+            if (this.filters.belongDepCode !== '') {
+              this.queryDeptUser()
+            }
           })
         }
       },
@@ -510,7 +563,7 @@
         })
       },
       selectable(row, index) {
-        return row.auditStatus !== '2'
+        return row.auditStatus2 === '0' && row.auditStatus !== '4' && this.curDept.depType !== '4'
       }
     },
     mounted() {
@@ -525,6 +578,9 @@
           this.filters = param.filters
         }
         sessionStorage.setItem(this.$route.path, '')
+      }
+      if (this.isNormal) {
+        this.filters.creationId = this.curUser.id
       }
       this.queryDept()
       this.queryTotal()
@@ -601,5 +657,8 @@
   .knowLedgeBase .el-dialog__wrapper.audit_dialog .el-dialog .el-dialog__body{
     padding-left: 40px;
     padding-right: 40px;
+  }
+  .knowLedgeBase .url_text{
+    cursor: pointer;
   }
 </style>

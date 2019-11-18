@@ -102,9 +102,84 @@ export function validateBankCard(rule, value, callback) {
   }
 }
 
-export const regEnCnNumber = /^[A-Za-z0-9\u4e00-\u9fa5]+$/
+/**
+ * 验证身份证号
+ */
+export function validateIdCard(rule, num, callback) {
+  if (rule.required) {
+    if (!num) {
+      return callback(new Error('请输入身份证号码！'))
+    }
+  } else if (!num) {
+    return callback()
+  }
+  num = num.toUpperCase()
+  // 身份证号码为15位或者18位，15位时全为数字，18位前17位为数字，最后一位是校验位，可能为数字或字符X。
+  if (!(/(^\d{15}$)|(^\d{17}([0-9]|X)$)/.test(num))) {
+    // alert('输入的身份证号长度不对，或者号码不符合规定！\n15位号码应全为数字，18位号码末位可以为数字或X。');
+    return callback(new Error('请输入正确的身份证号码！'))
+  }
+  // 校验位按照ISO 7064:1983.MOD 11-2的规定生成，X可以认为是数字10。
+  // 下面分别分析出生日期和校验位
+  var len, re
+  len = num.length
+  if (len === 15) {
+    re = new RegExp(/^(\d{6})(\d{2})(\d{2})(\d{2})(\d{3})$/)
+    var arrSplit = num.match(re)
+    // 检查生日日期是否正确
+    var dtmBirth = new Date('19' + arrSplit[2] + '/' + arrSplit[3] + '/' + arrSplit[4])
+    var bGoodDay
+    bGoodDay = (dtmBirth.getYear() === Number(arrSplit[2])) && ((dtmBirth.getMonth() + 1) === Number(arrSplit[3])) && (dtmBirth.getDate() === Number(arrSplit[4]))
+    if (!bGoodDay) {
+      // alert('输入的身份证号里出生日期不对！')
+      return callback(new Error('请输入正确的身份证号码！'))
+    } else {
+      // 将15位身份证转成18位
+      // 校验位按照ISO 7064:1983.MOD 11-2的规定生成，X可以认为是数字10。
+      var arrInt = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
+      var arrCh = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2']
+      var nTemp = 0
+      num = num.substr(0, 6) + '19' + num.substr(6, num.length - 6)
+      for (var i = 0; i < 17; i++) {
+        nTemp += num.substr(i, 1) * arrInt[i]
+      }
+      num += arrCh[nTemp % 11]
+      return callback()
+    }
+  }
+  if (len === 18) {
+    re = new RegExp(/^(\d{6})(\d{4})(\d{2})(\d{2})(\d{3})([0-9]|X)$/)
+    var arrSplits = num.match(re)
+    // 检查生日日期是否正确
+    var dtmBirths = new Date(arrSplits[2] + '/' + arrSplits[3] + '/' + arrSplits[4])
+    var bGoodDay1
+    bGoodDay1 = (dtmBirths.getFullYear() === Number(arrSplits[2])) && ((dtmBirths.getMonth() + 1) === Number(arrSplits[3])) && (dtmBirths.getDate() === Number(arrSplits[4]))
+    if (!bGoodDay1) {
+      return callback(new Error('请输入正确的身份证号码！'))
+    } else {
+      // 检验18位身份证的校验码是否正确。
+      // 校验位按照ISO 7064:1983.MOD 11-2的规定生成，X可以认为是数字10。
+      var valnum
+      var arrInts = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
+      var arrChs = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2']
+      var nTemps = 0
+      for (var j = 0; j < 17; j++) {
+        nTemps += num.substr(j, 1) * arrInts[j]
+      }
+      valnum = arrChs[nTemps % 11]
+      if (valnum !== num.substr(17, 1)) {
+        // alert('18位身份证的校验码不正确！应该为：' + valnum)
+        return callback(new Error('请输入正确的身份证号码！'))
+      }
+      return callback()
+    }
+  }
+  return callback(new Error('请输入正确的身份证号码！'))
+}
+
+export const regEnCnNumber = /^[A-Za-z0-9\u2E80-\uFE4F]+$/
 export const regNumber = /^\d+(\.\d{1,2})?$/
-export const regCn = /^[\u4e00-\u9fa5]+$/
+export const regCn = /^[\u2E80-\uFE4F]+$/
 export const regEn = /^[A-Za-z]+$/
 export const regEnNumber = /^[A-Za-z0-9]+$/
 export const regCnNumber = /^[0-9\u4e00-\u9fa5]+$/
@@ -115,3 +190,6 @@ export const regAddress = /^(?=.*?[\u4E00-\u9FA5])[\d\u4E00-\u9FA5]+/
 export const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
 export const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
 export const regW = /^\w$/
+export const regCode = /[！@#￥%……&]/
+export const regCnName = /^((?![\u3000-\u303F])[\u2E80-\uFE4F]|\·)*(?![\u3000-\u303F])[\u2E80-\uFE4F](\·)*$/ // 判断是否包含生僻字的中文姓名
+export const regIp = /^(?:(?:1[0-9][0-9]\.)|(?:2[0-4][0-9]\.)|(?:25[0-5]\.)|(?:[1-9][0-9]\.)|(?:[0-9]\.)){3}(?:(?:1[0-9][0-9])|(?:2[0-4][0-9])|(?:25[0-5])|(?:[1-9][0-9])|(?:[0-9]))$/

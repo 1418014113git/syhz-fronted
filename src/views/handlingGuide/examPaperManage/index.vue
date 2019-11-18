@@ -70,8 +70,8 @@
     </el-col>
 
     <!-- 预览试卷 -->
-    <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="70%">
-      <preview-paper :curPaper="curPaperData"></preview-paper>
+    <el-dialog title="试卷预览" :visible.sync="dialogPreviewVisible" size="small" class="previewDia" width="66%">
+      <preview-paper :curPaper="curPaperData" :curPaperName='curPaperName'></preview-paper>
     </el-dialog>
   </section>
 </template>
@@ -91,6 +91,7 @@ export default {
         endTime: '', // 创建时间 结束
         paperStatus: '' // 发布状态
       },
+      curPaperName: '', // 存储当前被点击的试卷的试卷名称
       deptCode: JSON.parse(sessionStorage.getItem('depToken'))[0].depCode, // 当前部门code
       total: 0,
       page: 1,
@@ -245,6 +246,7 @@ export default {
         this.listLoading = false
         if (response.code === '000000') {
           var data = response.data
+          this.curPaperName = response.data.paperName
           this.dialogPreviewVisible = true
           this.dealData(data)
         }
@@ -355,7 +357,7 @@ export default {
 }
  .previewDia {
     .el-dialog {
-      background: #ffffff;
+      background: #c7eece;
       border: 2px solid #00a0e9;
     }
     .el-dialog__header {
@@ -368,8 +370,10 @@ export default {
       }
     }
     .el-dialog__body {
-      background: #ffffff;
+      background: #c7eece;
       color: #000000;
+      max-height: 75vh !important;
+      overflow: auto;
     }
   }
 </style>

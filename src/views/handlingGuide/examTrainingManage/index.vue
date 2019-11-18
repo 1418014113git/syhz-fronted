@@ -14,9 +14,9 @@
       </el-form-item>
     </el-form>
     <!--列表-->
-    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="statisticCollect table_th_center">
       <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
-      <el-table-column prop="examinationName" label="考试" show-overflow-tooltip class="tabC">
+      <el-table-column prop="examinationName" label="考试" show-overflow-tooltip class="tabC" min-width="200">
         <template slot-scope="scope">
           <span v-if="currentExamType==='1'" class="canClick" @click="handleExamRecord(scope.row)">{{scope.row.examinationName}}</span>
           <span v-else>{{scope.row.examinationName}}</span>
@@ -39,6 +39,11 @@
           <span v-if="scope.row.status">否</span>
           <el-button size="mini" circle v-else-if="scope.row.examinationCount < scope.row.permitNumber" @click="handleStartExam(scope.$index, scope.row)" icon="el-icon-caret-right" title="开始考试"></el-button>
           <span v-else>否</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="100" align="center" v-if="currentExamType==='1'" :key=Math.random()>
+        <template slot-scope="scope">
+          <el-button size="mini" circle @click="handleExamRecord(scope.row)" icon="el-icon-document" title="查看考试"></el-button>
         </template>
       </el-table-column>
       <el-table-column prop="date" label="考试时间" width="400" align="center" v-if="currentExamType==='2'" :key=Math.random()>
@@ -209,11 +214,19 @@ export default {
     },
     handleCurrentChange(val) { // 分页查询
       this.page = val
-      this.queryList(false, true)
+      if (this.currentExamType === '1') {
+        this.queryList(false, true)
+      } else if (this.currentExamType === '2') {
+        this.queryListNewExam(false, true)
+      }
     },
     handleSizeChange(val) { // 分条查询
       this.pageSize = val
-      this.queryList(true, true)
+      if (this.currentExamType === '1') {
+        this.queryList(true, true)
+      } else if (this.currentExamType === '2') {
+        this.queryListNewExam(true, true)
+      }
     },
     handleDetail(index, row) { // 详情
       this.$router.push({ path: '/handlingGuide/examineManage/detail', query: { examId: row.id }})

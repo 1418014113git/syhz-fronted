@@ -22,7 +22,7 @@
             <info-supplement class="marb xxbc" :info="ajInfo" :ajbh="AJBH"></info-supplement>
             <bz-push class="marb bzts" :ajbh="AJBH"></bz-push>
             <receive-police class="marb bg jcj" :ajbh="AJBH"></receive-police>
-            <clues-associate class="marb xsgl" :info="ajInfo" :ajbh="AJBH"></clues-associate>
+            <!--<clues-associate class="marb xsgl" :info="ajInfo" :ajbh="AJBH"></clues-associate>-->
             <spyon-cooperation class="marb zcxz" :ajbh="AJBH"  :ajid="AJID" :type="interfaceType" :Rl="isRl"></spyon-cooperation>
             <aj-parallel class="marb bg ajcb" :ajbh="AJBH"></aj-parallel>
           </div>
@@ -43,7 +43,7 @@ import RelationMesh from './components/relationMesh' // 右侧--关系挖掘
 import InfoSupplement from './components/infoSupplement' // 信息补采
 import BzPush from './components/bzPush' // 右侧--比中推送
 import ReceivePolice from './components/receivePolice' // 接处警
-import CluesAssociate from './components/cluesAssociate' // 线索关联
+// import CluesAssociate from './components/cluesAssociate' // 线索关联
 import SpyonCooperation from './components/spyonCooperation' // 侦查协作
 import AjParallel from './components/ajParallel' // 案件串并
 
@@ -64,7 +64,7 @@ export default {
         'xxbc', // 信息补采
         'bzts', // 比中推送
         'jcj', // 接处警
-        'xsgl', // 线索关联
+        // 'xsgl', // 线索关联
         'zcxz', // 侦查协作
         'ajcb' // 案件串并
       ],
@@ -86,7 +86,7 @@ export default {
     FaAddress,
     InfoSupplement,
     ReceivePolice,
-    CluesAssociate,
+    // CluesAssociate,
     SpyonCooperation,
     BzPush,
     AjParallel

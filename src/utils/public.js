@@ -5,9 +5,9 @@ export function getDictName(value, dictType) {
   var dict
   var result = ''
   // dict = this.$store.state.dictionary.dict
-  dict = JSON.parse(localStorage.getItem('dictdata'))
+  dict = JSON.parse(sessionStorage.getItem('dictdata'))
   if (!dict[dictType]) {
-    console.log('找不到字典类型：' + dictType)
+    // console.log('找不到字典类型：' + dictType)
   } else {
     dict[dictType].forEach(item => {
       if (item.dictKey === value) {
@@ -112,9 +112,9 @@ export function getFacilitator(param) {
 export function getDicts(dictType) {
   var dict
   // dict = this.$store.state.dictionary.dict
-  dict = JSON.parse(localStorage.getItem('dictdata'))
+  dict = JSON.parse(sessionStorage.getItem('dictdata'))
   if (!dict[dictType]) {
-    console.log('找不到字典类型：' + dictType)
+    // console.log('找不到字典类型：' + dictType)
     return []
   }
   return dict[dictType]
@@ -505,6 +505,7 @@ export function setCurrentUser(param) {
   param.areaCode = curDept.areaCode
   param.belongDepCode = curDept.depCode
   param.belongDepName = curDept.depName
+  param.depType = curDept.depType
   return param
 }
 

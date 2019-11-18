@@ -91,14 +91,16 @@ export default {
           this.$router.push({
             path: '/specialTasks'
           })
-        } else if (node.type === '0010') {
+        } else if (node.type === '9010') {
           this.$router.push({
             path: '/handlingGuide/knowLedgeBase'
           })
-        } else if (node.type === '0011') {
+        } else if (node.type === '9011') {
           this.$router.push({
             path: '/micro/trainMaterial'
           })
+        } else if (node.type === '0010') {
+          this.$gotoid('/notice/index', JSON.stringify({ messageStatus: '1' }))
         } else {
           this.$router.push({
             path: '/workflow/index/' + node.type
@@ -122,6 +124,9 @@ export default {
           this.$router.push({
             path: '/specialTasks', query: {}
           })
+        }
+        if (node.business_type === '9012') {
+          this.$gotoid('/notice/index', JSON.stringify({ signStatus: '1' }))
         }
       }
       if (index === 2) {
@@ -161,6 +166,17 @@ export default {
               this.listData[1].data.push(data)
             }
           }
+        }
+        if (this.$isViewBtn('149007')) {
+          const curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+          this.$query('basemessagesigncount/' + curDept.id, {}).then(response => {
+            const item = response.data
+            if (item.num > 0) {
+              this.listData[1].data.push({
+                data_op: '站内通知签收待办', num: item.num, business_type: '9012'
+              })
+            }
+          })
         }
       })
     },
@@ -218,6 +234,12 @@ export default {
               if (data.wd_type === '0009') {
                 text = '无文书待审核'
               }
+              if (data.wd_type === '0010') {
+                if (!this.$isViewBtn('149005')) {
+                  continue
+                }
+                text = '站内通知审核待办'
+              }
               this.listData[0].data.push({
                 data_op: text, num: data.num, type: data.wd_type
               })
@@ -225,13 +247,13 @@ export default {
           }
           for (let j = 0; j < res.data.length; j++) {
             const item = res.data[j]
-            if (item.type === 1) {
+            if (item.type === 1 && this.$isViewBtn('129405')) {
               this.listData[0].data.push({
-                data_op: '知识库待审核', num: item.count, type: '0010'
+                data_op: '知识库待审核', num: item.count, type: '9010'
               })
-            } else if (item.type === 2) {
+            } else if (item.type === 2 && this.$isViewBtn('139010')) {
               this.listData[0].data.push({
-                data_op: '培训资料待审核', num: item.count, type: '0011'
+                data_op: '培训资料待审核', num: item.count, type: '9011'
               })
             }
           }

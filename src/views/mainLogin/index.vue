@@ -1,5 +1,12 @@
 <template>
   <div class="login-container">
+    <div class="slideshow" :style="{height:imgHeights}">
+      <transition-group name="fadeIn" tag="ul" >
+        <li v-for='(image,index) in imgList' :key='index' v-show='index===mark' class="bannerImg" >
+					 <img :src="'/static/image/login_images/'+loginImgStyle"  :style="{height:imgHeights}"/>
+				</li>
+      </transition-group>
+    </div>
     <!--下载提示层上方的标题 -->
     <div class="TopTitBox" v-show="isShowTopTit">
       <img class="loginbgtit"  src="/static/image/login_images/logo.png" alt="">
@@ -16,14 +23,14 @@
               <svg-icon icon-class="user" />
             </span>
             <span class="inputtext">用户名</span>
-            <el-input name="username" type="text" v-model="loginForm.username" autoComplete="off" placeholder=""  @keyup.enter.native="handleLogin" clearable/>
+            <el-input name="username" type="text" v-model.trim="loginForm.username" autoComplete="off" placeholder=""  @keyup.enter.native="handleLogin" clearable/>
           </el-form-item>
           <el-form-item prop="password" class="password">
             <span class="svg-container svg-container_key">
               <svg-icon icon-class="key"></svg-icon>
             </span>
             <span class="inputtext">密&nbsp;&nbsp;&nbsp;码</span>
-            <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
+            <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin"  v-model.trim="loginForm.password" autoComplete="on"
               placeholder="" clearable></el-input>
           </el-form-item>
 
@@ -37,13 +44,6 @@
               </span>
             </div>
         </el-form>
-         <div class="slideshow"> <!--背景左侧图片轮播 -->
-          <el-carousel :interval="5000" indicator-position="none" arrow="never">
-            <el-carousel-item v-for="(item,index) in imgList" :key="index">
-              <img :src="'/static/image/login_images/'+item" class="bannerImg"/>
-            </el-carousel-item>
-          </el-carousel>
-        </div>
       </div>
 
     </div>
@@ -76,14 +76,14 @@
           <div class="disflex">
             <img class="download" src="/static/image/login_images/google.png" alt="">
             <p class="tipContText">
-              <span>谷歌浏览器</span>
+              <span style="color:#333;">谷歌浏览器</span>
               <span class="clickDown" @click="downloadBrowser">(点击下载)</span>
             </p>
           </div>
           <div class="disflex">
             <img class="user_guide" src="/static/image/login_images/user_guide.png" alt="">
             <p class="tipContText">
-              <span>使用手册</span>
+              <span style="color:#333;">使用手册</span>
               <span class="clickDown"  @click="downloadManual" >(点击下载)</span>
             </p>
           </div>
@@ -91,15 +91,6 @@
         <div class="closeBtn" @click="close">关闭</div>
       </div>
       <input id="input" v-model="inputData" style="display:none;">
-
-    <div class="slideshows">
-      <el-carousel :interval="3000" indicator-position="none" arrow="never">
-        <el-carousel-item v-for="(item,index) in imgList" :key="index">
-          <img :src="'/static/image/login_images/'+item" class="bannerImg"/>
-        </el-carousel-item>
-      </el-carousel>
-    </div>
-
     </div>
     <!-- <div id="tipImg" style="position:absolute; cursor: pointer;" @mouseenter="floatOver()" @mouseleave="floatOut()" @click="floatTipShow">
       <img src="/static/image/login_images/tipmsg.jpg" border="0">
@@ -109,8 +100,6 @@
         <float-tip-msg></float-tip-msg>
       </el-dialog>
     </div> -->
-    <!--背景左侧图片轮播 -->
-
   </div>
 </template>
 
@@ -189,7 +178,13 @@ export default {
         obj: {}
       },
       itl: '',
-      imgList: ['bmy.png', 'zl.png', 'pb.png', 'spyp.png', 'yp.png']
+      imgList: ['bmy.jpg', 'jsx.jpg', 'dyt.jpg', 'sp.jpg', 'pb.jpg', 'yp.jpg', 'bts.jpg', 'qlsb.jpg'],
+      currImgs: [],
+      index: 0,
+      loginImgStyle: 'bmy.jpg',
+      cur: 0,
+      mark: 0,
+      imgHeights: document.documentElement.clientHeight + 'px'
     }
   },
   methods: {
@@ -224,31 +219,34 @@ export default {
       })
     },
     addJF() {
-      // 0登陆 1学习资料 2资料上传 3资料下载 4学习时长
-      const config = JSON.parse(sessionStorage.getItem('config'))
-      const currentTypeConfig = config['ruleType0']
-      const param = this.$setCurrentUser({})
-      const para = {
-        belongSys: '', // 0知识库 1网上培训
-        belongMode: '',
-        belongType: '',
-        tableId: '',
-        branch: currentTypeConfig.oneNumber,
-        maxBranch: currentTypeConfig.maxNumber,
-        fractionType: '0',
-        fractionReckon: '0',
-        fractionTime: this.$parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}'),
-        fractionUserId: param.creationId,
-        fractionUserName: param.creationName,
-        fractionAreaCode: param.areaCode,
-        fractionDeptCode: param.belongDepCode,
-        fractionDeptName: param.belongDepName,
-        creationId: param.creationId,
-        creationName: param.creationName,
-        remark: '获得积分'
+      const data = JSON.parse(sessionStorage.getItem('depToken'))
+      if (data !== undefined && data !== null && data.length > 0) {
+        // 0登陆 1学习资料 2资料上传 3资料下载 4学习时长
+        const config = JSON.parse(sessionStorage.getItem('config'))
+        const currentTypeConfig = config['ruleType0']
+        const param = this.$setCurrentUser({})
+        const para = {
+          belongSys: '', // 0知识库 1网上培训
+          belongMode: '',
+          belongType: '',
+          tableId: '',
+          branch: currentTypeConfig.oneNumber,
+          maxBranch: currentTypeConfig.maxNumber,
+          fractionType: '0',
+          fractionReckon: '0',
+          fractionTime: this.$parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}'),
+          fractionUserId: param.creationId,
+          fractionUserName: param.creationName,
+          fractionAreaCode: param.areaCode,
+          fractionDeptCode: param.belongDepCode,
+          fractionDeptName: param.belongDepName,
+          creationId: param.creationId,
+          creationName: param.creationName,
+          remark: '获得积分'
+        }
+        this.$save('trainFraction', para).then(response => {
+        })
       }
-      this.$save('trainFraction', para).then(response => {
-      })
     },
     // PKI登录
     pkiLogin() {
@@ -407,10 +405,28 @@ export default {
     },
     floatTipShow() {
       this.tipShow = true
+    },
+    autoPlay() {
+      if (this.mark < this.imgList.length - 1) {
+        this.mark++
+      } else {
+        this.mark = 0
+      }
+      this.loginImgStyle = this.imgList[this.mark]
+    },
+    play() {
+      setInterval(this.autoPlay, 3000)
     }
+  },
+  created() {
+    this.play()
   },
   mounted() {
     this.tipMsg.obj = document.getElementById('tipImg')
+    this.loginForm = {
+      username: '',
+      password: ''
+    }
     // this.floatOut()
   }
 }
@@ -420,7 +436,6 @@ export default {
 /* reset element-ui css */
 .login-container {
   .el-input {
-    // display: inline-block;
     width: 65%;
     input {
       background: transparent;
@@ -429,7 +444,6 @@ export default {
       border-radius: 0px;
       height: 45px;
       line-height: 45px;
-      // padding: 12px 5px 12px 15px;
       &:-webkit-autofill {
         -webkit-box-shadow: 0 0 0px 1000px #2d3a4b inset !important;
         -webkit-text-fill-color: #fff !important;
@@ -484,10 +498,9 @@ export default {
 </style>
 <style rel="stylesheet/scss" lang="scss">
 .login-container {
-  height: 100%;
   width: 100%;
-  background: url(/static/image/login_images/loginbg.jpg) no-repeat center
-    center;
+   height: 100%;
+  background: url(/static/image/login_images/loginbg.jpg) no-repeat center center;
   background-size: 100% 100%;
   overflow: hidden;
   .login-box {
@@ -501,8 +514,10 @@ export default {
     }
     .loginbgtit {
       width: 73%;
-      margin: 4% 0 0 0;
+      // margin: 4% 0 0 0;
       padding-left: 50px;
+      position: absolute;
+      top:4%;
     }
     .login-form {
       width: 21%;
@@ -576,12 +591,11 @@ export default {
     width: 95%;
     margin: 0 auto;
     overflow: hidden;
-    // .loginbglog {
-    //   width: 16%;
-    // }
     .loginbgtit {
-      width: 75%;
-      margin: 4% 0 0 0;
+      width: 70.5%;
+      padding-left: 2px;
+      position: absolute;
+      top:4%;
     }
   }
   .footer {
@@ -781,43 +795,29 @@ export default {
 
  .slideshow{
     width: 100%;
-    margin-top: -5%;
-    .el-carousel__container {
-      height: 800px;
-    }
     img{
       width: 100%;
-      height: 115%;
+      height: 100%;
     }
   }
-  .slideshows{
-    width: 100%;
-    margin-top: -1%;
-    position: absolute;
-    .el-carousel__container {
-      height: 800px;
-    }
-    img{
-      width: 100%;
-      height: 115%;
-    }
-  }
+
 @media only screen and (max-width: 1367px) {
-  .login-container .login-box .loginbgtit {
-    width: 69%;
-  }
-  .slideshow img,.slideshows img{
-    width: 79%;
-    height: 79%;
+  .login-container .tipMask .tipBox .tipCont .download {
+    width: 50px;
+    height: 50px;
   }
   .login-container .login-box .login-form {
     margin: 10% 0 0 0;
   }
-}
-@media screen and (min-width: 1920px) {
-  .slideshow img,.slideshows img{
-    width: 80%;
+  .login-container .tipMask .tipBox .tipCont {
+    width: 78%;
   }
-
+  .login-container .tipMask .tipBox .tipCont .user_guide {
+    width: 44px;
+    height: 50px;
+  }
+  .login-container .TopTitBox .loginbgtit {
+    padding-left: 16px;
+  }
 }
 </style>

@@ -275,24 +275,24 @@ export default {
         'url': '/inforCollection/personblackList',
         'info': '用于违法个人信息列表'
       },
-      {
-        'name': '新谷查询',
-        'mk': '信息查询',
-        'url': 'http://znjs.gat.nm',
-        'info': '用于新谷查询'
-      },
-      {
-        'name': '业务查询',
-        'mk': '信息查询',
-        'url': 'http://znjs.gat.nm',
-        'info': '用于业务查询'
-      },
-      {
-        'name': '关联查询',
-        'mk': '信息查询',
-        'url': 'http://znjs.gat.nm',
-        'info': '用于关联查询'
-      },
+      // {
+      //   'name': '新谷查询',
+      //   'mk': '信息查询',
+      //   'url': 'http://znjs.gat.nm',
+      //   'info': '用于新谷查询'
+      // },
+      // {
+      //   'name': '业务查询',
+      //   'mk': '信息查询',
+      //   'url': 'http://znjs.gat.nm',
+      //   'info': '用于业务查询'
+      // },
+      // {
+      //   'name': '关联查询',
+      //   'mk': '信息查询',
+      //   'url': 'http://znjs.gat.nm',
+      //   'info': '用于关联查询'
+      // },
       {
         'name': '案件档案',
         'mk': '电子档案',
@@ -329,24 +329,24 @@ export default {
         'url': '/warlyWarn/special',
         'info': '用于专题案件模型'
       },
-      {
-        'name': '从案到人分析',
-        'mk': '人案关系挖掘',
-        'url': 'http://znjs.gat.nm',
-        'info': '用于从案到人分析'
-      },
-      {
-        'name': '从人到案分析',
-        'mk': '人案关系挖掘',
-        'url': 'http://znjs.gat.nm',
-        'info': '用于从人到案分析'
-      },
-      {
-        'name': '人案关联引擎',
-        'mk': '人案关系挖掘',
-        'url': 'http://znjs.gat.nm',
-        'info': '用于人案关联引擎'
-      },
+      // {
+      //   'name': '从案到人分析',
+      //   'mk': '人案关系挖掘',
+      //   'url': 'http://znjs.gat.nm',
+      //   'info': '用于从案到人分析'
+      // },
+      // {
+      //   'name': '从人到案分析',
+      //   'mk': '人案关系挖掘',
+      //   'url': 'http://znjs.gat.nm',
+      //   'info': '用于从人到案分析'
+      // },
+      // {
+      //   'name': '人案关联引擎',
+      //   'mk': '人案关系挖掘',
+      //   'url': 'http://znjs.gat.nm',
+      //   'info': '用于人案关联引擎'
+      // },
       {
         'name': '检验鉴定列表',
         'mk': '检验鉴定',

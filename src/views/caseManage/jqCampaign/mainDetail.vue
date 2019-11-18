@@ -1,0 +1,243 @@
+<template>
+<!-- 集群战役详情 -->
+  <div class="mainDetail">
+    <el-row>
+      <img src="@/assets/icon/back.png" class="goBack" @click="toback">   <!--返回-->
+    </el-row>
+     <div class="personnelFile">
+     <el-row>
+       <!-- 左侧导航区 -->
+        <el-col class="leftCont" :span="3" :style="{height:countHeight}">
+          <left-nav class="bg"  :id="id"></left-nav>
+        </el-col>
+        <!-- 右侧内容区 -->
+        <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
+          <div class="rightContDoc" ref="rightContDoc">
+            <base-info class="marb bg jbxx" :id="id" :info="baseInfo"></base-info>
+            <verify-info class="marb bg shxx" :id="id" :info="baseInfo"></verify-info>
+            <area-sign class="marb bg dsqs" :id="id" v-if="isShow"></area-sign>
+            <area-back class="marb bg dsfk" :id="id" v-if="isShow"></area-back>
+            <county-sign class="marb bg qxqs" :id="id" v-if="!isShow"></county-sign>
+            <county-back class="marb bg qxfk" :id="id" v-if="!isShow"></county-back>
+          </div>
+        </el-col>
+     </el-row>
+  </div>
+  </div>
+</template>
+
+<script>
+import LeftNav from './components/leftNav' // 左侧菜单
+import BaseInfo from './components/baseInfo' // 右侧--基本信息
+import VerifyInfo from './components/verifyInfo' // 右侧--审核信息
+import AreaSign from './components/areaSign' // 右侧--地市签收
+import AreaBack from './components/areaBack' // 右侧--地市反馈
+import CountySign from './components/countySign' // 右侧--区县签收
+import CountyBack from './components/countyBack' // 右侧--区县反馈
+import $ from 'jquery'
+export default {
+  name: 'personnelFile',
+  data() {
+    return {
+      countHeight: document.documentElement.clientHeight - 130 + 'px',
+      classList: ['jbxx', 'shxx', 'dsqs', 'dsfk', 'qxqs', 'qxfk'],
+      curUser: {}, // sessionStorage获取用户信息
+      curDept: {}, // sessionStorage获取机构信息
+      isShow: false,
+      id: '',
+      baseInfo: {}
+    }
+  },
+  components: {
+    LeftNav,
+    BaseInfo,
+    VerifyInfo,
+    AreaSign,
+    AreaBack,
+    CountySign,
+    CountyBack
+  },
+  computed: {
+    getIstotop() {
+      return this.$store.state.app.personeltotop
+    },
+    getUserIcons() {
+      return this.$store.state.app.istotop
+    }
+  },
+  watch: {
+    getIstotop(val) {
+      // 监听state状态变化
+      this.jump(val)
+    },
+    getUserIcons(val) { // 监听state状态变化
+      if (val === 1 && document.querySelector('.rightCont').scrollTop > 0) {
+        document.querySelector('.rightCont').scrollTop = 0
+      }
+    }
+  },
+  methods: {
+    detail(id) { // 查询详情
+      this.$query('casecluster/' + id, {}).then((response) => {
+        this.id = id
+        this.baseInfo = response.data
+      }).catch(() => {
+      })
+    },
+    jump(val) {
+      var total = document.querySelector('.' + val).offsetTop
+      $('.rightCont').animate({ scrollTop: total }, 0)
+    },
+    toback() {
+      // this.$router.back(-1)
+      this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
+    },
+    // 监听滚动条变化
+    handleScroll() {
+      var documentHeight = this.$refs.rightContDoc.offsetHeight
+      var difference = documentHeight - (document.documentElement.clientHeight - 130)
+      if (document.querySelector('.rightCont').scrollTop > 0) { // 如何滚动条顶部距离>0,则将状态ToTop初始化为0
+        this.$store.dispatch('ToTop', 0)
+      }
+      for (var i = 0; i < this.classList.length - 1; i++) {
+        if (document.querySelector('.rightCont').scrollTop === 0) {
+          this.$store.dispatch('MouleClass', this.classList[0])
+        } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 10 && document.querySelector('.rightCont').scrollTop < difference) {
+          this.$store.dispatch('MouleClass', this.classList[i])
+        } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
+          console.log('到底了')
+          this.$store.dispatch('MouleClass', this.classList[4])
+        }
+      }
+    }
+  },
+  created() {
+    if (this.$route.query.id) {
+      this.detail(this.$route.query.id)
+    }
+  },
+  mounted() {
+    const _this = this
+    document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
+    if (sessionStorage.getItem('depToken')) {
+      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+      if (this.curDept.depType === '-1' || this.curDept.depType === '1' || this.curDept.depType === '2') { // 省 总队 支队
+        this.navList = this.navList1
+        this.isShow = true
+      } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
+        this.navList = this.navList2
+        this.isShow = false
+      }
+    }
+  },
+  activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
+    // if (this.$route.query.id) {
+    //   this.id = this.$route.query.id
+    // }
+    // document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
+  }
+}
+</script>
+<style rel="stylesheet/scss" lang="scss">
+.leftCont {
+  width: 11.8%;
+  margin-right: 10px;
+}
+.rightCont {
+  overflow: auto;
+}
+.marb {
+  margin-bottom: 20px;
+}
+.bg {
+ background-color: rgba(0, 64, 94, 0.7);
+}
+.cell_title {
+  margin: 0 0 10px 5px;
+  .text {
+    // display: inline-block;
+    line-height: 20px;
+    color: #bce8fc;
+    text-shadow: 0 0 2px #fff;
+    margin-left: 3px;
+  }
+  .small_line {
+    display: inline-block;
+    width: 8px;
+    height: 20px;
+    background: #00a0e9;
+    border-radius: 3px;
+    vertical-align: middle;
+  }
+}
+.archiveTab.el-tabs {
+  border: none;
+  background: none;
+  .el-tabs__header {
+    background: url(/static/image/personFile_images/titlePub.png) no-repeat
+      center center;
+    background-size: 100% 65%;
+    margin: 0;
+  }
+  .el-tabs__nav-scroll {
+    padding: 6px 18px 16px 5px;
+  }
+  .el-tabs__nav-wrap::after {
+    // 去掉tab自带的下划线
+    height: 0;
+  }
+  .el-tabs__active-bar {
+    height: 0;
+  }
+  .el-tabs__item {
+    padding: 0 20px;
+    height: 20px;
+    line-height: 20px;
+  }
+  .el-tabs__item.is-top:last-child {
+    padding-right: 20px;
+  }
+  .el-tabs__item.is-active {
+    color: #bce8fc;
+    text-shadow: 0 0 2px #fff;
+    .no_data_title {
+      color: #bce8fc;
+      text-shadow: 0 0 2px #fff;
+    }
+  }
+  .el-tabs__item {
+    color: #00a0e9;
+  }
+  .tab_title_line {
+    // taba页签右边的斜线
+    width: 26px;
+    position: absolute;
+    right: -10px;
+    top: -1px;
+  }
+}
+.goBack {
+  margin: 0 10px 5px 0;
+}
+.toolbar {
+  margin: 2px 0 0 !important;
+}
+ .rightCont {
+    // width: 83.3%;
+  }
+.pubStyle{
+  border: 2px solid rgb(0, 160, 233);
+  border-radius: 6px;
+  padding: 0 12px 0 8px;
+}
+
+@media only screen and (max-width: 1367px) {
+  .leftCont {
+    // width: 17.5%;
+  }
+  .rightCont {
+    // width: 80%;
+  }
+}
+</style>
+
