@@ -95,9 +95,9 @@
           </el-form-item>
         </el-col>
         <el-col :span="24" align="center" style="margin-bottom:10px;">
-          <el-button size="mini" @click="handleSave('1','dbBatchForm')" class="saveBtn" :loading="formLoading" style="margin-left:20px;">保存</el-button>
+          <el-button size="mini" @click="handleSave('0','dbBatchForm')" class="saveBtn" :loading="formLoading">保存</el-button>
           <el-button size="mini" @click="cancel()" class="cancelBtn" :loading="formLoading">取消</el-button>
-          <el-button size="mini" @click="handleSave('2','dbBatchForm')" class="saveBtn" :loading="formLoading" style="margin-left:20px;">发布</el-button>
+          <el-button size="mini" @click="handleSave('1','dbBatchForm')" class="saveBtn" :loading="formLoading">发布</el-button>
         </el-col>
       </el-form>
       <!-- </el-row> -->
@@ -286,6 +286,47 @@ export default {
         // return false
       }
     },
+    init() {
+      // 盟市
+      // this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
+      //   if (response.code === '000000') {
+      //     this.administrativeData = response.data ? response.data : []
+      //     if (this.carryParam.deptId) {
+      //       // 列表进来的
+      //     } else {
+      //       // 首页进来的
+      //       this.carryParam.deptId = this.deptInfo.id // 将当前机构的id 放到 this.carryParam.deptId
+      //     }
+      this.queryDetailById() // 查详情
+      //   }
+      // })
+    },
+    queryDetailById() { // 通过id查询详情
+      this.formLoading = true
+      this.$query('casesupervisebatch/' + this.carryParam.dbBatchId, {}).then((response) => {
+        this.formLoading = false
+        if (response.code === '000000') {
+          this.dbBatchForm = response.data
+          this.choosedCases = this.dbBatchForm.caseList // 督办案件列表
+          if (this.dbBatchForm.superviseLevel) { // 督办级别
+            this.dbBatchForm.superviseLevel = this.dbBatchForm.superviseLevel + ''
+          }
+          this.superviseLevelChange(this.dbBatchForm.superviseLevel)
+          // 附件
+          for (let i = 0; i < response.data.attachment.length; i++) { // 附件
+            this.uploadFiles = [] // 先清空掉该数组
+            var files = response.data.attachment.split('|')
+            for (let index = 0; index < files.length; index++) {
+              var element = files[index]
+              element = JSON.parse(element)
+              this.uploadFiles.push(element)
+            }
+          }
+        }
+      }).catch(() => {
+        this.formLoading = false
+      })
+    },
     levelVisibleChange(val) {
       // if (val) {
       //   this.$confirm('调整督办级别会清空已选督办案件，是否继续调整？', '提示', {
@@ -302,7 +343,7 @@ export default {
     superviseLevelChange(val) { // 督办级别change
       // console.log(event)
       // this.beforeStorageValue = this.dbBatchForm.superviseLevel
-      if (this.deptInfo.depType === '1' || this.deptInfo.depType === '-1') {
+      if (this.deptInfo.depType === '1' || this.deptInfo.depType === '-1') { // 厅或者总队
         if (val) {
           this.$confirm('调整督办级别会清空已选督办案件，是否继续调整？', '提示', {
             confirmButtonText: '确定',
@@ -329,13 +370,18 @@ export default {
       // }
       // this.caseLoading = true
       this.$query('casesuperviseselect', {
+        batchId: this.carryParam.dbBatchId || '',
         superviseLevel: this.dbBatchForm.superviseLevel, // 督办级别
         departCode: this.deptInfo.depCode
       }).then((response) => {
         // this.caseLoading = false
         this.dbAjData = response.data
+        for (let index = 0; index < response.data.length; index++) {
+          const element = response.data[index]
+          element.customFiled = element.ajmc + '-' + element.ajbh + '-' + element.jyaq
+        }
         this.dbAjDataAll = response.data
-        // console.log(this.dbAjData)
+        console.log(this.dbAjData)
       }).catch(() => {
         this.caseLoading = false
       })
@@ -343,16 +389,11 @@ export default {
     filterDbCase(query, item) { // 督办案件的 自定义选择方法
       // 下拉支持关键字检索案，包括案件名称、案件编号、简要案情
       if (query) {
-        if (item) {
-          this.dbAjData = this.dbAjDataAll.filter((item) => {
-            if (item.ajmc.indexOf(query) > -1) {
-              return true
-              // return item.ajmc.indexOf(query) > -1
-            }
-          })
-        } else {
-          this.dbAjData = this.dbAjDataAll
-        }
+        this.dbAjData = this.dbAjDataAll.filter((item) => {
+          if (item.customFiled.indexOf(query) > -1) {
+            return true
+          }
+        })
       } else {
         this.dbAjData = this.dbAjDataAll
       }
@@ -361,25 +402,25 @@ export default {
 
     },
     addDbCaseList() { // 加入列表
+      // this.oneCase  当前选中的案件
       // 判断是否 在下面列表是否存在 若存在 则不push
-      for (const id in this.choosedCases) {
-        if (this.choosedCases.hasOwnProperty(id)) {
-          const element = this.choosedCases[id]
-          if (element === this.oneCase.id) {
+      if (this.choosedCases && this.choosedCases.length > 0) {
+        for (let m = 0; m < this.choosedCases.length; m++) {
+          const item = this.choosedCases[m]
+          if (item.id === this.oneCase.id) {
             this.$message({
               message: '该案件已加入该批次',
               type: 'error'
             })
             return false
-          } else {
-            // 将选中的案件 完整数据 保存到 choosedCases数组中
-            for (let index = 0; index < this.dbAjData.length; index++) {
-              const element = this.dbAjData[index]
-              if (element.id === this.oneCase.id) {
-                this.choosedCases.push(element)
-              }
-            }
           }
+        }
+      }
+      // 将选中的案件 完整数据 保存到 choosedCases数组中
+      for (let index = 0; index < this.dbAjData.length; index++) {
+        const element = this.dbAjData[index]
+        if (element.id === this.oneCase.id) {
+          this.choosedCases.push(element)
         }
       }
     },
@@ -398,7 +439,7 @@ export default {
         for (let index = 0; index < this.choosedCases.length; index++) {
           const element = this.choosedCases[index]
           if (element.id === row.id) {
-            this.choosedCases.splice(element)
+            this.choosedCases.splice(index, 1)
           }
         }
       }).catch(() => {
@@ -422,36 +463,6 @@ export default {
       } else {
         this.dbBatchForm.areaName = ''
       }
-    },
-    init() {
-      // 盟市
-      // this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
-      //   if (response.code === '000000') {
-      //     this.administrativeData = response.data ? response.data : []
-      //     if (this.carryParam.deptId) {
-      //       // 列表进来的
-      //     } else {
-      //       // 首页进来的
-      //       this.carryParam.deptId = this.deptInfo.id // 将当前机构的id 放到 this.carryParam.deptId
-      //     }
-      this.queryDetailById() // 查详情
-      //   }
-      // })
-    },
-    queryDetailById() { // 通过id查询详情
-      this.formLoading = true
-      this.$query('casesupervisebatch/' + this.carryParam.dbBatchId, {}).then((response) => {
-        this.formLoading = false
-        if (response.code === '000000') {
-          this.dbBatchForm = response.data
-          this.choosedCases = this.dbBatchForm.caseList // 督办案件列表
-          if (this.dbBatchForm.superviseLevel) { // 督办级别
-            this.dbBatchForm.superviseLevel = this.dbBatchForm.superviseLevel + ''
-          }
-        }
-      }).catch(() => {
-        this.formLoading = false
-      })
     },
     startDateChange(val) { // 开始日期
       if (val) {
@@ -504,16 +515,17 @@ export default {
       return iDays
     },
     cancel() { // 取消
-      this.$confirm('是否要放弃编辑机构信息', '提示', {
-        confirmButtonText: '是',
-        cancelButtonText: '否',
-        type: 'warning'
-      }).then(() => {
-        // 跳转到详情画面
-        this.$router.push({ path: '/basicService/deptInfo/detail', query: { deptId: this.carryParam.deptId }})
-      }).catch(() => {
-        // 留在编辑页面
-      })
+      this.$router.push({ path: '/caseManage/db/batchList' })
+      // this.$confirm('是否要放弃编辑督办批次信息', '提示', {
+      //   confirmButtonText: '是',
+      //   cancelButtonText: '否',
+      //   type: 'warning'
+      // }).then(() => {
+      //   // 跳转到详情画面
+      //   this.$router.push({ path: '/basicService/deptInfo/detail', query: { deptId: this.carryParam.deptId }})
+      // }).catch(() => {
+      //   // 留在编辑页面
+      // })
     },
     handleSave(type, formName) {
       this.$refs[formName].validate(valid => {
@@ -524,7 +536,7 @@ export default {
           param.departName = this.deptInfo.depName // 部门名称
           param.userId = this.userInfo.id // 用户id
           param.userName = this.userInfo.realName // 用户姓名
-          param.status = type // 1保存，2发布
+          param.status = type // 0保存，1发布
           var caseIds = []
           for (let m = 0; m < this.choosedCases.length; m++) {
             const element = this.choosedCases[m]
@@ -533,27 +545,45 @@ export default {
           param.caseIds = caseIds.join(',') // 督办案件 案件id用逗号隔开
           // console.log(param)
           this.formLoading = true
-          this.$save('casesupervisebatch', param).then((response) => {
-            this.formLoading = false
-            if (response.code === '000000') {
+          if (this.carryParam.dbBatchId) {
+            this.$update('casesupervisebatch/' + this.carryParam.dbBatchId, param).then((response) => {
+              this.formLoading = false
+              if (response.code === '000000') {
+                this.$message({
+                  message: '批次信息保存成功', type: 'success'
+                })
+                this.$router.push({ path: '/caseManage/db/batchList' })
+              } else {
+                this.$message({
+                  message: '保存失败！', type: 'error'
+                })
+              }
+            }).catch(() => {
               this.$message({
-                message: '批次信息保存成功', type: 'success'
+                message: '批次信息保存失败，请联系管理员！', type: 'error'
               })
-              // 停留2秒跳转到详情页面
-              // setTimeout(() => {
-              //   this.$router.push({ path: '/basicService/deptInfo/detail' })
-              // }, 2000)
-            } else {
-              // this.$message({
-              //   message: '机构信息保存失败，请联系管理员！', type: 'success'
-              // })
-            }
-          }).catch(() => {
-            this.$message({
-              message: '批次信息保存失败，请联系管理员！', type: 'error'
+              this.formLoading = false
             })
-            this.formLoading = false
-          })
+          } else {
+            this.$save('casesupervisebatch', param).then((response) => {
+              this.formLoading = false
+              if (response.code === '000000') {
+                this.$message({
+                  message: '批次信息保存成功', type: 'success'
+                })
+                this.$router.push({ path: '/caseManage/db/batchList' })
+              } else {
+                this.$message({
+                  message: '保存失败！', type: 'error'
+                })
+              }
+            }).catch(() => {
+              this.$message({
+                message: '批次信息保存失败，请联系管理员！', type: 'error'
+              })
+              this.formLoading = false
+            })
+          }
         }
       })
     },

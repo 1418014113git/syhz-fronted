@@ -69,21 +69,19 @@
         <el-input v-model="filters.keyword" clearable placeholder="请输入关键词" size="small" maxlength="30"></el-input>
       </el-form-item>
       <el-form-item>
-         <!-- && $isViewBtn('100801') -->
-        <el-button type="primary" size="small" v-if="queryBtn"  v-on:click="queryDb(true,true)">查询</el-button>
-        <el-button type="primary" size="small"  v-on:click="resetFormFilter">重置</el-button>
+        <el-button type="primary" size="small" v-if="queryBtn && $isViewBtn('100801')"  v-on:click="queryDb(true,true)">查询</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100801')" v-on:click="resetFormFilter">重置</el-button>
       </el-form-item>
       <!--<el-form-item>-->
         <!--<el-button type="primary" size="small" v-if="$isViewBtn('100803')"  v-on:click="saveDBInfo('demand')">发起督办</el-button>-->
       <!--</el-form-item>-->
       <el-form-item>
-        <!-- v-if="$isViewBtn('100804')" -->
-        <el-button type="primary" size="small"  v-on:click="handleDbApply('apply')">申请</el-button>
-        <el-button type="primary" size="small"  v-on:click="handleDbBatchList('apply')">督办批次列表</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100802')" v-on:click="handleDbApply('apply')">申请</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100808')" v-on:click="handleDbBatchList('apply')">督办批次列表</el-button>
       </el-form-item>
     </el-form>
     <el-row style="margin:0px 0 16px;">
-      <el-button class="right" type="primary" size="small"  v-on:click="handleDbBatchRelease('apply')">督办批次发布</el-button>
+      <el-button class="right" type="primary" size="small" v-if="$isViewBtn('100809')" v-on:click="handleDbBatchRelease('apply')">督办批次发布</el-button>
       <a :href="downLoadUrl+'挂牌督办测试.pdf'" target="_blank" class="right" style="margin-right:10px;color: #00a0e9;cursor: pointer;text-decoration:underline;">挂牌督办办法</a>
     </el-row>
     <el-table :data="dbData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center" :span-method="objectSpanMethod">
@@ -118,11 +116,7 @@
           {{$getDictName(scope.row.superviseLevel+'','dbjb')}}
         </template>
       </el-table-column>
-      <el-table-column label="截止日期" width="150" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span v-if="scope.row.endDate">{{scope.row.endDate | formatDate}}</span>
-        </template>
-      </el-table-column>
+      <el-table-column prop="endDate" label="截止日期" width="150" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column label="状态" width="100" align="center">
         <template slot-scope="scope">
           {{$getDictName(scope.row.status+'','dbajzt')}}
@@ -130,15 +124,13 @@
       </el-table-column>
       <el-table-column label="操作" width="140">
         <template slot-scope="scope">
-          <!-- v-if="$isViewBtn('100805')" -->
-          <el-button title="详情" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle>
+          <el-button  v-if="$isViewBtn('100805')" title="详情" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle>
           </el-button>
           <!-- 草稿状态 或者 审核不通过 有 编辑按钮 -->
-          <!-- && $isViewBtn('100806') -->
-          <el-button v-if="(scope.row.status === 0||scope.row.status === 4) &&
+          <el-button v-if="$isViewBtn('100806') && (scope.row.status === 0||scope.row.status === 4) &&
                     ((deptInfo.depType!=='4'&&scope.row.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.applyDeptCode === deptInfo.parentDepCode))"
                     title="编辑" size="mini" type="primary" @click="editDBInfo(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
-          <el-button v-if="(scope.row.superviseDeptCode === deptInfo.depCode) && scope.row.superviseLevel>1 && (scope.row.wdStatus==='0'||scope.row.wdStatus==='4')"
+          <el-button v-if="$isViewBtn('100807') && (scope.row.superviseDeptCode === deptInfo.depCode) && scope.row.superviseLevel>1 && (scope.row.wdStatus===0||scope.row.wdStatus===4)"
                       title="向上申请" size="mini" type="primary" @click="handleUpToApply(scope.$index, scope.row)" icon="el-icon-arrow-up" circle></el-button>
           <!-- <el-button v-if="(scope.row.status === '0' || scope.row.status === '2') && $isViewBtn('100807') && scope.row.apply_dept_id === String(currentDeptId)" title="删除" size="mini" type="danger"
                      @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
@@ -408,13 +400,21 @@ export default {
       para.pageNum = this.page
       para.pageSize = this.pageSize
       para.departType = this.deptInfo.depType // 部门类型
-      if (this.filters.department) {
-        para.departCode = this.filters.department[this.filters.department.length - 1]
+      if (this.filters.area && this.filters.area.length > 0) { // 行政区划
+        para.provinceCode = this.filters.area[0] || '' // 省code
+        para.cityCode = this.filters.area[1] || '' // 市code
+        para.reginCode = this.filters.area[2] || '' // 区code
+      } else {
+        para.provinceCode = '' // 省code
+        para.cityCode = '' // 市code
+        para.reginCode = '' // 区code
+      }
+      if (this.filters.department) { // 单位机构
+        para.departCode = this.filters.department[this.filters.department.length - 1] // 部门code
       } else {
         para.departCode = this.deptInfo.depCode // 所属部门code
       }
       para.supType = this.deptInfo.depType === '4' ? this.pcsParentDept.depType : this.deptInfo.depType // 当前部门类型
-      para.departCode = this.filters.department[this.filters.department.length - 1] // 部门code
 
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
@@ -425,6 +425,7 @@ export default {
           this.dbData = response.data.list
           this.listTotal = response.data.totalCount
           this.pageSize = response.data.pageSize
+          this.spanArr = [] // 置空
           this.rowspan(this.dbData)
         }
       }).catch(() => {
