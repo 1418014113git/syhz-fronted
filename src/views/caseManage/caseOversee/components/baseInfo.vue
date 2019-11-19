@@ -81,16 +81,16 @@
             <el-form-item label="案件名称：" prop="ajmc">
               <span class="whiteColor">{{baseInfo.ajmc}}</span>
             </el-form-item>
-            <el-form-item label="案件类别：" prop="zylbMc">
-              <span class="whiteColor">{{baseInfo.zylbMc}}</span>
+            <el-form-item label="案件类别：" prop="ajlb">
+              <span class="whiteColor">{{baseInfo.ajlb}}</span>
             </el-form-item>
             <el-form-item label="涉案价值" prop="sajz">
-              <span class="whiteColor">{{baseInfo.sajz}}</span>
+              <span class="whiteColor">{{baseInfo.sajz}} 万元</span>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="案件编号：" prop="ryztMc">
-              <span class="whiteColor">{{baseInfo.ryztMc}}</span>
+            <el-form-item label="案件编号：" prop="ajbh">
+              <span class="whiteColor" @click="toAjDetail(baseInfo.caseId)" style="text-decoration: underline;cursor:pointer;">{{baseInfo.ajbh}}</span>
             </el-form-item>
             <el-form-item label="案件类型：" prop="ajlb">
               <span class="whiteColor">{{baseInfo.ajlb}}</span>
@@ -100,8 +100,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="案件状态：" prop="ryztMc">
-              <span class="whiteColor">{{baseInfo.ryztMc}}</span>
+            <el-form-item label="案件状态：" prop="ajzt">
+              <span class="whiteColor">{{baseInfo.ajzt}}</span>
             </el-form-item>
             <el-form-item label="立案单位：" prop="ladw">
               <span class="whiteColor">{{baseInfo.ladw}}</span>
@@ -130,6 +130,7 @@
 
 <script>
 import Bus from '@/utils/bus.js'
+import { getThousandNum } from '@/utils/public'
 import titlePub from './titlePub'
 import auditCom from './auditCom' // 审核弹框
 export default {
@@ -190,6 +191,9 @@ export default {
       }
       if (this.jbxxData) {
         this.baseInfo = this.jbxxData
+        if (this.baseInfo.sajz) { // 涉案价值
+          this.baseInfo.sajz = getThousandNum((this.baseInfo.sajz / 10000).toFixed(2))
+        }
         if (this.baseInfo.attachment) { // 申请的附件
           this.uploadImgs = [] // 先清空掉该数组
           var files = this.baseInfo.attachment.split('|')
@@ -225,6 +229,11 @@ export default {
       //   this.loading = false
       // })
     },
+    toAjDetail(id) {
+      this.$router.push({
+        path: '/caseFile/index', query: { id: id }
+      })
+    },
     handleAudit() { // 审核
       this.isShowshDialog = true
     },
@@ -249,11 +258,13 @@ export default {
       }
       this.$update('CaseSuperviseSign/' + this.baseInfo.signId, req).then((response) => {
         if (response.code === '000000') {
-          this.$alert('<p><i class="el-icon-success" style="color:#67c23a;margin-right:20px;font-size:20px;"></i><span style="font-size:16px;">签收催办成功</span></p>', '提示', {
+          this.$alert('<p><i class="el-icon-success" style="color:#67c23a;margin-right:20px;font-size:20px;"></i><span style="font-size:16px;">签收成功</span></p>', '提示', {
             dangerouslyUseHTMLString: true,
-            confirmButtonText: '知道了'
+            confirmButtonText: '知道了',
+            callback: function(action, instance) {
+              location.reload() // 直接刷新整个页面
+            }
           })
-          this.init()
         }
       }).catch(() => {
         this.loading = false
