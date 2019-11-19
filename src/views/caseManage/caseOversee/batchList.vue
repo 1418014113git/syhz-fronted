@@ -4,7 +4,7 @@
       <img src="@/assets/icon/back.png"  class="goBack" @click="toback">   <!--返回-->
     </el-row>
     <el-form ref="dbqueryForm" :inline="true" :model="filters" label-width="78px">
-      <el-form-item label="行政区划" prop="examStatus">
+      <el-form-item label="行政区划" prop="area">
         <el-cascader
           :options="xzqhOptions"
           v-model="filters.area"
@@ -16,7 +16,7 @@
           :disabled="Number(deptInfo.depType)>2">
         </el-cascader>
       </el-form-item>
-      <el-form-item label="创建单位" prop="examStatus">
+      <el-form-item label="创建单位" prop="department">
         <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
           <el-cascader
             :options="deptOptions"
@@ -35,8 +35,8 @@
           <el-option v-for="item in $getDicts('dbjb')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="filters.designMode" placeholder="全部" >
+      <el-form-item label="状态" prop="status">
+        <el-select v-model="filters.status" placeholder="全部" >
           <el-option v-for="item in $getDicts('dbajpczt')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
@@ -46,7 +46,7 @@
       <el-form-item label="文号" prop="referenceNumber">
         <el-input v-model="filters.referenceNumber" clearable placeholder="请输入文号" size="small" maxlength="30"></el-input>
       </el-form-item>
-      <el-form-item label="开始日期">
+      <el-form-item label="开始日期" prop="startDate1">
         <el-date-picker
           v-model="filters.startDate1"
           type="date"
@@ -56,7 +56,7 @@
           @change="ksStartDateChange">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="至">
+      <el-form-item label="至" prop="startDate2">
         <el-date-picker
           v-model="filters.startDate2"
           type="date"
@@ -90,7 +90,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="small" v-if="$isViewBtn('100808') && queryBtn" v-on:click="queryDbBatch(true,true)">查询</el-button>
-        <el-button type="primary" size="small" v-if="$isViewBtn('100808')" v-on:click="resetForm">重置</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('100808')" v-on:click="resetFilter">重置</el-button>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="small" v-if="$isViewBtn('100809')" v-on:click="handleBatchAdd('apply')">督办批次发布</el-button>
@@ -105,30 +105,30 @@
         </template>
       </el-table-column> -->
       <el-table-column prop="referenceNumber" label="文号" min-width="10%" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="superviseLevel" label="督办级别" min-width="10%">
+      <el-table-column prop="superviseLevel" label="督办级别" min-width="10%" align="center">
         <template slot-scope="scope">
           {{$getDictName(scope.row.superviseLevel+'','dbjb')}}
         </template>
       </el-table-column>
-      <el-table-column prop="ajNumber" label="督办案件数量" min-width="10%"></el-table-column>
+      <el-table-column prop="ajNumber" label="督办案件数量" min-width="10%" align="center"></el-table-column>
       <el-table-column prop="departName" label="发布单位" min-width="10%" show-overflow-tooltip></el-table-column>
       <el-table-column prop="publishPersonName" label="发布人" min-width="10%" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="publishDate" label="发布日期" width="140">
+      <el-table-column prop="publishDate" label="发布日期" width="180" align="center">
         <template slot-scope="scope">
           {{$handlerDateTime(scope.row.publishDate)}}
         </template>
       </el-table-column>
-      <el-table-column prop="startDate" label="开始日期" width="140">
+      <el-table-column prop="startDate" label="开始日期" width="140" align="center">
         <template slot-scope="scope">
           <span v-if="scope.row.startDate">{{(scope.row.startDate).substring(0,10)}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="endDate" label="截至日期" width="140">
+      <el-table-column prop="endDate" label="截至日期" width="140" align="center">
         <template slot-scope="scope">
           <span v-if="scope.row.endDate">{{(scope.row.endDate).substring(0,10)}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="100">
+      <el-table-column label="状态" width="100" align="center">
         <template slot-scope="scope">
           {{$getDictName(scope.row.status+'','dbajpczt')}}
         </template>
@@ -532,14 +532,15 @@ export default {
         })
       }
     },
-    resetForm() {
-      this.filters = {
-        caseName: '',
-        createTime: '',
-        deptName: ''
-      }
+    resetFilter() {
+      this.resetForm('filters')
       this.ajbh = ''
       this.queryDbBatch(true, true)
+    },
+    resetForm(formName) { // 重置表单
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
+      }
     },
     toAjDetail(id) {
       // this.$router.push({ path: '/caseManage/detailSyh/' + id })

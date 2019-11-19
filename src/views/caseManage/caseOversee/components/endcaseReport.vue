@@ -24,7 +24,13 @@
         <p class="title">{{jabgInfo.title}}</p>
         <p class="content" v-html="jabgInfo.content"></p>
         <div class="attachment">
-          附件：{{jabgInfo.attachment}}
+          附件：
+          <div style="margin:0;">
+            <p v-for="item in uploadFiles" :key="item.path">
+                <!-- <a :title="item.name" :href="item.path" target="_blank" class="fjlink">{{item.name}}</a>&nbsp;&nbsp;&nbsp; -->
+                <a @click="downFile(item)" class="fjlink">{{item.name}}</a>
+            </p>
+          </div>
         </div>
       </div>
       <el-table :data="jabgDataList" style="width: 100%;" v-loading="loading" max-height="156" class="table_th_center">
@@ -182,6 +188,7 @@ export default {
       this.initData() // 初始化数据
       if (val) {
         this.jabgInfo = val
+        console.log(this.jabgInfo)
         this.init(true)
       }
     }
@@ -225,7 +232,22 @@ export default {
       if (this.jabgData) {
         this.loading = true
         this.jabgInfo = this.jabgData
-        this.$query('page/casesupervisereport', { id: this.jabgInfo.dbId }).then((response) => {
+        if (this.jabgData.attachment) { // 申请的附件
+          this.uploadFiles = [] // 先清空掉该数组
+          var files = this.jabgData.attachment.split('|')
+          for (let index = 0; index < files.length; index++) {
+            var element = files[index]
+            element = JSON.parse(element)
+            this.uploadFiles.push(element)
+          }
+        }
+        // 查询 结案报告
+        var param = {
+          id: this.jabgInfo.dbId,
+          pageNum: this.page,
+          pageSize: this.pageSize
+        }
+        this.$query('page/casesupervisereport', param).then((response) => {
           if (response.code === '000000') {
             this.loading = false
             this.jabgDataList = response.data.list
@@ -310,7 +332,7 @@ export default {
                   message: '提交成功', type: 'success'
                 })
                 this.isShowJabg = false
-                this.$parent.queryDbDetail() // 调用父级的查详情方法
+                location.reload()
               } else {
                 // this.$message({
                 //   message: '机构信息保存失败，请联系管理员！', type: 'success'
@@ -330,6 +352,7 @@ export default {
                   message: '提交成功', type: 'success'
                 })
                 this.isShowJabg = false
+                location.reload()
               } else {
                 // this.$message({
                 //   message: '机构信息保存失败，请联系管理员！', type: 'success'
@@ -429,6 +452,11 @@ export default {
       }).catch(() => {
         this.caseLoading = false
       })
+    },
+    downFile(item) {
+      const arr = item.path.split('/file')
+      const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
+      this.$download_http_mg(path, { fileName: item.name })
     },
     resetForm(formName) { // 重置表单
       if (this.$refs[formName]) {
