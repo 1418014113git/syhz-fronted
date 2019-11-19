@@ -31,12 +31,12 @@
             <!-- 0: {codeDesc: "催办状态", codeLx: "cbzt", dictName: "待签收", dictKey: "1"}
             1: {codeDesc: "催办状态", codeLx: "cbzt", dictName: "已签收", dictKey: "2"}
             2: {codeDesc: "催办状态", codeLx: "cbzt", dictName: "已反馈", dictKey: "3"} -->
-            <el-button v-if="$isViewBtn('100817') && scope.row.urgedDeptId === deptInfo.id && scope.row.status==='2'"
-                      title="反馈" size="mini" type="primary" @click="handlerFeedback(scope.$index, scope.row)" circle icon="el-icon-edit-outline">
-                      </el-button>
-            <el-button v-if="$isViewBtn('100818') && scope.row.urgedDeptId === deptInfo.id && scope.row.status==='1'"
-                      title="签收" size="mini" type="primary" @click="handlerUrgeSign(scope.$index, scope.row)" circle icon="el-icon-check">
-                      </el-button>
+            <el-button
+              v-if="$isViewBtn('100817') && ((deptInfo.depType!=='4'&&scope.row.urgedDeptId === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.urgedDeptId === deptInfo.parentDepCode))&& scope.row.status==='2'"
+              title="反馈" size="mini" type="primary" @click="handlerFeedback(scope.$index, scope.row)" circle icon="el-icon-edit-outline"></el-button>
+            <el-button
+              v-if="$isViewBtn('100818') && ((deptInfo.depType!=='4'&&scope.row.urgedDeptId === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.urgedDeptId === deptInfo.parentDepCode))&&scope.row.status==='1'"
+              title="签收" size="mini" type="primary" @click="handlerUrgeSign(scope.$index, scope.row)" circle icon="el-icon-check"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -121,9 +121,21 @@ export default {
   methods: {
     init(flag) {
       if (this.dbInfo) {
-        // console.log(this.dbInfo)
+        this.bcbData = {
+          urgedDeptCode: this.dbInfo.urgedDeptCode,
+          urgedDeptId: this.dbInfo.urgedDeptId,
+          urgedDeptName: this.dbInfo.urgedDeptName,
+          urgedPersonId: this.dbInfo.urgedPersonId,
+          urgedPersonName: this.dbInfo.urgedPersonName,
+          superviseId: this.dbInfo.dbId // 督办id
+        }
         this.loading = true
-        this.$query('page/casesuperviseurgent', { id: this.dbInfo.dbId }).then((response) => {
+        var param = {
+          id: this.dbInfo.dbId,
+          pageNum: this.page,
+          pageSize: this.pageSize
+        }
+        this.$query('page/casesuperviseurgent', param).then((response) => {
           if (response.code === '000000') {
             this.loading = false
             this.cbDataList = response.data.list
@@ -133,13 +145,6 @@ export default {
         }).catch(() => {
           this.loading = false
         })
-        this.bcbData = {
-          urgedDeptCode: this.dbInfo.urgedDeptCode,
-          urgedDeptId: this.dbInfo.urgedDeptId,
-          urgedDeptName: this.dbInfo.urgedDeptName,
-          urgedPersonId: this.dbInfo.urgedPersonId,
-          urgedPersonName: this.dbInfo.urgedPersonName
-        }
       }
     },
     initData() { // 初始化数据

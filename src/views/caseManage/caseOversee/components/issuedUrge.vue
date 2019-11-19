@@ -3,10 +3,10 @@
   <div class="auditCom">
     <el-form ref="dbxfcbForm" :model="dbxfcbForm" :rules="rules" label-width="120px">
       <el-form-item label="被催办单位" prop="urgedDeptName">
-        <el-input v-model="bcb_data.urgedDeptName"></el-input>
+        <el-input v-model="bcb_data.urgedDeptName" disabled></el-input>
       </el-form-item>
       <el-form-item label="被催办责任人" prop="urgedPersonName">
-        <el-input v-model="bcb_data.urgedPersonName"></el-input>
+        <el-input v-model="bcb_data.urgedPersonName" disabled></el-input>
       </el-form-item>
       <el-form-item label="催办截止日期" prop="endDate">
         <el-date-picker v-model="dbxfcbForm.endDate" type="date" placeholder="选择日期" class="db_create_input"
@@ -90,16 +90,12 @@ export default {
   },
   methods: {
     init() {
-      this.initData()
+      this.resetForm('dbxfcbForm')
+      if (this.bcbInfo) {
+        this.bcb_data = this.bcbInfo
+      }
       // 默认本日后第3天，可修改，可选本日及以后
       this.dbxfcbForm.endDate = this.$parseTime(new Date(Date.now() + (60 * 60 * 24 * 1000 * 3)), '{y}-{m}-{d}') // 默认 本日后的第三天
-      // if (this.dbId) {
-      //   this.cardNumber = this.dbId
-      //   this.detail()
-      // }
-    },
-    initData() {
-      this.resetForm('dbxfcbForm')
     },
     resetForm(formName) { // 重置表单
       if (this.$refs[formName]) {

@@ -295,6 +295,7 @@ export const constantRouterMap = [
       { path: '/caseManage/db/batchList', component: () => import('@/views/caseManage/caseOversee/batchList'), name: '案件督办批次列表' },
       { path: '/caseManage/db/batchRelease', component: () => import('@/views/caseManage/caseOversee/batchRelease'), name: '督办批次发布' },
       { path: '/caseManage/db/batchDetail', component: () => import('@/views/caseManage/caseOversee/batchDetail'), name: '督办批次详情' },
+      { path: '/caseManage/dbStatistical', component: () => import('@/views/caseManage/caseOversee/dbStatistical'), name: '案件督办统计' },
       { path: '/jqcampaign', component: () => import('@/views/caseManage/jqCampaign/mainList'), name: '集群战役' },
       { path: '/jqcampaign/clueList', component: () => import('@/views/caseManage/jqCampaign/clueList'), name: '线索列表' },
       { path: '/jqCampaign/detail', component: () => import('@/views/caseManage/jqCampaign/mainDetail'), name: '集群战役详情 ' },
