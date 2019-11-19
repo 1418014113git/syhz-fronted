@@ -12,19 +12,17 @@
           基本信息-【签收】，申请单位人员，案件督办状态为督办中、督办结束或评价打分时，且本单位未签收时可点击签收。其他情况隐藏。
           基本信息-【申请部门】，所有人可见，案件督办状态为督办中、督办结束或评价打分时，且申请单位未签收时显示“待签收”。申请单位签收后，显示“已签收”。
         -->
-        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode && dsh_Info.applyDate"
+        <el-button v-if="$isViewBtn('100813')&&deptInfo.depCode===baseInfo.superviseDepartCode && dsh_Info.applyDate"
           type="primary" size="small" @click="handleAudit">审核</el-button>
-        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode&&(deptInfo.wdStauts===0||deptInfo.wdStauts===4)"
+        <el-button v-if="$isViewBtn('100807')&&deptInfo.depCode===baseInfo.superviseDepartCode&&(baseInfo.wdStatus===0||baseInfo.wdStatus===4)"
           type="primary" size="small" @click="handleApplyToUp">申请上级督办</el-button>
-        <el-button v-if="((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))&&
-          (baseInfo.dbStatus===5||baseInfo.dbStatus===6||baseInfo.dbStatus===7) && !baseInfo.jabgTitle"
+        <el-button v-if="$isViewBtn('100814')&&((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))&&
+          (baseInfo.status===5||baseInfo.status===6||baseInfo.status===7) && !baseInfo.jabgTitle"
           type="primary" size="small"  @click="handleReport">上报结案报告</el-button>
-        <el-button v-if="deptInfo.depCode===baseInfo.superviseDepartCode && (baseInfo.dbStatus===5||baseInfo.dbStatus===6||baseInfo.dbStatus===7)"
+        <el-button v-if="$isViewBtn('100816')&&deptInfo.depCode===baseInfo.superviseDepartCode && (baseInfo.status===5||baseInfo.status===6||baseInfo.status===7)"
           type="primary" size="small"  @click="handleIssueUrge">下发催办</el-button>
-        <el-button
-          v-if="baseInfo.signStatus==='1' && ((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))"
+        <el-button v-if="$isViewBtn('100819')&&baseInfo.signStatus==='1' && ((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))"
           type="primary" size="small"  @click="handleDbSign">签收</el-button>
-
       </div>
      </div>
      <el-row class="xddw zwbj">
@@ -50,7 +48,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="督办签收状态：" prop="status" label-width="126px">
+              <el-form-item label="督办签收状态：" prop="signStatus" label-width="126px">
                 <span style="color:#409EFF" v-if="baseInfo.signStatus==='1'">待签收</span>
                 <span style="color:#67C23A" v-if="baseInfo.signStatus==='2'">已签收</span>
               </el-form-item>
@@ -114,26 +112,19 @@
               <span class="whiteColor">{{baseInfo.jyaq}}</span>
             </el-form-item>
             <el-form-item label="附件：" prop="">
-              <span v-for="item in fjList" :key="item.id">
-                 <a class="fjlink" @click="upLoadFile(item)">{{item.fileName}}</a>&nbsp;&nbsp;&nbsp;
-              </span>
+              <p v-for="item in uploadImgs" :key="item.path">
+                 <!-- <a :title="item.name" :href="item.path" target="_blank" class="fjlink">{{item.name}}</a>&nbsp;&nbsp;&nbsp; -->
+                 <a @click="downFile(item)" class="fjlink">{{item.name}}</a>
+              </p>
             </el-form-item>
           </el-col>
         </el-form>
     </el-row>
 
     <!-- 审核弹框-->
-    <el-dialog title="审核" :visible.sync="isShowshDialog"  class="stshForm" :close-on-click-modal="false">
-      <audit-com  :isShowDialog="isShowshDialog" :dbId="baseInfo.dbId" :dsh="dsh_Info" @closeDialog="closeshDialog"></audit-com>
+    <el-dialog title="审核" :visible.sync="isShowshDialog"  class="stshForm" @close="closeshDialog" :close-on-click-modal="false">
+      <audit-com :isShowDialog="isShowshDialog" :dbId="baseInfo.dbId" :dsh="dsh_Info" @closeDialog="closeshDialog"></audit-com>
     </el-dialog>
-    <!-- 下发催办 -->
-    <!-- <el-dialog title="下发催办" :visible.sync="xfcbDiaVisible">
-      <issued-urge :bcbData="bcbData"></issued-urge>
-    </el-dialog> -->
-    <!-- 结案报告 -->
-
-
-
   </div>
 </template>
 
@@ -155,20 +146,7 @@ export default {
       isShowshDialog: false, // 是否显示审核弹框
       cardNumber: '', // 存储身份证号
       downLoadUrl: process.env.ATTACHMENT_MODULE + 'file/downloadTemplate/', // 下载附件
-      fjList: [ // 附件列表
-        {
-          id: 1,
-          fileName: '附件1.doc'
-        },
-        {
-          id: 2,
-          fileName: '附件2.doc'
-        },
-        {
-          id: 3,
-          fileName: '附件3.zip'
-        }
-      ],
+      uploadImgs: [], // 附件列表
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -189,7 +167,6 @@ export default {
       // this.detail()
     },
     dshData(val) {
-      console.log(val)
       if (val) {
         this.dsh_Info = val
         this.init()
@@ -213,7 +190,21 @@ export default {
       }
       if (this.jbxxData) {
         this.baseInfo = this.jbxxData
+        if (this.baseInfo.attachment) { // 申请的附件
+          this.uploadImgs = [] // 先清空掉该数组
+          var files = this.baseInfo.attachment.split('|')
+          for (let index = 0; index < files.length; index++) {
+            var element = files[index]
+            element = JSON.parse(element)
+            this.uploadImgs.push(element)
+          }
+        }
       }
+    },
+    downFile(item) {
+      const arr = item.path.split('/file')
+      const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
+      this.$download_http_mg(path, { fileName: item.name })
     },
     detail() {
       this.baseInfo = {}
@@ -272,8 +263,10 @@ export default {
       window.open(this.downLoadUrl + item.fileName)
     },
     closeshDialog(val) { // 关闭审核弹框 点击"通过/不通过"时，页面需要重新加载，更新审核状态。
-      this.isShowshDialog = val
-      location.reload()
+      if (this.$refs.auditForm) {
+        this.$refs.auditForm.resetForm('auditForm')
+      }
+      this.isShowshDialog = false // 下发催办弹框隐藏
     }
   },
   mounted() {
@@ -316,8 +309,9 @@ export default {
   padding: 18px 0 0 45px;
 }
 .fjlink {
-  color: #bce8fc;
-  text-shadow: 0 0 2px #fff;
+  // color: #bce8fc;
+  // text-shadow: 0 0 2px #fff;
+  color: #fff;
   text-decoration: underline;
   cursor: pointer;
 }

@@ -280,7 +280,6 @@ export default {
         this.dbApplyForm.status = '1' // 状态
         this.dbApplyForm.recordId = response.data.recordId // 督办id
         this.dbApplyForm.superviseId = response.data.superviseId // 案件督办的主id
-        console.log(this.dbApplyForm)
       }).catch(() => {
         this.formLoading = false
       })
@@ -338,7 +337,7 @@ export default {
       }
     },
     fzrChange(val) { // 督办负责人
-      console.log(this.userData + ',,,' + val)
+      // console.log(this.userData + ',,,' + val)
       this.userData.forEach((item, i) => {
         if (item.id === val) {
           this.dbApplyForm.supervisePerson = item.name // 督办人姓名
@@ -459,7 +458,7 @@ export default {
         req.applyAreaCode = this.deptInfo.areaCode // 申请人行政区划
       }
       req.category = 'apply' // 督办类型
-      console.log(req)
+      // console.log(req)
       this.$update('casesuperviserecord/' + this.carryParam.dbId, req).then((response) => {
         if (response.code === '000000') {
           this.saveLoading = false
@@ -535,7 +534,7 @@ export default {
         req.applyAreaCode = this.deptInfo.areaCode // 申请人行政区划
       }
       req.category = 'apply' // 督办类型
-      console.log(req)
+      // console.log(req)
       this.$save('directdbaj', req).then((response) => {
         if (response.code === '000000') {
           this.saveLoading = false

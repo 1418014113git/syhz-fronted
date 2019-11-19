@@ -50,7 +50,11 @@
                           style="width: 100%; min-width: 500px;"></vue-editor> -->
           </el-form-item>
           <el-form-item label="附件" class="clearfix" prop="remark">
-            <el-upload drag multiple :action="uploadAction"
+            <p v-for="item in uploadImgs" :key="item.path">
+                <!-- <a :title="item.name" :href="item.path" target="_blank" class="fjlink">{{item.name}}</a>&nbsp;&nbsp;&nbsp; -->
+                <a @click="downFile(item)" class="fjlink">{{item.name}}</a>
+            </p>
+            <!-- <el-upload drag multiple :action="uploadAction"
                        :auto-upload="true"
                        :file-list="uploadFiles"
                        :on-success="attachmentSuccess"
@@ -62,7 +66,7 @@
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em>，最多10个</div>
               <div class="el-upload__tip" slot="tip">{{UploadAttachment.tipText}}</div>
-            </el-upload>
+            </el-upload> -->
           </el-form-item>
           <el-form-item label="督办案件" class="clearfix" prop="cases">
             <!-- <div class="clearfix">
@@ -136,6 +140,7 @@ export default {
       dbAjData: [],
       oneCase: {}, // 督办案件，当前选中的案件
       choosedCases: [], // 选中的案件，存选中案件的完整数据
+      uploadImgs: [], // 附件列表
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0] // 当前部门信息
     }
@@ -313,6 +318,11 @@ export default {
       //   }
       // })
     },
+    downFile(item) {
+      const arr = item.path.split('/file')
+      const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
+      this.$download_http_mg(path, { fileName: item.name })
+    },
     queryDetailById() { // 通过id查询详情
       this.formLoading = true
       this.$query('casesupervisebatch/' + this.carryParam.dbBatchId, {}).then((response) => {
@@ -322,6 +332,15 @@ export default {
           this.choosedCases = this.dbBatchForm.caseList // 督办案件列表
           if (this.dbBatchForm.superviseLevel) { // 督办级别
             this.dbBatchForm.superviseLevel = this.dbBatchForm.superviseLevel + ''
+          }
+          if (this.dbBatchForm.attachment) { // 申请的附件
+            this.uploadImgs = [] // 先清空掉该数组
+            var files = this.dbBatchForm.attachment.split('|')
+            for (let index = 0; index < files.length; index++) {
+              var element = files[index]
+              element = JSON.parse(element)
+              this.uploadImgs.push(element)
+            }
           }
         }
       }).catch(() => {

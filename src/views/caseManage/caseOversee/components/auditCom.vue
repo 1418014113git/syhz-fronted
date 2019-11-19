@@ -88,7 +88,6 @@ export default {
       this.remarkType = type
       this.$refs.auditForm.validate(valid => {
         if (valid) {
-          console.log(this.dsh_Info)
           this.btnLoading = true // 加载进度条
           var param = {
             userId: this.userInfo.id, // 审核人id
@@ -104,8 +103,8 @@ export default {
           this.$update('casesuperviseexamine/' + this.dbId, param).then((response) => {
             if (response.code === '000000') {
               this.btnLoading = false // 关闭加载条
-              this.$emit('closeDialog', false)
-              this.$parent.queryDbDetail() // 调用父级的查详情方法
+              this.$emit('closeDialog') // 调用父页面的 关闭弹框
+              location.reload() // 刷新页面，因为审核后 审核信息 基本信息 左边菜单数量 都需要刷新，所以这里整个页面全重新刷一遍
             }
           }).catch(() => {
             this.btnLoading = false // 关闭加载条

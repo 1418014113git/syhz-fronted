@@ -24,10 +24,8 @@
         <el-table-column prop="auditContent" label="审核意见" min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column label="操作" width="80">
           <template slot-scope="scope">
-            <!-- v-if="$isViewBtn('100805')" -->
-            <el-button  v-if="scope.row.auditDeptCode === deptInfo.depCode && scope.row.flowStatus==='1'"
-                      title="审核" size="mini" type="primary" @click="handlerAudit(scope.$index, scope.row)" circle>
-                       <svg-icon icon-class="audit"></svg-icon></el-button>
+            <el-button  v-if="$isViewBtn('100813')&&scope.row.auditDeptCode === deptInfo.depCode && scope.row.flowStatus==='1'"
+              title="审核" size="mini" type="primary" @click="handlerAudit(scope.$index, scope.row)" circle><svg-icon icon-class="audit"></svg-icon></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -38,9 +36,8 @@
           </el-pagination>
         </el-col>
       </el-row>
-      <el-dialog title="审核" :visible.sync="isShowshDialog"  class="stshForm" :close-on-click-modal="false">
-        <!-- :isShowDialog="isShowshDialog" @closeDialog="closeshDialog" -->
-        <audit-com :dsh="curAudit" :dbId="db_Id"></audit-com>
+      <el-dialog title="审核" :visible.sync="isShowshDialog" @close="closeDialog" class="stshForm" :close-on-click-modal="false">
+        <audit-com :dsh="curAudit" :dbId="db_Id" ref="auditForm" @closeDialog="closeDialog"></audit-com>
       </el-dialog>
     </div>
   </section>
@@ -54,7 +51,6 @@ export default {
   components: {
     titlePub,
     auditCom
-
   },
   data() {
     return {
@@ -73,11 +69,9 @@ export default {
   },
   watch: {
     dbId(val) {
-      // this.loading = true
-      // this.initData() // 初始化数据
+      this.initData() // 初始化数据
       if (val) {
         this.db_Id = val
-        // this.AJBH = val
         this.init(true)
       }
     }
@@ -120,6 +114,12 @@ export default {
     handlerAudit(index, row) { // 审核
       this.curAudit = row
       this.isShowshDialog = true
+    },
+    closeDialog() { // 关闭弹框
+      if (this.$refs.auditForm) {
+        this.$refs.auditForm.resetForm('auditForm')
+      }
+      this.isShowshDialog = false // 下发催办弹框隐藏
     }
   },
   mounted() {
