@@ -116,11 +116,7 @@
           {{$getDictName(scope.row.superviseLevel+'','dbjb')}}
         </template>
       </el-table-column>
-      <el-table-column label="截止日期" width="150" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span v-if="scope.row.endDate">{{scope.row.endDate | formatDate}}</span>
-        </template>
-      </el-table-column>
+      <el-table-column prop="endDate" label="截止日期" width="150" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column label="状态" width="100" align="center">
         <template slot-scope="scope">
           {{$getDictName(scope.row.status+'','dbajzt')}}
@@ -131,11 +127,10 @@
           <el-button  v-if="$isViewBtn('100805')" title="详情" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle>
           </el-button>
           <!-- 草稿状态 或者 审核不通过 有 编辑按钮 -->
-          <!-- && $isViewBtn('100806') -->
           <el-button v-if="$isViewBtn('100806') && (scope.row.status === 0||scope.row.status === 4) &&
                     ((deptInfo.depType!=='4'&&scope.row.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.applyDeptCode === deptInfo.parentDepCode))"
                     title="编辑" size="mini" type="primary" @click="editDBInfo(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
-          <el-button v-if="$isViewBtn('100807') && (scope.row.superviseDeptCode === deptInfo.depCode) && scope.row.superviseLevel>1 && (scope.row.wdStatus==='0'||scope.row.wdStatus==='4')"
+          <el-button v-if="$isViewBtn('100807') && (scope.row.superviseDeptCode === deptInfo.depCode) && scope.row.superviseLevel>1 && (scope.row.wdStatus===0||scope.row.wdStatus===4)"
                       title="向上申请" size="mini" type="primary" @click="handleUpToApply(scope.$index, scope.row)" icon="el-icon-arrow-up" circle></el-button>
           <!-- <el-button v-if="(scope.row.status === '0' || scope.row.status === '2') && $isViewBtn('100807') && scope.row.apply_dept_id === String(currentDeptId)" title="删除" size="mini" type="danger"
                      @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
@@ -430,6 +425,7 @@ export default {
           this.dbData = response.data.list
           this.listTotal = response.data.totalCount
           this.pageSize = response.data.pageSize
+          this.spanArr = [] // 置空
           this.rowspan(this.dbData)
         }
       }).catch(() => {

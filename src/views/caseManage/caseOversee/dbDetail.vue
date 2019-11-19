@@ -114,12 +114,20 @@ export default {
             this.dbDetailData = response.data.data
             this.leftData = response.data.th
             // 基本信息
-            this.dbDetailData.jbxx.jabgTitle = this.dbDetailData.jabg.title // 是否有结案报告
+            this.dbDetailData.jbxx.jabgTitle = this.dbDetailData.jabg ? this.dbDetailData.jabg.title : '' // 是否有结案报告
             // 审核（待审核的一条记录）
 
             // 结案报告
+            if (!this.dbDetailData.jabg) {
+              this.dbDetailData.jabg = {}
+            }
             this.dbDetailData.jabg.dbId = this.dbId // 将督办id存入 结案报告中
-
+            this.dbDetailData.jabg.createDeptCode = this.dbDetailData.jbxx.applyDepartCode // 申请部门code
+            this.dbDetailData.jabg.dbStatus = this.dbDetailData.jbxx.status // 本级督办状态
+            // this.dbDetailData.jabg.reportStatus = this.dbDetailData.jabg.reportStatus // 结案报告状态
+            // this.dbDetailData.jabg.upDbStatus = this.dbDetailData.jabg.upDbStatus // 上级督办状态
+            // this.dbDetailData.jabg.wdStatus = this.dbDetailData.jabg.wdStatus // 是否有上级督办
+            console.log(this.dbDetailData.jabg)
             // 评价打分
             this.dbDetailData.pjdf.dbId = this.dbId // 将督办id存入 评价打分中
             this.dbDetailData.pjdf.status = this.dbDetailData.jbxx.status // 将督办状态存入 评价打分中
@@ -128,6 +136,7 @@ export default {
             this.dbDetailData.cbxx.dbId = this.dbId // 将督办id存入 催办
             this.dbDetailData.cbxx.status = this.dbDetailData.jbxx.status // 将督办状态存入 催办
             this.dbDetailData.cbxx.superviseDepartCode = this.dbDetailData.jbxx.superviseDepartCode // 将审核单位存入催办
+            console.log(this.dbDetailData.cbxx)
           }
         }).catch(() => {
           this.loading = false
