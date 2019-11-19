@@ -272,8 +272,7 @@ export default {
           const para = {
             authMode: 'cert',
             original: this.randomNum,
-            signed_data: this.signResult,
-            uk: '150102199001014574'
+            signed_data: this.signResult
           }
           console.info('pki 登录接口请求参数：', para)
           // 调用pki 登录方法
