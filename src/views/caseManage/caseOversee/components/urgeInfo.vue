@@ -186,6 +186,7 @@ export default {
         type: 1 // 签收
       }
       this.$update('dbcbaccept/' + row.id, req).then((response) => {
+        this.loading = false
         if (response.code === '000000') {
           this.$alert('<p><i class="el-icon-success" style="color:#67c23a;margin-right:20px;font-size:20px;"></i><span style="font-size:16px;">签收催办成功</span></p><p style="margin-left:40px;color:#dedede;">请尽快对该催办进行反馈</p>', '提示', {
             dangerouslyUseHTMLString: true,

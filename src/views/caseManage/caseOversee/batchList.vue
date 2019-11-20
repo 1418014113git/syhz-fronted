@@ -31,12 +31,12 @@
         </el-tooltip>
       </el-form-item>
       <el-form-item label="督办级别" prop="superviseLevel">
-        <el-select v-model="filters.superviseLevel" placeholder="全部" >
+        <el-select v-model="filters.superviseLevel" placeholder="全部" clearable>
           <el-option v-for="item in $getDicts('dbjb')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="filters.status" placeholder="全部" >
+        <el-select v-model="filters.status" placeholder="全部" clearable>
           <el-option v-for="item in $getDicts('dbajpczt')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
         </el-select>
       </el-form-item>
@@ -53,7 +53,7 @@
           value-format="yyyy-MM-dd"
           :picker-options="ksStartPickerOptions"
           placeholder="请选择开始时间"
-          @change="ksStartDateChange">
+          @change="ksStartDateChange" clearable>
         </el-date-picker>
       </el-form-item>
       <el-form-item label="至" prop="startDate2">
@@ -64,7 +64,7 @@
           :picker-options="ksEndPickerOptions"
           placeholder="请选择结束时间"
           @change="ksEndDateChange"
-          :disabled="ksEndDateDisabled">
+          :disabled="ksEndDateDisabled" clearable>
         </el-date-picker>
       </el-form-item>
       <el-form-item label="结束日期" prop="endDate1">
@@ -74,7 +74,7 @@
           value-format="yyyy-MM-dd"
           :picker-options="jsStartPickerOptions"
           placeholder="请选择开始时间"
-          @change="jsStartDateChange">
+          @change="jsStartDateChange" clearable>
         </el-date-picker>
       </el-form-item>
       <el-form-item label="至" prop="endDate2">
@@ -85,7 +85,7 @@
           :picker-options="jsEndPickerOptions"
           placeholder="请选择结束时间"
           @change="jsEndDateChange"
-          :disabled="jsEndDateDisabled">
+          :disabled="jsEndDateDisabled" clearable>
         </el-date-picker>
       </el-form-item>
       <el-form-item>
@@ -136,8 +136,8 @@
       <el-table-column label="操作" width="140">
         <template slot-scope="scope">
           <el-button title="详情" v-if="$isViewBtn('100810')" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle></el-button>
-          <el-button title="修改" v-if="$isViewBtn('100811')" size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
-          <el-button title="删除" v-if="$isViewBtn('100812')" size="mini" type="primary" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
+          <el-button title="修改" v-if="$isViewBtn('100811') && (userInfo.id+'' === scope.row.creationId) && scope.row.canEditBatch" size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
+          <el-button title="删除" v-if="$isViewBtn('100812') && (userInfo.id+'' === scope.row.creationId) && scope.row.canEditBatch" size="mini" type="primary" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
           <!-- <el-button v-if="(scope.row.status === '0' || scope.row.status === '2')  && $isViewBtn('100806') && scope.row.apply_dept_id === String(currentDeptId)" title="修改" size="mini" type="primary"
                      @click="editDBInfo(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
           <el-button v-if="(scope.row.status === '0' || scope.row.status === '2') && $isViewBtn('100807') && scope.row.apply_dept_id === String(currentDeptId)" title="删除" size="mini" type="danger"
@@ -370,7 +370,18 @@ export default {
       this.$query('page/casesupervisebatch', param).then((response) => {
         if (response.code === '000000') {
           this.listLoading = false
-          this.dbBatchData = response.data.list
+          var data = response.data.list
+          for (let index = 0; index < data.length; index++) {
+            const element = data[index]
+            if (element.status === 0) { // 草稿状态
+              element.canEditBatch = true
+            } else if (element.status === 1 && (new Date(element.startDate).getTime() > new Date().getTime())) { // 已发布 && 开始日期之前
+              element.canEditBatch = true
+            } else {
+              element.canEditBatch = false
+            }
+          }
+          this.dbBatchData = data
           this.listTotal = response.data.totalCount
           this.pageSize = response.data.pageSize
         }
@@ -513,6 +524,11 @@ export default {
           }
         }).catch(() => {
           this.listLoading = false
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
         })
       })
     },

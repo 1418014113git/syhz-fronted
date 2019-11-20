@@ -82,35 +82,29 @@
     </el-form>
     <el-row style="margin:0px 0 16px;">
       <el-button class="right" type="primary" size="small" v-if="$isViewBtn('100809')" v-on:click="handleDbBatchRelease('apply')">督办批次发布</el-button>
-      <a :href="downLoadUrl+'挂牌督办测试.pdf'" target="_blank" class="right" style="margin-right:10px;color: #00a0e9;cursor: pointer;text-decoration:underline;">挂牌督办办法</a>
+      <!-- 下载 -->
+      <a :href="downLoadUrl+'挂牌督办办法.pdf'" download="挂牌督办办法.pdf" target="_blank" class="right" style="margin-right:10px;color: #00a0e9;cursor: pointer;text-decoration:underline;">
+        <i class="el-icon-download"></i>
+      </a>
+      <!-- 预览 -->
+      <a :href="downLoadUrl+'挂牌督办办法.pdf'" target="_blank" class="right" style="margin-right:6px;color: #00a0e9;cursor: pointer;text-decoration:underline;">挂牌督办办法</a>
     </el-row>
     <el-table :data="dbData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center" :span-method="objectSpanMethod">
       <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
-      <el-table-column label="案件名称" min-width="10%" prop="caseName" show-overflow-tooltip>
-        <!-- <template slot-scope="scope">
-          <a class="ajbh-color" @click="toAjDetail(scope.row.case_id)">{{scope.row.AJMC}}</a>
-        </template> -->
-      </el-table-column>
+      <el-table-column label="案件名称" min-width="10%" prop="caseName" show-overflow-tooltip></el-table-column>
       <el-table-column label="案件编号" min-width="10%" show-overflow-tooltip>
         <template slot-scope="scope">
           <a class="ajbh-color" @click="toAjDetail(scope.row.caseId)">{{scope.row.caseNumber}}</a>
         </template>
       </el-table-column>
       <el-table-column prop="title" label="督办批次" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
-      <!-- <el-table-column label="立案时间" width="140">
-        <template slot-scope="scope">
-          {{$handlerDateTime(scope.row.LARQ)}}
-        </template>
-      </el-table-column>
-      <el-table-column prop="AJLB_NAME" label="案件类别" min-width="10%"></el-table-column>
-      <el-table-column label="发起时间" width="150">
-        <template slot-scope="scope">
-          {{scope.row.create_time | formatDate}}
-        </template>
-      </el-table-column> -->
       <el-table-column prop="applyDeptName" label="申请单位" min-width="15%" show-overflow-tooltip></el-table-column>
       <el-table-column prop="applyPersonName" label="申请人" min-width="15%" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="applyDate" label="申请日期" min-width="15%" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="applyDate" label="申请日期" min-width="15%" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.status!==0">{{scope.row.applyDate}}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="superviseLevel" label="督办级别" width="100" align="center">
         <template slot-scope="scope">
           {{$getDictName(scope.row.superviseLevel+'','dbjb')}}
@@ -245,10 +239,10 @@ export default {
                   if (response.data.length > 0) {
                     callback()
                   } else {
-                    callback(new Error('查阅密码输入错误！'))
+                    callback(new Error('查阅密码不正确，请重新输入。'))
                   }
                 } else {
-                  callback(new Error('查阅密码输入错误，请重试！'))
+                  callback(new Error('查阅密码不正确，请重新输入。'))
                 }
               }).catch(() => {
                 this.listLoading = false
