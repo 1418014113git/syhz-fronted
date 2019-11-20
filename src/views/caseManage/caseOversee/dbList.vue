@@ -29,6 +29,9 @@
           </el-cascader>
         </el-tooltip>
       </el-form-item>
+      <el-form-item label="申请人">
+        <el-input v-model="filters.applyPersonName" clearable placeholder="请输入申请人姓名" size="small" maxlength="30"></el-input>
+      </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="filters.status" placeholder="全部" clearable>
           <el-option v-for="item in $getDicts('dbajzt')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
@@ -38,9 +41,6 @@
         <el-select v-model="filters.superviseLevel" placeholder="请选择" clearable>
           <el-option v-for="item in $getDicts('dbjb')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
         </el-select>
-      </el-form-item>
-      <el-form-item label="申请人">
-        <el-input v-model="filters.applyPersonName" clearable placeholder="案件名称" size="small" maxlength="30"></el-input>
       </el-form-item>
       <el-form-item label="截止日期">
         <el-date-picker
@@ -204,7 +204,9 @@ export default {
       assessScoresForm: {},
       assessScoresVisible: false,
       currentDeptId: '',
-      filters: {},
+      filters: {
+        status: ''
+      },
       ajbh: '',
       toEdit: {},
       pageSize: 15,
@@ -399,7 +401,6 @@ export default {
       // para.ajbh = this.ajbh || '' // 案件编号
       para.pageNum = this.page
       para.pageSize = this.pageSize
-      para.departType = this.deptInfo.depType // 部门类型
       if (this.filters.area && this.filters.area.length > 0) { // 行政区划
         para.provinceCode = this.filters.area[0] || '' // 省code
         para.cityCode = this.filters.area[1] || '' // 市code
@@ -411,8 +412,10 @@ export default {
       }
       if (this.filters.department) { // 单位机构
         para.departCode = this.filters.department[this.filters.department.length - 1] // 部门code
+        para.departType = this.selectCurDep.depType // 部门类型
       } else {
         para.departCode = this.deptInfo.depCode // 所属部门code
+        para.departType = this.deptInfo.depType // 部门类型
       }
       para.supType = this.deptInfo.depType === '4' ? this.pcsParentDept.depType : this.deptInfo.depType // 当前部门类型
 
@@ -626,15 +629,12 @@ export default {
     },
     resetFormFilter() {
       this.filters = {
-        caseName: '',
-        createTime: '',
-        deptName: ''
+        status: ''
       }
       this.ajbh = ''
-      this.queryDb(true, true)
+      this.initData()
     },
     toAjDetail(id) {
-      // this.$router.push({ path: '/caseManage/detailSyh/' + id })
       this.$router.push({
         path: '/caseFile/index', query: { id: id }
       })
@@ -675,13 +675,20 @@ export default {
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-    // const depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    // if (sessionStorage.getItem(this.$route.path)) {
-    //   this.ajbh = JSON.parse(sessionStorage.getItem(this.$route.path)).ajbh
-    // }
-    // if (this.$route.query.ajbh) {
-    //   this.ajbh = this.$route.query.ajbh
-    // }
+
+    if (this.$route.query.origin) {
+      if (this.$route.query.origin === 'portal') {
+        if (this.$route.query.status) {
+          this.filters.status = this.$route.query.status // 首页-审核待办
+        }
+        if (this.$route.query.jabgStatus) {
+          this.filters.jabgStatus = this.$route.query.jabgStatus // 首页-审核待办
+        }
+        if (this.$route.query.qsStatus) {
+          this.filters.qsStatus = this.$route.query.qsStatus // 首页-审核待办
+        }
+      }
+    }
     this.initData()
   },
   activated() {

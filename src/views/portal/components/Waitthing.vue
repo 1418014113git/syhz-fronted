@@ -32,7 +32,7 @@
 
 <script>
 import {
-  getSignCount, getWorkGroup, getCBCount, getSignAjrl
+  getSignCount, getWorkGroup, getSignAjrl
 } from '@/api/portal'
 export default {
   data() {
@@ -90,7 +90,15 @@ export default {
     },
     goHandle(index, node) {
       if (index === 0) {
-        if (node.type === '0007') {
+        if (node.type === '0003') { // 督办待审核
+          this.$router.push({
+            path: '/caseManage/dbList', query: { origin: 'portal', status: '1' } // 来源，状态
+          })
+        } else if (node.type === '0008') { // 督办结案报告待审核
+          this.$router.push({
+            path: '/caseManage/dbList', query: { origin: 'portal', jabgStatus: '1' } // 来源，状态
+          })
+        } else if (node.type === '0007') {
           localStorage.setItem('curAppCode', '004')
           this.$router.push({
             path: '/specialTasks'
@@ -114,9 +122,7 @@ export default {
       if (index === 1) {
         if (node.data_op === '案件认领') {
           localStorage.setItem('curAppCode', '003')
-
           this.$router.push({
-
             path: '/caseManage/ajrl', params: { source: 'portal' }
           })
         }
@@ -137,9 +143,11 @@ export default {
       }
       if (index === 2) {
         localStorage.setItem('curAppCode', '003')
-        this.$router.push({
-          path: '/caseManage/dblist', query: {}
-        })
+        if (node.data_op === '催办待办') {
+          this.$router.push({
+            path: '/caseManage/dbList', query: { origin: 'portal', qsStatus: '1' } // 来源，签收状态标志
+          })
+        }
       }
       if (index === 3) {
         if (node.business_type === '2') {
@@ -188,17 +196,20 @@ export default {
     },
     getCBAJCount() {
       const para = {
-        deptId: this.deptId
+        deptCode: this.currentDep.depCode
       }
-      getCBCount(para).then((response) => {
-        this.listData[2].data = []
-        if (response.code === '000000' && response.data) {
-          if (response.data.num > 0) {
-            this.listData[2].data = [{
-              data_op: '催办待办', num: response.data.num
-            }]
+      this.$query('dbcbajnum/' + para.deptCode, {}).then((response) => {
+        if (response.code === '000000') {
+          this.listData[2].data = []
+          if (response.code === '000000' && response.data) {
+            if (response.data.num > 0) {
+              this.listData[2].data = [{
+                data_op: '催办待办', num: response.data.num
+              }]
+            }
           }
         }
+      }).catch(() => {
       })
     },
     getWorkFlow() {

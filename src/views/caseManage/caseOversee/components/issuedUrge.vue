@@ -132,8 +132,9 @@ export default {
             if (response.code === '000000') {
               this.btnLoading = false // 关闭加载条
               this.resetForm('dbxfcbForm')
-              this.$emit('closeDialog')
-              this.$emit('initList') // 调用父级的刷新列表方法
+              location.reload() // 直接刷新整个页面
+              // this.$emit('closeDialog')
+              // this.$emit('initList') // 调用父级的刷新列表方法
             }
           }).catch(() => {
             this.btnLoading = false // 关闭加载条

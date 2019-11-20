@@ -189,9 +189,11 @@ export default {
         if (response.code === '000000') {
           this.$alert('<p><i class="el-icon-success" style="color:#67c23a;margin-right:20px;font-size:20px;"></i><span style="font-size:16px;">签收催办成功</span></p><p style="margin-left:40px;color:#dedede;">请尽快对该催办进行反馈</p>', '提示', {
             dangerouslyUseHTMLString: true,
-            confirmButtonText: '知道了'
+            confirmButtonText: '知道了',
+            callback: function(action, instance) {
+              location.reload() // 直接刷新整个页面
+            }
           })
-          this.init()
         }
       }).catch(() => {
         this.loading = false
@@ -231,8 +233,9 @@ export default {
                 message: '提交成功', type: 'success'
               })
               this.cbfkDiaVisible = false
-              this.resetForm('feedbackForm') // 重置表单
-              this.init() // 刷新列表
+              // this.resetForm('feedbackForm') // 重置表单
+              // this.init() // 刷新列表
+              location.reload() // 直接刷新整个页面
             }
           }).catch(() => {
             this.loading = false
