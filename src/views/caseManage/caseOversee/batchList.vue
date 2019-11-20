@@ -3,7 +3,7 @@
     <el-row class="clearfix">
       <img src="@/assets/icon/back.png"  class="goBack" @click="toback">   <!--返回-->
     </el-row>
-    <el-form ref="dbqueryForm" :inline="true" :model="filters" label-width="78px">
+    <el-form ref="filters" :inline="true" :model="filters" label-width="78px">
       <el-form-item label="行政区划" prop="area">
         <el-cascader
           :options="xzqhOptions"
@@ -535,7 +535,7 @@ export default {
     resetFilter() {
       this.resetForm('filters')
       this.ajbh = ''
-      this.queryDbBatch(true, true)
+      this.initData()
     },
     resetForm(formName) { // 重置表单
       if (this.$refs[formName]) {

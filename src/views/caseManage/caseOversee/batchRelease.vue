@@ -311,7 +311,7 @@ export default {
           if (this.dbBatchForm.superviseLevel) { // 督办级别
             this.dbBatchForm.superviseLevel = this.dbBatchForm.superviseLevel + ''
           }
-          this.superviseLevelChange(this.dbBatchForm.superviseLevel)
+          this.queryDbCase()
           // 附件
           for (let i = 0; i < response.data.attachment.length; i++) { // 附件
             this.uploadFiles = [] // 先清空掉该数组
@@ -350,7 +350,7 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-
+            this.choosedCases = [] // 清空掉已选择的督办案件
           }).catch(() => {
             if (val === '1') {
               this.dbBatchForm.superviseLevel = '2'

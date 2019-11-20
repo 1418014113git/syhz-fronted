@@ -170,18 +170,12 @@ export default {
 
       curDeptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前用户的部门
       rlBtn: true,
-      tingDeptData: [
-        {
-          code: '150000535300',
-          name: '内蒙古自治区公安厅食品药品和环境犯罪侦查总队食品犯罪侦查支队'
-        }, {
-          code: '150000535400',
-          name: '内蒙古自治区公安厅食品药品和环境犯罪侦查总队药品犯罪侦查支队'
-        }, {
-          code: '150000535500',
-          name: '内蒙古自治区公安厅食品药品和环境犯罪侦查总队环境犯罪侦查支队'
-        }
-      ],
+      tingDeptData:
+      {
+        code: '610000530000',
+        name: '陕西省公安厅环食药总队'
+      },
+
       laPickerOpt: {},
       paPickerOpt: {},
       pcsParentDept: {}
@@ -210,7 +204,6 @@ export default {
         this.queryTaskNum()
         this.judgeIsShowApplyBtn() // 判断是否显示三个申请按钮
         this.queryFlwsInfo() // 法律文书
-        // console.log('this.$route.query', this.$route.query)
         if (this.$route.query) {
           this.carryParam = this.$route.query
         }
@@ -525,8 +518,7 @@ export default {
         return false
       }
       // 案件年份大于2018年  立案后且未破案案件，必须完善立案日期。 已破案案件，必须完善立案日期、破案日期。
-      // alert('etl的案件年份' + this.ajInfo.larq)
-      if ((this.ajInfo.larq && (Number(this.ajInfo.larq.substr(0, 4)) > 2018 && !this.ajYear))) {
+      if ((this.ajInfo.LARQ && (Number(this.ajInfo.LARQ.substr(0, 4)) > 2018 && !this.ajYear))) {
         this.$message({
           type: 'error',
           message: '请选择案件年份'
@@ -614,16 +606,19 @@ export default {
       }
       var ajString = JSON.stringify(this.ajInfo)
       ajString = JSON.parse(ajString)
-      if (ajString.fllb[0] === '1') {
-        ajString.tDeptCode = this.tingDeptData[0].code
-        ajString.tDeptName = this.tingDeptData[0].name
-      } else if (ajString.fllb[0] === '2') {
-        ajString.tDeptCode = this.tingDeptData[1].code
-        ajString.tDeptName = this.tingDeptData[1].name
-      } else if (ajString.fllb[0] === '3') {
-        ajString.tDeptCode = this.tingDeptData[2].code
-        ajString.tDeptName = this.tingDeptData[2].name
-      }
+      // if (ajString.fllb[0] === '1') {
+      //   ajString.tDeptCode = this.tingDeptData[0].code
+      //   ajString.tDeptName = this.tingDeptData[0].name
+      // } else if (ajString.fllb[0] === '2') {
+      //   ajString.tDeptCode = this.tingDeptData[1].code
+      //   ajString.tDeptName = this.tingDeptData[1].name
+      // } else if (ajString.fllb[0] === '3') {
+      //   ajString.tDeptCode = this.tingDeptData[2].code
+      //   ajString.tDeptName = this.tingDeptData[2].name
+      // }
+      ajString.tDeptCode = this.tingDeptData.code
+      ajString.tDeptName = this.tingDeptData.name
+
       ajString.status = 5
       const b = JSON.parse(getUserInfo())
       ajString.userId = b.id
@@ -760,6 +755,7 @@ export default {
   //   Bus.$off('ajgenggai')
   // },
   mounted() {
+    // alert(JSON.stringify(this.ajInfo))
     // 判断是否有案件认领按钮权限
     this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))

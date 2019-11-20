@@ -25,7 +25,7 @@
         <p class="content" v-html="jabgInfo.content"></p>
         <div class="attachment">
           附件：
-          <div style="margin:0;">
+          <div style="margin:-20px 0 0 60px;">
             <p v-for="item in uploadFiles" :key="item.path">
                 <!-- <a :title="item.name" :href="item.path" target="_blank" class="fjlink">{{item.name}}</a>&nbsp;&nbsp;&nbsp; -->
                 <a @click="downFile(item)" class="fjlink">{{item.name}}</a>

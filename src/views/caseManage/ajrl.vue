@@ -134,7 +134,9 @@
           <el-input v-model="filters.ladw" size="small" placeholder="立案单位" clearable maxlength="30"></el-input>
         </el-form-item>
               <el-form-item label="案件类型" prop="fllb">
+                  <el-tooltip effect="dark" :content="selectCurfllb.name" placement="top-start" :popper-class="(selectCurfllb.name&&selectCurfllb.name.length>9)===true?'tooltipShow':'tooltipHide'">
           <el-cascader v-model="filters.fllb" change-on-select filterable :options="fllbList" @change="handleChange" clearable></el-cascader>
+                  </el-tooltip>
         </el-form-item>
 
                 <el-form-item label="案件类别" prop="ajlb">
@@ -227,8 +229,8 @@
         <template slot-scope="scope">
           <el-button size="small" type="primary" plain v-if="scope.row.status!=3 && $isViewBtn('100703')"  @click="handleAjDetail(scope.$index, scope.row)"> 案件详情</el-button>
           <el-button size="small" type="primary" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100704')"  :disabled="scope.row.status!=3" @click="handleAjDetail(scope.$index, scope.row)"> 案件认领</el-button>
-          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && downBtn"  @click="handleZDGX(0, scope.row, 'ajxfForm')">案件下发</el-button>
-          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">案件转发</el-button>
+          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && downBtn"  @click="handleZDGX(0, scope.row, 'ajxfForm')">下发案件</el-button>
+          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">转发案件</el-button>
           <el-button size="small" type="danger"  plain v-if="scope.row.status==3  && hasAccess(scope.row) && $isViewBtn('100706')"  @click="handleZDGX(2, scope.row, 'ajcxForm')">撤销案件</el-button>
           <el-button size="small" type="danger"  plain v-if="scope.row.status==10 && $isViewBtn('100706')"  @click="handleZDGX(3, scope.row, 'ajhfForm')">恢复案件</el-button>
           <el-button size="small" type="danger"  plain v-if="$isViewBtn('100705')"  @click="handleAJSIGN(scope.row.AJBH)">认领详情</el-button>
@@ -417,6 +419,7 @@ export default {
       btnLoading: false, // 下发、转发、恢复loading
       cxLoading: false, // 撤销loading
       selectCurDep: {}, // 当前选择的机构
+      selectCurfllb: {}, // 當前選擇的案件類型
       rlStartPickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
@@ -624,8 +627,17 @@ export default {
     //     this.selectCurTingDep = { name: '' }
     //   }
     // },
-    handleChange(value) { // 案件类型change
-
+    handleChange(val) {
+      // // 案件类型change
+      // if (val.length > 0) {
+      //   var fllbs = this.fllbList
+      //   for (let i = 0; i < fllbs.length; i++) {
+      //     const fllb = fllbs[i]
+      //     console.log(i + '' + JSON.stringify(fllb))
+      //   }
+      // } else {
+      //   this.selectCurDep = { name: '' }
+      // }
     },
     // shiDepChange(val) {
     //   this.qiDep = []
@@ -828,8 +840,6 @@ export default {
       this.ajInfo.userId = this.curUser.id
       this.ajInfo.userName = this.curUser.realName
       this.ajInfo.noticeType = type
-
-      // console.info(formName)
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.btnLoading = true
@@ -1156,8 +1166,8 @@ export default {
       this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
 
       this.curUser = JSON.parse(getUserInfo())
-      this.filters.curDeptCode = this.curDept.depCode
-      this.filters.departType = this.curDept.depType
+      // this.filters.curDeptCode = this.curDept.depCode
+      // this.filters.departType = this.curDept.depType
       this.qsStatus = '' // 认领状态设置为空
       this.initList()
     },
@@ -1226,9 +1236,9 @@ export default {
                 _this.xzqhOptions[0].children[index].disabled = true
               }
             }
-          } else if (this.curDept.depType === '3') { // 大队 派出所
+          } else if (this.curDept.depType === '3') { // 大队
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
-          } else if (this.curDept.depType === '4') {
+          } else if (this.curDept.depType === '4') { // 派出所
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.parentDepCode]
             if (this.curDept.areaCode === '610403') { // 杨凌例外
               currentArea = ['610000', '610403']
