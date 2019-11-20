@@ -309,6 +309,10 @@ export default {
       if (curDept.parentDepCode === '610403390000') {
         curDept.depCode = curDept.parentDepCode
       }
+      // 派出所当父级对待
+      if (curDept.depType === '4') {
+        curDept.depCode = curDept.parentDepCode
+      }
 
       if ((this.laDate === '' || this.laDate === '0' || (this.laDate && this.laDate.length !== 10)) && this.$route.query.rlDept === curDept.depCode) {
         this.laPickerChange(this.laDate)
