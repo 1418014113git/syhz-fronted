@@ -338,8 +338,12 @@ export default {
         })
       }
     },
-    toPercent(num) { // 数字转百分比
-      return (Math.round(num * 10000) / 100).toFixed(2) + '%'
+    toPercent(num, total) { // 数字转百分比,num 当前数，total 总数
+      if (total) {
+        return (Math.round((num / total) * 10000) / 100).toFixed(2) + '%'
+      } else {
+        return '0.00%'
+      }
     },
     drawChart(data) { // 年龄 饼状图
       var tjArr = [
@@ -354,9 +358,9 @@ export default {
             '{title|{b}}{abg|}',
             '  {typeHead|分类}{valueHead|数量}{rateHead|占比}',
             '{hr|}',
-            '  {type|环境}{value|' + element.value1 + '}{rate|' + this.toPercent(element.value1 / element.itemTotal) + '}',
-            '  {type|食品}{value|' + element.value2 + '}{rate|' + this.toPercent(element.value2 / element.itemTotal) + '}',
-            '  {type|药品}{value|' + element.value3 + '}{rate|' + this.toPercent(element.value3 / element.itemTotal) + '}'
+            '  {type|环境}{value|' + element.value1 + '}{rate|' + this.toPercent(element.value1, element.itemTotal) + '}',
+            '  {type|食品}{value|' + element.value2 + '}{rate|' + this.toPercent(element.value2, element.itemTotal) + '}',
+            '  {type|药品}{value|' + element.value3 + '}{rate|' + this.toPercent(element.value3, element.itemTotal) + '}'
           ].join('\n'),
           backgroundColor: '#eee',
           borderColor: '#777',
