@@ -21,9 +21,12 @@
                   <div><el-slider v-model="value" :format-tooltip="formatTooltip" :show-tooltip="false" @change="sliderChange"></el-slider></div>
                   <div>{{allTime}}</div>
                 </div>
-                <audio id="mp3Btn" @ended="ended" ref="audio">
-                  <source :src="detailData.enPath" type="audio/mpeg" />
-                </audio>
+                <div id="audioDiv">
+                  <!--<audio id="mp3Btn" class='music-audio' @ended="ended" loop ref="audio">-->
+                    <!--<source :src="detailData.enPath" type="audio/mpeg" />-->
+                    <!--&lt;!&ndash;<source src="http://192.168.42.189:85/files/20191120183804/20191120183729.mp3" type="audio/mpeg" />&ndash;&gt;-->
+                  <!--</audio>-->
+                </div>
               </div>
             </div>
             <div v-if="playType === '5'" class="audio_player_txt">
@@ -121,6 +124,15 @@
         }
         this.detailData = playerDetail
         this.src()
+
+        document.getElementById('audioDiv').innerHTML = '<audio id="mp3Btn" class=\'music-audio\' @ended="ended" loop ref="audio">' +
+          '<source src="' + this.detailData.enPath + '" type="audio/mpeg" />' +
+          '</audio>'
+
+        document.getElementById('mp3Btn').addEventListener('ended', function(e) {
+          this.ended()
+        }, true)
+
         const audio = document.getElementById('mp3Btn')
         audio.load()
         this.audioMusic = {
@@ -230,7 +242,7 @@
         document.getElementsByClassName('btn-audio')[0].classList.add('paused')
       },
       audioClick() {
-        const audio = document.getElementById('mp3Btn')
+        const audio = document.getElementsByClassName('music-audio')[0]
         event.stopPropagation()
         if (audio.paused) {
           if (audio.duration === undefined || audio.duration === null || audio.duration === '' || isNaN(audio.duration)) {
@@ -551,4 +563,7 @@
   .classRoom_audioPlayer .el-slider__button{
     border-color: #074f71;
   }
+</style>
+<style>
+  .music-all{width:500px;height:500px;border:1px solid red;margin:30px auto 0;position:relative}.music-range{width:350px;height:10px;background:#2386e4;border-radius:5px;-webkit-appearance:none;margin:0 auto;cursor:pointer}.music-range::-webkit-slider-thumb{width:15px;height:15px;background:#fff;border:1px solid #f18900;cursor:pointer;border-radius:5px;-webkit-appearance:none}.music-animation{width:70px;height:70px;background:red;margin:0 auto;text-align:center;line-height:70px;font-size:12px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}.play-an{animation:dong 5s linear infinite}@keyframes dong{0%{background:red;left:0;top:0;width:10px;height:30px}25%{background:#ff0;left:500px;top:0;width:30px;height:10px}50%{background:blue;left:500px;top:500px;width:10px;height:30px}75%{background:green;left:0;top:500px;width:30px;height:10px}100%{background:red;left:0;top:0;width:10px;height:30px}}a{text-align:center}
 </style>
