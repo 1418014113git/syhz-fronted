@@ -179,7 +179,7 @@ export default {
           }
         }],
         superviseDeptCode: [{
-          required: true, message: '请选择审核部门', trigger: 'change'
+          required: true, message: '请选择审核单位', trigger: 'change'
         }]
         // dbName: [{
         //   required: true, message: '请输入督办名称', trigger: 'blur'
@@ -519,7 +519,7 @@ export default {
         this.handleFile()
       }
       const req = this.dbApplyForm
-      req.status = state // 区分按钮 0保存草 0保存草稿 1申请 待审核
+      req.status = state // 区分按钮 0保存草稿 1申请 待审核
       req.applyPersonId = this.userInfo.id // 申请人id
       req.applyPersonName = this.userInfo.realName // 申请人姓名
       if (this.deptInfo.depType === '4') { // 派出所取父级部门信息

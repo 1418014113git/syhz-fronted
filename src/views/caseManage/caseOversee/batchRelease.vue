@@ -79,13 +79,13 @@
               <el-table-column prop="ajmc" label="案件名称" min-width="10%" show-overflow-tooltip></el-table-column>
               <el-table-column label="案件编号" min-width="10%" show-overflow-tooltip>
                 <template slot-scope="scope">
-                  <a class="ajbh-color" @click="toAjDetail(scope.row.case_id)">{{scope.row.ajbh}}</a>
+                  <a class="ajbh-color" @click="toAjDetail(scope.row.caseId)">{{scope.row.ajbh}}</a>
                 </template>
               </el-table-column>
               <el-table-column prop="ajlb" label="案件类别" min-width="10%" show-overflow-tooltip></el-table-column>
               <el-table-column prop="ajzt" label="案件状态" width="100" show-overflow-tooltip></el-table-column>
-              <el-table-column prop="sajz" label="涉案价值" min-width="10%" show-overflow-tooltip></el-table-column>
-              <el-table-column prop="applyDepartName" label="申请单位" min-width="10%" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="sajz" label="涉案价值（万元）" min-width="10%" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="applyDeptName" label="申请单位" min-width="10%" show-overflow-tooltip></el-table-column>
               <el-table-column prop="AJLB_NAME" label="操作" width="60">
                 <template slot-scope="scope">
                   <el-button title="移除" size="mini" type="primary" @click="handleDeleteAj(scope.$index, scope.row)" icon="el-icon-close" circle></el-button>
@@ -110,6 +110,7 @@ import { regCode } from '@/utils/validate'
 // import { getTree } from '@/api/dept'
 import VueEditor from '@/components/Editor/VueEditor'
 import { uploadImg } from '@/utils/editorUpload'
+import { getThousandNum } from '@/utils/public'
 export default {
   name: 'add',
   data() {
@@ -307,7 +308,13 @@ export default {
         this.formLoading = false
         if (response.code === '000000') {
           this.dbBatchForm = response.data
-          this.choosedCases = this.dbBatchForm.caseList // 督办案件列表
+          if (this.dbBatchForm.caseList) { // 督办案件列表
+            for (let m = 0; m < this.dbBatchForm.caseList.length; m++) {
+              var item = this.dbBatchForm.caseList[m]
+              item.sajz = getThousandNum((item.sajz / 10000).toFixed(2)) // 涉案价值 转化
+            }
+            this.choosedCases = this.dbBatchForm.caseList // 督办案件列表
+          }
           if (this.dbBatchForm.superviseLevel) { // 督办级别
             this.dbBatchForm.superviseLevel = this.dbBatchForm.superviseLevel + ''
           }
@@ -378,6 +385,7 @@ export default {
         this.dbAjData = response.data
         for (let index = 0; index < response.data.length; index++) {
           const element = response.data[index]
+          element.sajz = getThousandNum((element.sajz / 10000).toFixed(2))
           element.customFiled = element.ajmc + '-' + element.ajbh + '-' + element.jyaq
         }
         this.dbAjDataAll = response.data
@@ -538,11 +546,18 @@ export default {
           param.userName = this.userInfo.realName // 用户姓名
           param.status = type // 0保存，1发布
           var caseIds = []
-          for (let m = 0; m < this.choosedCases.length; m++) {
-            const element = this.choosedCases[m]
-            caseIds.push(element.id)
+          if (this.choosedCases.length > 0) {
+            for (let m = 0; m < this.choosedCases.length; m++) {
+              const element = this.choosedCases[m]
+              caseIds.push(element.id)
+            }
+            param.caseIds = caseIds.join(',') // 督办案件 案件id用逗号隔开
+          } else {
+            this.$message({
+              message: '督办案件不能为空', type: 'error'
+            })
+            return false
           }
-          param.caseIds = caseIds.join(',') // 督办案件 案件id用逗号隔开
           // console.log(param)
           this.formLoading = true
           if (this.carryParam.dbBatchId) {
@@ -585,6 +600,11 @@ export default {
             })
           }
         }
+      })
+    },
+    toAjDetail(id) { // 跳转到案件详情
+      this.$router.push({
+        path: '/caseFile/index', query: { id: id }
       })
     },
     back() {

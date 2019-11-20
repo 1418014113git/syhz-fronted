@@ -12,11 +12,11 @@
           基本信息-【签收】，申请单位人员，案件督办状态为督办中、督办结束或评价打分时，且本单位未签收时可点击签收。其他情况隐藏。
           基本信息-【申请部门】，所有人可见，案件督办状态为督办中、督办结束或评价打分时，且申请单位未签收时显示“待签收”。申请单位签收后，显示“已签收”。
         -->
-        <el-button v-if="$isViewBtn('100813')&&deptInfo.depCode===baseInfo.superviseDepartCode && dsh_Info.applyDate"
+        <el-button v-if="$isViewBtn('100813') && deptInfo.depCode===baseInfo.superviseDepartCode && dsh_Info.applyDate"
           type="primary" size="small" @click="handleAudit">审核</el-button>
-        <el-button v-if="$isViewBtn('100807')&&deptInfo.depCode===baseInfo.superviseDepartCode&&(baseInfo.wdStatus===0||baseInfo.wdStatus===4)"
+        <el-button v-if="$isViewBtn('100807') && baseInfo.status!==0 && deptInfo.depCode===baseInfo.superviseDepartCode&&(baseInfo.wdStatus===0||baseInfo.wdStatus===4)"
           type="primary" size="small" @click="handleApplyToUp">申请上级督办</el-button>
-        <el-button v-if="$isViewBtn('100814')&&((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))&&
+        <el-button v-if="$isViewBtn('100814') && baseInfo.signStatus==='2' && ((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))&&
           (baseInfo.status===5||baseInfo.status===6||baseInfo.status===7) && !baseInfo.jabgTitle"
           type="primary" size="small"  @click="handleReport">上报结案报告</el-button>
         <el-button v-if="$isViewBtn('100816')&&deptInfo.depCode===baseInfo.superviseDepartCode && (baseInfo.status===5||baseInfo.status===6||baseInfo.status===7)"
@@ -35,7 +35,7 @@
               <span class="whiteColor">{{baseInfo.applyUserName}}</span>
             </el-form-item>
             <el-form-item label="申请时间：" prop="applyDate">
-              <span class="whiteColor">{{baseInfo.applyDate}}</span>
+              <span v-if="baseInfo.status!==0">{{baseInfo.applyDate}}</span>
             </el-form-item>
             <el-form-item label="开始日期：" prop="sg">
               <span class="whiteColor">{{baseInfo.sg}}</span>
@@ -84,7 +84,7 @@
             <el-form-item label="案件类别：" prop="ajlb">
               <span class="whiteColor">{{baseInfo.ajlb}}</span>
             </el-form-item>
-            <el-form-item label="涉案价值" prop="sajz">
+            <el-form-item label="涉案价值：" prop="sajz">
               <span class="whiteColor">{{baseInfo.sajz}} 万元</span>
             </el-form-item>
           </el-col>
@@ -92,10 +92,10 @@
             <el-form-item label="案件编号：" prop="ajbh">
               <span class="whiteColor" @click="toAjDetail(baseInfo.caseId)" style="text-decoration: underline;cursor:pointer;">{{baseInfo.ajbh}}</span>
             </el-form-item>
-            <el-form-item label="案件类型：" prop="ajlb">
-              <span class="whiteColor">{{baseInfo.ajlb}}</span>
+            <el-form-item label="案件类型：" prop="ajlx">
+              <span class="whiteColor">{{baseInfo.ajlx}}</span>
             </el-form-item>
-            <el-form-item label="嫌疑人数" prop="zars">
+            <el-form-item label="嫌疑人数：" prop="zars">
               <span class="whiteColor">{{baseInfo.zars}}</span>
             </el-form-item>
           </el-col>
