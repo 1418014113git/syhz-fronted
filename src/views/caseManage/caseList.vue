@@ -64,7 +64,7 @@
         <template slot-scope="scope">
           <a v-if="item.columnName === 'AJMC' || item.columnName === 'AJBH'" class="ajbh-color" @click="handleAjDetail(scope.$index, scope.row)">{{scope.row[item.titleName]}}</a>
           <span v-else-if="item.columnName === 'CONFIRM_STATUS'">
-            {{scope.row[item.titleName] === null || scope.row[item.titleName] === undefined || scope.row[item.titleName] === 2 ? ('上报已读') : (scope.row[item.titleName] === 1 ? '上报未读': '')}}
+            {{scope.row[item.titleName] === 2 ? ('上报已读') : (scope.row[item.titleName] === 1 ? '上报未读': '')}}
           </span>
           <span v-else-if="item.columnName === 'SYH_FLLB'">{{getFllbName(scope.row[item.titleName])}}</span>
           <span v-else-if="item.columnName === 'AJZT'">{{getAjztName(scope.row[item.titleName])}}</span>
