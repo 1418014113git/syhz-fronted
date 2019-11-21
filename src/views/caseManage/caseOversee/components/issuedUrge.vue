@@ -32,9 +32,9 @@ export default {
   name: 'baseInfo',
   data() {
     return {
-      dbxfcbForm: { // 审核
+      dbxfcbForm: { // 下发催办
         endDate: '', // 催办截至日期
-        content: '' // 审核意见
+        urgedContent: '' // 催办要求
       },
       bcb_data: {}, // 被催办的信息
       db_Id: '', // 督办id
@@ -115,13 +115,6 @@ export default {
           }
           this.btnLoading = true // 加载进度条
           var param = this.dbxfcbForm
-          // {
-          //   superviseId: , // 督办id
-          //   userId: this.userInfo.id, // 审核人id
-          //   userName: this.userInfo.realName, // 审核人姓名
-          //   departCode: this.deptInfo.depCode, // 审核人部门code
-          //   departName: this.deptInfo.depName // 审核人部门名称
-          // }
           param = Object.assign(param, this.bcb_data)
           param.urgentPersonId = this.userInfo.id // 当前人的信息
           param.urgentPersonName = this.userInfo.realName
@@ -131,9 +124,10 @@ export default {
           this.$save('dbcbaj', param).then((response) => {
             if (response.code === '000000') {
               this.btnLoading = false // 关闭加载条
-              this.resetForm('dbxfcbForm')
-              this.$emit('closeDialog')
-              this.$emit('initList') // 调用父级的刷新列表方法
+              location.reload() // 直接刷新整个页面
+              // this.resetForm('dbxfcbForm')
+              // this.$emit('closeDialog')
+              // this.$emit('initList') // 调用父级的刷新列表方法
             }
           }).catch(() => {
             this.btnLoading = false // 关闭加载条

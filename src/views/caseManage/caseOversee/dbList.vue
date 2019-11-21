@@ -29,6 +29,9 @@
           </el-cascader>
         </el-tooltip>
       </el-form-item>
+      <el-form-item label="申请人">
+        <el-input v-model="filters.applyPersonName" clearable placeholder="请输入申请人姓名" size="small" maxlength="30"></el-input>
+      </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="filters.status" placeholder="全部" clearable>
           <el-option v-for="item in $getDicts('dbajzt')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
@@ -38,9 +41,6 @@
         <el-select v-model="filters.superviseLevel" placeholder="请选择" clearable>
           <el-option v-for="item in $getDicts('dbjb')" :key="item.dictKey" :label="item.dictName" :value="item.dictKey"></el-option>
         </el-select>
-      </el-form-item>
-      <el-form-item label="申请人">
-        <el-input v-model="filters.applyPersonName" clearable placeholder="案件名称" size="small" maxlength="30"></el-input>
       </el-form-item>
       <el-form-item label="截止日期">
         <el-date-picker
@@ -82,35 +82,29 @@
     </el-form>
     <el-row style="margin:0px 0 16px;">
       <el-button class="right" type="primary" size="small" v-if="$isViewBtn('100809')" v-on:click="handleDbBatchRelease('apply')">督办批次发布</el-button>
-      <a :href="downLoadUrl+'挂牌督办测试.pdf'" target="_blank" class="right" style="margin-right:10px;color: #00a0e9;cursor: pointer;text-decoration:underline;">挂牌督办办法</a>
+      <!-- 下载 -->
+      <a :href="downLoadUrl+'挂牌督办办法.pdf'" download="挂牌督办办法.pdf" target="_blank" class="right" style="margin-right:10px;color: #00a0e9;cursor: pointer;text-decoration:underline;">
+        <i class="el-icon-download"></i>
+      </a>
+      <!-- 预览 -->
+      <a :href="downLoadUrl+'挂牌督办办法.pdf'" target="_blank" class="right" style="margin-right:6px;color: #00a0e9;cursor: pointer;text-decoration:underline;">挂牌督办办法</a>
     </el-row>
     <el-table :data="dbData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center" :span-method="objectSpanMethod">
       <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
-      <el-table-column label="案件名称" min-width="10%" prop="caseName" show-overflow-tooltip>
-        <!-- <template slot-scope="scope">
-          <a class="ajbh-color" @click="toAjDetail(scope.row.case_id)">{{scope.row.AJMC}}</a>
-        </template> -->
-      </el-table-column>
+      <el-table-column label="案件名称" min-width="10%" prop="caseName" show-overflow-tooltip></el-table-column>
       <el-table-column label="案件编号" min-width="10%" show-overflow-tooltip>
         <template slot-scope="scope">
           <a class="ajbh-color" @click="toAjDetail(scope.row.caseId)">{{scope.row.caseNumber}}</a>
         </template>
       </el-table-column>
       <el-table-column prop="title" label="督办批次" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
-      <!-- <el-table-column label="立案时间" width="140">
-        <template slot-scope="scope">
-          {{$handlerDateTime(scope.row.LARQ)}}
-        </template>
-      </el-table-column>
-      <el-table-column prop="AJLB_NAME" label="案件类别" min-width="10%"></el-table-column>
-      <el-table-column label="发起时间" width="150">
-        <template slot-scope="scope">
-          {{scope.row.create_time | formatDate}}
-        </template>
-      </el-table-column> -->
       <el-table-column prop="applyDeptName" label="申请单位" min-width="15%" show-overflow-tooltip></el-table-column>
       <el-table-column prop="applyPersonName" label="申请人" min-width="15%" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="applyDate" label="申请日期" min-width="15%" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="applyDate" label="申请日期" min-width="15%" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.status!==0">{{scope.row.applyDate}}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="superviseLevel" label="督办级别" width="100" align="center">
         <template slot-scope="scope">
           {{$getDictName(scope.row.superviseLevel+'','dbjb')}}
@@ -204,7 +198,9 @@ export default {
       assessScoresForm: {},
       assessScoresVisible: false,
       currentDeptId: '',
-      filters: {},
+      filters: {
+        status: ''
+      },
       ajbh: '',
       toEdit: {},
       pageSize: 15,
@@ -243,10 +239,10 @@ export default {
                   if (response.data.length > 0) {
                     callback()
                   } else {
-                    callback(new Error('查阅密码输入错误！'))
+                    callback(new Error('查阅密码不正确，请重新输入。'))
                   }
                 } else {
-                  callback(new Error('查阅密码输入错误，请重试！'))
+                  callback(new Error('查阅密码不正确，请重新输入。'))
                 }
               }).catch(() => {
                 this.listLoading = false
@@ -399,7 +395,6 @@ export default {
       // para.ajbh = this.ajbh || '' // 案件编号
       para.pageNum = this.page
       para.pageSize = this.pageSize
-      para.departType = this.deptInfo.depType // 部门类型
       if (this.filters.area && this.filters.area.length > 0) { // 行政区划
         para.provinceCode = this.filters.area[0] || '' // 省code
         para.cityCode = this.filters.area[1] || '' // 市code
@@ -411,8 +406,10 @@ export default {
       }
       if (this.filters.department) { // 单位机构
         para.departCode = this.filters.department[this.filters.department.length - 1] // 部门code
+        para.departType = this.selectCurDep.depType // 部门类型
       } else {
         para.departCode = this.deptInfo.depCode // 所属部门code
+        para.departType = this.deptInfo.depType // 部门类型
       }
       para.supType = this.deptInfo.depType === '4' ? this.pcsParentDept.depType : this.deptInfo.depType // 当前部门类型
 
@@ -626,15 +623,12 @@ export default {
     },
     resetFormFilter() {
       this.filters = {
-        caseName: '',
-        createTime: '',
-        deptName: ''
+        status: ''
       }
       this.ajbh = ''
-      this.queryDb(true, true)
+      this.initData()
     },
     toAjDetail(id) {
-      // this.$router.push({ path: '/caseManage/detailSyh/' + id })
       this.$router.push({
         path: '/caseFile/index', query: { id: id }
       })
@@ -675,13 +669,20 @@ export default {
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-    // const depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    // if (sessionStorage.getItem(this.$route.path)) {
-    //   this.ajbh = JSON.parse(sessionStorage.getItem(this.$route.path)).ajbh
-    // }
-    // if (this.$route.query.ajbh) {
-    //   this.ajbh = this.$route.query.ajbh
-    // }
+
+    if (this.$route.query.origin) {
+      if (this.$route.query.origin === 'portal') {
+        if (this.$route.query.status) {
+          this.filters.status = this.$route.query.status // 首页-审核待办
+        }
+        if (this.$route.query.jabgStatus) {
+          this.filters.jabgStatus = this.$route.query.jabgStatus // 首页-审核待办
+        }
+        if (this.$route.query.qsStatus) {
+          this.filters.qsStatus = this.$route.query.qsStatus // 首页-审核待办
+        }
+      }
+    }
     this.initData()
   },
   activated() {
