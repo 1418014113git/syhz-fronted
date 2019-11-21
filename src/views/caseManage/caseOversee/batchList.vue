@@ -133,7 +133,7 @@
           {{$getDictName(scope.row.status+'','dbajpczt')}}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="140">
+      <el-table-column label="操作" width="130">
         <template slot-scope="scope">
           <el-button title="详情" v-if="$isViewBtn('100810')" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle></el-button>
           <el-button title="修改" v-if="$isViewBtn('100811') && (userInfo.id+'' === scope.row.creationId) && scope.row.canEditBatch" size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
