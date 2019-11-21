@@ -1,8 +1,6 @@
 <template>
   <section class="reportTemplate">
-    <!-- 试题管理主页 -->
     <el-row v-loading="listLoading">
-      <!-- 左侧树形结构 -->
       <el-col class="leftCont" :span="5" :style="{height:countHeight}">
         <tree
           :tree="dataList"
@@ -16,7 +14,6 @@
         >
         </tree>
       </el-col>
-      <!-- 右侧列表区 -->
       <el-col :span="18" class="rightCont" :style="{height:countHeight}">
         <el-form :model="addForm" ref="addForm" :rules="rules" :inline="true" v-loading="formLoading" :disabled="formDisable">
           <el-row>
@@ -91,6 +88,18 @@
         </el-form>
       </el-col>
     </el-row>
+    <el-dialog title="提示" :visible.sync="confirmDialogVisible" :close-on-click-modal="false" class="report_confirm_dialog" @close="closeDialog">
+      <div class="el-message-box__status"><i class="el-icon-warning"></i></div>
+      <div class="el-message-box__message">
+        <p>
+          {{(this.treeItem.reportType === 1 ? '案件查询统计报表' : '情报查询统计报表') + '报表的' + this.addForm.templateName + '自定义模板没有配置任何项目，确认是否离开？'}}
+        </p>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeDialog" class="cancelBtn">否</el-button>
+        <el-button type="primary" @click="toJump" class="saveBtn">是</el-button>
+      </div>
+    </el-dialog>
   </section>
 </template>
 
@@ -242,7 +251,10 @@
               return callback()
             }
           }]
-        }
+        },
+        confirmDialogVisible: false,
+        canJump: false,
+        jumpPath: ''
       }
     },
     methods: {
@@ -397,6 +409,7 @@
               item.isShow = item.isShow === 1
               item.isSort = item.isSort === 1
               item.disabeld = item.isNecessary === 1
+              item.sortType = item.isSort ? item.sortType : ''
               if (item.isSort) {
                 this.isSortArr.push(item.columnId)
               }
@@ -438,6 +451,7 @@
                 item.isShow = false
               }
               item.isSort = false
+              item.sortType = ''
               item.disabeld = item.isNecessary === 1
             }
             this.addForm.columnSet = data
@@ -619,16 +633,94 @@
         const collect = document.getElementsByClassName(className)
         const war = collect[0].getElementsByClassName('el-table__body-wrapper')
         war[0].setAttribute('style', 'height: ' + wrapperHeight + 'px')
+      },
+      closeDialog() {
+        this.confirmDialogVisible = false
+        this.canJump = false
+      },
+      toJump() {
+        this.confirmDialogVisible = false
+        this.canJump = true
+        this.$gotoid(this.jumpPath)
+      }
+    },
+    beforeRouteLeave: function(to, from, next) {
+      this.jumpPath = to.path
+      if (this.canJump) {
+        next()
+      } else {
+        if ((this.addForm.id === undefined || this.addForm.id === null || this.addForm.id === '') && this.addForm.templateName !== undefined && this.addForm.templateName !== null && this.addForm.templateName !== '') {
+          this.confirmDialogVisible = true
+        } else {
+          next()
+        }
       }
     },
     mounted() {
-      this.countHeight = document.documentElement.clientHeight - 130 + 'px'
-      this.setHeight(240, 'reportTemplate')
+      this.countHeight = document.documentElement.clientHeight - 140 + 'px'
+      this.setHeight(300, 'reportTemplate')
       this.getTree()
     }
   }
 </script>
-
+<style>
+  .report_confirm_dialog .el-dialog{
+    width: 420px;
+    padding-bottom: 10px;
+    vertical-align: middle;
+    background-color: #fff;
+    border-radius: 4px;
+    font-size: 18px;
+    -webkit-box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    text-align: left;
+    overflow: hidden;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border: 2px solid rgba(0, 160, 233, 0.7);
+    background-color: rgba(0, 89, 130, 0.7);
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .report_confirm_dialog .el-dialog__header{
+    padding: 2px 15px 2px 38px;
+    background: url(/static/image/portal_newImg/subTitle.png) no-repeat center center;
+    background-size: 100%;
+    position: relative;
+    border-bottom: 0;
+  }
+  .report_confirm_dialog .el-dialog__body{
+    padding: 20px 15px;
+  }
+  .report_confirm_dialog .el-icon-warning{
+    color: #e6a23c;
+    font-size: 16px !important;
+  }
+  .report_confirm_dialog .el-dialog__body span{
+    padding-left: 36px;
+    padding-right: 12px;
+    line-height: 24px;
+  }
+  .report_confirm_dialog .el-dialog__footer{
+    padding: 9px 15px 0;
+    text-align: center;
+    position: relative;
+    border-top: 2px solid rgba(0, 160, 233, 0.7);
+    margin: 0 15px;
+  }
+  .report_confirm_dialog .el-dialog__title{
+    font-size: 14px;
+    position: relative;
+    top: -1px;
+  }
+  .report_confirm_dialog .el-dialog__headerbtn{
+    top: 3px;
+    right: 12px;
+  }
+  .report_confirm_dialog .el-message-box__status{
+    top: 44%;
+  }
+</style>
 <style rel="stylesheet/scss" lang="scss">
   .reportTemplate {
     .leftCont {
