@@ -38,7 +38,7 @@ export default {
           'id': 'chartBar', 'text': 'chart2', 'title': '案件侦办走势分析'
         }
       ],
-      citys: ['西安市', '铜川市', '宝鸡市', '咸阳市', '渭南市', '延安市', '汉中市', '榆林市', '安康市', '商洛市'],
+      citys: ['西安市', '铜川市', '宝鸡市', '咸阳市', '渭南市', '延安市', '汉中市', '榆林市', '安康市', '商洛市', '杨凌区', '西咸新区'],
       cityNum: [],
       year: [],
       yearNum: []
@@ -314,10 +314,10 @@ export default {
   margin: -3px 8px 0 0;
 }
 @media only screen and (max-width: 1367px) {
-  canvas{
+  canvas {
     left: -6px !important;
   }
-  .el-carousel__indicator{
+  .el-carousel__indicator {
     padding: 0px 4px;
   }
 }
