@@ -25,15 +25,20 @@
                 <el-input v-model="addForm.templateName" maxlength="50" style="width: 300px;"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="9" style="position: relative; top: 4px;">
-              <i class="el-icon-info"></i> 请为您自定义报表设定筛选条件和统计项目！
+            <el-col :span="9" style="position: relative; top: 5px;">
+              <i><svg-icon icon-class="wenhao1"></svg-icon></i> 请为您自定义报表设定筛选条件和统计项目！
             </el-col>
             <el-col :span="5" style="text-align: right;">
               <el-form-item>
-                <el-button type="primary" @click="save" class="saveBtn" v-loading.fullscreen.lock="btnLoading">保 存</el-button>
                 <el-button @click="cancelEdit" class="cancelBtn">取 消</el-button>
+                <el-button type="primary" @click="save" class="saveBtn" v-loading.fullscreen.lock="btnLoading">保 存</el-button>
               </el-form-item>
             </el-col>
+          </el-row>
+          <el-row style="margin-bottom: 10px;">
+            <el-checkbox :indeterminate="isIndeterminate_search" v-model="isSearch" @change="searchChange">筛选条件</el-checkbox>
+            <el-checkbox :indeterminate="isIndeterminate_show" v-model="isShow" @change="showChange">统计项目</el-checkbox>
+            <el-checkbox :indeterminate="isIndeterminate_sort" v-model="isSort" @change="sortChange">排序</el-checkbox>
           </el-row>
           <el-table :data="addForm.columnSet">
             <el-table-column align="center" type="index" width="70px" label="序号"></el-table-column>
@@ -97,6 +102,12 @@
     },
     data() {
       return {
+        isIndeterminate_search: true,
+        isIndeterminate_show: true,
+        isIndeterminate_sort: false,
+        isSearch: false,
+        isShow: false,
+        isSort: false,
         formDisable: false,
         addForm: {
           templateName: '',
@@ -243,13 +254,13 @@
           if (data.data === null || data.data.length === 0 || (this.addForm.id === data.data[0].id && data.data.length === 1)) {
             callback = callback()
           } else {
-            callback = callback(Error('自定义模板名称重复，请确认后重新输入！'))
+            callback = callback(Error('自定义模板名称与已有的重复！'))
           }
         } else {
           if (data.data === undefined || data.data === null || data.data.length === 0) {
             callback = callback()
           } else {
-            callback = callback(Error('自定义模板名称重复，请确认后重新输入！'))
+            callback = callback(Error('自定义模板名称与已有的重复！'))
           }
         }
         return callback
@@ -257,11 +268,14 @@
       handleChange(value, row) {
         if (value) {
           this.isSortArr.push(row.columnId)
+          row.sortType = 0
         } else {
           this.isSortArr.splice(this.isSortArr.indexOf(row.columnId), 1)
           row.sort = ''
           row.sortType = ''
+          this.$refs.addForm.resetFields()
         }
+        this.isIndeterminate_sort = this.isSortArr.length > 0 && this.isSortArr.length < this.addForm.columnSet.length
       },
       handleChangeSearch(value, row) {
         if (value) {
@@ -278,6 +292,52 @@
           this.isShowArr.splice(this.isShowArr.indexOf(row.columnId), 1)
           row.show = ''
         }
+      },
+      searchChange(val) {
+        const arr = this.addForm.columnSet
+        for (let i = 0; i < arr.length; i++) {
+          const item = arr[i]
+          if (!item.disabeld) {
+            item.isSearch = val
+            if (val) {
+              this.isSearchArr.push(item.columnId)
+            } else {
+              this.isSearchArr.splice(this.isSearchArr.indexOf(item.columnId), 1)
+            }
+          }
+        }
+        this.isIndeterminate_search = this.isSearchArr.length > 0 && this.isSearchArr.length < this.addForm.columnSet.length
+      },
+      showChange(val) {
+        const arr = this.addForm.columnSet
+        for (let i = 0; i < arr.length; i++) {
+          const item = arr[i]
+          if (!item.disabeld) {
+            item.isShow = val
+            if (val) {
+              this.isShowArr.push(item.columnId)
+            } else {
+              this.isShowArr.splice(this.isShowArr.indexOf(item.columnId), 1)
+            }
+          }
+        }
+        this.isIndeterminate_show = this.isShowArr.length > 0 && this.isShowArr.length < this.addForm.columnSet.length
+      },
+      sortChange(val) {
+        const arr = this.addForm.columnSet
+        for (let i = 0; i < arr.length; i++) {
+          const item = arr[i]
+          item.isSort = val
+          if (val) {
+            this.isSortArr.push(item.columnId)
+            item.sortType = 0
+          } else {
+            this.isSortArr.splice(this.isSortArr.indexOf(item.columnId), 1)
+            item.sort = ''
+            item.sortType = ''
+          }
+        }
+        this.$refs.addForm.resetFields()
       },
       cancelEdit() {
         this.$confirm('确认是否放弃设置当前自定义模板？', '提示', {
@@ -373,7 +433,11 @@
                   item.search = item.columnSort
                   item.show = item.columnSort
                 }
+              } else {
+                item.isSearch = false
+                item.isShow = false
               }
+              item.isSort = false
               item.disabeld = item.isNecessary === 1
             }
             this.addForm.columnSet = data
@@ -444,6 +508,9 @@
         })
       },
       getNode(data, node) {
+        if (data.isAdd === 1 || data.parentId === 0) {
+          return
+        }
         this.treeItem = data
         this.detail()
         this.formDisable = this.treeItem.delAble === 0 || !this.$isViewBtn('182005')
