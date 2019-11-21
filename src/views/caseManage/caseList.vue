@@ -432,7 +432,7 @@
             const arr = []
             for (let j = 0; j < this.ajzmData.length; j++) {
               const data = this.ajzmData[j]
-              arr.push({value: data.code, text: data.name})
+              arr.push({ value: data.code, text: data.name })
             }
             this.ajlbFilter = arr
           }
