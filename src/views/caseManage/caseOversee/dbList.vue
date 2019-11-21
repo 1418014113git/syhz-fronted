@@ -71,23 +71,21 @@
       <el-form-item>
         <el-button type="primary" size="small" v-if="queryBtn && $isViewBtn('100801')"  v-on:click="queryDb(true,true)">查询</el-button>
         <el-button type="primary" size="small" v-if="$isViewBtn('100801')" v-on:click="resetFormFilter">重置</el-button>
-      </el-form-item>
-      <!--<el-form-item>-->
-        <!--<el-button type="primary" size="small" v-if="$isViewBtn('100803')"  v-on:click="saveDBInfo('demand')">发起督办</el-button>-->
-      <!--</el-form-item>-->
-      <el-form-item>
         <el-button type="primary" size="small" v-if="$isViewBtn('100802')" v-on:click="handleDbApply('apply')">申请</el-button>
+      </el-form-item>
+      <el-form-item>
         <el-button type="primary" size="small" v-if="$isViewBtn('100808')" v-on:click="handleDbBatchList('apply')">督办批次列表</el-button>
+        <!-- <el-button type="primary" size="small" v-if="$isViewBtn('100803')"  v-on:click="saveDBInfo('demand')">发起督办</el-button> -->
       </el-form-item>
     </el-form>
     <el-row style="margin:0px 0 16px;">
       <el-button class="right" type="primary" size="small" v-if="$isViewBtn('100809')" v-on:click="handleDbBatchRelease('apply')">督办批次发布</el-button>
       <!-- 下载 -->
-      <a :href="downLoadUrl+'挂牌督办办法.pdf'" download="挂牌督办办法.pdf" target="_blank" class="right" style="margin-right:10px;color: #00a0e9;cursor: pointer;text-decoration:underline;">
+      <a :href="downLoadUrl+gpdbFileName" :download="gpdbFileName" target="_blank" class="right" style="margin-right:10px;color: #00a0e9;cursor: pointer;text-decoration:underline;">
         <i class="el-icon-download"></i>
       </a>
       <!-- 预览 -->
-      <a :href="downLoadUrl+'挂牌督办办法.pdf'" target="_blank" class="right" style="margin-right:6px;color: #00a0e9;cursor: pointer;text-decoration:underline;">挂牌督办办法</a>
+      <a :href="downLoadUrl+gpdbFileName" target="_blank" class="right" style="margin-right:6px;color: #00a0e9;cursor: pointer;text-decoration:underline;">挂牌督办办法</a>
     </el-row>
     <el-table :data="dbData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center" :span-method="objectSpanMethod">
       <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
@@ -177,6 +175,7 @@ export default {
   data() {
     return {
       downLoadUrl: importexport.downloadFileUrl, // nginx配置的文件下载
+      gpdbFileName: '全省公安机关环境食品药品犯罪案件挂牌督办办法.pdf', // 挂牌督办办法 文件名字
       xzqhOptions: [], // 行政区划数据
       deptOptions: [], // 部门数据
       props: {
@@ -702,6 +701,11 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .dblist .breakWord span {
   word-wrap: break-word;
+}
+.dblist .el-form .el-cascader.el-cascader--small,
+.dblist .el-form .el-input.el-input--small,
+.dblist .el-form .el-select.el-select--small {
+  // width: 222px;
 }
 .myPropt {
   .el-message-box__content:after {
