@@ -663,6 +663,8 @@ export default {
         if (response.code === '000000') {
           if (type === 'audit') {
             this.exDeptData = [response.data] // 审核单位 数据源
+            this.dbApplyForm.superviseDeptCode = this.exDeptData[0].departCode
+            this.deptChange(this.dbApplyForm.superviseDeptCode)// 审核单位
           } else if (type === 'parent') {
             this.curDeptParent = response.data // 当前部门的父级部门
           }
