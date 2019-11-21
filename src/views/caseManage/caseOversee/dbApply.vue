@@ -179,7 +179,7 @@ export default {
           }
         }],
         superviseDeptCode: [{
-          required: true, message: '请选择审核部门', trigger: 'change'
+          required: true, message: '请选择审核单位', trigger: 'change'
         }]
         // dbName: [{
         //   required: true, message: '请输入督办名称', trigger: 'blur'
@@ -280,7 +280,6 @@ export default {
         this.dbApplyForm.status = '1' // 状态
         this.dbApplyForm.recordId = response.data.recordId // 督办id
         this.dbApplyForm.superviseId = response.data.superviseId // 案件督办的主id
-        console.log(this.dbApplyForm)
       }).catch(() => {
         this.formLoading = false
       })
@@ -338,7 +337,7 @@ export default {
       }
     },
     fzrChange(val) { // 督办负责人
-      console.log(this.userData + ',,,' + val)
+      // console.log(this.userData + ',,,' + val)
       this.userData.forEach((item, i) => {
         if (item.id === val) {
           this.dbApplyForm.supervisePerson = item.name // 督办人姓名
@@ -459,7 +458,7 @@ export default {
         req.applyAreaCode = this.deptInfo.areaCode // 申请人行政区划
       }
       req.category = 'apply' // 督办类型
-      console.log(req)
+      // console.log(req)
       this.$update('casesuperviserecord/' + this.carryParam.dbId, req).then((response) => {
         if (response.code === '000000') {
           this.saveLoading = false
@@ -520,7 +519,7 @@ export default {
         this.handleFile()
       }
       const req = this.dbApplyForm
-      req.status = state // 区分按钮 0保存草 0保存草稿 1申请 待审核
+      req.status = state // 区分按钮 0保存草稿 1申请 待审核
       req.applyPersonId = this.userInfo.id // 申请人id
       req.applyPersonName = this.userInfo.realName // 申请人姓名
       if (this.deptInfo.depType === '4') { // 派出所取父级部门信息
@@ -535,7 +534,7 @@ export default {
         req.applyAreaCode = this.deptInfo.areaCode // 申请人行政区划
       }
       req.category = 'apply' // 督办类型
-      console.log(req)
+      // console.log(req)
       this.$save('directdbaj', req).then((response) => {
         if (response.code === '000000') {
           this.saveLoading = false

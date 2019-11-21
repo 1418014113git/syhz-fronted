@@ -187,3 +187,15 @@ export function zdryhc(url, param) {
   })
 }
 
+// post 查询，有时候接口要求 查询用post
+export function queryPost(url, params, moduleType) {
+  let moduleName = ModuleName
+  if (moduleType) {
+    moduleName = LoginModuleName
+  }
+  return request({
+    url: moduleName + url,
+    method: 'post',
+    data: params
+  })
+}

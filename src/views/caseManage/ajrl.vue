@@ -7,15 +7,7 @@
     </el-col>
     <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
       <el-form :inline="true" :model="filters" ref="filters" label-width="84px">
-        <el-form-item label="总队" v-if="depLevel === 1">
-          <el-tooltip class="item" effect="dark" :content="selectCurTingDep.name" placement="top-start" :popper-class="(selectCurTingDep.name&&selectCurTingDep.name.length>11)?'tooltipShow':'tooltipHide'">
-            <el-cascader
-              v-model="tingOrgCode"
-              :options="tingDep"
-              change-on-select
-              @change="tingDepChange" :clearable="true"></el-cascader>
-          </el-tooltip>
-        </el-form-item>
+
         <!--<el-form-item label="市" v-if="depLevel === 1 || depLevel === 2 ">-->
           <!--<el-tooltip class="item" effect="dark" :content="selectCurShiDep.name" placement="top-start" :popper-class="(selectCurShiDep.name&&selectCurShiDep.name.length>11)?'tooltipShow':'tooltipHide'">-->
             <!--<el-cascader-->
@@ -33,38 +25,97 @@
             <!--</el-select>-->
           <!--</el-tooltip>-->
         <!--</el-form-item>-->
+        <el-form-item label="行政区划" prop="examStatus">
+        <el-cascader
+          :options="xzqhOptions"
+          v-model="filters.area"
+          :props="props"
+          change-on-select
+          @change="handleAreaChange"
+          :show-all-levels="false"
+           placeholder="全部"
+          :disabled="curDept.depType>2">
+        </el-cascader>
+      </el-form-item>
+      <el-form-item label="认领单位" prop="examStatus">
+        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
+          <el-cascader
+            :options="deptOptions"
+            v-model="filters.department"
+            :props="deptProps"
+            change-on-select
+            :show-all-levels="false"
+            @change="handleDeptChange"
+            clearable placeholder="全部"
+            :disabled="curDept.depType>3">
+          </el-cascader>
+        </el-tooltip>
+      </el-form-item>
         <el-form-item label="案件名称" prop="AJMC">
-          <el-input v-model="filters.AJMC" size="small" placeholder="案件名称" clearable maxlength="30"></el-input>
+          <el-input v-model="filters.AJMC" size="small" placeholder="请输入案件名称" clearable maxlength="30"></el-input>
         </el-form-item>
         <el-form-item label="案件编号" prop="AJBH">
-          <el-input v-model="filters.AJBH" size="small" placeholder="案件编号" clearable maxlength="30"></el-input>
+          <el-input v-model="filters.AJBH" size="small" placeholder="请输入案件编号" clearable maxlength="30"></el-input>
         </el-form-item>
         <el-form-item label="认领状态" prop="qsStatus">
-          <el-select :clearable="true" v-model="qsStatus" size="small" placeholder="选择认领状态" @change="qsStatusChange">
+          <el-select :clearable="true" v-model="qsStatus" size="small" placeholder="全部" @change="qsStatusChange">
             <el-option v-for="item in options1" :key="item.label" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="认领时间类型" label-width="108px">
-          <el-select v-model="filters.dType" filterable clearable placeholder="请选择筛选类型" @change="queryByType">
+        <el-form-item label="时间筛选">
+          <el-select v-model="filters.dType" filterable clearable placeholder="全部" @change="queryByType">
             <el-option label="本年" value="year"></el-option>
             <el-option label="本季" value="quarter"></el-option>
             <el-option label="本月" value="month"></el-option>
             <el-option label="本周" value="week"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="受理时间" prop="value6">
-          <div class="block case">
-            <el-date-picker value-format="yyyy-MM-dd" v-model="filters.slsj" type="daterange" range-separator="-" start-placeholder="开始日期"
-                            end-placeholder="结束日期" size="small" clearable></el-date-picker>
-          </div>
+
+        <el-form-item label="立案日期" prop="laDate">
+          <el-date-picker
+            v-model="filters.larqStart"
+            type="date"
+            value-format="yyyy-MM-dd"
+            :picker-options="laStartPickerOptions"
+            placeholder="请选择开始时间"
+            @change="startDateChangeLa">
+          </el-date-picker>
+           <el-date-picker
+            v-model="filters.larqEnd"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="请选择结束时间"
+            @change="endDateChangeLa"
+            :disabled="endDateDisabledLa">
+          </el-date-picker>
         </el-form-item>
-        <el-form-item label="认领时间" prop="startTime">
+        <el-form-item label="破案日期" prop="paDate">
+          <el-date-picker
+            v-model="filters.parqStart"
+            type="date"
+            value-format="yyyy-MM-dd"
+            :picker-options="paStartPickerOptions"
+            placeholder="请选择开始时间"
+            @change="startDateChangePa">
+          </el-date-picker>
+           <el-date-picker
+            v-model="filters.parqEnd"
+            type="date"
+            value-format="yyyy-MM-dd"
+            :picker-options="paEndPickerOptions"
+            placeholder="请选择结束时间"
+             @change="endDateChangePa"
+            :disabled="endDateDisabledPa">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="认领日期" prop="startTime">
           <el-date-picker
             v-model="filters.rlStartTime"
             type="date"
             value-format="yyyy-MM-dd"
-            :picker-options="pickerOptions"
+            format="yyyy-MM-dd"
+            :picker-options="rlStartPickerOptions"
             placeholder="请选择开始时间"
             @change="startDateChange">
           </el-date-picker>
@@ -72,10 +123,36 @@
             v-model="filters.rlEndTime"
             type="date"
             value-format="yyyy-MM-dd"
+            :picker-options="rlEndPickerOptions"
             placeholder="请选择结束时间"
             @change="endDateChange"
             :disabled="endDateDisabled">
           </el-date-picker>
+        </el-form-item>
+
+        <el-form-item label="立案单位" prop="ladw">
+          <el-input v-model="filters.ladw" size="small" placeholder="立案单位" clearable maxlength="30"></el-input>
+        </el-form-item>
+              <el-form-item label="案件类型" prop="fllb">
+                  <el-tooltip effect="dark" :content="selectCurfllb.name" placement="top-start" :popper-class="(selectCurfllb.name&&selectCurfllb.name.length>9)===true?'tooltipShow':'tooltipHide'">
+          <el-cascader v-model="filters.fllb" change-on-select filterable :options="fllbList" @change="handleChange" clearable></el-cascader>
+                  </el-tooltip>
+        </el-form-item>
+
+                <el-form-item label="案件类别" prop="ajlb">
+          <el-select :clearable="true" v-model="filters.ajlb" size="small" placeholder="全部" filterable>
+            <el-option v-for="item in ajlbData" :key="item.code" :label="item.name" :value="item.code"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="案件罪名" prop="ajzm">
+          <el-select :clearable="true" v-model="filters.ajzm" size="small" placeholder="全部" filterable>
+            <el-option v-for="item in ajzmData" :key="item.code" :label="item.name" :value="item.name"></el-option>
+          </el-select>
+        </el-form-item>
+           <el-form-item label="案件状态" prop="ajzt">
+          <el-select :clearable="true" v-model="filters.ajzt" size="small" placeholder="全部" filterable @change="ajztChange">
+            <el-option v-for="item in ajztData" :key="item.code" :label="item.codeName" :value="item.code"></el-option>
+          </el-select>
         </el-form-item>
         <!--<el-form-item label="督办状态" prop="sel_val3">-->
           <!--<el-select :clearable="true" style="width: 180px" v-model="sel_val3" size="small" placeholder="督办状态选择">-->
@@ -90,7 +167,8 @@
           <!--</el-select>-->
         <!--</el-form-item>-->
         <el-form-item>
-          <el-button type="primary" size="small" v-if="$isViewBtn('100701')" v-on:click="getCase(true,true)">查询</el-button>
+          <!--$isViewBtn('100701') && -->
+          <el-button type="primary" size="small" v-if="queryBtn"  v-on:click="getCase(true,true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small"  v-on:click="reset()">重置</el-button>
@@ -100,37 +178,60 @@
     </el-col>
 
     <!--列表-->
+
     <el-table :data="cases" highlight-current-row v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
-      <el-table-column label="案件编号" min-width="7%">
-        <template slot-scope="scope">
-          <a class="ajbh-color" @click="handleAjDetail(scope.$index, scope.row)">{{scope.row.AJBH}}</a>
-        </template>
-      </el-table-column>
+      <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
       <el-table-column label="案件名称" min-width="10%" :show-overflow-tooltip="true">
         <template slot-scope="scope">
           <a @click="handleAjDetail(scope.$index, scope.row)">{{scope.row.AJMC}}</a>
         </template>
       </el-table-column>
-      <el-table-column label="简要案情" prop="JYAQ" :formatter="getJYAQFormat" min-width="20%" :show-overflow-tooltip="true">
+        <el-table-column label="案件编号" min-width="7%">
+        <template slot-scope="scope">
+          <a class="ajbh-color" @click="handleAjDetail(scope.$index, scope.row)">{{scope.row.AJBH}}</a>
+        </template>
       </el-table-column>
-      <el-table-column prop="AJLB_NAME" label="案件类别" min-width="8%">
+      <el-table-column prop="larq" label="立案日期" min-width="8%">
+            <template slot-scope="scope">
+              {{$handlerDateTime(scope.row.larq)}}
+          </template>
       </el-table-column>
-      <!--<el-table-column prop="DISTRICTCODENAME" label="市" width="120" >-->
-      <!--</el-table-column>-->
-      <el-table-column prop="status"  label="状态" width="80" > <!--:formatter="getStatusName"-->
+         <el-table-column prop="ladwName" label="立案单位" min-width="8%">
+      </el-table-column>
+       <el-table-column prop="parq" label="破案日期" min-width="8%" >
+           <template slot-scope="scope">
+              {{$handlerDateTime(scope.row.parq)}}
+          </template>
+      </el-table-column>
+        <el-table-column prop="ajztName" label="案件状态" min-width="8%">
+      </el-table-column>
+
+      <el-table-column prop="rlTime" label="认领日期" min-width="8%" >
+            <template slot-scope="scope">
+              {{scope.row.rlTime | formatDate}}
+          </template>
+
+      </el-table-column>
+
+       <el-table-column prop="noticeOrgName" label="认领单位" min-width="8%" >
+
+      </el-table-column>
+         <el-table-column prop="status"  label="认领状态" width="100" > <!--:formatter="getStatusName"-->
         <template slot-scope="scope">
           <el-tag  :type="scope.row.status==3?'':(scope.row.status==5?'success':(scope.row.status==9?'warning':'danger'))">{{getStatusName(scope.row)}}</el-tag>
         </template>
       </el-table-column>
+
+
       <el-table-column  label="操作事由" prop="revoke_reason" :formatter="getResonFormat"  :show-overflow-tooltip="true" width="120" >
       </el-table-column>
       <el-table-column label="操作" width="190">
         <template slot-scope="scope">
-          <el-button size="small" type="primary" plain v-if="scope.row.status!=3 && $isViewBtn('100703')"  @click="handleAjDetail(scope.$index, scope.row)"> 查看详情</el-button>
-          <el-button size="small" type="primary" plain v-if="scope.row.status==3 && $isViewBtn('100704')"  :disabled="scope.row.status!=3" @click="handleAjDetail(scope.$index, scope.row)"> 案件认领</el-button>
-          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && $isViewBtn('100705') && downBtn"  @click="handleZDGX(0, scope.row, 'ajxfForm')">案件下发</el-button>
-          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && $isViewBtn('100705') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">案件转发</el-button>
-          <el-button size="small" type="danger"  plain v-if="scope.row.status==3 && $isViewBtn('100706')"  @click="handleZDGX(2, scope.row, 'ajcxForm')">撤销案件</el-button>
+          <el-button size="small" type="primary" plain v-if="scope.row.status!=3 && $isViewBtn('100703')"  @click="handleAjDetail(scope.$index, scope.row)"> 案件详情</el-button>
+          <el-button size="small" type="primary" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100704')"  :disabled="scope.row.status!=3" @click="handleAjDetail(scope.$index, scope.row)"> 案件认领</el-button>
+          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && downBtn"  @click="handleZDGX(0, scope.row, 'ajxfForm')">下发案件</el-button>
+          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">转发案件</el-button>
+          <el-button size="small" type="danger"  plain v-if="scope.row.status==3  && hasAccess(scope.row) && $isViewBtn('100706')"  @click="handleZDGX(2, scope.row, 'ajcxForm')">撤销案件</el-button>
           <el-button size="small" type="danger"  plain v-if="scope.row.status==10 && $isViewBtn('100706')"  @click="handleZDGX(3, scope.row, 'ajhfForm')">恢复案件</el-button>
           <el-button size="small" type="danger"  plain v-if="$isViewBtn('100705')"  @click="handleAJSIGN(scope.row.AJBH)">认领详情</el-button>
         </template>
@@ -148,9 +249,9 @@
     <el-dialog title="案件下发" :visible.sync="dialogXFVisible" size="small">
       <el-form class="ajInfoForm" style="margin:0 auto" :rules="rules" :model="ajInfo" ref="ajxfForm" size="small" label-width="110px"
                @submit.prevent="onSubmit">
-        <el-form-item label="下发单位：" prop="noticeOrgId">
-          <el-select v-model="noticeOrgId" placeholder="请选择" style="width:100%" @change="getDeptNameChange">
-            <el-option v-for="(item, index) in deptList" :key="'xf'+index" :label="item.name" :value="item.id"></el-option>
+        <el-form-item label="下发单位：" prop="noticeOrgCode">
+          <el-select v-model="noticeOrgCode" placeholder="请选择" style="width:100%" @change="getDeptNameChange">
+            <el-option v-for="(item, index) in deptList" :key="'xf'+index" :label="item.name" :value="item.depCode"></el-option>
           </el-select>
         </el-form-item>
         <div style="text-align: center">
@@ -163,9 +264,9 @@
     <el-dialog title="案件转发" :visible.sync="dialogSBVisible" size="small">
       <el-form class="ajInfoForm" style="margin:0 auto" :rules="rules3" :model="ajInfo" ref="ajzfForm" size="small" label-width="110px"
                @submit.prevent="onSubmit">
-        <el-form-item label="转发单位：" prop="noticeOrgId">
-          <el-select v-model="noticeOrgId" placeholder="请选择" style="width:100%" @change="getDeptNameChange">
-            <el-option v-for="item in parentDeptList" :key="'zf'+item.id" :label="item.name" :value="item.id"></el-option>
+        <el-form-item label="转发单位：" prop="noticeOrgCode">
+          <el-select v-model="noticeOrgCode" placeholder="请选择" style="width:100%" @change="getDeptNameChange">
+            <el-option v-for="item in parentDeptList" :key="'zf'+item.id" :label="item.name" :value="item.depCode"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="转发原因："  prop="revokeReason">
@@ -177,11 +278,11 @@
       </el-form>
     </el-dialog>
     <el-dialog title="恢复案件" :visible.sync="dialogRecoverVisible" size="small">
-      <el-form class="ajInfoForm" style="width: 85%; margin:0 auto" :rules="rules3" :model="ajInfo" ref="ajhfForm" size="small" label-width="120px"
+      <el-form class="ajInfoForm" style="width: 85%; margin:0 auto" :rules="rules4" :model="ajInfo" ref="ajhfForm" size="small" label-width="120px"
                @submit.prevent="onSubmit">
-        <el-form-item label="指定单位：" prop="noticeOrgId">
-          <el-select v-model="noticeOrgId" placeholder="请选择" style="width:100%" @change="getDeptNameChange">
-            <el-option v-for="item in tjnsxjDeptList" :key="'zf'+item.id" :label="item.name" :value="item.id"></el-option>
+        <el-form-item label="指定单位：" prop="noticeOrgCode">
+          <el-select v-model="noticeOrgCode" placeholder="请选择" style="width:100%" @change="getDeptNameChange">
+            <el-option v-for="item in tjnsxjDeptList" :key="'zf'+item.id" :label="item.name" :value="item.depCode"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="恢复原因："  prop="revokeReason">
@@ -222,35 +323,74 @@
 <script>
 import { getAJJBXXETLRLPage, addAJJBXXSYHZDGX, editAJJBXXSYH } from '@/api/caseManage'
 import { getSessionDeptSelect } from '@/api/depts'
-import { getAjrlDept, getAjrlParentDept, getDeptLevel, ajrlListDepts, getAjrlNSXJ, getTree } from '@/api/dept'
+// getDeptLevel, ajrlListDepts,
+import { getAjrlDept, getAjrlParentDept, getAjrlNSXJ } from '@/api/dept'
 import { getUserInfo } from '@/utils/auth'
+import { getSYHFLLBList
+  // , getAJLBText
+} from '@/utils/codetotext'
+import { parseTime } from '@/utils/index'
+import { getTree } from '@/api/dept'
+
 export default {
   data() {
     return {
-      tingOrgCode: [],
-      shiOrgCode: [],
-      qiOrgCode: null,
-      tingDep: [],
-      shiDep: [],
-      qiDep: [],
-      cityCode: '',
-      deptProps: {
-        checkStrictly: true,
-        label: 'name',
-        value: 'id'
-      },
-      qsStatus: null,
-      curDept: {},
-      curUser: {},
+      // tingOrgCode: [],
+      // shiOrgCode: [],
+      // qiOrgCode: null,
+      // tingDep: [],
+      // shiDep: [],
+      // qiDep: [],
+      // cityCode: '',
+      // deptProps: {
+      //   checkStrictly: true,
+      //   label: 'name',
+      //   value: 'id'
+      // },
       filters: {
-        AJMC: '',
-        AJBH: '',
-        dType: '',
-        rlStartTime: '',
-        rlEndTime: ''
+        AJMC: '', // 案件名称
+        AJBH: '', // 案件编号
+        dType: '', // 时间筛选
+        rlStartTime: '', // 认领日期
+        rlEndTime: '',
+        noticeLx: '', // 通知类型，下发，转发，撤销
+        larqStart: '', // 立案日期
+        larqEnd: '',
+        parqStart: '', // 破案日期
+        parqEnd: '',
+        // ajzt: '', // 案件状态
+        ajlb: '', // 案件类别
+        ajzm: '', // 案件罪名
+        fllb: [], // 分类类别
+        departType: '',
+        ajztName: '', // 案件状态名称
+        ladw: '', // 立案单位，
+        department: [], // 部门信息
+        area: [], // 地区信息
+        status: ''
       },
+      props: {
+        value: 'cityCode',
+        label: 'cityName'
+      },
+      deptProps: {
+        value: 'depCode',
+        label: 'name',
+        children: 'children'
+      },
+      curDept: {},
+      qsStatus: null,
+      ajztData: [], // 案件状态
+      ajlbData: [], // 案件类别
+      ajzmData: [], // 案件罪名
+      fllbList: getSYHFLLBList(), // 案件分类类别
+      curAjztName: '', // 当前选择的案件状态
+      xzqhOptions: [], // 行政区划数据
+      deptOptions: [],
+      queryBtn: true,
+      curUser: {},
       ajInfo: {},
-      noticeOrgId: '',
+      noticeOrgCode: '',
       cases: [],
       ajLogList: [],
       total: 0,
@@ -272,19 +412,40 @@ export default {
       depLevel: 0,
       sels: [],
       value6: '',
+      pcsParentDept: {},
+      endDateDisabledLa: true,
+      endDateDisabledPa: true,
       endDateDisabled: true, // 认领结束时间选择框禁用
       btnLoading: false, // 下发、转发、恢复loading
       cxLoading: false, // 撤销loading
-      selectCurTingDep: {}, // 当前选择的机构
-      selectCurShiDep: {},
-      selectCurQiDep: {},
+      selectCurDep: {}, // 当前选择的机构
+      selectCurfllb: {}, // 當前選擇的案件類型
+      rlStartPickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now()
+        }
+      },
+      // 认领开始时间的picker限制
+      rlEndPickerOptions: {}, // 认领结束时间的picker限制
+      laStartPickerOptions: { // 立案开始时间的picker限制
+        disabledDate(time) {
+          return time.getTime() > Date.now()
+        }
+      },
+      laEndPickerOptions: {}, // 立案结束时间的picker限制
+      paStartPickerOptions: { // 破案开始时间的picker限制
+        disabledDate(time) {
+          return time.getTime() > Date.now()
+        }
+      },
+      paEndPickerOptions: {}, // 破案结束时间的picker限制
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
         }
       },
       rules: {
-        noticeOrgId: [{ required: true, message: '请选择单位', trigger: 'change' }]
+        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }]
       },
       rules2: {
         revokeReason: [
@@ -293,9 +454,16 @@ export default {
         ]
       },
       rules3: {
-        noticeOrgId: [{ required: true, message: '请选择单位', trigger: 'change' }],
+        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }],
         revokeReason: [
           { required: true, message: '请输入转发原因', trigger: 'blur' },
+          { max: 200, message: '原因不能超过200字', trigger: 'blur' }
+        ]
+      },
+      rules4: {
+        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }],
+        revokeReason: [
+          { required: true, message: '请输入恢复原因', trigger: 'blur' },
           { max: 200, message: '原因不能超过200字', trigger: 'blur' }
         ]
       },
@@ -344,13 +512,22 @@ export default {
       tableHeight: null
     }
   },
+  filters: {
+    formatDate(time) {
+      if (time) {
+        return parseTime(time, '{y}-{m}-{d}')
+      } else {
+        return ''
+      }
+    }
+  },
   methods: {
     getDeptNameChange(val) {
-      this.ajInfo.noticeOrgId = val
+      this.ajInfo.noticeOrgCode = val
       if (val) {
         for (let i = 0; i < this.selectDepList.length; i++) {
           const dept = this.selectDepList[i]
-          if (dept.id === val) {
+          if (dept.depCode === val) {
             this.ajInfo.noticeOrgName = dept.name
             break
           }
@@ -359,62 +536,150 @@ export default {
         this.ajInfo.noticeOrgName = ''
       }
     },
-    tingDepChange(val) {
-      this.cityCode = ''
-      this.shiOrgCode = []
-      if (val && val.length > 2) {
-        for (let i = 0; i < this.tingDep.length; i++) {
-          const dept = this.tingDep[i]
+    handleDeptChange(val) {
+      if (val.length > 0) {
+        var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+        for (let i = 0; i < deptArr.length; i++) {
+          const dept = deptArr[i]
           if (dept.depCode === val[val.length - 1]) {
-            this.selectCurTingDep = dept
+            this.selectCurDep = dept
             break
           }
         }
       } else {
-        this.shiOrgCode = []
-        this.selectCurTingDep = { name: '' }
+        this.selectCurDep = { name: '' }
       }
     },
-    shiDepChange(val) {
-      this.qiDep = []
-      if (val && val.length > 0) {
-        const depcode = val[0]
-        for (let i = 0; i < this.selectDepList.length; i++) {
-          const dept = this.selectDepList[i]
-          // if (dept.id === v) {
-          //   depcode = dept.depCode
-          //   // break
-          // }
-          if (depcode.length > 4 && dept.id === val[val.length - 1]) { // hover展示市的汉字
-            this.selectCurShiDep = dept
-            break
-          }
-        }
-        for (let i = 0; i < this.selectDepList.length; i++) {
-          const dept = this.selectDepList[i]
-          if (dept.parentCode.substring(0, 4) === depcode && dept.depCode.substring(0, 6) !== depcode + '00' && dept.depCode.substring(4, 6) !== '00') {
-            this.qiDep.push(dept)
-          }
-        }
+    handleAreaChange(val) {
+      // if(val.length < 3)
+
+      if (val.length === 2 && val[0] === '610000' && val[1] === '610403') {
+
+        // // 调接口查 派出所的上级
+        // this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+        //   if (response.code === '000000') {
+        //     this.pcsParentDept = response.data
+        //   }
+        // }).catch(() => {
+        //   this.caseLoading = false
+        // })
+        // 当前deptOptions[{ 'id': 1041, 'name': '陕西省西安市公安局高陵分局治安大队', 'depCode': '610126430000', 'parentCode': '610100460000', 'depType': '3' }]
+      }
+
+      if (val.length === 1 && this.curDept.depType === '2') {
+        this.queryBtn = false
+        this.$message({
+          message: '请至少选择到市',
+          type: 'error'
+        })
+        return false
       } else {
-        this.qiOrgCode = null
-        this.selectCurShiDep = { name: '' }
+        this.queryBtn = true
       }
-      this.cityCode = ''
-    },
-    qiDepChange(val) {
-      if (val) {
-        for (let i = 0; i < this.qiDep.length; i++) {
-          const dept = this.qiDep[i]
-          if (dept.id === val) {
-            this.selectCurQiDep = dept
-            break
-          }
+      this.filters.department = []
+      if (val.length > 0) {
+        this.deptOptions = [] // 清空单位机构数据
+        this.selectCurDep = { name: '' } // 清空当前选中的单位机构
+        var param = {
+          provinceCode: val[0] || '',
+          cityCode: val[1] || '',
+          reginCode: val[2] || ''
         }
+        this.$query('hsyzdeparttree', param, 'upms').then((response) => {
+          if (response.code === '000000') {
+            if (response.data && response.data.length > 0) {
+              var arr = []
+              const data = response.data
+              for (let i = 0; i < data.length; i++) {
+                const obj = data[i]
+                if (obj.depType !== '4') { // 不展示派出所
+                  arr.push({
+                    id: obj.id, name: obj.dep_name, cityCode: obj.city_code,
+                    depCode: obj.dep_code, parentCode: obj.super_dep_code, depType: obj.depType
+                  })
+                }
+              }
+              this.deptOptions = getTree(arr) // 机构
+              // alert('当前deptOptions' + JSON.stringify(this.deptOptions))
+            }
+          }
+        }).catch(() => {
+          this.formLoading = false
+        })
       } else {
-        this.selectCurQiDep = { name: '' }
+        this.deptOptions = []
       }
     },
+
+    // tingDepChange(val) {
+    //   this.cityCode = ''
+    //   this.shiOrgCode = []
+    //   if (val && val.length > 2) {
+    //     for (let i = 0; i < this.tingDep.length; i++) {
+    //       const dept = this.tingDep[i]
+    //       if (dept.depCode === val[val.length - 1]) {
+    //         this.selectCurTingDep = dept
+    //         break
+    //       }
+    //     }
+    //   } else {
+    //     this.shiOrgCode = []
+    //     this.selectCurTingDep = { name: '' }
+    //   }
+    // },
+    handleChange(val) {
+      // // 案件类型change
+      // if (val.length > 0) {
+      //   var fllbs = this.fllbList
+      //   for (let i = 0; i < fllbs.length; i++) {
+      //     const fllb = fllbs[i]
+      //     console.log(i + '' + JSON.stringify(fllb))
+      //   }
+      // } else {
+      //   this.selectCurDep = { name: '' }
+      // }
+    },
+    // shiDepChange(val) {
+    //   this.qiDep = []
+    //   if (val && val.length > 0) {
+    //     const depcode = val[0]
+    //     for (let i = 0; i < this.selectDepList.length; i++) {
+    //       const dept = this.selectDepList[i]
+    //       // if (dept.id === v) {
+    //       //   depcode = dept.depCode
+    //       //   // break
+    //       // }
+    //       if (depcode.length > 4 && dept.id === val[val.length - 1]) { // hover展示市的汉字
+    //         this.selectCurShiDep = dept
+    //         break
+    //       }
+    //     }
+    //     for (let i = 0; i < this.selectDepList.length; i++) {
+    //       const dept = this.selectDepList[i]
+    //       if (dept.parentCode.substring(0, 4) === depcode && dept.depCode.substring(0, 6) !== depcode + '00' && dept.depCode.substring(4, 6) !== '00') {
+    //         this.qiDep.push(dept)
+    //       }
+    //     }
+    //   } else {
+    //     this.qiOrgCode = null
+    //     this.selectCurShiDep = { name: '' }
+    //   }
+    //   this.cityCode = ''
+    // },
+    // qiDepChange(val) {
+    //   if (val) {
+    //     for (let i = 0; i < this.qiDep.length; i++) {
+    //       const dept = this.qiDep[i]
+    //       if (dept.id === val) {
+    //         this.selectCurQiDep = dept
+    //         break
+    //       }
+    //     }
+    //   } else {
+    //     this.selectCurQiDep = { name: '' }
+    //   }
+    // },
+    // 认领状态
     qsStatusChange(val) {
       this.filters.status = ''
       this.filters.noticeLx = ''
@@ -438,32 +703,134 @@ export default {
         }
       }
     },
+
+    initAjzt() { // 初始化案件状态数据源
+      this.$query('tcpcode', { codeLx: 'ajzt' }).then((response) => {
+        if (response.data && response.data.length > 0) {
+          const temp = {}
+          for (let index = 0; index < response.data.length; index++) {
+            const element = response.data[index]
+            temp[element.codeName] = element.code
+          }
+          const arr = []
+          for (const key in temp) {
+            arr.push({ code: temp[key], codeName: key })
+          }
+          this.ajztData = arr
+        }
+      }).catch(() => {
+      })
+    },
+    initAjlb() { // 初始化案件类别
+      this.$query('ajlb', {}).then((response) => {
+        if (response.data && response.data.length > 0) {
+          this.ajlbData = response.data
+        }
+      }).catch(() => {
+      })
+    },
+    initAjzm() { // 案件罪名
+      this.$query('ajzm', {}).then((response) => {
+        if (response.data && response.data.length > 0) {
+          this.ajzmData = response.data
+        }
+      }).catch(() => {
+      })
+    },
+    ajztChange(val) { // 案件状态change事件
+      if (val) {
+        var result = ''
+        this.ajztData.forEach(item => {
+          if (item.code === val) {
+            result = item.codeName
+          }
+        })
+        this.filters.ajztName = result
+        return result
+      } else {
+        this.filters.ajztName = ''
+        return ''
+      }
+    },
     getResonFormat(row) {
-      if (row.revoke_reason) {
-        return row.revoke_reason
+      if (row.revokeReason) {
+        return row.revokeReason
       } else {
-        return ' '
+        return ''
       }
     },
-    getJYAQFormat(row) {
-      if (row.JYAQ) {
-        return row.JYAQ
-      } else {
-        return ' '
-      }
-    },
+    // getJYAQFormat(row) {
+    //   if (row.JYAQ) {
+    //     return row.JYAQ
+    //   } else {
+    //     return ''
+    //   }
+    // },
     getStatusName(row) {
       if (row.status === '3') {
         return '待认领'
       } else if (row.status === '5') {
         return '已认领'
       } else if (row.status === '9') {
-        return '已指定'
+        if (row.notice_lx === 2) {
+          return '转发案件'
+        } if (row.notice_lx === 1) {
+          return '下发案件'
+        } if (row.notice_lx === 3) {
+          return '恢复案件'
+        }
       } else if (row.status === '10') {
-        return '已撤销'
+        return '撤销案件'
       }
       return row.status
     },
+
+    // getajztName(row) {
+    //   if (row.ajzt === '001') {
+    //     return '未受理'
+    //   } else if (row.ajzt === '101') {
+    //     return '受理'
+    //   } else if (row.ajzt === '102') {
+    //     return '立案'
+    //   } else if (row.ajzt === '103') {
+    //     return '不予立案'
+    //   } else if (row.ajzt === '104') {
+    //     return '破案'
+    //   } else if (row.ajzt === '105') {
+    //     return '销案'
+    //   } else if (row.ajzt === '106') {
+    //     return '转治安案件'
+    //   } else if (row.ajzt === '107') {
+    //     return '结案'
+    //   } else if (row.ajzt === '108') {
+    //     return '归档'
+    //   } else if (row.ajzt === '109') {
+    //     return '移送'
+    //   } else if (row.ajzt === '202') {
+    //     return '调查取证'
+    //   } else if (row.ajzt === '203') {
+    //     return '不予处理'
+    //   } else if (row.ajzt === '204') {
+    //     return '终止调查'
+    //   } else if (row.ajzt === '205') {
+    //     return '转刑事案件'
+    //   } else if (row.ajzt === '208') {
+    //     return '调解'
+    //   } else if (row.ajzt === '209') {
+    //     return '处罚'
+    //   } else if (row.ajzt === '300') {
+    //     return '复议'
+    //   } else if (row.ajzt === '301') {
+    //     return '诉讼'
+    //   } else if (row.ajzt === '302') {
+    //     return '撤销行政处罚'
+    //   } else if (row.ajzt === '303') {
+    //     return '当场处罚'
+    //   } else if (row.ajzt === '304') {
+    //     return '简易调解'
+    //   }
+    //   return row.ajzt
+    // },
     zdgxSave(type, formName) {
       this.ajInfo.status = '3'
       this.ajInfo.businessTable = 'aj_jbxx_etl'
@@ -473,7 +840,6 @@ export default {
       this.ajInfo.userId = this.curUser.id
       this.ajInfo.userName = this.curUser.realName
       this.ajInfo.noticeType = type
-      // console.info(formName)
       this.$refs[formName].validate(valid => {
         if (valid) {
           this.btnLoading = true
@@ -514,7 +880,7 @@ export default {
       if (this.$refs[formName]) {
         this.$refs[formName].resetFields()
       }
-      this.noticeOrgId = ''
+      this.noticeOrgCode = ''
       this.ajInfo.id = row.id
       this.ajInfo.ajbh = row.AJBH
       if (type === 0) {
@@ -627,17 +993,86 @@ export default {
       this.pageSize = val
       this.getCase(false, true)
     },
+    startDateChangePa(val) { // 破案开始时间change事件
+      if (val) {
+        this.endDateDisabledPa = false
+        this.paEndPickerOptions = this.$pickerOptionChange(val, this.paEndPickerOptions, 'end')
+      } else {
+        this.filters.parqStart = ''
+        this.filters.parqEnd = ''
+        this.endDateDisabledPa = true
+        this.paStartPickerOptions = this.$pickerOptionChange('', this.paStartPickerOptions, 'default')
+      }
+    },
+    endDateChangePa(val) { // 破案结束时间change事件
+      if (val) {
+        this.paStartPickerOptions = this.$pickerOptionChange(val, this.paStartPickerOptions, 'start')
+      } else {
+        this.paStartPickerOptions = this.$pickerOptionChange('', this.paStartPickerOptions, 'default')
+      }
+    },
+
+    startDateChangeLa(val) { // 立案开始时间change事件
+      if (val) {
+        this.endDateDisabledLa = false
+        this.laEndPickerOptions = this.$pickerOptionChange(val, this.laEndPickerOptions, 'end')
+      } else {
+        this.filters.larqStart = ''
+        this.filters.larqEnd = ''
+        this.endDateDisabledLa = true
+        this.laStartPickerOptions = this.$pickerOptionChange('', this.laStartPickerOptions, 'default')
+      }
+    },
+    endDateChangeLa(val) { // 立案结束时间change事件
+      if (val) {
+        this.laStartPickerOptions = this.$pickerOptionChange(val, this.laStartPickerOptions, 'start')
+      } else {
+        this.laStartPickerOptions = this.$pickerOptionChange('', this.laStartPickerOptions, 'default')
+      }
+    },
     getCase(flag, hand) {
       this.page = flag ? 1 : this.page
-      const para = JSON.parse(JSON.stringify(this.filters))
+      var para = JSON.parse(JSON.stringify(this.filters))
+
+      if (this.filters.area.length === 1) {
+        para.provinceCode = this.filters.area[0]
+      }
+      if (this.filters.area.length === 2) {
+        para.provinceCode = this.filters.area[0]
+        para.cityCode = this.filters.area[1]
+      }
+      if (this.filters.area.length === 3) {
+        para.provinceCode = this.filters.area[0]
+        para.cityCode = this.filters.area[1]
+        para.reginCode = this.filters.area[2]
+      }
+
+      para.department = ''
       para.slsj = '' // 参数的受理时间置为空，分别用startTime endTime表示
       para.pageNum = this.page
       para.pageSize = this.pageSize
+      para.area = ''
+      if (this.filters.department) {
+        para.curDeptCode = this.filters.department[this.filters.department.length - 1]
+      } else {
+        para.curDeptCode = this.curDept.depCode // 所属部门code
+      }
+
+      // para.departType = this.curDept.depType === '4' ? this.pcsParentDept.depType : this.curDept.depType // 当前部门类型
+
+      if (this.curDept.depType === '4') {
+        para.departType = this.pcsParentDept.depType
+      } else {
+        para.departType = this.curDept.depType
+      }
+
+      // para.curDeptCode = this.filters.department[this.filters.department.length - 1] // 部门code
       if (this.filters.dType === '') {
         if (this.filters.rlStartTime === '' && this.filters.rlEndTime) { // 开始时间为空,结束时间不为空
           this.$message({
             message: '开始时间不能为空', type: 'error'
           })
+
           return false
         } else if (this.filters.rlStartTime && this.filters.rlEndTime === '') { // 选择了开始时间,结束时间为空
           this.$message({
@@ -653,37 +1088,45 @@ export default {
           }
         }
       }
-      if (this.qiOrgCode) {
-        this.cityCode = this.qiOrgCode
-      } else {
-        if (this.shiOrgCode && this.shiOrgCode.length > 0) {
-          if (this.shiOrgCode.length > 1) {
-            this.cityCode = this.shiOrgCode[this.shiOrgCode.length - 1]
-          } else {
-            this.cityCode = this.shiOrgCode[0]
-          }
-        } else {
-          if (this.tingOrgCode && this.tingOrgCode.length > 0) {
-            if (this.tingOrgCode.length > 1) {
-              this.cityCode = this.tingOrgCode[this.tingOrgCode.length - 1]
-            } else {
-              this.cityCode = this.tingOrgCode[0]
-            }
-          }
-        }
-      }
-      if (this.filters.slsj && this.filters.slsj.length > 0) {
-        para.startTime = this.filters.slsj[0]
-        para.endTime = this.filters.slsj[1]
-      } else {
-        para.startTime = ''
-        para.endTime = ''
-      }
-      para.cityCode = this.cityCode
+      // if (this.qiOrgCode) {
+      //   this.cityCode = this.qiOrgCode
+      // } else {
+      //   if (this.shiOrgCode && this.shiOrgCode.length > 0) {
+      //     if (this.shiOrgCode.length > 1) {
+      //       this.cityCode = this.shiOrgCode[this.shiOrgCode.length - 1]
+      //     } else {
+      //       this.cityCode = this.shiOrgCode[0]
+      //     }
+      //   } else {
+      //     if (this.tingOrgCode && this.tingOrgCode.length > 0) {
+      //       if (this.tingOrgCode.length > 1) {
+      //         this.cityCode = this.tingOrgCode[this.tingOrgCode.length - 1]
+      //       } else {
+      //         this.cityCode = this.tingOrgCode[0]
+      //       }
+      //     }
+      //   }
+      // }
+      // if (this.filters.slsj && this.filters.slsj.length > 0) {
+      //   para.startTime = this.filters.slsj[0]
+      //   para.endTime = this.filters.slsj[1]
+      // } else {
+      //   para.startTime = ''
+      //   para.endTime = ''
+      // }
+      // para.cityCode = this.cityCode
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
+      //  para.cityCode = this.cityCode
+      // para.ajztName = this.curAjztName // 案件状态（转换后的汉字）
+      if (this.filters.fllb.length > 0) {
+        para.fllb = this.filters.fllb.join(',')
+      } else {
+        para.fllb = ''
+      }
       this.listLoading = true
+
       getAJJBXXETLRLPage(para).then((response) => {
         const data = response.data
         this.total = data.totalCount
@@ -695,26 +1138,48 @@ export default {
       })
     },
     reset() {
-      this.$refs['filters'].resetFields()
-      this.filters.dType = '' // 认领时间类型清空
-      this.tingOrgCode = [] // 厅
-      this.shiOrgCode = [] // 市
-      this.qiOrgCode = '' // 旗
-      this.filters.slsj = []
-      this.qsStatusChange('') // 认领状态设置为空
+      this.filters = {
+        AJMC: '', // 案件名称
+        AJBH: '', // 案件编号
+        dType: '', // 时间筛选
+        rlStartTime: '', // 认领日期
+        rlEndTime: '',
+        noticeLx: '', // 通知类型，下发，转发，撤销
+        larqStart: '', // 立案日期
+        larqEnd: '',
+        parqStart: '', // 破案日期
+        parqEnd: '',
+        // ajzt: '', // 案件状态
+        ajlb: '', // 案件类别
+        ajzm: '', // 案件罪名
+        fllb: [], // 分类类别
+        departType: '',
+        ajztName: '', // 案件状态名称
+        ladw: '', // 立案单位
+        department: [],
+        area: [],
+        status: ''
+      }
+      this.qsStatusChange('')
+      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+
+      this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+
+      this.curUser = JSON.parse(getUserInfo())
+      // this.filters.curDeptCode = this.curDept.depCode
+      // this.filters.departType = this.curDept.depType
       this.qsStatus = '' // 认领状态设置为空
-      this.initList(true)
-      // this.getCase(true)
+      this.initList()
     },
     handleAjDetail(index, row) {
       // this.$router.push({ path: '/caseManage/detail/' + row.id })
       if (row.status === '5' || row.status === '已认领') {
         this.$router.push({
-          path: '/caseFile/index', query: { ajbh: row.AJBH, isRl: '1' } // 展示申请督办等按钮
+          path: '/caseFile/index', query: { ajbh: row.AJBH, rlDept: row.noticeOrgCode, isRl: '1' } // 展示申请督办等按钮
         })
       } else if (row.status === '3' || row.status === '待认领') {
         this.$router.push({
-          path: '/caseFile/index', query: { ajbh: row.AJBH, interfaceType: 'etl', isRl: '0', rlId: row.id } // 展示 待认领按钮
+          path: '/caseFile/index', query: { ajbh: row.AJBH, interfaceType: 'etl', isRl: '0', rlId: row.id, rlDept: row.noticeOrgCode } // 展示 待认领按钮
         })
       } else {
         this.$router.push({
@@ -722,136 +1187,240 @@ export default {
         })
       }
     },
+    hasAccess(row) {
+      // 判断是否可以操作案件
+      if (this.curDept.depType === '4') {
+        if (this.pcsParentDept && this.pcsParentDept.departCode === row.noticeOrgCode) {
+          return true
+        } else {
+          return false
+        }
+      } else {
+        if (this.curDept.depCode === row.noticeOrgCode) {
+          return true
+        } else {
+          return false
+        }
+      }
+    },
     initList(hand) {
-      this.depLevel = getDeptLevel(this.curDept.depCode)
-      if (this.depLevel === 1) {
-        this.getTingTree()
-      } else if (this.depLevel === 2) {
-        this.getShiArray()
-        if (this.shiOrgCode.length === 0) {
-          this.shiOrgCode = [this.curDept.depCode.substring(0, 4), this.curDept.depCode]
-        }
-        this.shiDepChange(this.shiOrgCode)
-      } else if (this.depLevel === 3) {
-        this.qiDep = ajrlListDepts(getSessionDeptSelect(), this.curDept.depCode)
-        this.qiOrgCode = this.curDept.depCode
-        this.qiDepChange(this.qiOrgCode)
-      }
-      this.deptList = getAjrlDept(getSessionDeptSelect(), this.curDept.depCode)
-      this.parentDeptList = getAjrlParentDept(getSessionDeptSelect(), this.curDept.parentDepCode, this.curDept.depCode)
-      this.tjnsxjDeptList = getAjrlNSXJ(getSessionDeptSelect(), this.curDept.depCode)
-      const s1 = this.curDept.depCode.substring(0, 6)
-      if (s1 === '610000') {
-        this.upBtn = false
-      }
-      const s2 = this.curDept.depCode.substring(4, 6)
-      if (s2 !== '00') {
-        this.downBtn = false
-      }
-      if (hand) {
-        this.getCase(true, true)
-      } else {
-        this.getCase(true)
-      }
-    },
-    getTingTree() {
-      const tings = ajrlListDepts(getSessionDeptSelect(), this.curDept.depCode)
-      const arrayTemp = [{
-        value: '0000',
-        label: '全省',
-        depCode: '610000000000'
-      }]
-      for (let i = 0; i < tings.length; i++) {
-        const dept = tings[i]
-        dept.value = dept.depCode
-        if (dept.depCode === '610000530000') {
-          dept.label = '总队'
-          dept.parentCode = ''
-          arrayTemp.push(dept)
-        }
-        if (dept.depCode === '610000535300') {
-          dept.label = '食品犯罪侦查支队'
-          dept.parentCode = '610000530000'
-          arrayTemp.push(dept)
-        }
-        if (dept.depCode === '610000535400') {
-          dept.label = '药品犯罪侦查支队'
-          dept.parentCode = '610000530000'
-          arrayTemp.push(dept)
-        }
-        if (dept.depCode === '610000535500') {
-          dept.label = '环境犯罪侦查支队'
-          dept.parentCode = '610000530000'
-          arrayTemp.push(dept)
-        }
-      }
-      this.tingDep = getTree(arrayTemp)
-      this.getShiArray()
-    },
-    getShiArray() {
-      this.shiDep = []
-      const shiDeptsArray = []
-      const reObj = {}
-      for (let i = 0; i < this.selectDepList.length; i++) {
-        const dept = this.selectDepList[i]
-        if (dept.parentCode === '610000530000') {
-          this.getShiTree(dept, reObj, shiDeptsArray)
-        }
-      }
-      const array = getTree(shiDeptsArray.concat(this.cityList))
-      if (this.depLevel === 2) {
-        for (let i = 0; i < array.length; i++) {
-          const dept = array[i]
-          if (dept.value === this.curDept.depCode.substring(0, 4)) {
-            this.shiDep.push(dept)
-            break
+      // this.depLevel = getDeptLevel(this.curDept.depCode)
+      // if (this.depLevel === 1) {
+      //   //this.getTingTree()
+      // } else if (this.depLevel === 2) {
+      //   this.getShiArray()
+      //   if (this.shiOrgCode.length === 0) {
+      //     this.shiOrgCode = [this.curDept.depCode.substring(0, 4), this.curDept.depCode]
+      //   }
+      //   this.shiDepChange(this.shiOrgCode)
+      // } else if (this.depLevel === 3) {
+      //   this.qiDep = ajrlListDepts(getSessionDeptSelect(), this.curDept.depCode)
+      //   this.qiOrgCode = this.curDept.depCode
+      //   this.qiDepChange(this.qiOrgCode)
+      // }
+
+      var _this = this
+      this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.xzqhOptions = response.data ? response.data : []
+          var currentArea = []
+          if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
+            currentArea = [this.curDept.areaCode]
+          } else if (this.curDept.depType === '2') { // 支队
+            currentArea = ['610000', this.curDept.areaCode]
+            for (let index = 0; index < this.xzqhOptions[0].children.length; index++) {
+              const element = this.xzqhOptions[0].children[index]
+              if (element.cityCode === this.curDept.areaCode) {
+                _this.xzqhOptions[0].children[index].disabled = false
+              } else {
+                _this.xzqhOptions[0].children[index].disabled = true
+              }
+            }
+          } else if (this.curDept.depType === '3') { // 大队
+            currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+          } else if (this.curDept.depType === '4') { // 派出所
+            currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.parentDepCode]
+            if (this.curDept.areaCode === '610403') { // 杨凌例外
+              currentArea = ['610000', '610403']
+            } else { // 正常的派出所
+              currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+            }
           }
-        }
-      } else {
-        this.shiDep = array
-      }
-    },
-    getShiTree(dept, reObj, shiDeptsArray) {
-      dept.value = dept.depCode
-      if (dept.depCode.substring(0, 6) === '610600') {
-        if (dept.depCode.substring(8, 12) === '0000') {
-          // 支队
-          if (reObj[dept.depCode.substring(0, 6)]) {
-            // 已设置
-            dept.label = dept.name.substring(dept.name.indexOf('公安局') + 3, dept.name.length)
-            dept.parentCode = dept.depCode.substring(0, 4) + '00000000'
-            shiDeptsArray.push(dept)
-            reObj[dept.depCode.substring(0, 6)].push(dept.depCode)
+          this.filters.area = currentArea
+
+          // curDept.areaCode 610402
+
+          this.handleAreaChange(currentArea) // 查单位机构
+          // 默认选择本单位
+          if (this.curDept.depType === '-1') { // 省
+            this.filters.department = [this.curDept.depCode]
+          } else if (this.curDept.depType === '1') { // 总队
+            this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
+          } else if (this.curDept.depType === '2') { // 支队
+            this.filters.department = [this.curDept.depCode]
+          } else if (this.curDept.depType === '3') { // 大队
+            this.filters.department = [this.curDept.depCode]
+          } else if (this.curDept.depType === '4') { // 派出所
+            this.filters.department = [this.curDept.parentDepCode] // 派出所当作上级处理
+            // 调接口查 派出所的上级
+            this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+              if (response.code === '000000') {
+                this.pcsParentDept = response.data
+              }
+            }).catch(() => {
+              this.caseLoading = false
+            })
+          }
+          this.handleDeptChange(this.filters.department)
+
+          // 可下发的单位
+          this.deptList = getAjrlDept(getSessionDeptSelect(), this.curDept.depCode, this.curDept.depType)
+          // 可转发
+          if (this.curDept.parentDepCode === '610403390000') {
+            // 杨凌区下的派出所 可转给总队
+            this.parentDeptList = getAjrlParentDept(getSessionDeptSelect(), '610000530000', this.curDept.depCode, '2')
+          } else if (this.curDept.depType === '4') {
+            // 其他派出所 ，当大队处理， 可转给支队
+            var dd = {}
+            dd = getAjrlParentDept(getSessionDeptSelect(), this.curDept.parentDepCode, this.curDept.depCode, '3')
+
+            if (dd) {
+              this.parentDeptList = getAjrlParentDept(getSessionDeptSelect(), dd[0].parentCode, this.curDept.depCode, '3')
+            }
           } else {
-            // 未设置
-            dept.label = dept.name.substring(dept.name.indexOf('公安局') + 3, dept.name.length)
-            dept.parentCode = dept.depCode.substring(0, 6) + '000000'
-            shiDeptsArray.push(dept)
-            reObj[dept.depCode.substring(0, 6)] = [dept.depCode]
+            // 可转发的单位
+            this.parentDeptList = getAjrlParentDept(getSessionDeptSelect(), this.curDept.parentDepCode, this.curDept.depCode, this.curDept.depType)
           }
-        } else {
-          // 内设
-          const arr = reObj[dept.depCode.substring(0, 6)]
-          for (let j = 0; j < arr.length; j++) {
-            dept.label = dept.name.substring(dept.name.indexOf('公安局') + 3, dept.name.length)
-            dept.parentCode = arr[j]
-            shiDeptsArray.push(dept)
+
+          // 同及和直属下级部门 恢复
+          if (this.curDept.depType === '4') {
+            // 是派出所 只能给自己所代表的部门
+            this.tjnsxjDeptList = getAjrlNSXJ(getSessionDeptSelect(), this.curDept.parentDepCode, '4')
+          } else if (this.curDept.depType === '3') {
+            // 是大队 只能给自己
+            this.tjnsxjDeptList = getAjrlNSXJ(getSessionDeptSelect(), this.curDept.depCode, '3')
+          } else {
+            // 给自己和直属下级
+            this.tjnsxjDeptList = getAjrlNSXJ(getSessionDeptSelect(), this.curDept.depCode, this.curDept.depType)
+          }
+
+          const s1 = this.curDept.depCode.substring(0, 6)
+          if (s1 === '610000') {
+            // 不可转发
+            this.upBtn = false
+          }
+          if (!this.deptList || this.deptList.length === 0) {
+            // 没有大队 隐藏下发按钮
+            this.downBtn = false
+          }
+          if (hand) {
+            this.getCase(true, true)
+          } else {
+            this.getCase(true)
           }
         }
-      } else {
-        if (dept.depCode.substring(8, 12) === '0000') {
-          // 支队
-          dept.label = dept.name.substring(dept.name.indexOf('公安局') + 3, dept.name.length)
-          dept.parentCode = dept.depCode.substring(0, 4) + '00000000'
-          shiDeptsArray.push(dept)
-        } else {
-          // 内设
-          dept.label = dept.name.substring(dept.name.indexOf('公安局') + 3, dept.name.length)
-          dept.parentCode = dept.depCode.substring(0, 8) + '0000'
-          shiDeptsArray.push(dept)
-        }
-      }
+      }).catch(() => {
+        this.listLoading = false
+      })
     },
+    // getTingTree() {
+    //   const tings = ajrlListDepts(getSessionDeptSelect(), this.curDept.depCode)
+    //   const arrayTemp = [{
+    //     value: '0000',
+    //     label: '全省',
+    //     depCode: '610000000000'
+    //   }]
+    //   for (let i = 0; i < tings.length; i++) {
+    //     const dept = tings[i]
+    //     dept.value = dept.depCode
+    //     if (dept.depCode === '610000530000') {
+    //       dept.label = '总队'
+    //       dept.parentCode = ''
+    //       arrayTemp.push(dept)
+    //     }
+    //     if (dept.depCode === '610000535300') {
+    //       dept.label = '食品犯罪侦查支队'
+    //       dept.parentCode = '610000530000'
+    //       arrayTemp.push(dept)
+    //     }
+    //     if (dept.depCode === '610000535400') {
+    //       dept.label = '药品犯罪侦查支队'
+    //       dept.parentCode = '610000530000'
+    //       arrayTemp.push(dept)
+    //     }
+    //     if (dept.depCode === '610000535500') {
+    //       dept.label = '环境犯罪侦查支队'
+    //       dept.parentCode = '610000530000'
+    //       arrayTemp.push(dept)
+    //     }
+    //   }
+    //   this.tingDep = getTree(arrayTemp)
+    //   this.getShiArray()
+    // },
+    // getShiArray() {
+    //   this.shiDep = []
+    //   const shiDeptsArray = []
+    //   const reObj = {}
+    //   for (let i = 0; i < this.selectDepList.length; i++) {
+    //     const dept = this.selectDepList[i]
+    //     if (dept.parentCode === '610000530000') {
+    //       this.getShiTree(dept, reObj, shiDeptsArray)
+    //     }
+    //   }
+    //   const array = getTree(shiDeptsArray.concat(this.cityList))
+    //   if (this.depLevel === 2) {
+    //     for (let i = 0; i < array.length; i++) {
+    //       const dept = array[i]
+    //       if (dept.value === this.curDept.depCode.substring(0, 4)) {
+    //         this.shiDep.push(dept)
+    //         break
+    //       }
+    //     }
+    //   } else {
+    //     this.shiDep = array
+    //   }
+    // },
+    // getShiTree(dept, reObj, shiDeptsArray) {
+    //   dept.value = dept.depCode
+    //   if (dept.depCode.substring(0, 6) === '610600') {
+    //     if (dept.depCode.substring(8, 12) === '0000') {
+    //       // 支队
+    //       if (reObj[dept.depCode.substring(0, 6)]) {
+    //         // 已设置
+    //         dept.label = dept.name.substring(dept.name.indexOf('公安局') + 3, dept.name.length)
+    //         dept.parentCode = dept.depCode.substring(0, 4) + '00000000'
+    //         shiDeptsArray.push(dept)
+    //         reObj[dept.depCode.substring(0, 6)].push(dept.depCode)
+    //       } else {
+    //         // 未设置
+    //         dept.label = dept.name.substring(dept.name.indexOf('公安局') + 3, dept.name.length)
+    //         dept.parentCode = dept.depCode.substring(0, 6) + '000000'
+    //         shiDeptsArray.push(dept)
+    //         reObj[dept.depCode.substring(0, 6)] = [dept.depCode]
+    //       }
+    //     } else {
+    //       // 内设
+    //       const arr = reObj[dept.depCode.substring(0, 6)]
+    //       for (let j = 0; j < arr.length; j++) {
+    //         dept.label = dept.name.substring(dept.name.indexOf('公安局') + 3, dept.name.length)
+    //         dept.parentCode = arr[j]
+    //         shiDeptsArray.push(dept)
+    //       }
+    //     }
+    //   } else {
+    //     if (dept.depCode.substring(8, 12) === '0000') {
+    //       // 支队
+    //       dept.label = dept.name.substring(dept.name.indexOf('公安局') + 3, dept.name.length)
+    //       dept.parentCode = dept.depCode.substring(0, 4) + '00000000'
+    //       shiDeptsArray.push(dept)
+    //     } else {
+    //       // 内设
+    //       dept.label = dept.name.substring(dept.name.indexOf('公安局') + 3, dept.name.length)
+    //       dept.parentCode = dept.depCode.substring(0, 8) + '0000'
+    //       shiDeptsArray.push(dept)
+    //     }
+    //   }
+    // },
     queryByType(val) { // 查询类型change事件
       this.filters.rlStartTime = ''
       this.filters.rlEndTime = ''
@@ -922,54 +1491,65 @@ export default {
     sessionStorage.removeItem('/caseManage/ajrl')
   },
   mounted() {
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
     this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+    if (this.$route.query.from === 'portal') {
+      // 首页过来的查待认领
+      this.qsStatusChange('1')
+    }
+    this.initAjlb()
+    this.initAjzt()
+    this.initAjzm()
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+
     this.curUser = JSON.parse(getUserInfo())
     this.filters.curDeptCode = this.curDept.depCode
-    if (sessionStorage.getItem(this.$route.path)) {
-      this.carryParam = JSON.parse(sessionStorage.getItem(this.$route.path))
-      // if (this.carryParam.origin === 'statistical') {
-      this.showBackBtn = true // 显示返回按钮
-      // }
-      if (this.carryParam.type) {
-        this.qsStatus = this.carryParam.type
-        this.qsStatusChange(this.qsStatus)
-      }
-      if (this.carryParam.deptCode.substring(0, 6) === '610000') {
-        if (this.carryParam.deptLevel === 'first') {
-          this.tingOrgCode = [this.carryParam.deptCode]
-        } else {
-          this.tingOrgCode = [this.carryParam.curFirstLevelCode, this.carryParam.deptCode]
-        }
-      } else {
-        if (this.carryParam.deptLevel === 'first') {
-          this.shiOrgCode = [this.carryParam.deptCode.substring(0, 4)]
-        } else {
-          this.shiOrgCode = [this.carryParam.deptCode.substring(0, 4), this.carryParam.deptCode]
-          if (this.carryParam.deptCode.substring(4, 6) !== '00') {
-            this.qiOrgCode = this.carryParam.deptCode
-          }
-        }
-      }
-      this.shiDepChange(this.shiOrgCode)
-      if (this.carryParam.filtStartTime) { // 开始时间
-        this.filters.rlStartTime = this.carryParam.filtStartTime
-      }
-      if (this.carryParam.filtEndTime) { // 结束时间
-        this.filters.rlEndTime = this.carryParam.filtEndTime
-      }
-      if (this.carryParam.queryType) { // 认领时间筛选类型
-        this.filters.dType = this.carryParam.queryType
-      }
-      // if (this.carryParam.ajbh) { // 案件档案跳转过来的
-      //   this.filters.AJBH = this.carryParam.ajbh
-      // }
-    } else if (this.$route.query.ajbh) { // 案件档案跳转过来的
-      this.filters.AJBH = this.$route.query.ajbh
-      this.showBackBtn = true // 显示返回按钮
-    } else {
-      this.showBackBtn = false // 默认隐藏返回按钮
-    }
+    this.filters.departType = this.curDept.depType
+    // alert(JSON.stringify(this.filters))
+    // if (sessionStorage.getItem(this.$route.path)) {
+    //   this.carryParam = JSON.parse(sessionStorage.getItem(this.$route.path))
+
+    //   // if (this.carryParam.origin === 'statistical') {
+    //   this.showBackBtn = true // 显示返回按钮
+    //   // }
+    //   if (this.carryParam.type) {
+    //     this.qsStatus = this.carryParam.type
+    //     this.qsStatusChange(this.qsStatus)
+    //   }
+    //   if (this.carryParam.deptCode.substring(0, 6) === '610000') {
+    //     if (this.carryParam.deptLevel === 'first') {
+    //       this.tingOrgCode = [this.carryParam.deptCode]
+    //     } else {
+    //       this.tingOrgCode = [this.carryParam.curFirstLevelCode, this.carryParam.deptCode]
+    //     }
+    //   } else {
+    //     if (this.carryParam.deptLevel === 'first') {
+    //       this.shiOrgCode = [this.carryParam.deptCode.substring(0, 4)]
+    //     } else {
+    //       this.shiOrgCode = [this.carryParam.deptCode.substring(0, 4), this.carryParam.deptCode]
+    //       if (this.carryParam.deptCode.substring(4, 6) !== '00') {
+    //         this.qiOrgCode = this.carryParam.deptCode
+    //       }
+    //     }
+    //   }
+    //   this.shiDepChange(this.shiOrgCode)
+    //   if (this.carryParam.filtStartTime) { // 开始时间
+    //     this.filters.rlStartTime = this.carryParam.filtStartTime
+    //   }
+    //   if (this.carryParam.filtEndTime) { // 结束时间
+    //     this.filters.rlEndTime = this.carryParam.filtEndTime
+    //   }
+    //   if (this.carryParam.queryType) { // 认领时间筛选类型
+    //     this.filters.dType = this.carryParam.queryType
+    //   }
+    //   // if (this.carryParam.ajbh) { // 案件档案跳转过来的
+    //   //   this.filters.AJBH = this.carryParam.ajbh
+    //   // }
+    // } else if (this.$route.query.ajbh) { // 案件档案跳转过来的
+    //   this.filters.AJBH = this.$route.query.ajbh
+    //   this.showBackBtn = true // 显示返回按钮
+    // } else {
+    //   this.showBackBtn = false // 默认隐藏返回按钮
+    // }
     this.initList()
   },
   activated() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据

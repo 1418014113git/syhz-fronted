@@ -108,6 +108,7 @@
 import importexport from '@/api/importexport'
 import clip from '@/utils/clipboard'
 import FloatTipMsg from '@/views/login/FloatTipMsg'
+import { doDataProcess } from '@/api/login/pkiLogin'
 export default {
   name: 'login',
   components: {
@@ -167,6 +168,8 @@ export default {
       downLoadUrl: importexport.downloadFileUrl, // nginx配置的下载地址
       inputData: window.location.href,
       randomNum: '',
+      signResult: '',
+      JIT_GW_ExtInterface: null,
       JITComVCTKEx: null,
       tipMsg: {
         x: 50,
@@ -250,13 +253,52 @@ export default {
     },
     // PKI登录
     pkiLogin() {
+      const version = this.JIT_GW_ExtInterface.GetVersion()
+      console.info('版本号：', version)
+      if (version === undefined || version === null || version === '') {
+        window.location.href = 'static/PNXClient.exe'
+      }
       console.log('PKI登录')
-      // this.loading = true
-      // this.$query('uk/random', {}, '0').then((response) => {
-      //   this.randomNum = response.data
-      //   console.info('获取随机数：' + this.randomNum)
-      //   this.doSelectCert()
-      // })
+      this.loading = true
+      // 获取pki登录随机数
+      this.$query('pki/random', {}, true).then(response => {
+        this.randomNum = response.data
+        console.info('获取随机数：' + this.randomNum)
+        const initParam = '<\?xml version=\"1.0\" encoding=\"utf-8\"\?><authinfo><liblist><lib type=\"PM\" version=\"1.0\" dllname=\"Q3J5cHRPY3guZGxs\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"TWljcm9zb2Z0IEVuaGFuY2VkIENyeXB0b2dyYXBoaWMgUHJvdmlkZXIgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"TWljcm9zb2Z0IFN0cm9uZyBDcnlwdG9ncmFwaGljIFByb3ZpZGVy\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RW50ZXJTYWZlIGVQYXNzMzAwMyBDU1AgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUIFVTQiBLZXkgQ1NQIHYxLjA=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RW50ZXJTYWZlIGVQYXNzMjAwMSBDU1AgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUIFVTQiBLZXkzMDAzIENTUCB2MS4w\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"TWljcm9zb2Z0IEJhc2UgQ3J5cHRvZ3JhcGhpYyBQcm92aWRlciB2MS4w\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RkVJVElBTiBlUGFzc05HIFJTQSBDcnlwdG9ncmFwaGljIFNlcnZpY2UgUHJvdmlkZXI=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RkVJVElBTiBlUGFzc05HIENTUCBGb3IgSklUM0sgVjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"SKF\" version=\"1.1\" dllname=\"U2h1dHRsZUNzcDExXzMwMDBHTS5kbGw=\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib></liblist></authinfo>'
+        // 根据原文和证书产生认证数据包
+        this.signResult = doDataProcess(initParam, this.randomNum)
+        if (this.signResult) {
+          console.info('开始调用pki 登录接口')
+          const para = {
+            authMode: 'cert',
+            original: this.randomNum,
+            signed_data: this.signResult
+          }
+          console.info('pki 登录接口请求参数：', para)
+          // 调用pki 登录方法
+          this.$update('pki/login', para, true).then(response => {
+            console.info('pki 登录成功')
+            this.$store.dispatch('UKLogin', response.data).then(() => {
+              this.loading = false
+              this.$store.dispatch('GetInfo').then(() => {
+                // 获取积分配置信息
+                this.$store.dispatch('GetConfig').then(() => {
+                  // 调用登录加积分方法
+                  this.addJF()
+                })
+                this.$router.push({ path: '/' })
+              })
+              sessionStorage.setItem('uk', this.signResult)
+            }).catch(() => {
+              this.loading = false
+            })
+          }).catch(() => {
+            this.loading = false
+          })
+        } else {
+          this.loading = false
+        }
+      })
     },
     doSelectCert() {
       console.info('获取插件：document.getElementById(\'vctkobj\')')
@@ -427,6 +469,8 @@ export default {
       username: '',
       password: ''
     }
+    this.JIT_GW_ExtInterface = JIT_GW_ExtInterface
+    this.JIT_GW_ExtInterface.Init()
     // this.floatOut()
   }
 }

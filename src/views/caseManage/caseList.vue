@@ -160,6 +160,9 @@
         if (item.columnName === 'CONFIRM_STATUS' || item.columnName === 'AJZT' || item.columnName === 'AJSX' || item.columnName === 'LARQ') {
           return '120px'
         }
+        if (item.columnName === 'BARHJSZDSSXQ_NAME' || item.columnName === 'BARSJJZDSSXQ_NAME') {
+          return '240px'
+        }
         return '200px'
       },
       className(item) {
