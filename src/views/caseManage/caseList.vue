@@ -92,7 +92,7 @@
 
 <script>
   import { getTree } from '@/api/dept'
-  import { getSYHFLLBList, getAJLBText, getAJSXList, getXBSelect } from '@/utils/codetotext'
+  import { getSYHFLLBList, getAJSXList, getXBSelect } from '@/utils/codetotext'
   export default {
     name: 'caseList',
     data() {
@@ -497,16 +497,27 @@
         })
       },
       getFllbName(fllb) {
-        if (fllb && fllb.indexOf(',') > -1) {
+        if (fllb) {
           const array = fllb.split(',')
-          let text = ''
+          let data = this.fllbList
+          const arr = []
           for (let i = 0; i < array.length; i++) {
-            text += '，' + getAJLBText(array[i])
+            data = this.eachData(data, array[i], arr)
           }
-          return text.substring(1, text.length)
+          return arr.join('，')
         } else {
-          return getAJLBText(fllb)
+          return '-'
         }
+      },
+      eachData(child, value, arr) {
+        let children = []
+        child.forEach((item, index) => {
+          if (item.value === value) {
+            arr.push(item.label)
+            children = item.children
+          }
+        })
+        return children
       },
       getAjztName(ajzt) {
         for (let i = 0; i < this.ajztData.length; i++) {
