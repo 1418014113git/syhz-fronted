@@ -12,11 +12,11 @@
             <span class="linkColor"  @click="gotoxslist(scope.row)">{{scope.row.AJZT_NAME}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="JYAQ" label="接收单位" align="center" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="AJZT_NAME" label="签收状态" align="center">
-          <!-- <template slot-scope="scope">
-            <span v-if='scope.row.userSort'>{{$getDictName(scope.row.userSort+'','rylx')}}</span>
-          </template> -->
+        <el-table-column prop="receiveDeptName" label="接收单位" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="signStatus" label="签收状态" align="center">
+          <template slot-scope="scope">
+            <span v-if='scope.row.signStatus'>{{$getDictName(scope.row.signStatus+'','qszt')}}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="AJZT_NAME" label="签收人" align="center"></el-table-column>
         <el-table-column prop="AJZT_NAME" label="签收时间" align="center"></el-table-column>
@@ -39,7 +39,7 @@
 <script>
 import titlePub from './titlePub'
 export default {
-  props: ['cardId'],
+  props: ['id'],
   name: 'index',
   components: {
     titlePub
@@ -48,39 +48,39 @@ export default {
     return {
       title: '地市签收表',
       curUser: {},
+      curDept: {}, // 当前登录的部门
       paramDept: sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode : '',
       listData: [], // 地市签收表
       listLoading: false, // 页面loading
       pageSize: 5,
       page: 1,
       total: 0,
-      cardNumber: '' // 存储身份证号
+      pcsParentDept: {}, // 派出所的上级部门
+      clusterId: '' // 存储列表传递过来的集群战役id
     }
   },
   watch: {
-    cardId(val) {
-      this.cardNumber = val
+    id(val) {
+      this.clusterId = val
       this.query(true)
     }
   },
   methods: {
-    handleClick(tab, event) {
-      console.log(tab, event)
-    },
     init() {
-      if (this.cardId) {
-        this.cardNumber = this.cardId
+      if (this.id) {
+        this.clusterId = this.id
       }
       this.query(true)
     },
     query(flag) {
       this.listLoading = true
       var param = {
-        cardNumber: this.cardNumber,
+        clusterId: this.clusterId,
+        deptCode: this.curDept.depCode,
         pageSize: this.pageSize,
         pageNum: flag ? 1 : this.page
       }
-      this.$query('page/personallcase', param).then((res) => {
+      this.$query('page/casecluster/signList', param).then((res) => {
         this.listLoading = false
         this.listData = res.data.list
         this.total = res.data.totalCount
@@ -113,7 +113,14 @@ export default {
       })
     },
     handleSign(index, row) { // 签收
-      this.$update('' + this.row.id, {}).then((response) => {
+      const param = {
+        userId: this.curUser.id,
+        realName: this.filters.realName,
+        deptCode: this.curDept.depCode,
+        assistId: row.assistId, // 集群id
+        signId: row.assistSignId // 签收表id
+      }
+      this.$update('casecluster/signup', param).then((response) => {
         this.$alert('请尽快反馈线索核查情况', '签收成功', {
           type: 'success',
           confirmButtonText: '知道了'
@@ -126,7 +133,10 @@ export default {
   },
   mounted() {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-    // this.init()
+    if (sessionStorage.getItem('depToken')) {
+      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+    }
+    this.init()
   }
 }
 </script>

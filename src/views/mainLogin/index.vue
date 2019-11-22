@@ -108,6 +108,7 @@
 import importexport from '@/api/importexport'
 import clip from '@/utils/clipboard'
 import FloatTipMsg from '@/views/login/FloatTipMsg'
+import { doDataProcess } from '@/api/login/pkiLogin'
 export default {
   name: 'login',
   components: {
@@ -167,6 +168,8 @@ export default {
       downLoadUrl: importexport.downloadFileUrl, // nginx配置的下载地址
       inputData: window.location.href,
       randomNum: '',
+      signResult: '',
+      //JIT_GW_ExtInterface: null,
       JITComVCTKEx: null,
       tipMsg: {
         x: 50,
@@ -250,21 +253,63 @@ export default {
     },
     // PKI登录
     pkiLogin() {
+      const version = JIT_GW_ExtInterface.GetVersion()
+      console.info('版本号：', version)
+
+      if (version === undefined || version === null || version === '') {
+        window.location.href = 'static/PNXClient.exe'
+      }
       console.log('PKI登录')
-      // this.loading = true
-      // this.$query('uk/random', {}, '0').then((response) => {
-      //   this.randomNum = response.data
-      //   console.info('获取随机数：' + this.randomNum)
-      //   this.doSelectCert()
-      // })
+      this.loading = true
+      // 获取pki登录随机数
+      this.$query('pki/random', {}, 'upms').then(response => {
+        this.randomNum = response.data
+        console.info('获取随机数：' + this.randomNum)
+        const initParam = '<\?xml version=\"1.0\" encoding=\"utf-8\"\?><authinfo><liblist><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUR01LRVkgU0pLMTQyNCBDU1AgVjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"SKF\" version=\"1.1\" dllname=\"U2h1dHRsZUNzcDExXzMwMDBHTS5kbGw=\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RkVJVElBTiBlUGFzc05HIENTUCBGb3IgSklUM0sgVjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"R0FTUyBDcnlwdG9ncmFwaGljIFNlcnZpY2UgUHJvdmlkZXIgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"SKF\" version=\"1.0\" dllname=\"RW50ZXJTYWZlIGVQYXNzMzAwMyBDU1AgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib><lib type=\"PM\" version=\"1.0\" dllname=\"Q3J5cHRPY3guZGxs\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RkVJVElBTiBlUGFzc05HIFJTQSBDcnlwdG9ncmFwaGljIFNlcnZpY2UgUHJvdmlkZXI=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUIFVTQiBLZXkgQ1NQIHYxLjA=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RW50ZXJTYWZlIGVQYXNzMjAwMSBDU1AgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUIFVTQiBLZXkzMDAzIENTUCB2MS4w\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"ZVNhZmUgQ3J5cHRvZ3JhcGhpYyBTZXJ2aWNlIFByb3ZpZGVyIHYxLjA=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"TWljcm9zb2Z0IEVuaGFuY2VkIENyeXB0b2dyYXBoaWMgUHJvdmlkZXIgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"TWljcm9zb2Z0IFN0cm9uZyBDcnlwdG9ncmFwaGljIFByb3ZpZGVy\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib></liblist></authinfo>'
+        // 根据原文和证书产生认证数据包
+        this.signResult = doDataProcess(initParam, this.randomNum)
+        console.log('signResult' + this.signResult)
+        if (this.signResult) {
+          console.info('开始调用pki 登录接口')
+          const para = {
+            authMode: 'cert',
+            original: this.randomNum,
+            signed_data: this.signResult
+          }
+          console.info('pki 登录接口请求参数：', para)
+          // 调用pki 登录方法
+          this.$update('pki/login', para, 'upms').then(response => {
+            console.info('pki 登录成功')
+            this.$store.dispatch('UKLogin', response.data).then(() => {
+              this.loading = false
+              this.$store.dispatch('GetInfo').then(() => {
+                // 获取积分配置信息
+                this.$store.dispatch('GetConfig').then(() => {
+                  // 调用登录加积分方法
+                  this.addJF()
+                })
+                this.$router.push({ path: '/' })
+              })
+              sessionStorage.setItem('uk', this.signResult)
+            }).catch(() => {
+              this.loading = false
+            })
+          }).catch(() => {
+            this.loading = false
+          })
+        } else {
+          this.loading = false
+        }
+      })
     },
     doSelectCert() {
       console.info('获取插件：document.getElementById(\'vctkobj\')')
       this.JITComVCTKEx = document.getElementById('vctkobj')
       console.info('获取到的插件对象：' + this.JITComVCTKEx)
       const strCertType = 'SC'
-      const InitParam = '<?xml version=\'1.0\' encoding=\'utf-8\'?><authinfo><liblist><lib type=\'CSP\' version=\'1.0\' dllname=\'\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'bXRva2VuX2dtMzAwMF9KSVQuZGxs\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'SERfR01DQUlTLmRsbA==\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'U2h1dHRsZUNzcDExXzMwMDBHTS5kbGw=\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'SklUR01LRVlfU0pLMTQyNC5kbGw=\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'U0tGQVBJLmRsbA==\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib></liblist></authinfo>'
+      //const InitParam = '<?xml version=\'1.0\' encoding=\'utf-8\'?><authinfo><liblist><lib type=\'CSP\' version=\'1.0\' dllname=\'\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'bXRva2VuX2dtMzAwMF9KSVQuZGxs\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'SERfR01DQUlTLmRsbA==\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'U2h1dHRsZUNzcDExXzMwMDBHTS5kbGw=\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'SklUR01LRVlfU0pLMTQyNC5kbGw=\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'U0tGQVBJLmRsbA==\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib></liblist></authinfo>'
       // const InitParam = '<?xml version=\"1.0\" encoding=\"utf-8\"?>\<authinfo><liblist>\<lib type=\"CSP\" version=\"1.0\" dllname=\"\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\<lib type=\"SKF\" version=\"1.1\" dllname=\"bXRva2VuX2dtMzAwMF9KSVQuZGxs\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\<lib type=\"SKF\" version=\"1.1\" dllname=\"SERfR01DQUlTLmRsbA==\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\<lib type=\"SKF\" version=\"1.1\" dllname=\"U2h1dHRsZUNzcDExXzMwMDBHTS5kbGw=\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\<lib type=\"SKF\" version=\"1.1\" dllname=\"SklUR01LRVlfU0pLMTQyNC5kbGw=\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\<lib type=\"SKF\" version=\"1.1\" dllname=\"U0tGQVBJLmRsbA==\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\</liblist></authinfo>'
+      const InitParam = '<\?xml version=\"1.0\" encoding=\"utf-8\"\?><authinfo><liblist><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUR01LRVkgU0pLMTQyNCBDU1AgVjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"SKF\" version=\"1.1\" dllname=\"U2h1dHRsZUNzcDExXzMwMDBHTS5kbGw=\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RkVJVElBTiBlUGFzc05HIENTUCBGb3IgSklUM0sgVjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"R0FTUyBDcnlwdG9ncmFwaGljIFNlcnZpY2UgUHJvdmlkZXIgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"SKF\" version=\"1.0\" dllname=\"RW50ZXJTYWZlIGVQYXNzMzAwMyBDU1AgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib><lib type=\"PM\" version=\"1.0\" dllname=\"Q3J5cHRPY3guZGxs\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RkVJVElBTiBlUGFzc05HIFJTQSBDcnlwdG9ncmFwaGljIFNlcnZpY2UgUHJvdmlkZXI=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUIFVTQiBLZXkgQ1NQIHYxLjA=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RW50ZXJTYWZlIGVQYXNzMjAwMSBDU1AgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUIFVTQiBLZXkzMDAzIENTUCB2MS4w\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"ZVNhZmUgQ3J5cHRvZ3JhcGhpYyBTZXJ2aWNlIFByb3ZpZGVyIHYxLjA=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"TWljcm9zb2Z0IEVuaGFuY2VkIENyeXB0b2dyYXBoaWMgUHJvdmlkZXIgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"TWljcm9zb2Z0IFN0cm9uZyBDcnlwdG9ncmFwaGljIFByb3ZpZGVy\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib></liblist></authinfo>'
       console.info('开始执行方法：this.JITComVCTKEx.Initialize(InitParam)')
       this.JITComVCTKEx.Initialize(InitParam)
       console.info('执行成功')
@@ -427,11 +472,14 @@ export default {
       username: '',
       password: ''
     }
+
+    //this.JIT_GW_ExtInterface = JIT_GW_ExtInterface
+    //console.log("111"+JIT_GW_ExtInterface)
+    JIT_GW_ExtInterface.Init()
     // this.floatOut()
   }
 }
 </script>
-
 <style rel="stylesheet/scss" lang="scss">
 /* reset element-ui css */
 .login-container {
@@ -499,8 +547,9 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .login-container {
   width: 100%;
-   height: 100%;
-  background: url(/static/image/login_images/loginbg.jpg) no-repeat center center;
+  height: 100%;
+  background: url(/static/image/login_images/loginbg.jpg) no-repeat center
+    center;
   background-size: 100% 100%;
   overflow: hidden;
   .login-box {
@@ -517,7 +566,7 @@ export default {
       // margin: 4% 0 0 0;
       padding-left: 50px;
       position: absolute;
-      top:4%;
+      top: 4%;
     }
     .login-form {
       width: 21%;
@@ -525,7 +574,7 @@ export default {
       z-index: 300;
       position: absolute;
       right: 55px;
-      top:0;
+      top: 0;
       height: auto;
       margin: 14% 0 0 0;
       padding-bottom: 35px;
@@ -595,7 +644,7 @@ export default {
       width: 70.5%;
       padding-left: 2px;
       position: absolute;
-      top:4%;
+      top: 4%;
     }
   }
   .footer {
@@ -748,7 +797,7 @@ export default {
           width: 52px;
           height: 58px;
         }
-        .download{
+        .download {
           width: 60px;
           height: 60px;
         }
@@ -774,7 +823,7 @@ export default {
       }
     }
   }
-  .floatMsgBox{
+  .floatMsgBox {
     .el-dialog__header {
       border-bottom: 0;
     }
@@ -793,13 +842,13 @@ export default {
   flex: 1;
 }
 
- .slideshow{
+.slideshow {
+  width: 100%;
+  img {
     width: 100%;
-    img{
-      width: 100%;
-      height: 100%;
-    }
+    height: 100%;
   }
+}
 
 @media only screen and (max-width: 1367px) {
   .login-container .tipMask .tipBox .tipCont .download {

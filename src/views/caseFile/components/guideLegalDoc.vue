@@ -1,7 +1,7 @@
 <template>
   <section style="margin-top:12px;">
     <el-table ref="goodTable" :data="flwsData" v-loading="flwsLoading" max-height="186" class="statisticCollect" style="width:100%;">
-      <el-table-column type="index" label="序号" width="60px"></el-table-column>
+      <el-table-column type="index" label="序号" width="56px"></el-table-column>
       <el-table-column prop="flwsmc" label="名称" min-width="150px" show-overflow-tooltip></el-table-column>
       <el-table-column prop="wh" label="文号" min-width="200px" show-overflow-tooltip></el-table-column>
       <el-table-column prop="tfdwName" label="填发单位" min-width="200px" show-overflow-tooltip></el-table-column>
@@ -39,7 +39,7 @@
       <!-- 图片和附件 -->
       <div v-show="curFlwsDetail.sjly===0">
         <el-carousel indicator-position="outside"  class="carouselImg" :autoplay="false">
-          <el-carousel-item v-for="item in detailImgs" :key="item">
+          <el-carousel-item v-for="item in detailImgs" :key="item" style="display: flex;justify-content: center;align-items: center;">
             <img :src="item" alt="" srcset="" style="max-width:100%;max-height:100%;">
           </el-carousel-item>
         </el-carousel>
@@ -93,7 +93,7 @@ export default {
       this.flwsLoading = true
       var param = {
         ajbh: this.AJBH,
-        // ajbh: 'J6104296813050800001',
+        // ajbh: 'J1504296813050800001',
         pageSize: this.pageSizeFlws,
         pageNum: flag ? 1 : this.pageFlws
       }
@@ -103,7 +103,9 @@ export default {
           this.flwsData = res.data.list
           this.totalFlws = res.data.totalCount
           this.pageSizeFlws = res.data.pageSize
-          this.$emit('totalFlws', this.totalFlws)
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.$emit('totalFlws', this.totalFlws)
+          }
         }
       }).catch(() => {
         this.flwsLoading = false

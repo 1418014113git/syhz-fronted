@@ -160,7 +160,6 @@
             <p :class="curFlwsType==='2'?'active_flws':''" @click="switchFlws('2')">无文书申请（{{nowsNum}}）</p>
           </div>
           <div class="flws_right clearfix" v-if="AJBH">
-            <!-- && showFlwsBtn -->
             <p class="left" @click="handleFlwsForm('1')">
               <img src="/static/image/caseFile_images/flws_add.png" alt="" class="flws_icon">
               新增文书
@@ -190,7 +189,7 @@
 import {
   getAjDeptByAjId, getAJDETAILASSETS, getZjqdByAjbh
 } from '@/api/caseManage'
-// import { personByCardId } from '@/api/personSearch/personSearch'
+import { personByCardId } from '@/api/personSearch/personSearch'
 import cardCom from '@/components/idCardTips' // 身份证号码点击弹出菜单功能
 import XyrDetail from './xyrDetail' // 嫌疑人详情
 import legalDoc from './guideLegalDoc' // 法律文书列表
@@ -370,6 +369,8 @@ export default {
         }
       }).catch(() => {
         this.xyrLoading = false
+        this.moduleAllTotal.push(0)
+        this.calculateAll()
       })
     },
     handleShr(flag) { // 受害人
@@ -404,69 +405,67 @@ export default {
         }
       }).catch(() => {
         this.shrLoading = false
+        this.moduleAllTotal.push(0)
+        this.calculateAll()
       })
     },
     personDetailByCardXyr(item, data, flag) {
       // 根据身份证号码查询嫌疑人人员详细信息
-      this.xyrLoading = false
-      this.xyrData = data
-      // if (flag) {
-      //   this.xyrLoading = false
-      //   this.xyrData = data
-      // } else if (item.mgsfhm) {
-      //   const para = {
-      //     method: 'Query',
-      //     byUserCard: item.mgsfhm,
-      //     userCardId: this.curUser.cardNumber,
-      //     userCertId: this.curUser.cardNumber,
-      //     userDept: this.paramDept,
-      //     userName: this.curUser.realName
-      //   }
-      //   personByCardId(para).then((response) => {
-      //     this.xyrLoading = false
-      //     if (response.code === '000000') {
-      //       item.xp = response.data.xp || ''
-      //     }
-      //     this.xyrData = data
-      //   }).catch(() => {
-      //     this.xyrLoading = false
-      //     this.xyrData = data
-      //   })
-      // } else {
-      //   this.xyrLoading = false
-      //   this.xyrData = data
-      // }
+      if (flag) {
+        this.xyrLoading = false
+        this.xyrData = data
+      } else if (item.mgsfhm) {
+        const para = {
+          method: 'Query',
+          byUserCard: item.mgsfhm,
+          userCardId: this.curUser.cardNumber,
+          userCertId: this.curUser.cardNumber,
+          userDept: this.paramDept,
+          userName: this.curUser.realName
+        }
+        personByCardId(para).then((response) => {
+          this.xyrLoading = false
+          if (response.code === '000000') {
+            item.xp = response.data.xp || ''
+          }
+          this.xyrData = data
+        }).catch(() => {
+          this.xyrLoading = false
+          this.xyrData = data
+        })
+      } else {
+        this.xyrLoading = false
+        this.xyrData = data
+      }
     },
     personDetailByCard(item, data, flag) {
       // 根据身份证号码查询受害人人员详细信息
-      this.shrLoading = false
-      this.shrData = data
-      // if (flag) {
-      //   this.shrLoading = false
-      //   this.shrData = data
-      // } else if (item.mgsfhm) {
-      //   const para = {
-      //     method: 'Query',
-      //     byUserCard: item.mgsfhm,
-      //     userCardId: this.curUser.cardNumber,
-      //     userCertId: this.curUser.cardNumber,
-      //     userDept: this.paramDept,
-      //     userName: this.curUser.realName
-      //   }
-      //   personByCardId(para).then((response) => {
-      //     this.shrLoading = false
-      //     if (response.code === '000000') {
-      //       item.xp = response.data.xp || ''
-      //     }
-      //     this.shrData = data
-      //   }).catch(() => {
-      //     this.shrLoading = false
-      //     this.shrData = data
-      //   })
-      // } else {
-      //   this.shrLoading = false
-      //   this.shrData = data
-      // }
+      if (flag) {
+        this.shrLoading = false
+        this.shrData = data
+      } else if (item.mgsfhm) {
+        const para = {
+          method: 'Query',
+          byUserCard: item.mgsfhm,
+          userCardId: this.curUser.cardNumber,
+          userCertId: this.curUser.cardNumber,
+          userDept: this.paramDept,
+          userName: this.curUser.realName
+        }
+        personByCardId(para).then((response) => {
+          this.shrLoading = false
+          if (response.code === '000000') {
+            item.xp = response.data.xp || ''
+          }
+          this.shrData = data
+        }).catch(() => {
+          this.shrLoading = false
+          this.shrData = data
+        })
+      } else {
+        this.shrLoading = false
+        this.shrData = data
+      }
     },
     handleDw(flag) { // 案件关联单位
       this.dwLoading = true
@@ -480,15 +479,15 @@ export default {
           this.dwData = res.data.list
           this.totalDw = res.data.totalCount
           this.pageSizeDw = res.data.pageSize
-          this.moduleAllTotal.push(this.totalDw)
-          this.calculateAll()
-          // if (this.listData.length > 0) {
-          //   this.xyrCurDetail = this.listData[0]
-          //   this.$emit('involvedCompany', this.total)
-          // }
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalDw)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.dwLoading = false
+        this.moduleAllTotal.push(0)
+        this.calculateAll()
       })
     },
     handleSawp(flag) { // 涉案物品
@@ -503,11 +502,15 @@ export default {
           this.sawpData = res.data.list
           this.totalSawp = res.data.totalCount
           this.pageSizeSawp = res.data.pageSize
-          this.moduleAllTotal.push(this.totalSawp)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalSawp)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.sawpLoading = false
+        this.moduleAllTotal.push(0)
+        this.calculateAll()
       })
     },
     handleZjqd(flag) { // 接收证据清单
@@ -522,11 +525,15 @@ export default {
           this.zjqdData = res.data.list
           this.totalZjqd = res.data.totalCount
           this.pageSizeZjqd = res.data.pageSize
-          this.moduleAllTotal.push(this.totalZjqd)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalZjqd)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.zjqdLoading = false
+        this.moduleAllTotal.push(0)
+        this.calculateAll()
       })
     },
     handleCurrentChangeXyr(val) { // 嫌疑人
@@ -822,7 +829,6 @@ export default {
   }
   .flws_right {
     float: right;
-    // width: 250px;
     .flws_icon {
       width: 22px;
       vertical-align: middle;
@@ -833,6 +839,7 @@ export default {
       height: 28px;
       line-height: 28px;
       margin-right: 40px;
+      display: inline-block;
     }
   }
 }

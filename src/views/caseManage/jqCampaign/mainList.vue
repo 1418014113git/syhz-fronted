@@ -31,14 +31,14 @@
             </el-cascader>
           </el-tooltip>
         </el-form-item>
-        <el-form-item label="下发类别" prop="status">
-          <el-select  v-model="filters.status" size="small" placeholder="全部" clearable class="input_w">
-            <!-- <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('status')" :key="item.dictKey"></el-option> -->
+        <el-form-item label="下发类别" prop="xflb" v-if="curDept.depType === '1'">
+          <el-select  v-model="xflb" size="small" placeholder="全部" clearable class="input_w">
+            <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('jqzyxflb')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select  v-model="filters.status" size="small" placeholder="全部" clearable class="input_w">
-            <!-- <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('status')" :key="item.dictKey"></el-option> -->
+            <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('jqzyzt')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
       </el-col>
@@ -48,7 +48,7 @@
             start-placeholder="开始时间"
             end-placeholder="结束时间"
             @change="dateChange1"
-            value-format="yyyy-MM-dd HH:mm:ss"
+            value-format="yyyy-MM-dd"
             clearable>
           </el-date-picker>
         </el-form-item>
@@ -57,80 +57,29 @@
             start-placeholder="开始时间"
             end-placeholder="结束时间"
             @change="dateChange2"
-            value-format="yyyy-MM-dd HH:mm:ss"
+            value-format="yyyy-MM-dd"
             clearable>
           </el-date-picker>
         </el-form-item>
         <el-form-item label="标题">
           <el-input v-model="filters.title" clearable placeholder="请输入标题" size="small" maxlength="50" class="input_w"></el-input>
         </el-form-item>
-        <!-- <el-form-item label="发起日期" prop="start1">
-          <el-date-picker
-            v-model="filters.start1"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择开始时间"
-            @change="fqStartDateChange"
-            >
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="至" prop="end1" label-width="30px">
-          <el-date-picker
-            v-model="filters.end1"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择结束时间"
-            @change="endDateChange"
-            :disabled="fqEndDateDisabled">
-          </el-date-picker>
-       </el-form-item>
-       <el-form-item label="结束日期" prop="start2">
-          <el-date-picker
-            v-model="filters.start2"
-            type="date"
-            value-format="yyyy-MM-dd"
-            :picker-options="pickerOptions"
-            placeholder="请选择开始时间"
-            @change="jSstartDateChange"
-            >
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="至" prop="end2" label-width="30px">
-          <el-date-picker
-            v-model="filters.end2"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="请选择结束时间"
-            @change="endDateChange"
-            :disabled="jSendDateDisabled">
-          </el-date-picker>
-        </el-form-item> -->
       </el-col>
       <el-col :span="24" style="padding-bottom: 0;">
         <el-form-item>
-          <el-button type="primary" size="small"  @click="query(true,true)">查询</el-button>
-        </el-form-item>
-        <el-form-item>
+          <el-button type="primary" size="small"  :disabled="queryBtn"  @click="query(true,true)">查询</el-button>
           <el-button type="primary" size="small"  v-if="btnqx.isShowsqbtn"   @click="apply">申请</el-button>
-        </el-form-item>
-         <el-form-item>
           <el-button type="primary" size="small"  v-if="btnqx.isShowxfbtn" @click="downSend">下发</el-button>
-        </el-form-item>
-        <el-form-item>
           <el-button type="primary" size="small"  v-if="btnqx.isShowbxfbtn" @click="budownSend">部下发</el-button>
-        </el-form-item>
-        <el-form-item>
           <el-button type="primary" size="small" @click="exportList">导出</el-button>
-        </el-form-item>
-         <el-form-item>
           <el-button type="primary" size="small"  @click="resetForm">重置</el-button>
         </el-form-item>
       </el-col>
     </el-form>
-    <el-table :data="listData" v-loading="listLoading" style="width: 100%;" class="" :max-height="tableHeight" :row-key="getRowKeys"  :expand-row-keys="expands" @expand-change="rowClick" @selection-change="handleSelectionChange">
+    <el-table :data="listData" v-loading="listLoading"    ref="equipStatistical" style="width: 100%;margin-top: 15px;"  :max-height="tableHeight" :row-key="getRowKeys"  :expand-row-keys="expands" @expand-change="rowClick" @selection-change="handleSelectionChange">
       <el-table-column type="expand">
         <template slot-scope="scope">
-          <el-table :data="scope.row.tableDataList"  v-loading="listChildLoading" >
+          <el-table :data="scope.row.tableDataList"  :style="expandStyle" v-loading="listChildLoading" >
             <!-- <el-table-column prop="" width="47"></el-table-column> -->
             <el-table-column type="index" width="60" label="序号" align="center"></el-table-column>
             <el-table-column prop="" align="center" label="地市"  width="200"  show-overflow-tooltip></el-table-column>
@@ -158,7 +107,7 @@
       </el-table-column>
       <el-table-column prop="status" align="center" label='状态'  min-width="200" show-overflow-tooltip>
         <template slot-scope="scope">
-          <span v-if='scope.row.status'>{{$getDictName(scope.row.status+'','status')}}</span>
+          <span v-if='scope.row.status'>{{$getDictName(scope.row.status+'','jqzyzt')}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="" align="center" label='厅评价'  min-width="200" show-overflow-tooltip></el-table-column>
@@ -179,8 +128,8 @@
     <!--查阅密码弹出层-->
     <el-dialog title="查阅密码" :visible.sync="isShowdialog" class="querypsd">
       <el-form ref="passWordForm" :rules="passWordRules" :model="passWordForm" size="mini" label-width="100px">
-        <el-form-item label="查阅密码" prop="queryPwd">
-          <el-input v-model.trim="passWordForm.queryPwd" type="password" auto-complete="off" maxlength="8" clearable></el-input>
+        <el-form-item label="查阅密码" prop="passKey">
+          <el-input v-model.trim="passWordForm.passKey" type="password" auto-complete="off" maxlength="8" clearable></el-input>
         </el-form-item>
       </el-form>
       <el-row class="tabC martop btnUpLine">
@@ -203,29 +152,31 @@ export default {
     return {
       filters: {
         status: '', // 状态
-        title: '' // 标题
-        // start1: '', // 发起日期 开始时间
-        // end1: '', // 发起日期 结束时间
-        // start2: '', // 结束日期 开始时间
-        // end2: '' // 结束日期 结束时间
+        title: '', // 标题
+        start1: '', // 发起日期 开始时间
+        start2: '', // 发起日期 结束时间
+        end1: '', // 结束日期 开始时间
+        end2: '' // 结束日期 结束时间
       },
-      // curDeptCode: '', // 当前部门
+      queryBtn: false, // 查询按钮是否可点击
+      xflb: '', // 下发类别   厅总队账号，多一个查询条件“下发类别”（部下发，厅下发）
       listData: [],
       total: 0,
       page: 1,
       pageSize: 15,
       dateRand1: [], // 发起日期 时间集合
       dateRand2: [], // 结束日期 时间集合
-      passWordForm: {
-        queryPwd: ''
+      passWordForm: { // 查阅密码
+        passKey: ''
       },
+      expandStyle: '', // 展开表格宽度,将它的父级table宽度赋值给它。
       btnqx: { // 查询列表上的一些按钮权限控制
-        // isShowsqbtn: false, // 是否显示申请按钮   市支队、区县大队有权限。
-        // isShowxfbtn: false, // 是否显示下发按钮   厅总队、市支队有权限。
-        // isShowbxfbtn: false // 是否显示部下发按钮   厅总队有权限。
-        isShowsqbtn: true, // 是否显示申请按钮   市支队、区县大队有权限。
-        isShowxfbtn: true, // 是否显示下发按钮   厅总队、市支队有权限。
-        isShowbxfbtn: true // 是否显示部下发按钮   厅总队有权限。
+        isShowsqbtn: false, // 是否显示申请按钮   市支队、区县大队有权限。 测试
+        isShowxfbtn: false, // 是否显示下发按钮   厅总队、市支队有权限。 测试
+        isShowbxfbtn: false // 是否显示部下发按钮   厅总队有权限。 测试
+        // isShowsqbtn: true, // 是否显示申请按钮   市支队、区县大队有权限。
+        // isShowxfbtn: true, // 是否显示下发按钮   厅总队、市支队有权限。
+        // isShowbxfbtn: true // 是否显示部下发按钮   厅总队有权限。
       },
       pcsParentDept: {}, // 派出所的上级部门
       fqEndDateDisabled: false, // 发起日期 结束时间禁用
@@ -245,7 +196,6 @@ export default {
       curDept: {}, // 当前登录的部门
       curRow: {}, // 存储当前被点击行数据
       exportBtn: false, // 导出按钮显隐
-
       props: {
         value: 'cityCode',
         label: 'cityName'
@@ -259,7 +209,7 @@ export default {
       selectCurxzqhDep: { cityName: '' }, // 当前行政区划
       tableHeight: null,
       passWordRules: {
-        queryPwd: [
+        passKey: [
           { required: true, message: '请输入查阅密码', trigger: 'blur' },
           { min: 6, max: 8, message: '长度在6到8个字符', trigger: 'blur' }
         ]
@@ -282,7 +232,7 @@ export default {
             currentArea = ['610000', this.curDept.areaCode]
             for (var i = 0; i < this.xzqhOptions[0].children.length; i++) {
               const element = this.xzqhOptions[0].children[i]
-              if (element.cityCode === this.deptInfo.areaCode) {
+              if (element.cityCode === this.curDept.areaCode) {
                 this.xzqhOptions[0].children[i].disabled = false
               } else {
                 this.xzqhOptions[0].children[i].disabled = true
@@ -293,7 +243,11 @@ export default {
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
           } else if (this.curDept.depType === '4') { // 派出所
             this.btnqx.isShowsqbtn = true // 显示申请按钮
-            currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.parentDepCode]
+            if (this.curDept.areaCode === '610403') { // 杨凌例外
+              currentArea = ['610000', '610403']
+            } else { // 正常的派出所
+              currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+            }
           }
           this.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
@@ -307,14 +261,14 @@ export default {
           } else if (this.curDept.depType === '3') { // 大队
             this.department = [this.curDept.depCode]
           } else if (this.curDept.depType === '4') { // 派出所
-            this.department = [this.curDept.parentDepCode, this.curDept.depCode]
-            // 查询派出所的上级
-            this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+            this.department = [this.curDept.parentDepCode] // 派出所登录进来，把它自己当作它的上级单位
+            // 查询派出所的上级(把派出所当大队，查大队的上级单位 )
+            this.$query('hsyzparentdepart/' + this.curDept.parentDepCode, {}, 'upms').then((response) => {
               if (response.code === '000000') {
                 this.pcsParentDept = response.data
               }
             }).catch(() => {
-              this.caseLoading = false
+
             })
           }
           this.handleDeptChange(this.department)
@@ -343,10 +297,12 @@ export default {
               const data = response.data
               for (let i = 0; i < data.length; i++) {
                 const obj = data[i]
-                arr.push({
-                  id: obj.id, name: obj.dep_name, cityCode: obj.city_code,
-                  depCode: obj.dep_code, parentCode: obj.super_dep_code, depType: obj.depType
-                })
+                if (obj.depType !== '4') { // 不展示派出所
+                  arr.push({
+                    id: obj.id, name: obj.dep_name, cityCode: obj.city_code,
+                    depCode: obj.dep_code, parentCode: obj.super_dep_code, depType: obj.depType
+                  })
+                }
               }
               this.deptOptions = getTree(arr) // 机构
             }
@@ -382,7 +338,7 @@ export default {
         this.selectCurxzqhDep = { cityName: '' }
       }
     },
-    handleDeptChange(val) { // 单位机构
+    handleDeptChange(val) { // 单位机构名称鼠标移上去显示全部
       if (val.length > 0) {
         var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
         for (let i = 0; i < deptArr.length; i++) {
@@ -398,15 +354,8 @@ export default {
       }
     },
     query(flag, hand) { // 列表数据查询
-      // if (this.filters.end1 && !this.filters.start1) {
-      //   this.$alert('发起日期的开始时间不能为空', '提示', {
-      //     type: 'warning',
-      //     confirmButtonText: '确定'
-      //   })
-      //   return
-      // }
-      // if (this.filters.end1 && this.filters.start1 && this.filters.start1 > this.filters.end1) {
-      //   this.$alert('发起日期的开始时间不能大于结束时间', '提示', {
+      // if (this.filters.start2 && (this.filters.end1 > this.filters.start2)) {
+      //   this.$alert('结束日期的开始时间不能大于发起日期的结束时间', '提示', {
       //     type: 'warning',
       //     confirmButtonText: '确定'
       //   })
@@ -415,12 +364,13 @@ export default {
       this.page = flag ? 1 : this.page
       const para = {
         title: this.filters.title, // 标题
-        start1: this.dateRand1[0] ? this.dateRand1[0] : '', // 发起日期 开始时间
-        end1: this.dateRand1[1] ? this.dateRand1[1] : '', // 发起日期 结束时间
-        start2: this.dateRand2[0] ? this.dateRand2[0] : '', // 结束日期 开始时间
-        end2: this.dateRand2[1] ? this.dateRand2[1] : '', // 结束日期 结束时间
+        start1: this.filters.start1, // 发起日期 开始时间
+        start2: this.filters.start2, // 发起日期 结束时间
+        end1: this.filters.end1, // 结束日期 开始时间
+        end2: this.filters.end2, // 结束日期 结束时间
         pageNum: this.page, // 页数
-        pageSize: this.pageSize // 条数
+        pageSize: this.pageSize, // 条数
+        curDeptCode: this.curDept.depCode // 当前部门code
       }
       if (this.area && this.area.length > 0) { // 行政区划
         para.provinceCode = this.area[0] || '' // 省code
@@ -431,24 +381,33 @@ export default {
         para.cityCode = '' // 市code
         para.reginCode = '' // 区code
       }
+      if (this.curDept.depType === '1') { // 总队
+        para.xflb = this.xflb // 下发类别
+      }
       if (this.department && this.department.length > 0) { // 单位机构
         para.departCode = this.department[this.department.length - 1]// 部门code
       } else {
         para.departCode = this.curDept.depCode // 所属部门code
       }
-      para.curDeptType = this.curDept.depType === '4' ? this.pcsParentDept.depType : this.curDept.depType // 当前部门类型
+      para.curDeptType = this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType // 当前部门类型
 
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
       this.listLoading = true
-      this.$query('page/casecluster/list', para).then((response) => {
+      this.$query('casecluster/list', para).then((response) => {
         this.listLoading = false
         if (response.data && response.data.list.length > 0) {
           this.total = response.data.totalCount
           this.page = response.data.pageNum
           this.pageSize = response.data.pageSize
           this.listData = response.data.list
+          if (para.provinceCode === '610000') {
+            this.exportBtn = true // 导出按钮显示
+            this.firstCanShow = true // 控制 表头显示 省市 还是单位机构
+          } else {
+            this.firstCanShow = false // 控制 表头显示 省市 还是单位机构
+          }
         } else {
           this.initData()
         }
@@ -491,10 +450,11 @@ export default {
       this.query(true, true)
     },
     handleDetail(index, row) {
-      if (row.passWord) { // 弹出查阅密码弹出框
+      this.curRow = row
+      if (row.havePwd > 0) { // 弹出查阅密码弹出框
         this.isShowdialog = true
       } else { // 集群战役详情页
-        // this.$router.push({ path: '/jqCampaign/detail', query: {id: row.id }})
+        this.$router.push({ path: '/jqCampaign/detail', query: { id: row.id }})
       }
     },
     resetForm() { // 重置
@@ -502,12 +462,14 @@ export default {
         status: '',
         title: '',
         start1: '',
-        end1: '',
         start2: '',
+        end1: '',
         end2: ''
       }
       this.area = []
       this.department = []
+      this.dateRand1 = []
+      this.dateRand2 = []
       this.initData()
       this.query(true, false)
     },
@@ -515,32 +477,24 @@ export default {
       this.isShowdialog = false
       this.restData()
     },
-    handleSubmit(index, row) {
+    handleSubmit() {
       this.$refs.passWordForm.validate(valid => {
         if (valid) {
-          // this.$confirm('确认修改密码吗?', '提示', {
-          //   type: 'warning'
-          // }).then(() => {
-          //   this.verifypwd()
-          // })
-          this.verifypwd(row)
+          this.verifypwd()
         }
       })
     },
-    verifypwd(row) { // 验证查阅密码
-      this.loadingFlag = true
-      var param = {
-        passWord: this.passWordForm.queryPwd
+    verifypwd() { // 验证查阅密码
+      const param = {
+        assistId: this.curRow.clusterId,
+        pwd: this.passWordForm.passKey
       }
-      this.$update('' + this.curUser.id, param, true).then((response) => {
+      this.loadingFlag = true
+      this.$update('casecluster/detailPwd', param).then((response) => {
         this.loadingFlag = false
         if (response.code === '000000') {
-          // this.$message({
-          //   message: '验证成功',
-          //   type: 'success'
-          // })
           this.isShowdialog = false
-          this.$router.push({ path: '/jqCampaign/detail', query: { type: 'listDetail', id: row.id }}) // 跳转到详情页
+          this.$router.push({ path: '/jqCampaign/detail', query: { id: this.curRow.clusterId }}) // 跳转到详情页
         }
       }).catch(() => {
         this.loadingFlag = false
@@ -549,7 +503,7 @@ export default {
     },
     restData() {
       this.$refs['passWordForm'].resetFields()
-      this.passWordForm.queryPwd = ''
+      this.passWordForm.passKey = ''
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
@@ -599,24 +553,24 @@ export default {
     //   }
     // },
     dateChange1(val) { // 发起日期 change事件
-      this.start1.start1 = val[0]
-      this.start1.end1 = val[1]
+      this.filters.start1 = val[0]
+      this.filters.start2 = val[1]
     },
     dateChange2(val) { // 结束日期 change事件
-      this.start1.start2 = val[0]
-      this.start1.end2 = val[1]
+      this.filters.end1 = val[0]
+      this.filters.end2 = val[1]
     },
     toback() { // 返回
       this.$router.back(-1)
     },
     apply() { // 申请
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { id: 1 }}) // 跳转到集群战役申请页
+      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'add' }}) // 跳转到集群战役申请页
     },
     downSend() { // 下发
-
+      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'xf' }}) // 跳转到集群战役下发页
     },
     budownSend() { // 部下发
-
+      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'bxf' }}) // 跳转到集群战役部下发页
     },
     exportList() { // 导出
       // var para = {
@@ -652,7 +606,12 @@ export default {
   },
   mounted() {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+    if (sessionStorage.getItem('depToken')) {
+      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+    }
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    var screenWidth = this.$refs.equipStatistical.$el.clientWidth + 'px'
+    this.expandStyle = 'width:' + screenWidth + ';'
     this.init()
   },
   activated() {
@@ -679,4 +638,7 @@ export default {
 .el-table--scrollable-x .el-table__body-wrapper {
   overflow-x: auto;
 }
+.el-cascader-menu__item.is-disabled{
+    background-color: transparent;
+  }
 </style>

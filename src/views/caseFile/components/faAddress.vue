@@ -40,7 +40,7 @@
                       <span v-else style="color: #7ecefd;">0</span>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="all" label="全省" align="center">
+                  <el-table-column prop="all" label="全区" align="center">
                     <template slot-scope="scope">
                       <a class="kdj" v-if="scope.row.all>0" @click="handleAjList(scope.$index, scope.row)">{{scope.row.all}}</a>
                       <span v-else style="color: #7ecefd;">0</span>
@@ -78,7 +78,7 @@
                       <span v-else style="color: #7ecefd;">0</span>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="all" label="全省" align="center">
+                  <el-table-column prop="all" label="全区" align="center">
                     <template slot-scope="scope">
                       <a class="kdj" v-if="scope.row.all>0" @click="handleAjList(scope.$index, scope.row)">{{scope.row.all}}</a>
                       <span v-else style="color: #7ecefd;">0</span>
@@ -116,11 +116,11 @@ import { Style, Icon } from 'ol/style'
 import { Point } from 'ol/geom'
 import { defaults } from 'ol/control/util.js'
 import { defaults as defaultInteractions } from 'ol/interaction.js'
-import { getWidth, getTopLeft } from 'ol/extent.js'
+import { getWidth /* getTopLeft*/ } from 'ol/extent.js'
 import { get as getProjection } from 'ol/proj.js'
 import OSM from 'ol/source/OSM.js'
-import WMTS from 'ol/source/WMTS.js'
-import WMTSTileGrid from 'ol/tilegrid/WMTS.js'
+// import WMTS from 'ol/source/WMTS.js'
+// import WMTSTileGrid from 'ol/tilegrid/WMTS.js'
 
 export default {
   props: ['ajbh', 'AjInfo', 'ajid', 'type', 'Rl'],
@@ -146,7 +146,7 @@ export default {
       curIndexBef: '', // 存储当前被点击标记的索引值 --案件发生前
       curIndexAft: '', // 存储当前被点击标记的索引值 --案件发生后
       curIndex: '',
-      mapCenter: [], // 将西安市作为中心点
+      mapCenter: [], // 将呼和浩特市作为中心点
       ajInfo: {}, // 基础信息
       faAddress: '', // 存储拼接后的发案地址
       interFaceType: '',
@@ -270,30 +270,30 @@ export default {
         layers: [
           new TileLayer({
             source: new OSM()
-          }),
-          new TileLayer({
-            source: new WMTS({
-              url: 'https://services.arcgisonline.com/arcgis/rest/services/Demographics/USA_Population_Density/MapServer/WMTS/', // 测试地址
-              // url: 'http://26.3.12.44:6088/wmts?service=WMTS&request=GetCapabilities', // 公安地图资源服务地址
-              layer: '0',
-              matrixSet: 'EPSG:4326',
-              format: 'image/png',
-              projection: projection, // 采用WGS84坐标系
-              tileGrid: new WMTSTileGrid({
-                origin: getTopLeft(projectionExtent),
-                resolutions: resolutions,
-                matrixIds: matrixIds
-              }),
-              style: 'default',
-              wrapX: true
-            })
           })
+          // new TileLayer({
+          //   source: new WMTS({
+          //     // url: 'https://services.arcgisonline.com/arcgis/rest/services/Demographics/USA_Population_Density/MapServer/WMTS/', // 测试地址
+          //     url: 'http://26.3.12.44:6088/wmts?service=WMTS&request=GetCapabilities', // 公安地图资源服务地址
+          //     layer: '0',
+          //     matrixSet: 'EPSG:4326',
+          //     format: 'image/png',
+          //     projection: projection, // 采用WGS84坐标系
+          //     tileGrid: new WMTSTileGrid({
+          //       origin: getTopLeft(projectionExtent),
+          //       resolutions: resolutions,
+          //       matrixIds: matrixIds
+          //     }),
+          //     style: 'default',
+          //     wrapX: true
+          //   })
+          // })
         ],
         view: new View({
           // 指定地图投影模式
           projection: 'EPSG:4326', // 采用WGS84坐标系
           // 设置地图中心范围
-          center: [108.953098279, 34.2777998978], // 将西安市作为中心点
+          center: [111.66035052, 40.8283188731], // 将呼和浩特市作为中心点
           // 限制地图中心范围，但无法限制缩小范围
           // extent: [110, 26, 114, 30],
           // 定义地图显示层级为16
