@@ -14,7 +14,7 @@ module.exports = {
         // target: 'http://192.168.1.103:8082',
         // target: 'http://192.168.42.229:9001',
         // target: 'http://192.168.1.107:8081',
-        target: 'http://192.168.1.116:8082',
+        target: 'http://192.168.52.138:8082',
         changeOrigin: true,
         pathRewrite: {
           '^/upms': '/upms'
@@ -28,7 +28,7 @@ module.exports = {
       //   }
       // },
       '/syhz': {
-        target: 'http://192.168.1.116:9012',
+        target: 'http://127.0.0.1:9002',
         // target: 'http://192.168.1.103:9002',
         // target: 'http://192.168.1.107:9002',
         // target: 'http://192.168.1.102:9002',
@@ -86,6 +86,13 @@ module.exports = {
         changeOrigin: true,
         pathRewrite: {
           '^/opt/syhz/upload/fileupload/files': '/files'
+        }
+      },
+      '/yqxx': {
+        target: 'http://192.168.42.154:8081',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/yqxx': '/'
         }
       }
     },
