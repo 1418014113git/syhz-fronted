@@ -285,7 +285,7 @@
           this.isSortArr.splice(this.isSortArr.indexOf(row.columnId), 1)
           row.sort = ''
           row.sortType = ''
-          this.$refs.addForm.resetFields()
+          // this.$refs.addForm.validate()
         }
         this.isIndeterminate_sort = this.isSortArr.length > 0 && this.isSortArr.length < this.addForm.columnSet.length
       },
