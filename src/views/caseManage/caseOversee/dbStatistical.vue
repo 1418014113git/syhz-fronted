@@ -375,7 +375,7 @@ export default {
         this.ksEndDateDisabled = false
         this.ksEndPickerOptions = Object.assign({}, 'ksEndPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {
@@ -408,7 +408,7 @@ export default {
         this.jsEndDateDisabled = false
         this.jsEndPickerOptions = Object.assign({}, 'jsEndPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {
