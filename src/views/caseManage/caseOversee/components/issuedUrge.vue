@@ -3,10 +3,10 @@
   <div class="auditCom">
     <el-form ref="dbxfcbForm" :model="dbxfcbForm" :rules="rules" label-width="120px">
       <el-form-item label="被催办单位" prop="urgedDeptName">
-        <el-input v-model="bcb_data.urgedDeptName"></el-input>
+        <el-input v-model="bcb_data.urgedDeptName" disabled></el-input>
       </el-form-item>
       <el-form-item label="被催办责任人" prop="urgedPersonName">
-        <el-input v-model="bcb_data.urgedPersonName"></el-input>
+        <el-input v-model="bcb_data.urgedPersonName" disabled></el-input>
       </el-form-item>
       <el-form-item label="催办截止日期" prop="endDate">
         <el-date-picker v-model="dbxfcbForm.endDate" type="date" placeholder="选择日期" class="db_create_input"
@@ -32,9 +32,9 @@ export default {
   name: 'baseInfo',
   data() {
     return {
-      dbxfcbForm: { // 审核
+      dbxfcbForm: { // 下发催办
         endDate: '', // 催办截至日期
-        content: '' // 审核意见
+        urgedContent: '' // 催办要求
       },
       bcb_data: {}, // 被催办的信息
       db_Id: '', // 督办id
@@ -90,16 +90,12 @@ export default {
   },
   methods: {
     init() {
-      this.initData()
+      this.resetForm('dbxfcbForm')
+      if (this.bcbInfo) {
+        this.bcb_data = this.bcbInfo
+      }
       // 默认本日后第3天，可修改，可选本日及以后
       this.dbxfcbForm.endDate = this.$parseTime(new Date(Date.now() + (60 * 60 * 24 * 1000 * 3)), '{y}-{m}-{d}') // 默认 本日后的第三天
-      // if (this.dbId) {
-      //   this.cardNumber = this.dbId
-      //   this.detail()
-      // }
-    },
-    initData() {
-      this.resetForm('dbxfcbForm')
     },
     resetForm(formName) { // 重置表单
       if (this.$refs[formName]) {
@@ -119,13 +115,6 @@ export default {
           }
           this.btnLoading = true // 加载进度条
           var param = this.dbxfcbForm
-          // {
-          //   superviseId: , // 督办id
-          //   userId: this.userInfo.id, // 审核人id
-          //   userName: this.userInfo.realName, // 审核人姓名
-          //   departCode: this.deptInfo.depCode, // 审核人部门code
-          //   departName: this.deptInfo.depName // 审核人部门名称
-          // }
           param = Object.assign(param, this.bcb_data)
           param.urgentPersonId = this.userInfo.id // 当前人的信息
           param.urgentPersonName = this.userInfo.realName
@@ -135,9 +124,10 @@ export default {
           this.$save('dbcbaj', param).then((response) => {
             if (response.code === '000000') {
               this.btnLoading = false // 关闭加载条
-              this.resetForm('dbxfcbForm')
-              this.$emit('closeDialog')
-              this.$emit('initList') // 调用父级的刷新列表方法
+              location.reload() // 直接刷新整个页面
+              // this.resetForm('dbxfcbForm')
+              // this.$emit('closeDialog')
+              // this.$emit('initList') // 调用父级的刷新列表方法
             }
           }).catch(() => {
             this.btnLoading = false // 关闭加载条

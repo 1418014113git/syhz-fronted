@@ -11,10 +11,10 @@
             【上报结案报告】，申请单位人员，案件督办状态为督办中、督办结束或评价打分，且不存在结案报告时。其他情况隐藏。
             审核结案报告页面-【通过且向上上报】，审核单位人员，有审核权限，该案件存在上级督办记录，且上级督办记录案件督办状态为督办中、督办结束或评价打分，且没有上报结案报告时显示该按钮
            -->
-          <el-button v-if="((deptInfo.depType!=='4'&&jabgInfo.createDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&jabgInfo.createDeptCode === deptInfo.parentDepCode))
+          <el-button v-if="$isViewBtn('100815') && ((deptInfo.depType!=='4'&&jabgInfo.createDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&jabgInfo.createDeptCode === deptInfo.parentDepCode))
               && jabgInfo.title && jabgInfo.reportStatus!==3"
               type="primary" size="small"  @click="handleReportEdit">修改结案报告</el-button>
-          <el-button v-if="((deptInfo.depType!=='4'&&jabgInfo.createDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&jabgInfo.createDeptCode === deptInfo.parentDepCode))
+          <el-button v-if="$isViewBtn('100814') && jabgInfo.signStatus==='2' && ((deptInfo.depType!=='4'&&jabgInfo.createDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&jabgInfo.createDeptCode === deptInfo.parentDepCode))
               && (jabgInfo.dbStatus===5||jabgInfo.dbStatus===6||jabgInfo.dbStatus===7) && !jabgInfo.title"
               type="primary" size="small"  @click="handleReport">上报结案报告</el-button>
         </div>
@@ -24,10 +24,16 @@
         <p class="title">{{jabgInfo.title}}</p>
         <p class="content" v-html="jabgInfo.content"></p>
         <div class="attachment">
-          附件：{{jabgInfo.attachment}}
+          附件：
+          <div style="margin:-20px 0 0 60px;">
+            <p v-for="item in showDetailFiles" :key="item.path">
+                <!-- <a :title="item.name" :href="item.path" target="_blank" class="fjlink">{{item.name}}</a>&nbsp;&nbsp;&nbsp; -->
+                <a @click="downFile(item)" class="fjlink">{{item.name}}</a>
+            </p>
+          </div>
         </div>
       </div>
-      <el-table :data="jabgDataList" style="width: 100%;" v-loading="loading" max-height="156" class="table_th_center">
+      <el-table :data="jabgDataList" style="width: 100%;margin-top:20px;" v-loading="loading" max-height="156" class="table_th_center">
         <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
         <el-table-column prop="applyDepartName" label="上报单位" min-width="240" show-overflow-tooltip></el-table-column>
         <el-table-column prop="applyUserName" label="上报人" min-width="120" show-overflow-tooltip></el-table-column>
@@ -43,8 +49,7 @@
         <el-table-column prop="auditContent" label="审核意见" min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column label="操作" width="80">
           <template slot-scope="scope">
-            <!-- v-if="$isViewBtn('100805')" -->
-            <el-button v-if="scope.row.auditDeptCode === deptInfo.depCode && scope.row.flowStatus==='1'"
+            <el-button v-if="$isViewBtn('100821') && scope.row.auditDeptCode === deptInfo.depCode && scope.row.flowStatus==='1'"
                       title="审核" size="mini" type="primary" @click="handlerAuditJabg(scope.$index, scope.row)" circle>
                       <svg-icon icon-class="audit"></svg-icon>
             </el-button>
@@ -89,16 +94,16 @@
         </el-row>
       </el-dialog>
       <!-- 结案报告审核 -->
-      <el-dialog title="审核" :visible.sync="isShowReportAudit" size="small" @close="closeDialog('reportAuditSubmit')">
+      <el-dialog title="审核" :visible.sync="isShowReportAudit" size="small" @close="closeDialog('reportAuditForm')">
         <el-form ref="reportAuditForm" :rules="rules" :model="reportAuditForm" size="small" label-width="100px">
           <el-form-item label="审核意见" prop="auditContent">
             <el-input v-model.trim="reportAuditForm.auditContent" type="textarea" :rows="3" clearable maxlength="500" placeholder="最多输入500个字符" class="inputW"></el-input>
           </el-form-item>
         </el-form>
         <el-row class="tabC dialogBtnUpLine">
-          <el-button  @click="reportAuditSubmit('4')" :loading="formLoading" class="cancelBtn">不通过</el-button>
-          <el-button  type="primary" @click="reportAuditSubmit('3')" class="saveBtn" :loading="formLoading">通过</el-button>
-          <el-button  type="primary" @click="reportAuditSubmit('5')" class="saveBtn" :loading="formLoading">通过且向上上报</el-button>
+          <el-button v-if="$isViewBtn('100821')" @click="reportAuditSubmit('4')" :loading="formLoading" class="cancelBtn">不通过</el-button>
+          <el-button v-if="$isViewBtn('100821')" type="primary" @click="reportAuditSubmit('3')" class="saveBtn" :loading="formLoading">通过</el-button>
+          <el-button v-if="$isViewBtn('100821') && (jabgInfo.upDbStatus === 5||jabgInfo.upDbStatus === 6||jabgInfo.upDbStatus === 7) && jabgInfo.upJabgStatus===0" type="primary" @click="reportAuditSubmit('5')" class="saveBtn" :loading="formLoading">通过且向上上报</el-button>
         </el-row>
       </el-dialog>
     </div>
@@ -122,6 +127,7 @@ export default {
       title: '结案报告',
       uploadAction: this.UploadAttachment.uploadFileUrl,
       uploadFiles: [], // 附件
+      showDetailFiles: [], // 展示的附件
       jabgInfo: {}, // 结案报告的详情
       loading: false, // 页面加载loading
       page: 1,
@@ -199,7 +205,6 @@ export default {
     },
     attachmentSuccess(res, file, fileList) {
       this.uploadFiles = fileList
-      console.log(this.uploadFiles)
     },
     attachmentRemove(file, fileList) {
       this.uploadFiles = fileList
@@ -225,7 +230,23 @@ export default {
       if (this.jabgData) {
         this.loading = true
         this.jabgInfo = this.jabgData
-        this.$query('page/casesupervisereport', { id: this.jabgInfo.dbId }).then((response) => {
+        if (this.jabgData.attachment) { // 申请的附件
+          this.uploadFiles = [] // 先清空掉该数组
+          var files = this.jabgData.attachment.split('|')
+          for (let index = 0; index < files.length; index++) {
+            var element = files[index]
+            element = JSON.parse(element)
+            this.uploadFiles.push(element)
+            this.showDetailFiles = this.uploadFiles // 供 显示的文件数组
+          }
+        }
+        // 查询 结案报告
+        var param = {
+          id: this.jabgInfo.dbId,
+          pageNum: this.page,
+          pageSize: this.pageSize
+        }
+        this.$query('page/casesupervisereport', param).then((response) => {
           if (response.code === '000000') {
             this.loading = false
             this.jabgDataList = response.data.list
@@ -262,9 +283,11 @@ export default {
     },
     handleReport() { // 上报结案报告
       this.isShowJabg = true
+      this.dialogTitle = '上报结案报告'
     },
     handleReportEdit() { // 修改结案报告
       this.isShowJabg = true
+      this.dialogTitle = '修改结案报告'
       this.jabgForm = JSON.parse(JSON.stringify(this.jabgData))
     },
     jabgCancel() {
@@ -292,11 +315,10 @@ export default {
             param.createDeptName = this.curDeptParent.departName // 上报人部门名称
             param.createDeptCode = this.curDeptParent.departCode // 上报人部门code
           } else {
-            param.applyDeptId = this.deptInfo.id // 上报人部门
-            param.applyDeptName = this.deptInfo.depName // 上报人部门名称
-            param.applyDeptCode = this.deptInfo.depCode // 上报人部门code
+            param.createDept = this.deptInfo.id // 上报人部门
+            param.createDeptName = this.deptInfo.depName // 上报人部门名称
+            param.createDeptCode = this.deptInfo.depCode // 上报人部门code
           }
-
           param.examineDeptId = this.exDeptData.id // 上级部门code
           param.examineDeptName = this.exDeptData.departName // 上级部门
           param.examineDeptCode = this.exDeptData.departCode // 上级部门
@@ -310,7 +332,7 @@ export default {
                   message: '提交成功', type: 'success'
                 })
                 this.isShowJabg = false
-                this.$parent.queryDbDetail() // 调用父级的查详情方法
+                location.reload()
               } else {
                 // this.$message({
                 //   message: '机构信息保存失败，请联系管理员！', type: 'success'
@@ -330,6 +352,7 @@ export default {
                   message: '提交成功', type: 'success'
                 })
                 this.isShowJabg = false
+                location.reload()
               } else {
                 // this.$message({
                 //   message: '机构信息保存失败，请联系管理员！', type: 'success'
@@ -351,7 +374,6 @@ export default {
     },
     reportAuditSubmit(type) { // 结案报告审核 type：3通过,4不通过,5通过并向上申请
       this.remarkAuditType = type
-      console.log(this.remarkAuditType)
       this.$refs.reportAuditForm.validate(valid => {
         if (valid) {
           this.formLoading = true // 加载进度条
@@ -380,7 +402,7 @@ export default {
               this.$message({
                 message: '保存成功', type: 'success'
               })
-              this.isShowReportAudit = false
+              location.reload()
               // this.$emit('closeDialog', false)
             }
           }).catch(() => {
@@ -429,6 +451,11 @@ export default {
       }).catch(() => {
         this.caseLoading = false
       })
+    },
+    downFile(item) {
+      const arr = item.path.split('/file')
+      const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
+      this.$download_http_mg(path, { fileName: item.name })
     },
     resetForm(formName) { // 重置表单
       if (this.$refs[formName]) {

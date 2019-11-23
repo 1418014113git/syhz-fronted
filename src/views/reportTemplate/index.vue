@@ -1,8 +1,6 @@
 <template>
   <section class="reportTemplate">
-    <!-- 试题管理主页 -->
     <el-row v-loading="listLoading">
-      <!-- 左侧树形结构 -->
       <el-col class="leftCont" :span="5" :style="{height:countHeight}">
         <tree
           :tree="dataList"
@@ -16,7 +14,6 @@
         >
         </tree>
       </el-col>
-      <!-- 右侧列表区 -->
       <el-col :span="18" class="rightCont" :style="{height:countHeight}">
         <el-form :model="addForm" ref="addForm" :rules="rules" :inline="true" v-loading="formLoading" :disabled="formDisable">
           <el-row>
@@ -25,15 +22,20 @@
                 <el-input v-model="addForm.templateName" maxlength="50" style="width: 300px;"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="9" style="position: relative; top: 4px;">
-              <i class="el-icon-info"></i> 请为您自定义报表设定筛选条件和统计项目！
+            <el-col :span="9" style="position: relative; top: 5px;">
+              <i><svg-icon icon-class="wenhao1"></svg-icon></i> 请为您自定义报表设定筛选条件和统计项目！
             </el-col>
             <el-col :span="5" style="text-align: right;">
               <el-form-item>
-                <el-button type="primary" @click="save" class="saveBtn" v-loading.fullscreen.lock="btnLoading">保 存</el-button>
                 <el-button @click="cancelEdit" class="cancelBtn">取 消</el-button>
+                <el-button type="primary" @click="save" class="saveBtn" v-loading.fullscreen.lock="btnLoading">保 存</el-button>
               </el-form-item>
             </el-col>
+          </el-row>
+          <el-row style="margin-bottom: 10px;">
+            <el-checkbox :indeterminate="isIndeterminate_search" v-model="isSearch" @change="searchChange">筛选条件</el-checkbox>
+            <el-checkbox :indeterminate="isIndeterminate_show" v-model="isShow" @change="showChange">统计项目</el-checkbox>
+            <el-checkbox :indeterminate="isIndeterminate_sort" v-model="isSort" @change="sortChange">排序</el-checkbox>
           </el-row>
           <el-table :data="addForm.columnSet">
             <el-table-column align="center" type="index" width="70px" label="序号"></el-table-column>
@@ -86,6 +88,18 @@
         </el-form>
       </el-col>
     </el-row>
+    <el-dialog title="提示" :visible.sync="confirmDialogVisible" :close-on-click-modal="false" class="report_confirm_dialog" @close="closeDialog">
+      <div class="el-message-box__status"><i class="el-icon-warning"></i></div>
+      <div class="el-message-box__message">
+        <p>
+          {{(this.treeItem.reportType === 1 ? '案件查询统计报表' : '情报查询统计报表') + '报表的' + this.addForm.templateName + '自定义模板没有配置任何项目，确认是否离开？'}}
+        </p>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeDialog" class="cancelBtn">否</el-button>
+        <el-button type="primary" @click="toJump" class="saveBtn">是</el-button>
+      </div>
+    </el-dialog>
   </section>
 </template>
 
@@ -97,6 +111,12 @@
     },
     data() {
       return {
+        isIndeterminate_search: true,
+        isIndeterminate_show: true,
+        isIndeterminate_sort: false,
+        isSearch: false,
+        isShow: false,
+        isSort: false,
         formDisable: false,
         addForm: {
           templateName: '',
@@ -231,7 +251,10 @@
               return callback()
             }
           }]
-        }
+        },
+        confirmDialogVisible: false,
+        canJump: false,
+        jumpPath: ''
       }
     },
     methods: {
@@ -243,13 +266,13 @@
           if (data.data === null || data.data.length === 0 || (this.addForm.id === data.data[0].id && data.data.length === 1)) {
             callback = callback()
           } else {
-            callback = callback(Error('自定义模板名称重复，请确认后重新输入！'))
+            callback = callback(Error('自定义模板名称与已有的重复！'))
           }
         } else {
           if (data.data === undefined || data.data === null || data.data.length === 0) {
             callback = callback()
           } else {
-            callback = callback(Error('自定义模板名称重复，请确认后重新输入！'))
+            callback = callback(Error('自定义模板名称与已有的重复！'))
           }
         }
         return callback
@@ -257,11 +280,14 @@
       handleChange(value, row) {
         if (value) {
           this.isSortArr.push(row.columnId)
+          row.sortType = 0
         } else {
           this.isSortArr.splice(this.isSortArr.indexOf(row.columnId), 1)
           row.sort = ''
           row.sortType = ''
+          // this.$refs.addForm.validate()
         }
+        this.isIndeterminate_sort = this.isSortArr.length > 0 && this.isSortArr.length < this.addForm.columnSet.length
       },
       handleChangeSearch(value, row) {
         if (value) {
@@ -278,6 +304,52 @@
           this.isShowArr.splice(this.isShowArr.indexOf(row.columnId), 1)
           row.show = ''
         }
+      },
+      searchChange(val) {
+        const arr = this.addForm.columnSet
+        for (let i = 0; i < arr.length; i++) {
+          const item = arr[i]
+          if (!item.disabeld) {
+            item.isSearch = val
+            if (val) {
+              this.isSearchArr.push(item.columnId)
+            } else {
+              this.isSearchArr.splice(this.isSearchArr.indexOf(item.columnId), 1)
+            }
+          }
+        }
+        this.isIndeterminate_search = this.isSearchArr.length > 0 && this.isSearchArr.length < this.addForm.columnSet.length
+      },
+      showChange(val) {
+        const arr = this.addForm.columnSet
+        for (let i = 0; i < arr.length; i++) {
+          const item = arr[i]
+          if (!item.disabeld) {
+            item.isShow = val
+            if (val) {
+              this.isShowArr.push(item.columnId)
+            } else {
+              this.isShowArr.splice(this.isShowArr.indexOf(item.columnId), 1)
+            }
+          }
+        }
+        this.isIndeterminate_show = this.isShowArr.length > 0 && this.isShowArr.length < this.addForm.columnSet.length
+      },
+      sortChange(val) {
+        const arr = this.addForm.columnSet
+        for (let i = 0; i < arr.length; i++) {
+          const item = arr[i]
+          item.isSort = val
+          if (val) {
+            this.isSortArr.push(item.columnId)
+            item.sortType = 0
+          } else {
+            this.isSortArr.splice(this.isSortArr.indexOf(item.columnId), 1)
+            item.sort = ''
+            item.sortType = ''
+          }
+        }
+        this.$refs.addForm.resetFields()
       },
       cancelEdit() {
         this.$confirm('确认是否放弃设置当前自定义模板？', '提示', {
@@ -337,6 +409,7 @@
               item.isShow = item.isShow === 1
               item.isSort = item.isSort === 1
               item.disabeld = item.isNecessary === 1
+              item.sortType = item.isSort ? item.sortType : ''
               if (item.isSort) {
                 this.isSortArr.push(item.columnId)
               }
@@ -373,7 +446,12 @@
                   item.search = item.columnSort
                   item.show = item.columnSort
                 }
+              } else {
+                item.isSearch = false
+                item.isShow = false
               }
+              item.isSort = false
+              item.sortType = ''
               item.disabeld = item.isNecessary === 1
             }
             this.addForm.columnSet = data
@@ -444,6 +522,9 @@
         })
       },
       getNode(data, node) {
+        if (data.isAdd === 1 || data.parentId === 0) {
+          return
+        }
         this.treeItem = data
         this.detail()
         this.formDisable = this.treeItem.delAble === 0 || !this.$isViewBtn('182005')
@@ -552,16 +633,94 @@
         const collect = document.getElementsByClassName(className)
         const war = collect[0].getElementsByClassName('el-table__body-wrapper')
         war[0].setAttribute('style', 'height: ' + wrapperHeight + 'px')
+      },
+      closeDialog() {
+        this.confirmDialogVisible = false
+        this.canJump = false
+      },
+      toJump() {
+        this.confirmDialogVisible = false
+        this.canJump = true
+        this.$gotoid(this.jumpPath)
+      }
+    },
+    beforeRouteLeave: function(to, from, next) {
+      this.jumpPath = to.path
+      if (this.canJump) {
+        next()
+      } else {
+        if ((this.addForm.id === undefined || this.addForm.id === null || this.addForm.id === '') && this.addForm.templateName !== undefined && this.addForm.templateName !== null && this.addForm.templateName !== '') {
+          this.confirmDialogVisible = true
+        } else {
+          next()
+        }
       }
     },
     mounted() {
-      this.countHeight = document.documentElement.clientHeight - 130 + 'px'
-      this.setHeight(240, 'reportTemplate')
+      this.countHeight = document.documentElement.clientHeight - 140 + 'px'
+      this.setHeight(300, 'reportTemplate')
       this.getTree()
     }
   }
 </script>
-
+<style>
+  .report_confirm_dialog .el-dialog{
+    width: 420px;
+    padding-bottom: 10px;
+    vertical-align: middle;
+    background-color: #fff;
+    border-radius: 4px;
+    font-size: 18px;
+    -webkit-box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    text-align: left;
+    overflow: hidden;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border: 2px solid rgba(0, 160, 233, 0.7);
+    background-color: rgba(0, 89, 130, 0.7);
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .report_confirm_dialog .el-dialog__header{
+    padding: 2px 15px 2px 38px;
+    background: url(/static/image/portal_newImg/subTitle.png) no-repeat center center;
+    background-size: 100%;
+    position: relative;
+    border-bottom: 0;
+  }
+  .report_confirm_dialog .el-dialog__body{
+    padding: 20px 15px;
+  }
+  .report_confirm_dialog .el-icon-warning{
+    color: #e6a23c;
+    font-size: 16px !important;
+  }
+  .report_confirm_dialog .el-dialog__body span{
+    padding-left: 36px;
+    padding-right: 12px;
+    line-height: 24px;
+  }
+  .report_confirm_dialog .el-dialog__footer{
+    padding: 9px 15px 0;
+    text-align: center;
+    position: relative;
+    border-top: 2px solid rgba(0, 160, 233, 0.7);
+    margin: 0 15px;
+  }
+  .report_confirm_dialog .el-dialog__title{
+    font-size: 14px;
+    position: relative;
+    top: -1px;
+  }
+  .report_confirm_dialog .el-dialog__headerbtn{
+    top: 3px;
+    right: 12px;
+  }
+  .report_confirm_dialog .el-message-box__status{
+    top: 44%;
+  }
+</style>
 <style rel="stylesheet/scss" lang="scss">
   .reportTemplate {
     .leftCont {

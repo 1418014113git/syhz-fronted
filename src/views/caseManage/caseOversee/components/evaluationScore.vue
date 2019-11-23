@@ -6,7 +6,7 @@
         <div class="left">{{title}}</div>
         <div class="right">
           <!-- 【评价打分】，审核单位，督办中或督办结束状态显示。 -->
-          <el-button v-if="pjdfInfo.superviseDepartCode===deptInfo.depCode&&(pjdfInfo.status==='5'||pjdfInfo.status==='6')"
+          <el-button v-if="$isViewBtn('100820') && pjdfInfo.superviseDepartCode===deptInfo.depCode && (pjdfInfo.status===5||pjdfInfo.status===6)"
               type="primary" size="small" @click="handleSettingScore">评价打分</el-button>
         </div>
      </div>
@@ -19,7 +19,7 @@
         </el-form-item>
       </el-form>
       <!-- 评价打分 弹框 -->
-      <el-dialog title="评价打分" :visible.sync="isShowpjdf" size="small" class="pjdfForm">
+      <el-dialog title="评价打分" :visible.sync="isShowpjdf" size="small" class="pjdfForm" @close="resetForm('pjdfForm')">
         <el-form ref="pjdfForm" :rules="rules" :model="pjdfForm" size="small" label-width="70px" v-loading="formLoading">
           <el-form-item label="打分" prop="grade">
             <el-rate v-model="pjdfForm.grade"></el-rate>
@@ -29,8 +29,8 @@
           </el-form-item>
         </el-form>
         <el-row class="tabC dialogBtnUpLine">
-          <el-button  @click="scoreCancel('pjdfForm')" class="cancelBtn">取 消</el-button>
-          <el-button  type="primary" @click="scoreSubmit('pjdfForm')"  class="saveBtn" :loading="btnLoading">完 成</el-button>
+          <el-button  @click="scoreCancel('pjdfForm')" class="cancelBtn" :loading="formLoading">取 消</el-button>
+          <el-button  type="primary" @click="scoreSubmit('pjdfForm')"  class="saveBtn" :loading="formLoading">完 成</el-button>
         </el-row>
       </el-dialog>
     </div>
@@ -38,7 +38,6 @@
 </template>
 <script>
 import titlePub from './titlePub'
-import { getAJDETAILBUNCH } from '@/api/caseManage'
 export default {
   props: ['pjdfData'],
   name: 'index',
@@ -55,7 +54,6 @@ export default {
       pjdfForm: {}, // 评价打分弹框
       AJBH: '', // 案件编号
       formLoading: false,
-      btnLoading: false,
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       rules: {
@@ -77,32 +75,14 @@ export default {
       // this.initData() // 初始化数据
       if (val) {
         this.pjdfInfo = val
-        // this.init(true)
+        this.init()
       }
     }
   },
   methods: {
-    init(flag) {
-      if (this.ajbh) {
-        this.loading = true
-        this.AJBH = this.ajbh
-        getAJDETAILBUNCH({
-          pageNum: flag ? 1 : this.page,
-          pageSize: this.pageSize,
-          AJBH: this.AJBH
-        }).then((res) => {
-          this.loading = false
-          if (res.code === '000000') {
-            this.dataList = res.data.list
-            this.total = res.data.totalCount
-            this.pageSize = res.data.pageSize
-            if (this.dataList.length > 0) {
-              this.$resetSetItem('aj9', this.total) // 将总数存在session中
-            }
-          }
-        }).catch(() => {
-          this.loading = false
-        })
+    init() {
+      if (this.pjdfData) {
+        this.pjdfInfo = this.pjdfData
       }
     },
     initData() { // 初始化数据
@@ -114,7 +94,13 @@ export default {
     handleSettingScore() { // 评价打分
       this.isShowpjdf = true
     },
+    resetForm(formName) { // 重置表单
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
+      }
+    },
     scoreCancel() {
+      this.resetForm('pjdfForm')
       this.isShowpjdf = false
     },
     scoreSubmit(formName) {
@@ -130,7 +116,7 @@ export default {
               this.$message({
                 message: '评价打分成功', type: 'success'
               })
-              this.isShowpjdf = false // 弹框隐藏
+              location.reload() // 刷新页面
             } else {
               this.$message({
                 message: '评价打分失败！', type: 'error'
@@ -147,7 +133,7 @@ export default {
     }
   },
   mounted() {
-    this.init(true)
+    this.init()
   }
 }
 </script>

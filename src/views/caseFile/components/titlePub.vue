@@ -59,7 +59,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .titlePub {
   font-size: 17px;
-  padding: 6px 18px 16px 5px;
+  padding: 6px 10px 16px 5px;
   color: #bce8fc;
   text-shadow: 0 0 2px #fff;
   background: url(/static/image/personFile_images/titlePub.png) no-repeat center

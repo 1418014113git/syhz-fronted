@@ -94,6 +94,7 @@ export function getSignCount(para) {
 
 // 待签收信息
 export function getSignAjrl(para) {
+  console.log('案件认领待办参数:' + JSON.stringify(para))
   return request({
     url: ModuleName + 'signcounajrl',
     method: 'get',
@@ -101,7 +102,7 @@ export function getSignAjrl(para) {
   })
 }
 
-// 待审核信息
+// 待审核信息signcounajrl
 export function getWorkGroup(para) {
   return request({
     url: ModuleName + 'workgroup',

@@ -114,11 +114,19 @@ export default {
             this.dbDetailData = response.data.data
             this.leftData = response.data.th
             // 基本信息
-            this.dbDetailData.jbxx.jabgTitle = this.dbDetailData.jabg.title // 是否有结案报告
-            // 审核（待审核的一条记录）
+            this.dbDetailData.jbxx.jabgTitle = this.dbDetailData.jabg ? this.dbDetailData.jabg.title : '' // 是否有结案报告
 
             // 结案报告
+            if (!this.dbDetailData.jabg) {
+              this.dbDetailData.jabg = {}
+            }
             this.dbDetailData.jabg.dbId = this.dbId // 将督办id存入 结案报告中
+            this.dbDetailData.jabg.signStatus = this.dbDetailData.jbxx.signStatus // 将签收状态存入 结案报告中，必须是签收了后 才能上报结案报告
+            this.dbDetailData.jabg.createDeptCode = this.dbDetailData.jbxx.applyDepartCode // 申请部门code
+            this.dbDetailData.jabg.dbStatus = this.dbDetailData.jbxx.status // 本级督办状态
+            // this.dbDetailData.jabg.reportStatus = this.dbDetailData.jabg.reportStatus // 结案报告状态
+            // this.dbDetailData.jabg.upDbStatus = this.dbDetailData.jabg.upDbStatus // 上级督办状态
+            // this.dbDetailData.jabg.wdStatus = this.dbDetailData.jabg.wdStatus // 是否有上级督办
 
             // 评价打分
             this.dbDetailData.pjdf.dbId = this.dbId // 将督办id存入 评价打分中
