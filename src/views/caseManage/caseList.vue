@@ -23,9 +23,9 @@
             <el-option v-if="item.columnName === 'BARXB'" v-for="option in XBList" :key="option.value" :label="option.label" :value="option.value"></el-option>
           </el-select>
           <span v-if="item.columnType === 2">
-            <el-date-picker v-model="filters[item.filterName + 'Start']" type="date" value-format="yyyy-MM-dd" placeholder="请选择开始时间" @change="startDateChange($event, item.filterName)"></el-date-picker>
+            <el-date-picker v-model="filters[item.filterName + 'Start']" type="date" value-format="yyyy-MM-dd" placeholder="请选择开始日期" @change="startDateChange($event, item.filterName, item.columnDescribe)"></el-date-picker>
             <el-form-item label="至" class="time_left">
-              <el-date-picker :disabled="filters[item.filterName + 'Start'] === undefined || filters[item.filterName + 'Start'] === null || filters[item.filterName + 'Start'] === ''" v-model="filters[item.filterName + 'End']" type="date" value-format="yyyy-MM-dd" placeholder="请选择结束时间" @change="endDateChange($event, item.filterName)"></el-date-picker>
+              <el-date-picker :disabled="filters[item.filterName + 'Start'] === undefined || filters[item.filterName + 'Start'] === null || filters[item.filterName + 'Start'] === ''" v-model="filters[item.filterName + 'End']" type="date" value-format="yyyy-MM-dd" placeholder="请选择结束日期" @change="endDateChange($event, item.filterName, item.columnDescribe)"></el-date-picker>
             </el-form-item>
           </span>
         </el-form-item>
@@ -460,13 +460,26 @@
           this.AJXZList = response.data
         })
       },
-      startDateChange(val, key) {
+      startDateChange(val, key, text) {
         if (val === undefined || val === null || val === '') {
           this.filters[key + 'End'] = ''
         }
+        const endDate = this.filters[key + 'End']
+        if (endDate !== undefined && endDate !== null && endDate !== '') {
+          if (new Date(endDate) < new Date(val)) {
+            this.$alert(text + '的开始时间不能大于结束时间', '提示', { type: 'warning' })
+            this.filters[key + 'End'] = ''
+          }
+        }
       },
-      endDateChange(val, key) {
-        console.info(val, key)
+      endDateChange(val, key, text) {
+        const startDate = this.filters[key + 'Start']
+        if (val) {
+          if (new Date(startDate) > new Date(val)) {
+            this.$alert(text + '的开始时间不能大于结束时间', '提示', { type: 'warning' })
+            this.filters[key + 'End'] = ''
+          }
+        }
       },
       isDisabledSort() {
         for (let i = 0; i < this.templateData.length; i++) {
