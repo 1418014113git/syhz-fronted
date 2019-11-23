@@ -14,15 +14,15 @@
         -->
         <el-button v-if="$isViewBtn('100813') && deptInfo.depCode===baseInfo.superviseDepartCode && dsh_Info.applyDate"
           type="primary" size="small" @click="handleAudit">审核</el-button>
-        <el-button v-if="$isViewBtn('100807') && baseInfo.status!==0 && deptInfo.depCode===baseInfo.superviseDepartCode&&(baseInfo.wdStatus===0||baseInfo.wdStatus===4)"
+        <el-button v-if="$isViewBtn('100807') && baseInfo.status!==0 && deptInfo.depCode===baseInfo.superviseDepartCode && baseInfo.superviseLevel>1 && (baseInfo.wdStatus===0||baseInfo.wdStatus===4)"
           type="primary" size="small" @click="handleApplyToUp">申请上级督办</el-button>
         <el-button v-if="$isViewBtn('100814') && baseInfo.signStatus==='2' && ((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))&&
           (baseInfo.status===5||baseInfo.status===6||baseInfo.status===7) && !baseInfo.jabgTitle"
-          type="primary" size="small"  @click="handleReport">上报结案报告</el-button>
-        <el-button v-if="$isViewBtn('100816')&&deptInfo.depCode===baseInfo.superviseDepartCode && (baseInfo.status===5||baseInfo.status===6||baseInfo.status===7)"
-          type="primary" size="small"  @click="handleIssueUrge">下发催办</el-button>
-        <el-button v-if="$isViewBtn('100819')&&baseInfo.signStatus==='1' && ((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))"
-          type="primary" size="small"  @click="handleDbSign">签收</el-button>
+          type="primary" size="small" @click="handleReport">上报结案报告</el-button>
+        <el-button v-if="$isViewBtn('100816') && deptInfo.depCode===baseInfo.superviseDepartCode && (baseInfo.status===5||baseInfo.status===6||baseInfo.status===7)"
+          type="primary" size="small" @click="handleIssueUrge">下发催办</el-button>
+        <el-button v-if="$isViewBtn('100819') && baseInfo.signStatus==='1' && ((deptInfo.depType!=='4'&&baseInfo.applyDepartCode === deptInfo.depCode)||(deptInfo.depType==='4'&&baseInfo.applyDepartCode === deptInfo.parentDepCode))"
+          type="primary" size="small" @click="handleDbSign">签收</el-button>
       </div>
      </div>
      <el-row class="xddw zwbj">

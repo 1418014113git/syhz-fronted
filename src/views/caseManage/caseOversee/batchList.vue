@@ -97,7 +97,7 @@
       </el-form-item>
     </el-form>
     <el-table :data="dbBatchData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
-      <el-table-column label="序号" type="index" width="60"></el-table-column>
+      <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
       <el-table-column prop="title" label="批次名称" min-width="10%" show-overflow-tooltip></el-table-column>
       <!-- <el-table-column label="案件编号" min-width="10%">
         <template slot-scope="scope">
@@ -394,7 +394,7 @@ export default {
         this.ksEndDateDisabled = false
         this.ksEndPickerOptions = Object.assign({}, 'ksEndPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {
@@ -427,7 +427,7 @@ export default {
         this.jsEndDateDisabled = false
         this.jsEndPickerOptions = Object.assign({}, 'jsEndPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {
