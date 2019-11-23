@@ -14,6 +14,7 @@ export function query(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
+  params.requestId = new Date().getTime()
   return request({
     url: moduleName + url,
     method: 'get',
@@ -27,6 +28,7 @@ export function queryAsyns(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
+  params.requestId = new Date().getTime()
   return new Promise((resolve, reject) => {
     axios.get(moduleName + url, {
       params: params
@@ -44,6 +46,7 @@ export function save(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
+  params.requestId = new Date().getTime()
   return request({
     url: moduleName + url,
     method: 'put',
@@ -57,6 +60,7 @@ export function update(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
+  params.requestId = new Date().getTime()
   return request({
     url: moduleName + url,
     method: 'post',
@@ -94,6 +98,7 @@ export function remove(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
+  params.requestId = new Date().getTime()
   return request({
     url: moduleName + url,
     method: 'delete',
@@ -108,7 +113,11 @@ export function download(url, params) {
     params: params,
     responseType: 'arraybuffer'
   }).then(response => {
-    downloadFile(response)
+    if (params.fileName) {
+      downloadFile_view(response, params.fileName)
+    } else {
+      downloadFile(response)
+    }
     return response
   }).catch((error) => {
     Promise.reject(error)
