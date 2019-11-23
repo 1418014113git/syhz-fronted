@@ -286,7 +286,7 @@ export const constantRouterMap = [
       { path: '/notice/webSocket', component: () => import('@/views/notice/webSocket'), name: '消息提醒' },
       { path: 'ajdeptreceive/save', component: () => import('@/views/ajdeptreceive/save'), name: '保存案件认领关系' }, // 案件认领关系
       { path: 'ajdeptreceive/edit', component: () => import('@/views/ajdeptreceive/edit'), name: '修改案件认领关系' }, // 案件认领关系
-      { path: 'ajdeptreceive/list', component: () => import('@/views/ajdeptreceive/list'), name: '案件认关系领列表' },
+      { path: 'ajdeptreceive/list', component: () => import('@/views/ajdeptreceive/list'), name: '案件认领关系列表' },
       { path: '/caseAssist/caseType', component: () => import('@/views/caseAssist/caseType'), name: '案件类别与罪名' },
       { path: '/caseManage/dbList', component: () => import('@/views/caseManage/caseOversee/dbList'), name: '案件督办列表' },
       { path: '/caseManage/dbApply', component: () => import('@/views/caseManage/caseOversee/dbApply'), name: '申请案件督办' },
@@ -301,7 +301,9 @@ export const constantRouterMap = [
       { path: '/jqCampaign/detail', component: () => import('@/views/caseManage/jqCampaign/mainDetail'), name: '集群战役详情 ' },
       { path: '/jqCampaign/jqzyAdd', component: () => import('@/views/caseManage/jqCampaign/jqzyAdd'), name: '申请集群战役 ' },
       { path: '/reportTemplate', component: () => import('@/views/reportTemplate/index'), name: '常规报表模板' },
-      { path: '/caseManage/caseList', component: () => import('@/views/caseManage/caseList'), name: '案件查询统计' }
+      { path: '/caseManage/caseList', component: () => import('@/views/caseManage/caseList'), name: '案件查询统计' },
+      { path: '/lyrical/lyricalList', component: () => import('@/views/information/lyrical/lyricalList'), name: '舆情信息列表' },
+      { path: '/lyrical/lyricalDetail', component: () => import('@/views/information/lyrical/lyricalDetail'), name: '舆情详情页面' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },

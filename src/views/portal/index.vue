@@ -43,7 +43,8 @@ export default {
         { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/notice/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
         { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
-        { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
+        // 破获案件统计 更多 先隐藏掉 'moreBtn': '更多','more': '/caseManage/statistics'
+        { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical' }, // 更多跳转到案件统计情况页面
         { 'span': 8, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
         { 'span': 8, 'title': '网上培训', 'content': 'Train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
         // { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
@@ -57,9 +58,10 @@ export default {
         { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/notice/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
         { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
-        { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
+        // 破获案件统计 更多 先隐藏掉 'moreBtn': '更多','more': '/caseManage/statistics'
+        { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical' }, // 更多跳转到案件统计情况页面
         { 'span': 8, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
-        { 'span': 8, 'title': '网上培训', 'content': 'train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
+        { 'span': 8, 'title': '网上培训', 'content': 'Train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
         // { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
         { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
         { 'span': 8, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' },
@@ -70,9 +72,10 @@ export default {
         { 'span': 8, 'title': '站内通知', 'content': 'List', 'moreBtn': '更多', 'more': '/notice/index' },
         { 'span': 8, 'title': '', 'content': 'AnJian' }, // 案件统计数
         { 'span': 8, 'title': '功能导航', 'content': 'Gndh', 'moreBtn': '更多' },
-        { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical', 'moreBtn': '更多', 'more': '/caseManage/statistics' }, // 更多跳转到案件统计情况页面
+        // 破获案件统计 更多 先隐藏掉 'moreBtn': '更多','more': '/caseManage/statistics'
+        { 'span': 8, 'title': '破获案件统计', 'content': 'Statistical' }, // 更多跳转到案件统计情况页面
         { 'span': 8, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
-        { 'span': 8, 'title': '网上培训', 'content': 'train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
+        { 'span': 8, 'title': '网上培训', 'content': 'Train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
         // { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
         { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
         { 'span': 8, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' },
