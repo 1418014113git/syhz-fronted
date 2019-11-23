@@ -89,29 +89,35 @@ export default {
       return s
     },
     goHandle(index, node) {
+      // B案件管理 F教育训练 C基础业务
       if (index === 0) {
         if (node.type === '0003') { // 督办待审核
+          localStorage.setItem('curAppCode', 'B')
           this.$router.push({
             path: '/caseManage/dbList', query: { origin: 'portal', status: '1' } // 来源，状态
           })
         } else if (node.type === '0008') { // 督办结案报告待审核
+          localStorage.setItem('curAppCode', 'B')
           this.$router.push({
             path: '/caseManage/dbList', query: { origin: 'portal', jabgStatus: '1' } // 来源，状态
           })
         } else if (node.type === '0007') {
-          localStorage.setItem('curAppCode', '004')
+          localStorage.setItem('curAppCode', 'W')
           this.$router.push({
             path: '/specialTasks'
           })
         } else if (node.type === '9010') {
+          localStorage.setItem('curAppCode', 'F')
           this.$router.push({
             path: '/handlingGuide/knowLedgeBase'
           })
         } else if (node.type === '9011') {
+          localStorage.setItem('curAppCode', 'F')
           this.$router.push({
             path: '/micro/trainMaterial'
           })
         } else if (node.type === '0010') {
+          localStorage.setItem('curAppCode', 'C')
           this.$gotoid('/notice/index', JSON.stringify({ messageStatus: '1' }))
         } else {
           this.$router.push({
@@ -121,7 +127,7 @@ export default {
       }
       if (index === 1) {
         if (node.data_op === '案件认领') {
-          localStorage.setItem('curAppCode', '003')
+          localStorage.setItem('curAppCode', 'B')
           this.$router.push({
             path: '/caseManage/ajrl', params: { source: 'portal' }
           })
@@ -132,17 +138,18 @@ export default {
           })
         }
         if (node.business_type === '9') {
-          localStorage.setItem('curAppCode', '004')
+          localStorage.setItem('curAppCode', 'W')
           this.$router.push({
             path: '/specialTasks', query: {}
           })
         }
         if (node.business_type === '9012') {
+          localStorage.setItem('curAppCode', 'C')
           this.$gotoid('/notice/index', JSON.stringify({ signStatus: '1' }))
         }
       }
       if (index === 2) {
-        localStorage.setItem('curAppCode', '003')
+        localStorage.setItem('curAppCode', 'B')
         if (node.data_op === '催办待办') {
           this.$router.push({
             path: '/caseManage/dbList', query: { origin: 'portal', qsStatus: '1' } // 来源，签收状态标志
@@ -151,13 +158,13 @@ export default {
       }
       if (index === 3) {
         if (node.business_type === '2') {
-          localStorage.setItem('curAppCode', '003')
+          localStorage.setItem('curAppCode', 'B')
           this.$router.push({
             path: '/caseManage/ajrl?from=portal', param: {}
           })
         }
         if (node.business_type === 'djsaj') { // 待接收案件
-          localStorage.setItem('curAppCode', '003')
+          localStorage.setItem('curAppCode', 'B')
           var param = {
             origin: 'portalOtherTodo', // 表示从首页-其他待办跳转过去的
             type: 'djsaj'

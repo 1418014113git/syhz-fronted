@@ -117,7 +117,7 @@ export default {
       const arr = val.substring(1, val.length).split('/')
       if (arr.length > 0) {
         if (arr[0] === 'zhyp') {
-          localStorage.setItem('curAppCode', '002')
+          localStorage.setItem('curAppCode', 'W')
         }
         if (arr[0] === 'notice') {
           localStorage.setItem('curAppCode', 'C')

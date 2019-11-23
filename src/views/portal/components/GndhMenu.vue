@@ -39,10 +39,10 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.GndhMenu{
+.GndhMenu {
   margin-top: 24px;
   padding-bottom: 5px;
-  .Gndhul{
+  .Gndhul {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
@@ -50,30 +50,32 @@ export default {
     width: 97%;
     margin: 0 auto;
     margin-bottom: 2px;
-    li{
-    width: 24%;
-    height: 72px;
-    font-size: 16px;
-    color: #fff;
-    text-align: center;
-    border-radius: 4px;
-    cursor: pointer;
-    box-sizing: border-box;
-    margin-bottom: 7px;
+    li {
+      width: 24%;
+      height: 72px;
+      font-size: 16px;
+      color: #fff;
+      text-align: center;
+      border-radius: 4px;
       cursor: pointer;
-      img{
+      box-sizing: border-box;
+      margin-bottom: 7px;
+      cursor: pointer;
+      img {
         width: 100%;
         height: 100%;
       }
     }
-    li:nth-child(4),li:last-child{
+    li:nth-child(4),
+    li:last-child {
       margin-right: 0;
     }
-    .addMenu{
+    .addMenu {
       text-shadow: 0 0 2px #fff;
       box-shadow: 0 0 2px #fff;
-      border: 2px solid  #bce8fc;
-      background: url('/static/image/portal_newImg/addMenu.png') no-repeat center 38px;
+      border: 2px solid #bce8fc;
+      background: url("/static/image/portal_newImg/addMenu.png") no-repeat
+        center 38px;
       background-size: 19px;
       margin-right: 0;
       color: #bce8fc;
@@ -84,20 +86,21 @@ export default {
   }
 }
 @media only screen and (max-width: 1367px) {
-  .GndhMenu{
+  .GndhMenu {
     padding-bottom: 0;
   }
-  .GndhMenu .Gndhul{
+  .GndhMenu .Gndhul {
     margin-bottom: 8px;
   }
-  .GndhMenu .Gndhul li{
+  .GndhMenu .Gndhul li {
     height: 59px;
     font-size: 12px;
     margin-right: 4px;
     margin-bottom: 5px;
   }
-  .GndhMenu .Gndhul .addMenu{
-    background: url(/static/image/portal_newImg/addMenu.png) no-repeat center 31px;
+  .GndhMenu .Gndhul .addMenu {
+    background: url(/static/image/portal_newImg/addMenu.png) no-repeat center
+      31px;
     background-size: 15px;
     height: 59px;
     line-height: 37px;
