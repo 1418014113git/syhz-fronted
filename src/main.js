@@ -76,6 +76,8 @@ Vue.use(VideoPlayer)
 import VueClipboard from 'vue-clipboard2'
 Vue.use(VueClipboard)
 
+// import '@/api/login/pnxclient.js'
+// import '@/api/login/pkiLogin.js'
 import VueKindEditor from '@/utils/kindeditor.js'
 import '../static/kindeditor/themes/default/default.css'
 import '../static/kindeditor/kindeditor-all-min.js'
