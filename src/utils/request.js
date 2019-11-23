@@ -51,26 +51,26 @@ service.interceptors.request.use(config => {
       }
     }
   } else {
-    if (config.method === 'get' || config.method === 'GET') {
-      const randomObj = {
-        url: config.url,
-        requestId: config.params.requestId
-      }
-      const randomData_JSON = sessionStorage.getItem('_requestId')
-      if (randomData_JSON === undefined || randomData_JSON === null || randomData_JSON === '') {
-        sessionStorage.setItem('_requestId', JSON.stringify(randomObj))
-        return config
-      } else {
-        const randomData = JSON.parse(randomData_JSON).url
-        if (randomData === config.url && config.params.requestId - JSON.parse(randomData_JSON).requestId < 1000) {
-          console.info('请求太快了' + config.url)
-          return Promise.reject(new Error('repeatSubmit'))
-        } else {
-          sessionStorage.setItem('_requestId', JSON.stringify(randomObj))
-          return config
-        }
-      }
-    }
+    // if (config.method === 'get' || config.method === 'GET') {
+    //   const randomObj = {
+    //     url: config.url,
+    //     requestId: config.params.requestId
+    //   }
+    //   const randomData_JSON = sessionStorage.getItem('_requestId')
+    //   if (randomData_JSON === undefined || randomData_JSON === null || randomData_JSON === '') {
+    //     sessionStorage.setItem('_requestId', JSON.stringify(randomObj))
+    //     return config
+    //   } else {
+    //     const randomData = JSON.parse(randomData_JSON).url
+    //     if (randomData === config.url && config.params.requestId - JSON.parse(randomData_JSON).requestId < 1000) {
+    //       console.info('请求太快了' + config.url)
+    //       return Promise.reject(new Error('repeatSubmit'))
+    //     } else {
+    //       sessionStorage.setItem('_requestId', JSON.stringify(randomObj))
+    //       return config
+    //     }
+    //   }
+    // }
     return config
   }
 }, error => {
