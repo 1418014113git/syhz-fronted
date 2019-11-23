@@ -9,5 +9,6 @@ module.exports = {
   TRAJECTORY_SEARCH_MODULE: '"/trajectory-search/"',
   FILE_MODULE: '"/file/"',
   MODULE_ZDRY:'/zdry/', // 重点人员
-  DOWN_MODULE: '/down/'
+  DOWN_MODULE: '/down/',
+  YQXX_MODULE: '"/yqxx/"'
 }
