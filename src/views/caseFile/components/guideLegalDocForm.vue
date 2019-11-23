@@ -226,7 +226,7 @@ export default {
           param.tfrq = param.tfrq.replace(/-/g, '') // 将日期中的短横线去掉
           param.czdw = this.curDept.depCode // 存当前部门code
           param.ajbh = this.AJBH
-          console.log(param)
+          // console.log(param)
           this.$save('ajflws', param).then((response) => {
             if (response.code === '000000') {
               this.saveLoading = false

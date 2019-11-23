@@ -30,7 +30,7 @@ export default {
         { icon: '/static/image/caseFile_images/xxbc.png', name: '信息补采', number: 0, type: 'aj4', class: 'xxbc' },
         { icon: '/static/image/caseFile_images/bzts.png', name: '比中推送', number: 0, type: 'aj5', class: 'bzts' },
         { icon: '/static/image/caseFile_images/jcj.png', name: '接处警', number: 0, type: 'aj6', class: 'jcj' },
-        { icon: '/static/image/caseFile_images/xsgl.png', name: '线索关联', number: 0, type: 'aj7', class: 'xsgl' },
+        // { icon: '/static/image/caseFile_images/xsgl.png', name: '线索关联', number: 0, type: 'aj7', class: 'xsgl' },
         { icon: '/static/image/caseFile_images/zcxz.png', name: '侦查协作', number: 0, type: 'aj8', class: 'zcxz' },
         { icon: '/static/image/caseFile_images/ajcb.png', name: '案件串并', number: 0, type: 'aj9', class: 'ajcb' }
       ]

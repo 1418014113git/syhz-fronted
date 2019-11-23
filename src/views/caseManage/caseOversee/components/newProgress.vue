@@ -1,25 +1,32 @@
 <template>
   <section>
-    <!-- 审核信息 -->
     <div class="auditInfo">
       <title-pub :title="title" url=""></title-pub>
-      <!-- <el-timeline :reverse="reverse">
-        <el-timeline-item
-          v-for="(activity, index) in activities"
-          :key="index"
-          :timestamp="activity.timestamp">
-          {{activity.content}}
-        </el-timeline-item>
-      </el-timeline> -->
-
+      <div class="stepsWrap">
+        <div v-if="dataList && dataList.length < 1">
+          <p style="line-height: 150px; text-align: center">暂无数据</p>
+        </div>
+        <div class="jzBox">
+          <div v-for="(item,index) in dataList" :key="index">
+            <p>
+              <span class="circle"></span>
+              <span style="color:#B2DDF3;margin: 0 20px 0 10px;">{{item.createTime}}</span>
+              <span>{{item.userName}}：{{item.actionType}}</span>
+              <i class="el-icon-success" v-if="item.actionType.indexOf('审核通过')>-1"></i>
+              <i class="el-icon-error" v-if="item.actionType.indexOf('不通过')>-1"></i>
+            </p>
+            <p class="line"></p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
-</template>
+ </template>
 <script>
 import titlePub from './titlePub'
 import { getAJDETAILBUNCH } from '@/api/caseManage'
 export default {
-  props: ['ajbh'],
+  props: ['zxjzData'],
   name: 'index',
   components: {
     titlePub
@@ -27,32 +34,14 @@ export default {
   data() {
     return {
       title: '最新进展',
-      loading: false, // 页面加载loading
-      page: 1,
-      total: 0,
-      pageSize: 5,
-      dataList: [],
-      AJBH: '', // 案件编号
-      reverse: true,
-      activities: [{
-        content: '活动按期开始',
-        timestamp: '2018-04-15'
-      }, {
-        content: '通过审核',
-        timestamp: '2018-04-13'
-      }, {
-        content: '创建成功',
-        timestamp: '2018-04-11'
-      }]
+      dataList: []
     }
   },
   watch: {
-    ajbh(val) {
+    zxjzData(val) {
       this.loading = true
-      this.initData() // 初始化数据
       if (val) {
-        this.AJBH = val
-        this.init(true)
+        this.dataList = val
       }
     }
   },
@@ -103,6 +92,7 @@ export default {
     this.init(true)
   }
 }
+
 </script>
 <style  rel="stylesheet/scss" lang="scss">
 .auditInfo {
@@ -110,5 +100,39 @@ export default {
   border: 2px solid #00a0e9;
   padding: 0 8px 8px 8px;
   border-radius: 8px;
+  .stepsWrap {
+    max-height: 400px;
+    margin: 20px 0 20px 100px;
+    overflow-y: auto;
+    .circle {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 20px;
+      background: #9cc7da;
+      vertical-align: middle;
+    }
+    .line {
+      background: #9cc7da;
+      width: 2px;
+      height: 30px;
+      margin: -10px 6px 0px 6px;
+      opacity: 0.8;
+    }
+    .el-icon-success {
+      margin-left: 20px;
+      color: #67c23a;
+    }
+    .el-icon-error {
+      margin-left: 20px;
+      color: #f56c6c;
+    }
+    .jzBox div:first-child p:first-child .circle {
+      background: #e6a23c;
+    }
+    .jzBox div:last-child .line {
+      display: none;
+    }
+  }
 }
 </style>

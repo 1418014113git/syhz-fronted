@@ -87,6 +87,13 @@ module.exports = {
         pathRewrite: {
           '^/opt/syhz/upload/fileupload/files': '/files'
         }
+      },
+      '/yqxx': {
+        target: 'http://192.168.42.154:8081',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/yqxx': '/'
+        }
       }
     },
 
