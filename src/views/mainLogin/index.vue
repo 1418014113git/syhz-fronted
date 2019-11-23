@@ -169,7 +169,7 @@ export default {
       inputData: window.location.href,
       randomNum: '',
       signResult: '',
-      //JIT_GW_ExtInterface: null,
+      // JIT_GW_ExtInterface: null,
       JITComVCTKEx: null,
       tipMsg: {
         x: 50,
@@ -307,7 +307,7 @@ export default {
       this.JITComVCTKEx = document.getElementById('vctkobj')
       console.info('获取到的插件对象：' + this.JITComVCTKEx)
       const strCertType = 'SC'
-      //const InitParam = '<?xml version=\'1.0\' encoding=\'utf-8\'?><authinfo><liblist><lib type=\'CSP\' version=\'1.0\' dllname=\'\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'bXRva2VuX2dtMzAwMF9KSVQuZGxs\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'SERfR01DQUlTLmRsbA==\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'U2h1dHRsZUNzcDExXzMwMDBHTS5kbGw=\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'SklUR01LRVlfU0pLMTQyNC5kbGw=\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'U0tGQVBJLmRsbA==\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib></liblist></authinfo>'
+      // const InitParam = '<?xml version=\'1.0\' encoding=\'utf-8\'?><authinfo><liblist><lib type=\'CSP\' version=\'1.0\' dllname=\'\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'bXRva2VuX2dtMzAwMF9KSVQuZGxs\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'SERfR01DQUlTLmRsbA==\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'U2h1dHRsZUNzcDExXzMwMDBHTS5kbGw=\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'SklUR01LRVlfU0pLMTQyNC5kbGw=\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib><lib type=\'SKF\' version=\'1.1\' dllname=\'U0tGQVBJLmRsbA==\' ><algid val=\'SHA1\' sm2_hashalg=\'sm3\'/></lib></liblist></authinfo>'
       // const InitParam = '<?xml version=\"1.0\" encoding=\"utf-8\"?>\<authinfo><liblist>\<lib type=\"CSP\" version=\"1.0\" dllname=\"\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\<lib type=\"SKF\" version=\"1.1\" dllname=\"bXRva2VuX2dtMzAwMF9KSVQuZGxs\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\<lib type=\"SKF\" version=\"1.1\" dllname=\"SERfR01DQUlTLmRsbA==\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\<lib type=\"SKF\" version=\"1.1\" dllname=\"U2h1dHRsZUNzcDExXzMwMDBHTS5kbGw=\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\<lib type=\"SKF\" version=\"1.1\" dllname=\"SklUR01LRVlfU0pLMTQyNC5kbGw=\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\<lib type=\"SKF\" version=\"1.1\" dllname=\"U0tGQVBJLmRsbA==\" ><algid val=\"SHA1\" sm2_hashalg=\"sm3\"/></lib>\</liblist></authinfo>'
       const InitParam = '<\?xml version=\"1.0\" encoding=\"utf-8\"\?><authinfo><liblist><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUR01LRVkgU0pLMTQyNCBDU1AgVjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"SKF\" version=\"1.1\" dllname=\"U2h1dHRsZUNzcDExXzMwMDBHTS5kbGw=\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RkVJVElBTiBlUGFzc05HIENTUCBGb3IgSklUM0sgVjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"R0FTUyBDcnlwdG9ncmFwaGljIFNlcnZpY2UgUHJvdmlkZXIgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"SKF\" version=\"1.0\" dllname=\"RW50ZXJTYWZlIGVQYXNzMzAwMyBDU1AgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib><lib type=\"PM\" version=\"1.0\" dllname=\"Q3J5cHRPY3guZGxs\"><algid val=\"SHA1\" sm2_hashalg=\"SM3\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RkVJVElBTiBlUGFzc05HIFJTQSBDcnlwdG9ncmFwaGljIFNlcnZpY2UgUHJvdmlkZXI=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUIFVTQiBLZXkgQ1NQIHYxLjA=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"RW50ZXJTYWZlIGVQYXNzMjAwMSBDU1AgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"SklUIFVTQiBLZXkzMDAzIENTUCB2MS4w\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"ZVNhZmUgQ3J5cHRvZ3JhcGhpYyBTZXJ2aWNlIFByb3ZpZGVyIHYxLjA=\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"TWljcm9zb2Z0IEVuaGFuY2VkIENyeXB0b2dyYXBoaWMgUHJvdmlkZXIgdjEuMA==\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib><lib type=\"CSP\" version=\"1.0\" dllname=\"TWljcm9zb2Z0IFN0cm9uZyBDcnlwdG9ncmFwaGljIFByb3ZpZGVy\"><algid val=\"SHA1\" sm2_hashalg=\"SHA1\" /></lib></liblist></authinfo>'
       console.info('开始执行方法：this.JITComVCTKEx.Initialize(InitParam)')
@@ -473,9 +473,9 @@ export default {
       password: ''
     }
 
-    //this.JIT_GW_ExtInterface = JIT_GW_ExtInterface
-    //console.log("111"+JIT_GW_ExtInterface)
-    JIT_GW_ExtInterface.Init()
+    // this.JIT_GW_ExtInterface = JIT_GW_ExtInterface
+    // console.log("111"+JIT_GW_ExtInterface)
+    // new JIT_GW_ExtInterface.Init()
     // this.floatOut()
   }
 }

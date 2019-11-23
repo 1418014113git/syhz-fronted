@@ -1,7 +1,6 @@
-var JIT_GW_ExtInterface = function() {
-  let currentSessionWSURL = ''
-  let useActioveX = false
-  let PNXGWClient = null
+var JIT_GW_ExtInterface = (function() {
+  var currentSessionWSURL = ''
+  var useActioveX = false
 
   /**
    * simple polyfill Object.assign for IE <= 11
@@ -52,7 +51,6 @@ var JIT_GW_ExtInterface = function() {
 
   var addActioveX = function() {
     document.write('<object classid="clsid:9DD991F7-6FB0-4004-95A4-0A55006A8C42" width="0" height="0" id="PNXGWClient"></object>')
-    PNXGWClient = document.getElementById('PNXGWClient')
   }
 
   var SendAndWaitMessageEx = function(operatorCmd, sendMsg) {
@@ -62,7 +60,7 @@ var JIT_GW_ExtInterface = function() {
   }
 
   var SendAndWaitMessage = function(wsurl, sendMsg) {
-    let ResultMsg = '{"value":""}'
+    var ResultMsg = '{"value":""}'
 
     if (ResultMsg === wsurl) {
       return
@@ -722,7 +720,7 @@ var JIT_GW_ExtInterface = function() {
       }
     }
   }
-}();
+}());
 
 (function() {
   JIT_GW_ExtInterface.Init()
