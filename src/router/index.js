@@ -304,7 +304,10 @@ export const constantRouterMap = [
       { path: '/caseManage/caseList', component: () => import('@/views/caseManage/caseList'), name: '案件查询统计' },
       { path: '/lyrical/lyricalList', component: () => import('@/views/information/lyrical/lyricalList'), name: '舆情信息列表' },
       { path: '/lyrical/lyricalDetail', component: () => import('@/views/information/lyrical/lyricalDetail'), name: '舆情详情页面' },
-      { path: '/information/clueList', component: () => import('@/views/information/clue/index'), name: '情报信息线索列表' }
+      { path: '/information/clueList', component: () => import('@/views/information/clue/index'), name: '情报信息线索列表' },
+      { path: '/information/clueUpdate', component: () => import('@/views/information/clue/information_update.vue'), name: '情报信息线索编辑' },
+      { path: '/information/clueShare', component: () => import('@/views/information/clue/information_share.vue'), name: '情报信息线索分享' },
+      { path: '/information/clueDetai', component: () => import('@/views/information/clue/information_detail.vue'), name: '情报信息线索详情' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
