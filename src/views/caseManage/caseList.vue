@@ -370,11 +370,11 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.getCase(false, true)
+      this.query(false)
     },
     handleSizeChange(val) {
       this.pageSize = val
-      this.getCase(true, true)
+      this.query(true)
     },
     toTemplate() {
       this.$gotoid('/reportTemplate')
