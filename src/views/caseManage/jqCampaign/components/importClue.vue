@@ -85,6 +85,9 @@ export default {
   methods: {
     init() {
       this.initData()
+      if (this.id) {
+        this.assistId = this.id
+      }
     },
     initData() {
       this.drForm.category = ''
@@ -181,7 +184,6 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    this.assistId = this.id
     this.init()
   }
 }

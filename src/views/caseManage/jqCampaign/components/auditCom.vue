@@ -5,14 +5,32 @@
     <div class="stshForm" v-if='roleType===1'>
       <el-form ref="stshForm" :rules="rules" :model="stshForm" size="small" label-width="100px">
         <el-form-item label="编号" prop="number">
-          <el-input v-model.trim="stshForm.number" clearable maxlength="50" placeholder="请输入"  class="inputW"></el-input>
+          <el-input v-model.trim="stshForm.number" disabled maxlength="50" placeholder=""  class="inputW"></el-input>
         </el-form-item>
-        <el-form-item label="开始时间" prop="startDate">
-          <el-date-picker v-model="stshForm.startDate"   type="datetime" format="yyyy-MM-dd HH:mm"  placeholder="请选择开始时间" class="inputW"></el-date-picker>
+         <el-form-item label="开始时间" prop="startDate">
+          <el-date-picker
+            v-model="stshForm.startDate"
+            type="datetime"
+            format="yyyy-MM-dd HH:mm"
+            value-format="yyyy-MM-dd HH:mm"
+            :picker-options="pickerOptions"
+            placeholder=""
+            class="inputW"
+            >
+          </el-date-picker>
         </el-form-item>
-        <el-form-item label="截止时间" prop="endDate">
-          <el-date-picker v-model="stshForm.endDate"   type="datetime" format="yyyy-MM-dd HH:mm"  placeholder="请选择截止时间" class="inputW"></el-date-picker>
-        </el-form-item>
+         <el-form-item label="结束日期" prop="endDate">
+          <el-date-picker
+            v-model="stshForm.endDate"
+            type="datetime"
+            format="yyyy-MM-dd HH:mm"
+            value-format="yyyy-MM-dd HH:mm"
+            :picker-options="pickerOptions"
+            placeholder=""
+            class="inputW"
+            >
+          </el-date-picker>
+         </el-form-item>
         <el-form-item label="审核意见" prop="content">
           <el-input v-model.trim="stshForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="" class="inputW"></el-input>
         </el-form-item>
@@ -42,7 +60,7 @@
 import titlePub from './titlePub'
 import { getSessionDeptSelect } from '@/api/depts'
 export default {
-  props: ['id', 'isShowDialog', 'row', 'info'],
+  props: ['id', 'isShowDialog', 'info', 'row'],
   name: 'baseInfo',
   data() {
     return {
@@ -66,6 +84,11 @@ export default {
       contentType: '', // 当前选择的审核状态   3通过，4不通过 6向上申请
       roleType: '', // 角色类型，  1： 省厅， 2：地市
       stbtnLoading: false, // 省厅弹框按钮loading
+      pickerOptions: { // 控制开始时间只能大于等于当前时间
+        disabledDate(time) {
+          return time.getTime() <= Date.now()
+        }
+      },
       rules: {
         number: [{//  编号
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
@@ -74,7 +97,7 @@ export default {
               return callback(new Error('请输入编号'))
             } else if (!regNumber.test(value)) {
               callback(new Error('仅支持英文、数字'))
-            } else if (value === this.form.number) {
+            } else if (value === this.stshForm.number) {
               callback()
             } else {
               this.$query('casecluster/numberValid', { dept: this.curDept.depCode }).then((response) => { // 查询是否重复
@@ -86,18 +109,22 @@ export default {
             }
           }
         }],
-        startDate: [ // 开始时间
-          { required: true, message: '请选择开始时间', trigger: 'change' }
-        ],
-        endDate: [ // 截止时间
+        startDate: [{ // 开始时间
+          required: true, trigger: 'change', message: '请选择开始时间'
+        }],
+        endDate: [ // 结束时间
           {
             required: true, trigger: 'change', validator: (rule, value, callback) => {
               if (value === '' || value === undefined || value === null) {
-                return callback(new Error('请选择截止时间'))
+                return callback(new Error('请选择结束时间'))
               } else {
                 if (this.stshForm.startDate) {
-                  if (value < this.stshForm.startDate) {
-                    return callback(new Error('截止时间不能小于开始时间！'))
+                  var startDate = (new Date(this.stshForm.startDate)).getTime()
+                  var endDate = (new Date(value).getTime())
+                  if (endDate < startDate) {
+                    return callback(new Error('结束时间不能小于开始时间！'))
+                  } else if (endDate > startDate && endDate - startDate < 172800000) {
+                    return callback(new Error('结束时间必须大于开始时间2天以上！'))
                   } else {
                     callback()
                   }
@@ -112,7 +139,7 @@ export default {
           { required: false, trigger: 'blur', validator: (rule, value, callback) => {
             if (this.remarkType === 4) { // 不通过
               if (!value) {
-                callback(new Error('审核意见不能为空'))
+                callback(new Error('请填写审核意见'))
               } else {
                 callback()
               }
@@ -133,23 +160,49 @@ export default {
   watch: {
     id(val) {
       this.bsId = val
-      this.baseInfo = this.info
+    },
+    info(val) {
+      if (val.clusterId) {
+        this.baseInfo = val
+        this.init()
+      }
     },
     row(val) {
       this.curRow = val
     },
     isShowDialog: {
       handler: function(val, oldeval) {
-        this.initData()
+        this.init()
       }
     }
   },
   methods: {
     init() {
       this.initData()
+      if (sessionStorage.getItem('depToken')) {
+        this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+        if (this.curDept.depType === '-1' || this.curDept.depType === '1') { //  省厅 总队
+          this.roleType = 1
+          this.queryNumber() // 查询编号
+        } else if (this.curDept.depType === '2') { // 地市  支队
+          this.roleType = 2
+          this.sjdwData = getSessionDeptSelect()
+          this.sjdwData.forEach(item => {
+            if (item.depCode === '610000530000') { // 总队 (地市审核时，向上反馈的接收单位是总队)
+              this.dsshForm.acceptDeptId = item.id // 接收部门id
+              this.dsshForm.acceptDeptCode = item.depCode // 接收部门code
+              this.dsshForm.acceptDeptName = item.name // 接收部门名称
+            }
+          })
+        }
+      }
       if (this.id) {
         this.bsId = this.id
+      }
+      if (this.info) {
         this.baseInfo = this.info
+        this.stshForm.startDate = this.baseInfo.startDate ? this.baseInfo.startDate : this.calculateDate(new Date(), 0, '') // 开始时间
+        this.stshForm.endDate = this.baseInfo.endDate ? this.baseInfo.endDate : this.calculateDate(new Date(), 7, '')// 结束时间
       }
       if (this.row) {
         this.curRow = this.row
@@ -166,6 +219,16 @@ export default {
         this.$refs[formName].resetFields()
       }
     },
+    queryNumber() { // 获取编号
+      const param = {
+        dept: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode // 当前部门code
+      }
+      this.$query('casecluster/number', param).then((response) => {
+        if (response.data) {
+          this.stshForm.number = response.data
+        }
+      })
+    },
     checkstOption(type) { //   省厅审核  type:3通过，4不通过
       this.remarkType = type
       const param = {
@@ -176,8 +239,9 @@ export default {
         curDeptCode: this.curDept.depCode, // 当前部门code
         curDeptId: this.curDept.id, // 当前部门id
         bsId: this.bsId, // 集群战役id
-        flowId: this.curRow.flowId, // 列表返回的wfId
-        wdId: this.curRow.wdId // 列表返回的wdId
+        flowId: this.curRow.wfId, // 列表返回的wfId
+        wdId: this.curRow.wdId, // 列表返回的wdId
+        content: this.dsshForm.content // 审核意见
       }
       this.$refs.stshForm.validate(valid => {
         if (valid) {
@@ -213,15 +277,18 @@ export default {
             curDeptCode: this.curDept.depCode, // 当前部门code
             curDeptId: this.curDept.id, // 当前部门id
             bsId: this.bsId, // 集群战役id
-            flowId: this.curRow.flowId, // 列表返回的wfId
-            wdId: this.curRow.wdId // 列表返回的wdId
+            flowId: this.curRow.wfId, // 列表返回的wfId
+            wdId: this.curRow.wdId, // 列表返回的wdId
+            content: this.dsshForm.content // 审核意见
           }
           if (type === 6) { // 通过
             param.acceptDeptId = this.dsshForm.acceptDeptId// 接收部门id
             param.acceptDeptCode = this.dsshForm.acceptDeptCode// 接收部门code
             param.acceptDeptName = this.dsshForm.acceptDeptName// 接收部门名称
-            param.content = this.dsshForm.content ? this.dsshForm.content : '同意'
+            param.content = this.dsshForm.content ? this.dsshForm.content : '同意' // 审核意见
           }
+          // console.log('this.curRow', JSON.stringify(this.curRow))
+          // console.log('param', JSON.stringify(param))
           this.$update('casecluster/examine', param).then((response) => {
             this.stbtnLoading = false // 关闭加载条
             this.$emit('closeDialog', false)
@@ -233,26 +300,21 @@ export default {
           return false
         }
       })
+    },
+    calculateDate(date, days, hours) {
+      const d = new Date(date)
+      if (days) {
+        d.setDate(d.getDate() + days)
+      }
+      if (hours) {
+        d.setHours(d.getHours() + hours)
+      }
+      const m = d.getMonth() + 1
+      return d.getFullYear() + '-' + m + '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes()
     }
   },
   mounted() {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-    if (sessionStorage.getItem('depToken')) {
-      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      if (this.curDept.depType === '-1' || this.curDept.depType === '1') { //  省厅 总队
-        this.roleType = 1
-      } else if (this.curDept.depType === '2') { // 地市  支队
-        this.roleType = 2
-        this.sjdwData = getSessionDeptSelect()
-        this.sjdwData.forEach(item => {
-          if (item.depCode === '610000530000') { // 总队 (地市审核时，向上反馈的接收单位是总队)
-            this.dsshForm.acceptDeptId = item.id // 接收部门id
-            this.dsshForm.acceptDeptCode = item.depCode // 接收部门code
-            this.dsshForm.acceptDeptName = item.name // 接收部门名称
-          }
-        })
-      }
-    }
     this.init()
   }
 }
@@ -261,6 +323,9 @@ export default {
 .auditCom{
   .inputW{
     width: 95%;
+  }
+  .el-button--text {
+    display: none !important;
   }
 }
 @media only screen and (max-width: 1367px) {
