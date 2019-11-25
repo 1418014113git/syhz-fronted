@@ -229,8 +229,8 @@ export default {
           } else if (this.curDept.depType === '3') { // 大队 派出所
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
           } else if (this.curDept.depType === '4') {
-            if (this.curDept.areaCode === '610403') { // 杨凌例外
-              currentArea = ['610000', '610403']
+            if (this.curDept.areaCode === '611400') { // 杨凌例外
+              currentArea = ['610000', '611400']
             } else { // 正常的派出所
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
             }

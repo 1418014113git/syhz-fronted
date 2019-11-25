@@ -51,7 +51,7 @@
           <el-table :data="scope.row.tableDataList"  :style="expandStyle"  v-loading="listChildLoading" >
             <el-table-column prop="" width="47"></el-table-column>
             <el-table-column type="index" width="60" label="序号" align="center"></el-table-column>
-            <el-table-column prop="areaName" align="center" label="机构单位"  min-width="200"  show-overflow-tooltip></el-table-column>
+            <el-table-column prop="areaName" align="center" label="机构单位"  min-width="195"  show-overflow-tooltip></el-table-column>
             <el-table-column  v-for="(itemExpand,index) in tableHead" :key="index" :label="itemExpand.label" align="center">
               <el-table-column v-for="(itChild,indexs) in itemExpand.children" :key="indexs" :label="itChild.label" :prop="itChild.prop" align="center" min-width="120">
                 <template slot-scope="scope">
@@ -290,8 +290,8 @@ export default {
           } else if (this.curDept.depType === '3') { // 大队 派出所
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
           } else if (this.curDept.depType === '4') {
-            if (this.curDept.areaCode === '610403') { // 杨凌例外
-              currentArea = ['610000', '610403']
+            if (this.curDept.areaCode === '611400') { // 杨凌例外
+              currentArea = ['610000', '611400']
             } else { // 正常的派出所
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
             }
