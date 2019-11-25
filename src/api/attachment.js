@@ -8,6 +8,8 @@ const tipTextOther = '只能上传doc、docx、zip、rar、pdf格式文件，且
 const tipTextNoWs = '只能上传doc、docx、zip、rar、pdf、png、jpg、jpeg、bmp格式文件，且大小不超过500M'
 const tipText_Notice_size = '点击或将文件拖拽到这里上传，最多10个，单个文件最大500M'
 const tipText_Notice_style = '支持扩展名：.rar .zip .doc .docx .pdf .jpg .xls .xlsx...'
+const tipText_clue_size = '点击或将文件拖拽到这里上传，最多10个，单个文件最大500M'
+const tipText_clue_style = '支持扩展名：.rar .zip .doc .docx .pdf .jpg .xls .xlsx...'
 // const tipText_Notice = '只能上传rar、zip、doc、docx、pdf、jpg、xls、xlsx格式文件，最多10个，单个文件大小不超过500M'
 
 function fileValid(file) {
@@ -105,6 +107,24 @@ function fileNoWsValid(file) { // 无文书
   }
   return ''
 }
+function fileValid_clue(file) {
+  const num = 1024.00 // byte
+  if (file.size) {
+    const fileM = (file.size / Math.pow(num, 2)).toFixed(0)
+    console.log(file.size + ',' + fileM)
+    if (parseInt(fileM) > 50) {
+      return '单个文件大小不超过50M'
+    }
+  }
+  const name = file.name.split('.')
+  const arrayLength = name.length
+  const fileType = name[arrayLength - 1]
+  const reg = /^(rar)|(zip)|(doc)|(docx)|(pdf)|(jpg)|(xls)|(xlsx)$/
+  if (!reg.test(fileType)) {
+    return '只支持上传rar、zip、doc、docx、pdf、jpg、xls、xlsx格式文件'
+  }
+  return ''
+}
 export default {
   getVideoUrl,
   uploadFileUrl,
@@ -119,5 +139,8 @@ export default {
   fileNoWsValid,
   tipTextNoWs,
   tipText_Notice_size,
-  tipText_Notice_style
+  tipText_Notice_style,
+  fileValid_clue,
+  tipText_clue_size,
+  tipText_clue_style
 }
