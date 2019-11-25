@@ -16,16 +16,16 @@
           <el-select v-if="item.columnType === 3 && item.columnName !== 'SYH_FLLB'" v-model="filters[item.filterName]" placeholder="请选择" clearable>
             <el-option v-if="item.columnName === 'AJZT'" v-for="option in ajztData" :key="option.code" :label="option.codeName" :value="option.code"></el-option>
             <el-option v-if="item.columnName === 'AJLB'" v-for="option in ajlbData" :key="option.code" :label="option.name" :value="option.code"></el-option>
-            <el-option v-if="item.columnName === 'SYH_AJLB'" v-for="option in ajzmData" :key="option.code" :label="option.SYH_AJLB_NAME" :value="option.SYH_AJLB"></el-option>
+            <el-option v-if="item.columnName === 'SYH_AJLB'" v-for="option in ajzmData" :key="option.code" :label="option.name" :value="option.code"></el-option>
             <el-option v-if="item.columnName === 'CONFIRM_STATUS'" v-for="option in dqztData" :key="option.value" :label="option.label" :value="option.value"></el-option>
             <el-option v-if="item.columnName === 'AJXZ'" v-for="option in AJXZList" :key="option.code" :label="option.code_name" :value="option.code"></el-option>
             <el-option v-if="item.columnName === 'AJSX'" v-for="option in AJSXList" :key="option.value" :label="option.label" :value="option.value"></el-option>
             <el-option v-if="item.columnName === 'BARXB'" v-for="option in XBList" :key="option.value" :label="option.label" :value="option.value"></el-option>
           </el-select>
           <span v-if="item.columnType === 2">
-            <el-date-picker v-model="filters[item.filterName + 'Start']" type="date" value-format="yyyy-MM-dd" placeholder="请选择开始时间" @change="startDateChange($event, item.filterName)"></el-date-picker>
+            <el-date-picker v-model="filters[item.filterName + 'Start']" type="date" value-format="yyyy-MM-dd" placeholder="请选择开始日期" @change="startDateChange($event, item.filterName, item.columnDescribe)"></el-date-picker>
             <el-form-item label="至" class="time_left">
-              <el-date-picker :disabled="filters[item.filterName + 'Start'] === undefined || filters[item.filterName + 'Start'] === null || filters[item.filterName + 'Start'] === ''" v-model="filters[item.filterName + 'End']" type="date" value-format="yyyy-MM-dd" placeholder="请选择结束时间" @change="endDateChange($event, item.filterName)"></el-date-picker>
+              <el-date-picker :disabled="filters[item.filterName + 'Start'] === undefined || filters[item.filterName + 'Start'] === null || filters[item.filterName + 'Start'] === ''" v-model="filters[item.filterName + 'End']" type="date" value-format="yyyy-MM-dd" placeholder="请选择结束日期" @change="endDateChange($event, item.filterName, item.columnDescribe)"></el-date-picker>
             </el-form-item>
           </span>
         </el-form-item>
@@ -39,6 +39,7 @@
         </el-select>
       </el-form-item>
       <el-form-item >
+        <el-button type="primary" size="small" v-on:click="restForm()">重置</el-button>
         <el-button type="primary" size="small" v-on:click="query(true)">查询</el-button>
         <el-button v-if="$isViewBtn('182003') || $isViewBtn('182004') || $isViewBtn('182005')" type="primary" size="small" v-on:click="toTemplate()">维护模板</el-button>
       </el-form-item>
@@ -64,7 +65,7 @@
         <template slot-scope="scope">
           <a v-if="item.columnName === 'AJMC' || item.columnName === 'AJBH'" class="ajbh-color" @click="handleAjDetail(scope.$index, scope.row)">{{scope.row[item.titleName]}}</a>
           <span v-else-if="item.columnName === 'CONFIRM_STATUS'">
-            {{scope.row[item.titleName] === null || scope.row[item.titleName] === undefined || scope.row[item.titleName] === 2 ? ('上报已读') : (scope.row[item.titleName] === 1 ? '上报未读': '')}}
+            {{scope.row[item.titleName] === 2 ? ('上报已读') : (scope.row[item.titleName] === 1 || scope.row[item.titleName] === undefined || scope.row[item.titleName] === null ? '上报未读': '')}}
           </span>
           <span v-else-if="item.columnName === 'SYH_FLLB'">{{getFllbName(scope.row[item.titleName])}}</span>
           <span v-else-if="item.columnName === 'AJZT'">{{getAjztName(scope.row[item.titleName])}}</span>
@@ -92,7 +93,7 @@
 
 <script>
   import { getTree } from '@/api/dept'
-  import { getSYHFLLBList, getAJLBText, getAJSXList, getXBSelect } from '@/utils/codetotext'
+  import { getSYHFLLBList, getAJSXList, getXBSelect } from '@/utils/codetotext'
   export default {
     name: 'caseList',
     data() {
@@ -377,6 +378,17 @@
       toTemplate() {
         this.$gotoid('/reportTemplate')
       },
+      restForm() {
+        for (const key in this.filters) {
+          if (key !== 'area' && key !== 'department' && key !== 'templateId') {
+            if (typeof this.filters[key] === 'object') {
+              this.filters[key] = []
+            } else {
+              this.filters[key] = ''
+            }
+          }
+        }
+      },
       query(flag) {
         this.listLoading = true
         const para = JSON.parse(JSON.stringify(this.filters))
@@ -426,20 +438,31 @@
         })
       },
       initAjzm() { // 案件罪名
-        this.$query('ajzmcode', { codeLx: 'ajlb' }).then((response) => {
-          this.$query('ajzmcode', {}).then((response) => {
-            if (response.data && response.data.length > 0) {
-              this.ajzmData = response.data
-              const arr = []
-              for (let j = 0; j < this.ajzmData.length; j++) {
-                const data = this.ajzmData[j]
-                arr.push({ value: data.SYH_AJLB, text: data.SYH_AJLB_NAME })
-              }
-              this.ajlbFilter = arr
+        this.$query('ajzm', {}).then(response => {
+          if (response.data && response.data.length > 0) {
+            this.ajzmData = response.data
+            const arr = []
+            for (let j = 0; j < this.ajzmData.length; j++) {
+              const data = this.ajzmData[j]
+              arr.push({ value: data.code, text: data.name })
             }
-          })
-        }).catch(() => {
+            this.ajlbFilter = arr
+          }
         })
+        // this.$query('ajzmcode', { codeLx: 'ajlb' }).then((response) => {
+        //   this.$query('ajzmcode', {}).then((response) => {
+        //     if (response.data && response.data.length > 0) {
+        //       this.ajzmData = response.data
+        //       const arr = []
+        //       for (let j = 0; j < this.ajzmData.length; j++) {
+        //         const data = this.ajzmData[j]
+        //         arr.push({ value: data.SYH_AJLB, text: data.SYH_AJLB_NAME })
+        //       }
+        //       this.ajlbFilter = arr
+        //     }
+        //   })
+        // }).catch(() => {
+        // })
       },
       initAjxz() {
         const para = {
@@ -449,13 +472,26 @@
           this.AJXZList = response.data
         })
       },
-      startDateChange(val, key) {
+      startDateChange(val, key, text) {
         if (val === undefined || val === null || val === '') {
           this.filters[key + 'End'] = ''
         }
+        const endDate = this.filters[key + 'End']
+        if (endDate !== undefined && endDate !== null && endDate !== '') {
+          if (new Date(endDate) < new Date(val)) {
+            this.$alert(text + '的开始时间不能大于结束时间', '提示', { type: 'warning' })
+            this.filters[key + 'End'] = ''
+          }
+        }
       },
-      endDateChange(val, key) {
-        console.info(val, key)
+      endDateChange(val, key, text) {
+        const startDate = this.filters[key + 'Start']
+        if (val) {
+          if (new Date(startDate) > new Date(val)) {
+            this.$alert(text + '的开始时间不能大于结束时间', '提示', { type: 'warning' })
+            this.filters[key + 'End'] = ''
+          }
+        }
       },
       isDisabledSort() {
         for (let i = 0; i < this.templateData.length; i++) {
@@ -486,16 +522,27 @@
         })
       },
       getFllbName(fllb) {
-        if (fllb && fllb.indexOf(',') > -1) {
+        if (fllb) {
           const array = fllb.split(',')
-          let text = ''
+          let data = this.fllbList
+          const arr = []
           for (let i = 0; i < array.length; i++) {
-            text += '，' + getAJLBText(array[i])
+            data = this.eachData(data, array[i], arr)
           }
-          return text.substring(1, text.length)
+          return arr.join('，')
         } else {
-          return getAJLBText(fllb)
+          return '-'
         }
+      },
+      eachData(child, value, arr) {
+        let children = []
+        child.forEach((item, index) => {
+          if (item.value === value) {
+            arr.push(item.label)
+            children = item.children
+          }
+        })
+        return children
       },
       getAjztName(ajzt) {
         for (let i = 0; i < this.ajztData.length; i++) {
@@ -508,8 +555,8 @@
       getAjzmName(ajzm) {
         for (let i = 0; i < this.ajzmData.length; i++) {
           const item = this.ajzmData[i]
-          if (String(ajzm) === String(item.SYH_AJLB)) {
-            return item.SYH_AJLB_NAME
+          if (String(ajzm) === String(item.code)) {
+            return item.name
           }
         }
       }

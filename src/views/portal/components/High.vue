@@ -38,63 +38,63 @@
 </template>
 
 <script>
-  import { getHeightCaseTypeList } from '@/api/portal'
-  export default {
-    name: 'List',
-    data() {
-      return {
-        activeName: 'first',
-        loading: true,
-        listData: [
-          // { 'ajlb_text': '升级版盾构机模型限量涉嫌造假案', 'tb_ratio': '10', 'hb_ratio': '10' },
-          // { 'ajlb_text': '升级版盾构机模型限量涉嫌造假案', 'tb_ratio': '10', 'hb_ratio': '10' },
-          // { 'ajlb_text': '升级版盾构机模型限量涉嫌造假案', 'tb_ratio': '10', 'hb_ratio': '10' },
-          // { 'ajlb_text': '升级版盾构机模型限量涉嫌造假案', 'tb_ratio': '10', 'hb_ratio': '10' },
-          // { 'ajlb_text': '升级版盾构机模型限量涉嫌造假案', 'tb_ratio': '10', 'hb_ratio': '10' }
-        ]
-      }
-    },
-    methods: {
-      handleClickTab(tab, event) {
-        // console.log(tab, event)
-      },
-      moreGFAJ() {
-        this.$router.push('/zhyp/hightCaseTrend')
-      },
-      query() {
-        const para = {
-
-        }
-        getHeightCaseTypeList(para).then((response) => {
-          const data = response.data
-          data.forEach(function(item, index) {
-            item.tb_upDown = item.ajlbNum - item.ajlbNum2
-            item.hb_upDown = item.ajlbNum - item.ajlbNum3
-            item.tb_ratio = item.ajlbNum2 === 0 ? item.ajlbNum * 100 : Math.abs(parseInt((item.ajlbNum - item.ajlbNum2) / item.ajlbNum2 * 100))
-            item.hb_ratio = item.ajlbNum3 === 0 ? item.ajlbNum * 100 : Math.abs(parseInt((item.ajlbNum - item.ajlbNum3) / item.ajlbNum3 * 100))
-          })
-          this.listData = data
-          this.loading = false
-        })
-      },
-      toAJList(ajlb) {
-        localStorage.setItem('curAppCode', '003')
-        this.$router.push({
-          path: '/caseManage',
-          query: {
-            ajlbName: ajlb
-          }
-        })
-      }
-    },
-    mounted() {
-      this.query()
+import { getHeightCaseTypeList } from '@/api/portal'
+export default {
+  name: 'List',
+  data() {
+    return {
+      activeName: 'first',
+      loading: true,
+      listData: [
+        // { 'ajlb_text': '升级版盾构机模型限量涉嫌造假案', 'tb_ratio': '10', 'hb_ratio': '10' },
+        // { 'ajlb_text': '升级版盾构机模型限量涉嫌造假案', 'tb_ratio': '10', 'hb_ratio': '10' },
+        // { 'ajlb_text': '升级版盾构机模型限量涉嫌造假案', 'tb_ratio': '10', 'hb_ratio': '10' },
+        // { 'ajlb_text': '升级版盾构机模型限量涉嫌造假案', 'tb_ratio': '10', 'hb_ratio': '10' },
+        // { 'ajlb_text': '升级版盾构机模型限量涉嫌造假案', 'tb_ratio': '10', 'hb_ratio': '10' }
+      ]
     }
+  },
+  methods: {
+    handleClickTab(tab, event) {
+      // console.log(tab, event)
+    },
+    moreGFAJ() {
+      this.$router.push('/zhyp/hightCaseTrend')
+    },
+    query() {
+      const para = {
+
+      }
+      getHeightCaseTypeList(para).then((response) => {
+        const data = response.data
+        data.forEach(function(item, index) {
+          item.tb_upDown = item.ajlbNum - item.ajlbNum2
+          item.hb_upDown = item.ajlbNum - item.ajlbNum3
+          item.tb_ratio = item.ajlbNum2 === 0 ? item.ajlbNum * 100 : Math.abs(parseInt((item.ajlbNum - item.ajlbNum2) / item.ajlbNum2 * 100))
+          item.hb_ratio = item.ajlbNum3 === 0 ? item.ajlbNum * 100 : Math.abs(parseInt((item.ajlbNum - item.ajlbNum3) / item.ajlbNum3 * 100))
+        })
+        this.listData = data
+        this.loading = false
+      })
+    },
+    toAJList(ajlb) {
+      localStorage.setItem('curAppCode', 'B')
+      this.$router.push({
+        path: '/caseManage',
+        query: {
+          ajlbName: ajlb
+        }
+      })
+    }
+  },
+  mounted() {
+    this.query()
   }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-.gfajTab{
+.gfajTab {
   .portal_high_ul .portal_high_li {
     width: 100%;
     list-style: none;
@@ -111,7 +111,7 @@
     text-align: center;
     border-radius: 3px;
   }
-  .flexParent{
+  .flexParent {
     display: flex;
     justify-content: space-between;
   }
@@ -119,7 +119,7 @@
     background-image: linear-gradient(0deg, #4b4b4b 0%, #6f6f6f 100%);
   }
   .b_color_409EFF {
-    background-image: linear-gradient(0deg,	#004d8e 0%,#64bbe9 100%);
+    background-image: linear-gradient(0deg, #004d8e 0%, #64bbe9 100%);
   }
   .up {
     color: #da0000;
@@ -127,7 +127,8 @@
   .down {
     color: #41ad42;
   }
-  .up i,.down i {
+  .up i,
+  .down i {
     font-weight: bolder;
   }
   .el-tabs__content {
@@ -135,50 +136,52 @@
     overflow-y: scroll;
   }
   .morebutton {
-	  float: right;
+    float: right;
   }
-  .texts{
-    width:60%;
+  .texts {
+    width: 60%;
     color: #fff;
-    overflow:hidden;
+    overflow: hidden;
     padding-right: 10px;
   }
   .listTit {
     cursor: pointer;
   }
   .listTit:hover {
-    color: #3da1ff
+    color: #3da1ff;
   }
-  .compare{
-    color:#fff;
-    font-size:12px;
-    p{
+  .compare {
+    color: #fff;
+    font-size: 12px;
+    p {
       display: inline-block;
       width: 85px;
     }
   }
-  .upIcon,.downIcon{
+  .upIcon,
+  .downIcon {
     display: inline-block;
     width: 9px;
     height: 10px;
   }
-  .upIcon{
-    background: url('/static/image/portal_newImg/up.png') no-repeat center center;
+  .upIcon {
+    background: url("/static/image/portal_newImg/up.png") no-repeat center
+      center;
     background-size: 100%;
   }
-  .downIcon{
-    background: url('/static/image/portal_newImg/down.png') no-repeat center center;
+  .downIcon {
+    background: url("/static/image/portal_newImg/down.png") no-repeat center
+      center;
     background-size: 100%;
   }
 }
 @media only screen and (max-width: 1367px) {
-  .texts{
+  .texts {
     font-size: 12px;
   }
-  .gfajTab .compare p{
+  .gfajTab .compare p {
     width: 80px;
   }
 }
-
 </style>
 

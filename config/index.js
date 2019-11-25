@@ -14,7 +14,7 @@ module.exports = {
         // target: 'http://192.168.1.103:8082',
         // target: 'http://192.168.42.229:9001',
         // target: 'http://192.168.1.107:8081',
-        target: 'http://192.168.1.116:8082',
+        target: 'http://127.0.0.1:8082',
         changeOrigin: true,
         pathRewrite: {
           '^/upms': '/upms'
@@ -28,10 +28,11 @@ module.exports = {
       //   }
       // },
       '/syhz': {
-        target: 'http://192.168.1.116:9012',
+        //target: 'http://192.168.1.116:9012',
         // target: 'http://192.168.1.103:9002',
         // target: 'http://192.168.1.107:9002',
         // target: 'http://192.168.1.102:9002',
+        target: 'http://127.0.0.1:9002',
         changeOrigin: true,
         pathRewrite: {
           '^/syhz': '/syhz'
@@ -53,15 +54,15 @@ module.exports = {
         }
       },
       '/attachment': {
-        // target: 'http://192.168.42.204:8084',
-        target: 'http://192.168.43.32:9003',
+        target: 'http://192.168.42.229:8084',
+        //target: 'http://192.168.43.32:9003',
         changeOrigin: true,
         pathRewrite: {
           '^/attachment': '/'
         }
       },
       '/file': {
-        target: 'http://192.168.42.204:81',
+        target: 'http://192.168.43.201:8084',
         changeOrigin: true,
         pathRewrite: {
           '^/file': '/file'
@@ -87,11 +88,18 @@ module.exports = {
         pathRewrite: {
           '^/opt/syhz/upload/fileupload/files': '/files'
         }
+      },
+      '/yqxx': {
+        target: 'http://192.168.42.154:8081',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/yqxx': '/'
+        }
       }
     },
 
     // Various Dev Server settings
-    host: 'localhost', // can be overwritten by process.env.HOST
+    host: '92.29.33.97', // can be overwritten by process.env.HOST
     port: 8090, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,

@@ -45,13 +45,13 @@
       </el-form-item>
       <el-form-item label="案件类型" prop="type">
         <el-select v-model="filters.type" placeholder="全部" clearable>
+          <el-option label="环境" value="3"></el-option>
           <el-option label="食品" value="1"></el-option>
           <el-option label="药品" value="2"></el-option>
-          <el-option label="环境" value="3"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="筛选条件" prop="timeType">
-        <el-select v-model="filters.timeType" placeholder="全部" clearable>
+        <el-select v-model="filters.timeType" placeholder="全部" clearable @change="timeTypeChange">
           <el-option label="本年" value="1"></el-option>
           <el-option label="本年上半年" value="2"></el-option>
           <el-option label="本年下半年" value="3"></el-option>
@@ -79,33 +79,84 @@
           <el-table :data="scope.row.child||[]" :style="expandTableStyle" v-loading="listChildLoading" max-height="400">
             <el-table-column prop="" label="" width="40"></el-table-column>
             <el-table-column type="index" label="序号" align="center" :width="smallItemWidth"></el-table-column>
-            <el-table-column prop="areaName" label="单位" align="center" :min-width="smallItemWidth+70" show-overflow-tooltip>
-              <!-- <template slot-scope="scope">
-                <span class="canClick" @click="goDeptStatistical(scope.row)">{{scope.row.name}}</span>
-              </template> -->
+            <el-table-column prop="areaName" label="单位" align="center" :min-width="smallItemWidth+70" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="totalList.e1p1" label="侦破部督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+              <template slot-scope="sonScope">
+                <span v-if="sonScope.row.totalList.e1p1>0" :class="sonScope.row.canClick?'canClick':'notClick'" @click="linkAjdb(sonScope.row.canClick,sonScope.row.departType,'',sonScope.row.deptCode,'1','1')">{{sonScope.row.totalList.e1p1}}</span>
+                <span v-else >{{sonScope.row.totalList.e1p1}}</span>
+              </template>
             </el-table-column>
-            <el-table-column prop="totalList.e1p1" label="侦破部督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="totalList.e1p2" label="未侦破部督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="totalList.e2p1" label="侦破厅督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="totalList.e2p2" label="未侦破厅督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="totalList.e3p1" label="侦破市督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="totalList.e3p2" label="未侦破市督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="totalList.e1p2" label="未侦破部督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+              <template slot-scope="sonScope">
+                <span v-if="sonScope.row.totalList.e1p2>0" :class="sonScope.row.canClick?'canClick':'notClick'" @click="linkAjdb(sonScope.row.canClick,sonScope.row.departType,'',sonScope.row.deptCode,'1','2')">{{sonScope.row.totalList.e1p2}}</span>
+                <span v-else >{{sonScope.row.totalList.e1p2}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="totalList.e2p1" label="侦破厅督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+              <template slot-scope="sonScope">
+                <span v-if="sonScope.row.totalList.e2p1>0" :class="sonScope.row.canClick?'canClick':'notClick'" @click="linkAjdb(sonScope.row.canClick,sonScope.row.departType,'',sonScope.row.deptCode,'2','1')">{{sonScope.row.totalList.e2p1}}</span>
+                <span v-else >{{sonScope.row.totalList.e2p1}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="totalList.e2p2" label="未侦破厅督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+              <template slot-scope="sonScope">
+                <span v-if="sonScope.row.totalList.e2p2>0" :class="sonScope.row.canClick?'canClick':'notClick'" @click="linkAjdb(sonScope.row.canClick,sonScope.row.departType,'',sonScope.row.deptCode,'2','2')">{{sonScope.row.totalList.e2p2}}</span>
+                <span v-else >{{sonScope.row.totalList.e2p2}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="totalList.e3p1" label="侦破市督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+              <template slot-scope="sonScope">
+                <span v-if="sonScope.row.totalList.e3p1>0" :class="sonScope.row.canClick?'canClick':'notClick'" @click="linkAjdb(sonScope.row.canClick,sonScope.row.departType,'',sonScope.row.deptCode,'3','1')">{{sonScope.row.totalList.e3p1}}</span>
+                <span v-else >{{sonScope.row.totalList.e3p1}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="totalList.e3p2" label="未侦破市督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+              <template slot-scope="sonScope">
+                <span v-if="sonScope.row.totalList.e3p2>0" :class="sonScope.row.canClick?'canClick':'notClick'" @click="linkAjdb(sonScope.row.canClick,sonScope.row.departType,'',sonScope.row.deptCode,'3','2')">{{sonScope.row.totalList.e3p2}}</span>
+                <span v-else >{{sonScope.row.totalList.e3p2}}</span>
+              </template>
+            </el-table-column>
           </el-table>
         </template>
       </el-table-column>
       <el-table-column type="index" :width="smallItemWidth" label="序号" align="center"></el-table-column>
-      <el-table-column prop="areaName" label="省市" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip>
-        <!-- <template slot-scope="scope">
-          <span v-if="scope.row.canClickJump===true" class="canClick" @click="goDeptStatistical(scope.row)">{{scope.row.name}}</span>
-          <span v-else>{{scope.row.name}}</span>
-        </template> -->
+      <el-table-column prop="areaName" label="省市" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="e1p1" label="侦破部督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.e1p1>0" :class="scope.row.canClick?'canClick':'notClick'" @click="linkAjdb(scope.row.canClick,'city',scope.row.cityCode,'','1','1')">{{scope.row.e1p1}}</span>
+          <span v-else >{{scope.row.e1p1}}</span>
+        </template>
       </el-table-column>
-      <el-table-column prop="e1p1" label="侦破部督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="e1p2" label="未侦破部督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="e2p1" label="侦破厅督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="e2p2" label="未侦破厅督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="e3p1" label="侦破市督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="e3p2" label="未侦破市督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="e1p2" label="未侦破部督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.e1p2>0" :class="scope.row.canClick?'canClick':'notClick'" @click="linkAjdb(scope.row.canClick,'city',scope.row.cityCode,'','1','2')">{{scope.row.e1p2}}</span>
+          <span v-else >{{scope.row.e1p2}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="e2p1" label="侦破厅督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+         <template slot-scope="scope">
+          <span v-if="scope.row.e2p1>0" :class="scope.row.canClick?'canClick':'notClick'" @click="linkAjdb(scope.row.canClick,'city',scope.row.cityCode,'','2','1')">{{scope.row.e2p1}}</span>
+          <span v-else >{{scope.row.e2p1}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="e2p2" label="未侦破厅督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.e2p2>0" :class="scope.row.canClick?'canClick':'notClick'" @click="linkAjdb(scope.row.canClick,'city',scope.row.cityCode,'','2','2')">{{scope.row.e2p2}}</span>
+          <span v-else >{{scope.row.e2p2}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="e3p1" label="侦破市督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.e3p1>0" :class="scope.row.canClick?'canClick':'notClick'" @click="linkAjdb(scope.row.canClick,'city',scope.row.cityCode,'','3','1')">{{scope.row.e3p1}}</span>
+          <span v-else >{{scope.row.e3p1}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="e3p2" label="未侦破市督案件数" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.e3p2>0" :class="scope.row.canClick?'canClick':'notClick'" @click="linkAjdb(scope.row.canClick,'city',scope.row.cityCode,'','3','2')">{{scope.row.e3p2}}</span>
+          <span v-else >{{scope.row.e3p2}}</span>
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
@@ -232,15 +283,28 @@ export default {
         if (response.code === '000000') {
           if (city) {
             this.listChildLoading = false
+            var childData = response.data
+            for (let m = 0; m < childData.length; m++) { // 遍历是否可点击跳转
+              var childElement = childData[m]
+              if (this.deptInfo.depType === '-1' || this.deptInfo.depType === '1' || this.deptInfo.depType === '2') { // 厅 总队 支队
+                childElement.canClick = true
+              } else if (this.deptInfo.depType === '3' && childElement.deptCode === this.deptInfo.depCode) { // 大队
+                childElement.canClick = true
+              } else if (this.deptInfo.depType === '4' && childElement.deptCode === this.deptInfo.parentDepCode) { // 派出所
+                childElement.canClick = true
+              } else {
+                childElement.canClick = false
+              }
+            }
             for (let i = 0; i < this.dbCaseData.length; i++) {
               const item = this.dbCaseData[i]
               if (city === '610000530000') { // 省厅
                 if (item.departCode === city) {
-                  item.child = response.data
+                  item.child = childData
                 }
               } else {
                 if (item.cityCode === city) {
-                  item.child = response.data
+                  item.child = childData
                 }
               }
             }
@@ -252,9 +316,14 @@ export default {
               element = Object.assign(element, element.totalList) // 需要累加的值 放到totalList 累加的时候两层有问题
               element.canExpand = false
               if (this.deptInfo.depType === '-1' || this.deptInfo.depType === '1') { // 厅或者总队 全部都可展开
+                element.canExpand = true // 可展开
+                element.canClick = true // 可点击
+              } else if (this.deptInfo.depType === '2' && element.areaCode === this.deptInfo.areaCode.substring(0, 4)) { // 支队
                 element.canExpand = true
-              } else if (this.deptInfo.depType !== '-1' && this.deptInfo.depType !== '1' && element.areaCode === this.deptInfo.areaCode.substring(0, 4)) { // 支队和大队只能展开自己的市
+                element.canClick = true
+              } else if ((this.deptInfo.depType === '3' || this.deptInfo.depType === '4') && element.areaCode === this.deptInfo.areaCode.substring(0, 4)) { // 和大队只能展开自己的市
                 element.canExpand = true
+                element.canClick = false
               }
             }
             this.dbCaseData = data
@@ -263,6 +332,35 @@ export default {
       }).catch(() => {
         this.tableLoading = false
       })
+    },
+    linkAjdb(canClick, level, cityCode, deptCode, dbLevel, phStatus) { // 跳转到督办列表
+      if (!canClick) {
+        return false
+      }
+      var param = {
+        origin: 'dbStatistical', // 表示从统计跳转过去的
+        clickLevel: level, // 区分是一级还是二级 表格，一级 city,二级是 部门的type
+        cityCode: cityCode,
+        deptCode: deptCode, // 当前点击的code
+        dbLevel: dbLevel, // 督办等级
+        phStatus: phStatus, // 是否破获 1已破 2未破
+        startDate1: this.filters.startDate1, // 筛选框的值
+        startDate2: this.filters.startDate2,
+        endtDate1: this.filters.endDate1,
+        endDate2: this.filters.endDate2,
+        type: this.filters.type, // 案件类型
+        timeType: this.filters.timeType // 筛选条件
+      }
+      // this.$gotoid('/caseManage/dbList', JSON.stringify(param))
+      this.$router.push({ path: '/caseManage/dbList', query: param })
+    },
+    timeTypeChange(val) { // 筛选条件 change
+      if (val) {
+        this.filters.startDate1 = '' // 清空掉时间段
+        this.filters.startDate2 = ''
+        this.filters.endDate1 = ''
+        this.filters.endDate2 = ''
+      }
     },
     goDeptStatistical(row) { // 跳转到机构 页面
       // this.$router.push({ path: '/basicService/deptStatistical', query: { departCode: row.departCode }})
@@ -277,7 +375,7 @@ export default {
         this.ksEndDateDisabled = false
         this.ksEndPickerOptions = Object.assign({}, 'ksEndPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {
@@ -310,7 +408,7 @@ export default {
         this.jsEndDateDisabled = false
         this.jsEndPickerOptions = Object.assign({}, 'jsEndPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {
@@ -542,6 +640,11 @@ export default {
     display: inherit;
     padding: 0;
   }
+  .el-form .el-cascader.el-cascader--small,
+  .el-form .el-input.el-input--small,
+  .el-form .el-select.el-select--small {
+    width: 222px;
+  }
   //修改表格边框颜色
   .el-table--border th {
     border-bottom: 1px solid #2f627a;
@@ -572,7 +675,7 @@ export default {
   cursor: pointer;
 }
 .canClick:hover {
-  // text-decoration: underline;
+  text-decoration: underline;
 }
 .el-table .row-custom .cell .el-table__expand-icon {
   display: none;

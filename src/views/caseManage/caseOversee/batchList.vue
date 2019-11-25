@@ -97,7 +97,7 @@
       </el-form-item>
     </el-form>
     <el-table :data="dbBatchData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
-      <el-table-column label="序号" type="index" width="60"></el-table-column>
+      <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
       <el-table-column prop="title" label="批次名称" min-width="10%" show-overflow-tooltip></el-table-column>
       <!-- <el-table-column label="案件编号" min-width="10%">
         <template slot-scope="scope">
@@ -133,7 +133,7 @@
           {{$getDictName(scope.row.status+'','dbajpczt')}}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="140">
+      <el-table-column label="操作" width="130">
         <template slot-scope="scope">
           <el-button title="详情" v-if="$isViewBtn('100810')" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle></el-button>
           <el-button title="修改" v-if="$isViewBtn('100811') && (userInfo.id+'' === scope.row.creationId) && scope.row.canEditBatch" size="mini" type="primary" @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
@@ -394,7 +394,7 @@ export default {
         this.ksEndDateDisabled = false
         this.ksEndPickerOptions = Object.assign({}, 'ksEndPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {
@@ -427,7 +427,7 @@ export default {
         this.jsEndDateDisabled = false
         this.jsEndPickerOptions = Object.assign({}, 'jsEndPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {

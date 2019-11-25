@@ -21,89 +21,89 @@
 </template>
 
 <script>
-  import {
-    getDBAJHome
-  } from '@/api/supervise'
-  import {
-    getAssistStatusText, getDBLevelText
-  } from '@/utils/codetotext'
-  import {
-    parseTime
-  } from '@/utils/index'
+import {
+  getDBAJHome
+} from '@/api/supervise'
+import {
+  getAssistStatusText, getDBLevelText
+} from '@/utils/codetotext'
+import {
+  parseTime
+} from '@/utils/index'
 
-  export default {
-    name: 'Tab',
-    data() {
-      return {
-        deptId: '',
-        listData: []
-      }
+export default {
+  name: 'Tab',
+  data() {
+    return {
+      deptInfo: {},
+      listData: []
+    }
+  },
+  methods: {
+    formatDate(time) {
+      return parseTime(new Date(time), '{y}-{m}-{d}')
     },
-    methods: {
-      formatDate(time) {
-        return parseTime(new Date(time), '{y}-{m}-{d}')
-      },
-      filterText(status) {
-        return getAssistStatusText(status)
-      },
-      formatterLevel(level) {
-        return getDBLevelText(level)
-      },
-      getData() {
-        getDBAJHome({
-          deptId: this.deptId,
-          pageSize: 5,
-          pageNum: 1
-        }).then((res) => {
-          if (res.code === '000000' && res.data) {
-            this.listData = res.data.list
-          }
-        })
-      },
-      toDetail(id) {
-        localStorage.setItem('curAppCode', '003')
-        this.$router.push({ path: '/caseManage/dbdetail/' + id })
-      }
+    filterText(status) {
+      return getAssistStatusText(status)
     },
-    mounted() {
-      if (sessionStorage.getItem('depToken')) {
-        const depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
-        this.deptId = depToken['id']
-        this.getData()
-      }
+    formatterLevel(level) {
+      return getDBLevelText(level)
+    },
+    getData() {
+      getDBAJHome({
+        deptId: this.deptInfo.id,
+        deptCode: this.deptInfo.depCode, // 部门code
+        pageSize: 5,
+        pageNum: 1
+      }).then((res) => {
+        if (res.code === '000000' && res.data) {
+          this.listData = res.data.list
+        }
+      })
+    },
+    toDetail(id) {
+      localStorage.setItem('curAppCode', 'B')
+      this.$router.push({ path: '/caseManage/dbdetail/' + id })
+    }
+  },
+  mounted() {
+    if (sessionStorage.getItem('depToken')) {
+      this.deptInfo = JSON.parse(sessionStorage.getItem('depToken'))[0]
+      this.getData()
     }
   }
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-  .portal-tab .f_color_e6a23c{
-    color: #e6a23c;
+.portal-tab .f_color_e6a23c {
+  color: #e6a23c;
+}
+.portal-tab .f_color_00a0e9 {
+  color: #00a0e9;
+}
+.flexParent {
+  display: flex;
+  justify-content: space-between;
+}
+.listCont {
+  padding-left: 25px;
+  margin-bottom: 10px;
+  position: relative;
+  &::before {
+    display: inline-block;
+    content: "";
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #6cbef2;
+    position: absolute;
+    left: 0;
+    top: 3px;
   }
-  .portal-tab .f_color_00a0e9{
-    color: #00a0e9;
-  }
-  .flexParent{
-    display: flex;
-    justify-content: space-between;
-  }
-  .listCont{
-     padding-left: 25px;
-     margin-bottom: 10px;
-     position: relative;
-    &::before {
-      display: inline-block;
-      content: '';
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background-color: #6cbef2;
-      position: absolute;
-      left: 0;
-      top: 3px;
-    }
-  }
-  .text{
-    width:70%;
-    overflow:hidden;
-  }
+}
+.text {
+  width: 70%;
+  overflow: hidden;
+}
 </style>
