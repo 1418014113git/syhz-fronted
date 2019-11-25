@@ -4,12 +4,13 @@
     <div class="title">
       <div class="left">基本信息</div>
       <div class="right">
-        <el-button type="primary" size="small"  @click="zhpj">综合评价</el-button>
-        <el-button type="primary" size="small" v-if="isShowsqbtn"  @click="cxsq">重新申请</el-button>
-        <el-button type="primary" size="small" v-if="isShowshbtn"  @click="audit">审核</el-button>
-        <el-button type="primary" size="small"  @click="xsff">线索分发</el-button>
-        <el-button type="primary" size="small"  @click="xsfk">线索反馈</el-button>
-        <el-button type="primary" size="small"  @click="qs">签收</el-button>
+        <el-button type="primary" size="small" v-if="(curDept.depType === '1' || curDept.depType === '2') && isShowpjbtn && $isViewBtn('101911')"   @click="zhpj">综合评价</el-button>
+        <el-button type="primary" size="small" v-if="isShowsqbtn && $isViewBtn('101901')"  @click="cxsq">重新申请</el-button>
+        <el-button type="primary" size="small" v-if="isShowshbtn && $isViewBtn('101908')"  @click="audit">审核</el-button>
+        <el-button type="primary" size="small" v-if="isShowffbtn && $isViewBtn('101909')"  @click="xsff">线索分发</el-button>
+        <el-button type="primary" size="small" v-if="isShowfkbtn && $isViewBtn('101910')"  @click="xsfk">线索反馈</el-button>
+        <el-button type="primary" size="small" v-if="isShowqsbtn && $isViewBtn('101907')"  @click="qs">签收</el-button>
+        <!-- <span style="color: #67C23A;" v-if="!isShowqsbtn" @click="qs">已签收</span> -->
       </div>
      </div>
      <el-row class="xddw zwbj">
@@ -57,9 +58,9 @@
               <span v-html="baseInfo.assistContent"></span>
             </el-form-item>
             <el-form-item label="附件：" prop="">
-              <span v-if="baseInfo.attachment && baseInfo.attachment.lenght>0">
+              <span v-if="baseInfo.attachment && baseInfo.attachment.length>0">
                  <span v-for="(item, index) in baseInfo.attachment" :key="index">
-                    <a @click="upLoadFile(item)">{{item.name}}</a>&nbsp;&nbsp;&nbsp;
+                    <a @click="downFile(item)" style="text-decoration: underline;">{{item.name}}</a>&nbsp;&nbsp;&nbsp;
                 </span>
               </span>
             </el-form-item>
@@ -85,12 +86,14 @@ import auditCom from './auditCom' // 审核弹框
 import JqzyDisib from './jqzyDisib' // 分发线索
 import Bus from '@/utils/bus.js'
 export default {
-  props: ['id', 'info'],
+  props: ['info'],
   name: 'baseInfo',
   data() {
     return {
       baseInfo: {}, // 基础信息
       shlbRow: {}, // 审核列表当前行的审核按钮显示时，将当前行数据传递过来
+      qsRow: {}, // 签收列表当前行信息
+      curDept: {},
       curUser: {}, // sessionStorage获取用户信息
       stshForm: { // 省厅审核
         num: '', // 编号
@@ -98,14 +101,18 @@ export default {
         endTime: '', // 截止时间
         remark: '' // 审核意见
       },
+      isShowyqs: false, // 是否显示'已签收'文字
       isShowsqbtn: false, // 是否显示申请按钮
       isShowshbtn: false, // 是否显示审核按钮
+      isShowqsbtn: false, // 是否显示签收按钮
+      isShowffbtn: false, // 是否显示线索分发按钮
+      isShowfkbtn: false, // 是否显示线索反馈按钮
+      isShowpjbtn: false, // 是否显示综合评价按钮
       roleType: '', // 角色类型，  1： 省厅， 2：地市
       loading: false, // 页面加载进度条
       isShowshDialog: false, // 是否显示审核弹框
       isShowffxsDialog: false, // 是否显示分发线索弹出框
-      clusterId: '', // 存储列表传递过来的id
-      downLoadUrl: process.env.ATTACHMENT_MODULE + 'file/downloadTemplate/' // 下载附件
+      clusterId: '' // 存储列表传递过来的id
     }
   },
   components: {
@@ -117,10 +124,12 @@ export default {
 
   },
   watch: {
-    id(val) {
-      this.clusterId = val
-      this.baseInfo = this.info
-      // this.detail()
+    info(val) {
+      if (val.clusterId) {
+        this.clusterId = val.clusterId
+        this.baseInfo = val
+        this.baseInfo.attachment = this.baseInfo.attachment ? JSON.parse(this.baseInfo.attachment) : []
+      }
     }
   },
   filters: {
@@ -135,38 +144,45 @@ export default {
     init() {
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.paramDept = JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode
-      if (this.id) {
-        this.clusterId = this.id
+      if (this.info.clusterId) {
+        this.clusterId = this.info.clusterId
         this.baseInfo = this.info
-        // this.detail()
+        this.baseInfo.attachment = this.baseInfo.attachment ? JSON.parse(this.baseInfo.attachment) : []
       }
-      Bus.$on('isShowsqbtn', (data) => {
-        console.log('isShowsqbtn', data)
+      Bus.$on('isShowsqbtn', (data) => { // 重新申请按钮
         this.isShowsqbtn = data
       })
-      Bus.$on('isShowshbtn', (data) => {
-        console.log('isShowshbtn', data)
+      Bus.$on('isShowshbtn', (data) => { // 审核按钮
         this.isShowshbtn = data
       })
-      Bus.$on('row', (data) => {
-        console.log('row', JSON.stringify(data))
+      Bus.$on('row', (data) => { // 审核列表当前行信息
         this.shlbRow = data
       })
+      Bus.$on('isShowqsbtn', (data) => { // 签收按钮
+        this.isShowqsbtn = data
+      })
+      Bus.$on('qsRow', (data) => { // 签收列表当前行信息
+        this.qsRow = data
+      })
+      Bus.$on('isShowffbtn', (data) => { // 线索分发按钮
+        this.isShowffbtn = data
+      })
+      Bus.$on('isShowfkbtn', (data) => { // 线索反馈按钮
+        this.isShowfkbtn = data
+      })
+      Bus.$on('isShowpjbtn', (data) => { // 线索反馈按钮
+        this.isShowpjbtn = data
+      })
     },
-    // detail() { // 查询详情
-    //   this.loading = true
-    //   this.$query('casecluster/' + this.clusterId, {}).then((response) => {
-    //     this.loading = false
-    //     this.baseInfo = response.data
-    //   }).catch(() => {
-    //     this.loading = false
-    //   })
-    // },
     zhpj() { // 综合评价
-
+      if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省厅，总队
+        this.$store.dispatch('Personeltotop', 'dsfk') // 定位到地市反馈
+      } else if (this.curDept.depType === '2') { // 地市
+        this.$store.dispatch('Personeltotop', 'qxfk') // 定位到区县反馈
+      }
     },
     cxsq() { // 重新申请
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'edit', id: this.clusterId }}) // 跳转到集群战役申请页
+      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'detail', id: this.clusterId }}) // 跳转到集群战役申请页
     },
     audit() { // 审核
       this.isShowshDialog = true
@@ -175,13 +191,19 @@ export default {
       this.isShowffxsDialog = true
     },
     xsfk() { // 线索反馈
-      // this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId }}) // 跳转到线索反馈页
+      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId }}) // 跳转到线索反馈页
     },
-    qs() { // 签收
-
+    qs() { // 签收, 定位到签收列表
+      if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 总队，支队
+        this.$store.dispatch('Personeltotop', 'dsqs') // 定位到地市签收
+      } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
+        this.$store.dispatch('Personeltotop', 'qxqs') // 定位到区县签收
+      }
     },
-    upLoadFile(item) { // 下载附件
-      window.open(this.downLoadUrl + item.name)
+    downFile(item) { // 下载附件
+      const arr = item.path.split('/file')
+      const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
+      this.$download_http_mg(path, { fileName: item.name })
     },
     closeshDialog(val) { // 关闭审核弹框 点击"通过/不通过"时，页面需要重新加载，更新审核状态。
       this.isShowshDialog = val

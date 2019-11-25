@@ -13,7 +13,7 @@ const app = {
       // { 'name': '教育训练', 'path': '/handlingGuide/knowLedgeBase', 'appcode': 'F', 'icon': '/static/image/portal_images/bazy.png', 'src': '/static/image/portal_newImg/bazy.png' },
       // { 'name': '情报管理', 'path': '/intellSystem', 'appcode': 'G', 'icon': '/static/image/portal_images/qbcj.png', 'src': '/static/image/portal_newImg/qbhcfx.png' }
       { 'name': '案件管理', 'path': '/caseManage/caseList', 'appcode': 'B', 'icon': '/static/image/portal_newImg/ajgl_new.png', 'src': '/static/image/portal_newImg/ajgl_new.png' },
-      { 'name': '情报管理', 'path': '/intellSystem', 'appcode': 'G', 'icon': '/static/image/portal_newImg/qbgl_new.png', 'src': '/static/image/portal_newImg/qbgl_new.png' },
+      { 'name': '情报管理', 'path': '/information/clueList', 'appcode': 'G', 'icon': '/static/image/portal_newImg/qbgl_new.png', 'src': '/static/image/portal_newImg/qbgl_new.png' },
       { 'name': '教育训练', 'path': '/handlingGuide/knowLedgeBase', 'appcode': 'F', 'icon': '/static/image/portal_newImg/jyxl_new.png', 'src': '/static/image/portal_newImg/jyxl_new.png' },
       { 'name': '基础业务', 'path': '/notice/index', 'appcode': 'C', 'icon': '/static/image/portal_newImg/jcyw_new.png', 'src': '/static/image/portal_newImg/jcyw_new.png' }
     ],
