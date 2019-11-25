@@ -62,7 +62,7 @@ export default {
       })
     },
     toDetail(id) {
-      localStorage.setItem('curAppCode', '003')
+      localStorage.setItem('curAppCode', 'B')
       this.$router.push({ path: '/caseManage/dbdetail/' + id })
     }
   },
