@@ -92,7 +92,7 @@
               </el-upload>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="edit()"  v-if="$isViewBtn('100908')" >提交</el-button>
+              <el-button type="primary" @click="edit()">提交</el-button>
               <el-button size="small" @click="cancelEdit()"  >取 消</el-button>
             </el-form-item>
           </el-form>

@@ -38,7 +38,7 @@
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="onSubmit()"  v-if="$isViewBtn('100908')" >分享</el-button>
+              <el-button type="primary" @click="onSubmit()">分享</el-button>
               <el-button size="small" @click="cancelEdit()"  >取 消</el-button>
             </el-form-item>
           </el-form>
