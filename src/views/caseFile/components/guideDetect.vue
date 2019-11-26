@@ -314,14 +314,21 @@ export default {
     },
     judgeShowFlwsBtn() { // 判断是否展示法律文书的两个按钮
       // 未认领的 有两种情况DISTRICT_CODE前4 或 LADW前4  等于当前部门前4 ；已认领的deptCode 和当前的相等
+
+      /*
+      (this.ajInfo.DISTRICT_CODE) && this.ajInfo.DISTRICT_CODE.substr(0, 4) === this.curDept.depCode.substr(0, 4) ||
+          ((this.ajInfo.LADW) && this.ajInfo.LADW.substr(0, 4) === this.curDept.depCode.substr(0, 4))
+      */
       if (this.ajInfo) {
         if (this.ajInfo.deptCode && (this.ajInfo.deptCode === this.curDept.depCode)) { // 已认领
           this.showFlwsBtn = true
-        } else if (this.ajInfo.DISTRICT_CODE.substr(0, 4) === this.curDept.depCode.substr(0, 4) ||
-          this.ajInfo.LADW.substr(0, 4) === this.curDept.depCode.substr(0, 4)) { // 未认领
-          this.showFlwsBtn = true
-        } else {
-          this.showFlwsBtn = false
+        } else { // 未认领
+          if (this.ajInfo.DISTRICT_CODE) {
+            if (this.ajInfo.DISTRICT_CODE.substr(0, 4) === this.curDept.depCode.substr(0, 4)) { this.showFlwsBtn = true }
+          }
+          if (this.ajInfo.LADW) {
+            if (this.ajInfo.LADW.substr(0, 4) === this.curDept.depCode.substr(0, 4)) { this.showFlwsBtn = true }
+          }
         }
       }
     },
