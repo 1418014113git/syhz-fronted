@@ -637,7 +637,7 @@ export default {
       }
       this.rlLoading = true
       addAJJBXXSYHRL(ajString).then((response) => {
-        if (response.success === true) {
+        if (response.data.success === true) {
           this.rlLoading = false
           this.$message({
             message: '认领成功',
@@ -649,6 +649,12 @@ export default {
           })
           // sessionStorage.setItem(this.$route.path, JSON.stringify({ 'isRl': '1', 'ajId': response.data, 'rlId': this.carryParam.rlId })) // 将session中认领标志 改为已认领
           // location.reload()
+        } else {
+          this.rlLoading = false
+          this.$message({
+            message: response.data.message,
+            type: 'error'
+          })
         }
       }).catch(() => {
         this.rlLoading = false
