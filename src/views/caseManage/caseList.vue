@@ -92,527 +92,530 @@
 </template>
 
 <script>
-  import { getTree } from '@/api/dept'
-  import { getSYHFLLBList, getAJSXList, getXBSelect } from '@/utils/codetotext'
-  export default {
-    name: 'caseList',
-    data() {
-      return {
-        filters: {
-          area: [],
-          department: [],
-          templateId: '',
-          words: ''
-        },
-        lastTemplateId: '',
-        selectCurDep: { name: '' },
-        deptOptions: [],
-        deptDisabled: false,
-        areaOptions: [],
-        areaDisabled: false,
-        areaProps: {
-          value: 'cityCode',
-          label: 'cityName'
-        },
-        deptProps: {
-          value: 'depCode',
-          label: 'name',
-          children: 'children'
-        },
-        sortable: false,
-        filterLoading: false,
-        listLoading: false,
-        templateData: [],
-        filterData: [],
-        titleData: [],
-        caseData: [],
-        ajztData: [], // 案件状态
-        ajlbData: [], // 案件类别
-        ajzmData: [], // 案件罪名
-        dqztData: [
-          { label: '上报未读', value: 1 },
-          { label: '上报已读', value: 2 }
-        ],
-        fllbList: getSYHFLLBList(), // 案件分类类别
-        AJSXList: getAJSXList(), // 案件属性
-        XBList: getXBSelect(), // 性别
-        AJXZList: [], // 案件性质
-        total: 0,
-        page: 1,
-        pageSize: 15,
-        curUser: JSON.parse(sessionStorage.getItem('userInfo')),
-        curDept: JSON.parse(sessionStorage.getItem('depToken'))[0],
-        ajlbFilter: [],
-        ajztFilter: [],
-        confirmStatusFilter: [
-          { text: '上报未读', value: '1' },
-          { text: '上报已读', value: '2' }
-        ]
-      }
-    },
-    methods: {
-      setWidth(item) {
-        if (item.columnName === 'AJMC') {
-          return ''
-        }
-        if (this.titleData.length < 8) {
-          return '240px'
-        }
-        if (item.columnName === 'CONFIRM_STATUS' || item.columnName === 'AJZT' || item.columnName === 'AJSX' || item.columnName === 'LARQ') {
-          return '120px'
-        }
-        if (item.columnName === 'BARHJSZDSSXQ_NAME' || item.columnName === 'BARSJJZDSSXQ_NAME') {
-          return '240px'
-        }
-        return '200px'
+import { getTree } from '@/api/dept'
+import { getSYHFLLBList, getAJSXList, getXBSelect } from '@/utils/codetotext'
+export default {
+  name: 'caseList',
+  data() {
+    return {
+      filters: {
+        area: [],
+        department: [],
+        templateId: '',
+        words: ''
       },
-      className(item) {
-        if (this.sortable) {
-          if (item.columnName === 'AJZT' || item.columnName === 'SYH_AJLB' || item.columnName === 'CONFIRM_STATUS') {
-            return 'show_filter'
-          }
-        }
+      lastTemplateId: '',
+      selectCurDep: { name: '' },
+      deptOptions: [],
+      deptDisabled: false,
+      areaOptions: [],
+      areaDisabled: false,
+      areaProps: {
+        value: 'cityCode',
+        label: 'cityName'
+      },
+      deptProps: {
+        value: 'depCode',
+        label: 'name',
+        children: 'children'
+      },
+      sortable: false,
+      filterLoading: false,
+      listLoading: false,
+      templateData: [],
+      filterData: [],
+      titleData: [],
+      caseData: [],
+      ajztData: [], // 案件状态
+      ajlbData: [], // 案件类别
+      ajzmData: [], // 案件罪名
+      dqztData: [
+        { label: '上报未读', value: 1 },
+        { label: '上报已读', value: 2 }
+      ],
+      fllbList: getSYHFLLBList(), // 案件分类类别
+      AJSXList: getAJSXList(), // 案件属性
+      XBList: getXBSelect(), // 性别
+      AJXZList: [], // 案件性质
+      total: 0,
+      page: 1,
+      pageSize: 15,
+      curUser: JSON.parse(sessionStorage.getItem('userInfo')),
+      curDept: JSON.parse(sessionStorage.getItem('depToken'))[0],
+      ajlbFilter: [],
+      ajztFilter: [],
+      confirmStatusFilter: [
+        { text: '上报未读', value: '1' },
+        { text: '上报已读', value: '2' }
+      ]
+    }
+  },
+  methods: {
+    setWidth(item) {
+      if (item.columnName === 'AJMC') {
         return ''
-      },
-      filterHandler(value, row, column) {
-        const property = column['property']
-        return String(row[property]) === String(value)
-      },
-      handleAreaChange(val) { // 行政区划
-        this.filters.department = []
-        if (val.length > 0) {
-          this.deptOptions = [] // 清空单位机构数据
-          this.selectCurDep = { name: '' } // 清空当前选中的单位机构
-          const param = {
-            provinceCode: val[0] || '',
-            cityCode: val[1] || '',
-            reginCode: val[2] || ''
-          }
-          this.$query('hsyzdeparttree', param, 'upms').then((response) => {
-            if (response.code === '000000') {
-              if (response.data && response.data.length > 0) {
-                const arr = []
-                const data = response.data
-                for (let i = 0; i < data.length; i++) {
-                  const obj = data[i]
-                  arr.push({
-                    id: obj.id, name: obj.dep_name, cityCode: obj.city_code,
-                    depCode: obj.dep_code, parentCode: obj.super_dep_code, depType: obj.depType
-                  })
-                }
-                this.deptOptions = getTree(arr) // 机构
-              }
-            }
-          }).catch(() => {
-            this.formLoading = false
-          })
-        } else {
-          this.deptOptions = []
+      }
+      if (this.titleData.length < 8) {
+        return '240px'
+      }
+      if (item.columnName === 'CONFIRM_STATUS' || item.columnName === 'AJZT' || item.columnName === 'AJSX' || item.columnName === 'LARQ') {
+        return '120px'
+      }
+      if (item.columnName === 'BARHJSZDSSXQ_NAME' || item.columnName === 'BARSJJZDSSXQ_NAME') {
+        return '240px'
+      }
+      return '200px'
+    },
+    className(item) {
+      if (this.sortable) {
+        if (item.columnName === 'AJZT' || item.columnName === 'SYH_AJLB' || item.columnName === 'CONFIRM_STATUS') {
+          return 'show_filter'
         }
-      },
-      handleDeptChange(val) { // 单位机构
-        if (val.length > 0) {
-          const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
-          for (let i = 0; i < deptArr.length; i++) {
-            const dept = deptArr[i]
-            if (dept.depCode === val[val.length - 1]) {
-              this.selectCurDep = dept
-              break
-            }
-          }
-        } else {
-          this.selectCurDep = { name: '' }
+      }
+      return ''
+    },
+    filterHandler(value, row, column) {
+      const property = column['property']
+      return String(row[property]) === String(value)
+    },
+    handleAreaChange(val) { // 行政区划
+      this.filters.department = []
+      if (val.length > 0) {
+        this.deptOptions = [] // 清空单位机构数据
+        this.selectCurDep = { name: '' } // 清空当前选中的单位机构
+        const param = {
+          provinceCode: val[0] || '',
+          cityCode: val[1] || '',
+          reginCode: val[2] || ''
         }
-      },
-      initData() { // 初始化筛选条件
-        this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
+        this.$query('hsyzdeparttree', param, 'upms').then((response) => {
           if (response.code === '000000') {
-            const arr = response.data ? response.data : []
-            if (String(this.curDept.depType) === '2') {
-              for (let i = 0; i < arr[0].children.length; i++) {
-                const item = arr[0].children[i]
-                if (String(item.cityCode) !== String(this.curDept.areaCode)) {
-                  item.disabled = true
-                }
+            if (response.data && response.data.length > 0) {
+              const arr = []
+              const data = response.data
+              for (let i = 0; i < data.length; i++) {
+                const obj = data[i]
+                arr.push({
+                  id: obj.id, name: obj.dep_name, cityCode: obj.city_code,
+                  depCode: obj.dep_code, parentCode: obj.super_dep_code, depType: obj.depType
+                })
               }
-            }
-            this.areaOptions = arr
-            let currentArea = []
-            if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
-              currentArea = [this.curDept.areaCode]
-            } else if (this.curDept.depType === '2') { // 支队
-              currentArea = ['610000', this.curDept.areaCode]
-            } else if (this.curDept.depType === '3') { // 大队 派出所
-              currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
-              this.deptDisabled = true
-              this.areaDisabled = true
-            } else if (this.curDept.depType === '4') {
-              this.areaDisabled = true
-              if (this.curDept.areaCode === '610403') { // 杨凌例外
-                currentArea = ['610000', '610403']
-              } else { // 正常的派出所
-                currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
-              }
-            }
-            this.filters.area = currentArea
-            this.handleAreaChange(currentArea) // 查单位机构
-            // 默认选择本单位
-            if (this.curDept.depType === '-1') { // 省
-              this.filters.department = [this.curDept.depCode]
-            } else if (this.curDept.depType === '1') { // 总队
-              this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
-            } else if (this.curDept.depType === '2') { // 支队
-              this.filters.department = [this.curDept.depCode]
-            } else if (this.curDept.depType === '3') { // 大队
-              this.filters.department = [this.curDept.depCode]
-            } else if (this.curDept.depType === '4') { // 派出所
-              this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
+              this.deptOptions = getTree(arr) // 机构
             }
           }
         }).catch(() => {
+          this.formLoading = false
         })
-      },
-      handleAjDetail(index, row) { // 厅级别用户查看详情时，有confirmId时 先改案件上报状态
-        if (String(this.curDept.depType) === '1') { // 厅级别用户 初始化的三种部门
-          if (row.confirmStatus && row.confirmStatus === 1 && row.confirmId) {
-            const para = {
-              signUserId: this.curUser.id,
-              signUserName: this.curUser.realName,
-              status: 2
-            }
-            this.listLoading = true
-            this.$update('bisnotice/' + row.confirmId, para).then((response) => {
-              if (response.code === '000000') {
-                this.listLoading = false
-                this.query(true)
-                this.$router.push({ path: '/caseFile/index', query: { id: row.id, isRl: '1' }})
-              }
-            }).catch(() => {
-              this.listLoading = false
-            })
-          } else {
-            this.$router.push({ path: '/caseFile/index', query: { id: row.id, isRl: '1' }})
+      } else {
+        this.deptOptions = []
+      }
+    },
+    handleDeptChange(val) { // 单位机构
+      if (val.length > 0) {
+        const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+        for (let i = 0; i < deptArr.length; i++) {
+          const dept = deptArr[i]
+          if (dept.depCode === val[val.length - 1]) {
+            this.selectCurDep = dept
+            break
           }
+        }
+      } else {
+        this.selectCurDep = { name: '' }
+      }
+    },
+    initData() { // 初始化筛选条件
+      this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
+        if (response.code === '000000') {
+          const arr = response.data ? response.data : []
+          if (String(this.curDept.depType) === '2') {
+            arr[0].disabled = true
+            for (let i = 0; i < arr[0].children.length; i++) {
+              const item = arr[0].children[i]
+              if (String(item.cityCode) !== String(this.curDept.areaCode)) {
+                item.disabled = true
+              }
+            }
+          }
+          this.areaOptions = arr
+          let currentArea = []
+          if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
+            currentArea = [this.curDept.areaCode]
+          } else if (this.curDept.depType === '2') { // 支队
+            currentArea = ['610000', this.curDept.areaCode]
+          } else if (this.curDept.depType === '3') { // 大队 派出所
+            currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+            this.deptDisabled = true
+            this.areaDisabled = true
+          } else if (this.curDept.depType === '4') {
+            this.areaDisabled = true
+            if (this.curDept.areaCode === '611400') { // 杨凌例外
+              currentArea = ['610000', '611400']
+            } else { // 正常的派出所
+              currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+            }
+          }
+          this.filters.area = currentArea
+          this.handleAreaChange(currentArea) // 查单位机构
+          // 默认选择本单位
+          if (this.curDept.depType === '-1') { // 省
+            this.filters.department = [this.curDept.depCode]
+          } else if (this.curDept.depType === '1') { // 总队
+            this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
+          } else if (this.curDept.depType === '2') { // 支队
+            this.filters.department = [this.curDept.depCode]
+          } else if (this.curDept.depType === '3') { // 大队
+            this.filters.department = [this.curDept.depCode]
+          } else if (this.curDept.depType === '4') { // 派出所
+            this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
+          }
+        }
+      }).catch(() => {
+      })
+    },
+    handleAjDetail(index, row) { // 厅级别用户查看详情时，有confirmId时 先改案件上报状态
+      if (String(this.curDept.depType) === '1') { // 厅级别用户 初始化的三种部门
+        if (row.confirmStatus && row.confirmStatus === 1 && row.confirmId) {
+          const para = {
+            signUserId: this.curUser.id,
+            signUserName: this.curUser.realName,
+            status: 2
+          }
+          this.listLoading = true
+          this.$update('bisnotice/' + row.confirmId, para).then((response) => {
+            if (response.code === '000000') {
+              this.listLoading = false
+              this.query(true)
+              this.$router.push({ path: '/caseFile/index', query: { id: row.id, isRl: '1' }})
+            }
+          }).catch(() => {
+            this.listLoading = false
+          })
         } else {
           this.$router.push({ path: '/caseFile/index', query: { id: row.id, isRl: '1' }})
         }
-      },
-      queryTemplate() {
-        this.filterLoading = true
-        this.listLoading = true
-        this.$query('caseManage/template', { deptCode: this.curDept.depCode }).then(response => {
-          this.templateData = response.data
-          if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
-            const templateId = sessionStorage.getItem(this.$route.path)
-            this.filters.templateId = parseInt(templateId)
-            sessionStorage.setItem(this.$route.path, '')
-          } else {
-            this.filters.templateId = this.templateData[0].id
-          }
-          this.lastTemplateId = this.filters.templateId
-          this.sortable = this.isDisabledSort()
-          this.queryFilter()
-          this.queryTableTitle()
-          this.query()
-        })
-      },
-      queryFilter() {
-        this.filterLoading = true
-        this.$query('caseManage/filter', { templateId: this.filters.templateId, deptCode: this.curDept.depCode }).then(response => {
-          for (let i = 0; i < response.data.length; i++) {
-            const item = response.data[i]
-            const columnArr = item.columnName.toLowerCase().split('_')
-            let filterName = ''
-            if (columnArr.length > 1) {
-              for (let j = 0; j < columnArr.length; j++) {
-                const column = columnArr[j]
-                if (j === 0) {
-                  filterName += column
-                } else {
-                  filterName += column.substring(0, 1).toUpperCase() + column.substring(1, column.length)
-                }
-              }
-            } else {
-              filterName = item.columnName.toLowerCase()
-            }
-            item.filterName = filterName
-          }
-          this.filterData = response.data
-          this.filterLoading = false
-        })
-      },
-      queryTableTitle() {
-        this.listLoading = true
-        this.titleData = []
-        this.$query('caseManage/tableTitle', { templateId: this.filters.templateId, deptCode: this.curDept.depCode }).then(response => {
-          for (let i = 0; i < response.data.length; i++) {
-            const item = response.data[i]
-            const columnArr = item.columnName.toLowerCase().split('_')
-            let titleName = ''
-            if (columnArr.length > 1) {
-              for (let j = 0; j < columnArr.length; j++) {
-                const column = columnArr[j]
-                if (j === 0) {
-                  titleName += column
-                } else {
-                  titleName += column.substring(0, 1).toUpperCase() + column.substring(1, column.length)
-                }
-              }
-            } else {
-              titleName = item.columnName.toLowerCase()
-            }
-            item.titleName = titleName
-          }
-          this.titleData = response.data
-          this.sortable = this.isDisabledSort()
-        })
-      },
-      handleCurrentChange(val) {
-        this.page = val
-        this.getCase(false, true)
-      },
-      handleSizeChange(val) {
-        this.pageSize = val
-        this.getCase(true, true)
-      },
-      toTemplate() {
-        this.$gotoid('/reportTemplate')
-      },
-      restForm() {
-        for (const key in this.filters) {
-          if (key !== 'area' && key !== 'department' && key !== 'templateId') {
-            if (typeof this.filters[key] === 'object') {
-              this.filters[key] = []
-            } else {
-              this.filters[key] = ''
-            }
-          }
-        }
-      },
-      query(flag) {
-        this.listLoading = true
-        const para = JSON.parse(JSON.stringify(this.filters))
-        para.department = this.filters.department.join(',')
-        para.area = this.filters.area.join(',')
-        if (para.syhFllb) {
-          para.syhFllb = this.filters.syhFllb.join(',')
-        }
-        para.depType = this.curDept.depType
-        para.curDeptCode = this.curDept.depCode // 当前登录部门code，必传
-        this.page = flag ? 1 : this.page
-        para.pageNum = this.page
-        para.pageSize = this.pageSize
-        this.$query('caseManage/caseList', para).then(response => {
-          this.caseData = response.data.list
-          this.total = response.data.totalCount
-          this.pageSize = response.data.pageSize
-          this.listLoading = false
-        })
-      },
-      initAjzt() { // 初始化案件状态数据源
-        this.$query('tcpcode', { codeLx: 'ajzt' }).then((response) => {
-          if (response.data && response.data.length > 0) {
-            const temp = {}
-            for (let index = 0; index < response.data.length; index++) {
-              const element = response.data[index]
-              temp[element.codeName] = element.code
-            }
-            const arr = []
-            const arr1 = []
-            for (const key in temp) {
-              arr.push({ code: temp[key], codeName: key })
-              arr1.push({ value: temp[key], text: key })
-            }
-            this.ajztData = arr
-            this.ajztFilter = arr1
-          }
-        }).catch(() => {
-        })
-      },
-      initAjlb() { // 初始化案件类别
-        this.$query('getajlb', {}).then((response) => {
-          if (response.data && response.data.length > 0) {
-            this.ajlbData = response.data
-          }
-        }).catch(() => {
-        })
-      },
-      initAjzm() { // 案件罪名
-        this.$query('ajzm', {}).then(response => {
-          if (response.data && response.data.length > 0) {
-            this.ajzmData = response.data
-            const arr = []
-            for (let j = 0; j < this.ajzmData.length; j++) {
-              const data = this.ajzmData[j]
-              arr.push({ value: data.code, text: data.name })
-            }
-            this.ajlbFilter = arr
-          }
-        })
-        // this.$query('ajzmcode', { codeLx: 'ajlb' }).then((response) => {
-        //   this.$query('ajzmcode', {}).then((response) => {
-        //     if (response.data && response.data.length > 0) {
-        //       this.ajzmData = response.data
-        //       const arr = []
-        //       for (let j = 0; j < this.ajzmData.length; j++) {
-        //         const data = this.ajzmData[j]
-        //         arr.push({ value: data.SYH_AJLB, text: data.SYH_AJLB_NAME })
-        //       }
-        //       this.ajlbFilter = arr
-        //     }
-        //   })
-        // }).catch(() => {
-        // })
-      },
-      initAjxz() {
-        const para = {
-          codelx: 'ajxz'
-        }
-        this.$query('CODENAMEQUERY', para).then((response) => {
-          this.AJXZList = response.data
-        })
-      },
-      startDateChange(val, key, text) {
-        if (val === undefined || val === null || val === '') {
-          this.filters[key + 'End'] = ''
-        }
-        const endDate = this.filters[key + 'End']
-        if (endDate !== undefined && endDate !== null && endDate !== '') {
-          if (new Date(endDate) < new Date(val)) {
-            this.$alert(text + '的开始时间不能大于结束时间', '提示', { type: 'warning' })
-            this.filters[key + 'End'] = ''
-          }
-        }
-      },
-      endDateChange(val, key, text) {
-        const startDate = this.filters[key + 'Start']
-        if (val) {
-          if (new Date(startDate) > new Date(val)) {
-            this.$alert(text + '的开始时间不能大于结束时间', '提示', { type: 'warning' })
-            this.filters[key + 'End'] = ''
-          }
-        }
-      },
-      isDisabledSort() {
-        for (let i = 0; i < this.templateData.length; i++) {
-          const item = this.templateData[i]
-          if (item.id === this.lastTemplateId) {
-            if (item.delAble === 0) {
-              return true
-            }
-          }
-        }
-        return false
-      },
-      handleTemplate(val) {
-        this.$confirm('是否切换报表模板？', '提示', {
-          type: 'warning',
-          cancelButtonText: '否',
-          confirmButtonText: '是'
-        }).then(() => {
-          // this.lastTemplateId = val
-          // this.sortable = this.isDisabledSort()
-          // this.queryFilter()
-          // this.queryTableTitle()
-          // this.query()
-          sessionStorage.setItem(this.$route.path, val)
-          this.$router.push({ path: this.$route.path, query: { time: new Date().getTime() }})
-        }).catch(() => {
-          this.filters.templateId = this.lastTemplateId
-        })
-      },
-      getFllbName(fllb) {
-        if (fllb) {
-          const array = fllb.split(',')
-          let data = this.fllbList
-          const arr = []
-          for (let i = 0; i < array.length; i++) {
-            data = this.eachData(data, array[i], arr)
-          }
-          return arr.join('，')
+      } else {
+        this.$router.push({ path: '/caseFile/index', query: { id: row.id, isRl: '1' }})
+      }
+    },
+    queryTemplate() {
+      this.filterLoading = true
+      this.listLoading = true
+      this.$query('caseManage/template', { deptCode: this.curDept.depCode }).then(response => {
+        this.templateData = response.data
+        if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
+          const templateId = sessionStorage.getItem(this.$route.path)
+          this.filters.templateId = parseInt(templateId)
+          sessionStorage.setItem(this.$route.path, '')
         } else {
-          return '-'
+          this.filters.templateId = this.templateData[0].id
         }
-      },
-      eachData(child, value, arr) {
-        let children = []
-        child.forEach((item, index) => {
-          if (item.value === value) {
-            arr.push(item.label)
-            children = item.children
+        this.lastTemplateId = this.filters.templateId
+        this.sortable = this.isDisabledSort()
+        this.queryFilter()
+        this.queryTableTitle()
+        this.query()
+      })
+    },
+    queryFilter() {
+      this.filterLoading = true
+      this.$query('caseManage/filter', { templateId: this.filters.templateId, deptCode: this.curDept.depCode }).then(response => {
+        for (let i = 0; i < response.data.length; i++) {
+          const item = response.data[i]
+          const columnArr = item.columnName.toLowerCase().split('_')
+          let filterName = ''
+          if (columnArr.length > 1) {
+            for (let j = 0; j < columnArr.length; j++) {
+              const column = columnArr[j]
+              if (j === 0) {
+                filterName += column
+              } else {
+                filterName += column.substring(0, 1).toUpperCase() + column.substring(1, column.length)
+              }
+            }
+          } else {
+            filterName = item.columnName.toLowerCase()
           }
-        })
-        return children
-      },
-      getAjztName(ajzt) {
-        for (let i = 0; i < this.ajztData.length; i++) {
-          const item = this.ajztData[i]
-          if (String(ajzt) === String(item.code)) {
-            return item.codeName
-          }
+          item.filterName = filterName
         }
-      },
-      getAjzmName(ajzm) {
-        for (let i = 0; i < this.ajzmData.length; i++) {
-          const item = this.ajzmData[i]
-          if (String(ajzm) === String(item.code)) {
-            return item.name
+        this.filterData = response.data
+        this.filterLoading = false
+      })
+    },
+    queryTableTitle() {
+      this.listLoading = true
+      this.titleData = []
+      this.$query('caseManage/tableTitle', { templateId: this.filters.templateId, deptCode: this.curDept.depCode }).then(response => {
+        for (let i = 0; i < response.data.length; i++) {
+          const item = response.data[i]
+          const columnArr = item.columnName.toLowerCase().split('_')
+          let titleName = ''
+          if (columnArr.length > 1) {
+            for (let j = 0; j < columnArr.length; j++) {
+              const column = columnArr[j]
+              if (j === 0) {
+                titleName += column
+              } else {
+                titleName += column.substring(0, 1).toUpperCase() + column.substring(1, column.length)
+              }
+            }
+          } else {
+            titleName = item.columnName.toLowerCase()
+          }
+          item.titleName = titleName
+        }
+        this.titleData = response.data
+        this.sortable = this.isDisabledSort()
+      })
+    },
+    handleCurrentChange(val) {
+      this.page = val
+      this.query(false)
+    },
+    handleSizeChange(val) {
+      this.pageSize = val
+      this.query(true)
+    },
+    toTemplate() {
+      this.$gotoid('/reportTemplate')
+    },
+    restForm() {
+      for (const key in this.filters) {
+        if (key !== 'area' && key !== 'department' && key !== 'templateId') {
+          if (typeof this.filters[key] === 'object') {
+            this.filters[key] = []
+          } else {
+            this.filters[key] = ''
           }
         }
       }
     },
-    mounted() {
-      this.initData()
-      this.initAjzt() // 案件状态
-      this.initAjlb() // 案件类别
-      this.initAjzm() // 案件罪名
-      this.initAjxz() // 案件性质
-      this.queryTemplate()
+    query(flag) {
+      this.listLoading = true
+      const para = JSON.parse(JSON.stringify(this.filters))
+      para.department = this.filters.department.join(',')
+      para.area = this.filters.area.join(',')
+      if (para.syhFllb) {
+        para.syhFllb = this.filters.syhFllb.join(',')
+      }
+      para.depType = this.curDept.depType
+      para.curDeptCode = this.curDept.depCode // 当前登录部门code，必传
+      this.page = flag ? 1 : this.page
+      para.pageNum = this.page
+      para.pageSize = this.pageSize
+      this.$query('caseManage/caseList', para).then(response => {
+        this.caseData = response.data.list
+        this.total = response.data.totalCount
+        this.pageSize = response.data.pageSize
+        this.listLoading = false
+      })
+    },
+    initAjzt() { // 初始化案件状态数据源
+      this.$query('tcpcode', { codeLx: 'ajzt' }).then((response) => {
+        if (response.data && response.data.length > 0) {
+          const temp = {}
+          for (let index = 0; index < response.data.length; index++) {
+            const element = response.data[index]
+            temp[element.codeName] = element.code
+          }
+          const arr = []
+          const arr1 = []
+          for (const key in temp) {
+            arr.push({ code: temp[key], codeName: key })
+            arr1.push({ value: temp[key], text: key })
+          }
+          this.ajztData = arr
+          this.ajztFilter = arr1
+        }
+      }).catch(() => {
+      })
+    },
+    initAjlb() { // 初始化案件类别
+      this.$query('getajlb', {}).then((response) => {
+        if (response.data && response.data.length > 0) {
+          this.ajlbData = response.data
+        }
+      }).catch(() => {
+      })
+    },
+    initAjzm() { // 案件罪名
+      this.$query('ajzm', {}).then(response => {
+        if (response.data && response.data.length > 0) {
+          this.ajzmData = response.data
+          const arr = []
+          for (let j = 0; j < this.ajzmData.length; j++) {
+            const data = this.ajzmData[j]
+            arr.push({ value: data.code, text: data.name })
+          }
+          this.ajlbFilter = arr
+        }
+      })
+      // this.$query('ajzmcode', { codeLx: 'ajlb' }).then((response) => {
+      //   this.$query('ajzmcode', {}).then((response) => {
+      //     if (response.data && response.data.length > 0) {
+      //       this.ajzmData = response.data
+      //       const arr = []
+      //       for (let j = 0; j < this.ajzmData.length; j++) {
+      //         const data = this.ajzmData[j]
+      //         arr.push({ value: data.SYH_AJLB, text: data.SYH_AJLB_NAME })
+      //       }
+      //       this.ajlbFilter = arr
+      //     }
+      //   })
+      // }).catch(() => {
+      // })
+    },
+    initAjxz() {
+      const para = {
+        codelx: 'ajxz'
+      }
+      this.$query('CODENAMEQUERY', para).then((response) => {
+        this.AJXZList = response.data
+      })
+    },
+    startDateChange(val, key, text) {
+      if (val === undefined || val === null || val === '') {
+        this.filters[key + 'End'] = ''
+      }
+      const endDate = this.filters[key + 'End']
+      if (endDate !== undefined && endDate !== null && endDate !== '') {
+        if (new Date(endDate) < new Date(val)) {
+          this.$alert(text + '的开始时间不能大于结束时间', '提示', { type: 'warning' })
+          this.filters[key + 'End'] = ''
+        }
+      }
+    },
+    endDateChange(val, key, text) {
+      const startDate = this.filters[key + 'Start']
+      if (val) {
+        if (new Date(startDate) > new Date(val)) {
+          this.$alert(text + '的开始时间不能大于结束时间', '提示', { type: 'warning' })
+          this.filters[key + 'End'] = ''
+        }
+      }
+    },
+    isDisabledSort() {
+      for (let i = 0; i < this.templateData.length; i++) {
+        const item = this.templateData[i]
+        if (item.id === this.lastTemplateId) {
+          if (item.delAble === 0) {
+            return true
+          }
+        }
+      }
+      return false
+    },
+    handleTemplate(val) {
+      this.$confirm('是否切换报表模板？', '提示', {
+        type: 'warning',
+        cancelButtonText: '否',
+        confirmButtonText: '是'
+      }).then(() => {
+        // this.lastTemplateId = val
+        // this.sortable = this.isDisabledSort()
+        // this.queryFilter()
+        // this.queryTableTitle()
+        // this.query()
+        sessionStorage.setItem(this.$route.path, val)
+        this.$router.push({ path: this.$route.path, query: { time: new Date().getTime() }})
+      }).catch(() => {
+        this.filters.templateId = this.lastTemplateId
+      })
+    },
+    getFllbName(fllb) {
+      if (fllb) {
+        const array = fllb.split(',')
+        let data = this.fllbList
+        const arr = []
+        for (let i = 0; i < array.length; i++) {
+          data = this.eachData(data, array[i], arr)
+        }
+        return arr.join('，')
+      } else {
+        return '-'
+      }
+    },
+    eachData(child, value, arr) {
+      let children = []
+      child.forEach((item, index) => {
+        if (item.value === value) {
+          arr.push(item.label)
+          children = item.children
+        }
+      })
+      return children
+    },
+    getAjztName(ajzt) {
+      for (let i = 0; i < this.ajztData.length; i++) {
+        const item = this.ajztData[i]
+        if (String(ajzt) === String(item.code)) {
+          return item.codeName
+        }
+      }
+    },
+    getAjzmName(ajzm) {
+      for (let i = 0; i < this.ajzmData.length; i++) {
+        const item = this.ajzmData[i]
+        if (String(ajzm) === String(item.code)) {
+          return item.name
+        }
+      }
     }
+  },
+  mounted() {
+    this.initData()
+    this.initAjzt() // 案件状态
+    this.initAjlb() // 案件类别
+    this.initAjzm() // 案件罪名
+    this.initAjxz() // 案件性质
+    this.queryTemplate()
   }
+}
 </script>
 
 <style>
-  .caseList{
-  }
-  .caseList .el-form .el-cascader.el-cascader--small, .caseList .el-form .el-input.el-input--small, .caseList .el-form .el-select.el-select--small{
-    width: 222px;
-  }
-  .caseList .autoItem{
-    margin-right: 14px;
-  }
-  .caseList .time_left{
-    padding-left: 10px;
-    margin-right: 0;
-    margin-bottom: 0;
-  }
-  .el-table-filter{
-    background-color: #033e79;
-  }
-  .caseList .el-table .el-icon-arrow-down:before {
-    content: "\E603";
-  }
-  .caseList .el-table .el-table__column-filter-trigger {
-    display: none;
-  }
-  .caseList .el-table .show_filter .el-table__column-filter-trigger {
-    display: inline-block;
-  }
-  .caseList .el-form-item__label{
-    overflow: hidden;
-    word-break: keep-all;
-    text-overflow: ellipsis;
-  }
-  .tooltipShow_case {
-    opacity: 1;
-  }
-  .tooltipHide_case {
-    opacity: 0;
-  }
-  .el-tooltip__popper.is-dark.tooltipShow_case .popper__arrow{
-    left: 5px !important;
-  }
-  .caseList_cascader .el-cascader-menu__item.is-disabled{
-    background-color: #00537d;
-  }
+.caseList {
+}
+.caseList .el-form .el-cascader.el-cascader--small,
+.caseList .el-form .el-input.el-input--small,
+.caseList .el-form .el-select.el-select--small {
+  width: 222px;
+}
+.caseList .autoItem {
+  margin-right: 14px;
+}
+.caseList .time_left {
+  padding-left: 10px;
+  margin-right: 0;
+  margin-bottom: 0;
+}
+.el-table-filter {
+  background-color: #033e79;
+}
+.caseList .el-table .el-icon-arrow-down:before {
+  content: "\E603";
+}
+.caseList .el-table .el-table__column-filter-trigger {
+  display: none;
+}
+.caseList .el-table .show_filter .el-table__column-filter-trigger {
+  display: inline-block;
+}
+.caseList .el-form-item__label {
+  overflow: hidden;
+  word-break: keep-all;
+  text-overflow: ellipsis;
+}
+.tooltipShow_case {
+  opacity: 1;
+}
+.tooltipHide_case {
+  opacity: 0;
+}
+.el-tooltip__popper.is-dark.tooltipShow_case .popper__arrow {
+  left: 5px !important;
+}
+.caseList_cascader .el-cascader-menu__item.is-disabled {
+  background-color: #00537d;
+}
 </style>

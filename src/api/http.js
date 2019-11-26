@@ -14,7 +14,7 @@ export function query(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
-  params.requestId = new Date().getTime()
+  // params.requestId = new Date().getTime()
   return request({
     url: moduleName + url,
     method: 'get',
@@ -28,7 +28,7 @@ export function queryAsyns(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
-  params.requestId = new Date().getTime()
+  // params.requestId = new Date().getTime()
   return new Promise((resolve, reject) => {
     axios.get(moduleName + url, {
       params: params
