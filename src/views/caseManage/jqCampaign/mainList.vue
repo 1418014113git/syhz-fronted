@@ -86,7 +86,7 @@
             <el-table-column prop="deptName" label="地市"  min-width="200" show-overflow-tooltip></el-table-column>
             <el-table-column prop=""  label="核查线索数量（已核查/总）" >
               <template slot-scope="scope">
-                <span v-if="constrolxsnum(scope.row)">
+                <span v-if="constrolxsnum(scope.row) || $isViewBtn('101908')">
                   <span class="linkColor" v-if="scope.row.hc && scope.row.hc>0" @click="handleClueList(scope.row,'2')">{{scope.row.hc}}</span>
                   <span v-else>0</span>
                   /
@@ -121,11 +121,11 @@
       <el-table-column prop="citys"  label='涉及省/市数'  min-width="120" show-overflow-tooltip></el-table-column>
       <el-table-column prop=""  label='总线索数（已核查/总）'  min-width="200" show-overflow-tooltip>
         <template slot-scope="scope">
-          <span  v-if="constrolxsTotal(scope.row) && $isViewBtn('101908')">
-            <span class="linkColor"  v-if="scope.row.hcCount && scope.row.hcCount>0" @click="handleClueList(scope.row,'2')">{{scope.row.hcCount}}</span>
+          <span  v-if="constrolxsTotal(scope.row)">
+            <span class="linkColor"  v-if="scope.row.hcCount && scope.row.hcCount>0" @click="handleClueList(scope.row,'2',true)">{{scope.row.hcCount}}</span>
             <span v-else>0</span>
              /
-            <span class="linkColor" v-if="scope.row.xsCount && scope.row.xsCount>0" @click="handleClueList(scope.row,'')">{{scope.row.xsCount}}</span>
+            <span class="linkColor" v-if="scope.row.xsCount && scope.row.xsCount>0" @click="handleClueList(scope.row,'',true)">{{scope.row.xsCount}}</span>
             <span v-else>0</span>
           </span>
           <span v-else>
@@ -279,7 +279,7 @@ export default {
             this.btnqx.isShowbxfbtn = true // 显示部下发按钮
           } else if (this.curDept.depType === '2') { // 支队
             this.btnqx.isShowsqbtn = true // 显示申请按钮
-            this.btnqx.isShowxfbtn = true // 显示下发按钮
+            // this.btnqx.isShowxfbtn = true // 显示下发按钮
             currentArea = ['610000', this.curDept.areaCode]
             for (var i = 0; i < this.xzqhOptions[0].children.length; i++) {
               const element = this.xzqhOptions[0].children[i]
@@ -338,10 +338,10 @@ export default {
       })
     },
     constrolxsTotal(row) { // 线索总数点击权限控制
-      return (this.curDept.depType === '1' || (this.curDept.depType === '2' && (this.curDept.areaCode === row.cityCode)) || (this.curDept.depType === '4' && (this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114')))
+      return (this.curDept.depType === '1' || (this.curDept.depType === '2' && (this.curDept.areaCode === row.cityCode)) || (this.curDept.depType === '4' && (this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114')) || this.$isViewBtn('101908'))
     },
     constrolxsnum(row) { // 核查线索数量点击权限控制
-      return (this.curDept.depType === '1' || (this.curDept.depType === '2' && ((this.curDept.areaCode === row.cityCode) || (this.curDept.depCode === row.applyDeptCode) || this.$isViewBtn('101908'))) || (this.curDept.depType === '4' && ((this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114') || (this.curDept.depCode.substring(0, 4) === row.applyDeptCode.substring(0, 4) === '6114') || this.$isViewBtn('101908'))))
+      return (this.curDept.depType === '1' || (this.curDept.depType === '2' && ((this.curDept.areaCode === row.cityCode) || (this.curDept.depCode === row.applyDeptCode))) || (this.curDept.depType === '4' && ((this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114') || (this.curDept.depCode.substring(0, 4) === row.applyDeptCode.substring(0, 4) === '6114') || this.$isViewBtn('101908'))))
     },
     handleAreaChange(val) { // 行政区划
       this.department = []
@@ -738,8 +738,12 @@ export default {
       }
       this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: type, id: row.clusterId }}) // 跳转到集群战役申请页
     },
-    handleClueList(row, type) { // 线索列表
-      this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode }}) // 跳转到线索列表页
+    handleClueList(row, type, param) { // 线索列表
+      if (param) { // 外层列表
+        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.applyDeptCode }}) // 跳转到线索列表页
+      } else { // 展开行列表
+        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode }}) // 跳转到线索列表页
+      }
     },
     exportList() { // 导出
       this.isShowdcdialog = true

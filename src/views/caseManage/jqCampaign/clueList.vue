@@ -93,7 +93,7 @@
       </el-table-column>
       <el-table-column label="操作"  width="100">
         <template slot-scope="scope">
-          <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  :disabled="!scope.row.fbId"   @click="handleDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle   @click="handleDetail(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -159,6 +159,9 @@ export default {
       selectCurDep: { name: '' }, // 当前选中的部门
       selectCurxzqhDep: { cityName: '' }, // 当前行政区划
       tableHeight: null,
+      dqbmDeptCode: '', // 存储集群列表当前点击行的部门code
+      curCityCode: '', // 存储集群列表当前点击行的cityCode
+      curDeptType: '', // 存储集群列表当前点击行的部门类型
       tableHead: [] // 表头
     }
   },
@@ -170,15 +173,15 @@ export default {
           this.xzqhOptions = response.data ? response.data[0].children : [] // 获取地市
           var currentArea = []
           if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
-            currentArea = [] // 查所有
+            currentArea = [this.curDept.areaCode] // 查所有
           } else if (this.curDept.depType === '2') { // 支队
-            currentArea = [this.curDept.areaCode]
-            if (this.applyDeptCode === this.curDept.depCode) { // 如果支队为申请，下发单位，查全部地市
+            currentArea = [this.curCityCode]
+            if (this.applyDeptCode === this.dqbmDeptCode) { // 如果支队为申请，下发单位，查全部地市，
 
             } else { // 市支队默认为本地市
               for (var i = 0; i < this.xzqhOptions.length; i++) {
                 const element = this.xzqhOptions[i]
-                if (element.cityCode === this.curDept.areaCode) {
+                if (element.cityCode === this.curCityCode) {
                   this.xzqhOptions[i].disabled = false
                 } else {
                   this.xzqhOptions[i].disabled = true
@@ -186,37 +189,41 @@ export default {
               }
             }
           } else if (this.curDept.depType === '3') { // 大队
-            currentArea = [this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+            currentArea = [this.curCityCode.substring(0, 4) + '00', this.curCityCode]
           } else if (this.curDept.depType === '4') { // 派出所
-            if (this.curDept.areaCode === '611400') { // 杨凌例外
+            if (this.curCityCode === '611400') { // 杨凌例外
               currentArea = ['611400']
             } else { // 正常的派出所
-              currentArea = [this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+              currentArea = [this.curCityCode.substring(0, 4) + '00', this.curCityCode]
             }
           }
           this.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
-          // 默认选择本单位
-          if (this.curDept.depType === '-1') { // 省
-            this.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '1') { // 总队
-            this.department = [this.curDept.parentDepCode, this.curDept.depCode]
-          } else if (this.curDept.depType === '2') { // 支队
-            this.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '3') { // 大队
-            this.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '4') { // 派出所
-            this.department = [this.curDept.parentDepCode] // 派出所登录进来，把它自己当作它的上级单位
-            // 查询派出所的上级(把派出所当大队，查大队的上级单位 )
-            this.$query('hsyzparentdepart/' + this.curDept.parentDepCode, {}, 'upms').then((response) => {
-              if (response.code === '000000') {
-                this.pcsParentDept = response.data
-              }
-            }).catch(() => {
+          if (this.applyDeptCode !== this.dqbmDeptCode) {
+            // 默认选择本单位
+            // if (this.curDept.depType === '-1') { // 省
+            //   // this.department = [this.curDept.depCode]
+            // } else if (this.curDept.depType === '1') { // 总队
+            //   // this.department = [this.curDept.parentDepCode, this.curDept.depCode]
+            // } else if (this.curDept.depType === '2') { // 支队
+            //   this.department = [this.dqbmDeptCode]
+            // } else if (this.curDept.depType === '3') { // 大队
+            //   this.department = [this.dqbmDeptCode]
+            // } else if (this.curDept.depType === '4') { // 派出所
+            //   this.department = [this.curDept.parentDepCode] // 派出所登录进来，把它自己当作它的上级单位
+            //   // 查询派出所的上级(把派出所当大队，查大队的上级单位 )
+            //   this.$query('hsyzparentdepart/' + this.curDept.parentDepCode, {}, 'upms').then((response) => {
+            //     if (response.code === '000000') {
+            //       this.pcsParentDept = response.data
+            //     }
+            //   }).catch(() => {
 
-            })
+            //   })
+            // }
+            this.department = [this.dqbmDeptCode]
+            this.handleDeptChange(this.department)
           }
-          this.handleDeptChange(this.department)
+
           this.query(true) // 查询列表
         }
       }).catch(() => {
@@ -231,7 +238,7 @@ export default {
         this.deptOptions = [] // 清空单位机构数据
         this.selectCurDep = { name: '' } // 清空当前选中的单位机构
         var param = {
-          provinceCode: '',
+          provinceCode: '610000',
           cityCode: val[0] || '',
           reginCode: val[1] || ''
         }
@@ -309,22 +316,28 @@ export default {
         qbxsCategory: this.filters.qbxsCategory, // 分类
         pageNum: this.page, // 页数
         pageSize: this.pageSize, // 条数
-        deptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode,
         assistId: this.assistId // 集群id
+      }
+      if (this.curCityCode !== '610000') { // 省厅不传
+        para.deptCode = this.applyDeptCode === this.dqbmDeptCode ? '' : this.dqbmDeptCode
       }
 
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
-      if (this.area && this.area.length > 0) { // 地市
+
+      if (this.area && this.area.length > 0) { // 行政区划
+        // para.provinceCode = '610000' // 省code
         para.cityCode = this.area[0] || '' // 市code
         para.reginCode = this.area[1] || '' // 区code
       } else {
-        para.cityCode = '' // 市code
+        // para.provinceCode = '610000' // 省code
+        para.cityCode = '' // 市cod
         para.reginCode = '' // 区code
       }
       if (this.department && this.department.length > 0) { // 单位机构
-        para.deptCode = this.department[this.department.length - 1]// 部门code
+        var deptCode = this.department[this.department.length - 1]// 部门code
+        para.deptCode = deptCode// 部门code
       }
       this.$query('caseassistclue/feedBackClues', para).then((response) => {
         this.listLoading = false
@@ -398,6 +411,9 @@ export default {
       this.assistId = this.$route.query.id
       this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type : '' // 核查情况
       this.applyDeptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 申请，下发单位code
+      this.dqbmDeptCode = this.$route.query.curDeptCode ? this.$route.query.curDeptCode : '' // 存储集群列表当前点击行的部门code
+      this.curCityCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 存储集群列表当前点击行的cityCode
+      // this.curDeptType = this.$route.query.deptType ? this.$route.query.deptType : '' // 存储集群列表当前点击行的部门类型
       this.init()
     }
   },

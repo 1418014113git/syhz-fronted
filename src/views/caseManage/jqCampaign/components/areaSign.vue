@@ -23,7 +23,7 @@
         <el-table-column prop="receiveDate" label="签收时间" min-width="180" show-overflow-tooltip></el-table-column>
         <el-table-column label="操作"  width="100" align="center">
           <template slot-scope="scope">
-            <el-button size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline"  v-if="contrlollistqsbtn(scope.row)  && $isViewBtn('101907')"></el-button>
+            <el-button size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline"  v-if="contrlollistqsbtn(scope.row)  && $isViewBtn('101907')"  @click="handleSign(scope.$index, scope.row)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -85,9 +85,9 @@ export default {
         pageSize: this.pageSize,
         pageNum: flag ? 1 : this.page
       }
-      if (this.baseInfo.cityCode !== this.curDept.areaCode) {
-        param.deptCode = this.curDept.depCode
-      }
+      // if (this.baseInfo.cityCode !== this.curDept.areaCode && this.curDept.depType === '3') {
+      //   param.deptCode = this.curDept.depCode
+      // }
       this.$query('casecluster/signList', param).then((res) => {
         this.listLoading = false
         this.listData = res.data.list
@@ -133,14 +133,14 @@ export default {
     },
     gotoxslist(row) {
       this.$router.push({
-        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode } // 线索列表页面
+        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: row.receiveDeptCode } // 线索列表页面
       })
     },
     handleSign(index, row) { // 签收
       const param = {
         userId: this.curUser.id, // 当前用户Id
         userName: this.curUser.realName, // 当前用户真实姓名
-        deptCode: this.curDept.depCode, // 当前部门Code
+        deptCode: row.receiveDeptCode, // 当前行的接收单位code
         assistId: row.assistId, // 集群id
         signId: row.assistSignId // 签收表id
       }

@@ -50,10 +50,10 @@
         <el-table-column prop="score" label="评价打分" ></el-table-column>
         <el-table-column label="操作"  width="160" align="center">
           <template slot-scope="scope">
-           <el-button size="mini" title="线索分发"  type="primary" circle  v-if="controlxsfa(scope.row) && $isViewBtn('101909')"  @click="handlefenfa(scope.$index, scope.row)"><svg-icon icon-class="fenfa"></svg-icon></el-button>
-           <el-button size="mini" title="反馈"  type="primary" circle  v-if="controlxsfk(scope.row) && $isViewBtn('101910')" @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
-           <el-button size="mini" title="评价打分"  type="primary" circle  v-if="curDept.depType === '1' && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
-           <el-button size="mini" title="评价详情"  type="primary" v-if="scope.row.score"  icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
+           <el-button size="mini" title="线索分发"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfa(scope.row) && $isViewBtn('101909')"  @click="handlefenfa(scope.$index, scope.row)"><svg-icon icon-class="fenfa"></svg-icon></el-button>
+           <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')" @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
+           <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length &&  curDept.depType === '1' && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
+           <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score"  icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -114,7 +114,7 @@ export default {
     return {
       title: '地市线索协查战果反馈表',
       pjdfForm: { // 评价打分
-        score: '', // 分值
+        score: 0, // 分值
         commentText: '' // 评价
       },
       parentCode: '', // 当前部门的上级单位
@@ -165,7 +165,15 @@ export default {
       }
     },
     controlClick(row) { // 数字点击权限控制
-      return (this.curDept.depType === '1' || this.curDept.depCode === row.deptCode || this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114') // 6114开头的是杨凌
+      if (this.listData.length > 0) {
+        if (row.cityCode) {
+          return (this.curDept.depType === '1' || this.curDept.depCode === row.deptCode || this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114' || this.$isViewBtn('101908')) // 6114开头的是杨凌
+        } else { // 合计行
+          return (this.curDept.depType === '1' || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114' || this.$isViewBtn('101908')) // 上级单位、申请单位、审核单位可点。 6114开头的是杨凌
+        }
+      } else {
+        return false
+      }
     },
     resetForm(formName) { // 重置表单
       if (this.$refs[formName]) {
@@ -176,7 +184,7 @@ export default {
       return (this.curDept.depType === '2' && this.curDept.depCode === row.deptCode && this.curDept.depCode !== '611400390000' && row.deptCode !== '611400390000' && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8'))
     },
     controlxsfk(row) { // 线索反馈按钮显隐控制
-      return (((this.curDept.depType === '2' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode === '611400390000')) && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) // 611400390000 杨凌支队部门code
+      return (((this.curDept.depType === '2' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === row.deptCode.substring(0, 4) === '6114')) && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) // 611400390000 杨凌支队部门code
     },
     query() { // 查询列表
       this.listLoading = true
@@ -207,6 +215,7 @@ export default {
           }
           if (((this.curDept.depType === '2' && this.curDept.depCode === item.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode === item.deptCode === '611400390000')) && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) { // 集群战役处于协查中、协查结束状态时 本单位显示反馈  派出所和支队同权限的，可以反馈支队的信息
             Bus.$emit('isShowfkbtn', true) // 线索反馈
+            Bus.$emit('xsfkRow', item) // 线索反馈当前行数据
           }
           if (this.curDept.depType === '1' && Number(this.baseInfo.status) >= 4) { // 集群战役审核通过后  上级单位可以评价打分
             Bus.$emit('isShowpjbtn', true) // 评价打分
@@ -221,9 +230,15 @@ export default {
       this.page = 1
     },
     gotoxslist(row, type) {
-      this.$router.push({
-        path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: this.baseInfo.applyDeptCode } // 线索列表页面
-      })
+      if (row.cityCode) { // 列表行
+        this.$router.push({
+          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: this.baseInfo.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode } // 线索列表页面
+        })
+      } else { // 合计行
+        this.$router.push({
+          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: '', curDeptCode: '' } // 线索列表页面
+        })
+      }
     },
     handlefenfa(index, row) { // 线索分发
       this.curRow = row
@@ -231,7 +246,11 @@ export default {
     },
     handlefankui(index, row) { // 线索反馈
       this.curRow = row
-      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId }}) // 跳转到线索反馈页
+      var deptCode = ''
+      if (row.deptCode !== this.baseInfo.applyDeptCode && this.curDept.depType !== '1') {
+        deptCode = row.deptCode
+      }
+      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId, deptCode: deptCode }}) // 跳转到线索反馈页
     },
     handledafen(index, row) { // 评价打分
       this.isShowpjdf = true
@@ -278,15 +297,6 @@ export default {
           })
         }
       })
-    },
-    restFrom(formName) {
-      this.pjdfForm = {
-        score: '',
-        evaluate: ''
-      }
-      if (this.$refs[formName]) {
-        this.$refs[formName].resetFields()
-      }
     },
     cancel() {
       this.isShowpjdf = false
@@ -335,7 +345,7 @@ export default {
   .ffxsForm{
     .el-dialog{
       width: 80%;
-      height: 80vh;
+      max-height: 80vh;
       overflow: auto;
     }
   }
