@@ -1240,8 +1240,8 @@ export default {
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
           } else if (this.curDept.depType === '4') { // 派出所
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.parentDepCode]
-            if (this.curDept.areaCode === '610403') { // 杨凌例外
-              currentArea = ['610000', '610403']
+            if (this.curDept.areaCode === '611400') { // 杨凌例外
+              currentArea = ['610000', '611400']
             } else { // 正常的派出所
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
             }
@@ -1276,7 +1276,7 @@ export default {
           // 可下发的单位
           this.deptList = getAjrlDept(getSessionDeptSelect(), this.curDept.depCode, this.curDept.depType)
           // 可转发
-          if (this.curDept.parentDepCode === '610403390000') {
+          if (this.curDept.parentDepCode === '611400390000') {
             // 杨凌区下的派出所 可转给总队
             this.parentDeptList = getAjrlParentDept(getSessionDeptSelect(), '610000530000', this.curDept.depCode, '2')
           } else if (this.curDept.depType === '4') {
