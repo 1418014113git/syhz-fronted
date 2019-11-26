@@ -253,6 +253,7 @@ export default {
     },
     // PKI登录
     pkiLogin() {
+      /* eslint-disable */
       const version = JIT_GW_ExtInterface.GetVersion()
       console.info('版本号：', version)
 

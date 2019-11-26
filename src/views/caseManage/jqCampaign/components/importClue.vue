@@ -18,7 +18,7 @@
   </el-form>
   <el-row class="tabC dialogBtnUpLine">
     <el-popover
-      placement="right"
+      placement="left"
       width="400"
       trigger="hover">
       <div>
