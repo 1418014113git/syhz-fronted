@@ -228,7 +228,6 @@ export const constantRouterMap = [
       { path: '/knowledgeBase/userIntegral', component: () => import('@/views/knowledgeBase/userIntegral'), name: '用户积分制' },
       { path: '/knowledgeBase/userIntegralAdd', component: () => import('@/views/knowledgeBase/userIntegralAdd'), name: '积分制添加界面' },
       { path: '/knowledgeBase/userIntegralUpdate', component: () => import('@/views/knowledgeBase/userIntegralUpdate'), name: '积分制界面' },
-      { path: '/handlingGuide/examOnLine', component: () => import('@/views/handlingGuide/examPractice'), name: '网上考试' },
       { path: '/handlingGuide/zsk', component: () => import('@/views/handlingGuide/flfg'), name: '知识库' },
       { path: '/handlingGuide/trainingOnLine', component: () => import('@/views/microClass/index'), name: '网上培训' },
       { path: '/handlingGuide/testbaseManage', component: () => import('@/views/handlingGuide/testbaseManage/index'), name: '题库管理' }, // 题库管理--试题模块
