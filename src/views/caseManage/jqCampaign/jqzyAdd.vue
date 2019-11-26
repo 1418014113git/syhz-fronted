@@ -25,6 +25,7 @@
                 v-model="form.startDate"
                 type="datetime"
                 format="yyyy-MM-dd HH:mm"
+                value-format="yyyy-MM-dd HH:mm"
                 :picker-options="pickerOptions"
                 placeholder=""
                 style="width:100%;"
@@ -47,6 +48,7 @@
                   v-model="form.endDate"
                   type="datetime"
                   format="yyyy-MM-dd HH:mm"
+                  value-format="yyyy-MM-dd HH:mm"
                   :picker-options="pickerOptions"
                   placeholder=""
                   style="width:100%;"
@@ -125,7 +127,7 @@
             </el-upload>
           </el-form-item>
           <el-form-item label="查阅密码" prop="passKey" v-if="isShowotherform">
-            <el-input v-model.trim="form.passKey" type="password" auto-complete="off" clearable  maxlength="20"></el-input>
+            <el-input v-model.trim="form.passKey"  type="password" auto-complete="off" clearable  maxlength="20"></el-input>
           </el-form-item>
           <el-form-item label="审核单位：" prop="acceptDeptId"  v-if="isShowotherform && pageType!=='xf' && pageType!=='bxf' && pageType !=='editxf' && pageType!=='editbxf'">
             <el-select v-model="form.acceptDeptId" class="input_w"  @change="deptChange">
@@ -149,7 +151,7 @@
   </el-dialog>
 
   <!-- 分发线索-->
-  <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false" @close="clearChildData">
+  <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false"  @close="clearChildData">
     <jqzy-disib   ref="ffchild" :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="id"   :fastatus="qbxsDistribute"  :jsdw="receiveName"  :source="pageType"  @result="getfaResult"></jqzy-disib>
   </el-dialog>
 </div>
@@ -319,9 +321,9 @@ export default {
                   var startDate = (new Date(this.form.startDate)).getTime()
                   var endDate = (new Date(value).getTime())
                   if (endDate < startDate) {
-                    return callback(new Error('结束时间不能小于开始时间！'))
-                  } else if (endDate > startDate && endDate - startDate < 172800000) {
-                    return callback(new Error('结束时间必须大于开始时间2天以上！'))
+                    return callback(new Error('结束时间不能小于开始时间'))
+                  } else if (endDate > startDate && Number(endDate) - Number(startDate) < 172800000) {
+                    return callback(new Error('结束时间必须大于开始时间2天以上'))
                   } else {
                     callback()
                   }
@@ -359,6 +361,7 @@ export default {
         this.form.endDate = data.endDate ? data.endDate : '' // 结束时间
         this.attachment = data.attachment ? JSON.parse(data.attachment) : [] // 附件
         this.form.attachment = data.attachment ? data.attachment : '' // 附件
+        this.form.passKey = data.passKey ? data.passKey : '' // 密码
         this.xsNum.total = data.clueTotal// 线索总数
         this.xsNum.distribute = data.clueDistribute // 已分发线索数
         this.queryList(data.clusterId) // 查询涉及单位对应的列表
@@ -420,10 +423,10 @@ export default {
         type: 'warning'
       }).then(() => {
         this.resetForm()
-        if (this.$route.query.type === 'add' || this.$route.query.type === 'edit') { // 列表页过来的
-          this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
-        } else {
+        if (this.pageType === 'detail') {
           this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+        } else {
+          this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
         }
       })
     },
@@ -631,7 +634,12 @@ export default {
             type: 'success',
             duration: 2000
           })
-          this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
+          if (this.pageType === 'detail') {
+            this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+          } else {
+            this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
+          }
+          // this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
         }
       }
     },
@@ -691,7 +699,11 @@ export default {
               type: 'success',
               duration: 2000
             })
-            this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+            if (this.pageType === 'detail') {
+              this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+            } else {
+              this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
+            }
           }).catch(() => {
             this.btnLoading = false
           })
@@ -735,10 +747,15 @@ export default {
               type: 'success',
               duration: 2000
             })
-            if (this.$route.query.type === 'add' || this.$route.query.type === 'edit') { // 列表页过来的
-              this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
-            } else {
+            // if (this.pageType === 'add' || this.$route.query.type === 'edit') { // 列表页过来的
+            //   this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
+            // } else {
+            //   this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+            // }
+            if (this.pageType === 'detail') {
               this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+            } else {
+              this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
             }
           }).catch(() => {
             this.btnLoading = false
@@ -897,13 +914,13 @@ export default {
   .ffxsForm{
     .el-dialog{
       width: 80%;
-      height: 80vh;
+      max-height: 80vh;
       overflow: auto;
     }
   }
-  .el-button--text {
-    display: none !important;
-  }
+}
+.el-button--text {
+    display: none;
 }
 @media only screen and (max-width: 1367px) {
   .jqzyAdd .ffxsForm .el-dialog {

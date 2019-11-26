@@ -13,26 +13,26 @@
         <el-table-column prop="deptName" label="单位"   min-width="180" show-overflow-tooltip></el-table-column>
          <el-table-column prop="xsNum" label="线索总数（条）" >
           <template slot-scope="scope">
-            <!-- <span class="linkColor"  v-if="(curDept.depType === '2' || (curDept.depCode === scope.row.deptCode  && curDept.areaCode === scope.row.cityCode))" @click="gotoxslist(scope.row)">{{scope.row.xsNum}}</span> -->
+            <span class="linkColor"  v-if="controlClick(scope.row)" @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
             <span>{{scope.row.xsNum}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="" label="线索核查核实情况（条）"  show-overflow-tooltip>
           <el-table-column prop="cs" label="查实"  show-overflow-tooltip>
             <template slot-scope="scope">
-              <!-- <span class="linkColor"  v-if="(curDept.depType === '2'|| (curDept.depCode === scope.row.deptCode  && curDept.areaCode === scope.row.cityCode))"  @click="gotoxslist(scope.row)">{{scope.row.cs}}</span> -->
+              <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'2')">{{scope.row.cs}}</span>
               <span>{{scope.row.cs}}</span>
             </template>
           </el-table-column>
           <el-table-column prop="cf" label="查否"  show-overflow-tooltip>
             <template slot-scope="scope">
-              <!-- <span class="linkColor"  v-if="(curDept.depType === '2' || (curDept.depCode === scope.row.deptCode  && curDept.areaCode === scope.row.cityCode))"  @click="gotoxslist(scope.row)">{{scope.row.cf}}</span> -->
+              <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'1')">{{scope.row.cf}}</span>
               <span>{{scope.row.cf}}</span>
             </template>
           </el-table-column>
           <el-table-column prop="whc" label="未核查"  show-overflow-tooltip>
             <template slot-scope="scope">
-              <!-- <span class="linkColor"   v-if="(curDept.depType === '2' || (curDept.depCode === scope.row.deptCode  && curDept.areaCode === scope.row.cityCode))" @click="gotoxslist(scope.row)">{{scope.row.whc}}</span> -->
+              <span class="linkColor"   v-if="controlClick(scope.row)" @click="gotoxslist(scope.row,'3')">{{scope.row.whc}}</span>
               <span>{{scope.row.whc}}</span>
             </template>
           </el-table-column>
@@ -50,9 +50,9 @@
         <el-table-column prop="commentText" label="评价打分" ></el-table-column>
         <el-table-column label="操作"  width="160" align="center">
           <template slot-scope="scope">
-           <el-button size="mini" title="反馈"  type="primary" circle  v-if="controlxsfk(scope.row) && $isViewBtn('101910')"  @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
-           <el-button size="mini" title="评价打分"  type="primary" circle  v-if="curDept.depType === '2' && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
-           <el-button size="mini" title="评价详情"  type="primary" v-if="scope.row.score"   icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
+           <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')"  @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
+           <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && curDept.depType === '2' && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
+           <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score"   icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -81,12 +81,12 @@
 
        <!-- 评价打分详情 -->
       <el-dialog title="评价详情" :visible.sync="isShowpjdfdetail" size="small" class="pjdfForm">
-        <el-form :model="pjdfDetailForm" size="small" label-width="90px">
+        <el-form size="small" label-width="90px">
           <el-form-item label="打分" prop="score">
-            <el-rate v-model="pjdfDetailForm.score" disabled></el-rate>
+            <el-rate v-model="curRow.score" disabled></el-rate>
           </el-form-item>
-          <el-form-item label="评价" prop="evaluate">
-            <el-input v-model.trim="pjdfDetailForm.evaluate" type="textarea" :rows="4" disabled maxlength="500"></el-input>
+          <el-form-item label="评价" prop="commentText">
+            <el-input v-model.trim="curRow.commentText" type="textarea" :rows="4" disabled maxlength="500"></el-input>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -106,11 +106,7 @@ export default {
     return {
       title: '区县线索协查战果反馈表',
       pjdfForm: { // 评价打分
-        score: '',
-        evaluate: ''
-      },
-      pjdfDetailForm: { // 评价打分详情
-        score: '',
+        score: 0,
         evaluate: ''
       },
       baseInfo: {}, // 基础信息
@@ -180,6 +176,17 @@ export default {
         this.initData()
       })
     },
+    controlClick(row) { // 数字点击权限控制
+      if (this.listData.length > 0) {
+        if (!row.cityCode) { // 合计行可点
+          return (Number(this.curDept.depType) < 3 || this.curDept.areaCode === this.baseInfo.cityCode || this.$isViewBtn('101908')) // 上级单位、申请单位、审核单位可点。
+        } else {
+          return false
+        }
+      } else {
+        return false
+      }
+    },
     controlxsfk(row) { // 线索反馈按钮显隐控制
       return ((this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode)) && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') // 当前登录的是派出所时，用他的父级单位的cdoe去判断   集群战役处于协查中、协查结束状态时
     },
@@ -201,10 +208,12 @@ export default {
       this.pageSize = 5
       this.page = 1
     },
-    gotoxslist(row) {
-      this.$router.push({
-        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode } // 线索列表页面
-      })
+    gotoxslist(row, type) { // 线索列表
+      if (!row.cityCode) { // 合计行
+        this.$router.push({
+          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: '', curDeptCode: '' } // 线索列表页面
+        })
+      }
     },
     handlefenfa(index, row) { // 线索分发
       this.curRow = row
@@ -212,7 +221,15 @@ export default {
     },
     handlefankui(index, row) { // 线索反馈
       this.curRow = row
-      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId }}) // 跳转到线索反馈页
+      var deptCode = ''
+      // if (((this.curDept.depType !== '4' && this.curDept.depCode !== this.baseInfo.applyDeptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode !== this.baseInfo.applyDeptCode)) && this.curDept.depType !== '1') { // 当前部门如果和发起单位相同时不传，不同时传当前部门，如果需要查询接受单位，需要覆盖此字段。
+      //   deptCode = this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode
+      // }
+      // this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId, deptCode: deptCode, curDeptCode: row.deptCode }}) // 跳转到线索反馈页
+      if (row.deptCode !== this.baseInfo.applyDeptCode && this.curDept.depType !== '1') {
+        deptCode = row.deptCode
+      }
+      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId, deptCode: deptCode }}) // 跳转到线索反馈页
     },
     handledafen(index, row) { // 评价打分
       this.isShowpjdf = true
@@ -265,15 +282,6 @@ export default {
         }
       })
     },
-    restFrom(formName) {
-      this.pjdfForm = {
-        score: '',
-        evaluate: ''
-      }
-      if (this.$refs[formName]) {
-        this.$refs[formName].resetFields()
-      }
-    },
     cancel() {
       this.isShowpjdf = false
       this.resetForm('pjdfForm')
@@ -325,13 +333,10 @@ export default {
   .el-form{
     padding: 10px 20px;
   }
-  textarea{
-    // min-height: 80px;
-  }
   .ffxsForm{
     .el-dialog{
       width: 80%;
-      height: 80vh;
+      max-height: 80vh;
       overflow: auto;
     }
   }

@@ -65,7 +65,7 @@
       </el-table-column>
       <el-table-column label="操作"  width="100">
         <template slot-scope="scope">
-          <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle  :disabled="!scope.row.fbId" @click="handleDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle   @click="handleDetail(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -110,6 +110,7 @@ export default {
       curDept: {}, // 当前登录的部门
       curRow: {}, // 存储当前被点击行数据
       tableHeight: null,
+      paramDeptCode: '', // 详情页传递过来的参数
       tableHead: [] // 表头
     }
   },
@@ -125,7 +126,7 @@ export default {
         qbxsCategory: this.filters.qbxsCategory, // 分类
         pageNum: this.page, // 页数
         pageSize: this.pageSize, // 条数
-        deptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode,
+        deptCode: this.paramDeptCode,
         assistId: this.assistId // 集群id
       }
 
@@ -183,6 +184,16 @@ export default {
       this.query(true, true)
     },
     handleDetail(index, row) { // 详情
+      if (!row.fbId) {
+        this.$alert('该线索还未签收，请先前往详情页进行签收。', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          callback: action => {
+            this.$router.push({ path: '/jqCampaign/detail', query: { id: this.assistId }})
+          }
+        })
+        return false
+      }
       this.isShowdialog = true
       this.curRow = row
     },
@@ -202,6 +213,7 @@ export default {
     }
     if (this.$route.query.id) {
       this.assistId = this.$route.query.id
+      this.paramDeptCode = this.$route.query.deptCode ? this.$route.query.deptCode : ''
       this.query(true)
     }
   },
