@@ -19,9 +19,9 @@
       <el-carousel-item >
         <div id="examChartPerson" style="width: 100%; height: 260px;"></div>
       </el-carousel-item>
-      <!-- <el-carousel-item >
+      <el-carousel-item >
         <div id="examChartTime" style="width: 100%; height: 260px;"></div>
-      </el-carousel-item> -->
+      </el-carousel-item>
     </el-carousel>
   </section>
 </template>
@@ -44,14 +44,12 @@ export default {
           var cityArr = [] // 省市
           var total5Arr = [] // 学习人次
           var total6Arr = [] // 学习时长
-          var total6TextArr = [] // 学习时长转换后的文字
           for (let index = 0; index < this.tableData.length; index++) {
             const element = this.tableData[index]
             element.total6_text = element.total6 > 0 ? this.$buildTime(element.total6) : '-'
             cityArr.push(element.areaName)
             total5Arr.push(element.total5)
             total6Arr.push(element.total6)
-            total6TextArr.push(element.total6_text)
           }
           this.drawEchartPerson(cityArr, total5Arr) // 学习人次
           this.drawEchartTime(cityArr, total6Arr) // 学习时长
@@ -133,6 +131,7 @@ export default {
       })
     },
     drawEchartTime(cityArr, realNumArr, valueText) {
+      var _this = this
       var examChartTime = echarts.init(document.getElementById('examChartTime'))
       examChartTime.setOption({
         color: ['#3398DB'],
@@ -141,7 +140,11 @@ export default {
           axisPointer: { // 坐标轴指示器，坐标轴触发有效
             type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
           },
-          formatter: '{a0}<br/>{b0}: {c0}：' + this.$buildTime(Number('{c0}'))
+          formatter: function(params) {
+            for (var i = 0; i < params.length; i++) {
+              return params[i].axisValue + '<br/>' + params[i].seriesName + '：' + _this.$buildTime(params[i].value)
+            }
+          }
         },
         legend: {
           type: 'scroll',
