@@ -82,12 +82,12 @@
           </el-table-column>
           <el-table-column prop="dbLevel" label="督办级别" width="100" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.dbLevel">{{formatterLevel(scope.row.dbLevel)}}</span>
+              {{$getDictName(scope.row.dbLevel+'','dbjb')}}
             </template>
           </el-table-column>
           <el-table-column prop="dbStatus" label="督办状态" width="100" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.dbStatus">{{filterStateText(scope.row.dbStatus)}}</span>
+               {{$getDictName(scope.row.dbStatus+'','dbajzt')}}
             </template>
           </el-table-column>
           <el-table-column prop="endTime" label="截止时间" width="160" show-overflow-tooltip>
@@ -205,7 +205,7 @@
 <script>
 import { parseTime } from '@/utils/index'
 import {
-  getAssistLevelText, getAssistStatusText, getDBLevelText
+  getAssistLevelText, getAssistStatusText
 } from '@/utils/codetotext'
 export default {
   props: ['ajbh', 'ajid', 'type', 'Rl'],
@@ -217,7 +217,7 @@ export default {
       title: '社保人事',
       activeName: 'first',
       curUser: {},
-      paramDept: sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode : '',
+      depToken: {}, // 当前部门
       // cardId: '110101199008076340',
       qgxxcData: [], // 全国性协查
       qgxxcLoading: false, // 全国性协查loading
@@ -282,12 +282,6 @@ export default {
   methods: {
     formatStatusQgxxc(row, column) {
       return getAssistStatusText(row.status)
-    },
-    filterStateText(state) { // 督办状态
-      return getAssistStatusText(state)
-    },
-    formatterLevel(level) { // 督办级别
-      return getDBLevelText(level)
     },
     formatType(row, column) { // 协查级别
       return getAssistLevelText(row.assistType)
@@ -364,7 +358,7 @@ export default {
     handleQgxxc(flag) { // 全国性协查
       this.qgxxcLoading = true
       var param = {
-        curDepId: this.curDeptId,
+        curDepId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeQgxxc,
         pageNum: flag ? 1 : this.pageQgxxc
@@ -387,7 +381,7 @@ export default {
     handleAjxc(flag) { // 案件协查
       this.ajxcLoading = true
       var param = {
-        curDepId: this.curDeptId,
+        curDepId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeAjxc,
         pageNum: flag ? 1 : this.pageAjxc
@@ -410,12 +404,13 @@ export default {
     handleAjdb(flag) { // 案件督办
       this.ajdbLoading = true
       var param = {
-        deptId: this.curDeptId,
+        deptId: this.depToken.id,
+        departCode: this.depToken.depType === '4' ? this.depToken.parentDepCode : this.depToken.depCode, // 当前部门编号
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeAjdb,
         pageNum: flag ? 1 : this.pageAjxc
       }
-      this.$query('page/dbaj', param).then((res) => {
+      this.$query('page/dbajinfo', param).then((res) => {
         this.ajdbLoading = false
         if (res.code === '000000') {
           this.ajdbData = res.data.list
@@ -433,7 +428,7 @@ export default {
     handleZxrw(flag) { // 专项任务
       this.zxrwLoading = true
       var param = {
-        deptId: this.curDeptId,
+        deptId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeZxrw,
         pageNum: flag ? 1 : this.pageAjxc
@@ -456,7 +451,7 @@ export default {
     handleJyjd(flag) { // 检验鉴定
       this.jyjdLoading = true
       var param = {
-        curDepId: this.curDeptId,
+        curDepId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeJyjd,
         pageNum: flag ? 1 : this.pageJyjd
@@ -670,8 +665,8 @@ export default {
 
   },
   mounted() {
-    const depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    if (depToken.depCode.substring(0, 6) === '150000') {
+    this.depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
+    if (this.depToken.depCode.substring(0, 6) === '150000') {
       this.isMore = true
     }
     if (this.ajbh) {
@@ -679,10 +674,6 @@ export default {
       this.AJID = this.ajid
       this.interFaceType = this.type
       this.isRls = this.Rl
-    }
-    if (depToken) {
-      this.curDeptId = depToken.id
-      // this.init()
     }
     // this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     // this.cardNumber = this.cardId
