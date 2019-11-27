@@ -370,7 +370,7 @@ export default {
         this.listData = []
       })
     },
-    clearChildData() { //
+    clearChildData() {
       this.isShowdrffxsDialog = false
       this.qbxsDistribute = ''
       this.$refs.ffchild.clearData()
