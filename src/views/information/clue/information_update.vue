@@ -101,36 +101,19 @@
 
 <script>
   import VueEditor from '@/components/Editor/VueEditor'
-  import 'ol/ol.css'
-  import TileLayer from 'ol/layer/Tile'
-  import VectorLayer from 'ol/layer/Vector'
-  import VectorSource from 'ol/source/Vector'
-  import { Map, View, Feature, Overlay } from 'ol'
-  import { Style, Icon } from 'ol/style'
-  // import Text from 'ol/style/Text'
-  // import Fill from 'ol/style/Fill'
-  import { Point } from 'ol/geom'
-  import { defaults } from 'ol/control/util.js'
-  // import ScaleLine from 'ol/control/ScaleLine.js'
-  import { getWidth, getTopLeft } from 'ol/extent.js'
-  import { get as getProjection } from 'ol/proj.js'
-  import OSM from 'ol/source/OSM.js'
-  import WMTS from 'ol/source/WMTS.js'
-  import WMTSTileGrid from 'ol/tilegrid/WMTS.js'
+  // import remoteJs from '@/components/remote-js'
+  // import map from 'http://10.174.64.11:8081/PGIS_S_TileMap/js/EzMapAPI.js'
   export default {
     name: 'informationEdit',
     components: {
       VueEditor
+      // remoteJs
     },
     data() {
       return {
-        map: null,
-        view: null,
-        x: 0,
-        y: 0,
-        coordinates: [], // 地区坐标
-        features: [],
-        flagLayer: null,
+        _MapApp: null,
+        g_overlay: null,
+        g_edit: false,
         dialogVisible: false,
         loading: false,
         uploadAction: this.UploadAttachment.uploadFileUrl,
@@ -228,10 +211,10 @@
                 callback()
               }
             }
-          }],
+          }]/*,
           collectionCoordinate: [{
-            required: true, message: '请在地图选择位置信息', trigger: 'blur'
-          }]
+            required: true, message: '请选择位置信息', trigger: 'blur'
+          }]*/
         },
         noauth: false
       }
@@ -242,25 +225,29 @@
         this.$refs.form.validate(valid => {
           if (valid) {
             this.handleImg()
+            // if (this.$route.params.id) { // 修改
             if (this.information.id) { // 修改
+              // this.information.id = this.$route.params.id
               this.$update('clue/update', this.information).then((response) => {
                 if (response.success === true) {
+                  this.timeOutBack()
                   this.$message({
                     message: '线索修改成功！',
                     type: 'success'
                   })
-                  this.timeOutBack()
+                  this.$gotoid('/information/clueList')
                 }
               }).catch(() => {
                 this.loading = false
               })
             } else { // 添加
               this.$save('clue/save', this.information).then((response) => {
+                this.timeOutBack()
                 this.$message({
                   message: '线索添加成功！',
                   type: 'success'
                 })
-                this.timeOutBack()
+                this.$gotoid('/information/clueList')
               }).catch(() => {
                 this.loading = false
               })
@@ -292,188 +279,90 @@
           if (response.data.attachment !== undefined && response.data.attachment !== null && response.data.attachment !== '') {
             this.uploadImgs = JSON.parse(response.data.attachment)
           }
-          this.getCoordinates() // 地图显示坐标数据
         }).catch(() => {
           this.loading = false
         })
       },
-      mapDialog() { // 输入框点击弹窗
-        // this.dialogVisible = true
-      },
-      /**
-       * 初始化地图
-       */
-      initMap() {
-        // var scaleLineControl = new ScaleLine() // 定义比例尺控件
-        const _that = this
-        var projection = getProjection('EPSG:4326')
-        var projectionExtent = projection.getExtent()
-        var size = getWidth(projectionExtent) / 256
-        var resolutions = new Array(14)
-        var matrixIds = new Array(14)
-        var container = document.getElementById('popup')
-        var content = document.getElementById('popup-content')
-        var popupCloser = document.getElementById('popup-closer')
-        for (var z = 0; z < 14; ++z) {
-          // generate resolutions and matrixIds arrays for this WMTS
-          resolutions[z] = size / Math.pow(2, z)
-          matrixIds[z] = z
-        }
-        // 设置图层
-        _that.flagLayer = new VectorLayer({
-          source: new VectorSource()
-        })
-        var overlay = new Overlay({
-          // 设置弹出框的容器
-          element: container,
-          // 是否自动平移，即假如标记在屏幕边缘，弹出时自动平移地图使弹出框完全可见
-          autoPan: true
-        })
-        _that.view = new View({
-          // 指定地图投影模式
-          projection: 'EPSG:4326', // 采用WGS84坐标系
-          // 设置地图中心范围
-          center: [108.953098279, 34.2777998978], // 将西安市作为中心点
-          // 限制地图中心范围，但无法限制缩小范围
-          // extent: [110, 26, 114, 30],
-          // 定义地图显示层级为16
-          zoom: 13, // 1:2000
-          // 限制缩放级别，可以和extent同用限制范围
-          maxZoom: 14, // 1:1000
-          // 最小级别，越大则面积越大
-          minZoom: 5 // 1:500000
-        })
-        _that.map = new Map({
-          target: 'Map',
-          // controls: defaults({ zoom: true }).extend([scaleLineControl]), // 加载比例尺控件(地图左上角的缩放按钮，默认是zoom:false不显示)
-          controls: defaults({ zoom: true }), // 地图左上角的缩放按钮，默认是zoom:false不显示
-          layers: [
-            new TileLayer({
-              source: new OSM()
-            }),
-            _that.flagLayer,
-            new TileLayer({
-              source: new WMTS({
-                url: 'https://services.arcgisonline.com/arcgis/rest/services/Demographics/USA_Population_Density/MapServer/WMTS/', // 测试地址
-                // url: 'http://26.3.12.44:6088/wmts?service=WMTS&request=GetCapabilities', // 公安地图资源服务地址
-                layer: '0',
-                matrixSet: 'EPSG:4326',
-                format: 'image/png',
-                projection: projection, // 采用WGS84坐标系
-                tileGrid: new WMTSTileGrid({
-                  origin: getTopLeft(projectionExtent),
-                  resolutions: resolutions,
-                  matrixIds: matrixIds
-                }),
-                style: 'default',
-                wrapX: true
-              })
-            })
-          ],
-          view: _that.view
-        })
-        _that.map.on('pointermove', function(e) {
-          var pixel = _that.map.getEventPixel(e.originalEvent)
-          _that.map.forEachFeatureAtPixel(pixel, function(feature) {
-            var coodinate = e.coordinate
-            content.innerHTML = feature.values_.msg
-            overlay.setPosition(coodinate)
-            _that.map.addOverlay(overlay)
-          })
-        })
-        _that.map.on('click', function(e) { // 地图点击获取坐标
-          if (_that.$route.query.id) {
-            if (_that.features && _that.features.length > 1) {
-              _that.flagLayer.getSource().removeFeature(_that.features[_that.features.length - 1])// 1.在flagLayer中移除最后一个features
-              _that.features.splice(_that.features.length - 1, 1)// 2.移除最后一个features
-            }
-            if (_that.coordinates && _that.coordinates.length > 1) {
-              _that.coordinates.splice(_that.coordinates.length - 1, 1)// 3.移除最后一个坐标
-            }
-          } else {
-            if (_that.features && _that.features.length > 0) {
-              _that.flagLayer.getSource().removeFeature(_that.features[_that.features.length - 1])// 1.在flagLayer中移除最后一个features
-              _that.features.splice(_that.features.length - 1, 1)// 2.移除最后一个features
-            }
-            if (_that.coordinates && _that.coordinates.length > 0) {
-              _that.coordinates.splice(_that.coordinates.length - 1, 1)// 3.移除最后一个坐标
-            }
-          }
-          const xyObj = { x: e.coordinate[0], y: e.coordinate[1], msg: '<p class="pointText"><span>新位置：</span>[' + e.coordinate[0] + ',' + e.coordinate[1] + ']</p>' }
-          _that.setMapZoom(e.coordinate[0], e.coordinate[1])
-          _that.information.collectionCoordinate = '[' + e.coordinate[0] + ',' + e.coordinate[1] + ']'// 表单输入框内容改变
-          _that.coordinates.push(xyObj)// 加入坐标数组
-          _that.handleAddBatchFeature()// 循环坐标数组显示图标
-        })
-        popupCloser.addEventListener('click', function() {
-          overlay.setPosition(undefined)
-        })
-      },
-      /**
-       * 地图上显示坐标的信息
-       */
-      getCoordinates() {
-        const _this = this
-        const xy = this.information.collectionCoordinate.replace(new RegExp(/\[/, 'gm'), '').replace(new RegExp(/\]/, 'gm'), '').split(',')
-        const xyObj = { x: xy[0].trim(), y: xy[1].trim(),
-          msg: '<p class="pointText"><span>线索标题：</span>' + _this.information.clueName + '</p><p class="pointText"><span>线索编号：</span>' + _this.information.clueNumber + '</p>' }
-        this.coordinates.push(xyObj)
-        for (var i = 0; i < this.coordinates.length; i++) {
-          this.setMapZoom(xy[0].trim(), xy[1].trim())
-        }
-        this.handleAddBatchFeature()
-      },
-      /**
-       * 设置地图层级
-       */
-      setMapZoom(x, y) {
-        const _this = this
-        _this.view.animate({
-          center: [x, y],
-          duration: 100
-        })
-      },
-      /**
-       * 批量添加坐标点
-       */
-      handleAddBatchFeature() {
-        const _that = this
-        // 循环添加feature
-        for (let i = 0; i < this.coordinates.length; i++) {
-          // 创建feature
-          const feature = new Feature({
-            geometry: new Point([_that.coordinates[i].x, _that.coordinates[i].y]),
-            msg: _that.coordinates[i].msg
-          })
-          // 设置ID
-          feature.setId(i)
-          // 设置样式
-          feature.setStyle(_that.getStyls(feature))
-          // 放入features
-          _that.features.push(feature)
-        } // for 结束
-        // 批量添加feature
-        _that.flagLayer.getSource().addFeatures(_that.features)
-      },
-      /**
-       * 设置Style
-       */
-      getStyls(feature) {
-        const Styles = []
-        Styles.push(
-          new Style({
-            image: new Icon({
-              src: '/static/image/public_images/address.png',
-              anchor: [1, 1] // 图标中心
-            })
-          })
-        )
-        return Styles
-      },
+      // onLoad() { // 地图初始化
+      //   if (typeof EzMap === 'undefined') {
+      //     setTimeout(this.onLoad(), 10)
+      //     return
+      //   }
+      //   if (_compatIE()) {
+      //     this._MapApp = new EzMap(document.getElementById('map'))
+      //     // 设置地图中心点及显示级别
+      //     this._MapApp.centerAndZoom(new Point(108.93081, 34.35287), 11)
+      //     // 构造鹰眼对象
+      //     var pOverview = new OverView()
+      //     pOverview.width = 200
+      //     pOverview.height = 200
+      //     pOverview.minLevel = 4
+      //     pOverview.maxLevel = 18
+      //     this._MapApp.addOverView(pOverview)
+      //     this._MapApp.showMapControl()
+      //     this._MapApp.showMapServer()
+      //   } else if (this._MapApp === null) {
+      //     const pEle = document.getElementById('map')
+      //     pEle.innerHTML = '<p>目前EzMap地图引擎不支持你使用的浏览器，我们当前支持如下浏览器类型:</p><ul><li><a href=\"http://www.microsoft.com/windows/ie/downloads/default.asp\">IE</a> 5.5+ (Windows)</li>'
+      //   }
+      // },
+      // addMark(x, y, title, strMsg) {
+      //   var pIcon = new Icon()
+      //   pIcon.image = 'vehicle_motor_active.gif'
+      //   pIcon.height = 32
+      //   pIcon.width = 32
+      //   pIcon.topOffset = 0
+      //   pIcon.leftOffset = 0
+      //   if (typeof iPos === 'undefined' || iPos === null) iPos = 7
+      //   var point = new Point(x + ',' + y)
+      //   var marker = new Marker(point, pIcon, new Title(title, 12, iPos, '宋体', null, null, 'red', '2'))
+      //   marker.addListener ('click', function() { marker.openInfoWindowHtml(strMsg) })
+      //   this._MapApp.addOverlay(marker)
+      // },
+      // // 地图选中点回调返回经纬度
+      // callback(str) {
+      //   var title = '标注'
+      //   var strMsg = '<html><table><tr><td>' + title + '</td></tr><tr><td>----------</td></tr><tr><td><a href=\"www.baidu.com\">详细信息</a></td></tr></table><html>'
+      //   var x = str.split(',')[0]
+      //   var y = str.split(',')[1]
+      //   // 添加图标
+      //   this.addMark(x, y, title, strMsg)
+      //   alert('调用回调函数,获取坐标:' + str)
+      //   this.information.collectionCoordinate = str
+      //   // 与选中点为中心
+      //   this._MapApp.centerAndZoom(new Point(x, y), 11)
+      // },
+      // mapDialog() { // 输入框点击弹窗
+      //   this.dialogVisible = true
+      //   // 获取坐标添加地图标注
+      //   var title = this.information.clueName
+      //   var strMsg = '<html><table><tr><td>' + title + '</td></tr><tr><td>----------</td></tr><tr><td><a href=\"www.baidu.com\">详细信息</a></td></tr></table><html>'
+      //   var x = this.information.collectionCoordinate.split(',')[0]
+      //   var y = this.information.collectionCoordinate.split(',')[1]
+      //   this.addMark(x, y, title, strMsg)
+      //   // 添加地图的选中点返回经纬度
+      //   this._MapApp.changeDragMode('drawPoint', this.callback)
+      //   // this._MapApp.changeDragMode('drawPoint', dataInputx, dataInputy, this.callback)
+      // },
       init() {
         this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
           if (response.code === '000000') {
             this.xzqhOptions = response.data ? response.data : []
+            var currentArea = []
+            if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
+              currentArea = [this.curDept.areaCode]
+            } else if (this.curDept.depType === '2') { // 支队
+              currentArea = ['610000', this.curDept.areaCode]
+            } else if (this.curDept.depType === '3') { // 大队 派出所
+              currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+            } else if (this.curDept.depType === '4') {
+              if (this.curDept.areaCode === '610403') { // 杨凌例外
+                currentArea = ['610000', '610403']
+              } else { // 正常的派出所
+                currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+              }
+            }
+            this.area = currentArea
           }
         }).catch(() => {
           this.listLoading = false
@@ -539,6 +428,10 @@
       this.information.submitTime = new Date()
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+      if (this.$route.query.id) {
+        this.information.id = this.$route.query.id
+        this.detail()
+      }
       if (this.curDept && this.curUser) {
         this.information.submitPersonId = this.curUser.id
         this.information.submitPersonName = this.curUser.realName
@@ -548,11 +441,7 @@
         this.information.deptAreaCode = this.curDept.areaCode // 单位所属行政区划
       }
       this.init()
-      this.initMap() // 初始化地图
-      if (this.$route.query.id) {
-        this.information.id = this.$route.query.id
-        this.detail()
-      }
+      // this.onLoad()
     },
     filters: {
       formatDate: function(value) {
@@ -606,62 +495,5 @@
     max-height: 400px;
     overflow-y: auto;
     padding: 5px;
-  }
-  .ol-popup {
-    position: absolute;
-    /* background-color: #eeeeee; */
-    -webkit-filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
-    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
-    padding: 10px 25px 10px 10px;
-    border-radius: 10px;
-    /* border: 1px solid #cccccc; */
-    bottom: 12px;
-    left: -50px;
-    /* min-width: 280px; */
-    /* color: #333; */
-    background-color: rgba(0, 89, 130, 0.8);
-    border-radius: 8px;
-    border: solid 1px rgba(0, 160, 233, 0.8);
-  }
-  .ol-popup:after,
-  .ol-popup:before {
-    top: 100%;
-    border: solid transparent;
-    content: " ";
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-  }
-  .ol-popup:after {
-    border-top-color: rgba(0, 89, 130, 0.8);
-    border-width: 10px;
-    left: 48px;
-    margin-left: -10px;
-  }
-  .ol-popup:before {
-    border-top-color: rgba(0, 89, 130, 0.8);
-    border-width: 11px;
-    left: 48px;
-    margin-left: -11px;
-  }
-  .ol-popup-closer {
-    text-decoration: none;
-    position: absolute;
-    top: 2px;
-    right: 8px;
-    color: #fff;
-  }
-  .ol-popup-closer:after {
-    content: "✖";
-  }
-  #popup-content p{
-    margin: 0;
-  }
-  .pointText{
-    white-space:nowrap;
-  }
-  .pointText span{
-    font-weight: bold;
   }
 </style>
