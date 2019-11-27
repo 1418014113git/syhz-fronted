@@ -122,12 +122,13 @@
                     return false
                   }
                 })
+              } else {
+                this.timeOutBack()
+                this.$message({
+                  message: '线索分享成功！',
+                  type: 'success'
+                })
               }
-              this.timeOutBack()
-              this.$message({
-                message: '线索分享成功！',
-                type: 'success'
-              })
             }).catch(() => {
               this.loading = false
             })
