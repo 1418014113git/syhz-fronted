@@ -146,16 +146,13 @@ export default {
   watch: { // 监听state状态变化
     row: {
       handler: function(val, oldeval) {
-        if (val.fbId) {
-          this.xsfkRow = val
-          this.detail() // 查详情
-        }
+        this.xsfkRow = val
       }
     },
-    isShowDialog: {
+    isShowdialog: {
       handler: function(val, oldeval) {
         if (val) {
-          this.initData()
+          this.detail() // 查详情
         }
       }
     }
@@ -246,7 +243,7 @@ export default {
       })
     },
     initData() {
-      this.xsfkForm.qbxsResult = '' // 核查情况
+      // this.xsfkForm.qbxsResult = '' // 核查情况
       this.yslistData = [] // 移送案件列表
       this.ysajSelectData = [] // 移送案件下拉框数据
       this.zbajSelectData = [] // 侦办案件下拉框数据
@@ -474,6 +471,7 @@ export default {
     }
   },
   mounted() {
+    this.initData()
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
@@ -481,10 +479,8 @@ export default {
         this.getfqDepts()
       }
     }
-    if (this.row.fbId) {
-      this.xsfkRow = this.row
-      this.detail() // 查详情
-    }
+    this.xsfkRow = this.row
+    this.detail() // 查详情
   }
 }
 </script>
