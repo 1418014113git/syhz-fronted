@@ -9,45 +9,51 @@
             <span v-if="scope.$index+1<listData.length">{{scope.$index+1}}</span>
             <span v-else>总计</span>
           </template>
-        </el-table-column>
-        <el-table-column prop="deptName" label="单位"   min-width="180"   show-overflow-tooltip></el-table-column>
-        <el-table-column prop="xsNum" label="线索总数（条）" >
+         </el-table-column>
+         <el-table-column prop="deptName" label="单位"   min-width="200" show-overflow-tooltip></el-table-column>
+         <el-table-column prop="xsNum" label="线索总数（条）" min-width="130">
           <template slot-scope="scope">
-            <span class="linkColor"  v-if="controlClick(scope.row)" @click="gotoxslist(scope.row,'')">{{scope.row.xsNum}}</span>
+            <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
             <span v-else>{{scope.row.xsNum}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="" label="线索核查核实情况（条）"  show-overflow-tooltip>
-          <el-table-column prop="cs" label="查实"  show-overflow-tooltip>
+        <el-table-column prop="" label="线索核查核实情况（条）"  align="center" show-overflow-tooltip>
+          <el-table-column prop="cs" label="查实"  min-width="100" show-overflow-tooltip>
             <template slot-scope="scope">
               <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'2')">{{scope.row.cs}}</span>
               <span v-else>{{scope.row.cs}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="cf" label="查否"  show-overflow-tooltip>
+          <el-table-column prop="cf" label="查否"  min-width="100" show-overflow-tooltip>
             <template slot-scope="scope">
               <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'1')">{{scope.row.cf}}</span>
               <span v-else>{{scope.row.cf}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="whc" label="未核查"  show-overflow-tooltip>
+          <el-table-column prop="whc" label="未核查"  min-width="100" show-overflow-tooltip>
             <template slot-scope="scope">
               <span class="linkColor"   v-if="controlClick(scope.row)" @click="gotoxslist(scope.row,'3')">{{scope.row.whc}}</span>
               <span v-else>{{scope.row.whc}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="hcl" label="核查率"  show-overflow-tooltip></el-table-column>
+          <el-table-column prop="hcl" label="核查率"  min-width="100" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <span>{{scope.row.hcl ? scope.row.hcl : 0}}%</span>
+            </template>
+          </el-table-column>
         </el-table-column>
-        <el-table-column prop="ysajList" label="移送行政部门处理（次）" min-width="120"></el-table-column>
+        <el-table-column prop="ysajList" label="移送行政部门处理（次）"  min-width="120"></el-table-column>
         <el-table-column prop="" label="侦办刑事案件"  align="center" show-overflow-tooltip>
-          <el-table-column prop="larqCount" label="立案（起）"  show-overflow-tooltip></el-table-column>
-          <el-table-column prop="parqCount" label="破案（起）"  show-overflow-tooltip></el-table-column>
-          <el-table-column prop="dhwd" label="捣毁窝点（个）"  show-overflow-tooltip></el-table-column>
-          <el-table-column prop="xsjl" label="刑事拘留（人）"  show-overflow-tooltip></el-table-column>
-          <el-table-column prop="pzdb" label="批准逮捕（人）"   show-overflow-tooltip></el-table-column>
-          <el-table-column prop="sajz" label="涉案金额（万元）"  show-overflow-tooltip></el-table-column>
+          <el-table-column prop="larqCount" label="立案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="parqCount" label="破案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="xsjl" label="刑拘（人）"  min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="pzdb" label="批捕（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="dhwd" label="捣毁窝点（个）"  min-width="130" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="sajz" label="涉案金额（万元）"  min-width="100" show-overflow-tooltip></el-table-column>
         </el-table-column>
-        <el-table-column prop="score" label="评价打分" ></el-table-column>
+        <el-table-column prop="score" label="评价打分" min-width="120"></el-table-column>
         <el-table-column label="操作"  width="160" align="center">
           <template slot-scope="scope">
            <el-button size="mini" title="线索分发"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfa(scope.row) && $isViewBtn('101909')"  @click="handlefenfa(scope.$index, scope.row)"><svg-icon icon-class="fenfa"></svg-icon></el-button>
@@ -197,7 +203,11 @@ export default {
         this.listLoading = false
         this.listData = res.data
         this.controlBtn(res.data)
-        this.$resetSetItem('t3', this.listData.length) // 将总数存在session中
+        if (this.listData.length > 0) {
+          this.$resetSetItem('t3', this.listData.length - 1) // 将总数存在session中 减去合计行
+        } else {
+          this.$resetSetItem('t3', 0) // 将总数存在session中
+        }
       }).catch(() => {
         this.listLoading = false
         this.$resetSetItem('t3', 0) // 将总数存在session中
