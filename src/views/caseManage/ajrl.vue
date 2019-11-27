@@ -57,19 +57,15 @@
         <el-form-item label="案件编号" prop="AJBH">
           <el-input v-model="filters.AJBH" size="small" placeholder="请输入案件编号" clearable maxlength="30"></el-input>
         </el-form-item>
-        <el-form-item label="认领状态" prop="qsStatus">
-          <el-select :clearable="true" v-model="qsStatus" size="small" placeholder="全部" @change="qsStatusChange">
-            <el-option v-for="item in options1" :key="item.label" :label="item.label" :value="item.value">
-            </el-option>
+         <el-form-item label="案件状态" prop="ajzt">
+          <el-select :clearable="true" v-model="filters.ajzt" size="small" placeholder="全部" filterable @change="ajztChange">
+            <el-option v-for="item in ajztData" :key="item.code" :label="item.codeName" :value="item.code"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="时间筛选">
-          <el-select v-model="filters.dType" filterable clearable placeholder="全部" @change="queryByType">
-            <el-option label="本年" value="year"></el-option>
-            <el-option label="本季" value="quarter"></el-option>
-            <el-option label="本月" value="month"></el-option>
-            <el-option label="本周" value="week"></el-option>
-          </el-select>
+
+
+        <el-form-item label="立案单位" prop="ladw">
+          <el-input v-model="filters.ladw" size="small" placeholder="立案单位" clearable maxlength="30"></el-input>
         </el-form-item>
 
         <el-form-item label="立案日期" prop="laDate">
@@ -81,6 +77,7 @@
             placeholder="请选择开始时间"
             @change="startDateChangeLa">
           </el-date-picker>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;至 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
            <el-date-picker
             v-model="filters.larqEnd"
             type="date"
@@ -99,6 +96,7 @@
             placeholder="请选择开始时间"
             @change="startDateChangePa">
           </el-date-picker>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;至 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
            <el-date-picker
             v-model="filters.parqEnd"
             type="date"
@@ -109,7 +107,9 @@
             :disabled="endDateDisabledPa">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="认领日期" prop="startTime">
+
+
+         <el-form-item label="认领日期" prop="startTime">
           <el-date-picker
             v-model="filters.rlStartTime"
             type="date"
@@ -119,6 +119,7 @@
             placeholder="请选择开始时间"
             @change="startDateChange">
           </el-date-picker>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;至 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
            <el-date-picker
             v-model="filters.rlEndTime"
             type="date"
@@ -130,10 +131,7 @@
           </el-date-picker>
         </el-form-item>
 
-        <el-form-item label="立案单位" prop="ladw">
-          <el-input v-model="filters.ladw" size="small" placeholder="立案单位" clearable maxlength="30"></el-input>
-        </el-form-item>
-              <el-form-item label="案件类型" prop="fllb">
+        <el-form-item label="案件类型" prop="fllb">
                   <el-tooltip effect="dark" :content="selectCurfllb.name" placement="top-start" :popper-class="(selectCurfllb.name&&selectCurfllb.name.length>9)===true?'tooltipShow':'tooltipHide'">
           <el-cascader v-model="filters.fllb" change-on-select filterable :options="fllbList" @change="handleChange" clearable></el-cascader>
                   </el-tooltip>
@@ -149,23 +147,23 @@
             <el-option v-for="item in ajzmData" :key="item.code" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
-           <el-form-item label="案件状态" prop="ajzt">
-          <el-select :clearable="true" v-model="filters.ajzt" size="small" placeholder="全部" filterable @change="ajztChange">
-            <el-option v-for="item in ajztData" :key="item.code" :label="item.codeName" :value="item.code"></el-option>
+
+
+
+        <el-form-item label="时间筛选">
+          <el-select v-model="filters.dType" filterable clearable placeholder="全部" @change="queryByType">
+            <el-option label="本年" value="year"></el-option>
+            <el-option label="本季" value="quarter"></el-option>
+            <el-option label="本月" value="month"></el-option>
+            <el-option label="本周" value="week"></el-option>
           </el-select>
         </el-form-item>
-        <!--<el-form-item label="督办状态" prop="sel_val3">-->
-          <!--<el-select :clearable="true" style="width: 180px" v-model="sel_val3" size="small" placeholder="督办状态选择">-->
-            <!--<el-option v-for="item in options3" :key="item.label" :label="item.label" :value="item.value">-->
-            <!--</el-option>-->
-          <!--</el-select>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item label="完善状态" prop="sel_val2">-->
-          <!--<el-select :clearable="true" style="width: 177px" v-model="sel_val2" size="small" placeholder="完善状态选择">-->
-            <!--<el-option v-for="item in options2" :key="item.label" :label="item.label" :value="item.value">-->
-            <!--</el-option>-->
-          <!--</el-select>-->
-        <!--</el-form-item>-->
+        <el-form-item label="认领状态" prop="qsStatus">
+          <el-select :clearable="true" v-model="qsStatus" size="small" placeholder="全部" @change="qsStatusChange">
+            <el-option v-for="item in options1" :key="item.label" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <!--$isViewBtn('100701') && -->
           <el-button type="primary" size="small" v-if="queryBtn"  v-on:click="getCase(true,true)">查询</el-button>
@@ -1240,8 +1238,8 @@ export default {
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
           } else if (this.curDept.depType === '4') { // 派出所
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.parentDepCode]
-            if (this.curDept.areaCode === '610403') { // 杨凌例外
-              currentArea = ['610000', '610403']
+            if (this.curDept.areaCode === '611400') { // 杨凌例外
+              currentArea = ['610000', '611400']
             } else { // 正常的派出所
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
             }
@@ -1276,7 +1274,7 @@ export default {
           // 可下发的单位
           this.deptList = getAjrlDept(getSessionDeptSelect(), this.curDept.depCode, this.curDept.depType)
           // 可转发
-          if (this.curDept.parentDepCode === '610403390000') {
+          if (this.curDept.parentDepCode === '611400390000') {
             // 杨凌区下的派出所 可转给总队
             this.parentDeptList = getAjrlParentDept(getSessionDeptSelect(), '610000530000', this.curDept.depCode, '2')
           } else if (this.curDept.depType === '4') {

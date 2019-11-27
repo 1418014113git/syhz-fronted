@@ -124,7 +124,7 @@
           <el-button v-if="$isViewBtn('100806') && (scope.row.status === 0||scope.row.status === 4) &&
                     ((deptInfo.depType!=='4'&&scope.row.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.applyDeptCode === deptInfo.parentDepCode))"
                     title="编辑" size="mini" type="primary" @click="editDBInfo(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
-          <el-button v-if="$isViewBtn('100807') && (scope.row.superviseDeptCode === deptInfo.depCode) && scope.row.superviseLevel>1 && (scope.row.wdStatus===0||scope.row.wdStatus===4)"
+          <el-button v-if="$isViewBtn('100807') && scope.row.status!==0 && (scope.row.superviseDeptCode === deptInfo.depCode) && scope.row.superviseLevel>1 && (scope.row.wdStatus===0||scope.row.wdStatus===4)"
                       title="向上申请" size="mini" type="primary" @click="handleUpToApply(scope.$index, scope.row)" icon="el-icon-arrow-up" circle></el-button>
           <!-- <el-button v-if="(scope.row.status === '0' || scope.row.status === '2') && $isViewBtn('100807') && scope.row.apply_dept_id === String(currentDeptId)" title="删除" size="mini" type="danger"
                      @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
@@ -348,8 +348,8 @@ export default {
           } else if (this.deptInfo.depType === '3') { // 大队
             currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '4') { // 派出所
-            if (this.deptInfo.areaCode === '610403') { // 杨凌例外
-              currentArea = ['610000', '610403']
+            if (this.deptInfo.areaCode === '611400') { // 杨凌例外
+              currentArea = ['610000', '611400']
             } else { // 正常的派出所
               currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
             }
@@ -501,7 +501,7 @@ export default {
         // 限制 截止时间 必须是开始时间之后
         this.endPickerOptions = Object.assign({}, 'endPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {

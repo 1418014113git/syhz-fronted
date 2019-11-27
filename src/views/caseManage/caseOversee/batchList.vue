@@ -97,7 +97,7 @@
       </el-form-item>
     </el-form>
     <el-table :data="dbBatchData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
-      <el-table-column label="序号" type="index" width="60"></el-table-column>
+      <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
       <el-table-column prop="title" label="批次名称" min-width="10%" show-overflow-tooltip></el-table-column>
       <!-- <el-table-column label="案件编号" min-width="10%">
         <template slot-scope="scope">
@@ -297,8 +297,8 @@ export default {
           } else if (this.deptInfo.depType === '3') { // 大队 派出所
             currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '4') {
-            if (this.deptInfo.areaCode === '610403') { // 杨凌例外
-              currentArea = ['610000', '610403']
+            if (this.deptInfo.areaCode === '611400') { // 杨凌例外
+              currentArea = ['610000', '611400']
             } else { // 正常的派出所
               currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
             }
@@ -394,7 +394,7 @@ export default {
         this.ksEndDateDisabled = false
         this.ksEndPickerOptions = Object.assign({}, 'ksEndPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {
@@ -427,7 +427,7 @@ export default {
         this.jsEndDateDisabled = false
         this.jsEndPickerOptions = Object.assign({}, 'jsEndPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {
