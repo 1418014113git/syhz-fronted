@@ -54,9 +54,11 @@
       <el-table-column prop="syajs"  label='移送（次）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="parqCount"  label='破案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="xsjl"  label='刑事拘留（人）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="pzdb"  label='批准逮捕（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="xsjl"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="130" show-overflow-tooltip></el-table-column>
       <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
         <template slot-scope="scope">
@@ -65,7 +67,7 @@
       </el-table-column>
       <el-table-column label="操作"  width="100">
         <template slot-scope="scope">
-          <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle  :disabled="!scope.row.fbId" @click="handleDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle   @click="handleDetail(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -110,6 +112,7 @@ export default {
       curDept: {}, // 当前登录的部门
       curRow: {}, // 存储当前被点击行数据
       tableHeight: null,
+      paramDeptCode: '', // 详情页传递过来的参数
       tableHead: [] // 表头
     }
   },
@@ -125,8 +128,9 @@ export default {
         qbxsCategory: this.filters.qbxsCategory, // 分类
         pageNum: this.page, // 页数
         pageSize: this.pageSize, // 条数
-        deptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode,
-        assistId: this.assistId // 集群id
+        deptCode: this.paramDeptCode,
+        assistId: this.assistId, // 集群id
+        assistType: 2 // 1 协查， 2 集群
       }
 
       if (hand) { // 手动点击时，添加埋点参数
@@ -183,6 +187,16 @@ export default {
       this.query(true, true)
     },
     handleDetail(index, row) { // 详情
+      if (!row.fbId) {
+        this.$alert('该线索还未签收，请先前往详情页进行签收。', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定',
+          callback: action => {
+            this.$router.push({ path: '/jqCampaign/detail', query: { id: this.assistId }})
+          }
+        })
+        return false
+      }
       this.isShowdialog = true
       this.curRow = row
     },
@@ -202,6 +216,7 @@ export default {
     }
     if (this.$route.query.id) {
       this.assistId = this.$route.query.id
+      this.paramDeptCode = this.$route.query.deptCode ? this.$route.query.deptCode : ''
       this.query(true)
     }
   },
