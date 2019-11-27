@@ -466,6 +466,9 @@ export default {
           this.page = response.data.pageNum
           this.pageSize = response.data.pageSize
           this.listData = response.data.list
+          this.$nextTick(function() {
+            this.memoryChecked() // 记忆复选框被选中的列表
+          })
         } else {
           this.initData()
         }
