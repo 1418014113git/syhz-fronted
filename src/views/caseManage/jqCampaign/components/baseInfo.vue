@@ -112,7 +112,8 @@ export default {
       loading: false, // 页面加载进度条
       isShowshDialog: false, // 是否显示审核弹框
       isShowffxsDialog: false, // 是否显示分发线索弹出框
-      clusterId: '' // 存储列表传递过来的id
+      clusterId: '', // 存储列表传递过来的id
+      xsfkRow: {} // 线索反馈当前行数据
     }
   },
   components: {
@@ -173,6 +174,9 @@ export default {
       Bus.$on('isShowpjbtn', (data) => { // 线索反馈按钮
         this.isShowpjbtn = data
       })
+      Bus.$on('xsfkRow', (data) => { // 线索反馈当前行数据
+        this.xsfkRow = data
+      })
     },
     zhpj() { // 综合评价
       if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省厅，总队
@@ -191,7 +195,11 @@ export default {
       this.isShowffxsDialog = true
     },
     xsfk() { // 线索反馈
-      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId }}) // 跳转到线索反馈页
+      var deptCode = ''
+      if (this.xsfkRow.deptCode !== this.baseInfo.applyDeptCode && this.curDept.depType !== '1') {
+        deptCode = this.xsfkRow.deptCode
+      }
+      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId, deptCode: deptCode }}) // 跳转到线索反馈页
     },
     qs() { // 签收, 定位到签收列表
       if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 总队，支队
@@ -251,7 +259,7 @@ export default {
   .ffxsForm{
     .el-dialog{
       width: 80%;
-      height: 80vh;
+      max-height: 80vh;
       overflow: auto;
     }
   }

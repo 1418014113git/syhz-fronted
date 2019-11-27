@@ -24,12 +24,12 @@
           <el-input v-model="filters.serialNumber" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
         <el-form-item label="分类" label-width="55px">
-          <el-select  v-model="filters.type" size="small" placeholder="全部" clearable>
+          <el-select  v-model="filters.qbxsCategory" size="small" placeholder="全部" clearable>
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('fllb')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
          <el-form-item label="分发状态">
-          <el-select  v-model="filters.qbxsDistribute" size="small" placeholder="全部" clearable  @change="ffztChange">
+          <el-select  v-model="filters.qbxsDistribute" size="small" placeholder="全部" clearable>
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('qbxsffzt')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
@@ -152,7 +152,9 @@ export default {
     isShowDialog: {
       handler: function(val, oldeval) {
         if (val) {
-          this.query(true)
+          setTimeout(() => {
+            this.query(true)
+          }, 500)
         }
       }
     },
@@ -168,7 +170,7 @@ export default {
         } else {
           this.filters.qbxsDistribute = ''
         }
-        this.query(true)
+        // this.query(true)
       }
     },
     jsdw: {
@@ -176,14 +178,14 @@ export default {
         if (val) {
           this.filters.receiveName = val
         }
-        this.query(true)
+        // this.query(true)
       }
     },
     xcstatus: { // 协查状态
       handler: function(val, oldeval) {
         if (val) {
           this.xichastatus = val + ''
-          this.query(true)
+          // this.query(true)
         }
       }
     }
@@ -256,11 +258,6 @@ export default {
       this.tableHead = []
       this.checkId = []
     },
-    ffztChange(val) {
-      // this.filters.qbxsDistribute = ''
-      console.log(val)
-      console.log('this.filters.qbxsDistribute', this.filters.qbxsDistribute)
-    },
     handleDel(index, row) { // 删除线索
       this.$confirm('确定要删除线索吗？', '提示', {
         confirmButtonText: '确定',
@@ -271,7 +268,7 @@ export default {
         const param = {
           qbxsId: row.qbxsId,
           assistId: this.assistId,
-          qbxsDeptId: row.qbxsDeptId
+          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : ''
         }
         this.$update('caseassistclue/delete', param).then((response) => {
           this.listLoading = false
@@ -298,7 +295,7 @@ export default {
         const param = {
           qbxsId: row.qbxsId,
           assistId: this.assistId,
-          qbxsDeptId: row.qbxsDeptId
+          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : ''
         }
         this.$update('caseassistclue/cancelDistribute', param).then((response) => {
           this.listLoading = false
@@ -358,7 +355,8 @@ export default {
         receiveName: '', // 接收单位
         qbxsResult: '', // 协查情况
         serialNumber: '', // 序号
-        qbxsCategory: '' // 分类
+        qbxsCategory: '', // 分类
+        qbxsDistribute: '' // 分发状态
       }
       this.deptCode = '' // 接收单位code
       this.acceptDeptName = '' // 接收单位名称

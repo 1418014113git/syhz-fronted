@@ -107,9 +107,12 @@ export default {
         pageSize: this.pageSize,
         pageNum: flag ? 1 : this.page
       }
-      if (this.baseInfo.cityCode !== this.curDept.areaCode) {
-        param.deptCode = this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode // 派出所取上级部门code， 非派出所取本部门code
+      if (this.baseInfo.cityCode !== this.curDept.areaCode && this.curDept.depType === '3') { // 只有大队传当前部门
+        param.deptCode = this.curDept.depCode
       }
+      // if (this.baseInfo.cityCode !== this.curDept.areaCode) {
+      //   param.deptCode = this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode // 派出所取上级部门code， 非派出所取本部门code
+      // }
       this.$query('casecluster/signList', param).then((res) => {
         this.listLoading = false
         this.listData = res.data.list
@@ -151,14 +154,15 @@ export default {
     },
     gotoxslist(row) {
       this.$router.push({
-        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode } // 线索列表页面
+        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: row.receiveDeptCode } // 线索列表页面
       })
     },
     handleSign(index, row) { // 签收
       const param = {
         userId: this.curUser.id, // 当前用户Id
-        realName: this.curUser.realName, // 当前用户真实姓名
-        deptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode, // 当前部门Code 派出所取它的父级单位code
+        userName: this.curUser.realName, // 当前用户真实姓名
+        // deptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode, // 当前部门Code 派出所取它的父级单位code
+        deptCode: row.receiveDeptCode, // 当前行的接收单位code
         assistId: row.assistId, // 集群id
         signId: row.assistSignId // 签收表id
       }

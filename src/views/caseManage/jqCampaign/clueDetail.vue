@@ -3,7 +3,7 @@
    <!--线索列表详情-->
       <el-form label-width="120px" class="form" v-loading="listLoading">
         <el-form-item label="核查情况：">
-          <span v-if="hcqk.qbxsResult">{{ $getDictName(hcqk.qbxsResult+'', 'qbxsfkzt') }}</span>
+          <span v-if="curRow.qbxsResult">{{ $getDictName(curRow.qbxsResult+'', 'qbxsfkzt') }}</span>
         </el-form-item>
         <el-form-item label="移送案件">
           <el-table :data="yslistData" v-loading="yslistLoading" style="width: 100%;" class="">
@@ -48,9 +48,6 @@ export default {
   name: 'clueDetail',
   data() {
     return {
-      hcqk: { // 存储线索列表当前行的数据
-        qbxsResult: '' // 核查情况
-      },
       yslistData: [], // 移送案件列表
       zblistData: [], // 侦办刑事案件列表
       listLoading: false, // 页面加载loading
@@ -82,7 +79,6 @@ export default {
   },
   methods: {
     detail() { // 查详情
-      this.hcqk.qbxsResult = this.hcqk.qbxsResult ? this.hcqk.qbxsResult : ''
       this.listLoading = true
       const para = {
         assistId: this.curRow.clusterId, // 集群Id
@@ -104,9 +100,9 @@ export default {
     queryysaj() { // 移送案件列表数据查询
       this.yslistLoading = true
       const para = {
-        assistId: this.hcqk.clusterId, // 集群Id
+        assistId: this.curRow.clusterId, // 集群Id
         type: 'ys', // 操作类型
-        fbId: this.hcqk.fbId // 反馈Id
+        fbId: this.curRow.fbId // 反馈Id
       }
       this.$query('caseassistclue/feedBack/detail', para).then((response) => {
         this.yslistLoading = false
@@ -119,9 +115,9 @@ export default {
     queryzbxsaj() { // 侦办刑事案件列表数据查询
       this.zblistLoading = true
       const para = {
-        assistId: this.hcqk.clusterId, // 集群Id
+        assistId: this.curRow.clusterId, // 集群Id
         type: 'zb', // 操作类型
-        fbId: this.hcqk.fbId // 反馈Id
+        fbId: this.curRow.fbId // 反馈Id
       }
       this.$query('caseassistclue/feedBack/detail', para).then((response) => {
         this.zblistLoading = false
@@ -132,7 +128,7 @@ export default {
       })
     },
     initData() {
-      this.hcqk.qbxsResult = '' // 核查情况
+      this.curRow.qbxsResult = '' // 核查情况
       this.yslistData = [] // 移送案件列表
       this.zblistData = [] // 侦办刑事案件列表
     },
