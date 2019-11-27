@@ -123,7 +123,7 @@ export default {
                   var endDate = (new Date(value).getTime())
                   if (endDate < startDate) {
                     return callback(new Error('结束时间不能小于开始时间！'))
-                  } else if (endDate > startDate && endDate - startDate < 172800000) {
+                  } else if (endDate > startDate && Number(endDate) - Number(startDate) < 172800000) {
                     return callback(new Error('结束时间必须大于开始时间2天以上！'))
                   } else {
                     callback()
@@ -324,10 +324,10 @@ export default {
   .inputW{
     width: 95%;
   }
-  .el-button--text {
-    display: none !important;
-  }
 }
+.el-button--text {
+    display: none;
+  }
 @media only screen and (max-width: 1367px) {
 
 }
