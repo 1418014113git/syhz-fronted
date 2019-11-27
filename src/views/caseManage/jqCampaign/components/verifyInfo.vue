@@ -16,7 +16,7 @@
             <span v-if='scope.row.wflowStatus'>{{$getDictName(scope.row.wflowStatus+'','flowStatus')}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="content" label="审核意见" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="content" label="审核意见" min-width="180" show-overflow-tooltip></el-table-column>
         <el-table-column label="操作"  width="100" align="center">
           <template slot-scope="scope">
             <el-button size="mini" title="重新申请"  type="primary" circle  v-if="controlcxsq(scope.row) && $isViewBtn('101901')" @click="handleApply(scope.$index, scope.row)"><svg-icon icon-class="shenqing"></svg-icon></el-button>
