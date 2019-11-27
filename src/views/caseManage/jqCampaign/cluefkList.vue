@@ -80,8 +80,8 @@
     </el-col>
 
     <!--线索反馈详情弹出层-->
-    <el-dialog title="反馈" :visible.sync="isShowdialog">
-      <cluefk-detail :isShowdialog="isShowdialog" :row="curRow"></cluefk-detail>
+    <el-dialog title="反馈" :visible.sync="isShowfkDialog" @close="clearChildData">
+      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog" :row="curRow"></cluefk-detail>
     </el-dialog>
   </section>
 </template>
@@ -103,7 +103,7 @@ export default {
       },
       assistId: '', // 集群id
       listData: [], // 线索列表
-      isShowdialog: false, // 是否显示详情弹框
+      isShowfkDialog: false, // 是否显示详情弹框
       listLoading: false, // 列表加载loading
       total: 0,
       page: 1,
@@ -164,6 +164,10 @@ export default {
       this.listData = []
       this.tableHead = []
     },
+    clearChildData() {
+      this.isShowfkDialog = false
+      this.$refs.ffchild.initData()
+    },
 
     resetForm() { // 重置
       this.filters = {
@@ -197,7 +201,7 @@ export default {
         })
         return false
       }
-      this.isShowdialog = true
+      this.isShowfkDialog = true
       this.curRow = row
     },
     toback() { // 返回
