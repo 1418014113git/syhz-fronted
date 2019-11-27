@@ -85,7 +85,8 @@
               <span class="whiteColor">{{baseInfo.ajlb}}</span>
             </el-form-item>
             <el-form-item label="涉案价值：" prop="sajz">
-              <span class="whiteColor">{{baseInfo.sajz}} 万元</span>
+              <span class="whiteColor" v-if="baseInfo.sajz">{{baseInfo.sajz}} 万元</span>
+              <span v-else>0</span>
             </el-form-item>
           </el-col>
           <el-col :span="8">
