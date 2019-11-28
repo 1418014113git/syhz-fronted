@@ -1615,6 +1615,7 @@ label {
   color: #f72929 !important;
   text-decoration:underline;
 }
+// tooltip样式统一
 .tooltipShow {
   opacity: 1;
 }
@@ -1623,4 +1624,18 @@ label {
 }
 .el-progress__text { // upload 文件 “100%” 文字颜色设置
   color: #ffffff;
+}
+
+// 固定右侧列 的样式问题
+.el-table__fixed-right .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+  background-color: rgba(0, 89, 130, 1);
+}
+.el-table__fixed-right .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+  background-color: #032c43;
+}
+.el-table__fixed-right .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+  background-color: #2164a1;
+}
+.el-table__fixed-right::before, .el-table__fixed::before{
+  opacity: 0;
 }
