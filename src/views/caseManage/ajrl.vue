@@ -6,7 +6,7 @@
       <img src="@/assets/icon/back.png"  class="goBack" v-if="showBackBtn" @click="backStatistical">   <!--返回-->
     </el-col>
     <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
-      <el-form :inline="true" :model="filters" ref="filters" label-width="84px">
+      <el-form :inline="true" :model="filters" ref="filters" label-width="100px">
 
         <!--<el-form-item label="市" v-if="depLevel === 1 || depLevel === 2 ">-->
           <!--<el-tooltip class="item" effect="dark" :content="selectCurShiDep.name" placement="top-start" :popper-class="(selectCurShiDep.name&&selectCurShiDep.name.length>11)?'tooltipShow':'tooltipHide'">-->
@@ -52,20 +52,20 @@
         </el-tooltip>
       </el-form-item>
         <el-form-item label="案件名称" prop="AJMC">
-          <el-input v-model="filters.AJMC" size="small" placeholder="请输入案件名称" clearable maxlength="30"></el-input>
+          <el-input v-model="filters.AJMC" placeholder="请输入案件名称" clearable maxlength="30"></el-input>
         </el-form-item>
         <el-form-item label="案件编号" prop="AJBH">
-          <el-input v-model="filters.AJBH" size="small" placeholder="请输入案件编号" clearable maxlength="30"></el-input>
+          <el-input v-model="filters.AJBH"  placeholder="请输入案件编号" clearable maxlength="30"></el-input>
         </el-form-item>
          <el-form-item label="案件状态" prop="ajzt">
-          <el-select :clearable="true" v-model="filters.ajzt" size="small" placeholder="全部" filterable @change="ajztChange">
+          <el-select :clearable="true" v-model="filters.ajzt" placeholder="全部" filterable @change="ajztChange">
             <el-option v-for="item in ajztData" :key="item.code" :label="item.codeName" :value="item.code"></el-option>
           </el-select>
         </el-form-item>
 
 
         <el-form-item label="立案单位" prop="ladw">
-          <el-input v-model="filters.ladw" size="small" placeholder="立案单位" clearable maxlength="30"></el-input>
+          <el-input v-model="filters.ladw"  placeholder="立案单位" clearable maxlength="30"></el-input>
         </el-form-item>
 
         <el-form-item label="立案日期" prop="laDate">
@@ -77,16 +77,19 @@
             placeholder="请选择开始时间"
             @change="startDateChangeLa">
           </el-date-picker>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;至 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </el-form-item>
+        <el-form-item label="至">
            <el-date-picker
             v-model="filters.larqEnd"
             type="date"
+            size="small"
             value-format="yyyy-MM-dd"
             placeholder="请选择结束时间"
             @change="endDateChangeLa"
             :disabled="endDateDisabledLa">
           </el-date-picker>
         </el-form-item>
+
         <el-form-item label="破案日期" prop="paDate">
           <el-date-picker
             v-model="filters.parqStart"
@@ -96,7 +99,8 @@
             placeholder="请选择开始时间"
             @change="startDateChangePa">
           </el-date-picker>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;至 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </el-form-item>
+          <el-form-item label="至">
            <el-date-picker
             v-model="filters.parqEnd"
             type="date"
@@ -119,7 +123,8 @@
             placeholder="请选择开始时间"
             @change="startDateChange">
           </el-date-picker>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;至 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+             </el-form-item>
+          <el-form-item label="至">
            <el-date-picker
             v-model="filters.rlEndTime"
             type="date"
@@ -324,7 +329,7 @@ import { getSessionDeptSelect } from '@/api/depts'
 // getDeptLevel, ajrlListDepts,
 import { getAjrlDept, getAjrlParentDept, getAjrlNSXJ } from '@/api/dept'
 import { getUserInfo } from '@/utils/auth'
-import { getSYHFLLBList
+import {  getSYHFLLBList
   // , getAJLBText
 } from '@/utils/codetotext'
 import { parseTime } from '@/utils/index'

@@ -54,9 +54,11 @@
       <el-table-column prop="syajs"  label='移送（次）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="parqCount"  label='破案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="xsjl"  label='刑事拘留（人）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="pzdb"  label='批准逮捕（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="xsjl"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="130" show-overflow-tooltip></el-table-column>
       <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
         <template slot-scope="scope">
@@ -78,8 +80,8 @@
     </el-col>
 
     <!--线索反馈详情弹出层-->
-    <el-dialog title="反馈" :visible.sync="isShowdialog">
-      <cluefk-detail :isShowdialog="isShowdialog" :row="curRow"></cluefk-detail>
+    <el-dialog title="反馈" :visible.sync="isShowfkDialog" @close="clearChildData">
+      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog" :row="curRow"></cluefk-detail>
     </el-dialog>
   </section>
 </template>
@@ -101,7 +103,7 @@ export default {
       },
       assistId: '', // 集群id
       listData: [], // 线索列表
-      isShowdialog: false, // 是否显示详情弹框
+      isShowfkDialog: false, // 是否显示详情弹框
       listLoading: false, // 列表加载loading
       total: 0,
       page: 1,
@@ -127,7 +129,8 @@ export default {
         pageNum: this.page, // 页数
         pageSize: this.pageSize, // 条数
         deptCode: this.paramDeptCode,
-        assistId: this.assistId // 集群id
+        assistId: this.assistId, // 集群id
+        assistType: 2 // 1 协查， 2 集群
       }
 
       if (hand) { // 手动点击时，添加埋点参数
@@ -160,6 +163,10 @@ export default {
       this.pageSize = 15
       this.listData = []
       this.tableHead = []
+    },
+    clearChildData() {
+      this.isShowfkDialog = false
+      this.$refs.ffchild.initData()
     },
 
     resetForm() { // 重置
@@ -194,7 +201,7 @@ export default {
         })
         return false
       }
-      this.isShowdialog = true
+      this.isShowfkDialog = true
       this.curRow = row
     },
     toback() { // 返回
