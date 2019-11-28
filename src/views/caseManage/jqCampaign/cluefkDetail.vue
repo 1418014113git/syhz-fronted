@@ -29,7 +29,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="移送案件">
-          <el-select  v-model="ysajbh" size="small" placeholder="请选择..."  class="inputW"  filterable  @change="ysajChange">
+          <el-select  v-model="ysajbh" size="small" placeholder="请选择..."  class="inputW"  filterable>
             <el-option v-for="(item,index) in ysajSelectData" :key="index" :label="item.ajmc +'('+ item.ajbh + ')'" :value="item.ajbh"></el-option>
           </el-select>
           <el-button type="primary" size="small"  @click="checkaj(1)">选择</el-button>
@@ -52,7 +52,7 @@
           </el-table>
         </el-form-item>
         <el-form-item label="侦办刑事案件">
-          <el-select  v-model="zbajbh" size="small" placeholder="请选择..."  class="inputW"  filterable @change="zbajChange">
+          <el-select  v-model="zbajbh" size="small" placeholder="请选择..."  class="inputW"  filterable>
             <el-option v-for="(item,index) in zbajSelectData" :key="index" :label="item.ajmc +'('+ item.ajbh + ')'" :value="item.ajbh"></el-option>
           </el-select>
           <el-button type="primary" size="small"  @click="checkaj(2)">选择</el-button>
@@ -74,16 +74,27 @@
             <el-table-column prop="ajztName"  label='案件状态'  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="larq"  label='立案日期'  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="parq"  label='破案日期'  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="zhrys"  label='抓获（人）'  min-width="100" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.zhrys"  maxlength="11" @keyup.native="number('zhrys',scope.row)" class="textCen"></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="ryclcs"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.pzdb"  maxlength="11" @keyup.native="number('pzdb',scope.row)" class="textCen"></el-input>
+                <span v-else>{{scope.row.pzdb}}</span>
+              </template>
+            </el-table-column>
+             <el-table-column prop="yjss" label="移诉（人）"  min-width="100"  show-overflow-tooltip>
+              <template slot-scope="scope">
+                <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.yjss"  maxlength="11" @keyup.native="number('yjss',scope.row)" class="textCen"></el-input>
+              </template>
+            </el-table-column>
             <el-table-column prop="dhwd"  label='捣毁窝点'  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-input  v-if="scope.$index+1<zblistData.length"  v-model.trim="scope.row.dhwd"  maxlength="11" @keyup.native="number('dhwd',scope.row)" class="textCen"></el-input>
                 <span v-else>{{scope.row.dhwd}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="pzdb"  label='批准逮捕'  min-width="100" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.pzdb"  maxlength="11" @keyup.native="number('pzdb',scope.row)" class="textCen"></el-input>
-                <span v-else>{{scope.row.pzdb}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="100" show-overflow-tooltip>
@@ -135,16 +146,13 @@ export default {
   watch: { // 监听state状态变化
     row: {
       handler: function(val, oldeval) {
-        if (val.fbId) {
-          this.xsfkRow = val
-          this.detail() // 查详情
-        }
+        this.xsfkRow = val
       }
     },
-    isShowDialog: {
+    isShowdialog: {
       handler: function(val, oldeval) {
         if (val) {
-          this.initData()
+          this.detail() // 查详情
         }
       }
     }
@@ -235,7 +243,7 @@ export default {
       })
     },
     initData() {
-      this.xsfkForm.qbxsResult = '' // 核查情况
+      // this.xsfkForm.qbxsResult = '' // 核查情况
       this.yslistData = [] // 移送案件列表
       this.ysajSelectData = [] // 移送案件下拉框数据
       this.zbajSelectData = [] // 侦办案件下拉框数据
@@ -243,10 +251,7 @@ export default {
       this.ysajbh = '' // 存储下拉选项的移送案件编号
       this.zbajbh = '' // 存储下拉选项的侦办刑事案件编号
       this.updateTime = '' // 存储更新时间
-      this.isShowTime = false
-    },
-    ysajChange(val) { // 移送案件change事件
-
+      this.isShowTime = false // 隐藏更新时间
     },
     zbajChange(val) { // 侦办案件change事件
 
@@ -305,7 +310,7 @@ export default {
               type: 'saveZbxss',
               assistId: this.xsfkRow.clusterId, // 集群Id
               fbId: this.xsfkRow.fbId, // 反馈Id
-              zbxss: this.zbajbh + ',0,0,0', // 案件编号
+              zbxss: this.zbajbh + ',0,0,0,0,0', // 案件编号，捣毁窝点、涉案金额、批准逮捕、抓获、移诉
               userId: this.curUser.id, // 当前用户Id
               userName: this.curUser.realName, // 当前用户真实姓名
               curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
@@ -369,16 +374,24 @@ export default {
     number(props, row) { // 只能是数字
       var num = row[props].replace(/[^\.\d]/g, '').replace('.', '')
       setTimeout(() => {
-        this.$set(row, props, num)
+        if (num) {
+          this.$set(row, props, num)
+        } else {
+          this.$set(row, props, 0)
+        }
       }, 50)
     },
     handleSubmit(row) { // 提交侦办案件当前行数据
-      if (!(row.dhwd + '')) {
+      if (row.dhwd === '' || row.dhwd === undefined || row.dhwd === null) {
         this.$message.error('捣毁窝点数量不能为空。')
-      } else if (!(row.pzdb + '')) {
-        this.$message.error('批准逮捕数量不能为空。')
-      } else if (!(row.sajz + '')) {
+      } else if (row.pzdb === '' || row.pzdb === undefined || row.pzdb === null) {
+        this.$message.error('批捕人数不能为空。')
+      } else if (row.sajz === '' || row.sajz === undefined || row.sajz === null) {
         this.$message.error('涉案金额不能为空。')
+      } else if (row.zhrys === '' || row.zhrys === undefined || row.zhrys === null) {
+        this.$message.error('抓获人数不能为空。')
+      } else if (row.yjss === '' || row.yjss === undefined || row.yjss === null) {
+        this.$message.error('移诉人数不能为空。')
       } else {
         this.$confirm('确定要提交数据吗？', '提示', {
           confirmButtonText: '确定',
@@ -389,7 +402,7 @@ export default {
             type: 'saveZbxss',
             assistId: this.xsfkRow.clusterId, // 集群Id
             fbId: this.xsfkRow.fbId, // 反馈Id
-            zbxss: row.ajbh + ',' + row.dhwd + ',' + row.sajz + ',' + row.pzdb,
+            zbxss: row.ajbh + ',' + row.dhwd + ',' + row.sajz + ',' + row.pzdb + ',' + row.zhrys + ',' + row.yjss, // 案件编号，捣毁窝点、涉案金额、批准逮捕、抓获、移诉
             userId: this.curUser.id, // 当前用户Id
             userName: this.curUser.realName, // 当前用户真实姓名
             curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
@@ -458,6 +471,7 @@ export default {
     }
   },
   mounted() {
+    this.initData()
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
@@ -465,10 +479,8 @@ export default {
         this.getfqDepts()
       }
     }
-    if (this.row.fbId) {
-      this.xsfkRow = this.row
-      this.detail() // 查详情
-    }
+    this.xsfkRow = this.row
+    this.detail() // 查详情
   }
 }
 </script>

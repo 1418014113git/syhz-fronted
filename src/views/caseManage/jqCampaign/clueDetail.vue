@@ -34,9 +34,12 @@
             <el-table-column prop="ajztName" align="center" label='案件状态'  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="larq" align="center" label='立案日期'  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="parq" align="center" label='破案日期'  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="dhwd" align="center" label='捣毁窝点'  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="pzdb" align="center" label='批准逮捕'  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="sajz" align="center" label='涉案金额（万元）'  min-width="100"  show-overflow-tooltip></el-table-column>
+            <el-table-column prop="zhrys"  label='抓获（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="ryclcs"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="dhwd"  label='捣毁窝点'  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="100" show-overflow-tooltip></el-table-column>
           </el-table>
         </el-form-item>
       </el-form>
