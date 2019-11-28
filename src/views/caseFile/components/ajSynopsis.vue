@@ -52,7 +52,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="24" class="synopsis_bot_wrap clearfix">
-          <div class="left clearfix" v-if="carryParam && carryParam.isRl!=='0'">
+          <!-- <div class="left clearfix" v-if="carryParam && carryParam.isRl!=='0'">
             <div class="clearfix synopsis_bot_cell">
               <img style="float:left;width:26px;margin:3px 5px 0 0;" src="/static/image/caseFile_images/dbzcrw.png" alt="" srcset="">
               <p style="float:left;">待办侦查任务</p>
@@ -69,7 +69,7 @@
               <img style="float:left;width:26px;margin:-3px 5px 0 0;" src="/static/image/caseFile_images/jyjd.png" alt="" srcset="">
               <p style="float:left;">检验鉴定（<span class="orange_text" @click="handleTaskJd">{{taskInfo.jdNum || 0}}</span>）</p>
             </div>
-          </div>
+          </div> -->
           <div class="right" style="margin-top: -5px;" v-if="carryParam && carryParam.isRl==='0'">
             <div class="shadow_text right_cell">
               案件类型
@@ -99,11 +99,11 @@
             </div>
             <el-button class="case_btn"  v-if ="rlBtn" @click="rlSave()" :loading="rlLoading">案件认领</el-button>
           </div>
-          <div class="right" style="margin-top: -5px;" v-if="applyBtnShow">
+          <!-- <div class="right" style="margin-top: -5px;" v-if="applyBtnShow">
             <div class="case_btn" @click="applyAjxc()" :loading="rlLoading">申请案件协查</div>
             <div class="case_btn" @click="applyQgxxc()" :loading="rlLoading">申请全国性协查</div>
             <div class="case_btn" @click="applyAjdb()" :loading="rlLoading">申请督办</div>
-          </div>
+          </div> -->
         </el-col>
       </el-form>
     </el-row>
@@ -171,10 +171,10 @@ export default {
       curDeptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前用户的部门
       rlBtn: true,
       tingDeptData:
-      {
-        code: '610000530000',
-        name: '陕西省公安厅环食药总队'
-      },
+        {
+          code: '610000530000',
+          name: '陕西省公安厅环食药总队'
+        },
 
       laPickerOpt: {},
       paPickerOpt: {},
@@ -478,8 +478,12 @@ export default {
     },
     handleTaskDb() { // 案件督办
       if (this.taskInfo.dbNum > 0) {
-        var param = this.getparam()
-        this.$router.push({ path: '/caseManage/dblist', query: param })
+        // var param = this.getparam()
+        var param = {
+          abjh: this.ajbh, // 案件编号
+          origin: 'caseFile' // 来源 案件档案
+        }
+        this.$router.push({ path: '/caseManage/dbList', query: param })
         // this.$gotoid('/caseManage/dblist', JSON.stringify({ ajbh: this.ajbh }))
       }
     },
@@ -661,16 +665,15 @@ export default {
       })
     },
     applyAjdb() { // 申请督办
-      var param = this.getparam()
-      param.caseName = this.ajInfo.AJMC
-      param.caseId = this.ajInfo.id
-      this.$router.push({
-        path: '/caseManage/dbedit/apply',
-        query: param
-        // query: {
-        //   caseName: this.ajInfo.AJMC, caseId: this.ajInfo.id
-        // }
-      })
+      // var param = this.getparam()
+      var param = {
+        caseName: this.ajInfo.AJMC,
+        caseId: this.ajInfo.id
+      }
+      this.$router.push({ path: '/caseManage/dbApply', query: param })
+      // query: {
+      //   caseName: this.ajInfo.AJMC, caseId: this.ajInfo.id
+      // }
     },
     applyQgxxc() { // 申请全国性协查
       // var param = {
