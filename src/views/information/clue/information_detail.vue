@@ -26,7 +26,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="8" class="pdr">
-            <el-form-item label="发生地行政区划：">
+            <el-form-item label="发生地：">
               {{information.collectionLocationLable}}
             </el-form-item>
             <el-form-item label="填报时间：">
@@ -37,7 +37,7 @@
             <el-form-item label="发生时间：">
               {{information.clueTime}}
             </el-form-item>
-            <el-form-item label="发生地详细址：">
+            <el-form-item label="详细地址：">
               {{information.locationDetailed}}
             </el-form-item>
             <el-form-item label="填报单位：">
@@ -129,16 +129,12 @@
   import VectorSource from 'ol/source/Vector'
   import { Map, View, Feature, Overlay } from 'ol'
   import { Style, Icon } from 'ol/style'
-  // import Text from 'ol/style/Text'
-  // import Fill from 'ol/style/Fill'
   import { Point } from 'ol/geom'
   import { defaults } from 'ol/control/util.js'
-  // import ScaleLine from 'ol/control/ScaleLine.js'
-  import { getWidth, getTopLeft } from 'ol/extent.js'
+  import { getWidth } from 'ol/extent.js'
   import { get as getProjection } from 'ol/proj.js'
-  import OSM from 'ol/source/OSM.js'
-  import WMTS from 'ol/source/WMTS.js'
-  import WMTSTileGrid from 'ol/tilegrid/WMTS.js'
+  // import OSM from 'ol/source/OSM.js'
+  import XYZ from 'ol/source/XYZ.js'
   export default {
     props: ['type'],
     name: 'shareEdit',
@@ -343,43 +339,31 @@
           autoPan: true
         })
         _that.view = new View({
-          // 指定地图投影模式
-          projection: 'EPSG:4326', // 采用WGS84坐标系
-          // 设置地图中心范围
-          center: [108.953098279, 34.2777998978], // 将西安市作为中心点
-          // 限制地图中心范围，但无法限制缩小范围
-          // extent: [110, 26, 114, 30],
-          // 定义地图显示层级为16
-          zoom: 13, // 1:2000
-          // 限制缩放级别，可以和extent同用限制范围
-          maxZoom: 14, // 1:1000
-          // 最小级别，越大则面积越大
-          minZoom: 5 // 1:500000
+          // 指定地图投影模式  采用WGS84坐标系
+          projection: 'EPSG:4326',
+          // 设置地图中心
+          center: [108.9500, 34.22869],
+          maxZoom: 15,
+          minZoom: 9,
+          // extent: [109.40234, 33.59375, 104.96484, 35.38281],
+          zoom: 10 // 定义地图显示层级为 9-15
         })
         _that.map = new Map({
           target: 'Map',
           // controls: defaults({ zoom: true }).extend([scaleLineControl]), // 加载比例尺控件(地图左上角的缩放按钮，默认是zoom:false不显示)
           controls: defaults({ zoom: true }), // 地图左上角的缩放按钮，默认是zoom:false不显示
           layers: [
-            new TileLayer({
-              source: new OSM()
-            }),
+            // new TileLayer({
+            //   source: new OSM()
+            // }),
             _that.flagLayer,
             new TileLayer({
-              source: new WMTS({
-                url: 'https://services.arcgisonline.com/arcgis/rest/services/Demographics/USA_Population_Density/MapServer/WMTS/', // 测试地址
-                // url: 'http://26.3.12.44:6088/wmts?service=WMTS&request=GetCapabilities', // 公安地图资源服务地址
-                layer: '0',
-                matrixSet: 'EPSG:4326',
-                format: 'image/png',
-                projection: projection, // 采用WGS84坐标系
-                tileGrid: new WMTSTileGrid({
-                  origin: getTopLeft(projectionExtent),
-                  resolutions: resolutions,
-                  matrixIds: matrixIds
-                }),
-                style: 'default',
-                wrapX: true
+              source: new XYZ({
+                url: 'http://10.174.64.11:8081/PGIS_S_TileMapServer/Maps/bjslyx/EzMap?Service=getImage&Type=RGB&ZoomOffset=0&Col={x}&Row={y}&Zoom={z}&V=1.0.0', // bjslyx矢量影像叠加 bjsl 矢量 bjyx影像
+                tilePixelRatio: 2, // THIS IS IMPORTANT
+                minZoom: 9, // 9 级以下没有
+                maxZoom: 15, // 15 级以上没有
+                projection: 'EPSG:4326' // 采用WGS84坐标系
               })
             })
           ],
