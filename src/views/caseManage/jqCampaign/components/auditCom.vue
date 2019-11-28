@@ -100,8 +100,8 @@ export default {
             } else if (value === this.stshForm.number) {
               callback()
             } else {
-              this.$query('casecluster/numberValid', { dept: this.curDept.depCode }).then((response) => { // 查询是否重复
-                if (response.data.length > 0) {
+              this.$query('casecluster/numberValid', { dept: this.curDept.depCode, numStr: value }).then((response) => { // 查询是否重复
+                if (!response.data) {
                   return callback(new Error('编码不能重复'))
                 }
                 callback()

@@ -17,7 +17,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="content" label="审核意见" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column label="操作"  width="100" align="center">
+        <el-table-column label="操作"  width="100" align="center" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" title="重新申请"  type="primary" circle  v-if="controlcxsq(scope.row) && $isViewBtn('101901')" @click="handleApply(scope.$index, scope.row)"><svg-icon icon-class="shenqing"></svg-icon></el-button>
             <el-button size="mini" title="审核"  type="primary" circle  v-if="(Number(curDept.depType) < 3 && curDept.id===scope.row.acceptedDeptId && scope.row.wflowStatus==='1' && $isViewBtn('101908'))" @click="handleVerify(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
