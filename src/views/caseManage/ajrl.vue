@@ -7,7 +7,6 @@
     </el-col>
     <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
       <el-form :inline="true" :model="filters" ref="filters" label-width="100px">
-
         <!--<el-form-item label="市" v-if="depLevel === 1 || depLevel === 2 ">-->
           <!--<el-tooltip class="item" effect="dark" :content="selectCurShiDep.name" placement="top-start" :popper-class="(selectCurShiDep.name&&selectCurShiDep.name.length>11)?'tooltipShow':'tooltipHide'">-->
             <!--<el-cascader-->
@@ -26,48 +25,45 @@
           <!--</el-tooltip>-->
         <!--</el-form-item>-->
         <el-form-item label="行政区划" prop="examStatus">
-        <el-cascader
-          :options="xzqhOptions"
-          v-model="filters.area"
-          :props="props"
-          change-on-select
-          @change="handleAreaChange"
-          :show-all-levels="false"
-           placeholder="全部"
-          :disabled="curDept.depType>2">
-        </el-cascader>
-      </el-form-item>
-      <el-form-item label="认领单位" prop="examStatus">
-        <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
           <el-cascader
-            :options="deptOptions"
-            v-model="filters.department"
-            :props="deptProps"
+            :options="xzqhOptions"
+            v-model="filters.area"
+            :props="props"
             change-on-select
+            @change="handleAreaChange"
             :show-all-levels="false"
-            @change="handleDeptChange"
-            clearable placeholder="全部"
-            :disabled="curDept.depType>3">
+            placeholder="全部"
+            :disabled="curDept.depType>2">
           </el-cascader>
-        </el-tooltip>
-      </el-form-item>
+        </el-form-item>
+        <el-form-item label="认领单位" prop="examStatus">
+          <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
+            <el-cascader
+              :options="deptOptions"
+              v-model="filters.department"
+              :props="deptProps"
+              change-on-select
+              :show-all-levels="false"
+              @change="handleDeptChange"
+              clearable placeholder="全部"
+              :disabled="curDept.depType>3">
+            </el-cascader>
+          </el-tooltip>
+        </el-form-item>
         <el-form-item label="案件名称" prop="AJMC">
           <el-input v-model="filters.AJMC" placeholder="请输入案件名称" clearable maxlength="30"></el-input>
         </el-form-item>
         <el-form-item label="案件编号" prop="AJBH">
           <el-input v-model="filters.AJBH"  placeholder="请输入案件编号" clearable maxlength="30"></el-input>
         </el-form-item>
-         <el-form-item label="案件状态" prop="ajzt">
+          <el-form-item label="案件状态" prop="ajzt">
           <el-select :clearable="true" v-model="filters.ajzt" placeholder="全部" filterable @change="ajztChange">
             <el-option v-for="item in ajztData" :key="item.code" :label="item.codeName" :value="item.code"></el-option>
           </el-select>
         </el-form-item>
-
-
         <el-form-item label="立案单位" prop="ladw">
           <el-input v-model="filters.ladw"  placeholder="立案单位" clearable maxlength="30"></el-input>
         </el-form-item>
-
         <el-form-item label="立案日期" prop="laDate">
           <el-date-picker
             v-model="filters.larqStart"
@@ -77,9 +73,9 @@
             placeholder="请选择开始时间"
             @change="startDateChangeLa">
           </el-date-picker>
-          </el-form-item>
-        <el-form-item label="至">
-           <el-date-picker
+        </el-form-item>
+        <el-form-item label="至" prop="larqEnd">
+            <el-date-picker
             v-model="filters.larqEnd"
             type="date"
             size="small"
@@ -89,7 +85,6 @@
             :disabled="endDateDisabledLa">
           </el-date-picker>
         </el-form-item>
-
         <el-form-item label="破案日期" prop="paDate">
           <el-date-picker
             v-model="filters.parqStart"
@@ -100,20 +95,18 @@
             @change="startDateChangePa">
           </el-date-picker>
         </el-form-item>
-          <el-form-item label="至">
-           <el-date-picker
+        <el-form-item label="至" prop="parqEnd">
+          <el-date-picker
             v-model="filters.parqEnd"
             type="date"
             value-format="yyyy-MM-dd"
             :picker-options="paEndPickerOptions"
             placeholder="请选择结束时间"
-             @change="endDateChangePa"
+              @change="endDateChangePa"
             :disabled="endDateDisabledPa">
           </el-date-picker>
         </el-form-item>
-
-
-         <el-form-item label="认领日期" prop="startTime">
+        <el-form-item label="认领日期" prop="startTime">
           <el-date-picker
             v-model="filters.rlStartTime"
             type="date"
@@ -123,9 +116,9 @@
             placeholder="请选择开始时间"
             @change="startDateChange">
           </el-date-picker>
-             </el-form-item>
-          <el-form-item label="至">
-           <el-date-picker
+        </el-form-item>
+        <el-form-item label="至" prop="rlEndTime">
+          <el-date-picker
             v-model="filters.rlEndTime"
             type="date"
             value-format="yyyy-MM-dd"
@@ -135,14 +128,12 @@
             :disabled="endDateDisabled">
           </el-date-picker>
         </el-form-item>
-
         <el-form-item label="案件类型" prop="fllb">
-                  <el-tooltip effect="dark" :content="selectCurfllb.name" placement="top-start" :popper-class="(selectCurfllb.name&&selectCurfllb.name.length>9)===true?'tooltipShow':'tooltipHide'">
-          <el-cascader v-model="filters.fllb" change-on-select filterable :options="fllbList" @change="handleChange" clearable></el-cascader>
-                  </el-tooltip>
+          <el-tooltip effect="dark" :content="selectCurfllb.name" placement="top-start" :popper-class="(selectCurfllb.name&&selectCurfllb.name.length>9)===true?'tooltipShow':'tooltipHide'">
+            <el-cascader v-model="filters.fllb" change-on-select filterable :options="fllbList" @change="handleChange" clearable></el-cascader>
+          </el-tooltip>
         </el-form-item>
-
-                <el-form-item label="案件类别" prop="ajlb">
+        <el-form-item label="案件类别" prop="ajlb">
           <el-select :clearable="true" v-model="filters.ajlb" size="small" placeholder="全部" filterable>
             <el-option v-for="item in ajlbData" :key="item.code" :label="item.name" :value="item.code"></el-option>
           </el-select>
@@ -152,9 +143,6 @@
             <el-option v-for="item in ajzmData" :key="item.code" :label="item.name" :value="item.name"></el-option>
           </el-select>
         </el-form-item>
-
-
-
         <el-form-item label="时间筛选">
           <el-select v-model="filters.dType" filterable clearable placeholder="全部" @change="queryByType">
             <el-option label="本年" value="year"></el-option>
@@ -181,7 +169,6 @@
     </el-col>
 
     <!--列表-->
-
     <el-table :data="cases" highlight-current-row v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
       <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
       <el-table-column label="案件名称" min-width="10%" :show-overflow-tooltip="true">
@@ -329,7 +316,7 @@ import { getSessionDeptSelect } from '@/api/depts'
 // getDeptLevel, ajrlListDepts,
 import { getAjrlDept, getAjrlParentDept, getAjrlNSXJ } from '@/api/dept'
 import { getUserInfo } from '@/utils/auth'
-import {  getSYHFLLBList
+import { getSYHFLLBList
   // , getAJLBText
 } from '@/utils/codetotext'
 import { parseTime } from '@/utils/index'
@@ -1574,6 +1561,11 @@ export default {
   .el-button + .el-button {
     margin-left: 0px;
     margin-bottom: 4px;
+  }
+  .el-form .el-cascader.el-cascader--small,
+  .el-form .el-input.el-input--small,
+  .el-form .el-select.el-select--small {
+    width: 222px;
   }
 }
 </style>
