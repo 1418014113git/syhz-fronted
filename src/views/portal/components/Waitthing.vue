@@ -150,7 +150,7 @@ export default {
       }
       if (index === 2) {
         localStorage.setItem('curAppCode', 'B')
-        if (node.data_op === '催办待办') {
+        if (node.data_op === '案件催办反馈待办') {
           this.$router.push({
             path: '/caseManage/dbList', query: { origin: 'portal', qsStatus: '1' } // 来源，签收状态标志
           })
@@ -211,7 +211,7 @@ export default {
           if (response.code === '000000' && response.data) {
             if (response.data.num > 0) {
               this.listData[2].data = [{
-                data_op: '催办待办', num: response.data.num
+                data_op: '案件催办反馈待办', num: response.data.num
               }]
             }
           }
