@@ -12,7 +12,7 @@
       <el-tooltip v-for="item in filterData" :key="item.index"  effect="dark" :content="item.columnDescribe" placement="top-start" :popper-class="(item.columnDescribe.length > 5) === true ? 'tooltipShow_case' : 'tooltipHide_case'">
         <el-form-item :label="item.columnDescribe" :prop="item.filterName" class="autoItem">
           <el-input v-if="item.columnType === 1" v-model="filters[item.filterName]" size="small" clearable maxlength="50" :placeholder="'请输入' + item.columnDescribe"></el-input>
-          <el-cascader v-if="item.columnType === 3 && item.columnName === 'SYH_FLLB'" v-model="filters[item.filterName]" change-on-select filterable :options="fllbList" clearable></el-cascader>
+          <el-cascader v-if="item.columnType === 3 && item.columnName === 'SYH_FLLB'" v-model="filters[item.filterName]" change-on-select filterable :options="fllbList" clearable @change="AJLXHandler"></el-cascader>
           <el-select v-if="item.columnType === 3 && item.columnName !== 'SYH_FLLB'" v-model="filters[item.filterName]" placeholder="请选择" clearable>
             <el-option v-if="item.columnName === 'AJZT'" v-for="option in ajztData" :key="option.code" :label="option.codeName" :value="option.code"></el-option>
             <el-option v-if="item.columnName === 'AJLB'" v-for="option in ajlbData" :key="option.code" :label="option.name" :value="option.code"></el-option>
@@ -38,9 +38,15 @@
           <el-option v-for="item in templateData" :key="item.code" :label="item.templateName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="查询方式">
+        <el-select v-model="filters.queryType" placeholder="请选择">
+          <el-option label="模糊查询" value="1"></el-option>
+          <el-option label="精确查询" value="2"></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item >
-        <el-button type="primary" size="small" v-on:click="restForm()">重置</el-button>
         <el-button type="primary" size="small" v-on:click="query(true)">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="restForm()">重置</el-button>
         <el-button v-if="$isViewBtn('182003') || $isViewBtn('182004') || $isViewBtn('182005')" type="primary" size="small" v-on:click="toTemplate()">维护模板</el-button>
       </el-form-item>
     </el-form>
@@ -102,7 +108,8 @@ export default {
         area: [],
         department: [],
         templateId: '',
-        words: ''
+        words: '',
+        queryType: '1'
       },
       lastTemplateId: '',
       selectCurDep: { name: '' },
@@ -147,7 +154,8 @@ export default {
       confirmStatusFilter: [
         { text: '上报未读', value: '1' },
         { text: '上报已读', value: '2' }
-      ]
+      ],
+      ajlxFirst: ''
     }
   },
   methods: {
@@ -259,9 +267,9 @@ export default {
           this.handleAreaChange(currentArea) // 查单位机构
           // 默认选择本单位
           if (this.curDept.depType === '-1') { // 省
-            this.filters.department = [this.curDept.depCode]
+            // this.filters.department = [this.curDept.depCode]
           } else if (this.curDept.depType === '1') { // 总队
-            this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
+            // this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
           } else if (this.curDept.depType === '2') { // 支队
             this.filters.department = [this.curDept.depCode]
           } else if (this.curDept.depType === '3') { // 大队
@@ -269,6 +277,7 @@ export default {
           } else if (this.curDept.depType === '4') { // 派出所
             this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
           }
+          this.queryTemplate()
         }
       }).catch(() => {
       })
@@ -430,16 +439,16 @@ export default {
       }).catch(() => {
       })
     },
-    initAjlb() { // 初始化案件类别
-      this.$query('getajlb', {}).then((response) => {
+    initAjlb(category) { // 初始化案件类别
+      this.$query('ajlb', { category: category }).then((response) => {
         if (response.data && response.data.length > 0) {
           this.ajlbData = response.data
         }
       }).catch(() => {
       })
     },
-    initAjzm() { // 案件罪名
-      this.$query('ajzm', {}).then(response => {
+    initAjzm(category) { // 案件罪名
+      this.$query('ajzm', { category: category }).then(response => {
         if (response.data && response.data.length > 0) {
           this.ajzmData = response.data
           const arr = []
@@ -560,15 +569,21 @@ export default {
           return item.name
         }
       }
+    },
+    AJLXHandler(val) {
+      if (val && val.length > 0) {
+        if (this.ajlxFirst || this.ajlxFirst !== val[0]) {
+          this.ajlxFirst = val[0]
+          this.initAjlb(this.ajlxFirst) // 案件类别
+          this.initAjzm(this.ajlxFirst) // 案件罪名
+        }
+      }
     }
   },
   mounted() {
-    this.initData()
     this.initAjzt() // 案件状态
-    this.initAjlb() // 案件类别
-    this.initAjzm() // 案件罪名
     this.initAjxz() // 案件性质
-    this.queryTemplate()
+    this.initData()
   }
 }
 </script>

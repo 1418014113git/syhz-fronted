@@ -85,8 +85,8 @@
         exportDataUrl: importexport.exportModuleName,
         defaultTime: ['00:00:00', '23:59:59'],
         shareStatusList: [
-          { code: 0, label: '未分享' },
-          { code: 1, label: '已分享' }
+          { code: '0', label: '未分享' },
+          { code: '1', label: '已分享' }
         ],
         total: '',
         page: 1,
