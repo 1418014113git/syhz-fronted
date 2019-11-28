@@ -13,11 +13,12 @@
               @change="handleAreaChange"
               :show-all-levels="false"
               :disabled="Number(curDept.depType)>2"
+              clearable
               placeholder="全部">
             </el-cascader>
           </el-tooltip>
         </el-form-item>
-        <el-form-item label="发起单位">
+        <el-form-item label="参与单位">
           <el-tooltip effect="dark"  :class="curDept.depType === '1'?'input_w':'input_ws1'"  :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>12)===true?'tooltipShow':'tooltipHide'">
             <el-cascader
               :options="deptOptions"
@@ -27,6 +28,7 @@
               :show-all-levels="false"
               @change="handleDeptChange"
               :disabled="Number(curDept.depType)>2"
+              clearable
               placeholder="全部">
             </el-cascader>
           </el-tooltip>
@@ -142,7 +144,7 @@
       </el-table-column>
       <el-table-column prop="tCount"  label='厅评价'  min-width="200" v-if="curDept.depType === '1' || curDept.depType === '2'"    show-overflow-tooltip></el-table-column>
       <el-table-column prop="sCount"  label='市评价'  min-width="200" v-if="curDept.depType === '2' || curDept.depType === '3' || curDept.depType === '4'"  show-overflow-tooltip></el-table-column>
-      <el-table-column label="操作" width="130">
+      <el-table-column label="操作" width="130" fixed="right">
         <template slot-scope="scope">
           <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
           <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="scope.row.status==='0' && $isViewBtn('101905')"  @click="handleEdit(scope.$index, scope.row)"></el-button>
@@ -274,7 +276,7 @@ export default {
           this.xzqhOptions = response.data ? response.data : []
           var currentArea = []
           if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
-            currentArea = [this.curDept.areaCode]
+            // currentArea = [this.curDept.areaCode]
             this.btnqx.isShowxfbtn = true // 显示下发按钮
             this.btnqx.isShowbxfbtn = true // 显示部下发按钮
           } else if (this.curDept.depType === '2') { // 支队
@@ -304,9 +306,9 @@ export default {
           this.handleAreaChange(currentArea) // 查单位机构
           // 默认选择本单位
           if (this.curDept.depType === '-1') { // 省
-            this.department = [this.curDept.depCode]
+            // this.department = [this.curDept.depCode]
           } else if (this.curDept.depType === '1') { // 总队
-            this.department = [this.curDept.parentDepCode, this.curDept.depCode]
+            // this.department = [this.curDept.parentDepCode, this.curDept.depCode]
           } else if (this.curDept.depType === '2') { // 支队
             this.department = [this.curDept.depCode]
           } else if (this.curDept.depType === '3') { // 大队
@@ -436,7 +438,8 @@ export default {
         pageNum: this.page, // 页数
         pageSize: this.pageSize, // 条数
         curDeptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode, // 当前部门code
-        status: this.filters.status // 状态
+        status: this.filters.status, // 状态，
+        isCheck: this.$isViewBtn('101908') // 是否有审核权限
       }
       if (this.area && this.area.length > 0) { // 行政区划
         para.provinceCode = this.area[0] || '' // 省code
@@ -451,7 +454,9 @@ export default {
         para.xflb = this.xflb // 下发类别
       }
       if (this.department && this.department.length > 0) { // 单位机构
-        para.curDeptCode = this.department[this.department.length - 1]// 部门code
+        para.queryDeptCode = this.department[this.department.length - 1] // 部门code
+      } else {
+        para.queryDeptCode = ''
       }
       // para.curDeptType = this.curDept.depType === '4' ? this.pcsParentDeptype : this.curDept.depType // 当前部门类型 .派出所取他的父级类型
       // para.parentCode = this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.parentDepCode // 当前部门父级单位code
@@ -798,6 +803,9 @@ export default {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    if (this.$route.query.status) { // 有参数，说明是从首页--个人待办--审查待办--集群战役待审核
+      this.filters.status = this.$route.query.status
+    }
     this.init()
   },
   activated() {
