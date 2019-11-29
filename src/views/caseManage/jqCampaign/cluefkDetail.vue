@@ -74,21 +74,23 @@
             <el-table-column prop="ajztName"  label='案件状态'  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="larq"  label='立案日期'  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="parq"  label='破案日期'  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="zhrys"  label='抓获（人）'  min-width="100" show-overflow-tooltip>
+            <el-table-column prop="zhrys"  label='抓获（人）'  min-width="80" show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.zhrys"  maxlength="11" @keyup.native="number('zhrys',scope.row)" class="textCen"></el-input>
+                <span v-else>{{scope.row.zhrys}}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="ryclcs"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip>
+            <el-table-column prop="ryclcs"  label='刑拘（人）'  min-width="80" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="pzdb"  label='批捕（人）'  min-width="80" show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.pzdb"  maxlength="11" @keyup.native="number('pzdb',scope.row)" class="textCen"></el-input>
                 <span v-else>{{scope.row.pzdb}}</span>
               </template>
             </el-table-column>
-             <el-table-column prop="yjss" label="移诉（人）"  min-width="100"  show-overflow-tooltip>
+             <el-table-column prop="yjss" label="移诉（人）"  min-width="80"  show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.yjss"  maxlength="11" @keyup.native="number('yjss',scope.row)" class="textCen"></el-input>
+                <span v-else>{{scope.row.yjss}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="dhwd"  label='捣毁窝点'  min-width="100" show-overflow-tooltip>
@@ -103,7 +105,7 @@
                 <span v-else>{{scope.row.sajz}}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作"  width="100">
+            <el-table-column label="操作"  width="100" fixed="right">
               <template slot-scope="scope">
                 <el-button v-if="scope.$index+1<zblistData.length" size="mini" title="提交"  type="primary" icon="el-icon-check" circle  @click="handleSubmit(scope.row)"></el-button>
                 <el-button v-if="scope.$index+1<zblistData.length" size="mini" title="移除案件"  type="primary" icon="el-icon-delete" circle  @click="handleDel(2, scope.row)"></el-button>
@@ -166,7 +168,8 @@ export default {
       const para = {
         assistId: this.xsfkRow.clusterId, // 集群Id
         type: 'detail', // 操作类型
-        fbId: this.xsfkRow.fbId // 反馈Id
+        fbId: this.xsfkRow.fbId, // 反馈Id
+        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
       }
       this.$query('caseassistclue/feedBack/detail', para).then((response) => {
         this.listLoading = false
@@ -186,7 +189,8 @@ export default {
       const para = {
         assistId: this.xsfkRow.clusterId, // 集群Id
         type: 'ys', // 操作类型
-        fbId: this.xsfkRow.fbId // 反馈Id
+        fbId: this.xsfkRow.fbId, // 反馈Id
+        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
       }
       this.$query('caseassistclue/feedBack/detail', para).then((response) => {
         this.yslistLoading = false
@@ -201,7 +205,8 @@ export default {
         type: type, // 1移送案件，2侦办案件
         fbId: this.xsfkRow.fbId, // 反馈Id
         assistId: this.xsfkRow.clusterId, // 集群Id
-        deptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode// 当前部门code
+        deptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
+        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
       }
       this.$query('caseassistclue/ajSearch', para).then((response) => {
         if (type === 1) { // 移送案件
@@ -222,7 +227,8 @@ export default {
       const para = {
         assistId: this.xsfkRow.clusterId, // 集群Id
         type: 'zb', // 操作类型
-        fbId: this.xsfkRow.fbId // 反馈Id
+        fbId: this.xsfkRow.fbId, // 反馈Id
+        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
       }
       this.$query('caseassistclue/feedBack/detail', para).then((response) => {
         this.zblistLoading = false
@@ -279,7 +285,8 @@ export default {
               userId: this.curUser.id, // 当前用户Id
               userName: this.curUser.realName, // 当前用户真实姓名
               curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-              curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode// 当前部门code
+              curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
+              assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
             }
             this.$update('caseassistclue/feedBack', param).then((response) => {
               this.listLoading = false
@@ -314,7 +321,8 @@ export default {
               userId: this.curUser.id, // 当前用户Id
               userName: this.curUser.realName, // 当前用户真实姓名
               curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-              curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode// 当前部门code
+              curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
+              assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
             }
             this.$update('caseassistclue/feedBack', param).then((response) => {
               this.listLoading = false
@@ -355,7 +363,8 @@ export default {
           userId: this.curUser.id, // 当前用户Id
           userName: this.curUser.realName, // 当前用户真实姓名
           curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-          curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode// 当前部门code
+          curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
+          assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
         }
         this.$update('caseassistclue/feedBack', param).then((response) => {
           this.isShowTime = true
@@ -406,7 +415,8 @@ export default {
             userId: this.curUser.id, // 当前用户Id
             userName: this.curUser.realName, // 当前用户真实姓名
             curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-            curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode// 当前部门code
+            curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
+            assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
           }
           this.$update('caseassistclue/feedBack', param).then((response) => {
             this.listLoading = false
@@ -437,7 +447,8 @@ export default {
           userId: this.curUser.id, // 当前用户Id
           userName: this.curUser.realName, // 当前用户真实姓名
           curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-          curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode// 当前部门code
+          curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
+          assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
         }
         if (type === 1) { // 移送案件
           param.type = 'deleteSyajs'
