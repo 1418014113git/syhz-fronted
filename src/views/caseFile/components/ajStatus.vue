@@ -53,7 +53,7 @@ export default {
         },
         {
           type: 'YSQSRQ',
-          name: '移起诉讼',
+          name: '移诉',
           date: '',
           time: '',
           icon: '/static/image/caseFile_images/default.png'

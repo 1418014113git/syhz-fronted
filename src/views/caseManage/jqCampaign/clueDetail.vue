@@ -86,7 +86,8 @@ export default {
       const para = {
         assistId: this.curRow.clusterId, // 集群Id
         type: 'detail', // 操作类型
-        fbId: this.curRow.fbId // 反馈Id
+        fbId: this.curRow.fbId, // 反馈Id
+        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
       }
       this.$query('caseassistclue/feedBack/detail', para).then((response) => {
         this.listLoading = false
@@ -105,7 +106,8 @@ export default {
       const para = {
         assistId: this.curRow.clusterId, // 集群Id
         type: 'ys', // 操作类型
-        fbId: this.curRow.fbId // 反馈Id
+        fbId: this.curRow.fbId, // 反馈Id
+        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
       }
       this.$query('caseassistclue/feedBack/detail', para).then((response) => {
         this.yslistLoading = false
@@ -120,7 +122,8 @@ export default {
       const para = {
         assistId: this.curRow.clusterId, // 集群Id
         type: 'zb', // 操作类型
-        fbId: this.curRow.fbId // 反馈Id
+        fbId: this.curRow.fbId, // 反馈Id
+        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
       }
       this.$query('caseassistclue/feedBack/detail', para).then((response) => {
         this.zblistLoading = false
