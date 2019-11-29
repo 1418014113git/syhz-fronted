@@ -229,8 +229,8 @@ export default {
           } else if (this.curDept.depType === '3') { // 大队 派出所
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
           } else if (this.curDept.depType === '4') {
-            if (this.curDept.areaCode === '610403') { // 杨凌例外
-              currentArea = ['610000', '610403']
+            if (this.curDept.areaCode === '611400') { // 杨凌例外
+              currentArea = ['610000', '611400']
             } else { // 正常的派出所
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
             }
@@ -430,6 +430,7 @@ export default {
             restaurants.forEach(element => {
               element.value = element.realName
             })
+            queryString = queryString.trim() // 去掉输入框的首尾空格
             var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
             cb(results)
           })
@@ -487,7 +488,7 @@ export default {
 
       var url = this.downLoadUrl + 'excel/exporFile/USERMESSAGE?id=' + this.curDept.id + '&type=' + 2 + '&userId=' + this.curUser.id +
         '&provinceCode=' + para.provinceCode + '&cityCode=' + para.cityCode + '&reginCode=' + para.reginCode + '&departCode=' + para.departCode +
-         '&realName=' + para.realName + '&userSort=' + para.userSort + '&userState=' + para.userState
+        '&realName=' + para.realName + '&userSort=' + para.userSort + '&userState=' + para.userState
       window.open(url)
     },
     rylbChange(val) { // 人员类别change事件
@@ -598,15 +599,15 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-.personList{
-  .el-dialog{
+.personList {
+  .el-dialog {
     width: 35%;
   }
-  .editPerStatus .el-form{
+  .editPerStatus .el-form {
     width: 85%;
     margin: 0 auto;
   }
-  .tipText{
+  .tipText {
     margin: 8px 0;
     color: #ffe617;
   }

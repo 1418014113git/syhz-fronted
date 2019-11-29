@@ -64,7 +64,7 @@ export default {
         type: ''
       },
       examinations: [], // 考试统计
-      cityData: [],
+      cityData: [], // 考试报告数据
       expandstab: [], // 设置当前的展开行
       caseData: [], // 市的列表数据
       // subDeptCaseData: [], // 下级部门列表数据
@@ -80,7 +80,6 @@ export default {
         }
       },
       endPickerOptions: {},
-      // cityData: [], // 盟市统计的
       startTime: '', // 开始时间，页面是绑定的modle
       endTime: '', // 结束时间
       yearDate: '', // 年份

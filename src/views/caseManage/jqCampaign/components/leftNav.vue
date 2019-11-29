@@ -1,11 +1,11 @@
 <template>
-  <!-- 人员档案升级版 -->
-  <div class="leftNavPer" v-loading="loading">
+  <!-- 集群战役详情页 -->
+  <div class="jqzyLeftNav" v-loading="loading">
     <ul class="navList">
       <li v-for="(item,index) in navList" :key="index" :class="{'on':curClass === item.class}" @click="clickNav(item.class,index)" >
         <div>
           <span class="navName" :class="{'gray':item.number === 0 && index!==0}">{{item.name}}</span>
-          <span class="number"  v-if="item.number>0 && item.number<99 && index!==0" >（{{item.number}}）</span>
+          <span class="number"  v-if="item.number>0 && item.number<99 && index!==0" >{{item.number}}</span>
           <span class="number pdm"  v-else-if="item.number>99 && index!==0">99+</span>
           <span class="numberzw" v-else></span>
         </div>
@@ -15,7 +15,7 @@
 </template>
 <script>
 export default {
-  props: ['cardId'],
+  props: ['info'],
   name: 'personnelFile',
   data() {
     return {
@@ -56,40 +56,16 @@ export default {
     getModuleClass(val) {
       this.getCurItem(val)
     },
-    cardId(val) {
-      this.baseInfo = {}
-      if (val) {
-        this.cardNumber = val
+    info(val) {
+      if (val.clusterId) {
         this.init()
       }
     }
   },
   methods: {
     init() {
-      this.detail()
       this.getItemTotal() // 获取菜单对应的内容条数
     },
-    detail() {
-      // this.loading = true
-      // // 根据身份证号码查询人员详细信息
-      // const para = {
-      //   method: 'Query',
-      //   byUserCard: this.cardNumber,
-      //   userCardId: this.curUser.cardNumber,
-      //   userCertId: this.curUser.cardNumber,
-      //   userDept: this.paramDept,
-      //   userName: this.curUser.realName
-      // }
-      // personByCardId(para).then((response) => {
-      //   this.loading = false
-      //   this.baseInfo = response.data
-      // }).catch(() => {
-      //   this.loading = false
-      // })
-
-      // this.baseInfo = response.data
-    },
-
     clickNav(selector, index) {
       // this.curIndex = index
       this.curClass = selector
@@ -110,7 +86,8 @@ export default {
       this.navList.forEach((item, i) => {
         var className = item.class
         if (className === val) {
-          this.curIndex = i
+          // this.curIndex = i
+          this.curClass = val
         }
       })
     },
@@ -126,21 +103,20 @@ export default {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 总队，支队
+      if (this.curDept.depType === '1' || this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.parentDepCode === '611400390000')) { // 总队，支队 (杨凌派出所和杨凌支队同权限)
         this.navList = this.navList1
-      } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
+      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.parentDepCode !== '611400390000')) { // 大队，派出所
         this.navList = this.navList2
       }
     }
-    if (this.cardId) { // 正式
-      this.cardNumber = this.cardId
-      // this.init()
+    if (this.info.clusterId) {
+      this.init()
     }
   }
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.leftNavPer {
+.jqzyLeftNav {
   width: 100%;
   max-height: 100%;
   // padding-bottom: 25px;
@@ -202,6 +178,46 @@ export default {
       background-color: #0084e9;
     }
   }
+  // .navList {
+  //   width: 100%;
+  //   li {
+  //     width: 100%;
+  //     padding: 5px 0;
+  //     cursor: pointer;
+  //     div {
+  //       text-align: center;
+  //       // width: 61%;
+  //       // margin: 0 auto;
+  //       // display: flex;
+  //       // justify-content: space-around;
+  //       .navName {
+  //         letter-spacing: 2px;
+  //         text-shadow: 0 0 2px #fff;
+  //         // margin: 0 5px;
+  //         font-weight: 600;
+  //       }
+  //       .number {
+  //         // display: inline-block;
+  //         // width: 18px;
+  //         // height: 17px;
+  //         // line-height: 18px;
+  //         // text-align: center;
+  //         // background-color: #00a0e9;
+  //         font-size: 12px;
+  //         // border-radius: 18px;
+  //         margin-top: 3px;
+  //         display: inline-block;
+  //         width: 20px;
+  //         height: 20px;
+  //       }
+  //       .numberzw {
+  //         display: inline-block;
+  //         width: 20px;
+  //         height: 20px;
+  //       }
+  //     }
+  //   }
+  // }
   .navList {
     width: 100%;
     li {
@@ -210,10 +226,6 @@ export default {
       cursor: pointer;
       div {
         text-align: center;
-        // width: 61%;
-        // margin: 0 auto;
-        // display: flex;
-        // justify-content: space-around;
         .navName {
           letter-spacing: 2px;
           text-shadow: 0 0 2px #fff;

@@ -58,19 +58,24 @@ export default {
     },
     isOvertime() {
       this.currentTime = new Date().getTime() // 记录这次鼠标移动的时间
-      if (this.currentTime - this.lastTime > this.timeOut) { // 判断上次最后一次鼠标移动的时间和这次鼠标移动的时间间隔是否大于30分钟
-        this.$store.dispatch('FedLogOut').then(() => {
-          this.$router.push({
-            path: '/login'
-          })
+      if ((this.currentTime - this.lastTime) > this.timeOut) { // 判断上次最后一次鼠标移动的时间和这次鼠标移动的时间间隔是否大于30分钟
+        // this.$store.dispatch('FedLogOut').then(() => {
+        //   this.$router.push({
+        //     path: '/login'
+        //   })
+        // })
+        sessionStorage.clear()
+        this.$router.push({
+          path: '/login'
         })
+
         this.$alert('由于您长时间未操作，请重新登录', '提示', {
           confirmButtonText: '确定',
           callback: action => {
+            sessionStorage.clear()
             this.$router.push({
               path: '/login'
             })
-            sessionStorage.clear()
           }
         })
       } else {

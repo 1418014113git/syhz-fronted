@@ -10,6 +10,7 @@
               type="primary" size="small" @click="handleSettingScore">评价打分</el-button>
         </div>
      </div>
+     <div v-if="pjdfInfo.grade">
       <el-form ref="pjdfInfo" :model="pjdfInfo" size="small" label-width="70px" class="scoreWrap">
         <el-form-item label="打分" prop="grade">
           <el-rate v-model="pjdfInfo.grade" disabled></el-rate>
@@ -18,11 +19,13 @@
           {{pjdfInfo.gradeContent}}
         </el-form-item>
       </el-form>
+     </div>
+     <div v-else style="margin:20px;">当前未评价</div>
       <!-- 评价打分 弹框 -->
       <el-dialog title="评价打分" :visible.sync="isShowpjdf" size="small" class="pjdfForm" @close="resetForm('pjdfForm')">
         <el-form ref="pjdfForm" :rules="rules" :model="pjdfForm" size="small" label-width="70px" v-loading="formLoading">
           <el-form-item label="打分" prop="grade">
-            <el-rate v-model="pjdfForm.grade"></el-rate>
+            <el-rate v-model="pjdfForm.grade" @change="rateChange"></el-rate>
           </el-form-item>
           <el-form-item label="评价" prop="gradeContent">
             <el-input v-model.trim="pjdfForm.gradeContent" type="textarea" :rows="3" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
@@ -59,8 +62,8 @@ export default {
       rules: {
         grade: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === null || value === undefined || value === '') {
-              callback(new Error('请打分'))
+            if (value === null || value === undefined || value === '' || value === 0) {
+              callback(new Error('请打分（1-5分）'))
             } else {
               callback()
             }
@@ -71,7 +74,6 @@ export default {
   },
   watch: {
     pjdfData(val) {
-      // this.loading = true
       // this.initData() // 初始化数据
       if (val) {
         this.pjdfInfo = val
@@ -93,6 +95,9 @@ export default {
     },
     handleSettingScore() { // 评价打分
       this.isShowpjdf = true
+    },
+    rateChange(val) { // 打分 change
+      this.$refs.pjdfForm.validateField('grade') // 校验打分项
     },
     resetForm(formName) { // 重置表单
       if (this.$refs[formName]) {

@@ -16,7 +16,7 @@
             </div>
             <el-row>
               <el-col :span="8" class="pdr">
-                <el-form-item label="案件类型" prop="fllb" label-width="80px">
+                <el-form-item label="案件类型" prop="fllb" label-width="90px">
                   <el-cascader v-model="ajInfo.fllb" change-on-select filterable :options="fllbList"  :disabled="fllbDisabled"></el-cascader>
                   <el-button type="success" style="margin-left: 10px;" @click="saveFllb()" :loading="saveLoading" v-if="!fllbDisabled">确认</el-button>
                   <img v-if="carryParam && carryParam.isRl==='1'" src="/static/image/caseFile_images/edit.png" alt="" srcset="" class="featureImg" @click="editCaseType">

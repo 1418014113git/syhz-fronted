@@ -46,7 +46,7 @@
             <vue-editor v-model="dbApplyForm.superviseDesc" useCustomImageHandler @imageAdded="handleImageAdded" style="width: 100%; min-width: 500px;"></vue-editor>
           </el-form-item>
           <el-form-item label="附件" prop="attachment">
-            <el-upload drag multiple :action="uploadAction"
+            <el-upload drag multiple ref="fileUpload" :action="uploadAction"
                        :auto-upload="true"
                        :file-list="uploadFiles"
                        :on-success="attachmentSuccess"
@@ -294,9 +294,28 @@ export default {
         }
       }).catch((e) => { })
     },
+    clearFileList() {
+      this.$refs.fileUpload.abort()
+      const elementArr = document.getElementsByClassName('el-upload-list__item')
+      for (let i = 0; i < elementArr.length; i++) {
+        const element = elementArr[i]
+        if (i === elementArr.length - 1) {
+          element.setAttribute('style', 'display: none;')
+          element.remove()
+        }
+      }
+    },
     attachmentSuccess(res, file, fileList) {
+      if (res.code !== '000000') {
+        this.$alert('上传失败， 请重新上传', '提示', {
+          confirmButtonText: '确定',
+          callback: action => {
+            this.clearFileList()
+          }
+        })
+        return false
+      }
       this.uploadFiles = fileList
-      console.log(this.uploadFiles)
     },
     attachmentRemove(file, fileList) {
       this.uploadFiles = fileList

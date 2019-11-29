@@ -26,7 +26,7 @@
             {{$getDictName(scope.row.status+'','cbzt')}}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="100">
+        <el-table-column label="操作" width="100" fixed="right">
           <template slot-scope="scope">
             <!-- 0: {codeDesc: "催办状态", codeLx: "cbzt", dictName: "待签收", dictKey: "1"}
             1: {codeDesc: "催办状态", codeLx: "cbzt", dictName: "已签收", dictKey: "2"}
