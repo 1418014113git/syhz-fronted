@@ -1,5 +1,5 @@
 <template>
-  <div class="examStatistical">
+  <div>
     <el-form :inline="true" label-width="84px">
       <el-row>
         <el-form-item label="倾向性">
@@ -39,11 +39,11 @@
           <el-select clearable v-model="queryForm.area" placeholder="全部">
             <el-option :label="item.dictName" :value="item.dictName" v-for="item in $getDicts('qy')"
                        :key="item.dictKey"></el-option>
-            <!--<el-option v-for="item in area" :key="item.id" :label="item.name" :value="item.id"></el-option>-->
           </el-select>
         </el-form-item>
         <el-form-item label="关键字" prop="name">
-          <el-input clearable style="width: 340px" v-model="queryForm.keyWord" placeholder="输入关键字检索信息（作者、标题、全文）"></el-input>
+          <el-input clearable style="width: 340px" v-model="queryForm.keyWord"
+                    placeholder="输入关键字检索信息（作者、标题、全文）"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" v-on:click="query(true)">检索</el-button>
@@ -52,14 +52,13 @@
       </el-row>
     </el-form>
     <div class="list">
-      <!--<hr style="margin: 5px 0 5px 0"/>-->
       <div style="margin: 0 10px 0 10px" v-for="(item, index) in info">
         <div>
           <img style="margin-bottom: 15px" :src="src(item.orientation)">
           <span class="title-span" @click="handleDetail(item)">{{ delHtmlTag(item.title)}}</span>
         </div>
         <div style="margin: 0 0 5px 0;height: 44px">
-          <span @click="handleDetail(item)">{{ delHtmlTag(item.summary)}}</span>
+          <span style="cursor: pointer;" @click="handleDetail(item)">{{ delHtmlTag(item.summary)}}</span>
         </div>
         <div style="height: 22px">
           <span class="ctime-span">{{ formatTime(item.ctime)}}</span>
@@ -67,7 +66,7 @@
           <span class="sourceType-span">{{ formatSourceType(item.sourceType)}}</span>
           <span class="keyWord-span">{{ item.keyWord}}</span>
         </div>
-        <hr v-if = isDisplay(index) style="margin: 10px 0 10px 0"/>
+        <hr v-if=isDisplay(index) style="margin: 10px 0 10px 0"/>
       </div>
       <div v-if="total < 1">
         <p style="line-height: 200px; text-align: center">暂无数据</p>
@@ -85,8 +84,9 @@
 </template>
 <script>
   import { getListPage } from '@/api/publicOpinionInformation'
+
   export default {
-    name: 'statistical',
+    name: 'lyricalList',
     data() {
       return {
         isflag: 0,
@@ -132,6 +132,7 @@
       handleDetail(val) {
         this.$router.push({ path: '/lyrical/lyricalDetail', query: { data: val }})
       },
+      // 查询
       query(flag) {
         if (flag) {
           this.page = 1
@@ -205,6 +206,7 @@
           }
         })
       },
+      // 重置
       reset() {
         this.queryForm.orientation = ''
         this.queryForm.sourceType = ''
@@ -215,6 +217,7 @@
         this.pageSize = 15
         this.query()
       },
+      // 初始化
       init() {
         // 默认选中近7天
         this.queryForm.time = '3'
@@ -227,6 +230,7 @@
           this.pageSize = response.data.pageable.pageSize
         })
       },
+      // 获取倾向性图标
       src(val) {
         if (val === 1) {
           return '/static/image/orientation_images/positive.png'
@@ -240,33 +244,20 @@
       delHtmlTag(str) {
         return str.replace(/<[^>]+>/g, '')
       },
+      // 格式化时间
       formatTime(str) {
         return this.$parseTime(str, '{y}-{m}-{d} {h}:{i}')
       },
+      // 格式化媒体类型
       formatSourceType(str) {
-        if (str === 1) {
-          str = '网媒'
-        } else if (str === 2) {
-          str = '论坛'
-        } else if (str === 3) {
-          str = '博客'
-        } else if (str === 4) {
-          str = '微博'
-        } else if (str === 5) {
-          str = '平媒'
-        } else if (str === 6) {
-          str = '微信'
-        } else if (str === 7) {
-          str = '视频'
-        } else if (str === 9) {
-          str = 'APP'
-        } else if (str === 10) {
-          str = '评论'
-        } else if (str === 99) {
-          str = '其他'
+        var list = this.$getDicts('mtlx')
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].dictKey + '' === str + '') {
+            return list[i].dictName
+          }
         }
-        return str
       },
+      // 是否显示分割线
       isDisplay(index) {
         if (index === this.info.length - 1) {
           return false
@@ -288,44 +279,50 @@
     background: rgba(0, 64, 94, 0.7);
     border-radius: 8px;
   }
-  .title-span{
+
+  .title-span {
     font-size: 18px;
     font-weight: bolder;
-    width:95%;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    word-break:keep-all;
+    width: 95%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
     display: inline-block;
+    cursor: pointer;
   }
-  .ctime-span{
+
+  .ctime-span {
     margin-right: 40px;
-    width:8%;
+    width: 8%;
     position: relative;
     bottom: 5px;
   }
-  .author-span{
+
+  .author-span {
     margin-right: 40px;
-    width:8%;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    word-break:keep-all;
+    width: 8%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
     display: inline-block;
   }
-  .sourceType-span{
+
+  .sourceType-span {
     margin-right: 40px;
-    width:4%;
+    width: 4%;
     position: relative;
     bottom: 5px;
   }
-  .keyWord-span{
+
+  .keyWord-span {
     margin-right: 40px;
-    width:50%;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    word-break:keep-all;
+    width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
     display: inline-block;
   }
 </style>
