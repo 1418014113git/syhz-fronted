@@ -1,33 +1,37 @@
 <template>
-  <section>
-    <div class="box">
-      <img src="@/assets/icon/back.png" class="img" @click="goback()">
-      <div>
-        <div class="title">
-          <span class="title-font">{{delHtmlTag(title)}}</span>
+  <div class="box">
+    <el-row class="caseEdit">
+      <img src="@/assets/icon/back.png" class="goBack" @click="goback()">
+    </el-row>
+    <el-row class="caseEdit">
+      <div class="body">
+        <div style="margin: 50px 0 0 0">
+          <div class="title">
+            <span class="title-font">{{delHtmlTag(title)}}</span>
+          </div>
+          <div style="margin-left: 100px;">
+            <div style="margin-bottom: 10px">
+              <span style="margin-right: 70px">{{ formatTime(ctime)}}</span>
+              <span style="margin-right: 70px">来源：{{ formatSourceType(sourceType)}}</span>
+              <span style="margin-right: 70px">作者：{{ author}}</span>
+              <span>倾向性：</span>
+              <span v-bind:style="getColor(orientation)">{{ formatOrientation(orientation)}}</span>
+            </div>
+            <div>
+              <span>原文链接：</span>
+              <span style="color: #8c939d">{{url}}</span>
+            </div>
+          </div>
         </div>
-        <div style="margin-left: 100px;">
-          <div  style="margin-bottom: 10px">
-            <span style="margin-right: 70px">{{ formatTime(ctime)}}</span>
-            <span style="margin-right: 70px">来源：{{ formatSourceType(sourceType)}}</span>
-            <span style="margin-right: 70px">作者：{{ author}}</span>
-            <span>倾向性：</span>
-            <span v-bind:style = "getColor(orientation)">{{ formatOrientation(orientation)}}</span>
-          </div>
-          <div>
-            <span>原文链接：</span>
-            <span style="color: #8c939d">{{url}}</span>
-          </div>
+        <div class="content" v-html="content">
         </div>
       </div>
-      <div style="margin-top: 60px;" v-html="content">
-      </div>
-    </div>
-  </section>
+    </el-row>
+  </div>
 </template>
 <script>
   export default {
-    name: 'list',
+    name: 'lyricalDetail',
     data() {
       return {
         title: '',
@@ -40,6 +44,7 @@
       }
     },
     methods: {
+      // 初始化
       init() {
         var data = this.$route.query.data
         this.title = data.title
@@ -50,47 +55,33 @@
         this.url = data.url
         this.content = data.content
       },
+      // 格式化发布时间
       formatTime(str) {
         return this.$parseTime(str, '{y}-{m}-{d} {h}:{i}')
       },
+      // 格式化媒体类型
       formatSourceType(str) {
-        if (str === 1) {
-          str = '网媒'
-        } else if (str === 2) {
-          str = '论坛'
-        } else if (str === 3) {
-          str = '博客'
-        } else if (str === 4) {
-          str = '微博'
-        } else if (str === 5) {
-          str = '平媒'
-        } else if (str === 6) {
-          str = '微信'
-        } else if (str === 7) {
-          str = '视频'
-        } else if (str === 9) {
-          str = 'APP'
-        } else if (str === 10) {
-          str = '评论'
-        } else if (str === 99) {
-          str = '其他'
+        var list = this.$getDicts('mtlx')
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].dictKey + '' === str + '') {
+            return list[i].dictName
+          }
         }
-        return str
       },
+      // 格式化倾向性
       formatOrientation(str) {
-        if (str === 1) {
-          str = '正面'
-        } else if (str === 2) {
-          str = '负面'
-        } else if (str === 3) {
-          str = '中性'
+        var list = this.$getDicts('qxx')
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].dictKey + '' === str + '') {
+            return list[i].dictName
+          }
         }
-        return str
       },
       // 去掉字符串中的HTML标签
       delHtmlTag(str) {
         return str.replace(/<[^>]+>/g, '')
       },
+      // 倾向性获取字体颜色
       getColor(val) {
         if (val === 1) {
           val = 'color:#2fd5ff'
@@ -99,10 +90,10 @@
         } else if (val === 3) {
           val = 'color:orange'
         }
-        console.log(val)
         return val
       },
-      goback() { // 返回
+      // 返回
+      goback() {
         this.$router.back(-1)
       }
     },
@@ -112,21 +103,40 @@
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
+  .body {
+    padding: 10px 0;
+    overflow: auto;
+    border: 1px solid rgb(0, 160, 233);
+    background: rgba(0, 64, 94, 0.7);
+    border-radius: 8px;
+  }
+
   .img {
     cursor: pointer;
-    margin-left: 90%;
+    margin-left: 93%;
     margin-bottom: 20px;
   }
-  .box{
+
+  .box {
+    padding: 20px 40px;
+    display: inline-block;
+    width: 100%;
+  }
+
+  .title {
     width: 80%;
     margin-left: 10%;
-  }
-  .title{
+    color: rgb(32, 160, 255);
     margin-bottom: 20px;
     text-align: center;
   }
-  .title-font{
+
+  .title-font {
     font-size: 25px;
     font-weight: bolder;
+  }
+
+  .content {
+    margin: 60px 30px 30px 30px
   }
 </style>
