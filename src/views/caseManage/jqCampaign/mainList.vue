@@ -148,8 +148,8 @@
         <el-table-column label="操作" width="130" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
-            <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="controlxg(scope.row) && $isViewBtn('101905')"  @click="handleEdit(scope.$index, scope.row)"></el-button>
-            <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete" circle  v-if="controlxg(scope.row) && $isViewBtn('101906')"  @click="handleDel(scope.$index, scope.row)"></el-button>
+            <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="controlxg(scope.row)"  @click="handleEdit(scope.$index, scope.row)"></el-button>
+            <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete" circle  v-if="controlsc(scope.row)"  @click="handleDel(scope.$index, scope.row)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -348,7 +348,10 @@ export default {
       return (this.curDept.depType === '1' || (this.curDept.depType === '2' && ((this.curDept.areaCode === row.cityCode) || (this.curDept.depCode === row.applyDeptCode))) || (this.curDept.depType === '4' && ((this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114') || (this.curDept.depCode.substring(0, 4) === row.applyDeptCode.substring(0, 4) === '6114') || this.$isViewBtn('101908'))))
     },
     controlxg(row) { // 控制列表修改按钮
-      return row.status === '0' && ((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode))
+      return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))
+    },
+    controlsc(row) { // 控制列表删除按钮
+      return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))
     },
     handleAreaChange(val) { // 行政区划
       this.department = []
