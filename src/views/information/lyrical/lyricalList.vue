@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="lyricalList">
     <el-form :inline="true" label-width="84px">
       <el-row>
         <el-form-item label="倾向性">
@@ -272,6 +272,10 @@
   }
 </script>
 <style rel="stylesheet/scss" lang="scss">
+  .lyricalList{
+    width: 90%;
+    margin-left: 5%;
+  }
   .list {
     padding: 10px 0;
     overflow: auto;
