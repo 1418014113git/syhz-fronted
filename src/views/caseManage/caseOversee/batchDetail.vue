@@ -171,16 +171,20 @@ export default {
           if (this.dbBatchForm.caseList) { // 督办案件列表
             for (let m = 0; m < this.dbBatchForm.caseList.length; m++) {
               var item = this.dbBatchForm.caseList[m]
-              item.sajz = getThousandNum((item.sajz / 10000).toFixed(2))
+              if (item.sajz) { // 涉案价值
+                item.sajz = getThousandNum((item.sajz / 10000).toFixed(2))
+              } else {
+                item.sajz = 0
+              }
             }
             this.choosedCases = this.dbBatchForm.caseList // 督办案件列表
           }
           if (this.dbBatchForm.superviseLevel) { // 督办级别
             this.dbBatchForm.superviseLevel = this.dbBatchForm.superviseLevel + ''
           }
-          if (this.dbBatchForm.attachment) { // 申请的附件
+          if (this.dbBatchForm.document) { // 申请的附件
             this.uploadImgs = [] // 先清空掉该数组
-            var files = this.dbBatchForm.attachment.split('|')
+            var files = this.dbBatchForm.document.split('|')
             for (let index = 0; index < files.length; index++) {
               var element = files[index]
               element = JSON.parse(element)
