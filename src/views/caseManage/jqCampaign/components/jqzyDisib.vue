@@ -246,6 +246,7 @@ export default {
         qbxsCategory: '', // 分类
         qbxsDistribute: '' // 分发状态
       }
+      this.xsNum = 0 // 已选线索数初始化
       this.deptCode = '' // 接收单位code
       this.acceptDeptName = '' // 接收单位名称
       this.initData()

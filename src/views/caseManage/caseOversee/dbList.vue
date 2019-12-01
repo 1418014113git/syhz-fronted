@@ -704,7 +704,7 @@ export default {
     if (this.$route.query.origin) {
       this.hasBackBtn = true // 是否显示返回按钮
       this.carryParam = this.$route.query
-      if (this.carryParam.origin === 'portal') { // 首页
+      if (this.carryParam.origin === 'portal') { // 首页 跳转来的
         if (this.$route.query.status) {
           this.filters.status = this.$route.query.status // 首页-审核待办
         }
@@ -714,6 +714,10 @@ export default {
         if (this.$route.query.qsStatus) {
           this.filters.qsStatus = this.$route.query.qsStatus // 首页-审核待办
         }
+        this.initData()
+      }
+      if (this.carryParam.origin === 'caseFile') { // 案件档案 跳转来的
+        this.filters.keyword = this.carryParam.abjh // 将案件编号赋值给查询条件 关键词
         this.initData()
       }
       if (this.carryParam.origin === 'dbStatistical') { // 督办统计 跳转来的

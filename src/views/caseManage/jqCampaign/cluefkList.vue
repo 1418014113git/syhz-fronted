@@ -51,23 +51,23 @@
           <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="syajs"  label='移送（次）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="parqCount"  label='破案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="xsjl"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="130" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="syajs"  label='移送（次）'  min-width="90" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="larqCount"  label='立案（起）'  min-width="90" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="parqCount"  label='破案（起）'  min-width="90" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="zhrys" label="抓获（人）"  min-width="90" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="xsjl"  label='刑拘（人）'  min-width="90" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="pzdb"  label='批捕（人）'  min-width="90" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="yjss" label="移诉（人）"   min-width="90" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="90" show-overflow-tooltip></el-table-column>
       <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
         <template slot-scope="scope">
           <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作"  width="100">
+      <el-table-column label="操作"  width="100" fixed="right">
         <template slot-scope="scope">
-          <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle   @click="handleDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle   v-if="controlBtn(scope.row)"  @click="handleDetail(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -80,8 +80,8 @@
     </el-col>
 
     <!--线索反馈详情弹出层-->
-    <el-dialog title="反馈" :visible.sync="isShowdialog">
-      <cluefk-detail :isShowdialog="isShowdialog" :row="curRow"></cluefk-detail>
+    <el-dialog title="反馈" :visible.sync="isShowfkDialog" @close="clearChildData">
+      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog" :row="curRow"></cluefk-detail>
     </el-dialog>
   </section>
 </template>
@@ -103,7 +103,7 @@ export default {
       },
       assistId: '', // 集群id
       listData: [], // 线索列表
-      isShowdialog: false, // 是否显示详情弹框
+      isShowfkDialog: false, // 是否显示详情弹框
       listLoading: false, // 列表加载loading
       total: 0,
       page: 1,
@@ -130,7 +130,7 @@ export default {
         pageSize: this.pageSize, // 条数
         deptCode: this.paramDeptCode,
         assistId: this.assistId, // 集群id
-        assistType: 2 // 1 协查， 2 集群
+        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
       }
 
       if (hand) { // 手动点击时，添加埋点参数
@@ -164,7 +164,10 @@ export default {
       this.listData = []
       this.tableHead = []
     },
-
+    clearChildData() {
+      this.isShowfkDialog = false
+      this.$refs.ffchild.initData()
+    },
     resetForm() { // 重置
       this.filters = {
         address: '', // 地址
@@ -192,12 +195,16 @@ export default {
           type: 'warning',
           confirmButtonText: '确定',
           callback: action => {
-            this.$router.push({ path: '/jqCampaign/detail', query: { id: this.assistId }})
+            if (this.$route.query.assistType) { // 协查详情
+              this.$gotoid('/caseAssist/detail', this.assistId)
+            } else {
+              this.$router.push({ path: '/jqCampaign/detail', query: { id: this.assistId }}) // 集群战役详情
+            }
           }
         })
         return false
       }
-      this.isShowdialog = true
+      this.isShowfkDialog = true
       this.curRow = row
     },
     toback() { // 返回
@@ -207,6 +214,9 @@ export default {
       this.$alert(text, '内容', {
         confirmButtonText: '关闭'
       })
+    },
+    controlBtn(row) { // 控制反馈按钮显示  只有本单位的才能显示反馈按钮
+      return ((this.curDept.depType !== '4' && row.receiveCode === this.curDept.depCode) || (this.curDept.depType === '4' && row.receiveCode === this.curDept.parentDepCode))
     }
   },
   mounted() {

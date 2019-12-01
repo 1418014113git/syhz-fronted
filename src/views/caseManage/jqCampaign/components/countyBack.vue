@@ -44,17 +44,17 @@
         </el-table-column>
         <el-table-column prop="ysajList" label="移送行政部门处理（次）"  min-width="120"></el-table-column>
         <el-table-column prop="" label="侦办刑事案件"  align="center" show-overflow-tooltip>
-          <el-table-column prop="larqCount" label="立案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="parqCount" label="破案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="xsjl" label="刑拘（人）"  min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="pzdb" label="批捕（人）"   min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="dhwd" label="捣毁窝点（个）"  min-width="130" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="larqCount" label="立案（起）"  min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="parqCount" label="破案（起）"  min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="zhrys" label="抓获（人）"  min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="xsjl" label="刑拘（人）"  min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="pzdb" label="批捕（人）"   min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="yjss" label="移诉（人）"   min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="dhwd" label="捣毁窝点（个）"  min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column prop="sajz" label="涉案金额（万元）"  min-width="100" show-overflow-tooltip></el-table-column>
         </el-table-column>
-        <el-table-column prop="score" label="评价打分" min-width="120"></el-table-column>
-        <el-table-column label="操作"  width="160" align="center">
+        <el-table-column prop="score" label="评价打分" min-width="100"></el-table-column>
+        <el-table-column label="操作"  width="160" align="center" fixed="right">
           <template slot-scope="scope">
            <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')"  @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
            <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && curDept.depType === '2' && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
