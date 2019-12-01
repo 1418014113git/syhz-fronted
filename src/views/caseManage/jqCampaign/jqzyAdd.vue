@@ -110,7 +110,7 @@
             <vue-editor v-model="form.assistContent" useCustomImageHandler @imageAdded="handleImageAdded"></vue-editor>
           </el-form-item>
           <el-form-item label="附件：" style="margin-top: 15px;"  v-if="isShowotherform">
-            <el-upload class="upload-demo" drag multiple
+            <el-upload class="upload-demo" drag multiple  ref="fileUpload"
                 :action="uploadAction"
                 :auto-upload="true"
                 :file-list="attachment"
@@ -489,7 +489,27 @@ export default {
       })
     },
     imgSuccess(res, file, fileList) {
+      if (res.code !== '000000') {
+        this.$alert('上传失败， 请重新上传', '提示', {
+          confirmButtonText: '确定',
+          callback: action => {
+            this.clearFileList()
+          }
+        })
+        return false
+      }
       this.attachment = fileList
+    },
+    clearFileList() {
+      this.$refs.fileUpload.abort()
+      const elementArr = document.getElementsByClassName('el-upload-list__item')
+      for (let i = 0; i < elementArr.length; i++) {
+        const element = elementArr[i]
+        if (i === elementArr.length - 1) {
+          element.setAttribute('style', 'display: none;')
+          element.remove()
+        }
+      }
     },
     imgRemove(file, fileList) {
       this.attachment = fileList

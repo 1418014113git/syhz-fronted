@@ -63,40 +63,40 @@
     <!--列表-->
     <el-table :data="list" v-loading="listLoading" style="width: 100%;"  class="testList"  :max-height="tableHeight">
       <el-table-column type="index" label="序号" width="60"></el-table-column>
-      <el-table-column prop="realName" label="姓名" width="120" show-overflow-tooltip>
+      <el-table-column prop="realName" label="姓名" min-width="100" show-overflow-tooltip>
         <template slot-scope="scope">
           <span class="linkColor" @click="handleDetail(scope.$index, scope.row)">{{scope.row.realName}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="userName" label="警号"  width="120" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="userIdNumber" label="身份证号" width="180" show-overflow-tooltip>
+      <el-table-column prop="userName" label="警号"  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="userIdNumber" label="身份证号" min-width="180" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if='scope.row.userIdNumber'>{{getAfterSix(scope.row.userIdNumber)}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="userSex" label="性别" >
+      <el-table-column prop="userSex" label="性别" min-width="100">
         <template slot-scope="scope">
           <span v-if="scope.row.userSex+''">{{getSex(scope.row.userSex)}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="createDate" label="现任职级" width="150" show-overflow-tooltip>
+      <el-table-column prop="createDate" label="现任职级" min-width="150" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if='scope.row.workerGrade'>{{$getDictName(scope.row.workerGrade+'', 'xrzj')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="createDate" label="现任职务" width="150" show-overflow-tooltip>
+      <el-table-column prop="createDate" label="现任职务" min-width="150" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if='scope.row.workerDuty'>{{$getDictName(scope.row.workerDuty+'', xrzw)}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="workerPhone" label="办公电话" width="160" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="phone" label="手机号码"  width="160" show-overflow-tooltip></el-table-column>
-       <el-table-column prop="userSort" label="人员类别" width="100">
+      <el-table-column prop="workerPhone" label="办公电话" min-width="160" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="phone" label="手机号码"  min-width="160" show-overflow-tooltip></el-table-column>
+       <el-table-column prop="userSort" label="人员类别" min-width="100">
         <template slot-scope="scope">
           <span v-if='scope.row.userSort'>{{$getDictName(scope.row.userSort+'','rylx')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="userState" label="状态">
+      <el-table-column prop="userState" label="状态"  min-width="100">
         <template slot-scope="scope">
           <span v-if='scope.row.userState'>
             <span v-if='scope.row.userSort===1'>{{$getDictName(scope.row.userState+'','ryztmj')}}</span>

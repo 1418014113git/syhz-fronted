@@ -3,27 +3,29 @@
     <!-- 审核信息 -->
     <div class="verifyInfo pubStyle">
       <title-pub :title="title"></title-pub>
-      <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="statisticCollect" max-height="260">
-        <el-table-column type="index" label="序号" width="60"></el-table-column>
-        <el-table-column prop="deptName" label="申请单位"  min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="userName" label="申请人" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="acceptedTime" label="申请时间" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="acceptDeptName" label="审核单位" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="updateUser" label="审核人" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="updateTime" label="审核时间" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="wflowStatus" label="审核状态" min-width="180" show-overflow-tooltip>
-          <template slot-scope="scope">
-            <span v-if='scope.row.wflowStatus'>{{$getDictName(scope.row.wflowStatus+'','flowStatus')}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="content" label="审核意见" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column label="操作"  width="100" align="center" fixed="right">
-          <template slot-scope="scope">
-            <el-button size="mini" title="重新申请"  type="primary" circle  v-if="controlcxsq(scope.row) && $isViewBtn('101901')" @click="handleApply(scope.$index, scope.row)"><svg-icon icon-class="shenqing"></svg-icon></el-button>
-            <el-button size="mini" title="审核"  type="primary" circle  v-if="(Number(curDept.depType) < 3 && curDept.id===scope.row.acceptedDeptId && scope.row.wflowStatus==='1' && $isViewBtn('101908'))" @click="handleVerify(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div style="max-height:260px;overflow: auto;">
+        <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="60"></el-table-column>
+          <el-table-column prop="deptName" label="申请单位"  min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="userName" label="申请人" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="acceptedTime" label="申请时间" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="acceptDeptName" label="审核单位" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="updateUser" label="审核人" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="updateTime" label="审核时间" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="wflowStatus" label="审核状态" min-width="180" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <span v-if='scope.row.wflowStatus'>{{$getDictName(scope.row.wflowStatus+'','flowStatus')}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="content" label="审核意见" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column label="操作"  width="100" align="center" fixed="right">
+            <template slot-scope="scope">
+              <el-button size="mini" title="重新申请"  type="primary" circle  v-if="controlcxsq(scope.row) && $isViewBtn('101901')" @click="handleApply(scope.$index, scope.row)"><svg-icon icon-class="shenqing"></svg-icon></el-button>
+              <el-button size="mini" title="审核"  type="primary" circle  v-if="(Number(curDept.depType) < 3 && curDept.id===scope.row.acceptedDeptId && scope.row.wflowStatus==='1' && $isViewBtn('101908'))" @click="handleVerify(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
       <!-- <el-row>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[5,10,15,20]" @size-change="handleSizeChange"
