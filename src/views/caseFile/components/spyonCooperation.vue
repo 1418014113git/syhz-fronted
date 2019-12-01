@@ -8,10 +8,10 @@
   <div class="bg ajInfo">
     <div class="more_btn" v-if="isMore"  @click="linkMore">更多</div>
     <el-tabs class="archiveTab" v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="全国性协查" name="first">
+      <el-tab-pane label="集群战役待" name="first">
         <div slot="label">
-          <p v-if="totalQgxxc>0">全国性协查<span class="circle_number">{{totalQgxxc}}</span></p>
-          <p v-else class="no_data_title">全国性协查</p>
+          <p v-if="totalQgxxc>0">集群战役待<span class="circle_number">{{totalQgxxc}}</span></p>
+          <p v-else class="no_data_title">集群战役待</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
         <el-table :data="qgxxcData" style="width: 100%;" v-loading="qgxxcLoading" class="statisticCollect" max-height="186">
@@ -219,8 +219,8 @@ export default {
       curUser: {},
       depToken: {}, // 当前部门
       // cardId: '110101199008076340',
-      qgxxcData: [], // 全国性协查
-      qgxxcLoading: false, // 全国性协查loading
+      qgxxcData: [], // 集群战役待
+      qgxxcLoading: false, // 集群战役待loading
       ajxcData: [], // 案件协查
       ajxcLoading: false, // 案件协查loading
       ajdbData: [], // 案件督办
@@ -232,7 +232,7 @@ export default {
       ajrlData: [], // 案件认领
       ajrlLoading: false,
       pageSize: 5,
-      pageQgxxc: 1, // 全国性协查页数
+      pageQgxxc: 1, // 集群战役待页数
       totalQgxxc: 0,
       pageAjxc: 1, // 案件协查页数
       totalAjxc: 0,
@@ -251,7 +251,7 @@ export default {
       isRls: '',
       source: 'ajda', // 页面来源，表示该模块是来自案件档案
       isMore: false, // 是否显示更多按钮
-      pageSizeQgxxc: 5, // 全国性协查条数
+      pageSizeQgxxc: 5, // 集群战役待条数
       pageSizeAjxc: 5, // 案件协查条数
       pageSizeAjdb: 5, // 案件督办条数
       pageSizeZxrw: 5, // 专项任务条数
@@ -328,7 +328,7 @@ export default {
     },
     init() {
       if (this.AJBH) {
-        this.handleQgxxc(true) // 全国性协查
+        this.handleQgxxc(true) // 集群战役待
         this.handleAjxc(true) // 案件协查
         this.handleAjdb(true) // 案件督办
         this.handleZxrw(true) // 专项任务
@@ -355,7 +355,7 @@ export default {
         this.$resetSetItem('aj8', 0) // 将总数存在session中
       }
     },
-    handleQgxxc(flag) { // 全国性协查
+    handleQgxxc(flag) { // 集群战役待
       this.qgxxcLoading = true
       var param = {
         curDepId: this.depToken.id,
@@ -541,11 +541,11 @@ export default {
         this.ajrlLoading = false
       })
     },
-    handleCurrentChangeQgxxc(val) { // 全国性协查分页
+    handleCurrentChangeQgxxc(val) { // 集群战役待分页
       this.pageQgxxc = val
       this.handleQgxxc(false)
     },
-    handleSizeChangeQgxxc(val) { // 全国性协查条数
+    handleSizeChangeQgxxc(val) { // 集群战役待条数
       this.pageQgxxc = 1
       this.pageSizeQgxxc = val
       this.handleQgxxc(false)
