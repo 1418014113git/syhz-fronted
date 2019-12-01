@@ -33,7 +33,8 @@
         </el-form-item>
       </el-col>
     </el-form>
-    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;overflow:auto;" max-height="490">
+  <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}">
+    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;">
       <el-table-column type="index" width="60" label="序号" ></el-table-column>
       <el-table-column prop="serialNumber"  label='线索序号'  min-width="100"></el-table-column>
       <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
@@ -41,12 +42,12 @@
           <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="qbxsCategory"  label='线索分类'  min-width="150" show-overflow-tooltip>
+      <el-table-column prop="qbxsCategory"  label='线索分类'  min-width="120" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if='scope.row.qbxsCategory'>{{$getDictName(scope.row.qbxsCategory+'','fllb')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="qbxsResult"  label='核查情况'  min-width="150" show-overflow-tooltip>
+      <el-table-column prop="qbxsResult"  label='核查情况'  min-width="120" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
         </template>
@@ -71,9 +72,10 @@
         </template>
       </el-table-column>
     </el-table>
+  </div>
 
      <!--工具条-->
-    <el-col :span="24" class="toolbar" style="margin-top:10px;">
+    <el-col :span="24" class="toolbar">
       <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize" @size-change="handleSizeChange"
                      :total="total" :current-page="page" style="float:right;">
       </el-pagination>
@@ -111,7 +113,7 @@ export default {
       curUser: {}, // 当前登录用户
       curDept: {}, // 当前登录的部门
       curRow: {}, // 存储当前被点击行数据
-      tableHeight: null,
+      tableHeight: null, // 列表外层容器的高度
       paramDeptCode: '', // 详情页传递过来的参数
       tableHead: [] // 表头
     }
@@ -221,6 +223,7 @@ export default {
   },
   mounted() {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 315
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
@@ -268,6 +271,10 @@ export default {
   }
   .el-cascader-menu__item.is-disabled{
     background-color: transparent;
+  }
+  .tableBox{
+    width: 100%;
+    overflow: auto;
   }
 }
 </style>

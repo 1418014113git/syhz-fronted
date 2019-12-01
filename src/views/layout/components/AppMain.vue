@@ -56,6 +56,6 @@ export default {
    border-radius: 3px;
  }
  .app-main::-webkit-scrollbar { //隐藏滚动条，但依旧具备可以滚动的功能,只在chrome浏览器下有效
-  display: none;
+  // display: none;
 }
 </style>
