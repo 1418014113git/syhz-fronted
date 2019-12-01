@@ -69,35 +69,36 @@
         </el-form-item>
       </el-col>
     </el-form>
-    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;overflow:auto;" max-height="490"  @select="handleselectRow" @select-all="handleselectAll">
-      <el-table-column type="selection" width="50"></el-table-column>
-      <el-table-column type="index" width="60" label="序号" ></el-table-column>
-      <el-table-column prop="serialNumber"  label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
-        <template slot-scope="scope">
-          <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="qbxsCategory"  label='线索分类'  min-width="150" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span v-if='scope.row.qbxsCategory'>{{$getDictName(scope.row.qbxsCategory+'','fllb')}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作"  width="100">
-        <template slot-scope="scope">
-          <el-button size="mini" title="取消分发"  type="primary" circle  @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
-          <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='edit'"  @click="handleDel(scope.$index,scope.row)"></el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
+    <div class="tableBox"  style="maxHeight:490px">
+      <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;"  @select="handleselectRow" @select-all="handleselectAll">
+        <el-table-column type="selection" width="50"></el-table-column>
+        <el-table-column type="index" width="60" label="序号" ></el-table-column>
+        <el-table-column prop="serialNumber"  label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
+          <template slot-scope="scope">
+            <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="qbxsCategory"  label='线索分类'  min-width="150" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span v-if='scope.row.qbxsCategory'>{{$getDictName(scope.row.qbxsCategory+'','fllb')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作"  width="100" fixed="right">
+          <template slot-scope="scope">
+            <el-button size="mini" title="取消分发"  type="primary" circle  @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
+            <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='edit' && pageSource!=='detail'"  @click="handleDel(scope.$index,scope.row)"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
      <!--工具条-->
-    <el-col :span="24" class="toolbar" style="margin-top:10px;">
+    <el-col :span="24" class="toolbar" >
       <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize" @size-change="handleSizeChange"
                      :total="total" :current-page="page" style="float:right;">
       </el-pagination>
@@ -568,6 +569,10 @@ export default {
   }
   .inputW{
     width: 400px;
+  }
+  .tableBox{
+    width: 100%;
+    overflow: auto;
   }
 }
 .qkts{

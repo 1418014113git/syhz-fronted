@@ -574,7 +574,7 @@ export default {
       min-width: 350px;
       z-index: 300;
       position: absolute;
-      right: 55px;
+      right: 125px;
       top: 0;
       height: auto;
       margin: 14% 0 0 0;
