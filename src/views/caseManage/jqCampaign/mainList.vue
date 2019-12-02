@@ -13,11 +13,12 @@
               @change="handleAreaChange"
               :show-all-levels="false"
               :disabled="Number(curDept.depType)>2"
+              clearable
               placeholder="全部">
             </el-cascader>
           </el-tooltip>
         </el-form-item>
-        <el-form-item label="发起单位">
+        <el-form-item label="参与单位">
           <el-tooltip effect="dark"  :class="curDept.depType === '1'?'input_w':'input_ws1'"  :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>12)===true?'tooltipShow':'tooltipHide'">
             <el-cascader
               :options="deptOptions"
@@ -27,6 +28,7 @@
               :show-all-levels="false"
               @change="handleDeptChange"
               :disabled="Number(curDept.depType)>2"
+              clearable
               placeholder="全部">
             </el-cascader>
           </el-tooltip>
@@ -76,80 +78,82 @@
         </el-form-item>
       </el-col>
     </el-form>
-    <el-table :data="listData" v-loading="listLoading"  ref="multipleTable" style="width: 100%;margin-top: 15px;"  :row-class-name="getRowClassName"  :max-height="tableHeight"  @select="handleselectRow" @select-all="handleselectAll">
-      <el-table-column type="expand">
-        <template slot-scope="scope">
-          <el-table :data="scope.row.deptList"  v-loading="listChildLoading" style="width: 100%;">
-            <el-table-column prop="" width="47"></el-table-column>
-            <el-table-column prop="" width="50"></el-table-column>
-            <el-table-column type="index" width="60" label="序号"></el-table-column>
-            <el-table-column prop="deptName" label="地市"  min-width="200" show-overflow-tooltip></el-table-column>
-            <el-table-column prop=""  label="核查线索数量（已核查/总）" >
-              <template slot-scope="scope">
-                <span v-if="constrolxsnum(scope.row) || $isViewBtn('101908')">
-                  <span class="linkColor" v-if="scope.row.hc && scope.row.hc>0" @click="handleClueList(scope.row,'2')">{{scope.row.hc}}</span>
-                  <span v-else>0</span>
-                  /
-                  <span class="linkColor"  v-if="scope.row.xsNum && scope.row.xsNum>0" @click="handleClueList(scope.row,'')">{{scope.row.xsNum}}</span>
-                  <span v-else>0</span>
-                </span>
-                <span v-else>
-                  <span>{{scope.row.hc ? scope.row.hc:0}}</span>
-                  /
-                  <span>{{scope.row.xsNum ? scope.row.xsNum:0}}</span>
-                </span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="hcl" label="核查率">
-              <template slot-scope="scope">
-                <span>{{scope.row.hcl ? scope.row.hcl : 0}}%</span>
-              </template>
-            </el-table-column>
-          </el-table>
-        </template>
-      </el-table-column>
-      <el-table-column type="selection" width="50"></el-table-column>
-      <el-table-column type="index" width="60" label="序号"></el-table-column>
-      <el-table-column prop="title" label='标题'  min-width="200" show-overflow-tooltip>
-        <template slot-scope="scope">
-           <span style="cursor: pointer;"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.title}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="applyDeptName"  label='发起单位'  min-width="200" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="startDate"  label='发起日期'  min-width="200" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="endDate"  label='结束日期'  min-width="200" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="citys"  label='涉及省/市数'  min-width="120" show-overflow-tooltip></el-table-column>
-      <el-table-column prop=""  label='总线索数（已核查/总）'  min-width="200" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span  v-if="constrolxsTotal(scope.row)">
-            <span class="linkColor"  v-if="scope.row.hcCount && scope.row.hcCount>0" @click="handleClueList(scope.row,'2',true)">{{scope.row.hcCount}}</span>
-            <span v-else>0</span>
-             /
-            <span class="linkColor" v-if="scope.row.xsCount && scope.row.xsCount>0" @click="handleClueList(scope.row,'',true)">{{scope.row.xsCount}}</span>
-            <span v-else>0</span>
-          </span>
-          <span v-else>
-            <span>{{scope.row.hcCount ? scope.row.hcCount : 0}}</span>
-            /
-            <span>{{scope.row.xsCount ? scope.row.xsCount : 0}}</span>
-          </span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="status"  label='状态'  min-width="200" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span v-if='scope.row.status'>{{$getDictName(scope.row.status+'','jqzyzt')}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="tCount"  label='厅评价'  min-width="200" v-if="curDept.depType === '1' || curDept.depType === '2'"    show-overflow-tooltip></el-table-column>
-      <el-table-column prop="sCount"  label='市评价'  min-width="200" v-if="curDept.depType === '2' || curDept.depType === '3' || curDept.depType === '4'"  show-overflow-tooltip></el-table-column>
-      <el-table-column label="操作" width="130">
-        <template slot-scope="scope">
-          <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
-          <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="scope.row.status==='0' && $isViewBtn('101905')"  @click="handleEdit(scope.$index, scope.row)"></el-button>
-          <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete" circle  v-if="scope.row.status==='0' && $isViewBtn('101906')"  @click="handleDel(scope.$index, scope.row)"></el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}">
+      <el-table :data="listData" v-loading="listLoading"  ref="multipleTable" style="width: 100%;"  :row-class-name="getRowClassName" @select="handleselectRow" @select-all="handleselectAll">
+        <el-table-column type="expand">
+          <template slot-scope="scope">
+            <el-table :data="scope.row.deptList"  v-loading="listChildLoading" style="width: 100%;">
+              <el-table-column prop="" width="47"></el-table-column>
+              <el-table-column prop="" width="50"></el-table-column>
+              <el-table-column type="index" width="60" label="序号"></el-table-column>
+              <el-table-column prop="deptName" label="地市"  min-width="200" show-overflow-tooltip></el-table-column>
+              <el-table-column prop=""  label="核查线索数量（已核查/总）" >
+                <template slot-scope="scope">
+                  <span v-if="constrolxsnum(scope.row) || $isViewBtn('101908')">
+                    <span class="linkColor" v-if="scope.row.hc && scope.row.hc>0" @click="handleClueList(scope.row,'2')">{{scope.row.hc}}</span>
+                    <span v-else>0</span>
+                    /
+                    <span class="linkColor"  v-if="scope.row.xsNum && scope.row.xsNum>0" @click="handleClueList(scope.row,'')">{{scope.row.xsNum}}</span>
+                    <span v-else>0</span>
+                  </span>
+                  <span v-else>
+                    <span>{{scope.row.hc ? scope.row.hc:0}}</span>
+                    /
+                    <span>{{scope.row.xsNum ? scope.row.xsNum:0}}</span>
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="hcl" label="核查率">
+                <template slot-scope="scope">
+                  <span>{{scope.row.hcl ? scope.row.hcl : 0}}%</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-table-column>
+        <el-table-column type="selection" width="50"></el-table-column>
+        <el-table-column type="index" width="60" label="序号"></el-table-column>
+        <el-table-column prop="title" label='标题'  min-width="200" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span style="cursor: pointer;"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.title}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="applyDeptName"  label='发起单位'  min-width="200" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="startDate"  label='发起日期'  min-width="200" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="endDate"  label='结束日期'  min-width="200" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="citys"  label='涉及省/市数'  min-width="120" show-overflow-tooltip></el-table-column>
+        <el-table-column prop=""  label='总线索数（已核查/总）'  min-width="200" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span  v-if="constrolxsTotal(scope.row)">
+              <span class="linkColor"  v-if="scope.row.hcCount && scope.row.hcCount>0" @click="handleClueList(scope.row,'2',true)">{{scope.row.hcCount}}</span>
+              <span v-else>0</span>
+              /
+              <span class="linkColor" v-if="scope.row.xsCount && scope.row.xsCount>0" @click="handleClueList(scope.row,'',true)">{{scope.row.xsCount}}</span>
+              <span v-else>0</span>
+            </span>
+            <span v-else>
+              <span>{{scope.row.hcCount ? scope.row.hcCount : 0}}</span>
+              /
+              <span>{{scope.row.xsCount ? scope.row.xsCount : 0}}</span>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status"  label='状态'  min-width="200" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span v-if='scope.row.status'>{{$getDictName(scope.row.status+'','jqzyzt')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="tCount"  label='厅评价'  min-width="200" v-if="curDept.depType === '1' || curDept.depType === '2'"    show-overflow-tooltip></el-table-column>
+        <el-table-column prop="sCount"  label='市评价'  min-width="200" v-if="curDept.depType === '2' || curDept.depType === '3' || curDept.depType === '4'"  show-overflow-tooltip></el-table-column>
+        <el-table-column label="操作" width="130" fixed="right">
+          <template slot-scope="scope">
+            <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
+            <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="controlxg(scope.row)"  @click="handleEdit(scope.$index, scope.row)"></el-button>
+            <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete" circle  v-if="controlsc(scope.row)"  @click="handleDel(scope.$index, scope.row)"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
     <!--工具条-->
     <el-col :span="24" class="toolbar">
       <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize" @size-change="handleSizeChange"
@@ -274,7 +278,7 @@ export default {
           this.xzqhOptions = response.data ? response.data : []
           var currentArea = []
           if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
-            currentArea = [this.curDept.areaCode]
+            // currentArea = [this.curDept.areaCode]
             this.btnqx.isShowxfbtn = true // 显示下发按钮
             this.btnqx.isShowbxfbtn = true // 显示部下发按钮
           } else if (this.curDept.depType === '2') { // 支队
@@ -304,9 +308,9 @@ export default {
           this.handleAreaChange(currentArea) // 查单位机构
           // 默认选择本单位
           if (this.curDept.depType === '-1') { // 省
-            this.department = [this.curDept.depCode]
+            // this.department = [this.curDept.depCode]
           } else if (this.curDept.depType === '1') { // 总队
-            this.department = [this.curDept.parentDepCode, this.curDept.depCode]
+            // this.department = [this.curDept.parentDepCode, this.curDept.depCode]
           } else if (this.curDept.depType === '2') { // 支队
             this.department = [this.curDept.depCode]
           } else if (this.curDept.depType === '3') { // 大队
@@ -342,6 +346,12 @@ export default {
     },
     constrolxsnum(row) { // 核查线索数量点击权限控制
       return (this.curDept.depType === '1' || (this.curDept.depType === '2' && ((this.curDept.areaCode === row.cityCode) || (this.curDept.depCode === row.applyDeptCode))) || (this.curDept.depType === '4' && ((this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114') || (this.curDept.depCode.substring(0, 4) === row.applyDeptCode.substring(0, 4) === '6114') || this.$isViewBtn('101908'))))
+    },
+    controlxg(row) { // 控制列表修改按钮
+      return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))
+    },
+    controlsc(row) { // 控制列表删除按钮
+      return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))
     },
     handleAreaChange(val) { // 行政区划
       this.department = []
@@ -436,7 +446,8 @@ export default {
         pageNum: this.page, // 页数
         pageSize: this.pageSize, // 条数
         curDeptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode, // 当前部门code
-        status: this.filters.status // 状态
+        status: this.filters.status, // 状态，
+        isCheck: this.$isViewBtn('101908') // 是否有审核权限
       }
       if (this.area && this.area.length > 0) { // 行政区划
         para.provinceCode = this.area[0] || '' // 省code
@@ -451,7 +462,9 @@ export default {
         para.xflb = this.xflb // 下发类别
       }
       if (this.department && this.department.length > 0) { // 单位机构
-        para.curDeptCode = this.department[this.department.length - 1]// 部门code
+        para.queryDeptCode = this.department[this.department.length - 1] // 部门code
+      } else {
+        para.queryDeptCode = ''
       }
       // para.curDeptType = this.curDept.depType === '4' ? this.pcsParentDeptype : this.curDept.depType // 当前部门类型 .派出所取他的父级类型
       // para.parentCode = this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.parentDepCode // 当前部门父级单位code
@@ -797,7 +810,10 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 320
+    if (this.$route.query.status) { // 有参数，说明是从首页--个人待办--审查待办--集群战役待审核
+      this.filters.status = this.$route.query.status
+    }
     this.init()
   },
   activated() {
@@ -854,6 +870,10 @@ export default {
   }
   .checkArea{
     text-align: center;
+  }
+  .tableBox{
+    width: 100%;
+    overflow: auto;
   }
 }
 .el-table--scrollable-x .el-table__body-wrapper {

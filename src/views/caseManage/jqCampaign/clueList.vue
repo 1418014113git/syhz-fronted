@@ -58,49 +58,51 @@
         </el-form-item>
       </el-col>
     </el-form>
-    <el-table :data="listData" v-loading="listLoading" style="width: 100%;" class="" :max-height="tableHeight">
-      <el-table-column type="index" width="60" label="序号" ></el-table-column>
-      <el-table-column prop="serialNumber"  label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="cityName"  label='地市'  min-width="200" show-overflow-tooltip></el-table-column>
-       <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
-        <template slot-scope="scope">
-          <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="qbxsCategory"  label='线索分类'  min-width="150" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span v-if='scope.row.qbxsCategory'>{{$getDictName(scope.row.qbxsCategory+'','fllb')}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="qbxsResult"  label='核查情况'  min-width="150" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="syajs"  label='移送行政部门处理（次）'  min-width="150" show-overflow-tooltip></el-table-column>
-      <el-table-column prop=""  label='侦办刑事案件' align="center" >
-        <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="parqCount"  label='破案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="xsjl"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="130" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="100" show-overflow-tooltip></el-table-column>
-      </el-table-column>
-      <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作"  width="100">
-        <template slot-scope="scope">
-          <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle   @click="handleDetail(scope.$index, scope.row)"></el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}">
+      <el-table :data="listData" v-loading="listLoading" style="width: 100%;" class="">
+        <el-table-column type="index" width="60" label="序号" ></el-table-column>
+        <el-table-column prop="serialNumber"  label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="cityName"  label='地市'  min-width="180" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
+          <template slot-scope="scope">
+            <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="qbxsCategory"  label='线索分类'  min-width="120" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span v-if='scope.row.qbxsCategory'>{{$getDictName(scope.row.qbxsCategory+'','fllb')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="qbxsResult"  label='核查情况'  min-width="120" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="syajs"  label='移送行政部门处理（次）'  min-width="130" show-overflow-tooltip></el-table-column>
+        <el-table-column prop=""  label='侦办刑事案件' align="center" >
+          <el-table-column prop="larqCount"  label='立案（起）'  min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="parqCount"  label='破案（起）'  min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="zhrys" label="抓获（人）"  min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="xsjl"  label='刑拘（人）'  min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="pzdb"  label='批捕（人）'  min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="yjss" label="移诉（人）"   min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="90" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="100" show-overflow-tooltip></el-table-column>
+        </el-table-column>
+        <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作"  width="100" fixed="right">
+          <template slot-scope="scope">
+            <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle   @click="handleDetail(scope.$index, scope.row)"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
     <!--工具条-->
-    <el-col :span="24" class="toolbar" style="margin-top:10px;">
+    <el-col :span="24" class="toolbar" >
       <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize" @size-change="handleSizeChange"
                      :total="total" :current-page="page" style="float:right;">
       </el-pagination>
@@ -160,7 +162,7 @@ export default {
       pageSize: 15,
       selectCurDep: { name: '' }, // 当前选中的部门
       selectCurxzqhDep: { cityName: '' }, // 当前行政区划
-      tableHeight: null,
+      tableHeight: null, // 列表外层容器的高度
       dqbmDeptCode: '', // 存储集群列表当前点击行的部门code
       curCityCode: '', // 存储集群列表当前点击行的cityCode
       curDeptType: '', // 存储集群列表当前点击行的部门类型
@@ -409,7 +411,7 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 315
     if (this.$route.query.id) {
       this.assistId = this.$route.query.id
       this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type : '' // 核查情况
@@ -461,6 +463,10 @@ export default {
   .el-table--border::after,
   .el-table--group::after {
     width: 0;
+  }
+  .tableBox{
+    width: 100%;
+    overflow: auto;
   }
 }
  .el-cascader-menu__item.is-disabled{

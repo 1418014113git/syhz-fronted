@@ -3,73 +3,75 @@
     <!-- 地市反馈 -->
     <div class="areaBack pubStyle">
       <title-pub :title="title"></title-pub>
-      <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="" max-height="260">
-        <el-table-column type="index" label="序号" width="60" >
-          <template slot-scope="scope">
-            <span v-if="scope.$index+1<listData.length">{{scope.$index+1}}</span>
-            <span v-else>总计</span>
-          </template>
-         </el-table-column>
-         <el-table-column prop="deptName" label="单位"   min-width="200" show-overflow-tooltip></el-table-column>
-         <el-table-column prop="xsNum" label="线索总数（条）" min-width="130">
-          <template slot-scope="scope">
-            <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
-            <span v-else>{{scope.row.xsNum}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="" label="线索核查核实情况（条）"  align="center" show-overflow-tooltip>
-          <el-table-column prop="cs" label="查实"  min-width="100" show-overflow-tooltip>
+      <div style="max-height:260px;overflow: auto;">
+        <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
+          <el-table-column type="index" label="序号" width="60">
             <template slot-scope="scope">
-              <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'2')">{{scope.row.cs}}</span>
-              <span v-else>{{scope.row.cs}}</span>
+              <span v-if="scope.$index+1<listData.length">{{scope.$index+1}}</span>
+              <span v-else>总计</span>
             </template>
           </el-table-column>
-          <el-table-column prop="cf" label="查否"  min-width="100" show-overflow-tooltip>
+          <el-table-column prop="deptName" label="单位"   min-width="200" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="xsNum" label="线索总数（条）" min-width="130">
             <template slot-scope="scope">
-              <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'1')">{{scope.row.cf}}</span>
-              <span v-else>{{scope.row.cf}}</span>
+              <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
+              <span v-else>{{scope.row.xsNum}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="whc" label="未核查"  min-width="100" show-overflow-tooltip>
+          <el-table-column prop="" label="线索核查核实情况（条）"  align="center" show-overflow-tooltip>
+            <el-table-column prop="cs" label="查实"  min-width="100" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'2')">{{scope.row.cs}}</span>
+                <span v-else>{{scope.row.cs}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="cf" label="查否"  min-width="100" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'1')">{{scope.row.cf}}</span>
+                <span v-else>{{scope.row.cf}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="whc" label="未核查"  min-width="100" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <span class="linkColor"   v-if="controlClick(scope.row)" @click="gotoxslist(scope.row,'3')">{{scope.row.whc}}</span>
+                <span v-else>{{scope.row.whc}}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="hcl" label="核查率"  min-width="100" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <span>{{scope.row.hcl ? scope.row.hcl : 0}}%</span>
+              </template>
+            </el-table-column>
+          </el-table-column>
+          <el-table-column prop="ysajList" label="移送行政部门处理（次）"  min-width="120"></el-table-column>
+          <el-table-column prop="" label="侦办刑事案件"  align="center" show-overflow-tooltip>
+            <el-table-column prop="larqCount" label="立案（起）"  min-width="90" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="parqCount" label="破案（起）"  min-width="90" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="zhrys" label="抓获（人）"  min-width="90" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="xsjl" label="刑拘（人）"  min-width="90" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="pzdb" label="批捕（人）"   min-width="90" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="yjss" label="移诉（人）"   min-width="90" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="dhwd" label="捣毁窝点（个）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="sajz" label="涉案金额（万元）"  min-width="100" show-overflow-tooltip></el-table-column>
+          </el-table-column>
+          <el-table-column prop="score" label="评价打分" min-width="100"></el-table-column>
+          <el-table-column label="操作"  width="160" align="center" fixed="right">
             <template slot-scope="scope">
-              <span class="linkColor"   v-if="controlClick(scope.row)" @click="gotoxslist(scope.row,'3')">{{scope.row.whc}}</span>
-              <span v-else>{{scope.row.whc}}</span>
+            <el-button size="mini" title="线索分发"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfa(scope.row) && $isViewBtn('101909')"  @click="handlefenfa(scope.$index, scope.row)"><svg-icon icon-class="fenfa"></svg-icon></el-button>
+            <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')" @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
+            <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length &&  curDept.depType === '1' && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
+            <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score"  icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
             </template>
           </el-table-column>
-          <el-table-column prop="hcl" label="核查率"  min-width="100" show-overflow-tooltip>
-            <template slot-scope="scope">
-              <span>{{scope.row.hcl ? scope.row.hcl : 0}}%</span>
-            </template>
-          </el-table-column>
-        </el-table-column>
-        <el-table-column prop="ysajList" label="移送行政部门处理（次）"  min-width="120"></el-table-column>
-        <el-table-column prop="" label="侦办刑事案件"  align="center" show-overflow-tooltip>
-          <el-table-column prop="larqCount" label="立案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="parqCount" label="破案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="xsjl" label="刑拘（人）"  min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="pzdb" label="批捕（人）"   min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="dhwd" label="捣毁窝点（个）"  min-width="130" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="sajz" label="涉案金额（万元）"  min-width="100" show-overflow-tooltip></el-table-column>
-        </el-table-column>
-        <el-table-column prop="score" label="评价打分" min-width="120"></el-table-column>
-        <el-table-column label="操作"  width="160" align="center">
-          <template slot-scope="scope">
-           <el-button size="mini" title="线索分发"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfa(scope.row) && $isViewBtn('101909')"  @click="handlefenfa(scope.$index, scope.row)"><svg-icon icon-class="fenfa"></svg-icon></el-button>
-           <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')" @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
-           <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length &&  curDept.depType === '1' && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
-           <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score"  icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-row>
+        </el-table>
+      </div>
+      <!-- <el-row>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[5,10,15,20]" @size-change="handleSizeChange"
               :page-size="pageSize" :total="total" :current-page="page" style="float:right;">
           </el-pagination>
         </el-col>
-      </el-row>
+      </el-row> -->
       <!-- 评价打分 -->
       <el-dialog title="评价打分" :visible.sync="isShowpjdf" size="small" class="pjdfForm" @close="cancel('pjdfForm')">
         <el-form ref="pjdfForm" :rules="rules" :model="pjdfForm" size="small" label-width="90px">
@@ -93,7 +95,8 @@
             <el-rate v-model="curRow.score" disabled></el-rate>
           </el-form-item>
           <el-form-item label="评价" prop="commentText">
-            <el-input v-model.trim="curRow.commentText" type="textarea" :rows="4" disabled maxlength="500"></el-input>
+            <!-- <el-input v-model.trim="curRow.commentText" type="textarea" :rows="4" disabled maxlength="500"></el-input> -->
+            <span>{{curRow.commentText}}</span>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -344,6 +347,8 @@ export default {
   .pjdfForm{
     .el-dialog{
       width: 35%;
+      max-height: 80vh;
+      overflow: auto;
     }
   }
   .el-form{

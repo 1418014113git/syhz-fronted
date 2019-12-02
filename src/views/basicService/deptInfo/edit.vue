@@ -379,6 +379,9 @@ export default {
             param.administrative = this.departmentForm.administrative[this.departmentForm.administrative.length - 1] // 为最后一级的code
           }
           param.userId = this.userInfo.id
+          if (param.departCode === '610000530000') { // 11.29 追加
+            param.areaName = '省厅'
+          }
           // console.log(param)
           this.formLoading = true
           this.$update('hsyzdepart/' + this.carryParam.deptId, param, 'upms').then((response) => {

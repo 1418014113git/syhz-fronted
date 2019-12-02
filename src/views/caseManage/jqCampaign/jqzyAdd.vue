@@ -41,7 +41,7 @@
             </el-col>
             <el-col :span="11">
               <el-form-item label="编号" prop="clusterNumber">
-                <el-input v-model.trim="form.clusterNumber" maxlength="20"  placeholder="" clearable  :disabled="pageType!=='bxf' || pageType!=='editbxf'"></el-input>
+                <el-input v-model.trim="form.clusterNumber" maxlength="20"  placeholder="" clearable  :disabled="pageType!=='bxf' && pageType!=='editbxf'"></el-input>
               </el-form-item>
               <el-form-item label="结束日期" prop="endDate">
                 <el-date-picker
@@ -110,7 +110,7 @@
             <vue-editor v-model="form.assistContent" useCustomImageHandler @imageAdded="handleImageAdded"></vue-editor>
           </el-form-item>
           <el-form-item label="附件：" style="margin-top: 15px;"  v-if="isShowotherform">
-            <el-upload class="upload-demo" drag multiple
+            <el-upload class="upload-demo" drag multiple  ref="fileUpload"
                 :action="uploadAction"
                 :auto-upload="true"
                 :file-list="attachment"
@@ -122,8 +122,8 @@
                 :limit="10"
               >
               <i class="el-icon-upload"></i>
-              <div class="el-upload__text"> 点击或将文件拖拽到这里上传，最多10个，单个文件最大500M</div>
-              <div class="el-upload__tip" slot="tip">支持扩展名：.rar .zip .doc .docx .pdf .jpg .xls .xlsx...</div>
+              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em>，最多10个</div>
+              <div class="el-upload__tip" slot="tip">{{UploadAttachment.tipText}}</div>
             </el-upload>
           </el-form-item>
           <el-form-item label="查阅密码" prop="passKey" v-if="isShowotherform">
@@ -285,8 +285,8 @@ export default {
             } else if (!regNumber.test(value)) {
               callback(new Error('仅支持英文、数字'))
             } else {
-              this.$query('casecluster/numberValid', { dept: this.curDept.depCode }).then((response) => { // 查询是否重复
-                if (response.data.length > 0) {
+              this.$query('casecluster/numberValid', { dept: this.curDept.depCode, numStr: value }).then((response) => { // 查询是否重复
+                if (!response.data) {
                   return callback(new Error('编码不能重复'))
                 }
                 callback()
@@ -489,7 +489,27 @@ export default {
       })
     },
     imgSuccess(res, file, fileList) {
+      if (res.code !== '000000') {
+        this.$alert('上传失败， 请重新上传', '提示', {
+          confirmButtonText: '确定',
+          callback: action => {
+            this.clearFileList()
+          }
+        })
+        return false
+      }
       this.attachment = fileList
+    },
+    clearFileList() {
+      this.$refs.fileUpload.abort()
+      const elementArr = document.getElementsByClassName('el-upload-list__item')
+      for (let i = 0; i < elementArr.length; i++) {
+        const element = elementArr[i]
+        if (i === elementArr.length - 1) {
+          element.setAttribute('style', 'display: none;')
+          element.remove()
+        }
+      }
     },
     imgRemove(file, fileList) {
       this.attachment = fileList

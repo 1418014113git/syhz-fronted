@@ -24,7 +24,7 @@
           <!-- <el-input v-model="filterQuery.examinationName" clearable maxlength="20" placeholder="关键字检索考试名称" ></el-input> -->
           <el-autocomplete clearable
             class="autoInput"
-            v-model="filterQuery.examinationName"
+            v-model.trim="filterQuery.examinationName"
             :fetch-suggestions="querySearchExam"
             :trigger-on-focus="false"
             placeholder="关键字检索考试名称"
@@ -339,7 +339,7 @@ export default {
         this.buildTime()
       }
     },
-    queryExamStatistical(hand) {
+    queryExamStatistical(flag, hand) {
       if (this.filterQuery.type === '') {
         if (this.filterQuery.startDate === '' && this.filterQuery.endDate !== '') { // 开始时间为空,结束时间不为空
           this.$message({
@@ -363,6 +363,7 @@ export default {
       if (this.filterQuery.type !== 'timePeriod') { // 时间段
         this.buildTime() // 页面上显示 年度/季度/月的时间
       }
+      this.page = flag ? 1 : this.page
       var param = {
         // deptRange: this.filterQuery.deptRange || '',
         startDate: this.filterQuery.startDate || '',
@@ -509,6 +510,7 @@ export default {
         restaurants.forEach(element => {
           element.value = element.examinationName
         })
+        queryString = queryString.trim() // 去掉输入框的首尾空格
         var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
         cb(results)
       })
@@ -525,7 +527,7 @@ export default {
       this.examLoading = true
       this.$query('exam/systemTime').then(response => {
         this.systemTime = response.data
-        this.queryExamStatistical() // 考试统计
+        this.queryExamStatistical(true) // 考试统计
       })
     },
     buildTime() {
@@ -567,11 +569,11 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.queryExamStatistical()
+      this.queryExamStatistical(false, true)
     },
     handleSizeChange(val) { // 分条查询
       this.pageSize = val
-      this.queryExamStatistical()
+      this.queryExamStatistical(true, true)
     },
     drawChartScore() { // 考试成绩 饼状图
       var scoreArr = []
