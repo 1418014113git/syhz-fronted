@@ -101,27 +101,18 @@
           shareStatus: '',
           keyword: ''
         },
-        listData: [],
-        defaultQuery: true
+        listData: []
       }
     },
     methods: {
       handleCurrentChange(val) {
         this.page = val
-        if (this.defaultQuery === true) {
-          this.init()
-        } else {
-          this.query(1)
-        }
+        this.query(1)
       },
       handleSizeChange(val) {
         this.page = 1
         this.pageSize = val
-        if (this.defaultQuery === true) {
-          this.init()
-        } else {
-          this.query(1)
-        }
+        this.query(1)
       },
       // 分享按钮控制显示
       shareBtn(row) {
@@ -186,7 +177,6 @@
           this.page = 1
           this.pageSize = 15
         }
-        this.defaultQuery = false
         var param = {
           currentPage: this.page,
           pageSize: this.pageSize,
@@ -222,7 +212,6 @@
       // 重置
       reset() {
         this.filters = {}
-        this.defaultQuery = true
       },
       // 导出
       exportExcel() {
@@ -397,7 +386,7 @@
       }
     },
     mounted: function() {
-      this.init()
+      this.query()
     }
   }
 </script>
