@@ -47,10 +47,11 @@
       <el-form-item >
         <el-button type="primary" size="small" v-on:click="query(true)">查询</el-button>
         <el-button type="primary" size="small" v-on:click="restForm()">重置</el-button>
+        <el-button type="primary" size="small" v-on:click="clearTable()">清除过滤条件</el-button>
         <el-button v-if="$isViewBtn('182003') || $isViewBtn('182004') || $isViewBtn('182005')" type="primary" size="small" v-on:click="toTemplate()">维护模板</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="caseData" highlight-current-row v-loading="listLoading" style="width: 100%;">
+    <el-table :data="caseData" ref="caseTable" highlight-current-row v-loading="listLoading" style="width: 100%;">
       <el-table-column type="expand" width="30">
         <template slot-scope="props">
           <el-form label-position="left" inline class="demo-table-expand">
@@ -67,7 +68,8 @@
                        :class-name="className(item)"
                        :column-key="item.titleName"
                        :filters="(item.columnName === 'AJZT' ? ajztFilter : (item.columnName === 'SYH_AJLB' ? ajlbFilter : (item.columnName === 'CONFIRM_STATUS' ? confirmStatusFilter : [])))"
-                       :filter-method="filterHandler">
+                       :filter-method="filterHandler"
+                       :show-overflow-tooltip="true">
         <template slot-scope="scope">
           <a v-if="item.columnName === 'AJMC' || item.columnName === 'AJBH'" class="ajbh-color" @click="handleAjDetail(scope.$index, scope.row)">{{scope.row[item.titleName]}}</a>
           <span v-else-if="item.columnName === 'CONFIRM_STATUS'">
@@ -166,13 +168,13 @@ export default {
       if (this.titleData.length < 8) {
         return '240px'
       }
-      if (item.columnName === 'CONFIRM_STATUS' || item.columnName === 'AJZT' || item.columnName === 'AJSX' || item.columnName === 'LARQ') {
+      if (item.columnName === 'CONFIRM_STATUS' || item.columnName === 'AJZT' || item.columnName === 'AJSX' || item.columnName === 'LARQ' || item.columnName === 'PARQ') {
         return '120px'
       }
       if (item.columnName === 'BARHJSZDSSXQ_NAME' || item.columnName === 'BARSJJZDSSXQ_NAME') {
         return '240px'
       }
-      return '200px'
+      return '210px'
     },
     className(item) {
       if (this.sortable) {
@@ -398,6 +400,9 @@ export default {
           }
         }
       }
+    },
+    clearTable() {
+      this.$refs.caseTable.clearSort()
     },
     query(flag) {
       this.listLoading = true

@@ -33,8 +33,8 @@
         </el-form-item>
       </el-col>
     </el-form>
-  <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}">
-    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;">
+  <!-- <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}"> -->
+    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;" :max-height="tableHeight">
       <el-table-column type="index" width="60" label="序号" ></el-table-column>
       <el-table-column prop="serialNumber"  label='线索序号'  min-width="100"></el-table-column>
       <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
@@ -52,15 +52,15 @@
           <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="syajs"  label='移送（次）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="larqCount"  label='立案（起）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="parqCount"  label='破案（起）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="zhrys" label="抓获（人）"  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="xsjl"  label='刑拘（人）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="pzdb"  label='批捕（人）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="yjss" label="移诉（人）"   min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="syajs"  label='移送（次）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="parqCount"  label='破案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="xsjl"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="140" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="150" show-overflow-tooltip></el-table-column>
       <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
         <template slot-scope="scope">
           <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
@@ -72,7 +72,7 @@
         </template>
       </el-table-column>
     </el-table>
-  </div>
+  <!-- </div> -->
 
      <!--工具条-->
     <el-col :span="24" class="toolbar">
@@ -223,7 +223,7 @@ export default {
   },
   mounted() {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 315
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 320
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }

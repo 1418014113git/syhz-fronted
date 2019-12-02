@@ -356,7 +356,6 @@
             // new TileLayer({
             //   source: new OSM()
             // }),
-            _that.flagLayer,
             new TileLayer({
               source: new XYZ({
                 url: 'http://10.174.64.11:8081/PGIS_S_TileMapServer/Maps/bjslyx/EzMap?Service=getImage&Type=RGB&ZoomOffset=0&Col={x}&Row={y}&Zoom={z}&V=1.0.0', // bjslyx矢量影像叠加 bjsl 矢量 bjyx影像
@@ -365,7 +364,8 @@
                 maxZoom: 15, // 15 级以上没有
                 projection: 'EPSG:4326' // 采用WGS84坐标系
               })
-            })
+            }),
+            _that.flagLayer
           ],
           view: _that.view
         })

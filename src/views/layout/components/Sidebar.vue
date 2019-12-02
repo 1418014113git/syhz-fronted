@@ -116,6 +116,17 @@ export default {
           menuData.push(item)
         })
       }
+      if (menuData.length > 0) { // 菜单排序
+        menuData.sort((a, b) => a.sort - b.sort) // 升序
+        menuData.forEach(function(it) {
+          if (it.children && it.children.length > 0) {
+            it.children.sort((c, d) => c.sort - d.sort) // 升序
+            if (it.children.children && it.children.children.length > 0) {
+              it.children.children.sort((c, d) => c.sort - d.sort) // 升序
+            }
+          }
+        })
+      }
       this.$store.dispatch('MenuData', menuData)
     },
     getAppCode() {

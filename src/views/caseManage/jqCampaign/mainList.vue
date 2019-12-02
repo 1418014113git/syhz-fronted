@@ -78,8 +78,8 @@
         </el-form-item>
       </el-col>
     </el-form>
-    <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}">
-      <el-table :data="listData" v-loading="listLoading"  ref="multipleTable" style="width: 100%;"  :row-class-name="getRowClassName" @select="handleselectRow" @select-all="handleselectAll">
+    <!-- <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}"> -->
+      <el-table :data="listData" v-loading="listLoading"  ref="multipleTable" style="width: 100%;"  :max-height="tableHeight"  :row-class-name="getRowClassName" @select="handleselectRow" @select-all="handleselectAll">
         <el-table-column type="expand">
           <template slot-scope="scope">
             <el-table :data="scope.row.deptList"  v-loading="listChildLoading" style="width: 100%;">
@@ -148,12 +148,12 @@
         <el-table-column label="操作" width="130" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
-            <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="controlxg(scope.row) && $isViewBtn('101905')"  @click="handleEdit(scope.$index, scope.row)"></el-button>
-            <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete" circle  v-if="controlxg(scope.row) && $isViewBtn('101906')"  @click="handleDel(scope.$index, scope.row)"></el-button>
+            <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="controlxg(scope.row)"  @click="handleEdit(scope.$index, scope.row)"></el-button>
+            <el-button size="mini" title="删除"  type="primary" icon="el-icon-delete" circle  v-if="controlsc(scope.row)"  @click="handleDel(scope.$index, scope.row)"></el-button>
           </template>
         </el-table-column>
       </el-table>
-    </div>
+    <!-- </div> -->
     <!--工具条-->
     <el-col :span="24" class="toolbar">
       <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize" @size-change="handleSizeChange"
@@ -348,7 +348,10 @@ export default {
       return (this.curDept.depType === '1' || (this.curDept.depType === '2' && ((this.curDept.areaCode === row.cityCode) || (this.curDept.depCode === row.applyDeptCode))) || (this.curDept.depType === '4' && ((this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114') || (this.curDept.depCode.substring(0, 4) === row.applyDeptCode.substring(0, 4) === '6114') || this.$isViewBtn('101908'))))
     },
     controlxg(row) { // 控制列表修改按钮
-      return row.status === '0' && ((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode))
+      return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))
+    },
+    controlsc(row) { // 控制列表删除按钮
+      return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))
     },
     handleAreaChange(val) { // 行政区划
       this.department = []
@@ -807,7 +810,7 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 320
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 330
     if (this.$route.query.status) { // 有参数，说明是从首页--个人待办--审查待办--集群战役待审核
       this.filters.status = this.$route.query.status
     }
