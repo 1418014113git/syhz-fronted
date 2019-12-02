@@ -149,6 +149,7 @@ export default {
             restaurants.forEach(element => {
               element.value = element.name
             })
+            queryString = queryString.trim() // 去掉输入框的首尾空格
             var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
             cb(results)
           })
@@ -177,6 +178,7 @@ export default {
             restaurants.forEach(element => {
               element.value = element.realName
             })
+            queryString = queryString.trim() // 去掉输入框的首尾空格
             var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
             cb(results)
           })

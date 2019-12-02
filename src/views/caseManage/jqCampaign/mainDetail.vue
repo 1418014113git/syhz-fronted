@@ -8,17 +8,17 @@
      <el-row>
        <!-- 左侧导航区 -->
         <el-col class="leftCont" :span="3" :style="{height:countHeight}">
-          <left-nav class="bg"  :id="id"></left-nav>
+          <left-nav class="bg"  :info="baseInfo"></left-nav>
         </el-col>
         <!-- 右侧内容区 -->
         <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
-            <base-info class="marb bg jbxx" :id="id" :info="baseInfo"></base-info>
-            <verify-info class="marb bg shxx" :id="id" :info="baseInfo"></verify-info>
-            <area-sign class="marb bg dsqs" :id="id" v-if="isShow"></area-sign>
-            <area-back class="marb bg dsfk" :id="id" v-if="isShow"></area-back>
-            <county-sign class="marb bg qxqs" :id="id" v-if="!isShow"></county-sign>
-            <county-back class="marb bg qxfk" :id="id" v-if="!isShow"></county-back>
+            <base-info class="marb bg jbxx"  :info="baseInfo"></base-info>
+            <verify-info class="marb bg shxx"  :info="baseInfo"></verify-info>
+            <area-sign class="marb bg dsqs"  :info="baseInfo" v-if="isShow"></area-sign>
+            <area-back class="marb bg dsfk"  :info="baseInfo" v-if="isShow"></area-back>
+            <county-sign class="marb bg qxqs"  :info="baseInfo" v-if="!isShow"></county-sign>
+            <county-back class="marb bg qxfk"  :info="baseInfo" v-if="!isShow"></county-back>
           </div>
         </el-col>
      </el-row>
@@ -39,13 +39,16 @@ export default {
   name: 'personnelFile',
   data() {
     return {
-      countHeight: document.documentElement.clientHeight - 130 + 'px',
-      classList: ['jbxx', 'shxx', 'dsqs', 'dsfk', 'qxqs', 'qxfk'],
+      countHeight: document.documentElement.clientHeight - 160 + 'px',
+      classList: [],
+      classList1: ['jbxx', 'shxx', 'dsqs', 'dsfk'], // 地市
+      classList2: ['jbxx', 'shxx', 'qxqs', 'qxfk'], // 区县
       curUser: {}, // sessionStorage获取用户信息
       curDept: {}, // sessionStorage获取机构信息
       isShow: false,
-      id: '',
+      jqid: '', // 集群id
       baseInfo: {}
+
     }
   },
   components: {
@@ -79,7 +82,7 @@ export default {
   methods: {
     detail(id) { // 查询详情
       this.$query('casecluster/' + id, {}).then((response) => {
-        this.id = id
+        this.jqid = id
         this.baseInfo = response.data
       }).catch(() => {
       })
@@ -94,19 +97,41 @@ export default {
     },
     // 监听滚动条变化
     handleScroll() {
+      // // var documentHeight = this.$refs.rightContDoc.offsetHeight
+      // // var difference = documentHeight - (document.documentElement.clientHeight - 143)
+      // if (document.querySelector('.rightCont').scrollTop > 0) { // 如何滚动条顶部距离>0,则将状态ToTop初始化为0
+      //   this.$store.dispatch('ToTop', 0)
+      //   this.$store.dispatch('Personeltotop', '')
+      // }
+      // for (var i = 0; i < this.classList.length - 1; i++) {
+      //   // if (document.querySelector('.rightCont').scrollTop === 0) {
+      //   //   this.$store.dispatch('MouleClass', this.classList[0])
+      //   // } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 10 && document.querySelector('.rightCont').scrollTop < difference) {
+      //   //   this.$store.dispatch('MouleClass', this.classList[i])
+      //   // } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
+      //   //   console.log('到底了')
+      //   //   this.$store.dispatch('MouleClass', this.classList[4])
+      //   // }
+      //   if (document.querySelector('.rightCont').scrollTop === 0) {
+      //     this.$store.dispatch('MouleClass', this.classList[0])
+      //   } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop) {
+      //     this.$store.dispatch('MouleClass', this.classList[i])
+      //   } else {
+      //   }
+      // }
       var documentHeight = this.$refs.rightContDoc.offsetHeight
       var difference = documentHeight - (document.documentElement.clientHeight - 130)
       if (document.querySelector('.rightCont').scrollTop > 0) { // 如何滚动条顶部距离>0,则将状态ToTop初始化为0
         this.$store.dispatch('ToTop', 0)
+        this.$store.dispatch('Personeltotop', '')
       }
       for (var i = 0; i < this.classList.length - 1; i++) {
         if (document.querySelector('.rightCont').scrollTop === 0) {
-          this.$store.dispatch('MouleClass', this.classList[0])
+          this.$store.dispatch('AjMouleClass', this.classList[0])
         } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 10 && document.querySelector('.rightCont').scrollTop < difference) {
-          this.$store.dispatch('MouleClass', this.classList[i])
+          this.$store.dispatch('AjMouleClass', this.classList[i])
         } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
-          console.log('到底了')
-          this.$store.dispatch('MouleClass', this.classList[4])
+          this.$store.dispatch('AjMouleClass', this.classList[this.classList.length - 1])
         }
       }
     }
@@ -118,23 +143,23 @@ export default {
   },
   mounted() {
     const _this = this
-    document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      if (this.curDept.depType === '-1' || this.curDept.depType === '1' || this.curDept.depType === '2') { // 省 总队 支队
-        this.navList = this.navList1
+      if (this.curDept.depType === '1' || this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.parentDepCode === '611400390000')) { // 总队 支队 (杨凌派出所和杨凌支队同权限)
+        this.classList = this.classList1
         this.isShow = true
-      } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
-        this.navList = this.navList2
+      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.parentDepCode !== '611400390000')) { // 大队，派出所
+        this.classList = this.classList2
         this.isShow = false
       }
     }
+    document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
   },
   activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
-    // if (this.$route.query.id) {
-    //   this.id = this.$route.query.id
-    // }
-    // document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
+    if (this.$route.query.id) {
+      this.detail(this.$route.query.id)
+    }
+    document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
   }
 }
 </script>

@@ -53,7 +53,7 @@
       <el-table-column prop="submitTime" label="填报日期" min-width="10%"></el-table-column>
       <el-table-column label="操作" width="165">
         <template slot-scope="scope">
-          <el-button v-if="shareBtn(scope.row)" title="分享" size="mini" icon="el-icon-document" type="primary" circle
+          <el-button v-if="shareBtn(scope.row)" title="分享" size="mini" icon="el-icon-share" type="primary" circle
                      @click="handleShare(scope.$index, scope.row)"></el-button>
           <el-button title="详情" size="mini" icon="el-icon-document" type="primary" circle
                      @click="handleDetail(scope.$index, scope.row)"></el-button>
@@ -77,14 +77,16 @@
   import {
     getCluePage
   } from '@/api/clue'
+  import importexport from '@/api/importexport'
   export default {
     name: 'analysis',
     data() {
       return {
+        exportDataUrl: importexport.exportModuleName,
         defaultTime: ['00:00:00', '23:59:59'],
         shareStatusList: [
-          { code: 0, label: '未分享' },
-          { code: 1, label: '已分享' }
+          { code: '0', label: '未分享' },
+          { code: '1', label: '已分享' }
         ],
         total: '',
         page: 1,
@@ -92,6 +94,12 @@
         listLoading: '',
         statusData: [],
         filters: {
+          submitUnitName: '',
+          submitPersonName: '',
+          clueSortId: '',
+          collectionTypeId: '',
+          shareStatus: '',
+          keyword: ''
         },
         listData: [],
         defaultQuery: true
@@ -127,7 +135,7 @@
       delBtn(row) {
         if (row.shareStatus + '' === '0') {
           // 删除按钮编号
-          return (this.$isViewBtn('100821') && row.submitDeptId + '' === JSON.parse(sessionStorage.getItem('depToken'))[0].id + '') || (row.submitPersonId + '' === JSON.parse(sessionStorage.getItem('userId')) + '')
+          return (this.$isViewBtn('100901') && row.submitDeptId + '' === JSON.parse(sessionStorage.getItem('depToken'))[0].id + '') || (row.submitPersonId + '' === JSON.parse(sessionStorage.getItem('userId')) + '')
         }
         return false
       },
@@ -218,21 +226,135 @@
       },
       // 导出
       exportExcel() {
+        this.$confirm('确认导出吗?', '提示', {
+          type: 'warning'
+        }).then(() => {
+          const _this = this
+          if (_this.defaultQuery) {
+            // 查询模式1
+            var param1 = {
+              submitPersonId: JSON.parse(sessionStorage.getItem('userId')),
+              submitDeptId: JSON.parse(sessionStorage.getItem('depToken'))[0].id,
+              currentDeptId: JSON.parse(sessionStorage.getItem('depToken'))[0].id,
+              currentUserId: JSON.parse(sessionStorage.getItem('userId'))
+            }
+            this.$update('clue/listCount', param1).then((response) => {
+              if (response.success === true) {
+                if (response.data > 10000) {
+                  this.$message({
+                    message: '由于数据量过大，页面导出会很慢，请联系运维人员后台帮您导出！',
+                    type: 'warning'
+                  })
+                  return false
+                } else {
+                  var submitPersonId = JSON.parse(sessionStorage.getItem('userId'))
+                  var submitDeptId = JSON.parse(sessionStorage.getItem('depToken'))[0].id
+                  var currentDeptId = JSON.parse(sessionStorage.getItem('depToken'))[0].id
+                  var currentUserId = JSON.parse(sessionStorage.getItem('userId'))
+                  var param = ''
+                  param += 'submitPersonId=' + submitPersonId + '&submitDeptId=' + submitDeptId +
+                    '&currentDeptId=' + currentDeptId +
+                    '&currentUserId=' + currentUserId
+                  window.location.href = _this.exportDataUrl + 'clue/excel?' + param
+                }
+              }
+            }).catch(() => {
+              this.listLoading = false
+            })
+          } else {
+            // 查询模式2
+            var paramCount = {
+              deptList: this.getDeptList(JSON.parse(sessionStorage.getItem('depToken'))[0].depCode),
+              submitUnitName: this.filters.submitUnitName,
+              submitPersonName: this.filters.submitPersonName,
+              startTime: this.filters.timeRange ? this.filters.timeRange[0] : null,
+              endTime: this.filters.timeRange ? this.filters.timeRange[1] : null,
+              clueSortId: this.filters.clueSortId,
+              collectionTypeId: this.filters.collectionTypeId,
+              shareStatus: this.filters.shareStatus,
+              keyword: this.filters.keyword,
+              currentDeptId: JSON.parse(sessionStorage.getItem('depToken'))[0].id,
+              currentUserId: JSON.parse(sessionStorage.getItem('userId'))
+            }
+            this.$update('clue/listCount', paramCount).then((response) => {
+              if (response.success === true) {
+                if (response.data > 10000) {
+                  this.$message({
+                    message: '由于数据量过大，页面导出会很慢，请联系运维人员后台帮您导出！',
+                    type: 'warning'
+                  })
+                  return false
+                } else {
+                  var deptList = JSON.parse(sessionStorage.getItem('depToken'))[0].depCode
+                  var startTime = _this.filters.timeRange ? _this.filters.timeRange[0] : ''
+                  var endTime = _this.filters.timeRange ? _this.filters.timeRange[1] : ''
+                  var currentDeptId = JSON.parse(sessionStorage.getItem('depToken'))[0].id
+                  var param = ''
+                  param += 'deptList=' + deptList + '&submitUnitName=' + _this.filters.submitUnitName +
+                    '&submitPersonName=' + _this.filters.submitPersonName +
+                    '&startTime=' + startTime +
+                    '&endTime=' + endTime +
+                    '&clueSortId=' + _this.filters.clueSortId +
+                    '&collectionTypeId=' + _this.filters.collectionTypeId +
+                    '&shareStatus=' + _this.filters.shareStatus +
+                    '&keyword=' + _this.filters.keyword +
+                    '&currentDeptId=' + currentDeptId +
+                    '&currentUserId=' + JSON.parse(sessionStorage.getItem('userId'))
+                  window.location.href = _this.exportDataUrl + 'clue/excel?' + param
+                }
+              }
+            }).catch(() => {
+              this.listLoading = false
+            })
+          }
+        })
       },
       // 添加
       add() {
+        this.$router.push({
+          path: '/information/clueUpdate'
+        })
       },
       // 分享
-      handleShare() {
+      handleShare(index, row) {
+        this.$router.push({
+          path: '/information/clueShare?', query: { id: row.id }
+        })
       },
       // 详情
-      handleDetail() {
+      handleDetail(index, row) {
+        this.$router.push({
+          path: '/information/clueDetai?', query: { id: row.id }
+        })
       },
       // 编辑
-      handleEdit() {
+      handleEdit(index, row) {
+        this.$router.push({
+          path: '/information/clueUpdate?', query: { id: row.id }
+        })
       },
       // 删除
-      handleDel() {
+      handleDel(index, row) {
+        this.$confirm('确认删除吗?', '提示', {
+          type: 'warning'
+        }).then(() => {
+          var param = {
+            id: row.id,
+            dataStatus: 0
+          }
+          this.$update('clue/updateDataStatus/', param).then((response) => {
+            if (response.code === '000000') {
+              this.$message({
+                message: '删除成功', type: 'success'
+              })
+              if (this.defaultQuery) {
+                this.init()
+              } else {
+                this.query()
+              }
+            }
+          })
+        })
       },
       // 采集类型格式化
       collectionTypeFormat(row) {

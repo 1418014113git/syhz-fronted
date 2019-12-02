@@ -121,11 +121,13 @@
           <el-button  v-if="$isViewBtn('100805')" title="详情" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle>
           </el-button>
           <!-- 草稿状态 或者 审核不通过 有 编辑按钮 -->
-          <el-button v-if="$isViewBtn('100806') && (scope.row.status === 0||scope.row.status === 4) &&
-                    ((deptInfo.depType!=='4'&&scope.row.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.applyDeptCode === deptInfo.parentDepCode))"
+          <el-button v-if="(scope.row.status === 0 && userInfo.id === scope.row.creationId) ||
+                   ($isViewBtn('100806') && (scope.row.status === 0||scope.row.status === 4) && ((deptInfo.depType!=='4'&&scope.row.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.applyDeptCode === deptInfo.parentDepCode)))"
                     title="编辑" size="mini" type="primary" @click="editDBInfo(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
-          <el-button v-if="$isViewBtn('100807') && (scope.row.superviseDeptCode === deptInfo.depCode) && scope.row.superviseLevel>1 && (scope.row.wdStatus===0||scope.row.wdStatus===4)"
+          <el-button v-if="$isViewBtn('100807') && scope.row.status!==0 && (scope.row.superviseDeptCode === deptInfo.depCode) && scope.row.superviseLevel>1 && (scope.row.wdStatus===0||scope.row.wdStatus===4)"
                       title="向上申请" size="mini" type="primary" @click="handleUpToApply(scope.$index, scope.row)" icon="el-icon-arrow-up" circle></el-button>
+          <!-- <el-button v-if="$isViewBtn('100813') && deptInfo.depCode===scope.row.superviseDeptCode && scope.row.status===1"
+                      title="审核" type="primary" size="small" @click="handleAudit"></el-button> -->
           <!-- <el-button v-if="(scope.row.status === '0' || scope.row.status === '2') && $isViewBtn('100807') && scope.row.apply_dept_id === String(currentDeptId)" title="删除" size="mini" type="danger"
                      @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
           <el-button v-if="(scope.row.status === '7' || scope.row.status === '8') && $isViewBtn('100806') && scope.row.apply_dept_id === String(currentDeptId)" title="考核打分" size="mini" type="danger"
@@ -152,6 +154,11 @@
         </el-row>
       </el-form>
     </el-dialog>
+    <!-- 审核弹框-->
+    <!-- <el-dialog title="审核" :visible.sync="isShowshDialog"  class="stshForm" @close="closeshDialog" :close-on-click-modal="false">
+      <audit-com :isShowDialog="isShowshDialog" :dbId="currentDb.recordId" :dsh="dsh_Info" @closeDialog="closeshDialog"></audit-com>
+    </el-dialog> -->
+    <!-- 考核打分 -->
     <!-- <el-dialog title="考核打分" :visible.sync="assessScoresVisible" width="1340px" @close="closeDialog">
       <AssessScores ref="assessScores" @setAssessScores="setAssessScores" @closeDialog="closeDialog"></AssessScores>
     </el-dialog> -->
@@ -232,6 +239,7 @@ export default {
       queryBtn: false, // 查询按钮是否可点击
       carryParam: {}, // 页面传递的参数
       hasBackBtn: false, // 是否有返回按钮
+      isShowshDialog: false, // 是否显示审核弹框
       rules: {
         secretCode: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
@@ -348,8 +356,8 @@ export default {
           } else if (this.deptInfo.depType === '3') { // 大队
             currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '4') { // 派出所
-            if (this.deptInfo.areaCode === '610403') { // 杨凌例外
-              currentArea = ['610000', '610403']
+            if (this.deptInfo.areaCode === '611400') { // 杨凌例外
+              currentArea = ['610000', '611400']
             } else { // 正常的派出所
               currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
             }
@@ -501,7 +509,7 @@ export default {
         // 限制 截止时间 必须是开始时间之后
         this.endPickerOptions = Object.assign({}, 'endPickerOptions', {
           disabledDate: (time) => {
-            return time.getTime() < new Date(val).getTime()
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
       } else {
@@ -653,6 +661,16 @@ export default {
       //   })
       // }
     },
+    handleAudit(index, row) { // 审核
+      this.currentDb = row
+      this.isShowshDialog = true
+    },
+    closeshDialog(val) { // 关闭审核弹框 点击"通过/不通过"时，页面需要重新加载，更新审核状态。
+      if (this.$refs.auditForm) {
+        this.$refs.auditForm.resetForm('auditForm')
+      }
+      this.isShowshDialog = false // 下发催办弹框隐藏
+    },
     resetFormFilter() {
       this.filters = {
         status: ''
@@ -704,7 +722,7 @@ export default {
     if (this.$route.query.origin) {
       this.hasBackBtn = true // 是否显示返回按钮
       this.carryParam = this.$route.query
-      if (this.carryParam.origin === 'portal') { // 首页
+      if (this.carryParam.origin === 'portal') { // 首页 跳转来的
         if (this.$route.query.status) {
           this.filters.status = this.$route.query.status // 首页-审核待办
         }
@@ -714,6 +732,10 @@ export default {
         if (this.$route.query.qsStatus) {
           this.filters.qsStatus = this.$route.query.qsStatus // 首页-审核待办
         }
+        this.initData()
+      }
+      if (this.carryParam.origin === 'caseFile') { // 案件档案 跳转来的
+        this.filters.keyword = this.carryParam.abjh // 将案件编号赋值给查询条件 关键词
         this.initData()
       }
       if (this.carryParam.origin === 'dbStatistical') { // 督办统计 跳转来的

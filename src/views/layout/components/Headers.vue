@@ -60,21 +60,21 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-@import 'src/styles/vars.scss';
+@import "src/styles/vars.scss";
 .headers {
   width: 100%;
   height: 60px;
   // background: rgba(0, 89, 130, 0.7);
-  background:url('../../../assets/header/navbg.png') no-repeat center center;
+  background: url("../../../assets/header/navbg.png") no-repeat center center;
   background-size: 100% 100%;
   // border-bottom: 3px solid rgba(0, 160, 233, 0.7);
   // color: #bce8fc;
-  .logo{
+  .logo {
     width: 27.5% !important;
     height: 60px;
     line-height: 60px;
     padding-left: 20px;
-    img{
+    img {
       width: 325px;
       height: 28px;
     }
@@ -88,13 +88,13 @@ export default {
       height: 100%;
       cursor: pointer;
       position: relative;
-       .userinfo-inner{
-      color: #bce8fc;
-      font-size: 16px;
-      display: inline-block;
-      margin-top: 20px;
-    }
-     img{
+      .userinfo-inner {
+        color: #bce8fc;
+        font-size: 16px;
+        display: inline-block;
+        margin-top: 20px;
+      }
+      img {
         width: 40px;
         height: 40px;
         border-radius: 20px;
@@ -102,7 +102,7 @@ export default {
         float: right;
       }
 
-    .el-icon-caret-bottom {
+      .el-icon-caret-bottom {
         position: absolute;
         right: -20px;
         top: 25px;
@@ -110,8 +110,9 @@ export default {
       }
     }
   }
-  .sidebar-container{
-    li:hover,li>div:hover{
+  .sidebar-container {
+    li:hover,
+    li > div:hover {
       // background: #005982 !important;
     }
   }

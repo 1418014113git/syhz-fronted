@@ -3,12 +3,16 @@
    <!--线索分发-->
     <el-form :inline="true"  ref="filters" label-width="90px" class="form">
       <el-col :span="24" style="padding-bottom: 0;">
+      <el-tooltip effect="dark" :content="filters.receiveName" placement="top-start" :popper-class="(filters.receiveName&&filters.receiveName.length>10)===true?'tooltipShow':'tooltipHide'">
         <el-form-item label="接收单位">
           <el-input v-model="filters.receiveName" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
-        <el-form-item label="地址">
+      </el-tooltip>
+      <el-tooltip effect="dark" :content="filters.address" placement="top-start" :popper-class="(filters.address&&filters.address.length>10)===true?'tooltipShow':'tooltipHide'">
+        <el-form-item label="地址" label-width="55px">
           <el-input v-model="filters.address" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
+       </el-tooltip>
         <el-form-item label="核查情况">
           <el-select  v-model="filters.qbxsResult" size="small" placeholder="全部" clearable>
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('qbxsfkzt')" :key="item.dictKey"></el-option>
@@ -19,8 +23,8 @@
         <el-form-item label="线索序号">
           <el-input v-model="filters.serialNumber" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
-        <el-form-item label="分类">
-          <el-select  v-model="filters.type" size="small" placeholder="全部" clearable>
+        <el-form-item label="分类" label-width="55px">
+          <el-select  v-model="filters.qbxsCategory" size="small" placeholder="全部" clearable>
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('fllb')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
@@ -50,6 +54,7 @@
         </el-form-item>
         <el-form-item>
           <el-popover
+          class="qkts"
           placement="right"
           width="300"
           trigger="hover">
@@ -59,40 +64,41 @@
               <p>2、选择线索接收单位。</p>
               <p>3、点击【线索分发】，向接收单位分发线索。</p>
             </div>
-            <el-button  type="primary" size="small" slot="reference"><svg-icon icon-class="wenhao"></svg-icon> 分发步骤</el-button>
+            <el-button  type="primary" size="mini" circle  slot="reference"><svg-icon icon-class="wenhao"></svg-icon></el-button>
           </el-popover>
         </el-form-item>
       </el-col>
     </el-form>
-    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;overflow:auto;" max-height="490"  @select="handleselectRow" @select-all="handleselectAll">
-      <el-table-column type="selection" width="50"></el-table-column>
-      <el-table-column type="index" width="60" label="序号" align="center"></el-table-column>
-      <el-table-column prop="serialNumber" align="center" label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="receiveName" align="center" label='接收单位'  min-width="250" show-overflow-tooltip >
-        <template slot-scope="scope">
-          <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="qbxsCategory" align="center" label='线索分类'  min-width="150" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span v-if='scope.row.qbxsCategory'>{{$getDictName(scope.row.qbxsCategory+'','fllb')}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"  align="center" min-width="200" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" width="100">
-        <template slot-scope="scope">
-          <el-button size="mini" title="取消分发"  type="primary" circle  @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
-          <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='edit'"  @click="handleDel(scope.$index,scope.row)"></el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
+    <div class="tableBox"  style="maxHeight:490px">
+      <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;"  @select="handleselectRow" @select-all="handleselectAll">
+        <el-table-column type="selection" width="50"></el-table-column>
+        <el-table-column type="index" width="60" label="序号" ></el-table-column>
+        <el-table-column prop="serialNumber"  label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
+          <template slot-scope="scope">
+            <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="qbxsCategory"  label='线索分类'  min-width="150" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span v-if='scope.row.qbxsCategory'>{{$getDictName(scope.row.qbxsCategory+'','fllb')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作"  width="100" fixed="right">
+          <template slot-scope="scope">
+            <el-button size="mini" title="取消分发"  type="primary" circle  @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
+            <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='edit' && pageSource!=='detail'"  @click="handleDel(scope.$index,scope.row)"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
      <!--工具条-->
-    <el-col :span="24" class="toolbar" style="margin-top:10px;">
+    <el-col :span="24" class="toolbar" >
       <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize" @size-change="handleSizeChange"
                      :total="total" :current-page="page" style="float:right;">
       </el-pagination>
@@ -120,7 +126,7 @@ export default {
       assistId: '', // 集群id
       xsNum: 0, // 选择的线索条数
       checkId: [], // 复选框选中的列表id
-      checkIdRow: [], // 存储当前行被点击选中的项
+      // checkIdRow: [], // 存储当前行被点击选中的项
       listData: [], // 线索列表
       ffbtnLoading: false, // 线索分发按钮加载loading
       listLoading: false, // 列表加载loading
@@ -135,7 +141,7 @@ export default {
       tableHead: [], // 表头
       pcsParentDept: {}, // 派出所的上级部门
       pageSource: '', // 进入页面的来源,
-      xichastatus: '' // 如果是从详情页过来的，会传递协查状态xcstatus
+      xichastatus: '' // 如果是从详情页.列表页列表项过来的，会传递协查状态xcstatus
     }
   },
   watch: {
@@ -146,7 +152,11 @@ export default {
     },
     isShowDialog: {
       handler: function(val, oldeval) {
-        // console.log('显示弹框')
+        if (val) {
+          setTimeout(() => {
+            this.query(true)
+          }, 500)
+        }
       }
     },
     source: {
@@ -156,13 +166,12 @@ export default {
     },
     fastatus: { // 分发状态
       handler: function(val, oldeval) {
-        if (val !== '0') {
+        if (val) {
           this.filters.qbxsDistribute = val + ''
         } else {
           this.filters.qbxsDistribute = ''
         }
-        this.filters.receiveName = ''
-        this.query(true)
+        // this.query(true)
       }
     },
     jsdw: {
@@ -170,16 +179,15 @@ export default {
         if (val) {
           this.filters.receiveName = val
         }
-        this.filters.qbxsDistribute = ''
-        this.query(true)
+        // this.query(true)
       }
     },
     xcstatus: { // 协查状态
       handler: function(val, oldeval) {
         if (val) {
-          this.xichastatus = val
+          this.xichastatus = val + ''
+          // this.query(true)
         }
-        this.query(true)
       }
     }
   },
@@ -196,14 +204,15 @@ export default {
         qbxsDistribute: this.filters.qbxsDistribute ? this.filters.qbxsDistribute : '', // 分发状态
         pageNum: this.page, // 页数
         pageSize: this.pageSize, // 条数
-        assistId: this.assistId // 协查id
+        assistId: this.assistId // 协查id 也就是集群id，
       }
 
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
+        this.checkId = []
       }
-      if (this.pageSource === 'detail' && Number(this.xichastatus) > 3) { // 详情页进来的， 协查状态>3 是审核不通过以及通过以后的状态，需要传递当前部门code
-        para.deptCode = this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode // 当前部门code  如果是派出所，传它的父部门code
+      if (this.pageSource === 'detail' && Number(this.xichastatus) > 3 && Number(this.curDept.depType) > 1) { // 详情页进来的， 协查状态>3 是审核不通过以及通过以后的状态，需要传递当前部门code 厅级不用传，支队大队传当前部门
+        para.deptCode = this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode // 当前部门code  如果是派出所，传它的父部门code
       }
       this.$query('ajglQbxs', para).then((response) => {
         this.listLoading = false
@@ -235,8 +244,10 @@ export default {
         receiveName: '', // 接收单位
         qbxsResult: '', // 协查情况
         serialNumber: '', // 序号
-        qbxsCategory: '' // 分类
+        qbxsCategory: '', // 分类
+        qbxsDistribute: '' // 分发状态
       }
+      this.xsNum = 0 // 已选线索数初始化
       this.deptCode = '' // 接收单位code
       this.acceptDeptName = '' // 接收单位名称
       this.initData()
@@ -247,6 +258,7 @@ export default {
       this.pageSize = 15
       this.listData = []
       this.tableHead = []
+      this.checkId = []
     },
     handleDel(index, row) { // 删除线索
       this.$confirm('确定要删除线索吗？', '提示', {
@@ -257,7 +269,8 @@ export default {
         this.listLoading = true
         const param = {
           qbxsId: row.qbxsId,
-          assistId: this.assistId
+          assistId: this.assistId,
+          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : ''
         }
         this.$update('caseassistclue/delete', param).then((response) => {
           this.listLoading = false
@@ -283,7 +296,8 @@ export default {
         this.listLoading = true
         const param = {
           qbxsId: row.qbxsId,
-          assistId: this.assistId
+          assistId: this.assistId,
+          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : ''
         }
         this.$update('caseassistclue/cancelDistribute', param).then((response) => {
           this.listLoading = false
@@ -310,7 +324,7 @@ export default {
           acceptDeptName: this.acceptDeptName, // 接收的部门Name
           curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode // 当前部门code  如果是派出所，传它的父部门code
         }
-        if (this.pageSource === 'detail' && Number(this.xichastatus) > 3) { // 详情页进来的， 协查状态>3 是审核不通过以及通过以后的状态，需要以下参数
+        if (this.pageSource === 'detail' && Number(this.xichastatus) > 3) { // 详情页进来的， 协查状态>3 是审核通过以及通过以后的状态，需要以下参数
           param.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 当前部门名称  如果是派出所，传它的父部门名称
           param.curDeptType = this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType // 当前部门类型  如果是派出所，传它的父部门类型
           param.userId = this.curUser.id
@@ -324,7 +338,7 @@ export default {
             cancelButtonText: '完成分发',
             type: 'success'
           }).then(() => { // 继续分发
-
+            this.query(true, true)
           }).catch(() => { // 完成分发
             this.$emit('closeDialog', false) // 关闭弹
           })
@@ -343,7 +357,8 @@ export default {
         receiveName: '', // 接收单位
         qbxsResult: '', // 协查情况
         serialNumber: '', // 序号
-        qbxsCategory: '' // 分类
+        qbxsCategory: '', // 分类
+        qbxsDistribute: '' // 分发状态
       }
       this.deptCode = '' // 接收单位code
       this.acceptDeptName = '' // 接收单位名称
@@ -352,12 +367,12 @@ export default {
     },
     // 行选中函数  若有删除，若无添加
     handleselectRow(selection, row) {
-      this.checkIdRow = []
-      if (selection.length > 0) {
-        selection.forEach((item, index) => {
-          this.checkIdRow.push(item.qbxsId)
-        })
-      }
+      // this.checkIdRow = []
+      // if (selection.length > 0) {
+      //   selection.forEach((item, index) => {
+      //     this.checkIdRow.push(item.qbxsId)
+      //   })
+      // }
 
       if (this.checkId.length === 0 && selection.length > 0) {
         this.checkId.push(row.qbxsId)
@@ -379,7 +394,7 @@ export default {
         this.xsNum = 0
       }
     },
-    handleselectAll(selection) {
+    handleselectAll(selection) { // 全选
       var allSelect = selection
       if (selection.length > 0) {
         var checkId_1 = this.checkId
@@ -464,10 +479,10 @@ export default {
           areaCode: this.curDept.areaCode, // 当前区域code
           curType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType // 当前部门类型
         }
-      } else {
+      } else { // 申请，下发页面进来的
         param = {
           areaCode: '610000', // 传省厅的区域code， 查所有的地市支队
-          curType: 1 // 传总队的类型
+          curType: '1' // 传总队的类型
         }
       }
       this.$query('dept/subordinate', param, 'upms').then((response) => {
@@ -500,21 +515,27 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    if (this.curDept.depType === '4') { // 派出所
-      this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
-    }
     if (this.id) {
       this.assistId = this.id
     }
     if (this.source) {
       this.pageSource = this.source
     }
-
-    if (this.fastatus && this.fastatus !== '0') { // 分状态
-      this.filters.qbxsDistribute = this.fastatus + ''
+    if (this.curDept.depType === '4') { // 派出所
+      this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
+    } else {
+      this.queryCubordinate() // 查接收单位
     }
-    if (this.jsdw) {
+    if (this.fastatus) { // 分发状态
+      this.filters.qbxsDistribute = this.fastatus
+      // this.filters.receiveName = ''
+    }
+    if (this.jsdw) { // 接收单位
       this.filters.receiveName = this.jsdw
+      // this.filters.qbxsDistribute = ''
+    }
+    if (this.xcstatus) {
+      this.xichastatus = this.xcstatus
     }
     this.query(true)
   },
@@ -549,5 +570,25 @@ export default {
   .inputW{
     width: 400px;
   }
+  .tableBox{
+    width: 100%;
+    overflow: auto;
+  }
+}
+.qkts{
+  margin-left: 10px;
+  .el-button--mini.is-circle, .el-button--small.is-circle {
+    padding: 0;
+  }
+  .svg-icon[data-v-5d4549d3] {
+    width: 1.3em;
+    height: 1.3em;
+  }
+}
+.tooltipShow {
+  opacity: 1;
+}
+.tooltipHide {
+  opacity: 0;
 }
 </style>

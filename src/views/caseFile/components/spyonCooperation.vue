@@ -8,10 +8,10 @@
   <div class="bg ajInfo">
     <div class="more_btn" v-if="isMore"  @click="linkMore">更多</div>
     <el-tabs class="archiveTab" v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="全国性协查" name="first">
+      <el-tab-pane label="集群战役" name="first">
         <div slot="label">
-          <p v-if="totalQgxxc>0">全国性协查<span class="circle_number">{{totalQgxxc}}</span></p>
-          <p v-else class="no_data_title">全国性协查</p>
+          <p v-if="totalQgxxc>0">集群战役<span class="circle_number">{{totalQgxxc}}</span></p>
+          <p v-else class="no_data_title">集群战役</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
         <el-table :data="qgxxcData" style="width: 100%;" v-loading="qgxxcLoading" class="statisticCollect" max-height="186">
@@ -82,12 +82,12 @@
           </el-table-column>
           <el-table-column prop="dbLevel" label="督办级别" width="100" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.dbLevel">{{formatterLevel(scope.row.dbLevel)}}</span>
+              {{$getDictName(scope.row.dbLevel+'','dbjb')}}
             </template>
           </el-table-column>
           <el-table-column prop="dbStatus" label="督办状态" width="100" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.dbStatus">{{filterStateText(scope.row.dbStatus)}}</span>
+               {{$getDictName(scope.row.dbStatus+'','dbajzt')}}
             </template>
           </el-table-column>
           <el-table-column prop="endTime" label="截止时间" width="160" show-overflow-tooltip>
@@ -205,7 +205,7 @@
 <script>
 import { parseTime } from '@/utils/index'
 import {
-  getAssistLevelText, getAssistStatusText, getDBLevelText
+  getAssistLevelText, getAssistStatusText
 } from '@/utils/codetotext'
 export default {
   props: ['ajbh', 'ajid', 'type', 'Rl'],
@@ -217,10 +217,10 @@ export default {
       title: '社保人事',
       activeName: 'first',
       curUser: {},
-      paramDept: sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode : '',
+      depToken: {}, // 当前部门
       // cardId: '110101199008076340',
-      qgxxcData: [], // 全国性协查
-      qgxxcLoading: false, // 全国性协查loading
+      qgxxcData: [], // 集群战役
+      qgxxcLoading: false, // 集群战役loading
       ajxcData: [], // 案件协查
       ajxcLoading: false, // 案件协查loading
       ajdbData: [], // 案件督办
@@ -232,7 +232,7 @@ export default {
       ajrlData: [], // 案件认领
       ajrlLoading: false,
       pageSize: 5,
-      pageQgxxc: 1, // 全国性协查页数
+      pageQgxxc: 1, // 集群战役页数
       totalQgxxc: 0,
       pageAjxc: 1, // 案件协查页数
       totalAjxc: 0,
@@ -251,7 +251,7 @@ export default {
       isRls: '',
       source: 'ajda', // 页面来源，表示该模块是来自案件档案
       isMore: false, // 是否显示更多按钮
-      pageSizeQgxxc: 5, // 全国性协查条数
+      pageSizeQgxxc: 5, // 集群战役条数
       pageSizeAjxc: 5, // 案件协查条数
       pageSizeAjdb: 5, // 案件督办条数
       pageSizeZxrw: 5, // 专项任务条数
@@ -282,12 +282,6 @@ export default {
   methods: {
     formatStatusQgxxc(row, column) {
       return getAssistStatusText(row.status)
-    },
-    filterStateText(state) { // 督办状态
-      return getAssistStatusText(state)
-    },
-    formatterLevel(level) { // 督办级别
-      return getDBLevelText(level)
     },
     formatType(row, column) { // 协查级别
       return getAssistLevelText(row.assistType)
@@ -334,7 +328,7 @@ export default {
     },
     init() {
       if (this.AJBH) {
-        this.handleQgxxc(true) // 全国性协查
+        this.handleQgxxc(true) // 集群战役
         this.handleAjxc(true) // 案件协查
         this.handleAjdb(true) // 案件督办
         this.handleZxrw(true) // 专项任务
@@ -361,10 +355,10 @@ export default {
         this.$resetSetItem('aj8', 0) // 将总数存在session中
       }
     },
-    handleQgxxc(flag) { // 全国性协查
+    handleQgxxc(flag) { // 集群战役
       this.qgxxcLoading = true
       var param = {
-        curDepId: this.curDeptId,
+        curDepId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeQgxxc,
         pageNum: flag ? 1 : this.pageQgxxc
@@ -387,7 +381,7 @@ export default {
     handleAjxc(flag) { // 案件协查
       this.ajxcLoading = true
       var param = {
-        curDepId: this.curDeptId,
+        curDepId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeAjxc,
         pageNum: flag ? 1 : this.pageAjxc
@@ -410,12 +404,13 @@ export default {
     handleAjdb(flag) { // 案件督办
       this.ajdbLoading = true
       var param = {
-        deptId: this.curDeptId,
+        deptId: this.depToken.id,
+        departCode: this.depToken.depType === '4' ? this.depToken.parentDepCode : this.depToken.depCode, // 当前部门编号
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeAjdb,
         pageNum: flag ? 1 : this.pageAjxc
       }
-      this.$query('page/dbaj', param).then((res) => {
+      this.$query('page/dbajinfo', param).then((res) => {
         this.ajdbLoading = false
         if (res.code === '000000') {
           this.ajdbData = res.data.list
@@ -433,7 +428,7 @@ export default {
     handleZxrw(flag) { // 专项任务
       this.zxrwLoading = true
       var param = {
-        deptId: this.curDeptId,
+        deptId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeZxrw,
         pageNum: flag ? 1 : this.pageAjxc
@@ -456,7 +451,7 @@ export default {
     handleJyjd(flag) { // 检验鉴定
       this.jyjdLoading = true
       var param = {
-        curDepId: this.curDeptId,
+        curDepId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeJyjd,
         pageNum: flag ? 1 : this.pageJyjd
@@ -546,11 +541,11 @@ export default {
         this.ajrlLoading = false
       })
     },
-    handleCurrentChangeQgxxc(val) { // 全国性协查分页
+    handleCurrentChangeQgxxc(val) { // 集群战役分页
       this.pageQgxxc = val
       this.handleQgxxc(false)
     },
-    handleSizeChangeQgxxc(val) { // 全国性协查条数
+    handleSizeChangeQgxxc(val) { // 集群战役条数
       this.pageQgxxc = 1
       this.pageSizeQgxxc = val
       this.handleQgxxc(false)
@@ -670,8 +665,8 @@ export default {
 
   },
   mounted() {
-    const depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    if (depToken.depCode.substring(0, 6) === '150000') {
+    this.depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
+    if (this.depToken.depCode.substring(0, 6) === '150000') {
       this.isMore = true
     }
     if (this.ajbh) {
@@ -679,10 +674,6 @@ export default {
       this.AJID = this.ajid
       this.interFaceType = this.type
       this.isRls = this.Rl
-    }
-    if (depToken) {
-      this.curDeptId = depToken.id
-      // this.init()
     }
     // this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     // this.cardNumber = this.cardId

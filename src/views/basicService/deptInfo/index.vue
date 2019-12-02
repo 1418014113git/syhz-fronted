@@ -166,8 +166,8 @@ export default {
           } else if (this.deptInfo.depType === '3') { // 大队 派出所
             currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '4') {
-            if (this.deptInfo.areaCode === '610403') { // 杨凌例外
-              currentArea = ['610000', '610403']
+            if (this.deptInfo.areaCode === '611400') { // 杨凌例外
+              currentArea = ['610000', '611400']
             } else { // 正常的派出所
               currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
             }
@@ -202,7 +202,7 @@ export default {
         userId: this.userInfo.id
       }
       if (this.filters.area && this.filters.area.length > 0) { // 行政区划
-        console.log(this.filters.area)
+        // console.log(this.filters.area)
         para.provinceCode = this.filters.area[0] || '' // 省code
         para.cityCode = this.filters.area[1] || '' // 市code
         para.reginCode = this.filters.area[2] || '' // 区code
@@ -246,25 +246,7 @@ export default {
       this.$router.push({ path: '/basicService/deptInfo/detail', query: { deptId: row.id }})
     },
     handleEdit(index, row) { // 编辑
-      // 检查是否可编辑
-      var roleFlag = false
-      if (sessionStorage.getItem('roles')) {
-        var roles = JSON.parse(sessionStorage.getItem('roles'))
-        for (let d = 0; d < roles.length; d++) {
-          const element = roles[d]
-          if (element.roleCode === '1007') { // 具有审核权限的用户
-            roleFlag = true
-            break
-          } else {
-            roleFlag = false
-          }
-        }
-      }
-      if (roleFlag) {
-        this.$router.push({ path: '/basicService/deptInfo/edit', query: { deptId: row.id }})
-      } else {
-        this.$message.error('此操作您暂时没有权限操作！')
-      }
+      this.$router.push({ path: '/basicService/deptInfo/edit', query: { deptId: row.id }})
     },
     exportDeptExcel() { // 导出excel
       var para = {

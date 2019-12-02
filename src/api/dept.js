@@ -354,3 +354,12 @@ export function querySonDeptByCity(deptList, cityCode) {
   }
   return arry
 }
+// 线索分享接收部门
+export function getClueShareDepts(deptList, parentCode, curCode) {
+  const array = []
+  for (let i = 0; i < deptList.length; i++) {
+    const dept = deptList[i]
+    array.push(dept)
+  }
+  return getTree(array)
+}

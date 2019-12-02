@@ -54,19 +54,6 @@
                 <!-- <a :title="item.name" :href="item.path" target="_blank" class="fjlink">{{item.name}}</a>&nbsp;&nbsp;&nbsp; -->
                 <a @click="downFile(item)" class="fjlink">{{item.name}}</a>
             </p>
-            <!-- <el-upload drag multiple :action="uploadAction"
-                       :auto-upload="true"
-                       :file-list="uploadFiles"
-                       :on-success="attachmentSuccess"
-                       :on-remove="attachmentRemove"
-                       :before-remove="attachmentBfRemove"
-                       :before-upload="beforeUpload"
-                       :limit="10"
-                       :on-exceed="handleExceed">
-              <i class="el-icon-upload"></i>
-              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em>，最多10个</div>
-              <div class="el-upload__tip" slot="tip">{{UploadAttachment.tipText}}</div>
-            </el-upload> -->
           </el-form-item>
           <el-form-item label="督办案件" class="clearfix" prop="cases">
             <el-table :data="choosedCases" style="width: 100%;" :max-height="tableHeight">
@@ -155,29 +142,6 @@ export default {
         }
       }).catch((e) => { })
     },
-    attachmentSuccess(res, file, fileList) {
-      this.uploadFiles = fileList
-    },
-    attachmentRemove(file, fileList) {
-      this.uploadFiles = fileList
-    },
-    attachmentBfRemove(file, fileList) {
-      if (file && file.status === 'success') {
-        return this.$confirm('确定移除' + file.name + '？')
-      }
-    },
-    handleExceed(files, fileList) { // 限制上传文件个数
-      this.$message.error('最多上传10个文件')
-    },
-    beforeUpload(file) {
-      const msg = this.UploadAttachment.fileValid(file)
-      if (msg.length > 0) {
-        this.$message({
-          message: msg, type: 'warning'
-        })
-        return false
-      }
-    },
     init() {
       // 盟市
       // this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
@@ -207,16 +171,20 @@ export default {
           if (this.dbBatchForm.caseList) { // 督办案件列表
             for (let m = 0; m < this.dbBatchForm.caseList.length; m++) {
               var item = this.dbBatchForm.caseList[m]
-              item.sajz = getThousandNum((item.sajz / 10000).toFixed(2))
+              if (item.sajz) { // 涉案价值
+                item.sajz = getThousandNum((item.sajz / 10000).toFixed(2))
+              } else {
+                item.sajz = 0
+              }
             }
             this.choosedCases = this.dbBatchForm.caseList // 督办案件列表
           }
           if (this.dbBatchForm.superviseLevel) { // 督办级别
             this.dbBatchForm.superviseLevel = this.dbBatchForm.superviseLevel + ''
           }
-          if (this.dbBatchForm.attachment) { // 申请的附件
+          if (this.dbBatchForm.document) { // 申请的附件
             this.uploadImgs = [] // 先清空掉该数组
-            var files = this.dbBatchForm.attachment.split('|')
+            var files = this.dbBatchForm.document.split('|')
             for (let index = 0; index < files.length; index++) {
               var element = files[index]
               element = JSON.parse(element)

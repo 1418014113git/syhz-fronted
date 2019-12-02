@@ -3,29 +3,32 @@
     <!-- 地市签收 -->
     <div class="areaSign pubStyle">
       <title-pub :title="title"></title-pub>
-      <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="" max-height="260">
-        <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
-        <el-table-column prop="AJMC" label="下发单位" align="center" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="SYH_FLLB" label="下发日期" align="center" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="AJZT_NAME" label="线索数量" align="center">
-          <template slot-scope="scope">
-            <span class="linkColor"  @click="gotoxslist(scope.row)">{{scope.row.AJZT_NAME}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="receiveDeptName" label="接收单位" align="center" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="signStatus" label="签收状态" align="center">
-          <template slot-scope="scope">
-            <span v-if='scope.row.signStatus'>{{$getDictName(scope.row.signStatus+'','qszt')}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="AJZT_NAME" label="签收人" align="center"></el-table-column>
-        <el-table-column prop="AJZT_NAME" label="签收时间" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="100">
-          <template slot-scope="scope">
-            <el-button size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline" @click="handleSign(scope.$index, scope.row)"></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div style="max-height:260px;overflow: auto;">
+        <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
+          <el-table-column type="index" label="序号" width="60" ></el-table-column>
+          <el-table-column prop="createDeptName" label="下发单位"   min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="createDate" label="下发日期"  min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="clueNum" label="线索数量" min-width="120">
+            <template slot-scope="scope">
+              <span class="linkColor"   v-if="curDept.depCode === scope.row.receiveDeptCode"   @click="gotoxslist(scope.row)">{{scope.row.clueNum}}</span>
+              <span v-else>{{scope.row.clueNum}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="receiveDeptName" label="接收单位"  min-width="180"  show-overflow-tooltip></el-table-column>
+          <el-table-column prop="signStatus" label="签收状态" min-width="180" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <span v-if='scope.row.signStatus'>{{$getDictName(scope.row.signStatus+'','qszt')}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="receiveUserName" label="签收人" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="receiveDate" label="签收时间" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column label="操作"  width="100" align="center" fixed="right">
+            <template slot-scope="scope">
+              <el-button size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline"  v-if="contrlollistqsbtn(scope.row)  && $isViewBtn('101907')"  @click="handleSign(scope.$index, scope.row)"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
       <el-row>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[5,10,15,20]" @size-change="handleSizeChange"
@@ -38,16 +41,17 @@
 </template>
 <script>
 import titlePub from './titlePub'
+import Bus from '@/utils/bus.js'
 export default {
-  props: ['id'],
-  name: 'index',
+  props: ['info'],
+  name: 'areaSign',
   components: {
     titlePub
   },
   data() {
     return {
       title: '地市签收表',
-      curUser: {},
+      curUser: {}, // 用户信息
       curDept: {}, // 当前登录的部门
       paramDept: sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode : '',
       listData: [], // 地市签收表
@@ -55,42 +59,64 @@ export default {
       pageSize: 5,
       page: 1,
       total: 0,
-      pcsParentDept: {}, // 派出所的上级部门
+      baseInfo: {}, // 基础信息
       clusterId: '' // 存储列表传递过来的集群战役id
     }
   },
   watch: {
-    id(val) {
-      this.clusterId = val
-      this.query(true)
+    info(val) {
+      if (val.clusterId) {
+        this.clusterId = val.clusterId
+        this.baseInfo = this.info
+        this.query(true)
+      }
     }
   },
   methods: {
     init() {
-      if (this.id) {
-        this.clusterId = this.id
+      if (this.info.clusterId) {
+        this.clusterId = this.info.clusterId
+        this.baseInfo = this.info
+        this.query(true)
       }
-      this.query(true)
     },
     query(flag) {
       this.listLoading = true
       var param = {
-        clusterId: this.clusterId,
-        deptCode: this.curDept.depCode,
+        assistId: this.clusterId,
         pageSize: this.pageSize,
         pageNum: flag ? 1 : this.page
       }
-      this.$query('page/casecluster/signList', param).then((res) => {
+      // if (this.baseInfo.cityCode !== this.curDept.areaCode && this.curDept.depType === '3') {
+      //   param.deptCode = this.curDept.depCode
+      // }
+      this.$query('casecluster/signList', param).then((res) => {
         this.listLoading = false
         this.listData = res.data.list
         this.total = res.data.totalCount
         this.pageSize = res.data.pageSize
+        this.controlBtn(this.listData)
         this.$resetSetItem('t2', this.total) // 将总数存在session中
       }).catch(() => {
         this.$resetSetItem('t2', 0) // 将总数存在session中
+        Bus.$emit('isShowqsbtn', false)
         this.listLoading = false
         this.initData()
       })
+    },
+    contrlollistqsbtn(row) { // 控制列表行的签收按钮显隐
+      return (((this.curDept.depType === '2' && this.curDept.depCode === row.receiveDeptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === row.receiveDeptCode.substring(0, 4) === '6114')) && Number(this.baseInfo.status) >= 4 && row.signStatus + '' === '1')
+    },
+    controlBtn(data) { // 遍历列表信息，控制详情页上方的签收按钮
+      Bus.$emit('isShowqsbtn', false)
+      if (data.length > 0) {
+        data.forEach(item => {
+          if (this.curDept.depType === '2' && this.curDept.depCode === item.receiveDeptCode && this.baseInfo.status + '' === '4' && item.signStatus + '' === '1') { // 本单位显示签收，地市只能是支队  协查状态：审核通过  1：待签收
+            Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
+            Bus.$emit('qsRow', item) // 当前待签收行的数据
+          }
+        })
+      }
     },
     initData() {
       this.listData = []
@@ -98,7 +124,7 @@ export default {
       this.pageSize = 5
       this.page = 1
     },
-    handleCurrentChange(val) { // 涉案信息
+    handleCurrentChange(val) {
       this.page = val
       this.query(false)
     },
@@ -109,25 +135,26 @@ export default {
     },
     gotoxslist(row) {
       this.$router.push({
-        path: ' /jqcampaign/clueList', query: { id: row.id } // 线索列表页面
+        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: row.receiveDeptCode } // 线索列表页面
       })
     },
     handleSign(index, row) { // 签收
       const param = {
-        userId: this.curUser.id,
-        realName: this.filters.realName,
-        deptCode: this.curDept.depCode,
+        userId: this.curUser.id, // 当前用户Id
+        userName: this.curUser.realName, // 当前用户真实姓名
+        deptCode: row.receiveDeptCode, // 当前行的接收单位code
         assistId: row.assistId, // 集群id
         signId: row.assistSignId // 签收表id
       }
       this.$update('casecluster/signup', param).then((response) => {
         this.$alert('请尽快反馈线索核查情况', '签收成功', {
           type: 'success',
-          confirmButtonText: '知道了'
+          confirmButtonText: '知道了',
+          callback: action => {
+            location.reload()
+          }
         })
-        this.query(true)
       }).catch(() => {
-
       })
     }
   },

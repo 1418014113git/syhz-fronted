@@ -42,7 +42,7 @@
                           style="width: 100%; min-width: 500px;"></vue-editor>
           </el-form-item>
           <el-form-item label="附件" class="clearfix" prop="remark">
-            <el-upload drag multiple :action="uploadAction"
+            <el-upload drag multiple ref="fileUpload" :action="uploadAction"
                        :auto-upload="true"
                        :file-list="uploadFiles"
                        :on-success="attachmentSuccess"
@@ -246,7 +246,27 @@ export default {
         }
       }).catch((e) => { })
     },
+    clearFileList() {
+      this.$refs.fileUpload.abort()
+      const elementArr = document.getElementsByClassName('el-upload-list__item')
+      for (let i = 0; i < elementArr.length; i++) {
+        const element = elementArr[i]
+        if (i === elementArr.length - 1) {
+          element.setAttribute('style', 'display: none;')
+          element.remove()
+        }
+      }
+    },
     attachmentSuccess(res, file, fileList) {
+      if (res.code !== '000000') {
+        this.$alert('上传失败， 请重新上传', '提示', {
+          confirmButtonText: '确定',
+          callback: action => {
+            this.clearFileList()
+          }
+        })
+        return false
+      }
       this.uploadFiles = fileList
     },
     attachmentRemove(file, fileList) {
@@ -281,7 +301,7 @@ export default {
             arr.push(JSON.stringify({ name: img.name, path: img.path || img.response.data }))
           }
         }
-        this.dbBean.document = arr.join('|') // 这里不能用逗号
+        this.dbBatchForm.document = arr.join('|') // 这里不能用逗号
       } else {
         // this.$message.error('文书附件不能为空')
         // return false
@@ -320,9 +340,9 @@ export default {
           }
           this.queryDbCase()
           // 附件
-          for (let i = 0; i < response.data.attachment.length; i++) { // 附件
+          for (let i = 0; i < response.data.document.length; i++) { // 附件
             this.uploadFiles = [] // 先清空掉该数组
-            var files = response.data.attachment.split('|')
+            var files = response.data.document.split('|')
             for (let index = 0; index < files.length; index++) {
               var element = files[index]
               element = JSON.parse(element)
@@ -385,11 +405,15 @@ export default {
         this.dbAjData = response.data
         for (let index = 0; index < response.data.length; index++) {
           const element = response.data[index]
-          element.sajz = getThousandNum((element.sajz / 10000).toFixed(2))
+          if (element.sajz) { // 涉案价值
+            element.sajz = getThousandNum((element.sajz / 10000).toFixed(2))
+          } else {
+            element.sajz = 0
+          }
           element.customFiled = element.ajmc + '-' + element.ajbh + '-' + element.jyaq
         }
         this.dbAjDataAll = response.data
-        console.log(this.dbAjData)
+        // console.log(this.dbAjData)
       }).catch(() => {
         this.caseLoading = false
       })
@@ -538,6 +562,9 @@ export default {
     handleSave(type, formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
+          if (this.uploadFiles.length > 0) {
+            this.handleFile()
+          }
           var param = JSON.parse(JSON.stringify(this.dbBatchForm))
           param.departCode = this.deptInfo.depCode // 部门code
           param.areaCode = this.deptInfo.areaCode // 行政区划

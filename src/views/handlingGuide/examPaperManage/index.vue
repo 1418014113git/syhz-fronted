@@ -35,7 +35,7 @@
     <!--列表-->
     <el-table :data="list" v-loading="listLoading" style="width: 100%;"  class="testList"  :max-height="tableHeight">
       <el-table-column type="index" label="序号" width="100px"></el-table-column>
-      <el-table-column prop="paperName" label="试卷名称" min-width="200" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="paperName" label="试卷名称" min-width="150" show-overflow-tooltip></el-table-column>
       <el-table-column prop="paperType" label="组卷方式" min-width="100">
         <template slot-scope="scope">
           <span>{{getzjStatus(scope.row.paperType)}}</span>

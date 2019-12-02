@@ -6,7 +6,7 @@
   </el-row>
   <el-card class="report" v-loading="pageLoading">
     <p  class="tittle">{{pageTitle}}</p>
-    <el-form :model="form" size="small" ref="form" :rules="rules" label-width="120px" style="width:80%;margin:0 auto;">
+    <el-form :model="form" size="small" ref="form"  :rules="rules"  label-width="120px" style="width:80%;margin:0 auto;">
       <el-row type="flex" justify="center" v-if="isShowotherform">
         <el-col :span="23">
           <el-form-item label="标题：" prop="clusterTitle">
@@ -14,7 +14,7 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <div v-if="pageType==='xf' || pageType==='bxf'">
+      <div v-if="pageType==='xf' || pageType==='bxf' || pageType==='editbxf' || pageType==='editxf'">
         <el-row type="flex" justify="space-around" v-if="isShowotherform">
           <el-col :span="11">
             <el-form-item label="发起单位" prop="applyDeptName">
@@ -25,6 +25,7 @@
                 v-model="form.startDate"
                 type="datetime"
                 format="yyyy-MM-dd HH:mm"
+                value-format="yyyy-MM-dd HH:mm"
                 :picker-options="pickerOptions"
                 placeholder=""
                 style="width:100%;"
@@ -40,13 +41,14 @@
             </el-col>
             <el-col :span="11">
               <el-form-item label="编号" prop="clusterNumber">
-                <el-input v-model.trim="form.clusterNumber" maxlength="20"  placeholder="" clearable></el-input>
+                <el-input v-model.trim="form.clusterNumber" maxlength="20"  placeholder="" clearable  :disabled="pageType!=='bxf' && pageType!=='editbxf'"></el-input>
               </el-form-item>
               <el-form-item label="结束日期" prop="endDate">
                 <el-date-picker
                   v-model="form.endDate"
                   type="datetime"
                   format="yyyy-MM-dd HH:mm"
+                  value-format="yyyy-MM-dd HH:mm"
                   :picker-options="pickerOptions"
                   placeholder=""
                   style="width:100%;"
@@ -83,21 +85,21 @@
         <el-col :span="23">
           <el-form-item label="涉及线索" prop="" class="stxt" v-if="isShowxsform">
             <el-button  @click="drxs">导入线索</el-button>
-            <span class="marl" @click="distribute('0','0')">线索总数： <span class="numStyle">  {{xsNum.total}}</span></span>
+            <span class="marl" @click="distribute('0','')">线索总数： <span class="numStyle">  {{xsNum.total}}</span></span>
             <span class="marl" @click="distribute('2','2')">已分发线索： <span class="numStyle">  {{xsNum.distribute}}</span></span>
             <span class="marl" @click="distribute('1','1')">未分发线索： <span class="numStyle">  {{xsNum.total-xsNum.distribute}}</span></span>
-            <el-button  class="marl" @click="distribute('0','0')">分发</el-button>
+            <el-button  class="marl" @click="distribute('0','')">分发</el-button>
           </el-form-item>
           <el-form-item label="涉及单位" prop="" class="stxt" v-if="isShowxsform">
             <el-table :data="listData" v-loading="listLoading" style="width: 100%;" class="" max-height="400" show-summary>
-              <el-table-column type="index" width="60" label="序号" align="center"></el-table-column>
-              <el-table-column prop="deptName" align="center" label='单位'  min-width="200" show-overflow-tooltip></el-table-column>
-              <el-table-column prop="clueCount" align="center" label="线索数量"  width="200">
+              <el-table-column type="index" width="60" label="序号" ></el-table-column>
+              <el-table-column prop="deptName"  label='单位'  min-width="200" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="clueCount"  label="线索数量"  width="200">
                 <template slot-scope="scope">
                   <span class="linkColor"  @click="distribute('list',scope.row)">{{scope.row.clueCount}}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="操作" align="center" width="100">
+              <el-table-column label="操作"  width="100">
                 <template slot-scope="scope">
                   <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="distribute('list',scope.row)"></el-button>
                 </template>
@@ -108,7 +110,7 @@
             <vue-editor v-model="form.assistContent" useCustomImageHandler @imageAdded="handleImageAdded"></vue-editor>
           </el-form-item>
           <el-form-item label="附件：" style="margin-top: 15px;"  v-if="isShowotherform">
-            <el-upload class="upload-demo" drag multiple
+            <el-upload class="upload-demo" drag multiple  ref="fileUpload"
                 :action="uploadAction"
                 :auto-upload="true"
                 :file-list="attachment"
@@ -117,17 +119,17 @@
                 :before-remove="imgBfRemove"
                 :before-upload="beforeUpload"
                 :on-exceed="handleExceed"
-                :limit="5"
+                :limit="10"
               >
               <i class="el-icon-upload"></i>
-              <div class="el-upload__text"> 点击或将文件拖拽到这里上传，最多5个，单个文件最大500M</div>
-              <div class="el-upload__tip" slot="tip">支持扩展名：.rar .zip .doc .docx .pdf .jpg .xls .xlsx...</div>
+              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em>，最多10个</div>
+              <div class="el-upload__tip" slot="tip">{{UploadAttachment.tipText}}</div>
             </el-upload>
           </el-form-item>
           <el-form-item label="查阅密码" prop="passKey" v-if="isShowotherform">
-            <el-input v-model.trim="form.passKey" type="password" auto-complete="off" clearable  maxlength="20"></el-input>
+            <el-input v-model.trim="form.passKey"  type="password" auto-complete="off" clearable  maxlength="20"></el-input>
           </el-form-item>
-          <el-form-item label="审核单位：" prop="acceptDeptId"  v-if="isShowotherform && pageType!=='xf' && pageType!=='bxf'">
+          <el-form-item label="审核单位：" prop="acceptDeptId"  v-if="isShowotherform && pageType!=='xf' && pageType!=='bxf' && pageType !=='editxf' && pageType!=='editbxf'">
             <el-select v-model="form.acceptDeptId" class="input_w"  @change="deptChange">
               <el-option v-for="(item,index) in exDeptData" :key="index" :label="item.departName" :value="item.acceptDeptId"></el-option>
             </el-select>
@@ -145,18 +147,18 @@
   </el-card>
   <!-- 导入线索弹框-->
   <el-dialog title="导入线索" :visible.sync="isShowdrxsDialog"  class="drxsForm" :close-on-click-modal="false">
-    <import-clue  :isShowDialog="isShowdrxsDialog"  @closeDialog="closedrxsDialog" :id="editId" @result="getResult"></import-clue>
+    <import-clue  :isShowDialog="isShowdrxsDialog"  @closeDialog="closedrxsDialog" :id="id" @result="getResult"></import-clue>
   </el-dialog>
 
   <!-- 分发线索-->
-  <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false">
-    <jqzy-disib  :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="editId"  :fastatus="qbxsDistribute"  :jsdw="receiveName"  source="add" @result="getfaResult"></jqzy-disib>
+  <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false"  @close="clearChildData">
+    <jqzy-disib   ref="ffchild" :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="id"   :fastatus="qbxsDistribute"  :jsdw="receiveName"  :source="pageType"  @result="getfaResult"></jqzy-disib>
   </el-dialog>
 </div>
 </template>
 
 <script>
-import { getSessionDeptSelect } from '@/api/depts'
+// import { getSessionDeptSelect } from '@/api/depts'
 import { uploadImg } from '@/utils/editorUpload'
 // import { getParentDeptArray } from '@/api/dept'
 import VueEditor from '@/components/Editor/VueEditor'
@@ -190,7 +192,8 @@ export default {
         userName: '', // 当前用户真实姓名
         curDeptCode: '', // 当前部门code
         curDeptName: '', // 当前部门名称
-        curDeptId: '' // 当前部门Id
+        curDeptId: '', // 当前部门Id
+        attachment: '' // 附件
       },
       curDeptCode: '', // 当前部门code  登录上来是派出所时，存储他的父级单位作为他自己的单位
       curDepartId: '', // 当前部门id   登录上来是派出所时，存储他的父级单位作为他自己的单位
@@ -199,10 +202,7 @@ export default {
       qbxsDistribute: '', // 点击线索数字时，将数字状态传递给线索列表。
       attachment: [], // 导入的附件集合
       id: '', // 集群id
-      // editId: '', // 保存成功后返回的id
-      editId: '3029', // 保存成功后返回的id  测试
-
-      // superviseExamDeptId: '', // 审核部门Id
+      editId: '', // 保存成功后返回的id
       listData: [], // 涉及单位列表
       xsNum: { // 线索数
         total: 0, // 线索总数
@@ -213,7 +213,7 @@ export default {
           return time.getTime() <= Date.now()
         }
       },
-      pageType: '', // 页面类型
+      pageType: '', // 页面来源 是从列表上方查询条件按钮点击进来，还是列表行编辑按钮点击进来，还是从详情页点击进来
       pageLoading: false, // 页面加载loading
       listLoading: false, // 涉及单位loading
       btnLoading: false, // 底部按钮loading
@@ -261,13 +261,13 @@ export default {
             const regMoble = /^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/
             var regFixMob = /^([0-9]{3,4}-)?[0-9]{7,8}$/
             if (value === '' || value === undefined || value === null) {
-              return callback(new Error('请输入电话号码，座机格式如：区号-8位座机号码'))
+              return callback(new Error('请输入座机或手机号码，座机格式如：区号-8位座机号码'))
             } else if (this.$regCode.test(value)) {
               callback(new Error('请不要输入特殊字符'))
             } else if (regMoble.test(value) || regFixMob.test(value)) {
               callback()
             } else {
-              callback(new Error('请输入正确的电话号码'))
+              callback(new Error('请输入正确的电话号码,座机格式如：区号-8位座机号码'))
             }
           }
         }],
@@ -284,11 +284,9 @@ export default {
               return callback(new Error('请输入编号'))
             } else if (!regNumber.test(value)) {
               callback(new Error('仅支持英文、数字'))
-            } else if (value === this.form.clusterNumber) {
-              callback()
             } else {
-              this.$query('casecluster/numberValid', { dept: this.curDept.depCode }).then((response) => { // 查询是否重复
-                if (response.data.length > 0) {
+              this.$query('casecluster/numberValid', { dept: this.curDept.depCode, numStr: value }).then((response) => { // 查询是否重复
+                if (!response.data) {
                   return callback(new Error('编码不能重复'))
                 }
                 callback()
@@ -296,7 +294,7 @@ export default {
             }
           }
         }],
-        assistContent: [{
+        assistContent: [{ // 正文
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === '' || value === undefined || value === null) {
               return callback(new Error('请输入正文内容'))
@@ -320,12 +318,12 @@ export default {
                 return callback(new Error('请选择结束时间'))
               } else {
                 if (this.form.startDate) {
-                  var startDate = this.form.startDate.getTime()
-                  var endDate = value.getTime()
+                  var startDate = (new Date(this.form.startDate)).getTime()
+                  var endDate = (new Date(value).getTime())
                   if (endDate < startDate) {
-                    return callback(new Error('结束时间不能小于开始时间！'))
-                  } else if (endDate > startDate && endDate - startDate < 172800000) {
-                    return callback(new Error('结束时间必须大于开始时间2天以上！'))
+                    return callback(new Error('结束时间不能小于开始时间'))
+                  } else if (endDate > startDate && Number(endDate) - Number(startDate) < 172800000) {
+                    return callback(new Error('结束时间必须大于开始时间2天以上'))
                   } else {
                     callback()
                   }
@@ -349,19 +347,33 @@ export default {
         this.pageLoading = false
         var data = response.data
         this.form.clusterTitle = data.title ? data.title : '' // 标题
-        this.form.applyDeptName = data.applyDeptName ? data.applyDeptName : '' // 发起单位
+        if (this.$route.query.type === 'editbxf') {
+          this.form.applyDeptName = '公安部'
+        } else {
+          this.form.applyDeptName = data.applyDeptName ? data.applyDeptName : '' // 发起单位
+        }
         this.form.applyPersonName = data.applyPersonName ? data.applyPersonName : '' // 发起人
         this.form.clusterCitys = data.clusterCitys ? data.clusterCitys : 0 // 涉及省/市数
         this.form.applyPersonPhone = data.applyPersonPhone ? data.applyPersonPhone : '' // 发起人电话
         this.form.assistContent = data.assistContent ? data.assistContent : '' // 正文
-        this.attachment = data.attachment ? data.attachment : [] // 附件
-        this.xsNum.attachment = data.clueTotal// 线索总数
+        this.form.clusterNumber = data.clusterNumber ? data.clusterNumber : '' // 编号
+        this.form.startDate = data.startDate ? data.startDate : '' // 开始时间
+        this.form.endDate = data.endDate ? data.endDate : '' // 结束时间
+        this.attachment = data.attachment ? JSON.parse(data.attachment) : [] // 附件
+        this.form.attachment = data.attachment ? data.attachment : '' // 附件
+        this.form.passKey = data.passKey ? data.passKey : '' // 密码
+        this.xsNum.total = data.clueTotal// 线索总数
         this.xsNum.distribute = data.clueDistribute // 已分发线索数
         this.queryList(data.clusterId) // 查询涉及单位对应的列表
       }).catch(() => {
         this.pageLoading = false
         this.listData = []
       })
+    },
+    clearChildData() {
+      this.isShowdrffxsDialog = false
+      this.qbxsDistribute = ''
+      this.$refs.ffchild.clearData()
     },
     queryList(clusterId) { // 查询涉及单位对应的列表
       this.listLoading = true
@@ -380,8 +392,7 @@ export default {
     deptChange(data) {
       if (data) {
         for (let i = 0; i < this.exDeptData.length; i++) {
-          if (data === this.exDeptData[i]['id']) {
-            this.form.acceptDeptId = this.exDeptData[i]['id'] // 审核部门Id
+          if (data === this.exDeptData[i]['acceptDeptId']) {
             this.form.acceptDeptName = this.exDeptData[i]['departName'] // 审核部门名称
             this.form.acceptDept = this.exDeptData[i]['departCode'] // 审核部门code
             return true
@@ -412,10 +423,10 @@ export default {
         type: 'warning'
       }).then(() => {
         this.resetForm()
-        if (this.$route.query.type === 'add') { // 列表页过来的
-          this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
-        } else {
+        if (this.pageType === 'detail') {
           this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+        } else {
+          this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
         }
       })
     },
@@ -464,23 +475,41 @@ export default {
           this.exDeptData = [exDeptData]
         }
       }).catch(() => {
-        this.caseLoading = false
       })
     },
-    getfqDepts() { // 如果登上来的是派出所 发起单位显示成大队
-      this.tfdwData = getSessionDeptSelect()
-      var parentDepCode = this.curDept.parentDepCode
-      for (let i = 0; i < this.tfdwData.length; i++) {
-        if (parentDepCode === this.tfdwData[i].depCode) {
-          this.form.applyDeptName = this.tfdwData[i].name
-          this.curDeptName = this.tfdwData[i].name // 当前部门名称
-          this.curDepartId = this.tfdwData[i].id // 当前部门id
-          this.curDeptCode = this.tfdwData[i].depCode // 当前部门code
+    getfqDepts() { // 如果登上来的是派出所 发起单位显示他的父级单位
+      this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.form.applyDeptName = response.data.departName
+          this.curDeptName = response.data.departName // 当前部门名称
+          this.curDepartId = response.data.id // 当前部门id
+          this.curDeptCode = response.data.departCode // 当前部门code
         }
-      }
+      }).catch(() => {
+      })
     },
     imgSuccess(res, file, fileList) {
+      if (res.code !== '000000') {
+        this.$alert('上传失败， 请重新上传', '提示', {
+          confirmButtonText: '确定',
+          callback: action => {
+            this.clearFileList()
+          }
+        })
+        return false
+      }
       this.attachment = fileList
+    },
+    clearFileList() {
+      this.$refs.fileUpload.abort()
+      const elementArr = document.getElementsByClassName('el-upload-list__item')
+      for (let i = 0; i < elementArr.length; i++) {
+        const element = elementArr[i]
+        if (i === elementArr.length - 1) {
+          element.setAttribute('style', 'display: none;')
+          element.remove()
+        }
+      }
     },
     imgRemove(file, fileList) {
       this.attachment = fileList
@@ -526,19 +555,20 @@ export default {
     },
     closedrxsDialog(val) { // 关闭导入线索弹框
       this.isShowdrxsDialog = val
-      if (this.$route.query.type === 'edit') {
-        this.detail()
-      } else {
-        this.queryList(this.editId) // 查询涉及单位对应的列表
-      }
+      this.queryxsNumber() // 查询导入后的线索数量
+      this.queryList(this.id) // 查询涉及单位对应的列表
     },
     closeffxsDialog(val) { // 关闭分发线索弹框
       this.isShowdrffxsDialog = val
-      if (this.$route.query.type === 'edit') {
-        this.detail()
-      } else {
-        this.queryList(this.editId) // 查询涉及单位对应的列表
-      }
+      this.queryxsNumber() // 查询导入后的线索数量
+      this.queryList(this.id) // 查询涉及单位对应的列表
+    },
+    queryxsNumber() { // 查询导入后的线索数量
+      this.$query('caseassistclue/getCluesNum', { assistId: this.id }).then((response) => {
+        this.xsNum.attachment = response.data.clueTotal// 线索总数
+        this.xsNum.distribute = response.data.clueDistribute // 已分发线索数
+      }).catch(() => {
+      })
     },
     save() { // 保存
       this.$refs.form.validate(valid => {
@@ -586,6 +616,7 @@ export default {
           curDeptCode: this.form.curDeptCode, // 当前部门code
           curDeptName: this.form.curDeptName, // 当前部门名称
           curDeptId: this.form.curDeptId, // 当前部门Id
+          attachment: this.form.attachment, // 附件
           status: 0, // 协查状态
           operator: 'other'
         }
@@ -594,8 +625,16 @@ export default {
           param.endDate = this.form.endDate // 结束时间
           param.clusterNumber = this.form.clusterNumber // 集群战役编号
         }
+        if (this.pageType === 'xf') { // 下发
+          param.category = 2
+        } else if (this.pageType === 'bxf') { // 部下发
+          param.category = 1
+        } else {
+          param.category = 3
+        }
         this.$save('casecluster/save', param).then((response) => {
           this.editId = response.data // 保存成功后返回的id
+          this.id = response.data // 保存成功后返回的id
           this.btnLoading = false
           this.isShowotherform = false // 保存成功，隐藏基础form信息
           this.isShowxsform = true // 保存成功，显示涉及线索和涉及单位
@@ -615,7 +654,12 @@ export default {
             type: 'success',
             duration: 2000
           })
-          this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
+          if (this.pageType === 'detail') {
+            this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+          } else {
+            this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
+          }
+          // this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
         }
       }
     },
@@ -637,11 +681,21 @@ export default {
         curDeptCode: this.form.curDeptCode, // 当前部门code
         curDeptName: this.form.curDeptName, // 当前部门名称
         curDeptId: this.form.curDeptId, // 当前部门Id
+        attachment: this.form.attachment, // 附件
         status: 0, // 协查状态
-        operator: 'update',
-        id: this.editId
+        operator: 'update'
       }
+
+      if (this.pageType === 'detail' || this.pageType === 'edit') {
+        param.category = 3
+      } else if (this.pageType === 'editxf') {
+        param.category = 2
+      } else if (this.pageType === 'editbxf') {
+        param.category = 1
+      }
+
       if (this.isShowotherform) { // 第一次点击保存，涉及线索和涉及单位此时都不显示。
+        param.id = this.id
         this.$save('casecluster/save', param).then((response) => {
           this.editId = response.data // 保存成功后返回的id
           this.btnLoading = false
@@ -653,9 +707,10 @@ export default {
         })
       } else { //  初始化时保存成功，此时申请按钮，涉及线索和涉及单位都显示，其他的内容都隐藏。
         this.btnLoading = true
+        param.id = this.editId
         if (!this.xsNum.total) {
           this.$message({ message: '请导入线索', type: 'error' })
-        } else if (this.listData.length === 0) {
+        } else if (!this.xsNum.distribute) {
           this.$message({ message: '请分发线索', type: 'error' })
         } else {
           this.$save('casecluster/save', param).then((response) => {
@@ -664,7 +719,11 @@ export default {
               type: 'success',
               duration: 2000
             })
-            this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+            if (this.pageType === 'detail') {
+              this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+            } else {
+              this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
+            }
           }).catch(() => {
             this.btnLoading = false
           })
@@ -672,6 +731,7 @@ export default {
       }
     },
     apply() { // 申请 或 下发
+      this.btnLoading = true
       const param = {
         clusterTitle: this.form.clusterTitle,
         applyDeptName: this.form.applyDeptName,
@@ -688,10 +748,12 @@ export default {
         curDeptCode: this.form.curDeptCode, // 当前部门code
         curDeptName: this.form.curDeptName, // 当前部门名称
         curDeptId: this.form.curDeptId, // 当前部门Id
+        attachment: this.form.attachment, // 附件
         id: this.editId,
         operator: 'submit'
       }
       if (this.btnText === '申 请') {
+        param.category = 3
         if (!this.xsNum.total) {
           this.$message({ message: '请导入线索', type: 'error' })
         } else if (this.listData.length === 0) {
@@ -699,15 +761,21 @@ export default {
         } else {
           param.status = 1
           this.$save('casecluster/save', param).then((response) => {
+            this.btnLoading = false
             this.$message({
               message: '申请成功！',
               type: 'success',
               duration: 2000
             })
-            if (this.$route.query.type === 'add') { // 列表页过来的
-              this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
-            } else {
+            // if (this.pageType === 'add' || this.$route.query.type === 'edit') { // 列表页过来的
+            //   this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
+            // } else {
+            //   this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+            // }
+            if (this.pageType === 'detail') {
               this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
+            } else {
+              this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
             }
           }).catch(() => {
             this.btnLoading = false
@@ -717,6 +785,11 @@ export default {
         param.startDate = this.form.startDate // 开始时间
         param.endDate = this.form.endDate // 结束时间
         param.clusterNumber = this.form.clusterNumber // 集群战役编号
+        if (this.pageType === 'xf') { // 下发
+          param.category = 2
+        } else if (this.pageType === 'bxf') { // 部下发
+          param.category = 1
+        }
         if (!this.xsNum.total) {
           this.$message({ message: '请导入线索', type: 'error' })
         } else if (this.listData.length === 0) {
@@ -724,6 +797,7 @@ export default {
         } else {
           param.status = 5
           this.$save('casecluster/save', param).then((response) => {
+            this.btnLoading = false
             this.$message({
               message: '下发成功！',
               type: 'success',
@@ -742,7 +816,7 @@ export default {
       this.form.clusterCitys = this.form.clusterCitys.replace('.', '')
     },
     handleExceed() { // 上传文件超过最大限制时，提示信息
-      this.$message.error(`最多上传5个文件`)
+      this.$message.error(`最多上传10个文件`)
     },
     getResult(val) { // 导入线索页面导入成功后传递的线索数量
       this.xsNum.total = val.clueTotal
@@ -756,7 +830,7 @@ export default {
       const param = {
         dept: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode // 当前部门code
       }
-      this.$save('casecluster/save', param).then((response) => {
+      this.$query('casecluster/number', param).then((response) => {
         if (response.data) {
           this.form.clusterNumber = response.data
         }
@@ -768,6 +842,16 @@ export default {
     this.isShowxsform = false // 初始化时，隐藏涉及线索和涉及单位
     // this.isShowxsform = true // 测试
     // this.queryList(3029) // 查询涉及单位对应的列表  // 测试
+    if (sessionStorage.getItem('depToken')) {
+      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+      if (this.$route.query.type !== 'bxf' && this.$route.query.type !== 'editbxf') { // 不是'部下发' 或者列表当前点击数据是部下发进来的
+        if (this.curDept.depType === '4') { // 派出所
+          this.getfqDepts() // 如果登上来的是派出所 发起单位显示成大队
+        } else {
+          this.form.applyDeptName = this.curDept.depName // 当前登录人单位
+        }
+      }
+    }
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     this.form.applyPersonName = this.curUser.realName // 当前登录人姓名
     this.form.applyPersonPhone = this.curUser.phone ? this.curUser.phone : '' // 当前登录人电话
@@ -775,34 +859,38 @@ export default {
     if (this.$route.query.type === 'add') { // 从列表页面点击“申请”按钮进来的。
       this.pageTitle = '申请集群战役'
       this.btnText = '申 请'
-    } else if (this.$route.query.type === 'edit') { // 详情页点击“重新申请”按钮进来的
+      this.getDeptsshdw() // 查审核单位
+    } else if (this.$route.query.type === 'detail' || this.$route.query.type === 'edit') { // 详情页点击“重新申请”按钮进来的，或者主列表点击编辑按钮进来的
       this.isShowotherform = true // 初始化时，显示涉及线索和涉及单位以外的基础form信息
       this.isShowxsform = true // 初始化时，显示涉及线索和涉及单位
       this.pageTitle = '申请集群战役'
       this.btnText = '申 请'
       this.id = this.$route.query.id // 存储集群战役id
       this.editInit() // 编辑页面相关接口查询
+      this.getDeptsshdw() // 查审核单位
     } else if (this.$route.query.type === 'xf') { // 从列表点击“下发”按钮进来的
       this.pageTitle = '下发集群战役'
       this.btnText = '下 发'
-      this.form.startDate = this.calculateDate(new Date(), 0, '')
-      this.form.endDate = this.calculateDate(new Date(), 7, '')
+      this.form.startDate = this.calculateDate(new Date(), 0, '') // 默认当前时间
+      this.form.endDate = this.calculateDate(new Date(), 7, '') // 默认开始时间后7天，
       this.queryNumber() // 获取编号
     } else if (this.$route.query.type === 'bxf') { // 从列表点击“部下发”按钮进来的
       this.pageTitle = '下发集群战役'
       this.btnText = '下 发'
       this.form.applyDeptName = '公安部'
-    }
-    if (sessionStorage.getItem('depToken')) {
-      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      if (this.$route.query.type !== 'bxf') { // 不是'部下发'
-        if (this.curDept.depType === '4') { // 派出所
-          this.getfqDepts() // 如果登上来的是派出所 发起单位显示成大队
-        } else {
-          this.form.applyDeptName = this.curDept.depName // 当前登录人单位
-        }
-      }
-      this.getDeptsshdw() // 查审核单位
+      this.form.startDate = this.calculateDate(new Date(), 0, '') // 默认当前时间
+      this.form.endDate = this.calculateDate(new Date(), 7, '') // 默认开始时间后7天，
+    } else if (this.$route.query.type === 'editxf') { // 从主列表点击编辑按钮进来的
+      this.id = this.$route.query.id // 存储集群战役id
+      this.pageTitle = '下发集群战役'
+      this.btnText = '下 发'
+      this.editInit() // 编辑页面相关接口查询
+    } else if (this.$route.query.type === 'editbxf') { // 从主列表点击编辑按钮进来的
+      this.id = this.$route.query.id // 存储集群战役id
+      this.pageTitle = '下发集群战役'
+      this.btnText = '下 发'
+      this.form.applyDeptName = '公安部'
+      this.editInit() // 编辑页面相关接口查询
     }
   }
 }
@@ -846,13 +934,13 @@ export default {
   .ffxsForm{
     .el-dialog{
       width: 80%;
-      height: 80vh;
+      max-height: 80vh;
       overflow: auto;
     }
   }
-  .el-button--text {
+}
+.el-button--text {
     display: none;
-  }
 }
 @media only screen and (max-width: 1367px) {
   .jqzyAdd .ffxsForm .el-dialog {
