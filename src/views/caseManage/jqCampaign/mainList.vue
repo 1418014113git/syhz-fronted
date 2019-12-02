@@ -78,8 +78,8 @@
         </el-form-item>
       </el-col>
     </el-form>
-    <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}">
-      <el-table :data="listData" v-loading="listLoading"  ref="multipleTable" style="width: 100%;"  :row-class-name="getRowClassName" @select="handleselectRow" @select-all="handleselectAll">
+    <!-- <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}"> -->
+      <el-table :data="listData" v-loading="listLoading"  ref="multipleTable" style="width: 100%;"  :max-height="tableHeight"  :row-class-name="getRowClassName" @select="handleselectRow" @select-all="handleselectAll">
         <el-table-column type="expand">
           <template slot-scope="scope">
             <el-table :data="scope.row.deptList"  v-loading="listChildLoading" style="width: 100%;">
@@ -153,7 +153,7 @@
           </template>
         </el-table-column>
       </el-table>
-    </div>
+    <!-- </div> -->
     <!--工具条-->
     <el-col :span="24" class="toolbar">
       <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize" @size-change="handleSizeChange"
@@ -810,7 +810,7 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 320
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 330
     if (this.$route.query.status) { // 有参数，说明是从首页--个人待办--审查待办--集群战役待审核
       this.filters.status = this.$route.query.status
     }

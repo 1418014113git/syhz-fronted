@@ -1292,9 +1292,9 @@ label {
 ::-webkit-scrollbar-thumb {
   /*滚动条里面小方块*/
   border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 5px rgba(160, 184, 190, 0.3);
-  box-shadow: inset 0 0 5px rgba(160, 184, 190, 0.3);
-  background: rgba(122, 168, 190, 0.3);
+  -webkit-box-shadow: inset 0 0 5px rgba(59, 209, 247, 0.8);
+  box-shadow: inset 0 0 5px rgba(160, 184, 190, 0.8);
+  background: rgba(122, 168, 190, 0.8);
 }
 
 ::-webkit-scrollbar-track {
@@ -1638,4 +1638,9 @@ label {
 }
 .el-table__fixed-right::before, .el-table__fixed::before{
   opacity: 0;
+}
+
+.el-table__fixed-right-patch {
+  background-color: transparent;
+  border-bottom:0;
 }
