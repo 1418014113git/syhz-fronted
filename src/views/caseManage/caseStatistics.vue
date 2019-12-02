@@ -36,7 +36,7 @@
       <el-card style="margin-bottom: 10px;">
         <!--案件统计情况网页展示表-->
         <p class="tableTitle">{{tableTitle}}{{fileName}}</p>
-        <el-table  :data="tableData" style="width: 100%" border v-loading="loading">
+        <el-table  :data="tableData" style="width: 100%" border v-loading="loading" show-summary :summary-method="getSummaries">
           <el-table-column type="index" width="50" label="序号"  align="center"></el-table-column>
             <el-table-column prop="cityName" label="市" width="102" align="center"></el-table-column>
             <el-table-column label="侦破刑事案件数" align="center" >
@@ -177,154 +177,6 @@
             </el-table-column>
             <el-table-column prop="total" label="总分" width="70" align="center"></el-table-column>
           </el-table>
-
-        <!--导出excel-->
-        <!-- <el-table id="table-content" :data="tableData" style="width: 100%" border v-show="isShowItem">
-          <el-table-column type="index" width="50" label="序号"  align="center"></el-table-column>
-            <el-table-column prop="cityName" label="市" width="102" align="center"></el-table-column>
-            <el-table-column label="侦破刑事案件数" align="center" >
-              <el-table-column prop="zpxs.food" label="食品"  width="60" align="center">
-                <template slot-scope="scope">
-                  <span v-if="scope.row.solveCases.food>0"  style="cursor:pointer;"  @click="queryNum(scope.row.solveCases,scope.row.cityCode)">{{scope.row.solveCases.food}}</span>
-                  <span v-else >{{scope.row.solveCases.food}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="solveCases.drugs" label="药品"  width="60" align="center">
-                <template slot-scope="scope">
-                  <span  v-if="scope.row.solveCases.drugs>0" style="cursor:pointer;"  @click="queryNum(scope.row.solveCases,scope.row.cityCode)">{{scope.row.solveCases.drugs}}</span>
-                  <span  v-else>{{scope.row.solveCases.drugs}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="solveCases.environment" label="资源环境" width="60" align="center">
-                <template slot-scope="scope">
-                  <span  v-if="scope.row.solveCases.environment>0" style="cursor:pointer;"  @click="queryNum(scope.row.solveCases,scope.row.cityCode)">{{scope.row.solveCases.environment}}</span>
-                  <span  v-else>{{scope.row.solveCases.environment}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="solveCases.total" label="总案件数"  width="60" align="center"></el-table-column>
-              <el-table-column prop="solveCases.integral" label="计分"  width="60" align="center"></el-table-column>
-            </el-table-column>
-            <el-table-column label="判决案件数" align="center" >
-              <el-table-column  label="食品"  width="60" align="center" ></el-table-column>
-              <el-table-column  label="药品"  width="60" align="center" ></el-table-column>
-              <el-table-column  label="资源环境" width="60" align="center" ></el-table-column>
-              <el-table-column  label="总案件数"  width="60" align="center" ></el-table-column>
-              <el-table-column  label="计分"  width="60" align="center" ></el-table-column>
-            </el-table-column>
-            <el-table-column label="大案侦办" align="center">
-              <el-table-column   label="侦破涉黑案件数"  width="70" align="center"></el-table-column>
-                <el-table-column   label="侦破涉恶案件数"  width="70" align="center"></el-table-column>
-              <el-table-column prop="supervises.superviseB1" label="侦破部督案件数"  width="70" align="center" >
-                <template slot-scope="scope">
-                  <span  v-if="scope.row.supervises.superviseB1>0" style="cursor:pointer;"  @click="queryNum(scope.row.supervises,scope.row.cityCode)">{{scope.row.supervises.superviseB1}}</span>
-                  <span  v-else>{{scope.row.supervises.superviseB1}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="supervises.superviseB2" label="未侦破部督案件数"  width="70"  align="center" >
-                <template slot-scope="scope">
-                  <span  v-if="scope.row.supervises.superviseB2>0" style="cursor:pointer;"  @click="queryNum(scope.row.supervises,scope.row.cityCode)">{{scope.row.supervises.superviseB2}}</span>
-                  <span  v-else>{{scope.row.supervises.superviseB2}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="supervises.superviseT1" label="侦破厅督案件数"  width="70" align="center" >
-                <template slot-scope="scope">
-                  <span  v-if="scope.row.supervises.superviseT1>0" style="cursor:pointer;"  @click="queryNum(scope.row.supervises,scope.row.cityCode)">{{scope.row.supervises.superviseT1}}</span>
-                  <span  v-else>{{scope.row.supervises.superviseT1}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="supervises.superviseT2" label="未侦破部督案件数" width="70"  align="center" >
-                <template slot-scope="scope">
-                  <span  v-if="scope.row.supervises.superviseT2>0" style="cursor:pointer;"  @click="queryNum(scope.row.supervises,scope.row.cityCode)">{{scope.row.supervises.superviseT2}}</span>
-                  <span  v-else>{{scope.row.supervises.superviseT2}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="supervises.integral" label="计分"  width="60" align="center" >
-                <template slot-scope="scope">
-                  <span>{{scope.row.supervises.integral}}</span>
-                </template>
-              </el-table-column>
-            </el-table-column>
-            <el-table-column label="打击处理人员情况" align="center">
-              <el-table-column label="逮捕人数" align="center">
-                <el-table-column prop="handle.arrestFood" label="食品" width="60"  align="center">
-                  <template slot-scope="scope">
-                    <span  v-if="scope.row.handle.arrestFood>0" style="cursor:pointer;"  @click="queryNum(scope.row.handle,scope.row.cityCode)">{{scope.row.handle.arrestFood}}</span>
-                    <span  v-else>{{scope.row.handle.arrestFood}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="handle.arrestDrugs" label="药品" width="60"  align="center">
-                  <template slot-scope="scope">
-                    <span  v-if="scope.row.handle.arrestDrugs>0" style="cursor:pointer;"  @click="queryNum(scope.row.handle,scope.row.cityCode)">{{scope.row.handle.arrestDrugs}}</span>
-                    <span  v-else>{{scope.row.handle.arrestDrugs}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="handle.arrestEnvironment" label="资源环境" width="60"  align="center">
-                  <template slot-scope="scope">
-                    <span  v-if="scope.row.handle.arrestEnvironment>0" style="cursor:pointer;"  @click="queryNum(scope.row.handle,scope.row.cityCode)">{{scope.row.handle.arrestEnvironment}}</span>
-                    <span  v-else>{{scope.row.handle.arrestEnvironment}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="handle.arrestTotal" label="合计"  width="60" align="center"></el-table-column>
-              </el-table-column>
-              <el-table-column label="起诉人数" align="center">
-                <el-table-column prop="handle.sueFood" label="食品" width="60"  align="center" >
-                  <template slot-scope="scope">
-                    <span  v-if="scope.row.handle.sueFood>0" style="cursor:pointer;"  @click="queryNum(scope.row.handle,scope.row.cityCode)">{{scope.row.handle.sueFood}}</span>
-                    <span  v-else>{{scope.row.handle.sueFood}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="handle.sueDrugs" label="药品" width="60"  align="center" >
-                  <template slot-scope="scope">
-                    <span  v-if="scope.row.handle.sueDrugs>0" style="cursor:pointer;"  @click="queryNum(scope.row.handle)">{{scope.row.handle.sueDrugs}}</span>
-                    <span  v-else>{{scope.row.handle.sueDrugs}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="handle.sueEnvironment" label="资源环境" width="60"  align="center" >
-                  <template slot-scope="scope">
-                    <span  v-if="scope.row.handle.sueEnvironment>0" style="cursor:pointer;"  @click="queryNum(scope.row.handle,scope.row.cityCode)">{{scope.row.handle.sueEnvironment}}</span>
-                    <span  v-else>{{scope.row.handle.sueEnvironment}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="handle.sueTotal" label="合计"  width="60" align="center"></el-table-column>
-              </el-table-column>
-              <el-table-column prop="handle.integral" label="计分"  width="60" align="center"></el-table-column>
-            </el-table-column>
-            <el-table-column label="全国性案件协查数" align="center">
-              <el-table-column label="发起" align="center">
-                <el-table-column prop="nationalAssist.launchFood" label="食品"  width="60" align="center">
-                  <template slot-scope="scope">
-                    <span  v-if="scope.row.nationalAssist.launchFood>0" style="cursor:pointer;"  @click="queryNum(scope.row.nationalAssist,scope.row.cityCode)">{{scope.row.nationalAssist.launchFood}}</span>
-                    <span  v-else>{{scope.row.nationalAssist.launchFood}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="nationalAssist.launchDrugs" label="药品"  width="60" align="center">
-                  <template slot-scope="scope">
-                    <span  v-if="scope.row.nationalAssist.launchDrugs>0" style="cursor:pointer;"  @click="queryNum(scope.row.nationalAssist,scope.row.cityCode)">{{scope.row.nationalAssist.launchDrugs}}</span>
-                    <span  v-else>{{scope.row.nationalAssist.launchDrugs}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="nationalAssist.launchTotal" label="合计" width="60"  align="center"></el-table-column>
-                <el-table-column prop="nationalAssist.launchIntegral" label="计分" width="60"  align="center"></el-table-column>
-              </el-table-column>
-              <el-table-column label="不按要求核查反馈" align="center">
-                <el-table-column prop="noFeedBacks.noFBFood" label="食品"  width="60" align="center">
-                  <template slot-scope="scope">
-                    <span  v-if="scope.row.noFeedBacks.noFBFood>0" style="cursor:pointer;"  @click="queryNum(scope.row.noFeedBacks,scope.row.cityCode)">{{scope.row.noFeedBacks.noFBFood}}</span>
-                    <span  v-else>{{scope.row.noFeedBacks.noFBFood}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="noFeedBacks.noFBDrugs" label="药品"  width="60" align="center">
-                  <template slot-scope="scope">
-                    <span  v-if="scope.row.noFeedBacks.noFBDrugs>0" style="cursor:pointer;"  @click="queryNum(scope.row.noFeedBacks,scope.row.cityCode)">{{scope.row.noFeedBacks.noFBDrugs}}</span>
-                    <span  v-else>{{scope.row.noFeedBacks.noFBDrugs}}</span>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="noFeedBacks.noFBTotal" label="合计" width="60"  align="center"></el-table-column>
-                <el-table-column prop="noFeedBacks.noFBIntegral" label="计分" width="60"  align="center"></el-table-column>
-              </el-table-column>
-            </el-table-column>
-            <el-table-column prop="total" label="总分" width="60"  align="center"></el-table-column>
-          </el-table> -->
       </el-card>
     </el-col>
     <aj-standard-num-setting v-if="settingShow" @settingShow="settingShowListen"></aj-standard-num-setting>
@@ -625,209 +477,112 @@ export default {
 
     /* eslint-disable */
     exportToExcel() { // 导出Excel
-      // const table1 = document.getElementById('table-content')
-      // var opt = { // 开头空2行
-      //   rowIndex: 2
-      // }
-      // var sheet = XLSX2.utils.table_to_sheet(table1, opt)
-      // sheet['A1'] = { // 给A1单元格赋值
-      //   t: 's',
-      //   v: this.tableTitle + this.fileName
-      // }
-      // const wbook = {
-      //   SheetNames: ['Sheet1'], Sheets: {}
-      // }
-      // sheet['!merges'].push({// 如果不为空push 为空 = 赋值
-      //   // 合并单元格 index都从0开始
-      //   s: { // s开始
-      //     c: 0, // 开始列
-      //     r: 0 // 开始行
-      //   },
-      //   e: { // e结束
-      //     c: 36, // 结束列
-      //     r: 1 // 结束行
-      //   }
-      // })
-      // // 单元格列宽
-      // sheet['!cols'] = [
-      //   {
-      //     wpx: 40
-      //   },
-      //   {
-      //     wpx: 75
-      //   },
-      //   // 侦破刑事案件数
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   // 判决案件数
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   //大案侦办
-      //   {
-      //     wpx: 100
-      //   },
-      //   {
-      //     wpx: 100
-      //   },
-      //   {
-      //     wpx: 100
-      //   },
-      //   {
-      //     wpx: 120
-      //   },
-      //   {
-      //     wpx: 100
-      //   },
-      //   {
-      //     wpx: 120
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   // 打击处理人员情况
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   // 发起全国性案件协查数
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   },
-      //   {
-      //     wpx: 60
-      //   }
-      // ]
-      // const sFont = {
-      //   sz: 14,
-      //   color: {
-      //     rgb: 'FF000000'
-      //   }
-      // }
-      // const sAlign = {
-      //   horizontal: 'center', vertical: 'center', wrap_text: true
-      // }
-      // const sFill = {
-      //   fgColor: {
-      //     rgb: 'ffff00'
-      //   }
-      // }
-      // const borderStyle = {
-      //   top: { style: 'thin', color: 'FFF2F9FC', padding: 10 },
-      //   bottom: { style: 'thin', color: 'FFF2F9FC', padding: 10 },
-      //   left: { style: 'thin', color: 'FFF2F9FC', padding: 10 },
-      //   right: { style: 'thin', color: 'FFF2F9FC', padding: 10 }
-      // }
-      // const sRef = sheet['!ref']
-      // const reg = new RegExp('[A-Z]+\\d+:([A-Z]+)(\\d+)')
-      // const r = sRef.match(reg)
-      // const keys = 'A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,AB,AC,AD,AE,AF,AG,AH,AI,AJ,AK'
-      // const arr = keys.substring(0, keys.length).split(',')
-      // const size = r[2]
-      // for (let i = 0; i < arr.length; i++) {
-      //   for (let j = 1; j <= size; j++) {
-      //     const stObj = sheet[arr[i] + j]
-      //     if (stObj) {
-      //       stObj['s'] = {}
-      //       const sObj = sheet[arr[i] + j]['s']
-      //       sObj['alignment'] = sAlign
-      //       if (j === 1) {
-      //         // sObj['font'] = sFont
-      //         // sObj['fill'] = sFill
-      //       }
-      //       sObj['border'] = borderStyle
-      //     } else {
-      //       sheet[arr[i] + j] = {}
-      //       sheet[arr[i] + j]['s'] = {}
-      //       sheet[arr[i] + j]['s']['border'] = borderStyle
-      //     }
-      //   }
-      // }
-      // wbook.Sheets['Sheet1'] = sheet
-      // const wbout = XLSX.write(wbook, { bookType: 'xlsx', bookSST: false, type: 'binary' })
-      // try {
-      //   FileSaver.saveAs(new Blob([this.$str2ArrBuf(wbout)], { type: 'application/octet-stream' }), this.fileName + '.xlsx')
-      // } catch (e) {
-      //   if (typeof console !== 'undefined') {
-      //     console.log(e, wbout)
-      //   }
-      // }
-      // return wbout
       const param = {
         data: this.tableData,
         title: this.tableTitle + this.fileName
       }
-      var title = this.tableTitle + this.fileName
       this.$gotoid("/exportanjtb", JSON.stringify(param))
+    },
+         getSummaries(param) {
+        const tjArry=[
+          'solveCases.food','solveCases.drugs','solveCases.environment','solveCases.total','supervises.superviseB1','supervises.superviseB2',
+          'supervises.superviseT1','supervises.superviseT2','handle.arrestFood','handle.arrestDrugs','handle.arrestEnvironment',
+          'handle.arrestTotal','handle.sueFood','handle.sueDrugs','handle.sueEnvironment','handle.sueTotal','nationalAssist.launchFood',
+          'nationalAssist.launchDrugs','nationalAssist.launchTotal','noFeedBacks.noFBFood','noFeedBacks.noFBDrugs','noFeedBacks.noFBTotal'
+        ]
+        const { columns, data } = param;
+        const sums = [];
+        let values=[];
+        columns.forEach((column, index) => {
+          if (index === 0) {
+            sums[index] = '';
+            return;
+          }
+          if (index === 1) {
+            sums[index] = '总计';
+            return;
+          }
+          if(column.property==='solveCases.food'){
+            values = data.map(item => Number(item['solveCases'].food))
+          }
+          if(column.property==='solveCases.drugs'){
+            values = data.map(item => Number(item['solveCases'].drugs))
+          }
+          if(column.property==='solveCases.environment'){
+            values = data.map(item => Number(item['solveCases'].environment))
+          }
+          if(column.property==='solveCases.total'){
+            values = data.map(item => Number(item['solveCases'].total))
+          }
+          if(column.property==='supervises.superviseB1'){
+            values = data.map(item => Number(item['supervises'].superviseB1))
+          }
+          if(column.property==='supervises.superviseB2'){
+            values = data.map(item => Number(item['supervises'].superviseB2))
+          }
+          if(column.property==='supervises.superviseT1'){
+            values = data.map(item => Number(item['supervises'].superviseT1))
+          }
+          if(column.property==='supervises.superviseT2'){
+            values = data.map(item => Number(item['supervises'].superviseT2))
+          }
+          if(column.property==='handle.arrestFood'){
+            values = data.map(item => Number(item['handle'].arrestFood))
+          }
+          if(column.property==='handle.arrestDrugs'){
+            values = data.map(item => Number(item['handle'].arrestDrugs))
+          }
+          if(column.property==='handle.arrestEnvironment'){
+            values = data.map(item => Number(item['handle'].arrestEnvironment))
+          }
+          if(column.property==='handle.arrestTotal'){
+            values = data.map(item => Number(item['handle'].arrestTotal))
+          }
+          if(column.property==='handle.sueFood'){
+            values = data.map(item => Number(item['handle'].sueFood))
+          }
+          if(column.property==='handle.sueDrugs'){
+            values = data.map(item => Number(item['handle'].sueDrugs))
+          }
+          if(column.property==='handle.sueEnvironment'){
+            values = data.map(item => Number(item['handle'].sueEnvironment))
+          }
+          if(column.property==='handle.sueTotal'){
+            values = data.map(item => Number(item['handle'].sueTotal))
+          }
+          if(column.property==='nationalAssist.launchFood'){
+            values = data.map(item => Number(item['nationalAssist'].launchFood))
+          }
+          if(column.property==='nationalAssist.launchDrugs'){
+            values = data.map(item => Number(item['nationalAssist'].launchDrugs))
+          }
+          if(column.property==='nationalAssist.launchTotal'){
+            values = data.map(item => Number(item['nationalAssist'].launchTotal))
+          }
+          if(column.property==='noFeedBacks.noFBFood'){
+            values = data.map(item => Number(item['noFeedBacks'].noFBFood))
+          }
+          if(column.property==='noFeedBacks.noFBDrugs'){
+            values = data.map(item => Number(item['noFeedBacks'].noFBDrugs))
+          }
+          if(column.property==='noFeedBacks.noFBTotal'){
+            values = data.map(item => Number(item['noFeedBacks'].noFBTotal))
+          }
+          if(tjArry.indexOf(column.property)!==-1){
+            sums[index] = values.reduce((prev, curr) => {
+              const value = Number(curr);
+              if (!isNaN(value)) {
+                return prev + curr;
+              } else {
+                return prev;
+              }
+            }, 0);
+            sums[index];
+          }else{
+            sums[index] = '-';
+          }
+        });
+        return sums;
     },
     delquarterDate(val) { // 季度数字转为汉字
       switch (val) {
@@ -911,10 +666,14 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .caseStatistics {
   .el-table__header-wrapper {
-    border-bottom: 1px solid #fff;
-  }
-  .el-table--scrollable-x .el-table__body-wrapper {
-    overflow-x: auto;
+    table{
+      // thead{
+      //   td:last-child{
+      //     border-bottom: 1px solid #fff;
+      //   }
+      // }
+      border-bottom: 1px solid #fff;
+    }
   }
   .el-table--border {
     border: 1px solid #ebeef5;
@@ -926,6 +685,32 @@ export default {
     font-size: 16px;
     text-align: center;
     padding-bottom: 10px;
+  }
+
+
+ // 统计表样式设置
+  .el-table__footer-wrapper .has-gutter tr td:first-child{
+    border: 0;
+    border-top: 1px solid #fff;
+  }
+  .el-table__footer-wrapper .has-gutter tr td:nth-child(2){
+    text-align: left;
+  }
+  .el-table__footer-wrapper tbody td, .el-table__header-wrapper tbody td{
+    border-top: 1px solid #fff;
+  }
+
+  // 将滚定条设置到合计行下方
+  .el-table{
+    overflow: auto;
+  }
+  .el-table__body-wrapper,
+  .el-table__header-wrapper,
+  .el-table__footer-wrapper{
+    overflow:visible;
+  }
+  .el-table::after{
+    position: relative !important;
   }
 }
 </style>
