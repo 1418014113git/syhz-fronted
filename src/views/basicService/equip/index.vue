@@ -55,7 +55,7 @@
           <span :class="{'redColor':scope.row.equipStatus === 1}">{{scope.row.purchaseTime}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="remark" label="说明" align="center" min-width="180">
+      <el-table-column prop="remark" label="说明" align="center" min-width="180" show-overflow-tooltip>
         <template slot-scope="scope">
           <p :title="scope.row.remark" class="ellipsis-twoWords" :class="{'redColor':scope.row.equipStatus === 1}" style="text-align:left;">{{scope.row.remark}}</p>
         </template>

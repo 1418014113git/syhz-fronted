@@ -105,7 +105,7 @@
                 <span v-else>{{scope.row.sajz}}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作"  width="100" fixed="right">
+            <el-table-column label="操作"  width="100">
               <template slot-scope="scope">
                 <el-button v-if="scope.$index+1<zblistData.length" size="mini" title="提交"  type="primary" icon="el-icon-check" circle  @click="handleSubmit(scope.row)"></el-button>
                 <el-button v-if="scope.$index+1<zblistData.length" size="mini" title="移除案件"  type="primary" icon="el-icon-delete" circle  @click="handleDel(2, scope.row)"></el-button>

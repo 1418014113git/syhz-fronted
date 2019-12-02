@@ -3,29 +3,31 @@
     <!-- 地市签收 -->
     <div class="countySign pubStyle">
       <title-pub :title="title"></title-pub>
-      <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="" max-height="260">
-        <el-table-column type="index" label="序号" width="60" ></el-table-column>
-        <el-table-column prop="createDeptName" label="下发单位"   min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="createDate" label="下发日期"  show-overflow-tooltip></el-table-column>
-        <el-table-column prop="clueNum" label="线索数量" >
-          <template slot-scope="scope">
-            <span class="linkColor"  @click="gotoxslist(scope.row)">{{scope.row.clueNum}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="receiveDeptName" label="接收单位"   min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="signStatus" label="签收状态" min-width="180" show-overflow-tooltip>
-          <template slot-scope="scope">
-            <span v-if='scope.row.signStatus'>{{$getDictName(scope.row.signStatus+'','qszt')}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="receiveUserName" label="签收人" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="receiveDate" label="签收时间" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column label="操作"  width="100" align="center">
-          <template slot-scope="scope">
-            <el-button size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline"  v-if="contrlollistqsbtn(scope.row) && $isViewBtn('101907')"  @click="handleSign(scope.$index, scope.row)"></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div style="max-height:260px;overflow: auto;">
+        <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
+          <el-table-column type="index" label="序号" width="60" ></el-table-column>
+          <el-table-column prop="createDeptName" label="下发单位"   min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="createDate" label="下发日期"  show-overflow-tooltip></el-table-column>
+          <el-table-column prop="clueNum" label="线索数量" >
+            <template slot-scope="scope">
+              <span class="linkColor"  @click="gotoxslist(scope.row)">{{scope.row.clueNum}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="receiveDeptName" label="接收单位"   min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="signStatus" label="签收状态" min-width="180" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <span v-if='scope.row.signStatus'>{{$getDictName(scope.row.signStatus+'','qszt')}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="receiveUserName" label="签收人" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="receiveDate" label="签收时间" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column label="操作"  width="100" align="center" fixed="right">
+            <template slot-scope="scope">
+              <el-button size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline"  v-if="contrlollistqsbtn(scope.row) && $isViewBtn('101907')"  @click="handleSign(scope.$index, scope.row)"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
       <el-row>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[5,10,15,20]" @size-change="handleSizeChange"
