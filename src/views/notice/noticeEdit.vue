@@ -30,7 +30,7 @@
             </el-form-item>
             <el-form-item label="接收单位" prop="receiveDept" class="transfer">
               <el-button class="group" @click="addGroup">添加组</el-button>
-              <el-transfer v-model="noticeForm.receiveDept" :titles="['我的组', '我的组']" :data="transferCYLXRData"></el-transfer>
+              <el-transfer v-model="noticeForm.receiveDept" :titles="['我的组', '接收单位']" :data="transferCYLXRData"></el-transfer>
             </el-form-item>
             <el-form-item>
               <el-button v-if="showSave" type="primary" class="saveBtn" @click="onSubmit(0)" :loading="noticeForm.messageStatus === 0 && loading" :disabled="noticeForm.messageStatus === 1 && loading">保 存</el-button>

@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-      <navigation>
-        <router-view></router-view>
-      </navigation>
+    <navigation>
+      <router-view></router-view>
+    </navigation>
     <lg-preview></lg-preview>
     <webSocket ref="webSocket"></webSocket>
   </div>
@@ -114,26 +114,28 @@
   }
 </script>
 <style>
-@import '../src/styles/font.css';
+  @import '../src/styles/font.css';
 </style>
 <style rel="stylesheet/scss" lang="scss">
   .messageBox_class {
-    background: #034a86;
+    background: url(/static/image/portal_images/message_alert.png) no-repeat center;
+    background-size: 100% 100%;
+    border: 0;
+    width: 400px;
+    padding-left: 20px;
   }
   .messageBox_class .el-notification__group.is-with-icon {
     position: relative;
+    margin-left: 0;
   }
   .messageBox_class .el-notification__content{
     overflow: hidden;
     text-overflow: ellipsis;
     word-break: break-all;
-    position: relative;
-    left: -37px;
-    top: 8px;
     padding: 35px 15px;
-    border: 1px solid #d6ffff;
-    width: 302px;
-    color: #ffffed;
+    width: 372px;
+    color: #30d2ff;
+    font-size: 18px;
     margin-bottom: 8px;
     text-align: center;
     min-height: 100px;
@@ -143,22 +145,33 @@
     cursor: pointer;
   }
   .messageBox_class .el-notification__title{
-    color: #ffffed;
+    color: #30d2ff;
     width: 75%;
+    font-weight: normal;
+    font-size: 16px;
+  }
+  .messageBox_class .el-notification__title:before{
+    content: "您有";
+    color: #fff;
+  }
+  .messageBox_class .el-notification__title:after{
+    content: "条未读消息";
+    color: #fff;
   }
   .messageBox_class .el-notification__closeBtn{
     top: 0;
-    right: 35px;
+    right: 8px;
   }
   .messageBox_class .el-notification__closeBtn.el-icon-close{
-    margin-top: -3px;
-    background: #ffffff;
-    border-radius: 50%;
     padding: 3px;
+    color: #fff;
+    font-size: 14px;
+  }
+  .messageBox_class .el-notification__closeBtn.el-icon-close:before{
+    content: "关闭";
   }
   .messageBox_class .el-notification__closeBtn.el-icon-close:hover{
-    background: #0c83d1;
-    color: #fff;
+    color: #30d2ff;
   }
   .messageBox_class .el-notification__icon{
     margin-top: -4px;
@@ -167,5 +180,6 @@
     background: url(/static/image/online/warning.png);
     padding: 12px;
     background-size: 24px 24px;
+    display: none;
   }
 </style>
