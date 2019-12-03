@@ -224,13 +224,13 @@ export default {
                 tkelement.name = tkelement.name.replace(/\[/g, '___').replace(/\]/g, '___') // 将方括号[]替换为 下横线
               }
               // 您的答案
-              if (tkelement.answer.indexOf('|') > 0) { // 竖线 替换为顿号
+              if (tkelement.answer && tkelement.answer.indexOf('|') > 0) { // 竖线 替换为顿号
                 tkelement.answer = tkelement.answer.replace(/\|/g, '、')
               }
-              if (tkelement.answer.indexOf(',') > 0) { // 逗号 替换为或
+              if (tkelement.answer && tkelement.answer.indexOf(',') > 0) { // 逗号 替换为或
                 tkelement.answer = tkelement.answer.replace(/\,/g, '或')
               }
-              if (tkelement.answer.indexOf('，') > 0) { // 逗号 替换为或
+              if (tkelement.answer && tkelement.answer.indexOf('，') > 0) { // 逗号 替换为或
                 tkelement.answer = tkelement.answer.replace(/\，/g, '或')
               }
               // 正确答案

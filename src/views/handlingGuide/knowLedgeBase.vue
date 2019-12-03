@@ -81,7 +81,7 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="belongDepName" label="上传单位" width="200px" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="creationName" label="上传者" width="100px"></el-table-column>
+                <el-table-column prop="creationName" label="上传者" width="100px" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="creationTime" label="上传时间" width="120px"></el-table-column>
                 <el-table-column prop="auditStatus" label="审核状态" width="100px">
                   <template slot-scope="scope">
