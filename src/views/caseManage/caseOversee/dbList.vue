@@ -12,7 +12,8 @@
           change-on-select
           @change="handleAreaChange"
           :show-all-levels="false"
-          clearable placeholder="全部"
+          placeholder="全部"
+          :clearable="Number(deptInfo.depType)<2"
           :disabled="Number(deptInfo.depType)>2">
         </el-cascader>
       </el-form-item>
@@ -345,6 +346,7 @@ export default {
             currentArea = [this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '2') { // 支队
             currentArea = ['610000', this.deptInfo.areaCode]
+            _this.xzqhOptions[0].disabled = true
             for (let index = 0; index < this.xzqhOptions[0].children.length; index++) {
               const element = this.xzqhOptions[0].children[index]
               if (element.cityCode === this.deptInfo.areaCode) {
@@ -800,15 +802,6 @@ export default {
       margin-left: 5px;
     }
   }
-}
-.el-cascader.is-disabled .el-cascader__label {
-  cursor: not-allowed;
-}
-.el-cascader-menu__item.is-disabled,
-.el-cascader-menu__item.is-disabled:hover {
-  color: #c0c4cc;
-  background-color: rgba(0, 89, 130, 0.7);
-  cursor: not-allowed;
 }
 // 查阅密码的弹框
 .passwordForm {

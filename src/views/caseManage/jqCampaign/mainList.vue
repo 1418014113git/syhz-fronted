@@ -13,7 +13,7 @@
               @change="handleAreaChange"
               :show-all-levels="false"
               :disabled="Number(curDept.depType)>2"
-              clearable
+              :clearable="Number(deptInfo.depType)<2"
               placeholder="全部">
             </el-cascader>
           </el-tooltip>
@@ -285,6 +285,7 @@ export default {
             this.btnqx.isShowsqbtn = true // 显示申请按钮
             // this.btnqx.isShowxfbtn = true // 显示下发按钮
             currentArea = ['610000', this.curDept.areaCode]
+            this.xzqhOptions[0].disabled = true
             for (var i = 0; i < this.xzqhOptions[0].children.length; i++) {
               const element = this.xzqhOptions[0].children[i]
               if (element.cityCode === this.curDept.areaCode) {
@@ -823,55 +824,55 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-.mainList{
-  .el-dialog{
+.mainList {
+  .el-dialog {
     width: 30%;
   }
-  .querypsd{
-    .el-form{
+  .querypsd {
+    .el-form {
       width: 80%;
       margin: 30px auto;
     }
   }
-  .dcForm{
-    .el-dialog{
+  .dcForm {
+    .el-dialog {
       width: 25%;
     }
-    .dcTitle{
+    .dcTitle {
       margin-bottom: 20px;
       padding-left: 15px;
     }
-    .martop{
+    .martop {
       margin-top: 20px;
     }
   }
-  .input_w{
+  .input_w {
     width: 300px;
   }
-  .input_w1{
+  .input_w1 {
     width: 300px;
   }
-  .input_w2{
+  .input_w2 {
     width: 300px;
   }
-  .input_ws1{
+  .input_ws1 {
     width: 350px;
   }
-  .el-table__expanded-cell{
-     padding: 0;
+  .el-table__expanded-cell {
+    padding: 0;
   }
-  .iconStyle{
-    color: #E6A23C;
+  .iconStyle {
+    color: #e6a23c;
     font-size: 16px;
   }
-  .dctitle{
+  .dctitle {
     padding-left: 15px;
     margin-bottom: 15px;
   }
-  .checkArea{
+  .checkArea {
     text-align: center;
   }
-  .tableBox{
+  .tableBox {
     width: 100%;
     overflow: auto;
   }
@@ -879,7 +880,7 @@ export default {
 .el-table--scrollable-x .el-table__body-wrapper {
   overflow-x: auto;
 }
-.el-cascader-menu__item.is-disabled{
+.el-cascader-menu__item.is-disabled {
   background-color: transparent;
 }
 .tooltipShow {
@@ -888,7 +889,9 @@ export default {
 .tooltipHide {
   opacity: 0;
 }
-.row-expand-cover .el-table__expand-icon{visibility:hidden;}
+.row-expand-cover .el-table__expand-icon {
+  visibility: hidden;
+}
 @media only screen and (max-width: 1367px) {
   .mainList .input_w {
     width: 198px;
