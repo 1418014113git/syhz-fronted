@@ -130,7 +130,7 @@
         </el-form-item>
         <el-form-item label="案件类型" prop="fllb">
           <el-tooltip effect="dark" :content="selectCurfllb.name" placement="top-start" :popper-class="(selectCurfllb.name&&selectCurfllb.name.length>9)===true?'tooltipShow':'tooltipHide'">
-            <el-cascader v-model="filters.fllb" change-on-select filterable :options="fllbList" @change="handleChange" clearable></el-cascader>
+            <el-cascader v-model="filters.fllb" change-on-select filterable :options="fllbList" @change="ajlxHandleChange" clearable></el-cascader>
           </el-tooltip>
         </el-form-item>
         <el-form-item label="案件类别" prop="ajlb">
@@ -158,72 +158,61 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <!--$isViewBtn('100701') && -->
-          <el-button type="primary" size="small" v-if="queryBtn"  v-on:click="getCase(true,true)">查询</el-button>
+          <el-button type="primary" size="small" v-if="queryBtn && $isViewBtn('100701')"  v-on:click="getCase(true,true)">查询</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="small"  v-on:click="reset()">重置</el-button>
+          <el-button type="primary" size="small" v-on:click="reset()">重置</el-button>
           <!-- <el-button type="primary" size="small"  v-on:click="backStatistical()" v-if="showBackBtn">返回</el-button> -->
         </el-form-item>
       </el-form>
     </el-col>
-
     <!--列表-->
     <el-table :data="cases" highlight-current-row v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
-      <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
-      <el-table-column label="案件名称" min-width="10%" :show-overflow-tooltip="true">
+      <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
+      <el-table-column label="案件名称" min-width="200" show-overflow-tooltip>
         <template slot-scope="scope">
           <a @click="handleAjDetail(scope.$index, scope.row)">{{scope.row.AJMC}}</a>
         </template>
       </el-table-column>
-        <el-table-column label="案件编号" min-width="7%">
+      <el-table-column label="案件编号" width="230" show-overflow-tooltip align="center">
         <template slot-scope="scope">
           <a class="ajbh-color" @click="handleAjDetail(scope.$index, scope.row)">{{scope.row.AJBH}}</a>
         </template>
       </el-table-column>
-      <el-table-column prop="larq" label="立案日期" min-width="8%">
-            <template slot-scope="scope">
-              {{$handlerDateTime(scope.row.larq)}}
-          </template>
-      </el-table-column>
-         <el-table-column prop="ladwName" label="立案单位" min-width="8%">
-      </el-table-column>
-       <el-table-column prop="parq" label="破案日期" min-width="8%" >
-           <template slot-scope="scope">
-              {{$handlerDateTime(scope.row.parq)}}
-          </template>
-      </el-table-column>
-        <el-table-column prop="ajztName" label="案件状态" min-width="8%">
-      </el-table-column>
-
-      <el-table-column prop="rlTime" label="认领日期" min-width="8%" >
-            <template slot-scope="scope">
-              {{scope.row.rlTime | formatDate}}
-          </template>
-
-      </el-table-column>
-
-       <el-table-column prop="noticeOrgName" label="认领单位" min-width="8%" >
-
-      </el-table-column>
-         <el-table-column prop="status"  label="认领状态" width="100" > <!--:formatter="getStatusName"-->
+      <el-table-column prop="larq" label="立案日期" width="120" align="center">
         <template slot-scope="scope">
-          <el-tag  :type="scope.row.status==3?'':(scope.row.status==5?'success':(scope.row.status==9?'warning':'danger'))">{{getStatusName(scope.row)}}</el-tag>
+          {{$handlerDateTime(scope.row.larq)}}
         </template>
       </el-table-column>
-
-
-      <el-table-column  label="操作事由" prop="revoke_reason" :formatter="getResonFormat"  :show-overflow-tooltip="true" width="120" >
+      <el-table-column prop="ladwName" label="立案单位" min-width="200" show-overflow-tooltip></el-table-column>
+       <el-table-column prop="parq" label="破案日期" width="120" align="center">
+          <template slot-scope="scope">
+            {{$handlerDateTime(scope.row.parq)}}
+          </template>
+      </el-table-column>
+      <el-table-column prop="ajztName" label="案件状态" width="100" align="center"></el-table-column>
+      <el-table-column prop="rlTime" label="认领日期" width="120" align="center">
+        <template slot-scope="scope">
+          {{scope.row.rlTime | formatDate}}
+        </template>
+      </el-table-column>
+      <el-table-column prop="noticeOrgName" label="认领单位" width="260" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="status"  label="认领状态" width="100" align="center"> <!--:formatter="getStatusName"-->
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.status==3?'':(scope.row.status==5?'success':(scope.row.status==9?'warning':'danger'))">{{getStatusName(scope.row)}}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作事由" prop="revoke_reason" :formatter="getResonFormat"  show-overflow-tooltip min-width="120" >
       </el-table-column>
       <el-table-column label="操作" width="190">
         <template slot-scope="scope">
-          <el-button size="small" type="primary" plain v-if="scope.row.status!=3 && $isViewBtn('100703')"  @click="handleAjDetail(scope.$index, scope.row)"> 案件详情</el-button>
-          <el-button size="small" type="primary" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100704')"  :disabled="scope.row.status!=3" @click="handleAjDetail(scope.$index, scope.row)"> 案件认领</el-button>
+          <el-button size="small" type="primary" plain v-if="scope.row.status!=3 && $isViewBtn('100703')"  @click="handleAjDetail(scope.$index, scope.row)">案件详情</el-button>
+          <el-button size="small" type="primary" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100704')"  :disabled="scope.row.status!=3" @click="handleAjDetail(scope.$index, scope.row)">案件认领</el-button>
           <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && downBtn"  @click="handleZDGX(0, scope.row, 'ajxfForm')">下发案件</el-button>
-          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">转发案件</el-button>
+          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100707') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">转发案件</el-button>
           <el-button size="small" type="danger"  plain v-if="scope.row.status==3  && hasAccess(scope.row) && $isViewBtn('100706')"  @click="handleZDGX(2, scope.row, 'ajcxForm')">撤销案件</el-button>
-          <el-button size="small" type="danger"  plain v-if="scope.row.status==10 && $isViewBtn('100706')"  @click="handleZDGX(3, scope.row, 'ajhfForm')">恢复案件</el-button>
-          <el-button size="small" type="danger"  plain v-if="$isViewBtn('100705')"  @click="handleAJSIGN(scope.row.AJBH)">认领详情</el-button>
+          <el-button size="small" type="danger"  plain v-if="scope.row.status==10 && $isViewBtn('100708')"  @click="handleZDGX(3, scope.row, 'ajhfForm')">恢复案件</el-button>
+          <el-button size="small" type="danger"  plain v-if="$isViewBtn('100702')"  @click="handleAJSIGN(scope.row.AJBH)">认领详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -499,7 +488,8 @@ export default {
       sel_val3: '',
       sel_val4: '',
       showBackBtn: false, // 是否展示返回按钮（只有从统计跳转过来 才展示返回按钮）
-      tableHeight: null
+      tableHeight: null,
+      ajlxFirst: '' // 当前选中的案件类别第一级
     }
   },
   filters: {
@@ -617,17 +607,19 @@ export default {
     //     this.selectCurTingDep = { name: '' }
     //   }
     // },
-    handleChange(val) {
-      // // 案件类型change
-      // if (val.length > 0) {
-      //   var fllbs = this.fllbList
-      //   for (let i = 0; i < fllbs.length; i++) {
-      //     const fllb = fllbs[i]
-      //     console.log(i + '' + JSON.stringify(fllb))
-      //   }
-      // } else {
-      //   this.selectCurDep = { name: '' }
-      // }
+    ajlxHandleChange(val) { // 案件类型change
+      if (val && val.length > 0) {
+        if (this.ajlxFirst || this.ajlxFirst !== val[0]) {
+          this.ajlxFirst = val[0]
+          this.initAjlb(this.ajlxFirst) // 案件类别
+          this.initAjzm(this.ajlxFirst) // 案件罪名
+        }
+      } else { // 清空案件类型时 同时 清空 案件类别和案件罪名
+        this.filters.ajlb = ''
+        this.filters.ajzm = ''
+        this.ajlbData = []// 案件类别
+        this.ajzmData = [] // 案件罪名
+      }
     },
     // shiDepChange(val) {
     //   this.qiDep = []
@@ -711,20 +703,26 @@ export default {
       }).catch(() => {
       })
     },
-    initAjlb() { // 初始化案件类别
-      this.$query('ajlb', {}).then((response) => {
+    initAjlb(category) { // 初始化案件类别
+      this.$query('ajlb', { category: category }).then((response) => {
         if (response.data && response.data.length > 0) {
           this.ajlbData = response.data
+        } else {
+          this.ajlbData = []
         }
       }).catch(() => {
+        this.ajlbData = []
       })
     },
-    initAjzm() { // 案件罪名
-      this.$query('ajzm', {}).then((response) => {
+    initAjzm(category) { // 案件罪名
+      this.$query('ajzm', { category: category }).then((response) => {
         if (response.data && response.data.length > 0) {
           this.ajzmData = response.data
+        } else {
+          this.ajzmData = []
         }
       }).catch(() => {
+        this.ajzmData = []
       })
     },
     ajztChange(val) { // 案件状态change事件
