@@ -289,11 +289,15 @@ export default {
           }
         },
         markPeople: {
-          required: true, trigger: 'change', validator: (rule, value, callback) => {
-            if (value && value.length > 0) {
-              callback()
+          required: false, trigger: 'change', validator: (rule, value, callback) => {
+            if (this.yjryIsShow) {
+              if (value && value.length > 0) {
+                callback()
+              } else {
+                callback(new Error('请选择本次考试主观题的阅卷人员'))
+              }
             } else {
-              callback(new Error('请选择本次考试主观题的阅卷人员'))
+              callback()
             }
           }
         }
@@ -655,6 +659,7 @@ export default {
             this.yjryIsShow = true
           } else {
             this.yjryIsShow = false
+            this.examForm.markPeople = []
           }
         }).catch(() => {
           this.yjryIsShow = false
