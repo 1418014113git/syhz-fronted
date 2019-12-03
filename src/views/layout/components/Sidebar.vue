@@ -30,27 +30,18 @@ export default {
           default: 0
         }
       },
-      // template: `<el-submenu :index="item.id+''" v-if="item.leaf==1">
-      // <template slot="title"><span  slot="title">{{item.name}}</span></template>
-      //     <template v-for="(child, index) in item.children">
-      //     <sidebar-item :item="child"></sidebar-item>
-      //   </template>
-      // </el-submenu>
-      // <el-menu-item  v-else :key="item.path" :index="item.path" >
-      //   <span slot="title">{{item.name}}</span>
-      // </el-menu-item>`
-      template: `<el-submenu :index="item.id+''" v-if="item.leaf==1" :popper-append-to-body="true">
+      template: `<el-submenu :index="item.id+''" v-if="item.leaf==1">
         <template slot="title"><span  slot="title">{{item.name}}</span></template>
           <template v-for="(child, index) in item.children">
             <sidebar-item :item="child"></sidebar-item>
           </template>
         </el-submenu>
           <el-tooltip  v-else-if="menuLength>5 && item.name.length>6"  effect="dark" :content="item.name" placement="top" >
-            <el-menu-item :key="item.path" :index="item.path" class="ellips">
+            <el-menu-item :key="item.path" :index="item.path" class="ellips" :popper-append-to-body="true">
               <span slot="title">{{item.name}}</span>
             </el-menu-item>
           </el-tooltip>
-           <el-menu-item v-else :key="item.path" :index="item.path" >
+           <el-menu-item v-else :key="item.path" :index="item.path" :popper-append-to-body="true">
              <span slot="title">{{item.name}}</span>
            </el-menu-item>
         `
