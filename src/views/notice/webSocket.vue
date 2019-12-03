@@ -105,14 +105,14 @@
         }
         const h = this.$createElement
         this.notifyInstance = this.$notify({
-          title: '您有 ' + data.num + ' 条未读消息',
+          title: ' ' + data.num + ' ',
           dangerouslyUseHTMLString: true,
           message: h('p', null, [
             h('span', {
               on: {
                 click: function() {
                   _this.notifyInstance.close()
-                  _this.$gotoid('/message/list')
+                  _this.$gotoid('/message/list', data.id)
                 }
               }
             }, data.title)

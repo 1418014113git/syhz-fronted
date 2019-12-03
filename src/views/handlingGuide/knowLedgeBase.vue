@@ -58,7 +58,7 @@
               <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" :selectable="selectable"></el-table-column>
                 <el-table-column type="index" label="序号" width="60"></el-table-column>
-                <el-table-column prop="title" label="标题">
+                <el-table-column prop="title" label="标题" show-overflow-tooltip>
                   <template slot-scope="scope">
                     <span v-if="$isViewBtn('129403')" @click="handleRowView(scope.$index, scope.row)" class="url_text">{{scope.row.title}}</span>
                     <span v-else>{{scope.row.title}}</span>
@@ -80,7 +80,7 @@
                     <span v-if="scope.row.articleType === 4">综合</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="belongDepName" label="上传单位" width="200px"></el-table-column>
+                <el-table-column prop="belongDepName" label="上传单位" width="200px" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="creationName" label="上传者" width="100px"></el-table-column>
                 <el-table-column prop="creationTime" label="上传时间" width="120px"></el-table-column>
                 <el-table-column prop="auditStatus" label="审核状态" width="100px">
@@ -161,6 +161,7 @@
         active: '1',
         deptList: [],
         deptUserList: [],
+        noCheck: false,
         filters: {
           title: '',
           type: '',
@@ -281,6 +282,7 @@
           title: this.filters.title.trim(),
           type: this.filters.type,
           auditStatus: this.filters.auditStatus,
+          noCheck: this.noCheck ? 'noCheck' : '',
           creationId: this.filters.creationId,
           startTime: this.filters.time && this.filters.time.length > 0 ? (this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00') : '',
           endTime: this.filters.time && this.filters.time.length > 0 ? (this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59') : '',
