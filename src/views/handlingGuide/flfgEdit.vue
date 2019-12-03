@@ -432,16 +432,22 @@
           })
           return false
         }
-        const rejected = checkFileName('knowledgeenclosurebyname', { belongMode: '1', enName: file.name.substring(0, file.name.lastIndexOf('.')), enClass: file.name.substring(file.name.lastIndexOf('.'), file.name.length) })
-        rejected.catch(() => {
-          this.nameCheckFlag = true
-          this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {
-            confirmButtonText: '知道了',
-            callback: action => {
-            }
+        if (this.detailId === undefined || this.detailId === null || this.detailId === '') {
+          const rejected = checkFileName('knowledgeenclosurebyname', {
+            belongMode: '1',
+            enName: file.name.substring(0, file.name.lastIndexOf('.')),
+            enClass: file.name.substring(file.name.lastIndexOf('.'), file.name.length)
           })
-        })
-        return rejected
+          rejected.catch(() => {
+            this.nameCheckFlag = true
+            this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {
+              confirmButtonText: '知道了',
+              callback: action => {
+              }
+            })
+          })
+          return rejected
+        }
       },
       fileError() {
       },

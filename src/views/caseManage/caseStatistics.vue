@@ -665,13 +665,11 @@ export default {
 </script>
 <style rel="stylesheet/scss" lang="scss">
 .caseStatistics {
+  .el-table--scrollable-x .el-table__body-wrapper {
+    overflow-x: hidden;
+  }
   .el-table__header-wrapper {
     table{
-      // thead{
-      //   td:last-child{
-      //     border-bottom: 1px solid #fff;
-      //   }
-      // }
       border-bottom: 1px solid #fff;
     }
   }
@@ -707,7 +705,7 @@ export default {
   .el-table__body-wrapper,
   .el-table__header-wrapper,
   .el-table__footer-wrapper{
-    overflow:visible;
+    overflow:visible !important;
   }
   .el-table::after{
     position: relative !important;
