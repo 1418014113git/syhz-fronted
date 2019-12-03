@@ -12,22 +12,22 @@
           <el-form :model="examForm" ref="examForm" :rules="rules" label-width="96px" label-position="left" v-loading="formLoading" class="clearfix">
             <el-col>
               <el-form-item label="考试名称" prop="examinationName">
-                <el-input type="text" size="small" v-model="examForm.examinationName" clearable placeholder="请输入" maxlength="50" style="width:calc(100% - 30px)"></el-input>
+                <el-input type="text" size="small" v-model="examForm.examinationName" clearable placeholder="请输入" maxlength="50" style="width:calc(100% - 30px)" :disabled="formDisabled"></el-input>
               </el-form-item>
               <el-form-item label="开始时间" prop="startDate" class="clearfix">
-                <el-date-picker v-model="examForm.startDate" type="datetime" :picker-options="startPickerOptions" value-format="yyyy-MM-dd HH:mm:ss" default-time="00:00:00" placeholder="选择日期时间" @change="startDateChange" class="left" style="width:calc(100% - 30px)"></el-date-picker>
+                <el-date-picker v-model="examForm.startDate" type="datetime" :picker-options="startPickerOptions" value-format="yyyy-MM-dd HH:mm:ss" default-time="00:00:00" placeholder="选择日期时间" @change="startDateChange" class="left" style="width:calc(100% - 30px)" :disabled="formDisabled"></el-date-picker>
                 <el-tooltip class="right"  effect="dark" content="请选择考试开始时间，只有到了开始时间才能进入考试页面进行考试！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
               </el-form-item>
               <el-form-item label="截止时间" prop="endDate" class="clearfix">
                 <el-date-picker v-model="examForm.endDate" type="datetime" :picker-options="endPickerOptions" value-format="yyyy-MM-dd HH:mm:ss" :disabled="endDateDisabled" default-time="23:59:59" placeholder="选择日期时间" @change="endDateChange" class="left" style="width:calc(100% - 30px)"></el-date-picker>
-                <el-tooltip class="right"  effect="dark" content="请选择考试截至时间，截止时间以后，警员将不能在进入考试页面进行考试！" placement="top">
+                <el-tooltip class="right"  effect="dark" content="请选择考试截止时间，截止时间以后，警员将不能在进入考试页面进行考试！已经开始的考试，只能修改截止时间。" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
               </el-form-item>
                 <el-form-item label="考试时限" prop="totalDate" class="clearfix">
-                <el-input type="text" v-model="examForm.totalDate" clearable placeholder="请输入" maxlength="3" class="left" style="width:calc(100% - 30px)">
+                <el-input type="text" v-model="examForm.totalDate" clearable placeholder="请输入" maxlength="3" class="left" style="width:calc(100% - 30px)" :disabled="formDisabled">
                   <template slot="append">分钟</template>
                 </el-input>
                 <el-tooltip class="right"  effect="dark" content="请填写考试限定时间，在时间范围内警员可以自主提交答卷，到达限定时间，系统将强制提交答卷！" placement="top">
@@ -35,13 +35,13 @@
                 </el-tooltip>
               </el-form-item>
               <el-form-item label="允许次数" prop="permitNumber" class="clearfix">
-                <el-input-number v-model="examForm.permitNumber" :min="1" :max="9" label="请输入"></el-input-number>
+                <el-input-number v-model="examForm.permitNumber" :min="1" :max="9" label="请输入" :disabled="formDisabled"></el-input-number>
                 <el-tooltip class="right"  effect="dark" content="请填写允许警员重复考试的次数，有多个成绩时，以最高分成绩为准！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
               </el-form-item>
               <el-form-item label="试卷类型" prop="type" class="clearfix">
-                <el-select v-model="examForm.type" placeholder="请选择题型" @change="examPaperTypeChange" class="left" style="width:calc(100% - 30px)">
+                <el-select v-model="examForm.type" placeholder="请选择题型" @change="examPaperTypeChange" class="left" style="width:calc(100% - 30px)" :disabled="formDisabled">
                   <el-option v-for="item in paperType" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
                 <el-tooltip class="right"  effect="dark" content="请选择试卷类型，重复考试时，人工组卷题目不会变化；随机组卷题目会随机抽取！" placement="top">
@@ -49,7 +49,7 @@
                 </el-tooltip>
               </el-form-item>
               <el-form-item label="选择试卷" prop="paperId" class="clearfix">
-                <el-select v-model="examForm.paperId" placeholder="请选择题型" class="left" style="width:calc(100% - 30px)">
+                <el-select v-model="examForm.paperId" placeholder="请选择题型" class="left" style="width:calc(100% - 30px)" :disabled="formDisabled" @change="paperChange">
                   <el-option v-for="item in paperList" :key="item.id" :label="item.paperName" :value="item.id"></el-option>
                 </el-select>
                 <el-tooltip class="right"  effect="dark" content="根据您选择的试卷类型，系统自动获取对应试卷列表，您可以选择需要的考卷！" placement="top">
@@ -57,11 +57,11 @@
                 </el-tooltip>
               </el-form-item>
               <el-form-item label="分类" prop="examinationType">
-                <el-select v-model="examForm.examinationType" placeholder="请选择分类" style="width:calc(100% - 30px)">
+                <el-select v-model="examForm.examinationType" placeholder="请选择分类" style="width:calc(100% - 30px)" :disabled="formDisabled">
                   <el-option v-for="item in examinationTypeData" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="开放单位" prop="openDepts" class="clearfix">
+              <el-form-item label="开放单位" prop="openDepts" class="clearfix" v-show="!formDisabled">
                 <!-- 可以多选；只能是本单位或者下级单位，无法选择上级及其他单位 -->
                 <!-- <el-select v-model="examForm.openDepts" placeholder="请选择开放单位" multiple class="left openWrap" style="width:calc(100% - 30px)">
                   <el-option v-for="item in openDeptsList" :key="item.id" :label="item.deptName" :value="item.id"></el-option>
@@ -71,7 +71,7 @@
                      <template slot="title">
                       <div style="position:relative;">
                         <span>选择部门</span>
-                        <el-checkbox-group v-model="checkListDeps" style="position:absolute;top: 0;left: 100px;">
+                        <el-checkbox-group v-model="checkListDeps" style="position:absolute;top: 0;left: 100px;" :disabled="formDisabled">
                           <!-- 当前登录部门的 所有上级复选框 禁用 -->
                           <el-checkbox :label="1" :disabled="Number(deptInfo.depType)>1" @change="handleCheckedDepts($event,'1')">总队</el-checkbox>
                           <el-checkbox :label="2" :disabled="Number(deptInfo.depType)>2" @change="handleCheckedDepts($event,'2')">支队</el-checkbox>
@@ -81,8 +81,9 @@
                       </div>
                     </template>
                     <div class="dept-tree" v-loading="treeLoading">
+                      <!-- v-if="formDisabled" -->
                       <el-tree class="filter-tree" :data="openDeptsList"
-                        :props="{children: 'child',label: 'deptName',value: 'deptId'}"
+                        :props="openDeptProps"
                         :default-expand-all="false"
                         ref="depTree"
                         highlight-current
@@ -110,8 +111,8 @@
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
               </el-form-item>
-              <el-form-item label="阅卷人员" prop="markPeople" class="clearfix">
-                <el-input type="text" v-model="yjry" clearable class="left" style="width:360px;" @keyup.enter.native="filterMarkPeople(yjry)" placeholder="请输入关键字，回车键搜索"></el-input>
+              <el-form-item label="阅卷人员" prop="markPeople" class="clearfix" v-show="yjryIsShow && !formDisabled">
+                <el-input type="text" v-model="yjry" clearable class="left" style="width:360px;" @keyup.enter.native="filterMarkPeople(yjry)" placeholder="请输入关键字，回车键搜索" :disabled="formDisabled"></el-input>
                   <!-- filterable
                   :filter-method="filterMethod" -->
                 <el-transfer class="left" style="width:calc(100% - 30px)"
@@ -128,7 +129,7 @@
                 </el-tooltip>
               </el-form-item>
               <el-form-item label="考试须知" class="clearfix" prop="remark">
-                <el-input type="textarea" :rows="2" v-model="examForm.remark" maxlength="1000" placeholder="最多可输入1000文字！" class="left" style="width:calc(100% - 30px)"></el-input>
+                <el-input type="textarea" :rows="2" v-model="examForm.remark" maxlength="1000" placeholder="最多可输入1000文字！" class="left" style="width:calc(100% - 30px)" :disabled="formDisabled"></el-input>
                 <el-tooltip class="right" effect="dark" content="请填写警员在参加考试时的注意事项，事项内容会在进入考试页面时自动弹出！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
@@ -171,6 +172,8 @@ export default {
         value: 'deptCode',
         label: 'deptName'
       },
+      openDeptProps: { children: 'child', label: 'deptName', value: 'deptId' }, // 开放单位是否可编辑
+      // openDeptDisabledProps: { children: 'child', label: 'deptName', value: 'deptId', disabled: function(data, node) { return true } }, // 开放单位是否可编辑
       startPickerOptions: {
         disabledDate(time) {
           return time.getTime() < Date.now() - 86400000
@@ -195,6 +198,8 @@ export default {
       markFilterFlag: false, // 阅卷老师是否筛选过
       checkListDeps: [], // 开放部门复选框的v-model
       returnedItem: [], // 开放部门 复选框 递归时用到的数组
+      formDisabled: false, // 表单是否禁用
+      yjryIsShow: false, // 是否显示阅卷人员
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       rules: {
@@ -213,12 +218,16 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === null || value === undefined || value === '') {
               callback(new Error('请选择开始时间'))
-            } else if (new Date(this.examForm.startDate).getTime() < new Date().getTime()) {
-              callback(new Error('开始时间不能小于当前时间'))
-            } else if (new Date(this.examForm.startDate).getTime() > new Date(this.examForm.endDate).getTime()) {
-              callback(new Error('开始时间不能大于截至时间'))
-            } else {
+            } else if (this.formDisabled) { // 考试已经开始 编辑时，不校验开始时间
               callback()
+            } else {
+              if (new Date(this.examForm.startDate).getTime() < new Date().getTime()) {
+                callback(new Error('开始时间不能小于当前时间'))
+              } else if (new Date(this.examForm.startDate).getTime() > new Date(this.examForm.endDate).getTime()) {
+                callback(new Error('开始时间不能大于截至时间'))
+              } else {
+                callback()
+              }
             }
           }
         },
@@ -276,6 +285,15 @@ export default {
               callback()
             } else {
               callback(new Error('请选择开放单位'))
+            }
+          }
+        },
+        markPeople: {
+          required: true, trigger: 'change', validator: (rule, value, callback) => {
+            if (value && value.length > 0) {
+              callback()
+            } else {
+              callback(new Error('请选择本次考试主观题的阅卷人员'))
             }
           }
         }
@@ -477,9 +495,16 @@ export default {
       this.examForm.openDepts = []
       this.$query('examination/' + this.carryParam.examId, {}).then((response) => {
         if (response.code === '000000') {
+          if (new Date(response.data.startDate).getTime() < new Date().getTime()) { // 开始时间 小于 当前时间，说明考试已经开始
+            this.formDisabled = true
+            this.endDateDisabled = false
+          } else {
+            this.formDisabled = false
+          }
           response.data.examinationType = response.data.examinationType + '' // 分类
           response.data.type = response.data.type + '' // 试卷类型
           this.examPaperTypeChange(response.data.type) // 查试卷
+          this.paperChange(response.data.paperId) // 查是否含有主观题，判断是否显示阅卷老师
 
           var choosedDepts = response.data.openDepts.split(',') // 开放单位
           var newDeptsArr = []
@@ -498,8 +523,7 @@ export default {
             }
           }
           this.examForm = response.data
-          // this.examForm.openDepts = newDeptsArr
-          this.examForm.markPeople = newPersArr
+          this.examForm.markPeople = newPersArr // 阅卷人员
         }
       }).catch(() => {
         this.formLoading = false
@@ -621,6 +645,20 @@ export default {
         })
       } else {
         this.paperList = []
+      }
+    },
+    paperChange(val) { // 选择试卷 判断是否有主观题，如果没有主观题 则不能选择阅卷老师
+      if (val) {
+        this.$query('exampaperinfotypes', { paperId: val }).then((response) => {
+          this.formLoading = false
+          if (response.code === '000000' && response.data.length > 0) { // 有主观题
+            this.yjryIsShow = true
+          } else {
+            this.yjryIsShow = false
+          }
+        }).catch(() => {
+          this.yjryIsShow = false
+        })
       }
     },
     timeDifference(time1, time2) { // 计算时间相减
