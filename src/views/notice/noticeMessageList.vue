@@ -211,7 +211,7 @@
           groupName: '',
           desc: '',
           receiveDept: [],
-          type: 2
+          type: 1
         },
         titleLoading: false,
         rules: {
@@ -508,7 +508,7 @@
                   cancelButtonText: '否',
                   confirmButtonText: '是'
                 }).then(() => {
-                  this.noticeGroupForm.receiveDept = this.addForm.recipientUser
+                  this.noticeGroupForm.receiveDept = data
                   this.groupDialogVisible = true
                 }).catch(() => {
                   this.query()
@@ -540,7 +540,7 @@
             this.noticeGroupForm.deptName = this.curDept.depName
             this.noticeGroupForm.deptCode = this.curDept.depCode
             this.noticeGroupForm.itemCount = this.noticeGroupForm.receiveDept.length
-            this.noticeGroupForm.deptIds = this.noticeGroupForm.receiveDept
+            this.noticeGroupForm.personList = this.noticeGroupForm.receiveDept
             this.$save('group', this.noticeGroupForm).then((response) => {
               const _this = this
               setTimeout(function() {
