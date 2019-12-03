@@ -91,16 +91,16 @@
     </el-row>
     <el-table :data="dbData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center" :span-method="objectSpanMethod">
       <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
-      <el-table-column label="案件名称" min-width="10%" prop="caseName" show-overflow-tooltip></el-table-column>
-      <el-table-column label="案件编号" min-width="10%" show-overflow-tooltip>
+      <el-table-column label="案件名称" min-width="15%" prop="caseName" show-overflow-tooltip></el-table-column>
+      <el-table-column label="案件编号" min-width="15%" show-overflow-tooltip>
         <template slot-scope="scope">
           <a class="ajbh-color" @click="toAjDetail(scope.row.caseId)">{{scope.row.caseNumber}}</a>
         </template>
       </el-table-column>
       <el-table-column prop="title" label="督办批次" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column prop="applyDeptName" label="申请单位" min-width="15%" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="applyPersonName" label="申请人" min-width="15%" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="applyDate" label="申请日期" min-width="15%" align="center" show-overflow-tooltip>
+      <el-table-column prop="applyPersonName" label="申请人" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="applyDate" label="申请日期" width="120" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if="scope.row.status!==0">{{scope.row.applyDate}}</span>
         </template>
@@ -110,7 +110,7 @@
           {{$getDictName(scope.row.superviseLevel+'','dbjb')}}
         </template>
       </el-table-column>
-      <el-table-column prop="endDate" label="截止日期" width="150" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="endDate" label="截止日期" width="120" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column label="状态" width="100" align="center">
         <template slot-scope="scope">
           {{$getDictName(scope.row.status+'','dbajzt')}}
