@@ -16,26 +16,28 @@
           <el-button type="primary" v-on:click="resetFrom" >重置</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" v-on:click="add()" v-if="
-          ('159002')">发消息</el-button>
+          <el-button type="primary" v-on:click="add()" v-if="$isViewBtn('159002')">发消息</el-button>
         </el-form-item>
     </el-form>
     <el-table :data="list" ref="multipleTable" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column type="index" width="80" label="序号"></el-table-column>
-      <el-table-column label="标题" min-width="8%">
+      <el-table-column prop="title" label="标题" min-width="8%" show-overflow-tooltip>
         <template slot-scope="scope">
-          <p :title="scope.row.title" class="ellipsis-word" @click="handleDetail(scope.$index, scope.row)" style="cursor: pointer; text-decoration: underline">{{scope.row.title}}</p>
+          <!--<p :title="scope.row.title" class="ellipsis-word" @click="handleDetail(scope.$index, scope.row)" style="cursor: pointer; text-decoration: underline">{{scope.row.title}}</p>-->
+          <span>{{scope.row.title}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="内容" min-width="8%">
+      <el-table-column prop="content" label="内容" min-width="8%" show-overflow-tooltip>
         <template slot-scope="scope">
-          <p :title="scope.row.content" class="ellipsis-word" style="cursor: pointer;">{{scope.row.content}}</p>
+          <!--<p :title="scope.row.content" class="ellipsis-word" style="cursor: pointer;">{{scope.row.content}}</p>-->
+          <span>{{scope.row.content}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="remark" label="接收人" width="200">
+      <el-table-column prop="allName" label="接收人" width="200" show-overflow-tooltip>
         <template slot-scope="scope">
-          <p :title="scope.row.allName" class="ellipsis-word">{{scope.row.firstName}}</p>
+          <!--<p :title="scope.row.allName" class="ellipsis-word">{{scope.row.firstName}}</p>-->
+          <span>{{scope.row.firstName}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="creatorDate" label="发布时间" width="200"></el-table-column>
@@ -67,19 +69,24 @@
         <el-form-item label="内容" prop="content">
           <el-input v-model="addForm.content" type="textarea" maxlength="500" size="small" placeholder="最多可输入500个字符！" class="add_content"></el-input>
         </el-form-item>
-        <el-form-item label="接收人" prop="recipientUser">
+        <el-form-item label="接收人" prop="recipientUser" class="transfer">
+          <el-radio-group v-model="addForm.sendType" @change="radioChange">
+            <el-radio label="1">选人</el-radio>
+            <el-radio label="2">选组</el-radio>
+          </el-radio-group><br>
+          <el-input v-model="searchKey" maxlength="50" size="small" placeholder="请输入关键字" @input="searchKeyChange"></el-input>
           <el-transfer
             ref="transfer"
+            v-loading="transferLoading"
             v-model="addForm.recipientUser"
-            :titles="['人员名称', '人员名称']"
-            filterable
-            :filter-method="filterMethod"
+            :titles="title"
             :left-default-checked="leftCheck"
             :right-default-checked="rightCheck"
+            :filterable="true"
+            :filter-method="filterMethod"
+            filter-placeholder="模糊匹配"
+            @change="transferChange"
             :data="transferLXRData"></el-transfer>
-          <!--<el-select v-model="addForm.recipient" clearable filterable multiple remote reserve-keyword placeholder="请输入关键词" :remote-method="remoteMethodDeptUser" :loading="depUserLoading" style="width: 100%;">-->
-            <!--<el-option v-for="item in deptUserList" :key="item.index" :value="item.id" :label="item.realName"></el-option>-->
-          <!--</el-select>-->
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -100,6 +107,21 @@
         <el-button @click="closeDialog" class="cancelBtn">关闭</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="设置常用组" :visible.sync="groupDialogVisible" :close-on-click-modal="false" class="group_dialog" @close="closeDialog">
+      <el-form :model="noticeGroupForm" ref="noticeGroupForm" :rules="rules" v-loading="groupLoading" label-width="100px">
+        <el-form-item label="组名" prop="groupName">
+          <el-input v-model="noticeGroupForm.groupName" auto-complete="off" clearable maxlength="20" v-loading="titleLoading"></el-input>
+        </el-form-item>
+        <el-form-item label="说明" prop="desc">
+          <el-input v-model="noticeGroupForm.desc" type="textarea" size="small" maxlength="500" placeholder="最多可输入500个字符！"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeDialog" class="cancelBtn">取 消</el-button>
+        <el-button type="primary" class="saveBtn" @click="groupSubmit()" :loading="groupLoading">保 存</el-button>
+      </div>
+    </el-dialog>
   </section>
 </template>
 <script>
@@ -107,6 +129,8 @@
     name: 'list',
     data() {
       return {
+        title: ['人员名称', '人员名称'],
+        transferLoading: false,
         dialogVisible: false,
         dialogLoading: false,
         detailRow: {
@@ -126,10 +150,12 @@
         transferLXRData: [],
         addBtnLoading: false,
         addDialogVisible: false,
+        searchKey: '',
         addForm: {
           title: '',
           content: '',
           recipientUser: [],
+          sendType: '1',
           recipient: ''
         },
         addRules: {
@@ -161,7 +187,7 @@
           }],
           recipientUser: [{
             required: true, trigger: 'blur', validator: (rule, value, callback) => {
-              if (value === undefined || value === null || value.length === 0) {
+              if (this.addForm.recipientUser === undefined || this.addForm.recipientUser === null || this.addForm.recipientUser.length === 0) {
                 return callback(new Error('请选择接收人'))
               }
               return callback()
@@ -178,10 +204,84 @@
         curDept: {},
         multipleSelection: [],
         leftCheck: [],
-        rightCheck: []
+        rightCheck: [],
+        groupDialogVisible: false,
+        groupLoading: false,
+        noticeGroupForm: {
+          groupName: '',
+          desc: '',
+          receiveDept: [],
+          type: 2
+        },
+        titleLoading: false,
+        rules: {
+          groupName: [{
+            required: true, trigger: 'blur', validator: (rule, value, callback) => {
+              const regCnName = this.$regCnName
+              if (value === undefined || value === null || value === '') {
+                callback(new Error('请输入组名'))
+              } else if (value.length > 0 && (!regCnName.test(value))) {
+                callback(new Error('组名只能输入汉字'))
+              } else if (value.length > 20) {
+                callback(new Error('组名长度不能超过 20个字符'))
+              } else {
+                return this.titleCheckAsyns(callback)
+              }
+            }
+          }]
+        }
       }
     },
     methods: {
+      async titleCheckAsyns(callback) {
+        this.titleLoading = true
+        // 同步处理
+        const response = await this.$updateAsyns('group/checkGroupNameRepeat', { groupName: this.noticeGroupForm.groupName, creatorId: this.curUser.id })
+        const data = response.data
+        if (this.id !== '') {
+          if (data.type !== 1) {
+            callback = callback()
+          } else {
+            callback = callback(Error('组名不能重复'))
+          }
+        } else {
+          if (data.type !== 1) {
+            callback = callback()
+          } else {
+            callback = callback(Error('组名不能重复'))
+          }
+        }
+        this.titleLoading = false
+        return callback
+      },
+      radioChange(val) {
+        this.transferLoading = true
+        this.addForm.recipientUser = []
+        if (val === '2') {
+          this.checkCYLXR()
+          this.title = ['常用联系人组', '常用联系人组']
+        } else if (val === '1') {
+          this.checkLXR(this.curDept.depCode)
+          this.title = ['人员名称', '人员名称']
+        }
+      },
+      checkCYLXR() {
+        // 调用查询常用联系人接口
+        this.$query('group/groupinfo', { creatorId: this.curUser.id, deptCode: this.curDept.depCode, type: 1 }).then(response => {
+          if (response.data === null || response.data === undefined || response.data.length === 0) {
+            // 没有常用联系人
+          } else {
+            this.lXRData = response.data
+            const tData = []
+            for (let i = 0; i < response.data.length; i++) {
+              const item = response.data[i]
+              tData.push({ label: item.groupName, key: item.groupId })
+            }
+            this.transferLXRData = tData
+          }
+          this.transferLoading = false
+        })
+      },
       showUserName(remark, flag) {
         if (remark === undefined || remark === null || remark === '') {
           return ''
@@ -209,8 +309,11 @@
         this.addForm = {
           title: row.title,
           content: row.content,
+          sendType: '1',
           recipientUser: []
         }
+        this.searchKey = ''
+        this.checkLXR(this.curDept.depCode)
       },
       handleDel: function(index, row) {
         this.$confirm('确认删除该记录吗?', '提示', {
@@ -306,6 +409,7 @@
       closeDialog() {
         this.dialogVisible = false
         this.addDialogVisible = false
+        this.groupDialogVisible = false
         this.addForm = {
           title: '',
           content: '',
@@ -326,9 +430,11 @@
         this.addForm = {
           title: '',
           content: '',
+          sendType: '1',
           recipientUser: []
         }
-        this.checkLXR()
+        this.searchKey = ''
+        this.checkLXR(this.curDept.depCode)
       },
       cancelEdit() {
         this.$confirm('是否放弃当前编辑的通知信息？', '提示', {
@@ -343,21 +449,44 @@
         this.addBtnLoading = true
         this.$refs.addForm.validate(valid => {
           if (valid) {
-            if (this.addForm.recipientUser.length > 20) {
+            if (this.addForm.sendType === '2' && this.addForm.recipientUser.length > 1) {
               this.$message({
-                message: '消息发送一次最多不能超过20人',
+                message: '消息发送只能选择一个组',
+                type: 'warning'
+              })
+              this.addBtnLoading = false
+              return false
+            }
+            if (this.addForm.sendType === '1' && this.addForm.recipientUser.length > 50) {
+              this.$message({
+                message: '消息发送一次最多不能超过50人',
                 type: 'warning'
               })
               this.addBtnLoading = false
               return false
             }
             const data = []
-            for (let i = 0; i < this.lXRData.length; i++) {
-              const item = this.lXRData[i]
-              for (let j = 0; j < this.addForm.recipientUser.length; j++) {
-                const userId = this.addForm.recipientUser[j]
-                if (item.id === userId) {
-                  data.push({ id: item.id, name: item.realName })
+            if (this.addForm.sendType === '2') {
+              for (let i = 0; i < this.lXRData.length; i++) {
+                const item = this.lXRData[i]
+                for (let j = 0; j < this.addForm.recipientUser.length; j++) {
+                  const userId = this.addForm.recipientUser[j]
+                  if (item.id === userId) {
+                    for (let k = 0; k < item.detail.length; k++) {
+                      const detailItem = item.detail[k]
+                      data.push({ id: detailItem.id, name: detailItem.realName })
+                    }
+                  }
+                }
+              }
+            } else if (this.addForm.sendType === '1') {
+              for (let i = 0; i < this.lXRData.length; i++) {
+                const item = this.lXRData[i]
+                for (let j = 0; j < this.addForm.recipientUser.length; j++) {
+                  const userId = this.addForm.recipientUser[j]
+                  if (item.id === userId) {
+                    data.push({ id: item.id, name: item.realName })
+                  }
                 }
               }
             }
@@ -372,17 +501,64 @@
                 message: '消息发送成功！',
                 type: 'success'
               })
-              const _this = this
-              setTimeout(function() {
-                _this.addBtnLoading = false
-                _this.query()
-                _this.closeDialog()
-              }, 2000)
+              if (this.addForm.sendType === '1') {
+                this.closeDialog()
+                this.$confirm('是否需要将当前消息的接收人设定为常用联系人组？', '提示', {
+                  type: 'warning',
+                  cancelButtonText: '否',
+                  confirmButtonText: '是'
+                }).then(() => {
+                  this.noticeGroupForm.receiveDept = this.addForm.recipientUser
+                  this.groupDialogVisible = true
+                }).catch(() => {
+                  this.query()
+                  this.closeDialog()
+                })
+              } else {
+                const _this = this
+                setTimeout(function() {
+                  _this.addBtnLoading = false
+                  _this.query()
+                  _this.closeDialog()
+                }, 2000)
+              }
             }).catch(() => {
               this.addBtnLoading = false
             })
           } else {
             this.addBtnLoading = false
+          }
+        })
+      },
+      groupSubmit() {
+        this.groupLoading = true
+        this.$refs.noticeGroupForm.validate(valid => {
+          if (valid) {
+            this.noticeGroupForm.creatorId = this.curUser.id
+            this.noticeGroupForm.creatorName = this.curUser.realName
+            this.noticeGroupForm.deptId = this.curDept.id
+            this.noticeGroupForm.deptName = this.curDept.depName
+            this.noticeGroupForm.deptCode = this.curDept.depCode
+            this.noticeGroupForm.itemCount = this.noticeGroupForm.receiveDept.length
+            this.noticeGroupForm.deptIds = this.noticeGroupForm.receiveDept
+            this.$save('group', this.noticeGroupForm).then((response) => {
+              const _this = this
+              setTimeout(function() {
+                _this.groupLoading = false
+                _this.query()
+                _this.closeDialog()
+              }, 2000)
+              this.$message({
+                message: '常用联系人组保存成功！',
+                type: 'success'
+              })
+            }).catch(() => {
+              this.groupLoading = false
+            })
+          } else {
+            this.groupLoading = false
+            console.log('error submit!!')
+            return false
           }
         })
       },
@@ -426,11 +602,48 @@
         }
         // this.$refs.multipleTable.clearSelection()
       },
+      transferChange(value, direction, movedKeys) {
+        this.$refs.addForm.validateField('recipientUser')
+      },
       filterMethod(query, item) {
         return item.label.indexOf(query) > -1
       },
-      checkLXR() {
-        this.$query('departuser', { type: 0 }, true).then(response => {
+      searchKeyChange(value) {
+        if (value === undefined || value === null || value === '') {
+          this.$refs.transfer.$children['0']._data.query = ''
+          return
+        }
+        this.$refs.transfer.$children['0']._data.query = value
+        if (this.addForm.sendType === '1') {
+          this.$query('departuser', { type: 0, name: value }, true).then(response => {
+            for (let i = 0; i < response.data.length; i++) {
+              const item = response.data[i]
+              let flag = true
+              for (let j = 0; j < this.lXRData.length; j++) {
+                const itemJ = this.lXRData[j]
+                if (item.userName === itemJ.userName) {
+                  flag = false
+                  break
+                }
+              }
+              if (flag) {
+                this.lXRData.unshift(item)
+                this.transferLXRData.unshift({ label: '（' + item.userName + '）' + item.realName, key: item.id })
+              }
+            }
+          })
+        }
+      },
+      async queryLXR(query) {
+        const response = await this.$queryAsyns('departuser', { type: 0, name: query }, true)
+        for (let i = 0; i < response.data.length; i++) {
+          const item = response.data[i]
+          this.lXRData.push(item)
+          this.transferLXRData.push({ label: '（' + item.userName + '）' + item.realName, key: item.id })
+        }
+      },
+      checkLXR(departCode) {
+        this.$query('departuser', { type: 0, departCode: departCode }, true).then(response => {
           this.lXRData = response.data
           const tData = []
           for (let i = 0; i < response.data.length; i++) {
@@ -438,6 +651,7 @@
             tData.push({ label: '（' + item.userName + '）' + item.realName, key: item.id })
           }
           this.transferLXRData = tData
+          this.transferLoading = false
         })
       },
       clear() {
@@ -450,7 +664,6 @@
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-      this.checkLXR()
       this.query()
     },
     activated() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
@@ -472,7 +685,7 @@
   .noticeMessageList p{
     margin-bottom: 0;
   }
-  .noticeMessageList .el-transfer-panel{
+  .noticeMessageList .el-transfer-panel, .noticeMessageList .transfer .el-input__inner{
     width: 43%;
   }
   .noticeMessageList .detail_dialog .break-word{
@@ -484,13 +697,32 @@
     color: #bbb;
     border-color: #ccc;
   }
+  .noticeMessageList .group_dialog .el-dialog{
+    width: 40%;
+  }
+  .noticeMessageList .add_dialog .el-transfer-panel__filter.el-input.el-input--small.el-input--prefix {
+    display: none;
+  }
+  .noticeMessageList .add_dialog .el-transfer-panel__list.is-filterable{
+    height: 100%;
+    padding-top: 6px;
+  }
+  .noticeMessageList .add_dialog .transfer.is-error .el-transfer-panel {
+    border-color: #f56c6c;
+  }
+  .noticeMessageList .add_dialog .transfer.is-success .el-transfer-panel {
+    border-color: #67c23a;
+  }
+  .noticeMessageList .add_dialog .transfer.is-success .el-input__inner, .noticeMessageList .add_dialog .transfer.is-error .el-input__inner{
+    border: 1px solid #00a0e9;
+  }
   @media screen and (min-width: 1700px) and (max-width: 1920px) {
-    .noticeMessageList .el-transfer-panel {
+    .noticeMessageList .el-transfer-panel, .noticeMessageList .transfer .el-input__inner {
       width: 44%;
     }
   }
   @media screen and (min-width: 1280px) and (max-width: 1599px) {
-    .noticeMessageList .el-transfer-panel {
+    .noticeMessageList .el-transfer-panel, .noticeMessageList .transfer .el-input__inner {
       width: 41%;
     }
     .noticeMessageList .el-dialog{
@@ -498,7 +730,7 @@
     }
   }
   @media screen and (min-width: 1152px) and (max-width: 1279px) {
-    .noticeEdit .noticeGroupEdit .el-transfer-panel {
+    .noticeMessageList .el-transfer-panel, .noticeMessageList .transfer .el-input__inner {
       width: 43%;
     }
     .noticeMessageList .el-dialog{
@@ -506,7 +738,7 @@
     }
   }
   @media screen and (min-width: 1024px) and (max-width: 1151px) {
-    .noticeMessageList .el-transfer-panel {
+    .noticeMessageList .el-transfer-panel, .noticeMessageList .transfer .el-input__inner {
       width: 42%;
     }
     .noticeMessageList .el-dialog{
@@ -514,7 +746,7 @@
     }
   }
   @media screen and (max-width: 1023px) {
-    .noticeMessageList .el-transfer-panel {
+    .noticeMessageList .el-transfer-panel, .noticeMessageList .transfer .el-input__inner {
       width: 40%;
     }
     .noticeMessageList .el-dialog{

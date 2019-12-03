@@ -103,7 +103,8 @@ export default {
       curUser: {},
       bizType: 0,
       tableHeight: document.documentElement.clientHeight - 300,
-      detail: {}
+      detail: {},
+      id: ''
     }
   },
   methods: {
@@ -223,6 +224,19 @@ export default {
         this.dialogLoading = false
       })
     },
+    wDetail() {
+      this.dialogLoading = true
+      this.dialogVisible = true
+      this.$query('sysmessagesdetail/' + this.id, {}).then(response => {
+        if (response.data.status === 0) {
+          this.updMessage(this.id, 1)
+        }
+        this.dialogLoading = false
+        this.detail = response.data
+      }).catch(() => {
+        this.dialogLoading = false
+      })
+    },
     updMessage(id) {
       this.loading = true
       const para = {
@@ -335,6 +349,11 @@ export default {
     if (this.curDept) {
       this.queryCount()
       this.queryData()
+    }
+    if (sessionStorage.getItem(this.$route.path)) {
+      this.id = sessionStorage.getItem(this.$route.path)
+      this.wDetail()
+      sessionStorage.setItem(this.$route.path, '')
     }
   }
 }
