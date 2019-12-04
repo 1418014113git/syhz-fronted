@@ -38,7 +38,7 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="简要案情" prop="JYAQ">
-            <span class="whiteColor  breakall">{{ajInfo.JYAQ}}</span>
+            <span  v-html="getReplace(ajInfo.JYAQ)"  class="whiteColor  breakall"></span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -751,6 +751,11 @@ export default {
         }
       }
       return result
+    },
+    getReplace(data) {
+      if (data) {
+        return data.replace('/r/n', '\r\n')
+      }
     }
   },
   created: function() { // 监听 无文书提交申请后 更新案件梗概的状态显示

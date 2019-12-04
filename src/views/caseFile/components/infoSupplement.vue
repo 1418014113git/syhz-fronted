@@ -126,13 +126,13 @@
             <el-row>
               <el-col :span="24">
                 <el-form-item label="破案简况" prop="PAJK">
-                  <span class="whiteColor">{{ajInfo.PAJK}}</span>
+                  <span v-html="getReplace(ajInfo.PAJK)" class="whiteColor"></span>
                 </el-form-item>
                 <el-form-item label="作案原因" prop="ZAYY_NAME">
-                  <span class="whiteColor">{{ajInfo.ZAYY_NAME}}</span>
+                  <span v-html="getReplace(ajInfo.ZAYY_NAME)" class="whiteColor"></span>
                 </el-form-item>
                 <el-form-item label="案件综述" prop="AQZS">
-                  <span class="whiteColor">{{ajInfo.AQZS}}</span>
+                  <span v-html="getReplace(ajInfo.AQZS)" class="whiteColor"></span>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -416,6 +416,11 @@ export default {
     },
     editCaseType() { // 修改案件类型
       this.fllbDisabled = !this.fllbDisabled
+    },
+    getReplace(data) {
+      if (data) {
+        return data.replace('/r/n', '\r\n')
+      }
     }
 
   },

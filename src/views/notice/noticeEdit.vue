@@ -30,7 +30,7 @@
             </el-form-item>
             <el-form-item label="接收单位" prop="receiveDept" class="transfer">
               <el-button class="group" @click="addGroup">添加组</el-button>
-              <el-transfer v-model="noticeForm.receiveDept" :titles="['我的组', '我的组']" :data="transferCYLXRData"></el-transfer>
+              <el-transfer v-model="noticeForm.receiveDept" :titles="['我的组', '接收单位']" :data="transferCYLXRData"></el-transfer>
             </el-form-item>
             <el-form-item>
               <el-button v-if="showSave" type="primary" class="saveBtn" @click="onSubmit(0)" :loading="noticeForm.messageStatus === 0 && loading" :disabled="noticeForm.messageStatus === 1 && loading">保 存</el-button>
@@ -276,7 +276,7 @@
       },
       checkCYLXR() {
         // 调用查询常用联系人接口
-        this.$query('group/groupinfo', { creatorId: this.curUser.id, deptCode: this.curDept.depCode }).then(response => {
+        this.$query('group/groupinfo', { creatorId: this.curUser.id, deptCode: this.curDept.depCode, type: 2 }).then(response => {
           if (response.data === null || response.data === undefined || response.data.length === 0) {
             this.$confirm('常用联系人组未设置，是否先前往设定常用联系人组？', '提示', {
               type: 'warning',
@@ -429,7 +429,7 @@
   .noticeEdit .el-dialog{
     width: 57%;
   }
-  .noticeEdit .noticeGroupEdit .el-transfer-panel {
+  .noticeEdit .noticeGroupEdit .el-transfer-panel, .noticeEdit .noticeGroupEdit .transfer .el-input__inner {
     width: 44%;
   }
   @media screen and (min-width: 1700px) and (max-width: 1920px) {
@@ -439,17 +439,17 @@
     .noticeEdit .group{
       left: 46%;
     }
-    .noticeEdit .noticeGroupEdit .el-transfer-panel {
+    .noticeEdit .noticeGroupEdit .el-transfer-panel, .noticeEdit .noticeGroupEdit .transfer .el-input__inner {
       width: 45%;
     }
   }
   @media screen and (min-width: 1280px) and (max-width: 1599px) {
-    .noticeEdit .noticeGroupEdit .el-transfer-panel {
+    .noticeEdit .noticeGroupEdit .el-transfer-panel, .noticeEdit .noticeGroupEdit .transfer .el-input__inner {
       width: 42%;
     }
   }
   @media screen and (min-width: 1152px) and (max-width: 1279px) {
-    .noticeEdit .noticeGroupEdit .el-transfer-panel {
+    .noticeEdit .noticeGroupEdit .el-transfer-panel, .noticeEdit .noticeGroupEdit .transfer .el-input__inner {
       width: 43%;
     }
     .noticeEdit .el-dialog{
@@ -457,7 +457,7 @@
     }
   }
   @media screen and (min-width: 1024px) and (max-width: 1151px) {
-    .noticeEdit .noticeGroupEdit .el-transfer-panel {
+    .noticeEdit .noticeGroupEdit .el-transfer-panel, .noticeEdit .noticeGroupEdit .transfer .el-input__inner {
       width: 41%;
     }
     .noticeEdit .el-dialog{
@@ -465,7 +465,7 @@
     }
   }
   @media screen and (max-width: 1023px) {
-    .noticeEdit .noticeGroupEdit .el-transfer-panel {
+    .noticeEdit .noticeGroupEdit .el-transfer-panel, .noticeEdit .noticeGroupEdit .transfer .el-input__inner {
       width: 39%;
     }
     .noticeEdit .el-dialog{

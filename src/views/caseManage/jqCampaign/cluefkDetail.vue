@@ -74,38 +74,38 @@
             <el-table-column prop="ajztName"  label='案件状态'  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="larq"  label='立案日期'  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="parq"  label='破案日期'  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="zhrys"  label='抓获（人）'  min-width="80" show-overflow-tooltip>
+            <el-table-column prop="zhrys"  label='抓获（人）'  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.zhrys"  maxlength="11" @keyup.native="number('zhrys',scope.row)" class="textCen"></el-input>
                 <span v-else>{{scope.row.zhrys}}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="ryclcs"  label='刑拘（人）'  min-width="80" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="pzdb"  label='批捕（人）'  min-width="80" show-overflow-tooltip>
+            <el-table-column prop="ryclcs"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.pzdb"  maxlength="11" @keyup.native="number('pzdb',scope.row)" class="textCen"></el-input>
                 <span v-else>{{scope.row.pzdb}}</span>
               </template>
             </el-table-column>
-             <el-table-column prop="yjss" label="移诉（人）"  min-width="80"  show-overflow-tooltip>
+             <el-table-column prop="yjss" label="移诉（人）"  min-width="100"  show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.yjss"  maxlength="11" @keyup.native="number('yjss',scope.row)" class="textCen"></el-input>
                 <span v-else>{{scope.row.yjss}}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="dhwd"  label='捣毁窝点'  min-width="100" show-overflow-tooltip>
+            <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="140" show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-input  v-if="scope.$index+1<zblistData.length"  v-model.trim="scope.row.dhwd"  maxlength="11" @keyup.native="number('dhwd',scope.row)" class="textCen"></el-input>
                 <span v-else>{{scope.row.dhwd}}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="100" show-overflow-tooltip>
+            <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="150" show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-input v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.sajz"  maxlength="11" @keyup.native="number('sajz',scope.row)" class="textCen"></el-input>
                 <span v-else>{{scope.row.sajz}}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作"  width="100">
+            <el-table-column label="操作"  width="100" fixed="right">
               <template slot-scope="scope">
                 <el-button v-if="scope.$index+1<zblistData.length" size="mini" title="提交"  type="primary" icon="el-icon-check" circle  @click="handleSubmit(scope.row)"></el-button>
                 <el-button v-if="scope.$index+1<zblistData.length" size="mini" title="移除案件"  type="primary" icon="el-icon-delete" circle  @click="handleDel(2, scope.row)"></el-button>

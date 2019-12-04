@@ -39,7 +39,7 @@
       <el-table-column label="操作" width="200">
         <template slot-scope="scope">
           <el-button title="详情" size="mini" type="primary" icon="el-icon-document" circle @click="handleDetail(scope.row)"></el-button>
-          <el-button title="修改" size="mini" type="primary" icon="el-icon-edit" circle @click="toNoticeEdit(scope.row)"></el-button>
+          <el-button title="修改" v-if="String(scope.row.type) === '2'" size="mini" type="primary" icon="el-icon-edit" circle @click="toNoticeEdit(scope.row)"></el-button>
           <el-button title="删除" size="mini" type="primary" icon="el-icon-delete"  circle  @click="handleDel(scope.$index,scope.row)"></el-button>
         </template>
       </el-table-column>
@@ -139,6 +139,7 @@
         this.opType = 0
         this.groupDialogVisible = true
         if (this.$refs.noticeGroupEdit) {
+          this.$refs.noticeGroupEdit.clear()
           this.$refs.noticeGroupEdit.queryDept()
         }
       },
@@ -156,7 +157,6 @@
         this.opType = 2
         this.groupDialogVisible = true
         if (this.$refs.noticeGroupEdit) {
-          this.$refs.noticeGroupEdit.queryDept()
           this.$refs.noticeGroupEdit.detail(this.groupId)
         }
       },
@@ -214,7 +214,7 @@
 .groupList .el-dialog{
   width: 57%;
 }
-.groupList .noticeGroupEdit .el-transfer-panel {
+.groupList .noticeGroupEdit .el-transfer-panel, .groupList .noticeGroupEdit .transfer .el-input__inner {
   width: 44%;
 }
 @media screen and (min-width: 1700px) and (max-width: 1920px) {
@@ -224,17 +224,17 @@
   .groupList .group{
     left: 46%;
   }
-  .groupList .noticeGroupEdit .el-transfer-panel {
+  .groupList .noticeGroupEdit .el-transfer-panel, .groupList .noticeGroupEdit .transfer .el-input__inner {
     width: 45%;
   }
 }
 @media screen and (min-width: 1280px) and (max-width: 1599px) {
-  .groupList .noticeGroupEdit .el-transfer-panel {
+  .groupList .noticeGroupEdit .el-transfer-panel, .groupList .noticeGroupEdit .transfer .el-input__inner {
     width: 42%;
   }
 }
 @media screen and (min-width: 1152px) and (max-width: 1279px) {
-  .groupList .noticeGroupEdit .el-transfer-panel {
+  .groupList .noticeGroupEdit .el-transfer-panel, .groupList .noticeGroupEdit .transfer .el-input__inner {
     width: 43%;
   }
   .groupList .el-dialog{
@@ -242,7 +242,7 @@
   }
 }
 @media screen and (min-width: 1024px) and (max-width: 1151px) {
-  .groupList .noticeGroupEdit .el-transfer-panel {
+  .groupList .noticeGroupEdit .el-transfer-panel, .groupList .noticeGroupEdit .transfer .el-input__inner {
     width: 41%;
   }
   .groupList .el-dialog{
@@ -250,7 +250,7 @@
   }
 }
 @media screen and (max-width: 1023px) {
-  .groupList .noticeGroupEdit .el-transfer-panel {
+  .groupList .noticeGroupEdit .el-transfer-panel, .groupList .noticeGroupEdit .transfer .el-input__inner {
     width: 39%;
   }
   .groupList .el-dialog{

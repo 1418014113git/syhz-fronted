@@ -13,7 +13,7 @@
               @change="handleAreaChange"
               :show-all-levels="false"
               :disabled="Number(curDept.depType)>2"
-              clearable
+              :clearable="Number(curDept.depType)<2"
               placeholder="全部">
             </el-cascader>
           </el-tooltip>
@@ -78,8 +78,8 @@
         </el-form-item>
       </el-col>
     </el-form>
-    <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}">
-      <el-table :data="listData" v-loading="listLoading"  ref="multipleTable" style="width: 100%;"  :row-class-name="getRowClassName" @select="handleselectRow" @select-all="handleselectAll">
+    <!-- <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}"> -->
+      <el-table :data="listData" v-loading="listLoading"  ref="multipleTable" style="width: 100%;"  :max-height="tableHeight"  :row-class-name="getRowClassName" @select="handleselectRow" @select-all="handleselectAll">
         <el-table-column type="expand">
           <template slot-scope="scope">
             <el-table :data="scope.row.deptList"  v-loading="listChildLoading" style="width: 100%;">
@@ -153,7 +153,7 @@
           </template>
         </el-table-column>
       </el-table>
-    </div>
+    <!-- </div> -->
     <!--工具条-->
     <el-col :span="24" class="toolbar">
       <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize" @size-change="handleSizeChange"
@@ -285,6 +285,7 @@ export default {
             this.btnqx.isShowsqbtn = true // 显示申请按钮
             // this.btnqx.isShowxfbtn = true // 显示下发按钮
             currentArea = ['610000', this.curDept.areaCode]
+            this.xzqhOptions[0].disabled = true
             for (var i = 0; i < this.xzqhOptions[0].children.length; i++) {
               const element = this.xzqhOptions[0].children[i]
               if (element.cityCode === this.curDept.areaCode) {
@@ -810,7 +811,7 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 320
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 330
     if (this.$route.query.status) { // 有参数，说明是从首页--个人待办--审查待办--集群战役待审核
       this.filters.status = this.$route.query.status
     }
@@ -823,55 +824,55 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-.mainList{
-  .el-dialog{
+.mainList {
+  .el-dialog {
     width: 30%;
   }
-  .querypsd{
-    .el-form{
+  .querypsd {
+    .el-form {
       width: 80%;
       margin: 30px auto;
     }
   }
-  .dcForm{
-    .el-dialog{
+  .dcForm {
+    .el-dialog {
       width: 25%;
     }
-    .dcTitle{
+    .dcTitle {
       margin-bottom: 20px;
       padding-left: 15px;
     }
-    .martop{
+    .martop {
       margin-top: 20px;
     }
   }
-  .input_w{
+  .input_w {
     width: 300px;
   }
-  .input_w1{
+  .input_w1 {
     width: 300px;
   }
-  .input_w2{
+  .input_w2 {
     width: 300px;
   }
-  .input_ws1{
+  .input_ws1 {
     width: 350px;
   }
-  .el-table__expanded-cell{
-     padding: 0;
+  .el-table__expanded-cell {
+    padding: 0;
   }
-  .iconStyle{
-    color: #E6A23C;
+  .iconStyle {
+    color: #e6a23c;
     font-size: 16px;
   }
-  .dctitle{
+  .dctitle {
     padding-left: 15px;
     margin-bottom: 15px;
   }
-  .checkArea{
+  .checkArea {
     text-align: center;
   }
-  .tableBox{
+  .tableBox {
     width: 100%;
     overflow: auto;
   }
@@ -879,7 +880,7 @@ export default {
 .el-table--scrollable-x .el-table__body-wrapper {
   overflow-x: auto;
 }
-.el-cascader-menu__item.is-disabled{
+.el-cascader-menu__item.is-disabled {
   background-color: transparent;
 }
 .tooltipShow {
@@ -888,7 +889,9 @@ export default {
 .tooltipHide {
   opacity: 0;
 }
-.row-expand-cover .el-table__expand-icon{visibility:hidden;}
+.row-expand-cover .el-table__expand-icon {
+  visibility: hidden;
+}
 @media only screen and (max-width: 1367px) {
   .mainList .input_w {
     width: 198px;

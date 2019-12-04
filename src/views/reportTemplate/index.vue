@@ -48,7 +48,7 @@
             <el-table-column align="center" prop="earch" label="条件顺序" width="180px">
               <template slot-scope="scope">
                 <el-form-item :prop="'columnSet.' + scope.$index + '.search'" :rules='rules.search'>
-                  <el-input :disabled="!scope.row.isSearch" v-model="scope.row.search" type="number"  min="1" max="99" style="width: 100px;"></el-input>
+                  <el-input :disabled="!scope.row.isSearch || (scope.row.columnName === 'AJLB' || scope.row.columnName === 'SYH_AJLB')" v-model="scope.row.search" type="number"  min="1" max="99" @focus="handleFocusSearch($event, scope.row, scope.$index)" @change="searchNumChange($event, scope.row)" style="width: 100px;"></el-input>
                 </el-form-item>
               </template>
             </el-table-column>
@@ -254,7 +254,8 @@
         },
         confirmDialogVisible: false,
         canJump: false,
-        jumpPath: ''
+        jumpPath: '',
+        ajlxSearch: 0
       }
     },
     methods: {
@@ -292,9 +293,44 @@
       handleChangeSearch(value, row) {
         if (value) {
           this.isSearchArr.push(row.columnId)
+          if (row.columnName === 'SYH_AJLB' && row.search === '' && this.ajlxSearch > 0) {
+            row.search = parseInt(this.ajlxSearch) + 1 + 1
+          }
         } else {
           this.isSearchArr.splice(this.isSearchArr.indexOf(row.columnId), 1)
           row.search = ''
+        }
+      },
+      handleFocusSearch(event, row, index) {
+        if ((row.columnName === 'AJLB' || row.columnName === 'SYH_AJLB') && this.ajlxSearch === 0) {
+          this.$alert('案件类别、案件罪名条件下拉框与案件类型下拉框为联动关系，请先设置案件类型的条件顺序', '提示', { type: 'warning' })
+          event.target.blur()
+          this.$refs.addForm.clearValidate('columnSet.' + index + '.search')
+        }
+      },
+      searchNumChange(value, row) {
+        if (row.columnName === 'SYH_FLLB') {
+          if (value) {
+            this.ajlxSearch = parseInt(value)
+          } else {
+            this.ajlxSearch = 0
+          }
+          let num = value
+          for (let i = 0; i < this.addForm.columnSet.length; i++) {
+            const item = this.addForm.columnSet[i]
+            if (item.columnName === 'AJLB') {
+              if (item.isSearch) {
+                item.search = parseInt(num) + 1
+                num = item.search
+              }
+            }
+            if (item.columnName === 'SYH_AJLB') {
+              if (item.isSearch) {
+                item.search = parseInt(num) + 1
+                num = item.search
+              }
+            }
+          }
         }
       },
       handleChangeShow(value, row) {
@@ -415,9 +451,14 @@
               }
               if (item.isSearch) {
                 this.isSearchArr.push(item.columnId)
+              } else {
+                item.search = ''
               }
               if (item.isShow) {
                 this.isShowArr.push(item.columnId)
+              }
+              if (item.columnName === 'SYH_FLLB') {
+                this.ajlxSearch = parseInt(item.search)
               }
             }
             this.addForm.columnSet = data
@@ -445,10 +486,15 @@
                 if (item.columnSort) {
                   item.search = item.columnSort
                   item.show = item.columnSort
+                } else {
+                  item.search = ''
+                  item.show = ''
                 }
               } else {
                 item.isSearch = false
                 item.isShow = false
+                item.search = ''
+                item.show = ''
               }
               item.isSort = false
               item.sortType = ''

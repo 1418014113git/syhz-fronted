@@ -11,6 +11,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="small" @click="queryInit(true,true)">查询</el-button>
+        <el-button type="primary" size="small" @click="reset">重置</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
@@ -264,6 +265,15 @@ export default {
         file.value = ''
       }
       this.dialogImportVisible = false
+    },
+    reset() { // 重置
+      this.filters.examinationName = ''
+      this.queryInit()
+    },
+    resetForm(formName) { // 重置表单
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
+      }
     }
   },
   mounted() {
