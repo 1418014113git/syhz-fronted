@@ -289,6 +289,7 @@ export default {
                   // 调用登录加积分方法
                   this.addJF()
                 })
+
                 this.$router.push({ path: '/' })
               })
               sessionStorage.setItem('uk', this.signResult)
@@ -473,11 +474,16 @@ export default {
       username: '',
       password: ''
     }
-
     // this.JIT_GW_ExtInterface = JIT_GW_ExtInterface
     // console.log("111"+JIT_GW_ExtInterface)
     // new JIT_GW_ExtInterface.Init()
     // this.floatOut()
+  },
+   activated() {
+     this.loginForm = {
+      username: '',
+      password: ''
+    }
   }
 }
 </script>

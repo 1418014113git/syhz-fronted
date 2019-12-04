@@ -33,7 +33,8 @@
             @change="handleAreaChange"
             :show-all-levels="false"
             placeholder="全部"
-            :disabled="curDept.depType>2">
+            :clearable="Number(curDept.depType)<2"
+            :disabled="Number(curDept.depType)>2">
           </el-cascader>
         </el-form-item>
         <el-form-item label="认领单位" prop="examStatus">
@@ -1216,6 +1217,7 @@ export default {
             currentArea = [this.curDept.areaCode]
           } else if (this.curDept.depType === '2') { // 支队
             currentArea = ['610000', this.curDept.areaCode]
+            _this.xzqhOptions[0].disabled = true
             for (let index = 0; index < this.xzqhOptions[0].children.length; index++) {
               const element = this.xzqhOptions[0].children[index]
               if (element.cityCode === this.curDept.areaCode) {
@@ -1227,7 +1229,6 @@ export default {
           } else if (this.curDept.depType === '3') { // 大队
             currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
           } else if (this.curDept.depType === '4') { // 派出所
-            currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.parentDepCode]
             if (this.curDept.areaCode === '611400') { // 杨凌例外
               currentArea = ['610000', '611400']
             } else { // 正常的派出所
