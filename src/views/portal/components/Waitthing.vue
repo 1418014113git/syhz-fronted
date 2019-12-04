@@ -108,14 +108,10 @@ export default {
           })
         } else if (node.type === '9010') {
           localStorage.setItem('curAppCode', 'F')
-          this.$router.push({
-            path: '/handlingGuide/knowLedgeBase'
-          })
+          this.$gotoid('/handlingGuide/knowLedgeBase', JSON.stringify({ noCheck: true }))
         } else if (node.type === '9011') {
           localStorage.setItem('curAppCode', 'F')
-          this.$router.push({
-            path: '/micro/trainMaterial'
-          })
+          this.$gotoid('/micro/trainMaterial', JSON.stringify({ noCheck: true }))
         } else if (node.type === '0010') {
           localStorage.setItem('curAppCode', 'C')
           this.$gotoid('/notice/index', JSON.stringify({ messageStatus: '1' }))

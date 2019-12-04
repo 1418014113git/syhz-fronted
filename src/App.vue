@@ -18,7 +18,7 @@
     data() {
       return {
         timeOutInterval: null,
-        // timeOutTime: 1000 * 10, // 30分钟刷新一次
+        // timeOutTime: 1000 * 20, // 测试 20秒刷新一次
         timeOutTime: 1000 * 60 * 30, // 30分钟刷新一次
         lastOpTime: null,
         notifyInstance: null
@@ -27,16 +27,16 @@
     activated() {
     },
     mounted() {
-      const query = this.GetQueryString('timeOut')
-      if (query === 'timeOut') {
-        this.$alert('由于您长时间未操作，请重新登录', '提示', {
-          confirmButtonText: '确定',
-          callback: action => {
-            const href = window.location.href
-            window.location.href = href.split('?')[0]
-          }
-        })
-      }
+      // const query = this.GetQueryString('timeOut')
+      // if (query === 'timeOut') {
+      //   this.$alert('由于您长时间未操作，请重新登录', '提示', {
+      //     confirmButtonText: '确定',
+      //     callback: action => {
+      //       const href = window.location.href
+      //       window.location.href = href.split('?')[0]
+      //     }
+      //   })
+      // }
     },
     created() {
       this.$navigation.on('forward', (to, from) => {
@@ -109,10 +109,19 @@
       jumpMessage() {
         this.clearTimeOutInterval()
         sessionStorage.clear()
-        this.$router.push({ path: '/login', query: { timeOut: 'timeOut' }})
+        this.$alert('由于您长时间未操作，请重新登录', '提示', {
+          confirmButtonText: '确定',
+          callback: action => {
+            const href = window.location.href
+            window.location.href = href.split('?')[0]
+          }
+        })
+        this.$router.push({ path: '/login' })
       },
       clearTimeOutInterval() {
         clearInterval(this.timeOutInterval)
+        this.timeOutInterval = null
+        this.lastOpTime = null
       }
     }
   }
