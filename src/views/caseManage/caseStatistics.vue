@@ -40,7 +40,7 @@
           <el-table-column type="index" width="50" label="序号"  align="center"></el-table-column>
             <el-table-column prop="cityName" label="市" width="102" align="center"></el-table-column>
             <el-table-column label="侦破刑事案件数" align="center" >
-              <el-table-column prop="zpxs.food" label="食品"  width="60" align="center">
+              <el-table-column prop="solveCases.food" label="食品"  width="60" align="center">
                 <template slot-scope="scope">
                   <span v-if="scope.row.solveCases.food>0"  style="cursor:pointer;"  @click="queryNum(scope.row.solveCases,scope.row.cityCode,'1')">{{scope.row.solveCases.food}}</span>
                   <span v-else >{{scope.row.solveCases.food}}</span>
