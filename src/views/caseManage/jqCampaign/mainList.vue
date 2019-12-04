@@ -13,7 +13,7 @@
               @change="handleAreaChange"
               :show-all-levels="false"
               :disabled="Number(curDept.depType)>2"
-              :clearable="Number(deptInfo.depType)<2"
+              :clearable="Number(curDept.depType)<2"
               placeholder="全部">
             </el-cascader>
           </el-tooltip>
