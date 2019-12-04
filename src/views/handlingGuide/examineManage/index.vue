@@ -14,6 +14,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="small" @click="queryList(true,true)">查询</el-button>
+        <el-button type="primary" size="small" @click="reset">重置</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
@@ -152,7 +153,22 @@ export default {
       //   this.listLoading = false
       //   if (response.code === '000000') {
       // 考试未开始前，所有项目可以编辑；考试已开始，只能修改截止时间。
-      this.$router.push({ path: '/handlingGuide/examineManage/edit', query: { examId: row.id }})
+      if (row.examStatus === 2 || row.examStatus === 3) { // 已经开始的考试
+        this.$confirm('考试已经开始，只能修改截止时间, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$router.push({ path: '/handlingGuide/examineManage/edit', query: { examId: row.id }})
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消'
+          })
+        })
+      } else {
+        this.$router.push({ path: '/handlingGuide/examineManage/edit', query: { examId: row.id }})
+      }
       //   }
       // }).catch(() => {
       //   this.listLoading = false
@@ -256,6 +272,15 @@ export default {
         file.value = ''
       }
       this.dialogImportVisible = false
+    },
+    reset() { // 重置
+      this.resetForm('filters') // 清空查询条件
+      this.queryList(true)
+    },
+    resetForm(formName) { // 重置表单
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
+      }
     }
   },
   mounted() {
