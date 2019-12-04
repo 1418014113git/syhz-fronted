@@ -67,13 +67,13 @@
                           <el-table-column prop="total01" align="center" width="120" label="审核中"></el-table-column>
                           <el-table-column prop="total02" align="center" width="120" label="审核通过"></el-table-column>
                           <el-table-column prop="total03" align="center" width="120" label="审核不通过"></el-table-column>
-                          <el-table-column prop="total5" align="center" width="120" label="阅读次数"></el-table-column>
-                          <el-table-column prop="total6" align="center" width="120" label="阅读时长">
+                          <el-table-column prop="total5" align="center" width="120" label="阅读次数" :sortable="true"></el-table-column>
+                          <el-table-column prop="total6" align="center" width="120" label="阅读时长" :sortable="true">
                             <template slot-scope="scope">
                               {{scope.row.total6 > 0 ? $buildTime(scope.row.total6) : '-'}}
                             </template>
                           </el-table-column>
-                          <el-table-column prop="total7" align="center" width="120" label="下载次数"></el-table-column>
+                          <el-table-column prop="total7" align="center" width="120" label="下载次数" :sortable="true"></el-table-column>
                         </el-table>
                       </template>
                     </el-table-column>
@@ -84,13 +84,13 @@
                     <el-table-column prop="total01" align="center" width="120" label="审核中"></el-table-column>
                     <el-table-column prop="total02" align="center" width="120" label="审核通过"></el-table-column>
                     <el-table-column prop="total03" align="center" width="120" label="审核不通过"></el-table-column>
-                    <el-table-column prop="total5" align="center" width="120" label="阅读次数"></el-table-column>
-                    <el-table-column prop="total6" align="center" width="120" label="阅读时长">
+                    <el-table-column prop="total5" align="center" width="120" label="阅读次数" :sortable="true"></el-table-column>
+                    <el-table-column prop="total6" align="center" width="120" label="阅读时长" :sortable="true">
                       <template slot-scope="scope">
                         {{scope.row.total6 > 0 ? $buildTime(scope.row.total6) : '-'}}
                       </template>
                     </el-table-column>
-                    <el-table-column prop="total7" align="center" width="120" label="下载次数"></el-table-column>
+                    <el-table-column prop="total7" align="center" width="120" label="下载次数" :sortable="true"></el-table-column>
                   </el-table>
                 </el-tab-pane>
               </el-tabs>

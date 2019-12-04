@@ -37,14 +37,16 @@
     </el-form>
     <el-table :data="list" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
       <el-table-column type="index" width="80" label="序号"></el-table-column>
-      <el-table-column label="标题" min-width="8%">
+      <el-table-column prop="title" label="标题" min-width="8%" show-overflow-tooltip>
         <template slot-scope="scope">
-          <span :title="scope.row.title" class="ellipsis-word">{{scope.row.title}}</span>
+          <!--<span :title="scope.row.title" class="ellipsis-word">{{scope.row.title}}</span>-->
+          <span>{{scope.row.title}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="内容" min-width="8%">
+      <el-table-column label="内容" min-width="8%" show-overflow-tooltip>
         <template slot-scope="scope">
-          <span class="ellipsis-word">{{scope.row.content.replace(/<\/?.+?>/g, '')}}</span>
+          <!--<span :title="scope.row.content.replace(/<\/?.+?>/g, '')" class="ellipsis-word">{{scope.row.content.replace(/<\/?.+?>/g, '')}}</span>-->
+          <span>{{scope.row.content.replace(/<\/?.+?>/g, '')}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="发布时间" width="200"></el-table-column>
@@ -321,4 +323,8 @@
   .noticeList .el-dialog__body{
     padding: 10px 25px;
   }
+  /*.el-tooltip__popper.is-dark{*/
+    /*background-color: #f0f0f0;*/
+    /*color: #032c43;*/
+  /*}*/
 </style>

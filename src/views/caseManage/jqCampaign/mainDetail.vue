@@ -39,7 +39,7 @@ export default {
   name: 'personnelFile',
   data() {
     return {
-      countHeight: document.documentElement.clientHeight - 130 + 'px',
+      countHeight: document.documentElement.clientHeight - 160 + 'px',
       classList: [],
       classList1: ['jbxx', 'shxx', 'dsqs', 'dsfk'], // 地市
       classList2: ['jbxx', 'shxx', 'qxqs', 'qxfk'], // 区县

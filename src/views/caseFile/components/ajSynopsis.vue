@@ -38,7 +38,7 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="简要案情" prop="JYAQ">
-            <span class="whiteColor  breakall">{{ajInfo.JYAQ}}</span>
+            <span  v-html="getReplace(ajInfo.JYAQ)"  class="whiteColor  breakall"></span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -78,10 +78,10 @@
             <!-- <el-button type="success" style="margin-left: 20px;" @click="rlsave()" :loading="rlLoading">案件认领</el-button> -->
             <div class="flws_text shadow_text" v-if="flwsInfo.list>0">法律文书（ <span class="orange_text" @click="handleGoFlws('1')">{{flwsInfo.list}}</span> ）</div>
             <div class="flws_text shadow_text" v-else>
-              <span @click="handleGoFlws('2')" style="cursor:pointer;">无法律文书&nbsp;&nbsp;</span>
-              <span v-if="flwsInfo.examine==='4'" class="orange_text" @click="handleGoFlws('2')">未通过</span>
-              <span v-else-if="flwsInfo.examine==='3'" class="green_text" @click="handleGoFlws('2')">审核通过</span>
-              <span v-else-if="flwsInfo.examine==='1'||flwsInfo.examine==='2'" class="blue_text" @click="handleGoFlws('2')">审核中</span>
+              <div @click="handleGoFlws('2')" style="cursor:pointer;">无法律文书</div>
+              <div v-if="flwsInfo.examine==='4'" class="orange_text" @click="handleGoFlws('2')">未通过</div>
+              <div v-else-if="flwsInfo.examine==='3'" class="green_text" @click="handleGoFlws('2')">审核通过</div>
+              <div v-else-if="flwsInfo.examine==='1'||flwsInfo.examine==='2'" class="blue_text" @click="handleGoFlws('2')">审核中</div>
             </div>
             <div class="shadow_text right_cell" v-if="showYear" >
               案件年份
@@ -751,6 +751,11 @@ export default {
         }
       }
       return result
+    },
+    getReplace(data) {
+      if (data) {
+        return data.replace('/r/n', '\r\n')
+      }
     }
   },
   created: function() { // 监听 无文书提交申请后 更新案件梗概的状态显示
@@ -893,8 +898,12 @@ export default {
   .flws_text {
     float: left;
     // margin-left: 20px;
-    height: 30px;
-    line-height: 30px;
+    height: 25px;
+    line-height: 25px;
+    div {
+      display: inline-block;
+      margin-right: 8px;
+    }
   }
   .shadow_text {
     color: #bce8fc;
@@ -902,6 +911,9 @@ export default {
   }
   .el-message-box .el-message-box__btns {
     text-align: right;
+  }
+  .el-cascader--small {
+    line-height: 30px;
   }
 }
 // 案件认领按钮 被禁止样式重写

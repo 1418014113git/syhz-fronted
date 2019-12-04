@@ -112,14 +112,21 @@ export default {
         if (response.data && response.data.length > 0) {
           this.rankNum = response.data[0].rownum
         } else {
-          this.rankNum = ''
+          this.rankNum = '无'
         }
       }).catch(() => {
         this.listLoading = false
       })
     },
     goDownload() { // 下载按钮
-      this.dialogAllScoreVisible = true
+      if (this.allScore.length > 0) {
+        this.dialogAllScoreVisible = true
+      } else {
+        this.$message({
+          type: 'error',
+          message: '暂无成绩下载!'
+        })
+      }
     },
     toGetPdf() { // 弹框的下载成绩按钮
       window.scrollTo(0, 0)
