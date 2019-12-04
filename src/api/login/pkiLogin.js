@@ -1,5 +1,5 @@
 import { MessageBox } from 'element-ui'
-
+/* eslint-disable */
 // 根据原文和证书产生认证数据包
 export function doDataProcess(initParam, original) {
   // 证书版本者主题

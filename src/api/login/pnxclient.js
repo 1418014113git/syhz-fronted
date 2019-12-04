@@ -1,3 +1,4 @@
+/* eslint-disable */
 var JIT_GW_ExtInterface = (function() {
   var currentSessionWSURL = ''
   var useActioveX = false
