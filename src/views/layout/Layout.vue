@@ -1,5 +1,5 @@
 <template>
-  <div class="app-wrapper" @mouseover="isOvertime()">
+  <div class="app-wrapper">
     <headers></headers>
     <div class="main-container" :style="{height:contHeight}">
       <bread-crumb></bread-crumb>
@@ -43,7 +43,7 @@ export default {
     }
   },
   created() {
-    this.lastTime = new Date().getTime() // 页面第一次打开时，记录当前时间
+    // this.lastTime = new Date().getTime() // 页面第一次打开时，记录当前时间
   },
   mounted() {
     // const _this = this
@@ -57,30 +57,30 @@ export default {
       // }
     },
     isOvertime() {
-      this.currentTime = new Date().getTime() // 记录这次鼠标移动的时间
-      if ((this.currentTime - this.lastTime) > this.timeOut) { // 判断上次最后一次鼠标移动的时间和这次鼠标移动的时间间隔是否大于30分钟
-        // this.$store.dispatch('FedLogOut').then(() => {
-        //   this.$router.push({
-        //     path: '/login'
-        //   })
-        // })
-        sessionStorage.clear()
-        this.$router.push({
-          path: '/login'
-        })
+      // this.currentTime = new Date().getTime() // 记录这次鼠标移动的时间
+      // if ((this.currentTime - this.lastTime) > this.timeOut) { // 判断上次最后一次鼠标移动的时间和这次鼠标移动的时间间隔是否大于30分钟
+      //   // this.$store.dispatch('FedLogOut').then(() => {
+      //   //   this.$router.push({
+      //   //     path: '/login'
+      //   //   })
+      //   // })
+      //   sessionStorage.clear()
+      //   this.$router.push({
+      //     path: '/login'
+      //   })
 
-        this.$alert('由于您长时间未操作，请重新登录', '提示', {
-          confirmButtonText: '确定',
-          callback: action => {
-            sessionStorage.clear()
-            this.$router.push({
-              path: '/login'
-            })
-          }
-        })
-      } else {
-        this.lastTime = new Date().getTime() // 如果在30分钟内鼠标移动，则把这次鼠标移动的时间记录覆盖掉之前存的最后一次鼠标移动的时间
-      }
+      //   this.$alert('由于您长时间未操作，请重新登录', '提示', {
+      //     confirmButtonText: '确定',
+      //     callback: action => {
+      //       sessionStorage.clear()
+      //       this.$router.push({
+      //         path: '/login'
+      //       })
+      //     }
+      //   })
+      // } else {
+      //   this.lastTime = new Date().getTime() // 如果在30分钟内鼠标移动，则把这次鼠标移动的时间记录覆盖掉之前存的最后一次鼠标移动的时间
+      // }
     }
   }
 }
