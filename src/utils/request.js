@@ -32,6 +32,7 @@ service.interceptors.request.use(config => {
   if (config.method === 'put' || config.method === 'PUT') {
     const configData = config.md5
     const randomObj = {
+      url: config.url,
       randomData: configData,
       requestId: config.data.requestId
     }
@@ -41,9 +42,8 @@ service.interceptors.request.use(config => {
       return config
     } else {
       const randomData = JSON.parse(randomData_JSON).randomData
-      // console.info('sessionStorage.getItem(\'randomData\')：' + randomData)
-      if (randomData === configData && config.data.requestId - JSON.parse(randomData_JSON).requestId < 1000) {
-        console.info('重复提交：' + configData)
+      if (randomData === configData && config.data.requestId - JSON.parse(randomData_JSON).requestId < 1000 && JSON.parse(randomData_JSON).url === config.url) {
+        console.info('重复提交：' + config.url + '__' + configData)
         return Promise.reject(new Error('repeatGet'))
       } else {
         sessionStorage.setItem('randomData', JSON.stringify(randomObj))

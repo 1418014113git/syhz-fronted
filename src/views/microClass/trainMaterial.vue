@@ -50,7 +50,7 @@
                   <el-date-picker v-model="filters.time" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"> </el-date-picker>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" v-if="$isViewBtn('139006')" @click="query(true)" icon="el-icon-search">查询</el-button>
+                  <el-button type="primary" v-if="$isViewBtn('139006')" @click="query(true, true)" icon="el-icon-search">查询</el-button>
                   <el-button type="primary" v-if="$isViewBtn('139001')" @click="uploadFile" icon="el-icon-upload">上传资料</el-button>
                   <el-button type="primary" v-if="$isViewBtn('139010') && curDept.depType !== '4'" @click="batchAudit"><svg-icon icon-class="audit" style="margin-right:2px;"></svg-icon>批量审核</el-button>
                 </el-form-item>
@@ -263,7 +263,10 @@
         }
         this.$gotoid('/micro/uploadFile', JSON.stringify(para))
       },
-      query(flag) {
+      query(flag, clear) {
+        if (clear) {
+          this.noCheck = false
+        }
         this.listLoading = true
         this.page = flag ? 1 : this.page
         this.active = this.filters.type
@@ -271,7 +274,7 @@
           title: this.filters.title.trim(),
           type: this.filters.type,
           auditStatus: this.filters.auditStatus,
-          noCheck: this.noCheck ? 'noCheck' : '',
+          noCheck: this.noCheck && !clear ? 'noCheck' : '',
           creationId: this.filters.creationId,
           startTime: this.filters.time && this.filters.time.length > 0 ? (this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00') : '',
           endTime: this.filters.time && this.filters.time.length > 0 ? (this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59') : '',
@@ -548,8 +551,12 @@
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
         const param = JSON.parse(sessionStorage.getItem(this.$route.path))
         if (param) {
-          this.active = param.active
-          this.filters = param.filters
+          if (param.noCheck) {
+            this.noCheck = param.noCheck
+          } else {
+            this.active = param.active
+            this.filters = param.filters
+          }
         }
         sessionStorage.setItem(this.$route.path, '')
       }
@@ -558,7 +565,7 @@
       }
       this.queryDept()
       this.queryTotal()
-      this.query()
+      this.query(false, false)
     }
   }
 </script>
