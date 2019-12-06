@@ -24,7 +24,7 @@ function fileValid(file) {
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(txt)|(doc)|(docx)|(xls)|(xlsx)|(pdf)|(jpg)|(png)|(zip)|(rar)$/
   if (!reg.test(fileType)) {
     return '上传txt、doc、docx、xls、xlsx、pdf、jpg、png、zip、rar格式文件，且大小不超过500M'
@@ -43,7 +43,7 @@ function fileValid_Notice(file) {
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(rar)|(zip)|(doc)|(docx)|(pdf)|(jpg)|(xls)|(xlsx)$/
   if (!reg.test(fileType)) {
     return '只支持上传rar、zip、doc、docx、pdf、jpg、xls、xlsx格式文件'
@@ -62,7 +62,7 @@ function imgValid(file) { // 仅图片
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(png)|(jpg)|(jpeg)|(bmp)$/
   if (!reg.test(fileType)) {
     return tipTextImg
@@ -81,7 +81,7 @@ function fileOtherValid(file) { // 除了图片 其他附件
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(doc)|(docx)|(pdf)|(zip)|(rar)$/
   if (!reg.test(fileType)) {
     return tipTextOther
@@ -100,7 +100,7 @@ function fileNoWsValid(file) { // 无文书
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(doc)|(docx)|(pdf)|(zip)|(rar)|(png)|(jpg)|(jpeg)|(bmp)$/
   if (!reg.test(fileType)) {
     return tipTextNoWs
@@ -118,7 +118,7 @@ function fileValid_clue(file) {
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(rar)|(zip)|(doc)|(docx)|(pdf)|(jpg)|(xls)|(xlsx)$/
   if (!reg.test(fileType)) {
     return '只支持上传rar、zip、doc、docx、pdf、jpg、xls、xlsx格式文件'
