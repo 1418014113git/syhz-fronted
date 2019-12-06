@@ -36,7 +36,7 @@
                   </el-table-column>
                   <el-table-column prop="city" label="本市" align="center">
                     <template slot-scope="scope">
-                      <a class="kdj" v-if="scope.row.city>0"  @click="handleAjList(scope.$index, scope.row)">{{scope.row.city}}</a>
+                      <a class="kdj" v-if="scope.row.city>0"  @click="handleAjList(scope.$index, scope.row,true)">{{scope.row.city}}</a>
                       <span v-else style="color: #7ecefd;">0</span>
                     </template>
                   </el-table-column>
@@ -74,7 +74,7 @@
                   </el-table-column>
                   <el-table-column prop="city" label="本市" align="center">
                     <template slot-scope="scope">
-                      <a class="kdj" v-if="scope.row.city>0"  @click="handleAjList(scope.$index, scope.row)">{{scope.row.city}}</a>
+                      <a class="kdj" v-if="scope.row.city>0"  @click="handleAjList(scope.$index, scope.row,true)">{{scope.row.city}}</a>
                       <span v-else style="color: #7ecefd;">0</span>
                     </template>
                   </el-table-column>
@@ -451,7 +451,7 @@ export default {
       this.isShowCont = !this.isShowCont
       this.isShowIcon = !this.isShowIcon
     },
-    handleAjList(index, row) { // 跳转案件列表
+    handleAjList(index, row, flag) { // 跳转案件列表
       const param = {
         fadtType: row.fadtType, // 类型表示  传获取的字段名,如 ad3, ad15 等
         noAjbh: this.AJBH, // 案件编号
@@ -459,7 +459,12 @@ export default {
         id: this.AJID, // 案件id
         source: this.source, // 页面来源，表示该模块是来自案件档案
         interfaceType: this.interFaceType,
-        isRl: this.isRls
+        isRl: this.isRls,
+        ajlb: this.ajInfo.AJLB,
+        fadz: true
+      }
+      if (flag) {
+        param.cityCode = this.ajInfo.deptCode.substring(0, 6)
       }
       this.$router.push({
         path: '/caseManage', query: param// 传递案件编号
