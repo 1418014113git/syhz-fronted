@@ -70,7 +70,7 @@
         notTake: false,
         currentPage: 0,
         pageCount: 0,
-        detailData: this.playerDetail,
+        detailData: {},
         detailId: this.rowId,
         detailLoading: false,
         intervalSplit: 3000, // 毫秒
@@ -88,7 +88,7 @@
           this.notTake = false
         }
         this.detailData = playerDetail
-        this.detailLoading = true
+        // this.detailLoading = true
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })
