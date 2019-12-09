@@ -270,7 +270,8 @@ export default {
         const param = {
           qbxsId: row.qbxsId,
           assistId: this.assistId,
-          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : ''
+          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
+          receiveCode: row.receiveCode ? row.receiveCode : ''
         }
         this.$update('caseassistclue/delete', param).then((response) => {
           this.listLoading = false
@@ -297,7 +298,8 @@ export default {
         const param = {
           qbxsId: row.qbxsId,
           assistId: this.assistId,
-          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : ''
+          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
+          receiveCode: row.receiveCode ? row.receiveCode : ''
         }
         this.$update('caseassistclue/cancelDistribute', param).then((response) => {
           this.listLoading = false
