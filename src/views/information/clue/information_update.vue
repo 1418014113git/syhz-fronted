@@ -345,11 +345,10 @@
             // }),
             new TileLayer({
               source: new XYZ({
-                url: 'http://10.174.64.11:8081/PGIS_S_TileMapServer/Maps/bjslyx/EzMap?Service=getImage&Type=RGB&ZoomOffset=0&Col={x}&Row={y}&Zoom={z}&V=1.0.0', // bjslyx矢量影像叠加 bjsl 矢量 bjyx影像
-                // url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                url: 'http://10.172.1.195/PGIS_S_TileMapServer/Maps/stsl/EzMap?Service=getImage&Type=RGB&ZoomOffset=0&Col={x}&Row={y}&Zoom={z}&V=1.0.0', // bjslyx矢量影像叠加 bjsl 矢量 bjyx影像
                 tilePixelRatio: 2, // THIS IS IMPORTANT
-                minZoom: 9, // 9 级以下没有
-                maxZoom: 15, // 15 级以上没有
+                minZoom: 1, // 9 级以下没有
+                maxZoom: 20, // 15 级以上没有
                 projection: 'EPSG:4326' // 采用WGS84坐标系
               })
             }),

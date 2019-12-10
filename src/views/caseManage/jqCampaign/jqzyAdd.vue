@@ -127,7 +127,7 @@
             </el-upload>
           </el-form-item>
           <el-form-item label="查阅密码" prop="passKey" v-if="isShowotherform">
-            <el-input v-model.trim="form.passKey"  type="password" auto-complete="off" clearable  maxlength="20"></el-input>
+            <el-input v-model.trim="form.passKey"  type="password" auto-complete="off" clearable  maxlength="8"></el-input>
           </el-form-item>
           <el-form-item label="审核单位：" prop="acceptDeptId"  v-if="isShowotherform && pageType!=='xf' && pageType!=='bxf' && pageType !=='editxf' && pageType!=='editbxf'">
             <el-select v-model="form.acceptDeptId" class="input_w"  @change="deptChange">
@@ -285,12 +285,16 @@ export default {
             } else if (!regNumber.test(value)) {
               callback(new Error('仅支持英文、数字'))
             } else {
-              this.$query('casecluster/numberValid', { dept: this.curDept.depCode, numStr: value }).then((response) => { // 查询是否重复
-                if (!response.data) {
-                  return callback(new Error('编码不能重复'))
-                }
+              if (this.pageType === 'editbxf') { // 部下发编辑时，不做重复校验
                 callback()
-              })
+              } else {
+                this.$query('casecluster/numberValid', { dept: this.curDept.depCode, numStr: value }).then((response) => { // 查询是否重复
+                  if (!response.data) {
+                    return callback(new Error('编码不能重复'))
+                  }
+                  callback()
+                })
+              }
             }
           }
         }],
@@ -298,8 +302,6 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === '' || value === undefined || value === null) {
               return callback(new Error('请输入正文内容'))
-            } else if (this.$regCode.test(value)) {
-              callback(new Error('请不要输入特殊字符'))
             } else {
               callback()
             }
@@ -333,6 +335,10 @@ export default {
               }
             }
           }
+        ],
+        passKey: [ //   查阅密码
+          { required: false, message: '请输入查阅密码', trigger: 'blur' },
+          { min: 6, max: 8, message: '长度在6到8个字符', trigger: 'blur' }
         ]
       }
     }
