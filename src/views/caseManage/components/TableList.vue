@@ -825,6 +825,12 @@ export default {
         this.shiOrgCode = [this.$route.query.cityCode.substr(0, 4)]
       }
     }
+    if (this.$route.query.fadz) { // 案件档案 发案地址--点击列表数字跳转过来的
+      if (this.$route.query.cityCode && this.$route.query.cityCode.length > 4) {
+        this.CurshiOrgCode = [this.$route.query.cityCode.substr(0, 4)]
+        this.shiOrgCode = [this.$route.query.cityCode.substr(0, 4)]
+      }
+    }
     this.initAll()
     this.getCase(true)
   },

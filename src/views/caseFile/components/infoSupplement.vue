@@ -419,7 +419,8 @@ export default {
     },
     getReplace(data) {
       if (data) {
-        return data.replace('/r/n', '\r\n')
+        var item = data.split('/r/n').join('\r\n')
+        return item
       }
     }
 
