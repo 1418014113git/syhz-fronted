@@ -288,7 +288,7 @@ export default {
               if (this.pageType === 'editbxf') { // 部下发编辑时，不做重复校验
                 callback()
               } else {
-                this.$query('casecluster/numberValid', { dept: this.curDept.depCode, numStr: value }).then((response) => { // 查询是否重复
+                this.$query('casecluster/numberValid', { dept: this.curDept.depCode, numStr: value, id: this.id }).then((response) => { // 查询是否重复
                   if (!response.data) {
                     return callback(new Error('编码不能重复'))
                   }
