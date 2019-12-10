@@ -222,6 +222,7 @@ export default {
           this.pageSize = response.data.pageSize
           this.listData = response.data.list // 列表
           var titles = response.data.titles // 表头
+          this.tableHead = []
           titles.forEach((item, index) => {
             if (index > 0) {
               this.tableHead.push(item) // 表头数据只取序号之后的
@@ -270,7 +271,8 @@ export default {
         const param = {
           qbxsId: row.qbxsId,
           assistId: this.assistId,
-          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : ''
+          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
+          receiveCode: row.receiveCode ? row.receiveCode : ''
         }
         this.$update('caseassistclue/delete', param).then((response) => {
           this.listLoading = false
@@ -297,7 +299,8 @@ export default {
         const param = {
           qbxsId: row.qbxsId,
           assistId: this.assistId,
-          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : ''
+          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
+          receiveCode: row.receiveCode ? row.receiveCode : ''
         }
         this.$update('caseassistclue/cancelDistribute', param).then((response) => {
           this.listLoading = false
