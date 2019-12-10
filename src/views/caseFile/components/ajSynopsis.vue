@@ -229,7 +229,7 @@ export default {
           this.paDate = this.ajInfo.PARQ
           this.paPickerChange(this.paDate)
         }
-        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2019) {
+        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2020) {
           this.showYear = false
         } else {
           this.showYear = true
@@ -586,7 +586,7 @@ export default {
       }
       this.ajInfo.ajzt = this.ajInfo.AJZT
       // 判断案件是否是2019年以前的 2019年以前的不需要有法律文书相关信息
-      if (this.ajInfo.larq && Number(this.ajInfo.larq.substr(0, 4)) > 2018) {
+      if (this.ajInfo.larq && Number(this.ajInfo.larq.substr(0, 4)) > 2020) {
         if (!(this.flwsInfo.list > 0)) { // 判断是否有法律文书
           var messageHtml = ''
           if (this.flwsInfo.examine) {
