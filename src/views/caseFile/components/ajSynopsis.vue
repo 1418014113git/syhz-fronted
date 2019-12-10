@@ -586,7 +586,7 @@ export default {
       }
       this.ajInfo.ajzt = this.ajInfo.AJZT
       // 判断案件是否是2019年以前的 2019年以前的不需要有法律文书相关信息
-      if (this.ajInfo.larq && Number(this.ajInfo.larq.substr(0, 4)) > 2018) {
+      if (this.ajInfo.larq && Number(this.ajInfo.larq.substr(0, 4)) > 2020) {
         if (!(this.flwsInfo.list > 0)) { // 判断是否有法律文书
           var messageHtml = ''
           if (this.flwsInfo.examine) {
