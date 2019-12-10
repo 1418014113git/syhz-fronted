@@ -298,8 +298,6 @@ export default {
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (value === '' || value === undefined || value === null) {
               return callback(new Error('请输入正文内容'))
-            } else if (this.$regCode.test(value)) {
-              callback(new Error('请不要输入特殊字符'))
             } else {
               callback()
             }

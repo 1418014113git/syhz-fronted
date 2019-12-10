@@ -343,10 +343,10 @@ export default {
       })
     },
     constrolxsTotal(row) { // 线索总数点击权限控制
-      return (this.curDept.depType === '1' || (this.curDept.depType === '2' && (this.curDept.areaCode === row.cityCode)) || (this.curDept.depType === '4' && (this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114')) || this.$isViewBtn('101908'))
+      return (this.curDept.depType === '1' || (this.curDept.depType === '2' && (this.curDept.areaCode === row.cityCode || this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4))) || (this.curDept.depType === '4' && (this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114')))
     },
     constrolxsnum(row) { // 核查线索数量点击权限控制
-      return (this.curDept.depType === '1' || (this.curDept.depType === '2' && ((this.curDept.areaCode === row.cityCode) || (this.curDept.depCode === row.applyDeptCode))) || (this.curDept.depType === '4' && ((this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114') || (this.curDept.depCode.substring(0, 4) === row.applyDeptCode.substring(0, 4) === '6114') || this.$isViewBtn('101908'))))
+      return (this.curDept.depType === '1' || (this.curDept.depType === '2' && ((this.curDept.areaCode === row.cityCode) || (this.curDept.depCode === row.applyDeptCode) || this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4))) || (this.curDept.depType === '4' && ((this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114') || (this.curDept.depCode.substring(0, 4) === row.applyDeptCode.substring(0, 4) === '6114'))))
     },
     controlxg(row) { // 控制列表修改按钮
       return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))
