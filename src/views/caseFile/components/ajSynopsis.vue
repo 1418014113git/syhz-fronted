@@ -229,7 +229,7 @@ export default {
           this.paDate = this.ajInfo.PARQ
           this.paPickerChange(this.paDate)
         }
-        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2019) {
+        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2020) {
           this.showYear = false
         } else {
           this.showYear = true
