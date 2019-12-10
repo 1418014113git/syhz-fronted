@@ -177,7 +177,8 @@ export default {
           this.xzqhOptions = response.data ? response.data[0].children : [] // 获取地市
           var currentArea = []
           if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
-            currentArea = [this.curDept.areaCode] // 查所有
+            // currentArea = [this.curDept.areaCode] // 查所有
+            currentArea = [this.curCityCode]
           } else if (this.curDept.depType === '2') { // 支队
             currentArea = [this.curCityCode]
             if (this.applyDeptCode === this.dqbmDeptCode) { // 如果支队为申请，下发单位，查全部地市，
@@ -352,6 +353,7 @@ export default {
           this.pageSize = response.data.pageSize
           this.listData = response.data.list // 列表
           var titles = response.data.titles // 表头
+          this.tableHead = []
           titles.forEach((item, index) => {
             if (index > 0) {
               this.tableHead.push(item) // 表头数据只取序号之后的
