@@ -12,6 +12,13 @@
               <ul><li class="menu" @click="handleMenuClick('3')" :class="active === '3' ? 'activeSpan' : ''"><i class="el-icon-picture"></i><span>规范制度（{{ totalData.type3 }}）</span></li></ul>
               <ul><li class="menu" @click="handleMenuClick('4')" :class="active === '4' ? 'activeSpan' : ''"><i class="el-icon-picture"></i><span>案例指引（{{ totalData.type4 }}）</span></li></ul>
             </el-card>
+            <el-card style="margin-top: 10px;">
+              <div slot="header"><span>知识类别</span></div>
+              <ul><li class="menu" @click="handleMenuTwoClick('3')" :class="typeActive === '3'?'activeSpan':''"><i class="el-icon-picture"></i><span>环境相关</span></li></ul>
+              <ul><li class="menu" @click="handleMenuTwoClick('1')" :class="typeActive === '1'?'activeSpan':''"><i class="el-icon-document"></i><span>食品安全</span></li></ul>
+              <ul><li class="menu" @click="handleMenuTwoClick('2')" :class="typeActive === '2'?'activeSpan':''"><i class="el-icon-picture"></i><span>药品安全</span></li></ul>
+              <ul><li class="menu" @click="handleMenuTwoClick('4')" :class="typeActive === '4'?'activeSpan':''"><i class="el-icon-picture"></i><span>综合相关</span></li></ul>
+            </el-card>
           </el-col>
           <el-col :span="20" class="content">
             <el-card>
@@ -159,6 +166,7 @@
           type4: 0
         },
         active: '1',
+        typeActive: '',
         deptList: [],
         deptUserList: [],
         noCheck: false,
@@ -215,6 +223,13 @@
         isNormal: false // true 普通民警， false 审核者
       }
     },
+    watch: {
+      'filters.articleType': function(val) {
+        if (val === undefined || val === null || val === '') {
+          this.typeActive = ''
+        }
+      }
+    },
     methods: {
       editBtn(row) {
         if (!this.isNormal) {
@@ -253,6 +268,11 @@
       handleMenuClick(type) {
         this.filters.type = type
         this.active = type
+        this.query(true)
+      },
+      handleMenuTwoClick(type) {
+        this.filters.articleType = type
+        this.typeActive = type
         this.query(true)
       },
       uploadFile() {
