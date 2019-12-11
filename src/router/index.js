@@ -113,10 +113,6 @@ export const constantRouterMap = [
       { path: '/comanalysis/riskvehicle', component: () => import('@/views/riskvehicleMap/index'), name: '危化车辆轨迹分析' },
       { path: '/zhyp/caseTrend', component: () => import('@/views/comanalysis/caseTrend'), name: '警情分析' },
       { path: '/zhyp/hightCaseTrend', component: () => import('@/views/comanalysis/HightCaseTrend'), name: '案件变化态势量化报表' },
-      { path: '/caseAssist/list', component: () => import('@/views/caseAssist/assist_list'), name: '案件协查列表' },
-      { path: '/caseAssist/add', component: () => import('@/views/caseAssist/assist_edit'), name: '新增案件协查' },
-      { path: '/caseAssist/edit/:id', component: () => import('@/views/caseAssist/assist_edit'), name: '编辑案件协查' },
-      { path: '/caseAssist/detail/:id', component: () => import('@/views/caseAssist/assist_detail'), name: '案件协查详情' },
       { path: '/inspectIdent/apply/:id', component: () => import('@/views/inspectIdent/inspectIdent_apply'), name: '申请检验鉴定' },
       { path: '/inspectIdent/detail/:id', component: () => import('@/views/inspectIdent/inspectIdent_detail'), name: '检验鉴定详情' },
       { path: '/inspectIdent/list', component: () => import('@/views/inspectIdent/inspectIdent_list'), name: '检验鉴定列表' },
@@ -295,7 +291,15 @@ export const constantRouterMap = [
       { path: '/information/clueList', component: () => import('@/views/information/clue/index'), name: '情报信息线索列表' },
       { path: '/information/clueUpdate', component: () => import('@/views/information/clue/information_update.vue'), name: '情报信息线索编辑' },
       { path: '/information/clueShare', component: () => import('@/views/information/clue/information_share.vue'), name: '情报信息线索分享' },
-      { path: '/information/clueDetai', component: () => import('@/views/information/clue/information_detail.vue'), name: '情报信息线索详情' }
+      { path: '/information/clueDetai', component: () => import('@/views/information/clue/information_detail.vue'), name: '情报信息线索详情' },
+      { path: '/caseAssist/list', component: () => import('@/views/caseAssist/assist_list'), name: '案件协查' },
+      { path: '/caseAssist/add', component: () => import('@/views/caseAssist/assist_edit'), name: '申请案件协查' },
+      { path: '/caseAssist/edit', component: () => import('@/views/caseAssist/assist_edit'), name: '编辑案件协查' },
+      { path: '/caseAssist/lowerHair', component: () => import('@/views/caseAssist/assist_edit'), name: '下发案件协查' },
+      { path: '/caseAssist/detail', component: () => import('@/views/caseAssist/assist_detail'), name: '案件协查详情' },
+      { path: '/caseAssist/total', component: () => import('@/views/caseAssist/assist_total'), name: '案件协查统计分析' },
+      { path: '/caseAssist/clueList', component: () => import('@/views/caseAssist/clue/clueList'), name: '案件协查线索列表' },
+      { path: '/caseAssist/clueFeedBackList', component: () => import('@/views/caseAssist/clue/clueFeedBackList'), name: '案件协查线索反馈列表' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
