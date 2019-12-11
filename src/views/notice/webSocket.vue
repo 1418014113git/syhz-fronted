@@ -39,41 +39,41 @@
       //   }
       // }
       window.onbeforeunload = function() {
-        this.closeWeb()
+        // this.closeWeb()
       }
     },
     mounted() {
       // 初始化
-      if (sessionStorage.getItem('userInfo')) {
-        this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-        this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-        this.queryMessage()
-        this.init()
-      }
+      // if (sessionStorage.getItem('userInfo')) {
+      //   this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+      //   this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+      //   this.queryMessage()
+      //   this.init()
+      // }
     },
     methods: {
       init() {
-        if (typeof (WebSocket) === undefined) {
-          alert('您的浏览器不支持socket')
-        } else {
-          // 实例化socket
-          this.$query('sysconfig', { configKey: 'webSocket_url' }).then(response => {
-            if (response.data !== undefined && response.data !== null && response.data.length > 0) {
-              const path = response.data[0].configValue.trim() + this.curUser.id
-              this.socket = new WebSocket(path)
-              // 监听socket连接
-              this.socket.onopen = this.open
-              // 监听socket错误信息
-              this.socket.onerror = this.error
-              // 监听socket消息
-              this.socket.onmessage = this.getMessage
-              // 监听socket关闭
-              this.socket.onclose = this.close
-            } else {
-              console.info('未获取到SYS_CONFIG表[config_key=\'webSocket_url\']的配置')
-            }
-          })
-        }
+        // if (typeof (WebSocket) === undefined) {
+        //   alert('您的浏览器不支持socket')
+        // } else {
+        //   // 实例化socket
+        //   this.$query('sysconfig', { configKey: 'webSocket_url' }).then(response => {
+        //     if (response.data !== undefined && response.data !== null && response.data.length > 0) {
+        //       const path = response.data[0].configValue.trim() + this.curUser.id
+        //       this.socket = new WebSocket(path)
+        //       // 监听socket连接
+        //       this.socket.onopen = this.open
+        //       // 监听socket错误信息
+        //       this.socket.onerror = this.error
+        //       // 监听socket消息
+        //       this.socket.onmessage = this.getMessage
+        //       // 监听socket关闭
+        //       this.socket.onclose = this.close
+        //     } else {
+        //       console.info('未获取到SYS_CONFIG表[config_key=\'webSocket_url\']的配置')
+        //     }
+        //   })
+        // }
       },
       open() {
         console.log('socket连接成功')
