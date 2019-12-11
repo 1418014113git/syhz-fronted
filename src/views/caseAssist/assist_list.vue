@@ -526,6 +526,7 @@ export default {
           this.initDepartment = currentDepartment
           this.filters.department = currentDepartment
         }
+        this.query(false)
       }).catch(() => {
       })
     },
@@ -595,7 +596,6 @@ export default {
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
     this.initData()
-    this.query(false)
   }
 }
 </script>
