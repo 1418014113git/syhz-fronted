@@ -89,7 +89,7 @@
               <el-table-column prop="deptName" label="地市"  min-width="200" show-overflow-tooltip></el-table-column>
               <el-table-column prop=""  label="核查线索数量（已核查/总）" >
                 <template slot-scope="scope">
-                  <span v-if="constrolxsnum(scope.row) || $isViewBtn('101908')">
+                  <span v-if="constrolxsnum(scope.row)">
                     <span class="linkColor" v-if="scope.row.hc && scope.row.hc>0" @click="handleClueList(scope.row,'2')">{{scope.row.hc}}</span>
                     <span v-else>0</span>
                     /
@@ -757,9 +757,9 @@ export default {
     },
     handleClueList(row, type, param) { // 线索列表
       if (param) { // 外层列表
-        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.applyDeptCode }}) // 跳转到线索列表页
+        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.applyDeptCode, deptType: row.deptType }}) // 跳转到线索列表页
       } else { // 展开行列表
-        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode }}) // 跳转到线索列表页
+        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode, deptType: row.deptType }}) // 跳转到线索列表页
       }
     },
     exportList() { // 导出
