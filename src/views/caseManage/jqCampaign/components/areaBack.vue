@@ -175,10 +175,10 @@ export default {
     },
     controlClick(row) { // 数字点击权限控制
       if (this.listData.length > 0) {
-        if (row.cityCode) {
-          return (this.curDept.depType === '1' || this.curDept.depCode === row.deptCode || this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114' || this.$isViewBtn('101908')) // 6114开头的是杨凌
+        if (row.cityCode) { // 非合计行
+          return (this.curDept.depType === '1' || this.curDept.depCode === row.deptCode || this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114') // 6114开头的是杨凌
         } else { // 合计行
-          return (this.curDept.depType === '1' || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114' || this.$isViewBtn('101908')) // 上级单位、申请单位、审核单位可点。 6114开头的是杨凌
+          return (this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114') // 上级单位/审核单位、申请单位、审核单位可点。 6114开头的是杨凌
         }
       } else {
         return false
@@ -245,11 +245,11 @@ export default {
     gotoxslist(row, type) {
       if (row.cityCode) { // 列表行
         this.$router.push({
-          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: this.baseInfo.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode } // 线索列表页面
+          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: this.baseInfo.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode, deptType: row.deptType } // 线索列表页面
         })
       } else { // 合计行
         this.$router.push({
-          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: '', curDeptCode: '' } // 线索列表页面
+          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: '', curDeptCode: '', deptType: '' } // 线索列表页面
         })
       }
     },

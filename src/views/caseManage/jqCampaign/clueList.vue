@@ -4,7 +4,7 @@
     <img src="@/assets/icon/back.png"  class="goBack" @click="toback">   <!--返回-->
     <el-form :inline="true"  ref="filters" label-width="90px" class="form">
       <el-col :span="24" style="padding-bottom: 0;">
-        <el-form-item label="地市">
+        <el-form-item :label="showTitle">
           <el-tooltip effect="dark" class="input_w" :content="selectCurxzqhDep.cityName" placement="top-start" :popper-class="(selectCurxzqhDep.cityName&&selectCurxzqhDep.cityName.length>10)===true?'tooltipShow':'tooltipHide'">
             <el-cascader
               :options="xzqhOptions"
@@ -14,6 +14,7 @@
               @change="handleAreaChange"
               :show-all-levels="false"
               :disabled="Number(curDept.depType)>2"
+              :clearable="Number(curDept.depType)<2"
               placeholder="全部">
             </el-cascader>
           </el-tooltip>
@@ -164,9 +165,11 @@ export default {
       selectCurxzqhDep: { cityName: '' }, // 当前行政区划
       tableHeight: null, // 列表外层容器的高度
       dqbmDeptCode: '', // 存储集群列表当前点击行的部门code
-      curCityCode: '', // 存储集群列表当前点击行的cityCode
+      curAreaCode: '', // 存储集群列表当前点击行的areaCode
       curDeptType: '', // 存储集群列表当前点击行的部门类型
-      tableHead: [] // 表头
+      tableHead: [], // 表头
+      showTitle: '', // 显示 地市 还是区县
+      showType: '' // 显示类型
     }
   },
   methods: {
@@ -176,58 +179,76 @@ export default {
         if (response.code === '000000') {
           this.xzqhOptions = response.data ? response.data[0].children : [] // 获取地市
           var currentArea = []
-          if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
-            // currentArea = [this.curDept.areaCode] // 查所有
-            currentArea = [this.curCityCode]
-          } else if (this.curDept.depType === '2') { // 支队
-            currentArea = [this.curCityCode]
-            if (this.applyDeptCode === this.dqbmDeptCode) { // 如果支队为申请，下发单位，查全部地市，
+          // if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
+          //   // currentArea = [this.curDept.areaCode] // 查所有
+          //   currentArea = [this.curAreaCode]
+          // } else if (this.curDept.depType === '2') { // 支队
+          //   currentArea = [this.curAreaCode]
+          //   if (this.applyDeptCode === this.dqbmDeptCode) { // 如果支队为申请，下发单位，查全部地市，
+
+          //   } else { // 市支队默认为本地市
+          //     for (var i = 0; i < this.xzqhOptions.length; i++) {
+          //       const element = this.xzqhOptions[i]
+          //       if (element.cityCode === this.curAreaCode) {
+          //         this.xzqhOptions[i].disabled = false
+          //       } else {
+          //         this.xzqhOptions[i].disabled = true
+          //       }
+          //     }
+          //   }
+          // } else if (this.curDept.depType === '3') { // 大队
+          //   if (this.curAreaCode) {
+          //     currentArea = [this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+          //   }
+          // } else if (this.curDept.depType === '4') { // 派出所
+          //   if (this.curAreaCode) {
+          //     if (this.curAreaCode === '611400') { // 杨凌例外
+          //       currentArea = ['611400']
+          //     } else { // 正常的派出所
+          //       currentArea = [this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+          //     }
+          //   }
+          // }
+          if (this.curDept.depType === '2') { // 登上来的是支队
+            if (this.applyDeptCode === this.curDept.depCode) { // 如果登上来的支队是申请，下发单位，查全部地市，
 
             } else { // 市支队默认为本地市
               for (var i = 0; i < this.xzqhOptions.length; i++) {
                 const element = this.xzqhOptions[i]
-                if (element.cityCode === this.curCityCode) {
+                if (element.cityCode === this.curAreaCode) {
                   this.xzqhOptions[i].disabled = false
                 } else {
                   this.xzqhOptions[i].disabled = true
                 }
               }
             }
-          } else if (this.curDept.depType === '3') { // 大队
-            currentArea = [this.curCityCode.substring(0, 4) + '00', this.curCityCode]
-          } else if (this.curDept.depType === '4') { // 派出所
-            if (this.curCityCode === '611400') { // 杨凌例外
-              currentArea = ['611400']
-            } else { // 正常的派出所
-              currentArea = [this.curCityCode.substring(0, 4) + '00', this.curCityCode]
+          }
+          if (this.curDeptType === -1 || this.curDeptType === 1 || this.curDeptType === '') { // 当前行部门 省 总队
+            // currentArea = [this.curAreaCode]
+          } else if (this.curDeptType === 2) { // 当前行部门支队
+            if (this.curAreaCode) {
+              currentArea = [this.curAreaCode]
+            }
+          } else if (this.curDeptType === 3) { // 大队
+            if (this.curAreaCode) {
+              currentArea = [this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+            }
+          } else if (this.curDeptType === 4) { // 派出所
+            if (this.curAreaCode) {
+              if (this.curAreaCode === '611400') { // 杨凌例外
+                currentArea = ['611400']
+              } else { // 正常的派出所
+                currentArea = [this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+              }
             }
           }
+
           this.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
-          if (this.applyDeptCode !== this.dqbmDeptCode) {
-            // 默认选择本单位
-            // if (this.curDept.depType === '-1') { // 省
-            //   // this.department = [this.curDept.depCode]
-            // } else if (this.curDept.depType === '1') { // 总队
-            //   // this.department = [this.curDept.parentDepCode, this.curDept.depCode]
-            // } else if (this.curDept.depType === '2') { // 支队
-            //   this.department = [this.dqbmDeptCode]
-            // } else if (this.curDept.depType === '3') { // 大队
-            //   this.department = [this.dqbmDeptCode]
-            // } else if (this.curDept.depType === '4') { // 派出所
-            //   this.department = [this.curDept.parentDepCode] // 派出所登录进来，把它自己当作它的上级单位
-            //   // 查询派出所的上级(把派出所当大队，查大队的上级单位 )
-            //   this.$query('hsyzparentdepart/' + this.curDept.parentDepCode, {}, 'upms').then((response) => {
-            //     if (response.code === '000000') {
-            //       this.pcsParentDept = response.data
-            //     }
-            //   }).catch(() => {
-
-            //   })
-            // }
-            this.department = [this.dqbmDeptCode]
-            this.handleDeptChange(this.department)
-          }
+          // if (this.applyDeptCode !== this.dqbmDeptCode) {
+          this.department = [this.dqbmDeptCode]
+          this.handleDeptChange(this.department)
+          // }
 
           this.query(true) // 查询列表
         }
@@ -322,9 +343,10 @@ export default {
         pageNum: this.page, // 页数
         pageSize: this.pageSize, // 条数
         assistId: this.assistId, // 集群id
-        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
+        assistType: this.$route.query.assistType ? 1 : 2, // 1 协查， 2 集群
+        showType: this.showType // 是查地市还是区县
       }
-      if (this.curCityCode !== '610000') { // 省厅不传
+      if (this.curAreaCode !== '610000') { // 省厅不传
         para.deptCode = this.applyDeptCode === this.dqbmDeptCode ? '' : this.dqbmDeptCode
       }
 
@@ -414,13 +436,31 @@ export default {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 320
+    if (this.curDept.depType === '1') { // 总队
+      this.showTitle = '地市'
+      this.showType = '1'
+    } else if (this.curDept.depType === '2') { // 支队
+      this.showTitle = '地市'
+      this.showType = '1'
+    } else if (this.curDept.depType === '3') { // 大队 派出所
+      this.showTitle = '区县'
+      this.showType = '2'
+    } else if (this.curDept.depType === '4') {
+      if (this.curDept.areaCode === '611400') { // 杨凌例外
+        this.showTitle = '地市'
+        this.showType = '1'
+      } else { // 正常的派出所
+        this.showTitle = '区县'
+        this.showType = '2'
+      }
+    }
     if (this.$route.query.id) {
       this.assistId = this.$route.query.id
       this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type : '' // 核查情况
       this.applyDeptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 申请，下发单位code
       this.dqbmDeptCode = this.$route.query.curDeptCode ? this.$route.query.curDeptCode : '' // 存储集群列表当前点击行的部门code
-      this.curCityCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 存储集群列表当前点击行的cityCode
-      // this.curDeptType = this.$route.query.deptType ? this.$route.query.deptType : '' // 存储集群列表当前点击行的部门类型
+      this.curAreaCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 存储集群列表当前点击行的areaCode
+      this.curDeptType = this.$route.query.deptType ? this.$route.query.deptType : '' // 存储集群列表当前点击行的部门类型
       this.init()
     }
   },
