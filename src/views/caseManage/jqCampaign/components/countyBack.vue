@@ -192,7 +192,7 @@ export default {
     controlClick(row) { // 数字点击权限控制
       if (this.listData.length > 0) {
         if (row.cityCode) {
-          return (this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.depCode === row.deptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode)) // 上级单位/审核单位，申请单位，本单位可点。
+          return ((this.curDept.depType === '2' && (this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4))) || this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.depCode === row.deptCode || (this.curDept.depType === '4' && (this.curDept.parentDepCode === row.deptCode || this.curDept.parentDepCode === this.baseInfo.applyDeptCode))) // 上级单位/审核单位，申请单位，本单位可点。
         } else { // 合计行不可点
           return false
         }
