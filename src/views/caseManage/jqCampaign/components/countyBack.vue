@@ -58,7 +58,7 @@
           <el-table-column label="操作"  width="160" align="center" fixed="right">
             <template slot-scope="scope">
             <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')"  @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
-            <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && curDept.depType === '2' && (curDept.depCode.substring(0, 4) === row.deptCode.substring(0, 4))  && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
+            <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && curDept.depType === '2' && (curDept.depCode.substring(0, 4) === scope.row.deptCode.substring(0, 4))  && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
             <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score"   icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
             </template>
           </el-table-column>
@@ -191,9 +191,9 @@ export default {
     },
     controlClick(row) { // 数字点击权限控制
       if (this.listData.length > 0) {
-        if (!row.cityCode) { // 合计行可点
-          return (Number(this.curDept.depType) < 3 || this.curDept.areaCode === this.baseInfo.cityCode || this.$isViewBtn('101908')) // 上级单位、申请单位、审核单位可点。
-        } else {
+        if (row.cityCode) {
+          return (this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.depCode === row.deptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode)) // 上级单位/审核单位，申请单位，本单位可点。
+        } else { // 合计行不可点
           return false
         }
       } else {
@@ -224,7 +224,7 @@ export default {
     gotoxslist(row, type) { // 线索列表
       if (!row.cityCode) { // 合计行
         this.$router.push({
-          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: '', curDeptCode: '' } // 线索列表页面
+          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: '', curDeptCode: '', deptType: '' } // 线索列表页面
         })
       }
     },
