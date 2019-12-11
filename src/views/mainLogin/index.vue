@@ -3,8 +3,8 @@
     <div class="slideshow" :style="{height:imgHeights}">
       <transition-group name="fadeIn" tag="ul" >
         <li v-for='(image,index) in imgList' :key='index' v-show='index===mark' class="bannerImg" >
-					 <img :src="'/static/image/login_images/'+loginImgStyle"  :style="{height:imgHeights}"/>
-				</li>
+          <img :src="'/static/image/login_images/'+loginImgStyle"  :style="{height:imgHeights}"/>
+        </li>
       </transition-group>
     </div>
     <!--下载提示层上方的标题 -->
@@ -14,7 +14,7 @@
 
     <!--登录页面区域 -->
     <div class="login-box" v-show="isShowLogin">
-       <div>
+      <div>
         <img class="loginbgtit"  src="/static/image/login_images/logo.png" alt="">
         <el-form class="login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
           <div class="login-form-tit">用户登录</div>
@@ -31,18 +31,18 @@
             </span>
             <span class="inputtext">密&nbsp;&nbsp;&nbsp;码</span>
             <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin"  v-model.trim="loginForm.password" autoComplete="on"
-              placeholder="" clearable></el-input>
+                      placeholder="" clearable></el-input>
           </el-form-item>
 
-            <el-row class="disflex loginbtnbox">
-              <el-button type="primary" class="loginbtn" :loading="loading" @click="handleLogin">登&nbsp;&nbsp;录</el-button>
-            </el-row>
-            <div class="pkiLogin">
+          <el-row class="disflex loginbtnbox">
+            <el-button type="primary" class="loginbtn" :loading="loading" @click="handleLogin">登&nbsp;&nbsp;录</el-button>
+          </el-row>
+          <div class="pkiLogin">
               <span class="pkiSpan" @click="pkiLogin">
                 <svg-icon icon-class="usb" />
                 <span style="cursor: pointer">PKI登录</span>
               </span>
-            </div>
+          </div>
         </el-form>
       </div>
 
@@ -95,11 +95,11 @@
     <!-- <div id="tipImg" style="position:absolute; cursor: pointer;" @mouseenter="floatOver()" @mouseleave="floatOut()" @click="floatTipShow">
       <img src="/static/image/login_images/tipmsg.jpg" border="0">
     </div> -->
-     <!-- <div class="floatMsgBox">
-      <el-dialog :visible.sync="tipShow">
-        <float-tip-msg></float-tip-msg>
-      </el-dialog>
-    </div> -->
+    <!-- <div class="floatMsgBox">
+     <el-dialog :visible.sync="tipShow">
+       <float-tip-msg></float-tip-msg>
+     </el-dialog>
+   </div> -->
   </div>
 </template>
 
@@ -479,8 +479,8 @@ export default {
     // new JIT_GW_ExtInterface.Init()
     // this.floatOut()
   },
-   activated() {
-     this.loginForm = {
+  activated() {
+    this.loginForm = {
       username: '',
       password: ''
     }
