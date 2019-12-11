@@ -1,16 +1,16 @@
 <template>
   <div>
     <!--<div class="message">-->
-      <!--<div id="message" class="content">-->
-        <!--<div v-for="item in messageData" :key="item.index" :class="item.sendNo === curUser.id ? 'mes_before' : 'mes_after'">-->
-          <!--<span v-if="item.sendNo === curUser.id" class="mes_right">{{item.message}}</span>-->
-          <!--<span v-if="item.sendNo !== curUser.id" class="mes_left">{{item.message}}</span>-->
-        <!--</div>-->
-      <!--</div>-->
-      <!--<div class="send" @click="inputFocus()">-->
-        <!--<textarea id="textarea" class="mes_input" rows="3" v-model="val" @keyup.enter="send"></textarea>-->
-        <!--<el-button class="mes_btn" @click="send">发消息</el-button>-->
-      <!--</div>-->
+    <!--<div id="message" class="content">-->
+    <!--<div v-for="item in messageData" :key="item.index" :class="item.sendNo === curUser.id ? 'mes_before' : 'mes_after'">-->
+    <!--<span v-if="item.sendNo === curUser.id" class="mes_right">{{item.message}}</span>-->
+    <!--<span v-if="item.sendNo !== curUser.id" class="mes_left">{{item.message}}</span>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--<div class="send" @click="inputFocus()">-->
+    <!--<textarea id="textarea" class="mes_input" rows="3" v-model="val" @keyup.enter="send"></textarea>-->
+    <!--<el-button class="mes_btn" @click="send">发消息</el-button>-->
+    <!--</div>-->
     <!--</div>-->
   </div>
 </template>
