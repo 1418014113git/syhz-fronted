@@ -595,6 +595,15 @@ export default {
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
+      const param = JSON.parse(sessionStorage.getItem(this.$route.path))
+      if (param) {
+        if (param.noCheck) {
+          this.filters.status = '1'
+        }
+      }
+      sessionStorage.setItem(this.$route.path, '')
+    }
     this.initData()
   }
 }
