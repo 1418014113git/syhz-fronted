@@ -215,14 +215,6 @@ export default {
             if (this.applyDeptCode === this.curDept.depCode) { // 如果登上来的支队是申请，下发单位，查全部地市，
 
             } else { // 市支队默认为本地市
-              // for (var i = 0; i < this.xzqhOptions.length; i++) {
-              //   const element = this.xzqhOptions[i]
-              //   if (element.cityCode === this.curAreaCode) {
-              //     this.xzqhOptions[i].disabled = false
-              //   } else {
-              //     this.xzqhOptions[i].disabled = true
-              //   }
-              // }
               for (var i = 0; i < this.xzqhOptions[0].children.length; i++) {
                 const element = this.xzqhOptions[0].children[i]
                 if (element.cityCode === this.curDept.areaCode) {
@@ -255,11 +247,14 @@ export default {
 
           this.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
-          // if (this.applyDeptCode !== this.dqbmDeptCode) {
-          this.department = [this.dqbmDeptCode]
-          this.handleDeptChange(this.department)
-          // }
+          if (this.curDeptType === -1 || this.curDeptType === 1) { // 省厅、总队
 
+          } else if (this.curDeptType === 2 || this.curDeptType === 3) { // 支队， 大队
+            if (this.dqbmDeptCode) {
+              this.department = [this.dqbmDeptCode]
+            }
+          }
+          this.handleDeptChange(this.department)
           this.query(true) // 查询列表
         }
       }).catch(() => {
