@@ -265,8 +265,17 @@ export default {
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
             }
           }
-          this.filters.area = currentArea
-          this.handleAreaChange(currentArea) // 查单位机构
+          if (this.$route.query.fadz) { // 案件档案 发案地址--点击列表数字跳转过来的
+            if (this.$route.query.cityCode) {
+              this.filters.area = ['610000', this.$route.query.cityCode]
+            } else {
+              this.filters.area = currentArea
+            }
+          } else {
+            this.filters.area = currentArea
+          }
+
+          this.handleAreaChange(this.filters.area) // 查单位机构
           // 默认选择本单位
           if (this.curDept.depType === '-1') { // 省
             // this.filters.department = [this.curDept.depCode]
