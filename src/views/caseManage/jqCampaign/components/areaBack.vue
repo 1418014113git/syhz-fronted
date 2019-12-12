@@ -14,26 +14,26 @@
           <el-table-column prop="deptName" label="单位"   min-width="200" show-overflow-tooltip></el-table-column>
           <el-table-column prop="xsNum" label="线索总数（条）" min-width="130">
             <template slot-scope="scope">
-              <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
+              <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.xsNum>0"  @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
               <span v-else>{{scope.row.xsNum}}</span>
             </template>
           </el-table-column>
           <el-table-column prop="" label="线索核查核实情况（条）"  align="center" show-overflow-tooltip>
             <el-table-column prop="cs" label="查实"  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'2')">{{scope.row.cs}}</span>
+                <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.cs>0"  @click="gotoxslist(scope.row,'2')">{{scope.row.cs}}</span>
                 <span v-else>{{scope.row.cs}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="cf" label="查否"  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'1')">{{scope.row.cf}}</span>
+                <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.cf>0 "  @click="gotoxslist(scope.row,'1')">{{scope.row.cf}}</span>
                 <span v-else>{{scope.row.cf}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="whc" label="未核查"  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span class="linkColor"   v-if="controlClick(scope.row)" @click="gotoxslist(scope.row,'3')">{{scope.row.whc}}</span>
+                <span class="linkColor"   v-if="controlClick(scope.row) && scope.row.whc>0" @click="gotoxslist(scope.row,'3')">{{scope.row.whc}}</span>
                 <span v-else>{{scope.row.whc}}</span>
               </template>
             </el-table-column>
@@ -43,16 +43,16 @@
               </template>
             </el-table-column>
           </el-table-column>
-          <el-table-column prop="ysajList" label="移送行政部门处理（次）"  min-width="120"></el-table-column>
+          <el-table-column prop="ysajList" label="移送行政部门处理（次）"  min-width="130"></el-table-column>
           <el-table-column prop="" label="侦办刑事案件"  align="center" show-overflow-tooltip>
-            <el-table-column prop="larqCount" label="立案（起）"  min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="parqCount" label="破案（起）"  min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="zhrys" label="抓获（人）"  min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="xsjl" label="刑拘（人）"  min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="pzdb" label="批捕（人）"   min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="yjss" label="移诉（人）"   min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="dhwd" label="捣毁窝点（个）"  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="sajz" label="涉案金额（万元）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="larqCount" label="立案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="parqCount" label="破案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="xsjl" label="刑拘（人）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="pzdb" label="批捕（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="dhwd" label="捣毁窝点（个）"  min-width="140" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="sajz" label="涉案金额（万元）"  min-width="150" show-overflow-tooltip></el-table-column>
           </el-table-column>
           <el-table-column prop="score" label="评价打分" min-width="100"></el-table-column>
           <el-table-column label="操作"  width="160" align="center" fixed="right">
