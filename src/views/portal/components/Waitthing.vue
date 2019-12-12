@@ -120,6 +120,9 @@ export default {
           this.$router.push({
             path: '/jqcampaign', query: { status: '1' } // 跳转集群战役列表  传递协查状态：待审核
           })
+        } else if (node.type === '0005') { // 案件协查审核
+          localStorage.setItem('curAppCode', 'B')
+          this.$gotoid('/caseAssist/list', JSON.stringify({ noCheck: true }))
         } else {
           this.$router.push({
             path: '/workflow/index/' + node.type
@@ -149,10 +152,10 @@ export default {
           this.$gotoid('/notice/index', JSON.stringify({ signStatus: '1' }))
         }
 
-        // if (node.business_type === 1) { // 案件协查
-        //   localStorage.setItem('curAppCode', 'B')
-        //   this.$router.push({ path: '/caseAssist/list' }) // 案件协查列表
-        // }
+        if (node.business_type === 1) { // 案件协查
+          localStorage.setItem('curAppCode', 'B')
+          this.$router.push({ path: '/caseAssist/list' }) // 案件协查列表
+        }
 
         if (node.business_type === 2) { // 集群战役
           localStorage.setItem('curAppCode', 'B')
@@ -182,10 +185,10 @@ export default {
           }
           this.$gotoid('/caseManage', JSON.stringify(param))
         }
-        // if (node.business_type === 1) { // 案件协查
-        //   localStorage.setItem('curAppCode', 'B')
-        //   this.$router.push({ path: '/caseAssist/list' }) // 案件协查列表
-        // }
+        if (node.business_type === 1) { // 案件协查
+          localStorage.setItem('curAppCode', 'B')
+          this.$router.push({ path: '/caseAssist/list' }) // 案件协查列表
+        }
 
         if (node.business_type === 2) { // 集群战役
           localStorage.setItem('curAppCode', 'B')
@@ -233,9 +236,9 @@ export default {
           data.forEach(item => {
             if (item.num > 0) {
               if (item.assistType === 1) { // 1案件协查
-              // this.listData[1].data.push({
-              //   data_op: '协查签收待办', num: item.num, business_type: 1
-              // })
+                this.listData[1].data.push({
+                  data_op: '协查签收待办', num: item.num, business_type: 1
+                })
               } else { // 2集群战役
                 this.listData[1].data.push({
                   data_op: '集群战役签收待办', num: item.num, business_type: 2
@@ -369,9 +372,9 @@ export default {
           data.forEach(item => {
             if (item.num > 0) {
               if (item.assistType === 1) { // 1案件协查
-              // this.listData[3].data.push({
-              //   data_op: '协查待反馈', num: item.num, business_type: 1
-              // })
+                this.listData[3].data.push({
+                  data_op: '协查待反馈', num: item.num, business_type: 1
+                })
               } else { // 2集群战役
                 this.listData[3].data.push({
                   data_op: '集群战役待反馈', num: item.num, business_type: 2
