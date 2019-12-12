@@ -178,7 +178,7 @@ export default {
         if (row.cityCode) { // 非合计行
           return (this.curDept.depType === '1' || this.curDept.depCode === row.deptCode || this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114') // 6114开头的是杨凌
         } else { // 合计行
-          return (this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114') // 上级单位/审核单位、申请单位、审核单位可点。 6114开头的是杨凌
+          return (this.curDept.depType === '1' || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114') // 上级单位/审核单位、申请单位、审核单位可点。 6114开头的是杨凌
         }
       } else {
         return false
