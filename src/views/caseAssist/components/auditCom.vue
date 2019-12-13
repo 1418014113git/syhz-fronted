@@ -4,7 +4,7 @@
     <div class="auditForm">
       <el-form ref="auditForm" :rules="auditRules" :model="auditForm" v-loading="auditFormLoading" size="small" label-width="100px">
         <el-form-item label="编号" prop="assistNumber" v-if="roleType === 1">
-          <el-input v-model.trim="auditForm.assistNumber" clearable maxlength="50" placeholder="请输入"></el-input>
+          <el-input v-model.trim="auditForm.assistNumber" clearable maxlength="50" placeholder="请输入" disabled></el-input>
         </el-form-item>
         <el-form-item label="协查级别" prop="assistLevel">
           <el-select v-model="auditForm.assistLevel" placeholder="请选择" clearable @change="levelChange">
@@ -77,9 +77,6 @@ export default {
             if (value === undefined || value === null || value === '') {
               return callback(new Error('请选择开始时间'))
             }
-            // if (new Date(value) < new Date()) {
-            //   return callback(new Error('开始时间不能小于当前系统时间'))
-            // }
             if (this.auditForm.endDate) {
               if (new Date(this.auditForm.endDate) < new Date(value)) {
                 return callback(new Error('开始时间不能大于截止时间'))
@@ -95,6 +92,9 @@ export default {
             }
             if (new Date(this.auditForm.startDate) > new Date(value)) {
               return callback(new Error('截止时间不能小于开始时间'))
+            }
+            if (new Date(value) < new Date()) {
+              return callback(new Error('截止时间不能小于当前系统时间'))
             }
             return callback()
           }
@@ -154,8 +154,10 @@ export default {
       }
     },
     initNumber(parentCode) {
+      this.auditFormLoading = true
       this.$query('caseAssist/number', { dept: parentCode }).then(response => {
         this.auditForm.assistNumber = response.data
+        this.auditFormLoading = false
       })
     },
     executeAudit(type) { //   省厅审核  type:3 通过  4 不通过 , 地市审核 type: 4 不通过  6 通过且向上申请
