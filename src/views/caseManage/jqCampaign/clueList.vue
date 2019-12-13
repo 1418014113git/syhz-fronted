@@ -4,7 +4,7 @@
     <img src="@/assets/icon/back.png"  class="goBack" @click="toback">   <!--返回-->
     <el-form :inline="true"  ref="filters" label-width="90px" class="form">
       <el-col :span="24" style="padding-bottom: 0;">
-        <el-form-item :label="showTitle">
+        <el-form-item label="行政区划">
           <el-tooltip effect="dark" class="input_w" :content="selectCurxzqhDep.cityName" placement="top-start" :popper-class="(selectCurxzqhDep.cityName&&selectCurxzqhDep.cityName.length>10)===true?'tooltipShow':'tooltipHide'">
             <el-cascader
               :options="xzqhOptions"
@@ -177,7 +177,8 @@ export default {
       this.listLoading = true
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
-          this.xzqhOptions = response.data ? response.data[0].children : [] // 获取地市
+          // this.xzqhOptions = response.data ? response.data[0].children : [] // 获取地市
+          this.xzqhOptions = response.data ? response.data : []
           var currentArea = []
           // if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
           //   // currentArea = [this.curDept.areaCode] // 查所有
@@ -210,15 +211,16 @@ export default {
           //   }
           // }
           if (this.curDept.depType === '2') { // 登上来的是支队
+            this.xzqhOptions[0].disabled = true
             if (this.applyDeptCode === this.curDept.depCode) { // 如果登上来的支队是申请，下发单位，查全部地市，
 
             } else { // 市支队默认为本地市
-              for (var i = 0; i < this.xzqhOptions.length; i++) {
-                const element = this.xzqhOptions[i]
-                if (element.cityCode === this.curAreaCode) {
-                  this.xzqhOptions[i].disabled = false
+              for (var i = 0; i < this.xzqhOptions[0].children.length; i++) {
+                const element = this.xzqhOptions[0].children[i]
+                if (element.cityCode === this.curDept.areaCode) {
+                  this.xzqhOptions[0].children[i].disabled = false
                 } else {
-                  this.xzqhOptions[i].disabled = true
+                  this.xzqhOptions[0].children[i].disabled = true
                 }
               }
             }
@@ -227,29 +229,32 @@ export default {
             // currentArea = [this.curAreaCode]
           } else if (this.curDeptType === 2) { // 当前行部门支队
             if (this.curAreaCode) {
-              currentArea = [this.curAreaCode]
+              currentArea = ['610000', this.curAreaCode]
             }
           } else if (this.curDeptType === 3) { // 大队
             if (this.curAreaCode) {
-              currentArea = [this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+              currentArea = ['610000', this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
             }
           } else if (this.curDeptType === 4) { // 派出所
             if (this.curAreaCode) {
               if (this.curAreaCode === '611400') { // 杨凌例外
-                currentArea = ['611400']
+                currentArea = ['610000', '611400']
               } else { // 正常的派出所
-                currentArea = [this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+                currentArea = ['610000', this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
               }
             }
           }
 
           this.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
-          // if (this.applyDeptCode !== this.dqbmDeptCode) {
-          this.department = [this.dqbmDeptCode]
-          this.handleDeptChange(this.department)
-          // }
+          if (this.curDeptType === -1 || this.curDeptType === 1) { // 省厅、总队
 
+          } else if (this.curDeptType === 2 || this.curDeptType === 3) { // 支队， 大队
+            if (this.dqbmDeptCode) {
+              this.department = [this.dqbmDeptCode]
+            }
+          }
+          this.handleDeptChange(this.department)
           this.query(true) // 查询列表
         }
       }).catch(() => {
@@ -264,9 +269,12 @@ export default {
         this.deptOptions = [] // 清空单位机构数据
         this.selectCurDep = { name: '' } // 清空当前选中的单位机构
         var param = {
-          provinceCode: '610000',
-          cityCode: val[0] || '',
-          reginCode: val[1] || ''
+          // provinceCode: '610000',
+          // cityCode: val[0] || '',
+          // reginCode: val[1] || ''
+          provinceCode: val[0] || '',
+          cityCode: val[1] || '',
+          reginCode: val[2] || ''
         }
         this.$query('hsyzdeparttree', param, 'upms').then((response) => {
           if (response.code === '000000') {
@@ -354,13 +362,22 @@ export default {
         para.logFlag = 1
       }
 
+      // if (this.area && this.area.length > 0) { // 行政区划
+      //   // para.provinceCode = '610000' // 省code
+      //   para.cityCode = this.area[0] || '' // 市code
+      //   para.reginCode = this.area[1] || '' // 区code
+      // } else {
+      //   // para.provinceCode = '610000' // 省code
+      //   para.cityCode = '' // 市cod
+      //   para.reginCode = '' // 区code
+      // }
       if (this.area && this.area.length > 0) { // 行政区划
-        // para.provinceCode = '610000' // 省code
-        para.cityCode = this.area[0] || '' // 市code
-        para.reginCode = this.area[1] || '' // 区code
+        para.provinceCode = this.area[0] || '' // 省code
+        para.cityCode = this.area[1] || '' // 市code
+        para.reginCode = this.area[2] || '' // 区code
       } else {
-        // para.provinceCode = '610000' // 省code
-        para.cityCode = '' // 市cod
+        para.provinceCode = '' // 省code
+        para.cityCode = '' // 市code
         para.reginCode = '' // 区code
       }
       if (this.department && this.department.length > 0) { // 单位机构
@@ -437,20 +454,20 @@ export default {
     }
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 320
     if (this.curDept.depType === '1') { // 总队
-      this.showTitle = '地市'
+      // this.showTitle = '地市'
       this.showType = '1'
     } else if (this.curDept.depType === '2') { // 支队
-      this.showTitle = '地市'
+      // this.showTitle = '地市'
       this.showType = '1'
     } else if (this.curDept.depType === '3') { // 大队 派出所
-      this.showTitle = '区县'
+      // this.showTitle = '区县'
       this.showType = '2'
     } else if (this.curDept.depType === '4') {
       if (this.curDept.areaCode === '611400') { // 杨凌例外
-        this.showTitle = '地市'
+        // this.showTitle = '地市'
         this.showType = '1'
       } else { // 正常的派出所
-        this.showTitle = '区县'
+        // this.showTitle = '区县'
         this.showType = '2'
       }
     }
