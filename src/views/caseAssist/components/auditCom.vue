@@ -176,19 +176,18 @@ export default {
         flowId: this.curRow.wfId, // 列表返回的wfId
         wdId: this.curRow.wdId // 列表返回的wdId
       }
+      param.content = this.auditForm.content
       this.$refs.auditForm.validate(valid => {
         if (valid) {
           if (type === 3) { // 通过
             param.number = this.auditForm.assistNumber // 编号
             param.startDate = this.auditForm.startDate // 开始时间
             param.endDate = this.auditForm.endDate // 截止时间
-            param.content = this.auditForm.content
           }
           if (type === 6) { // 通过
             param.acceptDeptId = this.auditForm.acceptDeptId// 接收部门id
             param.acceptDeptCode = this.auditForm.acceptDeptCode// 接收部门code
             param.acceptDeptName = this.auditForm.acceptDeptName// 接收部门名称
-            param.content = this.auditForm.content
           }
           this.$update('caseAssist/examine', param).then((response) => {
             this.auditFormLoading = false

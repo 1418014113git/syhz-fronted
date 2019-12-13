@@ -76,7 +76,7 @@
                 <vue-editor ref="child" v-model="caseAssistForm.assistContent" useCustomImageHandler @imageAdded="handleImageAdded" @contentChange="contentChange"></vue-editor>
               </el-form-item>
               <el-form-item label="上传附件" v-if="firstSubmitVisible">
-                <el-upload class="upload-demo" drag multiple :action="uploadAction"
+                <el-upload class="upload-demo" drag multiple :action="uploadAction" :limit="10"
                            :auto-upload="true"
                            :file-list="uploadImgs"
                            :on-success="imgSuccess"
@@ -86,7 +86,7 @@
                            :before-upload="beforeUpload" :disabled="noauth">
                   <i class="el-icon-upload"></i>
                   <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                  <div class="el-upload__tip" slot="tip">{{UploadAttachment.tipText}}</div>
+                  <div class="el-upload__tip" slot="tip">{{UploadAttachment.tipText_Notice_size}}<br>{{UploadAttachment.tipText_Notice_style}}</div>
                 </el-upload>
               </el-form-item>
               <el-form-item label="查阅密码" prop="passKey" v-if="firstSubmitVisible">
@@ -257,9 +257,6 @@ export default {
             if (value === undefined || value === null || value === '') {
               return callback(new Error('请选择开始时间'))
             }
-            if (new Date(value) < new Date()) {
-              return callback(new Error('开始时间不能小于当前系统时间'))
-            }
             if (this.caseAssistForm.endDate) {
               if (new Date(this.caseAssistForm.endDate) < new Date(value)) {
                 return callback(new Error('开始时间不能大于截止时间'))
@@ -275,6 +272,9 @@ export default {
             }
             if (new Date(this.caseAssistForm.startDate) > new Date(value)) {
               return callback(new Error('截止时间不能小于开始时间'))
+            }
+            if (new Date(value) < new Date()) {
+              return callback(new Error('截止时间不能小于当前系统时间'))
             }
             return callback()
           }
@@ -401,6 +401,7 @@ export default {
       this.$query('caseAssist/' + this.editId).then(response => {
         this.caseAssistForm.title = response.data.title
         this.caseAssistForm.assistNumber = response.data.assistNumber
+        this.timeDisable = false
         this.caseAssistForm.startDate = response.data.startDate
         this.caseAssistForm.endDate = response.data.endDate
         this.caseAssistForm.applyDeptName = response.data.applyDeptName

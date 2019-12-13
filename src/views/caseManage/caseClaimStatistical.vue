@@ -14,7 +14,7 @@
             v-model="filters.rlStartTime"
             type="date"
             value-format="yyyy-MM-dd"
-            :picker-options="pickerOptions"
+            :picker-options="rlStartPickerOptions"
             placeholder="请选择开始时间"
             :disabled="zdyTimeDisabled"
             @change="startDateChangezdy">
@@ -27,8 +27,9 @@
             type="date"
             value-format="yyyy-MM-dd"
             placeholder="请选择结束时间"
-            :picker-options="pickerOptions"
+            :picker-options="rlEndPickerOptions"
             :disabled="zdyTimeEndDisabled"
+            @change="endDateChangezdy"
             >
           </el-date-picker>
         </el-form-item>
@@ -38,7 +39,7 @@
             v-model="filters.larqStart"
             type="date"
             value-format="yyyy-MM-dd"
-            :picker-options="pickerOptions"
+            :picker-options="laStartPickerOptions"
             placeholder="请选择开始时间"
             @change="startDateChangeLa">
           </el-date-picker>
@@ -50,7 +51,7 @@
             type="date"
             value-format="yyyy-MM-dd"
             placeholder="请选择结束时间"
-            :picker-options="pickerOptions"
+            :picker-options="laEndPickerOptions"
             @change="endDateChangeLa"
             :disabled="endDateDisabledLa">
           </el-date-picker>
@@ -80,7 +81,7 @@
             :disabled="endDateDisabledPa">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="案件状态">
+        <el-form-item label="案件状态" class="datezhi">
           <el-select  v-model="filters.ajzt" size="small" placeholder="全部" filterable clearable  @change="ajztChange" class="inputw">
             <el-option v-for="item in aztjSelectList" :key="item.code" :label="item.codeName" :value="item.code"></el-option>
           </el-select>
@@ -98,9 +99,11 @@
       </el-col>
       <el-col :span="24">
         <el-form-item label="案件罪名">
-          <el-select  v-model="filters.ajzm" size="small" placeholder="全部"  filterable class="inputw" :disabled="isDisable">
-            <el-option v-for="item in ajzmList" :key="item.code" :label="item.name" :value="item.name"></el-option>
-          </el-select>
+          <el-tooltip effect="dark" :content="ajzmTooltipname" placement="top-start" :popper-class="(ajzmTooltipname&&ajzmTooltipname.length>6)===true?'tooltipShow':'tooltipHide'">
+            <el-select  v-model="filters.ajzm" size="small" placeholder="全部"  filterable class="inputw" :disabled="isDisable"  @change="changeajzmSelect">
+              <el-option v-for="item in ajzmList" :key="item.code" :label="item.name" :value="item.code"></el-option>
+            </el-select>
+          </el-tooltip>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small" @click="query()">查询</el-button>
@@ -116,11 +119,11 @@
       <!-- 地市下点击展开可查看下属部门 -->
       <el-table-column type="expand">
         <template slot-scope="scope">
-          <el-table :data="scope.row.subDeptCaseData" v-loading="subLoading" style="width: 100%;" max-height="400">
+          <el-table :data="scope.row.subDeptCaseData" v-loading="subLoading" style="width: 100%;">
             <el-table-column prop="" width="48"></el-table-column>
             <el-table-column type="index" label="序号" width="100" align="center"></el-table-column>
             <el-table-column prop="name" label="单位" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="claimed" label="已认领（新增案件）" min-width="10%" align="center">
+            <el-table-column prop="claimed" label="已认领（新增案件）" min-width="6%" align="center">
               <template slot-scope="sonScope">
                 <span v-if="sonScope.row.claimed>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'2')">{{$thousSplit(sonScope.row.claimed+'')}}</span>
                 <span v-else >{{sonScope.row.claimed}}</span>
@@ -146,7 +149,7 @@
             </el-table-column>
             <el-table-column prop="left" label="重复合并" min-width="5%" align="center">
               <template slot-scope="sonScope">
-                <span v-if="sonScope.row.left>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkcfhb(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'cfhb')">{{$thousSplit(sonScope.row.left+'')}}</span>
+                <span v-if="sonScope.row.left>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkcfhb(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'2')">{{$thousSplit(sonScope.row.left+'')}}</span>
                 <span v-else >{{sonScope.row.left}}</span>
               </template>
             </el-table-column>
@@ -158,7 +161,7 @@
             </el-table-column>
             <el-table-column prop="total" label="案件总数" min-width="5%" align="center">
               <template slot-scope="sonScope">
-                <span v-if="sonScope.row.total>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'',true)">{{$thousSplit(sonScope.row.total+'')}}</span>
+                <span v-if="sonScope.row.total>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'','secondTotal')">{{$thousSplit(sonScope.row.total+'')}}</span>
                 <span v-else >{{sonScope.row.total}}</span>
               </template>
             </el-table-column>
@@ -172,7 +175,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="cityName" label="省市" min-width="10%" align="center"></el-table-column>
-      <el-table-column prop="claimed" label="已认领" min-width="10%" align="center">
+      <el-table-column prop="claimed" label="已认领" min-width="6%" align="center">
         <template slot-scope="scope">
           <span v-if="scope.row.claimed>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','2')">{{$thousSplit(scope.row.claimed+'')}}</span>
           <span v-else >{{scope.row.claimed}}</span>
@@ -198,7 +201,7 @@
       </el-table-column>
       <el-table-column prop="left" label="重复合并" min-width="5%" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.left>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkcfhb(scope.row.canClick,'second',scope.row.cityCode,'','','cfhb')">{{$thousSplit(scope.row.left+'')}}</span>
+          <span v-if="scope.row.left>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkcfhb(scope.row.canClick,'second',scope.row.cityCode,'','','2')">{{$thousSplit(scope.row.left+'')}}</span>
           <span v-else >{{scope.row.left}}</span>
         </template>
       </el-table-column>
@@ -210,7 +213,7 @@
       </el-table-column>
       <el-table-column prop="total" label="案件总数" min-width="5%" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.total>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','',true)">{{$thousSplit(scope.row.total+'')}}</span>
+          <span v-if="scope.row.total>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','',scope.row.cityName)">{{$thousSplit(scope.row.total+'')}}</span>
           <span v-else>{{scope.row.total}}</span>
         </template>
       </el-table-column>
@@ -257,14 +260,10 @@ export default {
       aztjSelectList: [], // 案件状态下拉框数据
       ajlbList: [], // 案件类别下拉框数据
       ajzmList: [], // 案件罪名下拉框数据
-      // dateRand1: [], // 自定义时间集合
-      // dateRand2: [], // 立案日期集合
-      // dateRand3: [], // 破案日期集合
-      // curRow: {}, // 存储当前被点击行数据
       tableData: [], // 列表数据，
-      expandStyle: '', // 展开表格宽度,将它的父级table宽度赋值给它。
       ajlxFirst: '', // 当前选中的案件类别第一级
       ajlbTooltipname: '', // 案件类别tooltip名称
+      ajzmTooltipname: '', // 案件罪名tooltip名称
       typeOption: [ // 认领时间下拉框
         { value: 'week', label: '本周' },
         { value: 'month', label: '本月' },
@@ -308,7 +307,7 @@ export default {
           cityCode: '611000'
         }, {
           cityName: '杨凌示范区',
-          cityCode: '611403'
+          cityCode: '611400'
         },
         {
           cityName: '西咸新区',
@@ -332,22 +331,24 @@ export default {
         }
       },
       paEndPickerOptions: {}, // 破案结束时间的picker限制
+      rlStartPickerOptions: { // 自定义开始时间的picker限制
+        disabledDate(time) {
+          return time.getTime() > Date.now()
+        }
+      },
+      rlEndPickerOptions: {}, // 自定义结束时间的picker限制
       tableHeight: null
     }
   },
   methods: {
     init() {
+      sessionStorage.removeItem('/caseManage/ajrl') // 案件认领
+      sessionStorage.removeItem('/caseManage/caseMergeList') // 重复合并
       this.ajStatusSelect() // 案件状态
       this.query()
     },
     query() {
       this.expandstab = []
-      if (this.filters.rlStartTime && this.filters.rlEndTime && this.filters.rlStartTime > this.filters.rlEndTime) { // 自定义开始时间>自定义开始时间
-        this.$message({
-          message: '结束时间不能小于开始时间', type: 'error'
-        })
-        return false
-      }
       const para = JSON.parse(JSON.stringify(this.filters))
       para.ajztName = this.curAjztName // 案件状态（转换后的汉字）
       if (this.filters.fllb.length > 0) {
@@ -390,9 +391,7 @@ export default {
           }
         }
       }
-      console.log('this.staticData', JSON.stringify(this.staticData))
       this.caseData = Object.assign([], this.staticData)
-      console.log('this.caseData', JSON.stringify(this.caseData))
       for (let index = 0; index < this.caseData.length; index++) {
         const element = this.caseData[index]
         // element.index = index
@@ -407,10 +406,10 @@ export default {
         if (this.curDept.depType === '1') { // 总队
           element.canExpand = true // 可展开
           element.canClick = true // 可点击跳转
-        } else if ((this.curDept.depType === '2' && element.cityCode && element.cityCode === this.curDept.areaCode) || (this.curDept.depType === '4' && element.cityCode && element.cityCode.substring(0, 4) === this.curDept.areaCode.substring(0, 4) === '6114')) { // 地市支队 ,杨凌派出所和杨凌支队同权限
+        } else if ((this.curDept.depType === '2' && element.cityCode === this.curDept.areaCode) || (this.curDept.depType === '4' && element.cityCode.substring(0, 4) === this.curDept.areaCode.substring(0, 4) === '6114')) { // 地市支队 ,杨凌派出所和杨凌支队同权限
           element.canExpand = true // 可展开
           element.canClick = true // 可点击跳转
-        } else if ((this.curDept.depType === '3' || this.curDept.depType === '4') && element.cityCode && element.cityCode === this.curDept.areaCode) { // 区县可以展开自己地市 但是不能点击自己的地市  派出所和他的上级单位同权限
+        } else if ((this.curDept.depType === '3' || this.curDept.depType === '4') && element.cityCode === this.curDept.areaCode) { // 区县可以展开自己地市 但是不能点击自己的地市  派出所和他的上级单位同权限
           element.canExpand = true // 可展开
           element.canClick = false // 不能点击
         }
@@ -438,44 +437,28 @@ export default {
       // console.log('this.caseData', JSON.stringify(this.caseData))
     },
     getRowClass(row) {
-      if (!row.row.total) {
+      if (!row.row.total || !row.row.canExpand) {
         return 'row-expand-cover'
       }
     },
 
-    handleExpand(row) {
-      // if (expands.length) {
-      //   this.expandstab = []
-      //   if (row) {
-      //     this.expandstab.push(row.cityCode)
-      //     // this.curFirstLevelCode = row.deptCode
-      //   } else {
-      //     this.expandstab = []
-      //   }
-      // }
-      if (row.cityCode) {
-        if (this.expandstab.indexOf(row.cityCode) > -1) { // 展开项中存在
-          this.expandstab.splice(this.expandstab.indexOf(row.cityCode), 1)
-        } else { // 展开项中不存在
+    handleExpand(row, expands) {
+      if (expands.length) {
+        this.expandstab = []
+        if (row) {
           this.expandstab.push(row.cityCode)
           this.querySubDeptCaseData(row)
+        } else {
+          this.expandstab = []
         }
       }
-      // var deptList = getSessionDeptSelect()
-      // this.subDeptCaseData = querySonDeptByCity(deptList, row.cityCode)
-      // // console.log('this.subDeptCaseData', JSON.stringify(this.subDeptCaseData))
-      // for (let index = 0; index < this.subDeptCaseData.length; index++) { // 初始化地市下的单位数据全为0
-      //   const element = this.subDeptCaseData[index]
-      //   element.claimed = 0 // 已认领
-      //   element.toClaimed = 0 // 待认领
-      //   element.downward = 0 // 已下发
-      //   element.forward = 0 // 已转发
-      //   element.left = 0 // 重复合并
-      //   element.others = 0 // 其他
-      //   element.total = 0 // 案件总数
-      // }
-      // if (Number(row.total) > 0) { // 上级total>0时 请求接口
-      // this.querySubDeptCaseData(row)
+      // if (row.cityCode) {
+      //   if (this.expandstab.indexOf(row.cityCode) > -1) { // 展开项中存在
+      //     this.expandstab.splice(this.expandstab.indexOf(row.cityCode), 1)
+      //   } else { // 展开项中不存在
+      //     this.expandstab.push(row.cityCode)
+      //     this.querySubDeptCaseData(row)
+      //   }
       // }
     },
 
@@ -580,8 +563,19 @@ export default {
     startDateChangezdy(val) { // 自定义开始时间
       if (val) {
         this.zdyTimeEndDisabled = false // 自定义结束时间可输入
+        this.rlEndPickerOptions = this.$pickerOptionChange(val, this.rlEndPickerOptions, 'end')
       } else {
+        this.filters.rlStartTime = ''
+        this.filters.rlEndTime = ''
         this.zdyTimeEndDisabled = true // 自定义结束时间禁用
+        this.rlStartPickerOptions = this.$pickerOptionChange('', this.rlStartPickerOptions, 'default')
+      }
+    },
+    endDateChangezdy(val) { // 自定义结束时间
+      if (val) {
+        this.rlStartPickerOptions = this.$pickerOptionChange(val, this.rlStartPickerOptions, 'start')
+      } else {
+        this.rlStartPickerOptions = this.$pickerOptionChange('', this.rlStartPickerOptions, 'default')
       }
     },
 
@@ -589,25 +583,40 @@ export default {
       if (!canClick) {
         return false
       }
-      // console.log(deptCode)
-      // filters和如下字段拼接
       var param = Object.assign(this.filters, {
         origin: 'statistical', // 表示从统计跳转过去的
         deptLevel: level, // 区分是一级还是二级
         cityCode: cityCode, // 当前点击的cityCode
         deptCode: deptCode, // 当前点击的部门code  // 张开项里才有此值
         colType: type, // 待认领...等  认领状态
-        ajztName: this.curAjztName,
-        deptType: deptType, // 部门类型
-        isSum: isSum // 是否是最左列合计
+        ajztName: this.curAjztName, // 案件状态中文名称
+        deptType: deptType // 部门类型
       })
-      if (!this.filters.dType && this.filters.dType !== 'zdy') { // 认领时间筛选框
+      if (!type) {
+        if (isSum === 'secondTotal' || isSum !== '合计') { // 二级列表的案件总数和一级非合计行的案件总数
+          param.statusStr = '3,5,10' // 已认领,待认领,其他
+        }
+      }
+
+      if (this.filters.dType && this.filters.dType !== 'zdy') { // 认领时间筛选框
         param.dType = this.filters.dType // 认领时间筛选值
       }
       this.$gotoid('/caseManage/ajrl', JSON.stringify(param))
     },
-    linkcfhb(canClick, level, cityCode, deptCode, type, isSum) { // 跳转重复合并列表
-
+    linkcfhb(canClick, level, cityCode, deptCode, deptType, type) { // 跳转重复合并列表
+      if (!canClick) {
+        return false
+      }
+      var param = Object.assign(this.filters, {
+        origin: 'statistical', // 表示从统计跳转过去的
+        deptLevel: level, // 区分是一级还是二级
+        cityCode: cityCode, // 当前点击的cityCode
+        deptCode: deptCode, // 当前点击的部门code  // 张开项里才有此值
+        colType: type, // 重复合并类型  2
+        ajztName: this.curAjztName, // 案件状态中文名称
+        deptType: deptType // 部门类型
+      })
+      this.$gotoid('/caseManage/caseMergeList', JSON.stringify(param))
     },
     initStaticData() {
       this.staticData = [
@@ -646,7 +655,7 @@ export default {
           cityCode: '611000'
         }, {
           cityName: '杨凌示范区',
-          cityCode: '611403'
+          cityCode: '611400'
         },
         {
           cityName: '西咸新区',
@@ -681,10 +690,10 @@ export default {
       }
       this.curAjztName = '' // 清空案件名称中文
       this.ajlbTooltipname = '' // 清空案件类别Tooltip
+      this.ajzmTooltipname = '' // 清空案件罪名Tooltip
       this.ajlbList = [] // 案件类别下拉框数据
       this.ajzmList = [] // 案件罪名下拉框数据
       this.ajztChange('') // 案件状态的change事件
-      sessionStorage.removeItem('/caseManage/caseClaimStatistical')
       this.query()
     },
     getRowKeys(row) {
@@ -718,8 +727,20 @@ export default {
         this.ajlbTooltipname = ''
       }
     },
+    changeajzmSelect(val) { // 案件罪名通过change事件获取Tooltip名称
+      if (val) {
+        this.ajzmList.forEach(item => {
+          if (val === item.code) {
+            this.ajzmTooltipname = item.name
+          }
+        })
+      } else {
+        this.ajzmTooltipname = ''
+      }
+    },
     changeajlxSelect(val) { // 案件类型change事件
       this.ajlbTooltipname = ''
+      this.ajzmTooltipname = ''
       if (val && val.length > 0) {
         this.isDisable = false // 案件类别、案件罪名可选
         if (this.ajlxFirst || this.ajlxFirst !== val[0]) {
@@ -776,17 +797,15 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
-    // var screenWidth = this.$refs.ajrlStatistical.$el.clientWidth + 'px'
-    // this.expandStyle = 'width:' + screenWidth + ';'
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 290
     this.initStaticData()
     if (sessionStorage.getItem(this.$route.path)) { // 从案件认领返回回来
       var carryParam = JSON.parse(sessionStorage.getItem(this.$route.path))
       this.filters.dType = carryParam.type || ''
       this.filters.rlStartTime = carryParam.startTime || ''
       this.filters.rlEndTime = carryParam.endTime || ''
-      // this.startDateChangezdy(this.filters.rlStartTime)
-      // this.endDateChange(this.filters.rlEndTime)
+      this.startDateChangezdy(this.filters.rlStartTime)
+      this.endDateChangezdy(this.filters.rlEndTime)
       if (this.filters.dType) {
         this.rlsjChange(this.filters.dType)
       }
@@ -833,20 +852,20 @@ export default {
     background-color:transparent;
   }
 
-  // table {
-  //   border: 1px solid #2f627a;
-  //   border-bottom: none;
-  // }
-  // thead th {
-  //   border-right: 1px solid #2f627a;
-  // }
-  // .el-table__body td {
-  //   border-right: 1px solid #2f627a;
-  //   border-bottom: 1px solid #2f627a;
-  // }
-  // .el-table__body-wrapper tr:nth-child(even) {
-  //   background-color: transparent;
-  // }
+  table {
+    border: 1px solid #2f627a;
+    border-bottom: none;
+  }
+  thead th {
+    border-right: 1px solid #2f627a;
+  }
+  .el-table__body td {
+    border-right: 1px solid #2f627a;
+    border-bottom: 1px solid #2f627a;
+  }
+  .el-table__body-wrapper tr:nth-child(even) {
+    background-color: transparent;
+  }
   .datezhi{
     .el-form-item__label{
       text-align: center;
