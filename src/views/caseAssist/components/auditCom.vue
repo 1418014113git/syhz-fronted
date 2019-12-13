@@ -77,9 +77,6 @@ export default {
             if (value === undefined || value === null || value === '') {
               return callback(new Error('请选择开始时间'))
             }
-            // if (new Date(value) < new Date()) {
-            //   return callback(new Error('开始时间不能小于当前系统时间'))
-            // }
             if (this.auditForm.endDate) {
               if (new Date(this.auditForm.endDate) < new Date(value)) {
                 return callback(new Error('开始时间不能大于截止时间'))
@@ -95,6 +92,9 @@ export default {
             }
             if (new Date(this.auditForm.startDate) > new Date(value)) {
               return callback(new Error('截止时间不能小于开始时间'))
+            }
+            if (new Date(value) < new Date()) {
+              return callback(new Error('截止时间不能小于当前系统时间'))
             }
             return callback()
           }
