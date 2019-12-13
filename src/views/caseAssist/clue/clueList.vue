@@ -5,32 +5,13 @@
     <el-form :inline="true"  ref="filters" label-width="90px" class="form">
       <el-col :span="24" style="padding-bottom: 0;">
         <el-form-item label="行政区划">
-          <el-tooltip effect="dark" class="input_w" :content="selectCurxzqhDep.cityName" placement="top-start" :popper-class="(selectCurxzqhDep.cityName&&selectCurxzqhDep.cityName.length>10)===true?'tooltipShow':'tooltipHide'">
-            <el-cascader
-              :options="xzqhOptions"
-              v-model="area"
-              :props="props"
-              change-on-select
-              @change="handleAreaChange"
-              :show-all-levels="false"
-              :disabled="Number(curDept.depType)>2"
-              :clearable="Number(curDept.depType)<2"
-              placeholder="全部">
-            </el-cascader>
+          <el-tooltip effect="dark" :content="selectCurArea.cityName" placement="top-start" :popper-class="(selectCurArea.cityName&&selectCurArea.cityName.length>10)===true?'tooltipShow':'tooltipHide'">
+            <el-cascader :options="areaOptions" :disabled="areaDisabled" :clearable="!areaDisabled && String(curDept.depType) !== '2'" v-model="filters.area" :props="areaProps" change-on-select @change="handleAreaChange" :show-all-levels="false" placeholder="全部" popper-class="caseAssist_cascader"></el-cascader>
           </el-tooltip>
         </el-form-item>
         <el-form-item label="接收单位">
-          <el-tooltip effect="dark" class="input_w" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
-            <el-cascader
-              :options="deptOptions"
-              v-model="department"
-              :props="deptProps"
-              change-on-select
-              :show-all-levels="false"
-              @change="handleDeptChange"
-              :disabled="Number(curDept.depType)>2"
-              placeholder="全部">
-            </el-cascader>
+          <el-tooltip effect="dark" :content="selectCurDep.name" placement="top-start" :popper-class="(selectCurDep.name&&selectCurDep.name.length>9)===true?'tooltipShow':'tooltipHide'">
+            <el-cascader :options="deptOptions" :disabled="deptDisabled" :clearable="!deptDisabled" v-model="filters.department" :props="deptProps" change-on-select :show-all-levels="false" @change="handleDeptChange" placeholder="全部"></el-cascader>
           </el-tooltip>
         </el-form-item>
         <el-form-item label="地址">
@@ -63,7 +44,7 @@
       <el-table :data="listData" v-loading="listLoading" style="width: 100%;" class="" :max-height="tableHeight">
         <el-table-column type="index" width="60" label="序号" ></el-table-column>
         <el-table-column prop="serialNumber"  label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="cityName"  label='地市'  min-width="180" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="cityName"  label='行政区划'  min-width="180" show-overflow-tooltip></el-table-column>
         <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
           <template slot-scope="scope">
             <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
@@ -110,8 +91,8 @@
     </el-col>
 
     <!--线索详情弹出层-->
-    <el-dialog title="详情" :visible.sync="isShowdialog">
-      <clue-detail :row="curRow" :isShowdialog="isShowdialog"></clue-detail>
+    <el-dialog title="详情" :visible.sync="clueDetailVisible">
+      <clue-detail :row="curRow" :isShowdialog="clueDetailVisible"></clue-detail>
     </el-dialog>
   </section>
 </template>
@@ -127,29 +108,24 @@ export default {
   data() {
     return {
       filters: {
+        area: [],
+        department: [],
+        assistId: '', // 集群id
         address: '', // 地址
         departName: '', // 接收单位
         qbxsResult: '', // 协查情况
         serialNumber: '', // 序号
         qbxsCategory: '' // 分类
       },
-      applyDeptCode: '', // 列表页传递过来的申请单位code
-      passWordForm: {
-        queryPwd: ''
-      },
-      assistId: '', // 集群id
-      listData: [],
-      expands: [],
-      area: [],
-      department: [],
-      isShowdialog: false, // 详情弹框
-      listLoading: false, // 列表加载loading
-      xzqhOptions: [], // 行政区划数据
+      showTitle: '地市',
+      showType: '1',
+      initArea: [],
+      initDepartment: [],
+      areaOptions: [], // 行政区划数据
       deptOptions: [], // 部门数据
-      curUser: {}, // 当前登录用户
-      curDept: {}, // 当前登录的部门
-      curRow: {}, // 存储当前被点击行数据
-      props: {
+      selectCurDep: { name: '' }, // 当前选中的部门
+      selectCurArea: { cityName: '' }, // 当前行政区划
+      areaProps: {
         value: 'cityCode',
         label: 'cityName'
       },
@@ -158,120 +134,169 @@ export default {
         label: 'name',
         children: 'children'
       },
+      deptDisabled: false,
+      areaDisabled: false,
+      curUser: JSON.parse(sessionStorage.getItem('userInfo')),
+      curDept: JSON.parse(sessionStorage.getItem('depToken'))[0],
+      curRow: {}, // 存储当前被点击行数据
+      listData: [],
+      clueDetailVisible: false, // 详情弹框
+      listLoading: false, // 列表加载loading
       total: 0,
       page: 1,
       pageSize: 15,
-      selectCurDep: { name: '' }, // 当前选中的部门
-      selectCurxzqhDep: { cityName: '' }, // 当前行政区划
       tableHeight: null, // 列表外层容器的高度
-      dqbmDeptCode: '', // 存储集群列表当前点击行的部门code
-      curAreaCode: '', // 存储集群列表当前点击行的areaCode
-      curDeptType: '', // 存储集群列表当前点击行的部门类型
       tableHead: [], // 表头
-      showTitle: '', // 显示 地市 还是区县
-      showType: '' // 显示类型
+      paramFilter: {
+        cityCode: '',
+        deptCode: ''
+      }
     }
   },
   methods: {
-    init() {
-      this.listLoading = true
+    findParentDept(paramCode, type) { // type 1： 部门   2：区域
+      const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+      for (let i = 0; i < deptArr.length; i++) {
+        const item = deptArr[i]
+        if (type === 1) {
+          if (item.depCode === paramCode) {
+            return item
+          }
+        } else if (type === 2) {
+          if (item.depCode.substring(0, 6) === paramCode) {
+            return item
+          }
+        }
+      }
+    },
+    initData() {
+      if (this.curDept.depType === '1') {
+        this.showTitle = '地市'
+        this.showType = '1'
+      } else if (this.curDept.depType === '2') { // 支队
+        this.showTitle = '地市'
+        this.showType = '1'
+      } else if (this.curDept.depType === '3') { // 大队 派出所
+        this.showTitle = '区县'
+        this.showType = '2'
+      } else if (this.curDept.depType === '4') {
+        if (this.curDept.areaCode === '611400') { // 杨凌例外
+          this.showTitle = '地市'
+          this.showType = '1'
+        } else { // 正常的派出所
+          this.showTitle = '区县'
+          this.showType = '2'
+        }
+      }
+      if (this.$route.query.id) {
+        this.filters.assistId = this.$route.query.id
+        this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type : '' // 核查情况
+        this.paramFilter.cityCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 地市
+        this.paramFilter.deptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 接收部门
+      }
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
-          // this.xzqhOptions = response.data ? response.data[0].children : [] // 获取地市
-          this.xzqhOptions = response.data ? response.data : []
-          var currentArea = []
-          // if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
-          //   // currentArea = [this.curDept.areaCode] // 查所有
-          //   currentArea = [this.curAreaCode]
-          // } else if (this.curDept.depType === '2') { // 支队
-          //   currentArea = [this.curAreaCode]
-          //   if (this.applyDeptCode === this.dqbmDeptCode) { // 如果支队为申请，下发单位，查全部地市，
-
-          //   } else { // 市支队默认为本地市
-          //     for (var i = 0; i < this.xzqhOptions.length; i++) {
-          //       const element = this.xzqhOptions[i]
-          //       if (element.cityCode === this.curAreaCode) {
-          //         this.xzqhOptions[i].disabled = false
-          //       } else {
-          //         this.xzqhOptions[i].disabled = true
-          //       }
-          //     }
-          //   }
-          // } else if (this.curDept.depType === '3') { // 大队
-          //   if (this.curAreaCode) {
-          //     currentArea = [this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
-          //   }
-          // } else if (this.curDept.depType === '4') { // 派出所
-          //   if (this.curAreaCode) {
-          //     if (this.curAreaCode === '611400') { // 杨凌例外
-          //       currentArea = ['611400']
-          //     } else { // 正常的派出所
-          //       currentArea = [this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
-          //     }
-          //   }
-          // }
-          if (this.curDept.depType === '2') { // 登上来的是支队
-            this.xzqhOptions[0].disabled = true
-            if (this.applyDeptCode === this.curDept.depCode) { // 如果登上来的支队是申请，下发单位，查全部地市，
-
-            } else { // 市支队默认为本地市
-              for (var i = 0; i < this.xzqhOptions[0].children.length; i++) {
-                const element = this.xzqhOptions[0].children[i]
-                if (element.cityCode === this.curDept.areaCode) {
-                  this.xzqhOptions[0].children[i].disabled = false
-                } else {
-                  this.xzqhOptions[0].children[i].disabled = true
+          const arr = response.data ? response.data : []
+          if (String(this.curDept.depType) === '2') {
+            arr[0].disabled = true
+            for (let i = 0; i < arr[0].children.length; i++) {
+              const item = arr[0].children[i]
+              if (String(item.cityCode) !== String(this.curDept.areaCode)) {
+                item.disabled = true
+              }
+            }
+          }
+          this.areaOptions = arr
+          let currentArea = []
+          if (this.paramFilter.cityCode !== '') {
+            if (this.paramFilter.cityCode === '610000') {
+              currentArea = ['610000']
+            } else {
+              const curDept = this.findParentDept(this.paramFilter.cityCode, 2)
+              curDept.areaCode = this.paramFilter.cityCode
+              if (curDept.depType === '2') { // 支队
+                currentArea = ['610000', curDept.areaCode]
+              } else if (curDept.depType === '3') { // 大队 派出所
+                currentArea = ['610000', curDept.areaCode.substring(0, 4) + '00', curDept.areaCode]
+              } else if (curDept.depType === '4') {
+                if (curDept.areaCode === '611400') { // 杨凌例外
+                  currentArea = ['610000', '611400']
+                } else { // 正常的派出所
+                  currentArea = ['610000', curDept.areaCode.substring(0, 4) + '00', curDept.areaCode]
                 }
               }
+              if (this.curDept.depType === '3') { // 大队 派出所
+                this.deptDisabled = true
+                this.areaDisabled = true
+              } else if (this.curDept.depType === '4') {
+                this.areaDisabled = true
+              }
             }
-          }
-          if (this.curDeptType === -1 || this.curDeptType === 1 || this.curDeptType === '') { // 当前行部门 省 总队
-            // currentArea = [this.curAreaCode]
-          } else if (this.curDeptType === 2) { // 当前行部门支队
-            if (this.curAreaCode) {
-              currentArea = ['610000', this.curAreaCode]
-            }
-          } else if (this.curDeptType === 3) { // 大队
-            if (this.curAreaCode) {
-              currentArea = ['610000', this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
-            }
-          } else if (this.curDeptType === 4) { // 派出所
-            if (this.curAreaCode) {
-              if (this.curAreaCode === '611400') { // 杨凌例外
+          } else {
+            if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
+              currentArea = ['610000']
+            } else if (this.curDept.depType === '2') { // 支队
+              currentArea = ['610000', this.curDept.areaCode]
+            } else if (this.curDept.depType === '3') { // 大队 派出所
+              currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+              this.deptDisabled = true
+              this.areaDisabled = true
+            } else if (this.curDept.depType === '4') {
+              this.areaDisabled = true
+              if (this.curDept.areaCode === '611400') { // 杨凌例外
                 currentArea = ['610000', '611400']
               } else { // 正常的派出所
-                currentArea = ['610000', this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+                currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
               }
             }
           }
-
-          this.area = currentArea
+          this.initArea = currentArea
+          this.filters.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
-          if (this.curDeptType === -1 || this.curDeptType === 1) { // 省厅、总队
-
-          } else if (this.curDeptType === 2 || this.curDeptType === 3) { // 支队， 大队
-            if (this.dqbmDeptCode) {
-              this.department = [this.dqbmDeptCode]
+          let currentDepartment = []
+          if (this.paramFilter.deptCode !== '') {
+            currentDepartment = [this.paramFilter.deptCode]
+            const curDept = this.findParentDept(this.paramFilter.deptCode, 1)
+            if (curDept.depType === '-1') { // 省
+              currentDepartment = [curDept.depCode]
+            } else if (curDept.depType === '1') { // 总队
+              currentDepartment = [curDept.parentDepCode, curDept.depCode]
+            } else if (curDept.depType === '2') { // 支队
+              currentDepartment = [curDept.depCode]
+            } else if (curDept.depType === '3') { // 大队
+              currentDepartment = [curDept.depCode]
+            } else if (curDept.depType === '4') { // 派出所
+              currentDepartment = [curDept.parentDepCode, curDept.depCode]
             }
+          } else {
+            // 此处不默认选中本单位
+            // 默认选择本单位
+            // if (this.curDept.depType === '-1') { // 省
+            //   currentDepartment = [this.curDept.depCode]
+            // } else if (this.curDept.depType === '1') { // 总队
+            //   currentDepartment = [this.curDept.parentDepCode, this.curDept.depCode]
+            // } else if (this.curDept.depType === '2') { // 支队
+            //   currentDepartment = [this.curDept.depCode]
+            // } else if (this.curDept.depType === '3') { // 大队
+            //   currentDepartment = [this.curDept.depCode]
+            // } else if (this.curDept.depType === '4') { // 派出所
+            //   currentDepartment = [this.curDept.parentDepCode, this.curDept.depCode]
+            // }
           }
-          this.handleDeptChange(this.department)
-          this.query(true) // 查询列表
+          this.initDepartment = currentDepartment
+          this.filters.department = currentDepartment
         }
+        this.query(true)
       }).catch(() => {
-        this.listLoading = false
       })
     },
     handleAreaChange(val) { // 行政区划
-      this.department = []
       this.selectCurDep = { name: '' } // 当前选中的部门
+      this.filters.department = []
       if (val.length > 0) {
-        this.xzqhDepChange(val)
         this.deptOptions = [] // 清空单位机构数据
         this.selectCurDep = { name: '' } // 清空当前选中的单位机构
-        var param = {
-          // provinceCode: '610000',
-          // cityCode: val[0] || '',
-          // reginCode: val[1] || ''
+        const param = {
           provinceCode: val[0] || '',
           cityCode: val[1] || '',
           reginCode: val[2] || ''
@@ -300,33 +325,9 @@ export default {
         this.deptOptions = []
       }
     },
-    xzqhDepChange(val) { // 地市获取当前tiptop信息
-      if (val.length > 0) {
-        if (this.xzqhOptions && this.xzqhOptions.length > 0) {
-          var xzqhOptions = this.xzqhOptions
-          for (let i = 0; i < xzqhOptions.length; i++) {
-            const dept = xzqhOptions[i]
-            if (dept.cityCode === val[val.length - 1]) {
-              this.selectCurxzqhDep = dept
-            } else {
-              if (dept.children && dept.children.length > 0) {
-                for (let j = 0; j < dept.children.length; j++) {
-                  const depts = dept.children[j]
-                  if (depts.cityCode === val[val.length - 1]) {
-                    this.selectCurxzqhDep = depts
-                  }
-                }
-              }
-            }
-          }
-        }
-      } else {
-        this.selectCurxzqhDep = { cityName: '' }
-      }
-    },
     handleDeptChange(val) { // 单位机构名称鼠标移上去显示全部
       if (val.length > 0) {
-        var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+        const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
         for (let i = 0; i < deptArr.length; i++) {
           const dept = deptArr[i]
           if (dept.depCode === val[val.length - 1]) {
@@ -343,66 +344,39 @@ export default {
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
-        // receiveName: this.filters.receiveName,	// 接收单位
         address: this.filters.address, // 地址
         qbxsResult: this.filters.qbxsResult, // 协查情况
         serialNumber: this.filters.serialNumber, //  序号
         qbxsCategory: this.filters.qbxsCategory, // 分类
         pageNum: this.page, // 页数
         pageSize: this.pageSize, // 条数
-        assistId: this.assistId, // 集群id
-        assistType: this.$route.query.assistType ? 1 : 2, // 1 协查， 2 集群
-        showType: this.showType // 是查地市还是区县
+        assistId: this.filters.assistId,
+        assistType: this.$route.query.assistType,
+        showType: this.showType
       }
-      if (this.curAreaCode !== '610000') { // 省厅不传
-        para.deptCode = this.applyDeptCode === this.dqbmDeptCode ? '' : this.dqbmDeptCode
-      }
-
+      para.deptCode = this.filters.department.length > 0 ? this.filters.department[this.filters.department.length - 1] : ''
+      para.provinceCode = this.filters.area[0] ? this.filters.area[0] : ''
+      para.cityCode = this.filters.area[1] ? this.filters.area[1] : ''
+      para.reginCode = this.filters.area[2] ? this.filters.area[2] : ''
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
-
-      // if (this.area && this.area.length > 0) { // 行政区划
-      //   // para.provinceCode = '610000' // 省code
-      //   para.cityCode = this.area[0] || '' // 市code
-      //   para.reginCode = this.area[1] || '' // 区code
-      // } else {
-      //   // para.provinceCode = '610000' // 省code
-      //   para.cityCode = '' // 市cod
-      //   para.reginCode = '' // 区code
-      // }
-      if (this.area && this.area.length > 0) { // 行政区划
-        para.provinceCode = this.area[0] || '' // 省code
-        para.cityCode = this.area[1] || '' // 市code
-        para.reginCode = this.area[2] || '' // 区code
-      } else {
-        para.provinceCode = '' // 省code
-        para.cityCode = '' // 市code
-        para.reginCode = '' // 区code
-      }
-      if (this.department && this.department.length > 0) { // 单位机构
-        var deptCode = this.department[this.department.length - 1]// 部门code
-        para.deptCode = deptCode// 部门code
-      }
       this.$query('caseassistclue/feedBackClues', para).then((response) => {
         this.listLoading = false
+        this.listData = response.data.list // 列表
         if (response.data.list && response.data.list.length > 0) {
           this.total = response.data.totalCount
           this.page = response.data.pageNum
           this.pageSize = response.data.pageSize
-          this.listData = response.data.list // 列表
-          var titles = response.data.titles // 表头
+          const titles = response.data.titles // 表头
           this.tableHead = []
           titles.forEach((item, index) => {
             if (index > 0) {
               this.tableHead.push(item) // 表头数据只取序号之后的
             }
           })
-        } else {
-          this.initData()
         }
       }).catch(() => {
-        this.initData()
         this.listLoading = false
       })
     },
@@ -410,13 +384,6 @@ export default {
       this.$alert(text, '内容', {
         confirmButtonText: '关闭'
       })
-    },
-    initData() {
-      this.page = 1
-      this.total = 0
-      this.pageSize = 15
-      this.listData = []
-      this.tableHead = []
     },
     handleCurrentChange(val) {
       this.page = val
@@ -427,62 +394,31 @@ export default {
       this.query(true, true)
     },
     handleDetail(index, row) { // 详情
-      this.isShowdialog = true
+      this.clueDetailVisible = true
       this.curRow = row
     },
     resetForm() { // 重置
       this.filters = {
+        area: this.initArea,
+        department: this.initDepartment,
+        assistId: this.$route.query.id,
         address: '', // 地址
         departName: '', // 接收单位
         xcqk: '', // 协查情况
         sort: '', // 序号
         type: '' // 分类
       }
-      this.area = []
-      this.department = []
-      this.initData()
-      this.init()
+      this.handleAreaChange(this.initArea)
+      this.filters.department = this.initDepartment
+      this.query(true)
     },
     toback() { // 返回
       this.$router.back(-1)
     }
   },
   mounted() {
-    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-    if (sessionStorage.getItem('depToken')) {
-      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    }
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 320
-    if (this.curDept.depType === '1') { // 总队
-      // this.showTitle = '地市'
-      this.showType = '1'
-    } else if (this.curDept.depType === '2') { // 支队
-      // this.showTitle = '地市'
-      this.showType = '1'
-    } else if (this.curDept.depType === '3') { // 大队 派出所
-      // this.showTitle = '区县'
-      this.showType = '2'
-    } else if (this.curDept.depType === '4') {
-      if (this.curDept.areaCode === '611400') { // 杨凌例外
-        // this.showTitle = '地市'
-        this.showType = '1'
-      } else { // 正常的派出所
-        // this.showTitle = '区县'
-        this.showType = '2'
-      }
-    }
-    if (this.$route.query.id) {
-      this.assistId = this.$route.query.id
-      this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type : '' // 核查情况
-      this.applyDeptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 申请，下发单位code
-      this.dqbmDeptCode = this.$route.query.curDeptCode ? this.$route.query.curDeptCode : '' // 存储集群列表当前点击行的部门code
-      this.curAreaCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 存储集群列表当前点击行的areaCode
-      this.curDeptType = this.$route.query.deptType ? this.$route.query.deptType : '' // 存储集群列表当前点击行的部门类型
-      this.init()
-    }
-  },
-  activated() {
-
+    this.initData()
   }
 }
 </script>
@@ -497,18 +433,6 @@ export default {
   .el-dialog__body {
     padding: 10px 0 15px 20px;
   }
-  // .el-table--border th {
-  //   border-bottom: 1px solid #2f627a;
-  //   border-right: 1px solid #2f627a;
-  // }
-  // .el-table--border,
-  // .el-table--group {
-  //   border: 1px solid #2f627a;
-  // }
-  // .el-table--border td {
-  //   // border-right: 1px solid #2f627a;
-  //   border-right-color: #2f627a;
-  // }
   .el-table--border, .el-table--group {
     border: 0;
   }

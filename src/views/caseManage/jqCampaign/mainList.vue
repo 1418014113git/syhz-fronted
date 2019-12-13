@@ -88,24 +88,24 @@
               <el-table-column type="index" width="60" label="序号"></el-table-column>
               <el-table-column prop="deptName" label="地市"  min-width="200" show-overflow-tooltip></el-table-column>
               <el-table-column prop=""  label="核查线索数量（已核查/总）" >
-                <template slot-scope="scope">
-                  <span v-if="constrolxsnum(scope.row) || $isViewBtn('101908')">
-                    <span class="linkColor" v-if="scope.row.hc && scope.row.hc>0" @click="handleClueList(scope.row,'2')">{{scope.row.hc}}</span>
+                <template slot-scope="sonScope">
+                  <span v-if="constrolxsnum(scope.row,sonScope.row)">
+                    <span class="linkColor" v-if="sonScope.row.hc && sonScope.row.hc>0" @click="handleClueList(sonScope.row,'2')">{{sonScope.row.hc}}</span>
                     <span v-else>0</span>
                     /
-                    <span class="linkColor"  v-if="scope.row.xsNum && scope.row.xsNum>0" @click="handleClueList(scope.row,'')">{{scope.row.xsNum}}</span>
+                    <span class="linkColor"  v-if="sonScope.row.xsNum && sonScope.row.xsNum>0" @click="handleClueList(sonScope.row,'')">{{sonScope.row.xsNum}}</span>
                     <span v-else>0</span>
                   </span>
                   <span v-else>
-                    <span>{{scope.row.hc ? scope.row.hc:0}}</span>
+                    <span>{{sonScope.row.hc ? sonScope.row.hc:0}}</span>
                     /
-                    <span>{{scope.row.xsNum ? scope.row.xsNum:0}}</span>
+                    <span>{{sonScope.row.xsNum ? sonScope.row.xsNum:0}}</span>
                   </span>
                 </template>
               </el-table-column>
               <el-table-column prop="hcl" label="核查率">
-                <template slot-scope="scope">
-                  <span>{{scope.row.hcl ? scope.row.hcl : 0}}%</span>
+                <template slot-scope="sonScope">
+                  <span>{{sonScope.row.hcl ? sonScope.row.hcl : 0}}%</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -343,10 +343,10 @@ export default {
       })
     },
     constrolxsTotal(row) { // 线索总数点击权限控制
-      return (this.curDept.depType === '1' || (this.curDept.depType === '2' && (this.curDept.areaCode === row.cityCode || this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4))) || (this.curDept.depType === '4' && (this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114')))
+      return this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.applyDeptCode || (row.category === 3 && (this.curDept.depCode === row.auditDeptCode)) || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode)
     },
-    constrolxsnum(row) { // 核查线索数量点击权限控制
-      return (this.curDept.depType === '1' || (this.curDept.depType === '2' && ((this.curDept.areaCode === row.cityCode) || (this.curDept.depCode === row.applyDeptCode) || this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4))) || (this.curDept.depType === '4' && ((this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114') || (this.curDept.depCode.substring(0, 4) === row.applyDeptCode.substring(0, 4) === '6114'))))
+    constrolxsnum(zRow, row) { // 核查线索数量点击权限控制
+      return this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.deptCode || (zRow.category === 3 && (this.curDept.depCode === zRow.auditDeptCode)) || this.curDept.depCode === row.applyDeptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode)
     },
     controlxg(row) { // 控制列表修改按钮
       return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))
@@ -757,9 +757,9 @@ export default {
     },
     handleClueList(row, type, param) { // 线索列表
       if (param) { // 外层列表
-        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.applyDeptCode }}) // 跳转到线索列表页
+        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.applyDeptCode, deptType: row.deptType }}) // 跳转到线索列表页
       } else { // 展开行列表
-        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode }}) // 跳转到线索列表页
+        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode, deptType: row.deptType }}) // 跳转到线索列表页
       }
     },
     exportList() { // 导出

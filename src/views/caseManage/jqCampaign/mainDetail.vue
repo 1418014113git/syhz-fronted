@@ -15,10 +15,20 @@
           <div class="rightContDoc" ref="rightContDoc">
             <base-info class="marb bg jbxx"  :info="baseInfo"></base-info>
             <verify-info class="marb bg shxx"  :info="baseInfo"></verify-info>
-            <area-sign class="marb bg dsqs"  :info="baseInfo" v-if="isShow"></area-sign>
-            <area-back class="marb bg dsfk"  :info="baseInfo" v-if="isShow"></area-back>
-            <county-sign class="marb bg qxqs"  :info="baseInfo" v-if="!isShow"></county-sign>
-            <county-back class="marb bg qxfk"  :info="baseInfo" v-if="!isShow"></county-back>
+            <div v-if="isShow1">
+              <area-sign class="marb bg dsqs"  :info="baseInfo"></area-sign>
+              <area-back class="marb bg dsfk"  :info="baseInfo"></area-back>
+            </div>
+            <div v-else-if="isShow2">
+              <area-sign class="marb bg dsqs"  :info="baseInfo"></area-sign>
+              <area-back class="marb bg dsfk"  :info="baseInfo"></area-back>
+              <county-sign class="marb bg qxqs"  :info="baseInfo"></county-sign>
+              <county-back class="marb bg qxfk"  :info="baseInfo"></county-back>
+            </div>
+            <div v-else-if="isShow3">
+              <county-sign class="marb bg qxqs"  :info="baseInfo"></county-sign>
+              <county-back class="marb bg qxfk"  :info="baseInfo"></county-back>
+            </div>
           </div>
         </el-col>
      </el-row>
@@ -43,9 +53,12 @@ export default {
       classList: [],
       classList1: ['jbxx', 'shxx', 'dsqs', 'dsfk'], // 地市
       classList2: ['jbxx', 'shxx', 'qxqs', 'qxfk'], // 区县
+      classList3: ['jbxx', 'shxx', 'dsqs', 'dsfk', 'qxqs', 'qxfk'], // 地市、区县
       curUser: {}, // sessionStorage获取用户信息
       curDept: {}, // sessionStorage获取机构信息
-      isShow: false,
+      isShow1: false,
+      isShow2: false,
+      isShow3: false,
       jqid: '', // 集群id
       baseInfo: {}
 
@@ -145,12 +158,15 @@ export default {
     const _this = this
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      if (this.curDept.depType === '1' || this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.parentDepCode === '611400390000')) { // 总队 支队 (杨凌派出所和杨凌支队同权限)
-        this.classList = this.classList1
-        this.isShow = true
-      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.parentDepCode !== '611400390000')) { // 大队，派出所
-        this.classList = this.classList2
-        this.isShow = false
+      if (this.curDept.depType === '1' || this.curDept.areaCode.substring(0, 4) === '6114') { // 总队、杨凌支队、杨凌派出所(杨凌派出所和杨凌支队同权限)
+        this.classList = this.classList1 // 显示地市签收、反馈右侧列表
+        this.isShow1 = true
+      } else if (this.curDept.depType === '2' && this.curDept.areaCode.substring(0, 4) !== '6114') { // 非杨凌的支队
+        this.classList = this.classList3 // 显示地市签收、反馈，区县签收、反馈右侧列表
+        this.isShow2 = true
+      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 大队，非杨凌的派出所
+        this.classList = this.classList2 // 显示区县签收、反馈右侧列表
+        this.isShow3 = true
       }
     }
     document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化

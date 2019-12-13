@@ -467,7 +467,7 @@ export default {
         param.cityCode = this.ajInfo.deptCode.substring(0, 6)
       }
       this.$router.push({
-        path: '/caseManage', query: param// 传递案件编号
+        path: '/caseManage/caseList', query: param
       })
     },
     getajData() { // 查询案件发生前/后同类案件数据
