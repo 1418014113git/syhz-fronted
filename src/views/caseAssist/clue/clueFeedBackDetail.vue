@@ -73,7 +73,11 @@
             </el-table-column>
             <el-table-column prop="ajztName"  label='案件状态'  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="larq"  label='立案日期'  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="parq"  label='破案日期'  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="parq"  label='破案日期'  min-width="100" show-overflow-tooltip>
+              <template slot-scope="scope">
+                {{scope.row.parq !== undefined && scope.row.parq !== null && scope.row.parq !== '' ? scope.row.parq : '-'}}
+              </template>
+            </el-table-column>
             <el-table-column prop="zhrys"  label='抓获（人）'  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
                 <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.zhrys"  maxlength="11" @keyup.native="number('zhrys',scope.row)" class="textCen"></el-input>
