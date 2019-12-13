@@ -171,14 +171,15 @@ export default {
       curDeptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前用户的部门
       rlBtn: true,
       tingDeptData:
-        {
-          code: '610000530000',
-          name: '陕西省公安厅环食药总队'
-        },
+      {
+        code: '610000530000',
+        name: '陕西省公安厅环食药总队'
+      },
 
       laPickerOpt: {},
       paPickerOpt: {},
-      pcsParentDept: {}
+      pcsParentDept: {},
+      ajflwsYear: ''
     }
   },
   components: {
@@ -229,7 +230,7 @@ export default {
           this.paDate = this.ajInfo.PARQ
           this.paPickerChange(this.paDate)
         }
-        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2020) {
+        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2019) {
           this.showYear = false
         } else {
           this.showYear = true
@@ -585,7 +586,7 @@ export default {
         this.ajInfo.parq = this.paDate.replace(/-/g, '')
       }
       this.ajInfo.ajzt = this.ajInfo.AJZT
-      // 判断案件是否是2019年以前的 2019年以前的不需要有法律文书相关信息
+
       if (this.ajInfo.larq && Number(this.ajInfo.larq.substr(0, 4)) > 2020) {
         if (!(this.flwsInfo.list > 0)) { // 判断是否有法律文书
           var messageHtml = ''
