@@ -210,8 +210,8 @@
           <el-button size="small" type="primary" plain v-if="scope.row.status!=3 && $isViewBtn('100703')"  @click="handleAjDetail(scope.$index, scope.row)">案件详情</el-button>
           <el-button size="small" type="primary" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100704')"  :disabled="scope.row.status!=3" @click="handleAjDetail(scope.$index, scope.row)">案件认领</el-button>
           <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && downBtn"  @click="handleZDGX(0, scope.row, 'ajxfForm')">下发案件</el-button>
-          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100707') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">转发案件</el-button>
-          <el-button size="small" type="danger"  plain v-if="scope.row.status==3  && hasAccess(scope.row) && $isViewBtn('100706')"  @click="handleZDGX(2, scope.row, 'ajcxForm')">撤销案件</el-button>
+          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100707') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">转回上级案件</el-button>
+          <el-button size="small" type="danger"  plain v-if="scope.row.status==3  && hasAccess(scope.row) && $isViewBtn('100706')"  @click="handleZDGX(2, scope.row, 'ajcxForm')">非环食药案件</el-button>
           <el-button size="small" type="danger"  plain v-if="scope.row.status==10 && $isViewBtn('100708')"  @click="handleZDGX(3, scope.row, 'ajhfForm')">恢复案件</el-button>
           <el-button size="small" type="danger"  plain v-if="$isViewBtn('100702')"  @click="handleAJSIGN(scope.row.AJBH)">认领详情</el-button>
         </template>
@@ -240,16 +240,20 @@
       </el-form>
     </el-dialog>
 
-    <!--案件转发-->
-    <el-dialog title="案件转发" :visible.sync="dialogSBVisible" size="small">
+    <!--转回上级案件-->
+    <el-dialog title="转回上级案件" :visible.sync="dialogSBVisible" size="small">
       <el-form class="ajInfoForm" style="margin:0 auto" :rules="rules3" :model="ajInfo" ref="ajzfForm" size="small" label-width="110px"
                @submit.prevent="onSubmit">
-        <el-form-item label="转发单位：" prop="noticeOrgCode">
+        <el-form-item label-width="0px" >
+       <p>将案件转回上级单位，变为上级单位待认领案件。</p>
+        </el-form-item>
+
+        <el-form-item label="接收单位：" prop="noticeOrgCode">
           <el-select v-model="noticeOrgCode" placeholder="请选择" style="width:100%" @change="getDeptNameChange">
             <el-option v-for="item in parentDeptList" :key="'zf'+item.id" :label="item.name" :value="item.depCode"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="转发原因："  prop="revokeReason">
+        <el-form-item label="原因："  prop="revokeReason">
           <el-input  type="textarea" v-model="ajInfo.revokeReason" auto-complete="off" maxlength="200"></el-input>
         </el-form-item>
         <div style="text-align: center">
@@ -275,10 +279,17 @@
     </el-dialog>
 
     <!--撤销案件-->
-    <el-dialog title="撤销案件" :visible.sync="dialogRevokeVisible" size="small">
+    <el-dialog title="非环食药案件" :visible.sync="dialogRevokeVisible" size="small">
       <el-form class="ajInfoForm" style="width: 85%; margin:0 auto" :rules="rules2" :model="ajInfo" ref="ajcxForm"   size="small" label-width="120px"
                @submit.prevent="onSubmit">
-        <el-form-item label="撤销原因："  prop="revokeReason">
+
+
+       <el-form-item label-width="0px" >
+         <p>将案件标记为"非环食药"状态，标记后，可以通过"恢复案件"功能恢复为待认领案件。</p>
+       </el-form-item>
+
+
+        <el-form-item label="原因："  prop="revokeReason">
           <el-input  type="textarea" v-model="ajInfo.revokeReason" auto-complete="off" maxlength="200"></el-input>
         </el-form-item>
         <div style="text-align: center">
@@ -452,8 +463,8 @@ export default {
         { value: '1', label: '待认领' },
         { value: '2', label: '已认领' },
         { value: '3', label: '下发案件' },
-        { value: '4', label: '转发案件' },
-        { value: '5', label: '撤销案件' }
+        { value: '4', label: '转回上级案件' },
+        { value: '5', label: '非环食药案件' }
       ],
       cityList: [
         {
@@ -766,14 +777,14 @@ export default {
         return '已认领'
       } else if (row.status === '9') {
         if (row.notice_lx === 2) {
-          return '转发案件'
+          return '转回上级案件'
         } if (row.notice_lx === 1) {
           return '下发案件'
         } if (row.notice_lx === 3) {
           return '恢复案件'
         }
       } else if (row.status === '10') {
-        return '撤销案件'
+        return '非环食药案件'
       }
       return row.status
     },
@@ -855,7 +866,7 @@ export default {
         this.dialogXFVisible = false
       }
       if (type === 2) {
-        msg = '转发成功'
+        msg = '转回上级成功'
         this.dialogSBVisible = false
       }
       if (type === 3) {
@@ -910,14 +921,14 @@ export default {
               str = '案件下发'
             }
             if (obj.notice_lx === 2) {
-              str = '案件转发'
+              str = '转回上级'
             }
             if (obj.notice_lx === 3) {
               str = '恢复案件'
             }
           }
           if (obj.status === '10') {
-            str = '撤销案件'
+            str = '非环食药案件'
           }
           if (obj.status === '9') {
             let receive = ''
@@ -963,7 +974,7 @@ export default {
             if (response.code === '000000') {
               this.cxLoading = false
               this.$message({
-                message: '撤销案件成功',
+                message: '标记非环食药案件成功',
                 type: 'success'
               })
               this.dialogRevokeVisible = false
