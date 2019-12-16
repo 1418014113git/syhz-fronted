@@ -194,6 +194,13 @@ export default {
           localStorage.setItem('curAppCode', 'B')
           this.$router.push({ path: '/jqcampaign' }) // 集群战役列表
         }
+        if (node.business_type === 'cfajhb') { // 重复案件合并
+          localStorage.setItem('curAppCode', 'B')
+          var mergeParam = {
+            origin: 'portal'
+          }
+          this.$gotoid('/caseManage/caseMergeList', JSON.stringify(mergeParam)) // 重复案件合并列表
+        }
       }
     },
     getSignCount() { // 签收待办
@@ -335,11 +342,9 @@ export default {
         })
       })
     },
-    getAjrl() { // 其他待办 下的数据获取
+    getAjrl() { // 其他待办 下的数据获取 this.listData[3] 加数据
       // console.log('pcsParent' + JSON.stringify(this.pcsParentDept))
-      var para = {
-
-      }
+      var para = {}
       if (this.currentDep.depType === '4') {
         para.businessType = 2
         para.noticeOrgId = this.pcsDeptCode
@@ -363,6 +368,16 @@ export default {
       if (this.$isViewBtn('101910')) { // 集群战役或协查待反馈数量 有反馈权限
         this.queryjqzydfk() // 查询集群战役或协查待反馈数量
       }
+      // 查案件合并待办
+      var deptCode = this.currentDep.depType === '4' ? this.pcsDeptCode : this.currentDep.depCode
+      this.$query('caseMerge/wait', { deptCode: deptCode }).then(response => {
+        const data = response.data
+        if (data.num > 0) {
+          this.listData[3].data.push({
+            data_op: '重复案件合并', num: data.num, business_type: 'cfajhb' // 重复案件合并
+          })
+        }
+      })
     },
     queryjqzydfk() { // 查询集群战役或协查待反馈数量
       var deptCode = this.currentDep.depType === '4' ? this.pcsDeptCode : this.currentDep.depCode

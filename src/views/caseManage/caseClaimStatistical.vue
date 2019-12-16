@@ -201,7 +201,7 @@
       </el-table-column>
       <el-table-column prop="left" label="重复合并" min-width="5%" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.left>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkcfhb(scope.row.canClick,'second',scope.row.cityCode,'','','2')">{{$thousSplit(scope.row.left+'')}}</span>
+          <span v-if="scope.row.left>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkcfhb(scope.row.canClick,'first',scope.row.cityCode,'','','2')">{{$thousSplit(scope.row.left+'')}}</span>
           <span v-else >{{scope.row.left}}</span>
         </template>
       </el-table-column>
@@ -218,6 +218,34 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 重复合并列表弹框 -->
+    <el-dialog title="重复合并案件" :visible.sync="mergeVisible" :modal-append-to-body="false">
+      <el-table :data="casesMerge" highlight-current-row v-loading="mergeLoading" style="width: 100%;" max-height="700px">
+      <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
+      <el-table-column label="案件名称" min-width="200" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <a @click="handleAjDetail(scope.$index, scope.row)">{{scope.row.ajmc}}</a>
+        </template>
+      </el-table-column>
+      <el-table-column label="案件编号" width="230" show-overflow-tooltip align="center">
+        <template slot-scope="scope">
+          <a class="ajbh-color" @click="handleAjDetail(scope.$index, scope.row)">{{scope.row.ajbh}}</a>
+        </template>
+      </el-table-column>
+      <el-table-column prop="ajlbName" label="案件类别" width="200" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="ajzt" label="案件状态" width="100" align="center">
+        <template slot-scope="scope">
+          {{getAjztName(scope.row.ajzt)}}
+        </template>
+      </el-table-column>
+      <el-table-column prop="larq" label="立案日期" width="120" align="center">
+        <template slot-scope="scope">
+          <span v-if="scope.row.larq">{{$handlerDateTime(scope.row.larq)}}</span>
+          <span v-else></span>
+        </template>
+      </el-table-column>
+      </el-table>
+    </el-dialog>
   </section>
 </template>
 
@@ -249,7 +277,7 @@ export default {
       fllbList: getSYHFLLBList(), // 案件类型下拉框数据
       expandstab: [], // 设置当前的展开行
       zdyTimeDisabled: true, // 自定义时间输入框默认禁用，当认领时间选择了"自定义"时，可解除禁用
-      zdyTimeEndDisabled: true, // 自定义结束时间
+      zdyTimeEndDisabled: true, // 自定义结束时间禁用
       listLoading: false, // 列表加载loading
       subLoading: false, // 子列表loading
       isDisable: true, // 案件类别、案件罪名是否可选，默认不可选，当选择了案件类型时，案件类别、案件罪名可选。
@@ -337,7 +365,11 @@ export default {
         }
       },
       rlEndPickerOptions: {}, // 自定义结束时间的picker限制
-      tableHeight: null
+      ajztAll: [],
+      tableHeight: null,
+      mergeVisible: false,
+      mergeLoading: false,
+      casesMerge: [] // 重复合并列表数据
     }
   },
   methods: {
@@ -524,6 +556,14 @@ export default {
       }
       this.query()
     },
+    getAjztName(ajzt) { // 取案件状态汉字
+      for (let i = 0; i < this.ajztAll.length; i++) {
+        const item = this.ajztAll[i]
+        if (String(ajzt) === String(item.code)) {
+          return item.codeName
+        }
+      }
+    },
     startDateChangeLa(val) { // 立案开始时间change事件
       if (val) {
         this.endDateDisabledLa = false // 立案结束日期可输入
@@ -612,18 +652,41 @@ export default {
       if (!canClick) {
         return false
       }
-      var param = JSON.parse(JSON.stringify(this.filters))
-      param.origin = 'statistical' // 表示从统计跳转过去的
-      param.deptLevel = level // 区分是一级还是二级
-      param.cityCode = cityCode // 当前点击的cityCode
-      param.deptCode = deptCode// 当前点击的部门code  // 张开项里才有此值
-      param.colType = type // 待认领...等  认领状态
-      param.ajztName = this.curAjztName // 案件状态中文名称
-      param.deptType = deptType // 部门类型
-      if (param.dType && param.dType !== 'zdy') { // 认领时间筛选框
-        param.dType = param.dType // 认领时间筛选值
+      this.mergeVisible = true
+      this.casesMerge = []
+      const para = JSON.parse(JSON.stringify(this.filters))
+      para.ajztName = this.curAjztName // 案件状态（转换后的汉字）
+      if (this.filters.fllb.length > 0) {
+        para.fllb = this.filters.fllb.join(',')
+      } else {
+        para.fllb = ''
       }
-      this.$gotoid('/caseManage/caseMergeList', JSON.stringify(param))
+      if (deptCode) {
+        para.deptCode = deptCode
+      } else if (cityCode) {
+        para.cityCode = cityCode
+      }
+      this.mergeLoading = true
+      this.$query('mergeajjbxxsyh', para).then((response) => {
+        if (response.code === '000000') {
+          this.mergeLoading = false
+          this.casesMerge = response.data
+        }
+      }).catch(() => {
+        this.mergeLoading = false
+      })
+      // var param = JSON.parse(JSON.stringify(this.filters))
+      // param.origin = 'statistical' // 表示从统计跳转过去的
+      // param.deptLevel = level // 区分是一级还是二级
+      // param.cityCode = cityCode // 当前点击的cityCode
+      // param.deptCode = deptCode// 当前点击的部门code  // 张开项里才有此值
+      // param.colType = type // 待认领...等  认领状态
+      // param.ajztName = this.curAjztName // 案件状态中文名称
+      // param.deptType = deptType // 部门类型
+      // if (param.dType && param.dType !== 'zdy') { // 认领时间筛选框
+      //   param.dType = param.dType // 认领时间筛选值
+      // }
+      // this.$gotoid('/caseManage/caseMergeList', JSON.stringify(param))
     },
     initStaticData() {
       this.staticData = [
@@ -695,6 +758,11 @@ export default {
         ajzm: '', // 案件罪名
         fllb: [] // // 案件类型
       }
+      this.zdyTimeDisabled = true // 自定义时间输入框默认禁用，当认领时间选择了"自定义"时，可解除禁用
+      this.zdyTimeEndDisabled = true // 自定义结束时间禁用
+      this.isDisable = true // 案件类别、案件罪名是否可选，默认不可选，当选择了案件类型时，案件类别、案件罪名可选。
+      this.endDateDisabledLa = true // 立案结束日期禁用
+      this.endDateDisabledPa = true // 破案结束日期禁用
       this.curAjztName = '' // 清空案件名称中文
       this.ajlbTooltipname = '' // 清空案件类别Tooltip
       this.ajzmTooltipname = '' // 清空案件罪名Tooltip
@@ -709,6 +777,7 @@ export default {
     ajStatusSelect() { // 案件状态下拉框内容
       this.$query('tcpcode', { codeLx: 'ajzt' }).then((response) => {
         if (response.data && response.data.length > 0) {
+          this.ajztAll = response.data // 不去重的案件状态
           const temp = {}
           for (let index = 0; index < response.data.length; index++) {
             const element = response.data[index]
@@ -789,6 +858,22 @@ export default {
         this.zdyTimeDisabled = true // 禁用自定义时间
       }
       this.query()
+    },
+    handleAjDetail(index, row) {
+      // this.$router.push({ path: '/caseManage/detail/' + row.id })
+      if (row.status === '5' || row.status === '已认领') {
+        this.$router.push({
+          path: '/caseFile/index', query: { ajbh: row.ajbh, rlDept: row.noticeOrgCode, isRl: '1' } // 展示申请督办等按钮
+        })
+      } else if (row.status === '3' || row.status === '待认领') {
+        this.$router.push({
+          path: '/caseFile/index', query: { ajbh: row.ajbh, interfaceType: 'etl', isRl: '0', rlId: row.id, rlDept: row.noticeOrgCode } // 展示 待认领按钮
+        })
+      } else {
+        this.$router.push({
+          path: '/caseFile/index', query: { ajbh: row.ajbh, interfaceType: 'etl', isRl: '2' } // 不待认领按钮，不展示申请督办等按钮
+        })
+      }
     }
   },
   mounted() {
@@ -811,11 +896,14 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-.ajrlStatistical{
+.ajrlStatistical {
   .el-table__expanded-cell {
     padding: 0;
   }
-  .el-table__body-wrapper tbody .el-table__row:last-child .el-table__expand-icon {
+  .el-table__body-wrapper
+    tbody
+    .el-table__row:last-child
+    .el-table__expand-icon {
     color: transparent;
   }
 
@@ -825,7 +913,7 @@ export default {
     border-color: rgba(0, 160, 233, 0.6);
   }
   .el-range-editor.is-disabled input {
-    background-color:transparent;
+    background-color: transparent;
   }
 
   table {
@@ -842,8 +930,8 @@ export default {
   .el-table__body-wrapper tr:nth-child(even) {
     background-color: transparent;
   }
-  .datezhi{
-    .el-form-item__label{
+  .datezhi {
+    .el-form-item__label {
       text-align: center;
     }
   }
@@ -861,7 +949,7 @@ export default {
   .canClick:hover {
     text-decoration: underline;
   }
-  .inputw{
+  .inputw {
     width: 220px;
   }
   .el-select .el-input--small .el-input__inner {
@@ -881,6 +969,5 @@ export default {
   }
 }
 @media only screen and (max-width: 1367px) {
-
 }
 </style>

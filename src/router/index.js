@@ -299,7 +299,9 @@ export const constantRouterMap = [
       { path: '/caseAssist/detail', component: () => import('@/views/caseAssist/assist_detail'), name: '案件协查详情' },
       { path: '/caseAssist/total', component: () => import('@/views/caseAssist/assist_total'), name: '案件协查统计分析' },
       { path: '/caseAssist/clueList', component: () => import('@/views/caseAssist/clue/clueList'), name: '案件协查线索列表' },
-      { path: '/caseAssist/clueFeedBackList', component: () => import('@/views/caseAssist/clue/clueFeedBackList'), name: '案件协查线索反馈列表' }
+      { path: '/caseAssist/clueFeedBackList', component: () => import('@/views/caseAssist/clue/clueFeedBackList'), name: '案件协查线索反馈列表' },
+      { path: '/caseManage/caseMergeList', component: () => import('@/views/caseManage/caseMergeList'), name: '重复合并列表' },
+      { path: '/caseManage/caseMergeForm', component: () => import('@/views/caseManage/caseMergeForm'), name: '案件重复合并' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
