@@ -293,7 +293,7 @@ export default {
           // 指定地图投影模式
           projection: 'EPSG:4326', // 采用WGS84坐标系
           // 设置地图中心范围
-          center: [111.66035052, 40.8283188731], // 将呼和浩特市作为中心点
+          center: [108.953098279, 34.2777998978], // 将呼和浩特市作为中心点
           // 限制地图中心范围，但无法限制缩小范围
           // extent: [110, 26, 114, 30],
           // 定义地图显示层级为16
@@ -467,7 +467,7 @@ export default {
         param.cityCode = this.ajInfo.deptCode.substring(0, 6)
       }
       this.$router.push({
-        path: '/caseManage', query: param// 传递案件编号
+        path: '/caseManage/caseList', query: param
       })
     },
     getajData() { // 查询案件发生前/后同类案件数据

@@ -162,7 +162,7 @@
     </el-col>
 
     <!--查阅密码弹出层-->
-    <el-dialog title="查阅密码" :visible.sync="isShowdialog" class="querypsd">
+    <el-dialog title="查阅密码" :visible.sync="isShowdialog" class="querypsd" @close="cancel">
       <el-form ref="passWordForm" :rules="passWordRules" :model="passWordForm" size="mini" label-width="100px">
         <el-form-item label="查阅密码" prop="passKey">
           <el-input v-model.trim="passWordForm.passKey" type="password" auto-complete="off" maxlength="8" clearable></el-input>
@@ -262,6 +262,7 @@ export default {
       selectCurDep: { name: '' }, // 当前选中的部门
       selectCurxzqhDep: { cityName: '' }, // 当前行政区划
       tableHeight: null,
+      noCheck: '', // 存储从首页个人待办，待审核列表点击传递国来的参数
       passWordRules: {
         passKey: [
           { required: true, message: '请输入查阅密码', trigger: 'blur' },
@@ -271,7 +272,7 @@ export default {
     }
   },
   methods: {
-    init() {
+    init(flag) {
       this.listLoading = true
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
@@ -336,17 +337,17 @@ export default {
             })
           }
           this.handleDeptChange(this.department)
-          this.query(true) // 查询列表
+          this.query(true, flag) // 查询列表
         }
       }).catch(() => {
         this.listLoading = false
       })
     },
     constrolxsTotal(row) { // 线索总数点击权限控制
-      return (this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || (row.category === 3 && (this.curDept.depCode === row.auditDeptCode)) || (this.curDept.depType === '4' && (this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114')))
+      return this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.applyDeptCode || (row.category === 3 && (this.curDept.depCode === row.auditDeptCode)) || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode)
     },
     constrolxsnum(zRow, row) { // 核查线索数量点击权限控制
-      return (this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || (zRow.category === 3 && (this.curDept.depCode === zRow.auditDeptCode)) || this.curDept.depCode === row.applyDeptCode || (this.curDept.depType === '4' && ((this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === '6114') || (this.curDept.depCode.substring(0, 4) === row.applyDeptCode.substring(0, 4) === '6114'))))
+      return this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.deptCode || (zRow.category === 3 && (this.curDept.depCode === zRow.auditDeptCode)) || this.curDept.depCode === row.applyDeptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode)
     },
     controlxg(row) { // 控制列表修改按钮
       return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))
@@ -448,7 +449,8 @@ export default {
         pageSize: this.pageSize, // 条数
         curDeptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode, // 当前部门code
         status: this.filters.status, // 状态，
-        isCheck: this.$isViewBtn('101908') // 是否有审核权限
+        isCheck: this.$isViewBtn('101908'), // 是否有审核权限
+        noCheck: this.noCheck // 从首页个人待办，待审核列表点击进来传递的标识。有标识只查询审核中和待审核的记录
       }
       if (this.area && this.area.length > 0) { // 行政区划
         para.provinceCode = this.area[0] || '' // 省code
@@ -472,6 +474,7 @@ export default {
 
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
+        para.noCheck = ''
       }
       this.$query('casecluster/list', para).then((response) => {
         this.listLoading = false
@@ -513,7 +516,7 @@ export default {
             message: '删除成功',
             type: 'success'
           })
-          this.query(true) // 查询列表
+          this.query(true, true) // 查询列表
         }).catch(() => {
           this.listLoading = false
         })
@@ -552,7 +555,7 @@ export default {
       this.dateRand2 = []
       this.checkId = []
       this.initData()
-      this.init()
+      this.init(true)
     },
     cancel() {
       this.isShowdialog = false
@@ -812,8 +815,8 @@ export default {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 330
-    if (this.$route.query.status) { // 有参数，说明是从首页--个人待办--审查待办--集群战役待审核
-      this.filters.status = this.$route.query.status
+    if (this.$route.query.noCheck) { // 有参数，说明是从首页--个人待办--审查待办--集群战役待审核
+      this.noCheck = this.$route.query.noCheck
     }
     this.init()
   },

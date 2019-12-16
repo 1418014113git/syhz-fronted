@@ -189,7 +189,7 @@
 import {
   getAjDeptByAjId, getAJDETAILASSETS, getZjqdByAjbh
 } from '@/api/caseManage'
-import { personByCardId } from '@/api/personSearch/personSearch'
+// import { personByCardId } from '@/api/personSearch/personSearch'
 import cardCom from '@/components/idCardTips' // 身份证号码点击弹出菜单功能
 import XyrDetail from './xyrDetail' // 嫌疑人详情
 import legalDoc from './guideLegalDoc' // 法律文书列表
@@ -418,61 +418,61 @@ export default {
     },
     personDetailByCardXyr(item, data, flag) {
       // 根据身份证号码查询嫌疑人人员详细信息
-      if (flag) {
-        this.xyrLoading = false
-        this.xyrData = data
-      } else if (item.mgsfhm) {
-        const para = {
-          method: 'Query',
-          byUserCard: item.mgsfhm,
-          userCardId: this.curUser.cardNumber,
-          userCertId: this.curUser.cardNumber,
-          userDept: this.paramDept,
-          userName: this.curUser.realName
-        }
-        personByCardId(para).then((response) => {
-          this.xyrLoading = false
-          if (response.code === '000000') {
-            item.xp = response.data.xp || ''
-          }
-          this.xyrData = data
-        }).catch(() => {
-          this.xyrLoading = false
-          this.xyrData = data
-        })
-      } else {
-        this.xyrLoading = false
-        this.xyrData = data
-      }
+      // if (flag) {
+      //   this.xyrLoading = false
+      //   this.xyrData = data
+      // } else if (item.mgsfhm) {
+      //   const para = {
+      //     method: 'Query',
+      //     byUserCard: item.mgsfhm,
+      //     userCardId: this.curUser.cardNumber,
+      //     userCertId: this.curUser.cardNumber,
+      //     userDept: this.paramDept,
+      //     userName: this.curUser.realName
+      //   }
+      //   personByCardId(para).then((response) => {
+      //     this.xyrLoading = false
+      //     if (response.code === '000000') {
+      //       item.xp = response.data.xp || ''
+      //     }
+      //     this.xyrData = data
+      //   }).catch(() => {
+      //     this.xyrLoading = false
+      //     this.xyrData = data
+      //   })
+      // } else {
+      //   this.xyrLoading = false
+      //   this.xyrData = data
+      // }
     },
     personDetailByCard(item, data, flag) {
       // 根据身份证号码查询受害人人员详细信息
-      if (flag) {
-        this.shrLoading = false
-        this.shrData = data
-      } else if (item.mgsfhm) {
-        const para = {
-          method: 'Query',
-          byUserCard: item.mgsfhm,
-          userCardId: this.curUser.cardNumber,
-          userCertId: this.curUser.cardNumber,
-          userDept: this.paramDept,
-          userName: this.curUser.realName
-        }
-        personByCardId(para).then((response) => {
-          this.shrLoading = false
-          if (response.code === '000000') {
-            item.xp = response.data.xp || ''
-          }
-          this.shrData = data
-        }).catch(() => {
-          this.shrLoading = false
-          this.shrData = data
-        })
-      } else {
-        this.shrLoading = false
-        this.shrData = data
-      }
+      // if (flag) {
+      //   this.shrLoading = false
+      //   this.shrData = data
+      // } else if (item.mgsfhm) {
+      //   const para = {
+      //     method: 'Query',
+      //     byUserCard: item.mgsfhm,
+      //     userCardId: this.curUser.cardNumber,
+      //     userCertId: this.curUser.cardNumber,
+      //     userDept: this.paramDept,
+      //     userName: this.curUser.realName
+      //   }
+      //   personByCardId(para).then((response) => {
+      //     this.shrLoading = false
+      //     if (response.code === '000000') {
+      //       item.xp = response.data.xp || ''
+      //     }
+      //     this.shrData = data
+      //   }).catch(() => {
+      //     this.shrLoading = false
+      //     this.shrData = data
+      //   })
+      // } else {
+      //   this.shrLoading = false
+      //   this.shrData = data
+      // }
     },
     handleDw(flag) { // 案件关联单位
       this.dwLoading = true

@@ -32,7 +32,7 @@
         </el-form-item>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="query(true)">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="query(true, true)">查询</el-button>
         <el-button size="small"  @click="clear">重置</el-button>
         <el-button type="primary" v-if="$isViewBtn('100901') && (String(curDept.depType) === '2' || String(curDept.depType) === '3')" size="small" v-on:click="handleAdd">申请</el-button>
         <el-button type="primary" v-if="$isViewBtn('100902') && (String(curDept.depType) === '1' || (String(curDept.depType) === '2' && curDept.areaCode !== '611400' && curDept.areaCode !== '616200'))" size="small" v-on:click="handleLowerHair">下发</el-button>
@@ -157,6 +157,7 @@ export default {
         endStartDate: null,
         endEndDate: null
       },
+      noCheck: false,
       initArea: [],
       initDepartment: [],
       areaOptions: [], // 行政区划数据
@@ -251,7 +252,7 @@ export default {
         return 'row-expand-cover'
       }
     },
-    query(flag) {
+    query(flag, clear) {
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -263,7 +264,8 @@ export default {
         end1: this.filters.createEndDate,
         start2: this.filters.endStartDate,
         end2: this.filters.endEndDate,
-        isCheck: this.$isViewBtn('100901')
+        isCheck: this.$isViewBtn('100901'),
+        noCheck: this.noCheck && !clear ? 'noCheck' : ''
       }
       para.queryDeptCode = this.filters.department.length > 0 ? this.filters.department[this.filters.department.length - 1] : ''
       para.provinceCode = this.filters.area[0] ? this.filters.area[0] : ''
@@ -595,6 +597,15 @@ export default {
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
+    if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
+      const param = JSON.parse(sessionStorage.getItem(this.$route.path))
+      if (param) {
+        if (param.noCheck) {
+          this.noCheck = param.noCheck
+        }
+      }
+      sessionStorage.setItem(this.$route.path, '')
+    }
     this.initData()
   }
 }
