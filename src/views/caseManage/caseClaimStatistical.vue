@@ -91,7 +91,7 @@
         </el-form-item>
         <el-form-item label="案件类别" class="datezhi">
           <el-tooltip effect="dark" :content="ajlbTooltipname" placement="top-start" :popper-class="(ajlbTooltipname&&ajlbTooltipname.length>6)===true?'tooltipShow':'tooltipHide'">
-            <el-select  v-model="filters.ajlb" size="small" placeholder="全部" filterable  class="inputw" :disabled="isDisable"  @change="changeajlbSelect">
+            <el-select  v-model="filters.ajlb" size="small" placeholder="全部" filterable clearable  class="inputw" :disabled="isDisable"  @change="changeajlbSelect">
               <el-option v-for="item in ajlbList" :key="item.code" :label="item.name" :value="item.code"></el-option>
             </el-select>
           </el-tooltip>
@@ -100,7 +100,7 @@
       <el-col :span="24">
         <el-form-item label="案件罪名">
           <el-tooltip effect="dark" :content="ajzmTooltipname" placement="top-start" :popper-class="(ajzmTooltipname&&ajzmTooltipname.length>6)===true?'tooltipShow':'tooltipHide'">
-            <el-select  v-model="filters.ajzm" size="small" placeholder="全部"  filterable class="inputw" :disabled="isDisable"  @change="changeajzmSelect">
+            <el-select  v-model="filters.ajzm" size="small" placeholder="全部"  filterable clearable  class="inputw" :disabled="isDisable"  @change="changeajzmSelect">
               <el-option v-for="item in ajzmList" :key="item.code" :label="item.name" :value="item.code"></el-option>
             </el-select>
           </el-tooltip>
@@ -394,7 +394,6 @@ export default {
       this.caseData = Object.assign([], this.staticData)
       for (let index = 0; index < this.caseData.length; index++) {
         const element = this.caseData[index]
-        // element.index = index
         element.total = element.claimed + element.toClaimed + element.others // “案件总数”，等于已认领+待认领+其他案件
         this.totlaYrl += element.claimed // 已认领
         this.totalDrl += element.toClaimed // 待认领
@@ -406,10 +405,10 @@ export default {
         if (this.curDept.depType === '1') { // 总队
           element.canExpand = true // 可展开
           element.canClick = true // 可点击跳转
-        } else if ((this.curDept.depType === '2' && element.cityCode === this.curDept.areaCode) || (this.curDept.depType === '4' && element.cityCode.substring(0, 4) === this.curDept.areaCode.substring(0, 4) === '6114')) { // 地市支队 ,杨凌派出所和杨凌支队同权限
+        } else if ((this.curDept.depType === '2' && element.cityCode === this.curDept.areaCode) || (this.curDept.depType === '4' && element.cityCode === this.curDept.areaCode === '611400')) { // 地市支队 ,杨凌派出所和杨凌支队同权限
           element.canExpand = true // 可展开
           element.canClick = true // 可点击跳转
-        } else if ((this.curDept.depType === '3' || this.curDept.depType === '4') && element.cityCode === this.curDept.areaCode) { // 区县可以展开自己地市 但是不能点击自己的地市  派出所和他的上级单位同权限
+        } else if ((this.curDept.depType === '3' && element.cityCode.substring(0, 4) === this.curDept.areaCode.substring(0, 4)) || (this.curDept.depType === '4' && element.cityCode.substring(0, 4) !== '6114' && this.curDept.areaCode.substring(0, 4) !== '6114' && element.cityCode.substring(0, 4) === this.curDept.areaCode.substring(0, 4))) {
           element.canExpand = true // 可展开
           element.canClick = false // 不能点击
         }
@@ -434,10 +433,10 @@ export default {
       sums.left = this.totalcfhb // 重复合并
       sums.total = this.totalAll
       this.caseData.push(sums)
-      // console.log('this.caseData', JSON.stringify(this.caseData))
     },
     getRowClass(row) {
-      if (!row.row.total || !row.row.canExpand) {
+      var num = Number(row.row.claimed + row.row.downward + row.row.forward + row.row.others + row.row.toClaimed + row.row.left + row.row.total)
+      if (num === 0 || !row.row.canExpand) {
         return 'row-expand-cover'
       }
     },
@@ -518,11 +517,12 @@ export default {
           }
         })
         this.curAjztName = result
-        return result
+        // return result
       } else {
         this.curAjztName = ''
-        return ''
+        // return ''
       }
+      this.query()
     },
     startDateChangeLa(val) { // 立案开始时间change事件
       if (val) {
@@ -534,6 +534,7 @@ export default {
         this.endDateDisabledLa = true // 立案结束日期禁用
         this.laStartPickerOptions = this.$pickerOptionChange('', this.laStartPickerOptions, 'default')
       }
+      this.query()
     },
     endDateChangeLa(val) { // 立案结束时间change事件
       if (val) {
@@ -541,6 +542,7 @@ export default {
       } else {
         this.laStartPickerOptions = this.$pickerOptionChange('', this.laStartPickerOptions, 'default')
       }
+      this.query()
     },
     startDateChangePa(val) { // 破案开始时间change事件
       if (val) {
@@ -552,6 +554,7 @@ export default {
         this.endDateDisabledPa = true // 破案结束时间禁用
         this.paStartPickerOptions = this.$pickerOptionChange('', this.paStartPickerOptions, 'default')
       }
+      this.query()
     },
     endDateChangePa(val) { // 破案结束时间change事件
       if (val) {
@@ -559,6 +562,7 @@ export default {
       } else {
         this.paStartPickerOptions = this.$pickerOptionChange('', this.paStartPickerOptions, 'default')
       }
+      this.query()
     },
     startDateChangezdy(val) { // 自定义开始时间
       if (val) {
@@ -570,6 +574,7 @@ export default {
         this.zdyTimeEndDisabled = true // 自定义结束时间禁用
         this.rlStartPickerOptions = this.$pickerOptionChange('', this.rlStartPickerOptions, 'default')
       }
+      this.query()
     },
     endDateChangezdy(val) { // 自定义结束时间
       if (val) {
@@ -577,29 +582,29 @@ export default {
       } else {
         this.rlStartPickerOptions = this.$pickerOptionChange('', this.rlStartPickerOptions, 'default')
       }
+      this.query()
     },
 
     linkAjrl(canClick, level, cityCode, deptCode, deptType, type, isSum) { // 跳转到案件认领列表
       if (!canClick) {
         return false
       }
-      var param = Object.assign(this.filters, {
-        origin: 'statistical', // 表示从统计跳转过去的
-        deptLevel: level, // 区分是一级还是二级
-        cityCode: cityCode, // 当前点击的cityCode
-        deptCode: deptCode, // 当前点击的部门code  // 张开项里才有此值
-        colType: type, // 待认领...等  认领状态
-        ajztName: this.curAjztName, // 案件状态中文名称
-        deptType: deptType // 部门类型
-      })
+      var param = JSON.parse(JSON.stringify(this.filters))
+      param.origin = 'statistical' // 表示从统计跳转过去的
+      param.deptLevel = level // 区分是一级还是二级
+      param.cityCode = cityCode // 当前点击的cityCode
+      param.deptCode = deptCode// 当前点击的部门code  // 张开项里才有此值
+      param.colType = type // 待认领...等  认领状态
+      param.ajztName = this.curAjztName // 案件状态中文名称
+      param.deptType = deptType // 部门类型
+
       if (!type) {
         if (isSum === 'secondTotal' || isSum !== '合计') { // 二级列表的案件总数和一级非合计行的案件总数
           param.statusStr = '3,5,10' // 已认领,待认领,其他
         }
       }
-
-      if (this.filters.dType && this.filters.dType !== 'zdy') { // 认领时间筛选框
-        param.dType = this.filters.dType // 认领时间筛选值
+      if (param.dType && param.dType !== 'zdy') { // 认领时间筛选框
+        param.dType = param.dType // 认领时间筛选值
       }
       this.$gotoid('/caseManage/ajrl', JSON.stringify(param))
     },
@@ -607,15 +612,17 @@ export default {
       if (!canClick) {
         return false
       }
-      var param = Object.assign(this.filters, {
-        origin: 'statistical', // 表示从统计跳转过去的
-        deptLevel: level, // 区分是一级还是二级
-        cityCode: cityCode, // 当前点击的cityCode
-        deptCode: deptCode, // 当前点击的部门code  // 张开项里才有此值
-        colType: type, // 重复合并类型  2
-        ajztName: this.curAjztName, // 案件状态中文名称
-        deptType: deptType // 部门类型
-      })
+      var param = JSON.parse(JSON.stringify(this.filters))
+      param.origin = 'statistical' // 表示从统计跳转过去的
+      param.deptLevel = level // 区分是一级还是二级
+      param.cityCode = cityCode // 当前点击的cityCode
+      param.deptCode = deptCode// 当前点击的部门code  // 张开项里才有此值
+      param.colType = type // 待认领...等  认领状态
+      param.ajztName = this.curAjztName // 案件状态中文名称
+      param.deptType = deptType // 部门类型
+      if (param.dType && param.dType !== 'zdy') { // 认领时间筛选框
+        param.dType = param.dType // 认领时间筛选值
+      }
       this.$gotoid('/caseManage/caseMergeList', JSON.stringify(param))
     },
     initStaticData() {
@@ -726,6 +733,7 @@ export default {
       } else {
         this.ajlbTooltipname = ''
       }
+      this.query()
     },
     changeajzmSelect(val) { // 案件罪名通过change事件获取Tooltip名称
       if (val) {
@@ -737,6 +745,7 @@ export default {
       } else {
         this.ajzmTooltipname = ''
       }
+      this.query()
     },
     changeajlxSelect(val) { // 案件类型change事件
       this.ajlbTooltipname = ''
@@ -755,6 +764,7 @@ export default {
         this.ajlbList = [] // 案件类别下拉框数据
         this.ajzmList = [] // 案件罪名下拉框数据
       }
+      this.query()
     },
     queryAjlb(category) { // 案件类别
       this.$query('ajlb', { category: category }).then((response) => {
@@ -778,50 +788,16 @@ export default {
       } else {
         this.zdyTimeDisabled = true // 禁用自定义时间
       }
+      this.query()
     }
-    // dateChange1(val) { // 自定义时间 change事件
-    //   this.filters.start1 = val[0]
-    //   this.filters.start2 = val[1]
-    // },
-    // dateChange2(val) { // 立案日期 change事件
-    //   this.filters.start3 = val[0]
-    //   this.filters.start4 = val[1]
-    // },
-    // dateChange3(val) { // 破案日期 change事件
-    //   this.filters.start5 = val[0]
-    //   this.filters.start6 = val[1]
-    // }
   },
   mounted() {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 290
     this.initStaticData()
-    if (sessionStorage.getItem(this.$route.path)) { // 从案件认领返回回来
-      var carryParam = JSON.parse(sessionStorage.getItem(this.$route.path))
-      this.filters.dType = carryParam.type || ''
-      this.filters.rlStartTime = carryParam.startTime || ''
-      this.filters.rlEndTime = carryParam.endTime || ''
-      this.startDateChangezdy(this.filters.rlStartTime)
-      this.endDateChangezdy(this.filters.rlEndTime)
-      if (this.filters.dType) {
-        this.rlsjChange(this.filters.dType)
-      }
-      this.curAjztName = carryParam.ajztName // 案件状态汉字
-      this.filters.ajzt = carryParam.ajzt || ''
-      this.filters.fllb = carryParam.fllb || [] // 案件类型
-      this.filters.ajzm = carryParam.ajzm || '' // 案件罪名
-      this.filters.ajlb = carryParam.ajlb || '' // 案件类别
-      this.filters.larqStart = carryParam.larqStart || '' // 立案日期
-      this.filters.larqEnd = carryParam.larqEnd || ''
-      this.filters.parqStart = carryParam.parqStart || '' // 破案日期
-      this.filters.parqEnd = carryParam.parqEnd || ''
-    } else {
-      // this.filters.dType = 'year'
-      // this.rlsjChange('year')
-    }
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 290
     if (sessionStorage.getItem('depToken')) { // 当前部门
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
