@@ -7,15 +7,15 @@
           <el-input v-model.trim="auditForm.assistNumber" clearable maxlength="50" placeholder="请输入" disabled></el-input>
         </el-form-item>
         <el-form-item label="协查级别" prop="assistLevel">
-          <el-select v-model="auditForm.assistLevel" placeholder="请选择" clearable @change="levelChange">
+          <el-select v-model="auditForm.assistLevel" placeholder="请选择" @change="levelChange">
             <el-option v-for="item in assistLevel" :key="item.value" :label="item.label" :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="开始时间" prop="startDate">
-          <el-date-picker v-model="auditForm.startDate" type="datetime" format="yyyy-MM-dd HH:mm" :disabled="timeDisable" @change="startChange" placeholder="请选择开始时间"></el-date-picker>
+          <el-date-picker v-model="auditForm.startDate" type="datetime" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" @change="startChange" placeholder="请选择开始时间"></el-date-picker>
         </el-form-item>
         <el-form-item label="截止时间" prop="endDate">
-          <el-date-picker v-model="auditForm.endDate" type="datetime" format="yyyy-MM-dd HH:mm" :disabled="timeEndDisable" @change="endChange" placeholder="请选择截止时间"></el-date-picker>
+          <el-date-picker v-model="auditForm.endDate" type="datetime" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" :disabled="timeEndDisable" @change="endChange" placeholder="请选择截止时间"></el-date-picker>
         </el-form-item>
         <el-form-item label="审核意见" prop="content">
           <el-input v-model.trim="auditForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder=""></el-input>
@@ -44,12 +44,11 @@ export default {
       auditForm: {
         assistLevel: '',
         assistNumber: '',
-        startDate: '',
-        endDate: '',
+        startDate: null,
+        endDate: null,
         content: ''
       },
       assistLevel: getAssistLevel(),
-      timeDisable: true,
       timeEndDisable: true,
       auditFormLoading: false,
       auditBtnLoading: false,
@@ -211,29 +210,49 @@ export default {
         if (String(val) === '5') {
           this.timeEndDisable = false
         }
-        this.timeDisable = false
-        this.startChange(this.auditForm.startTime)
+        this.startChange(this.auditForm.startDate.substring(0, 16))
       } else {
-        this.timeDisable = true
-        this.auditForm.startTime = null
-        this.auditForm.endTime = null
+        this.auditForm.startDate = null
+        this.auditForm.endDate = null
       }
     },
     startChange(val) {
       if (val) {
-        this.auditForm.startTime = this.addDate(new Date(val + ':00'), '', '')
+        this.auditForm.startDate = this.addDate(new Date(val + ':00'), '', '')
         if (this.auditForm.assistLevel !== '5') {
-          this.auditForm.endTime = this.computeDate(1, new Date(val + ':00'))
+          this.auditForm.endDate = this.computeDate(1, new Date(val + ':00'))
         }
       }
     },
     endChange(val) {
       if (val) {
-        this.auditForm.endTime = this.addDate(new Date(val + ':00'), '', '')
+        this.auditForm.endDate = this.addDate(new Date(val + ':00'), '', '')
         if (this.auditForm.assistLevel !== '5') {
-          this.auditForm.startTime = this.computeDate(-1, new Date(val + ':00'))
+          this.auditForm.startDate = this.computeDate(-1, new Date(val + ':00'))
         }
       }
+    },
+    computeDate(type, date) {
+      if (this.auditForm.assistLevel === '1') {
+        return this.addDate(date, '', 12 * type)
+      } else if (this.auditForm.assistLevel === '2') {
+        return this.addDate(date, 2 * type, '')
+      } else if (this.auditForm.assistLevel === '3') {
+        return this.addDate(date, 3 * type, '')
+      } else if (this.auditForm.assistLevel === '4') {
+        return this.addDate(date, 7 * type, '')
+      }
+    },
+    addDate(date, days, hours) {
+      const d = new Date(date)
+      if (days) {
+        d.setDate(d.getDate() + days)
+      }
+      if (hours) {
+        d.setHours(d.getHours() + hours)
+      }
+      const m = d.getMonth() + 1
+      return d.getFullYear() + '-' + m + '-' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds()
     }
   },
   mounted() {
