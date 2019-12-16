@@ -20,7 +20,7 @@
           <el-input v-model="filters.serialNumber" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
         <el-form-item label="分类">
-          <el-select  v-model="filters.type" size="small" placeholder="全部" clearable>
+          <el-select  v-model="filters.qbxsCategory" size="small" placeholder="全部" clearable>
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('fllb')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
