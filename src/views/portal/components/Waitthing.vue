@@ -118,7 +118,7 @@ export default {
         } else if (node.type === '0004') { // 集群战役待审核
           localStorage.setItem('curAppCode', 'B')
           this.$router.push({
-            path: '/jqcampaign', query: { status: '1' } // 跳转集群战役列表  传递协查状态：待审核
+            path: '/jqcampaign', query: { noCheck: 'noCheck' } // 跳转集群战役列表  传递协查状态：待审核
           })
         } else if (node.type === '0005') { // 案件协查审核
           localStorage.setItem('curAppCode', 'B')
