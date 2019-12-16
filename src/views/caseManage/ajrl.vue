@@ -665,6 +665,9 @@ export default {
     // },
     // 认领状态
     qsStatusChange(val) {
+      if (this.carryParam.statusStr) {
+        this.carryParam.statusStr = ''
+      }
       this.filters.status = ''
       this.filters.noticeLx = ''
       if (val) {
