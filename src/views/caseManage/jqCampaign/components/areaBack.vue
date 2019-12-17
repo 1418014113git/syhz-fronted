@@ -43,7 +43,7 @@
               </template>
             </el-table-column>
           </el-table-column>
-          <el-table-column prop="ysajList" label="移送行政部门处理（次）"  min-width="130"></el-table-column>
+          <el-table-column prop="ysxz" label="移送行政部门处理（次）"  min-width="130"></el-table-column>
           <el-table-column prop="" label="侦办刑事案件"  align="center" show-overflow-tooltip>
             <el-table-column prop="larqCount" label="立案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="parqCount" label="破案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
@@ -200,7 +200,8 @@ export default {
       var param = {
         parentCode: this.parentCode, // 上级部门Code
         assistId: this.clusterId, // 集群Id,
-        curDeptType: this.curDept.depType === '4' ? '2' : this.curDept.depType // 杨凌派出所 类型取杨凌支队的类型
+        curDeptType: this.curDept.depType === '4' ? '2' : this.curDept.depType, // 杨凌派出所 类型取杨凌支队的类型
+        type: 2 // 集群
       }
       this.$query('caseassistclue/detailCount', param).then((res) => {
         this.listLoading = false
