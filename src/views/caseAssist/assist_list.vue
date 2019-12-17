@@ -264,7 +264,7 @@ export default {
         end1: this.filters.createEndDate,
         start2: this.filters.endStartDate,
         end2: this.filters.endEndDate,
-        isCheck: this.$isViewBtn('100901'),
+        isCheck: this.$isViewBtn('100908'),
         noCheck: this.noCheck && !clear ? 'noCheck' : ''
       }
       para.queryDeptCode = this.filters.department.length > 0 ? this.filters.department[this.filters.department.length - 1] : ''

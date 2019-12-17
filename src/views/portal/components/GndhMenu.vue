@@ -27,6 +27,7 @@ export default {
   methods: {
     clickNavList(item) {
       const _this = this
+      localStorage.setItem('curAppCode', item.appcode)
       _this.$router.push({ path: item.path })
       this.$store.dispatch('NavChangeApp', item.name)
       this.$store.dispatch('NavAppCode', item.appcode)

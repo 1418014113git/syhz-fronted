@@ -498,14 +498,14 @@ export default {
               str = '案件下发'
             }
             if (String(obj.notice_lx) === '2') {
-              str = '案件转发'
+              str = '转回上级'
             }
             if (String(obj.notice_lx) === '3') {
               str = '恢复案件'
             }
           }
           if (obj.status === '10') {
-            str = '撤销案件'
+            str = '非环食药案件'
           }
           if (obj.status === '9') {
             let receive = ''

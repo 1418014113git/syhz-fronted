@@ -45,7 +45,8 @@ export default {
              <span slot="title">{{item.name}}</span>
            </el-menu-item>
         `
-    }},
+    }
+  },
   data() {
     return {
       activeIndex: '1',
