@@ -226,10 +226,10 @@
     </el-col>
 
     <!--案件下发-->
-    <el-dialog title="案件下发" :visible.sync="dialogXFVisible" size="small">
+    <el-dialog title="下发案件" :visible.sync="dialogXFVisible" size="small">
       <el-form class="ajInfoForm" style="margin:0 auto" :rules="rules" :model="ajInfo" ref="ajxfForm" size="small" label-width="110px"
                @submit.prevent="onSubmit">
-        <el-form-item label="下发单位：" prop="noticeOrgCode">
+        <el-form-item label="接收单位：" prop="noticeOrgCode">
           <el-select v-model="noticeOrgCode" placeholder="请选择" style="width:100%" @change="getDeptNameChange">
             <el-option v-for="(item, index) in deptList" :key="'xf'+index" :label="item.name" :value="item.depCode"></el-option>
           </el-select>
