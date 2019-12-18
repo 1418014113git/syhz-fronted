@@ -52,7 +52,7 @@
           <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="syajs"  label='移送（次）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="ysxz"  label='移送（次）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="parqCount"  label='破案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
@@ -83,7 +83,7 @@
 
     <!--线索反馈详情弹出层-->
     <el-dialog title="反馈" :visible.sync="isShowfkDialog" @close="clearChildData">
-      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog"   @closeDialog="clearChildData"  :row="curRow"></cluefk-detail>
+      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog"   @closeDialog="clearChildData"   @init="query(true)"    :row="curRow"></cluefk-detail>
     </el-dialog>
   </section>
 </template>
