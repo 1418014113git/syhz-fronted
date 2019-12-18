@@ -352,7 +352,7 @@ export default {
         pageNum: flag ? 1 : this.pageXyr
       }
       this.$query('page/ajxyr', param).then((res) => {
-        // this.xyrLoading = false
+        this.xyrLoading = false
         if (res.code === '000000') {
           var data = res.data.list
           var flag = true
@@ -388,7 +388,7 @@ export default {
         pageNum: flag ? 1 : this.pageShr
       }
       this.$query('page/ajshr', param).then((res) => {
-        // this.shrLoading = false
+        this.shrLoading = false
         if (res.code === '000000') {
           var data = res.data.list
           var flag = true

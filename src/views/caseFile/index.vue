@@ -23,8 +23,8 @@
               <bz-push class="marb bzts" :ajbh="AJBH"></bz-push>
               <receive-police class="marb bg jcj" :ajbh="AJBH"></receive-police>
               <!--<clues-associate class="marb xsgl" :info="ajInfo" :ajbh="AJBH"></clues-associate>-->
-              <spyon-cooperation class="marb zcxz" :ajbh="AJBH"  :ajid="AJID" :type="interfaceType" :Rl="isRl"></spyon-cooperation>
-              <aj-parallel class="marb bg ajcb" :ajbh="AJBH"></aj-parallel>
+              <spyon-cooperation class="marb zcxz" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl"></spyon-cooperation>
+              <aj-parallel class="marb ajcb" :ajbh="AJBH"></aj-parallel>
             </div>
           </el-col>
       </el-row>

@@ -49,6 +49,7 @@
         <el-button type="primary" size="small" v-on:click="restForm()">重置</el-button>
         <el-button type="primary" size="small" v-on:click="clearTable()">清除过滤条件</el-button>
         <el-button v-if="$isViewBtn('182003') || $isViewBtn('182004') || $isViewBtn('182005')" type="primary" size="small" v-on:click="toTemplate()">维护模板</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('103001')" v-on:click="gotoMergeList()">重复合并列表</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="caseData" ref="caseTable" highlight-current-row v-loading="listLoading" style="width: 100%;">
@@ -85,9 +86,10 @@
           <span v-else>{{scope.row[item.titleName]}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="60">
+      <el-table-column label="操作" width="90">
         <template slot-scope="scope">
-          <el-button size="mini" type="primary" icon="el-icon-tickets"  circle @click="handleAjDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" type="primary" icon="el-icon-tickets" title="详情" circle @click="handleAjDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" type="primary" icon="el-icon-rank" circle title="重复合并" @click="handleAjMerge(scope.$index, scope.row)" v-if="$isViewBtn('103002')"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -265,8 +267,17 @@ export default {
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
             }
           }
-          this.filters.area = currentArea
-          this.handleAreaChange(currentArea) // 查单位机构
+          if (this.$route.query.fadz) { // 案件档案 发案地址--点击列表数字跳转过来的
+            if (this.$route.query.cityCode) {
+              this.filters.area = ['610000', this.$route.query.cityCode]
+            } else {
+              this.filters.area = currentArea
+            }
+          } else {
+            this.filters.area = currentArea
+          }
+
+          this.handleAreaChange(this.filters.area) // 查单位机构
           // 默认选择本单位
           if (this.curDept.depType === '-1') { // 省
             // this.filters.department = [this.curDept.depCode]
@@ -583,6 +594,23 @@ export default {
           this.initAjzm(this.ajlxFirst) // 案件罪名
         }
       }
+    },
+    gotoMergeList() { // 跳转 重复合并列表
+      // this.$router.push({ path: '/caseManage/caseMergeList', query: { origin: 'caseList' }})
+      var param = {
+        origin: 'caseList'
+      }
+      this.$gotoid('/caseManage/caseMergeList', JSON.stringify(param))
+    },
+    handleAjMerge(index, row) { // 案件重复合并 12.4
+      // this.$router.push({ path: '/caseManage/caseMergeForm', params: { currentCase: row }})
+      var param = {
+        type: 'merge',
+        caseId: row.id, // 案件id
+        ajmc: row.ajmc,
+        ajbh: row.ajbh
+      }
+      this.$gotoid('/caseManage/caseMergeForm', JSON.stringify(param))
     }
   },
   mounted() {

@@ -141,7 +141,7 @@
         </el-form-item>
         <el-form-item label="案件罪名" prop="ajzm">
           <el-select :clearable="true" v-model="filters.ajzm" size="small" placeholder="全部" filterable>
-            <el-option v-for="item in ajzmData" :key="item.code" :label="item.name" :value="item.name"></el-option>
+            <el-option v-for="item in ajzmData" :key="item.code" :label="item.name" :value="item.code"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="时间筛选">
@@ -210,8 +210,8 @@
           <el-button size="small" type="primary" plain v-if="scope.row.status!=3 && $isViewBtn('100703')"  @click="handleAjDetail(scope.$index, scope.row)">案件详情</el-button>
           <el-button size="small" type="primary" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100704')"  :disabled="scope.row.status!=3" @click="handleAjDetail(scope.$index, scope.row)">案件认领</el-button>
           <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && downBtn"  @click="handleZDGX(0, scope.row, 'ajxfForm')">下发案件</el-button>
-          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100707') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">转发案件</el-button>
-          <el-button size="small" type="danger"  plain v-if="scope.row.status==3  && hasAccess(scope.row) && $isViewBtn('100706')"  @click="handleZDGX(2, scope.row, 'ajcxForm')">撤销案件</el-button>
+          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100707') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">转回上级案件</el-button>
+          <el-button size="small" type="danger"  plain v-if="scope.row.status==3  && hasAccess(scope.row) && $isViewBtn('100706')"  @click="handleZDGX(2, scope.row, 'ajcxForm')">非环食药案件</el-button>
           <el-button size="small" type="danger"  plain v-if="scope.row.status==10 && $isViewBtn('100708')"  @click="handleZDGX(3, scope.row, 'ajhfForm')">恢复案件</el-button>
           <el-button size="small" type="danger"  plain v-if="$isViewBtn('100702')"  @click="handleAJSIGN(scope.row.AJBH)">认领详情</el-button>
         </template>
@@ -240,16 +240,20 @@
       </el-form>
     </el-dialog>
 
-    <!--案件转发-->
-    <el-dialog title="案件转发" :visible.sync="dialogSBVisible" size="small">
+    <!--转回上级案件-->
+    <el-dialog title="转回上级案件" :visible.sync="dialogSBVisible" size="small">
       <el-form class="ajInfoForm" style="margin:0 auto" :rules="rules3" :model="ajInfo" ref="ajzfForm" size="small" label-width="110px"
                @submit.prevent="onSubmit">
-        <el-form-item label="转发单位：" prop="noticeOrgCode">
+        <el-form-item label-width="0px" >
+       <p>将案件转回上级单位，变为上级单位待认领案件。</p>
+        </el-form-item>
+
+        <el-form-item label="接收单位：" prop="noticeOrgCode">
           <el-select v-model="noticeOrgCode" placeholder="请选择" style="width:100%" @change="getDeptNameChange">
             <el-option v-for="item in parentDeptList" :key="'zf'+item.id" :label="item.name" :value="item.depCode"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="转发原因："  prop="revokeReason">
+        <el-form-item label="原因："  prop="revokeReason">
           <el-input  type="textarea" v-model="ajInfo.revokeReason" auto-complete="off" maxlength="200"></el-input>
         </el-form-item>
         <div style="text-align: center">
@@ -275,10 +279,17 @@
     </el-dialog>
 
     <!--撤销案件-->
-    <el-dialog title="撤销案件" :visible.sync="dialogRevokeVisible" size="small">
+    <el-dialog title="非环食药案件" :visible.sync="dialogRevokeVisible" size="small">
       <el-form class="ajInfoForm" style="width: 85%; margin:0 auto" :rules="rules2" :model="ajInfo" ref="ajcxForm"   size="small" label-width="120px"
                @submit.prevent="onSubmit">
-        <el-form-item label="撤销原因："  prop="revokeReason">
+
+
+       <el-form-item label-width="0px" >
+         <p>将案件标记为"非环食药"状态，标记后，可以通过"恢复案件"功能恢复为待认领案件。</p>
+       </el-form-item>
+
+
+        <el-form-item label="原因："  prop="revokeReason">
           <el-input  type="textarea" v-model="ajInfo.revokeReason" auto-complete="off" maxlength="200"></el-input>
         </el-form-item>
         <div style="text-align: center">
@@ -400,6 +411,7 @@ export default {
       cxLoading: false, // 撤销loading
       selectCurDep: {}, // 当前选择的机构
       selectCurfllb: {}, // 當前選擇的案件類型
+      carryParam: {}, // 存储案件认领统计页面传递过来的参数
       rlStartPickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
@@ -451,8 +463,8 @@ export default {
         { value: '1', label: '待认领' },
         { value: '2', label: '已认领' },
         { value: '3', label: '下发案件' },
-        { value: '4', label: '转发案件' },
-        { value: '5', label: '撤销案件' }
+        { value: '4', label: '转回上级案件' },
+        { value: '5', label: '非环食药案件' }
       ],
       cityList: [
         {
@@ -664,6 +676,9 @@ export default {
     // },
     // 认领状态
     qsStatusChange(val) {
+      if (this.carryParam.statusStr) {
+        this.carryParam.statusStr = ''
+      }
       this.filters.status = ''
       this.filters.noticeLx = ''
       if (val) {
@@ -762,14 +777,14 @@ export default {
         return '已认领'
       } else if (row.status === '9') {
         if (row.notice_lx === 2) {
-          return '转发案件'
+          return '转回上级案件'
         } if (row.notice_lx === 1) {
           return '下发案件'
         } if (row.notice_lx === 3) {
           return '恢复案件'
         }
       } else if (row.status === '10') {
-        return '撤销案件'
+        return '非环食药案件'
       }
       return row.status
     },
@@ -851,7 +866,7 @@ export default {
         this.dialogXFVisible = false
       }
       if (type === 2) {
-        msg = '转发成功'
+        msg = '转回上级成功'
         this.dialogSBVisible = false
       }
       if (type === 3) {
@@ -906,14 +921,14 @@ export default {
               str = '案件下发'
             }
             if (obj.notice_lx === 2) {
-              str = '案件转发'
+              str = '转回上级'
             }
             if (obj.notice_lx === 3) {
               str = '恢复案件'
             }
           }
           if (obj.status === '10') {
-            str = '撤销案件'
+            str = '非环食药案件'
           }
           if (obj.status === '9') {
             let receive = ''
@@ -959,7 +974,7 @@ export default {
             if (response.code === '000000') {
               this.cxLoading = false
               this.$message({
-                message: '撤销案件成功',
+                message: '标记非环食药案件成功',
                 type: 'success'
               })
               this.dialogRevokeVisible = false
@@ -1114,6 +1129,9 @@ export default {
       } else {
         para.fllb = ''
       }
+      if (this.carryParam.statusStr) {
+        para.statusStr = this.carryParam.statusStr
+      }
       this.listLoading = true
 
       getAJJBXXETLRLPage(para).then((response) => {
@@ -1235,31 +1253,84 @@ export default {
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
             }
           }
-          this.filters.area = currentArea
-
+          if (this.carryParam.deptLevel === 'first') { // 案件认领统计页面点击一级列表跳转过来的
+            this.filters.area = ['610000', this.carryParam.cityCode]
+          } else if (this.carryParam.deptLevel === 'second') { // 案件认领统计页面点击二级列表跳转过来的
+            if (this.carryParam.deptType === 1) { // 总队
+              this.filters.area = [this.carryParam.cityCode]
+            } else if (this.carryParam.deptType === 2) { // 支队
+              this.filters.area = ['610000', this.carryParam.cityCode]
+            } else if (this.carryParam.deptType === 3) { // 大队
+              this.filters.area = ['610000', this.carryParam.cityCode.substring(0, 4) + '00', this.carryParam.cityCode]
+            } else if (this.carryParam.deptType === 4) { // 派出所
+              if (this.carryParam.cityCode === '611400') { // 杨凌例外
+                this.filters.area = ['610000', '611400']
+              } else { // 正常的派出所
+                this.filters.area = ['610000', this.carryParam.cityCode.substring(0, 4) + '00', this.carryParam.cityCode]
+              }
+            }
+          } else {
+            this.filters.area = currentArea
+          }
           // curDept.areaCode 610402
 
-          this.handleAreaChange(currentArea) // 查单位机构
+          this.handleAreaChange(this.filters.area) // 查单位机构
           // 默认选择本单位
-          if (this.curDept.depType === '-1') { // 省
-            this.filters.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '1') { // 总队
-            this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
-          } else if (this.curDept.depType === '2') { // 支队
-            this.filters.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '3') { // 大队
-            this.filters.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '4') { // 派出所
-            this.filters.department = [this.curDept.parentDepCode] // 派出所当作上级处理
-            // 调接口查 派出所的上级
-            this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
-              if (response.code === '000000') {
-                this.pcsParentDept = response.data
-              }
-            }).catch(() => {
-              this.caseLoading = false
-            })
+          if (!this.carryParam.deptLevel) {
+            if (this.curDept.depType === '-1') { // 省
+              this.filters.department = [this.curDept.depCode]
+            } else if (this.curDept.depType === '1') { // 总队
+              this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
+            } else if (this.curDept.depType === '2') { // 支队
+              this.filters.department = [this.curDept.depCode]
+            } else if (this.curDept.depType === '3') { // 大队
+              this.filters.department = [this.curDept.depCode]
+            } else if (this.curDept.depType === '4') { // 派出所
+              this.filters.department = [this.curDept.parentDepCode] // 派出所当作上级处理
+              // 调接口查 派出所的上级
+              this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+                if (response.code === '000000') {
+                  this.pcsParentDept = response.data
+                }
+              }).catch(() => {
+                this.caseLoading = false
+              })
+            }
+          } else if (this.carryParam.deptLevel === 'second') { // 案件认领统计页面点击二级列表跳转过来的
+            if (this.carryParam.deptType === 1) { // 总队
+              this.filters.department = ['610000000000', this.carryParam.deptCode]
+            } else if (this.carryParam.deptType === 2 || this.carryParam.deptType === 3) { // 支队,大队
+              this.filters.department = [this.carryParam.deptCode]
+            }
           }
+
+          // if (this.carryParam.deptLevel === 'second') { // 案件认领统计页面点击二级列表跳转过来的
+          //   if (this.carryParam.deptType === 1) { // 总队
+          //     this.filters.department = ['610000000000', this.carryParam.deptCode]
+          //   } else if (this.carryParam.deptType === 2 || this.carryParam.deptType === 3) { // 支队,大队
+          //     this.filters.department = [this.carryParam.deptCode]
+          //   }
+          // } else if (!this.carryParam.deptLevel) {
+          //   if (this.curDept.depType === '-1') { // 省
+          //     this.filters.department = [this.curDept.depCode]
+          //   } else if (this.curDept.depType === '1') { // 总队
+          //     this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
+          //   } else if (this.curDept.depType === '2') { // 支队
+          //     this.filters.department = [this.curDept.depCode]
+          //   } else if (this.curDept.depType === '3') { // 大队
+          //     this.filters.department = [this.curDept.depCode]
+          //   } else if (this.curDept.depType === '4') { // 派出所
+          //     this.filters.department = [this.curDept.parentDepCode] // 派出所当作上级处理
+          //     // 调接口查 派出所的上级
+          //     this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+          //       if (response.code === '000000') {
+          //         this.pcsParentDept = response.data
+          //       }
+          //     }).catch(() => {
+          //       this.caseLoading = false
+          //     })
+          //   }
+          // }
           this.handleDeptChange(this.filters.department)
 
           // 可下发的单位
@@ -1418,13 +1489,22 @@ export default {
       if (val) {
         this.filters.dType = ''
         this.endDateDisabled = false
+        this.rlEndPickerOptions = this.$pickerOptionChange(val, this.rlEndPickerOptions, 'end')
       } else {
+        this.filters.rlStartTime = ''
+        this.filters.rlEndTime = ''
         this.endDateDisabled = true
+        this.rlStartPickerOptions = this.$pickerOptionChange('', this.rlStartPickerOptions, 'default')
       }
     },
     endDateChange(val) { // 结束时间change事件
-
+      if (val) {
+        this.rlStartPickerOptions = this.$pickerOptionChange(val, this.rlStartPickerOptions, 'start')
+      } else {
+        this.rlStartPickerOptions = this.$pickerOptionChange('', this.rlStartPickerOptions, 'default')
+      }
     },
+
     backStatistical() {
       // if (this.carryParam.ajbh) { // 返回案件档案
       //   this.$router.back(-1)
@@ -1464,15 +1544,16 @@ export default {
           this.$router.back(-1)
         }
       } else { // 返回统计
-        var param = {
-          yearDate: this.carryParam.yearDate || '', // 筛选框的值
-          quarterDate: this.carryParam.quarterDate || '',
-          monthDate: this.carryParam.monthDate || '',
-          queryType: this.carryParam.queryType || '',
-          startTime: this.carryParam.startTime || '',
-          endTime: this.carryParam.endTime || ''
-        }
-        this.$gotoid('/caseManage/caseClaimStatistical', JSON.stringify(param))
+        // var param = {
+        //   yearDate: this.carryParam.yearDate || '', // 筛选框的值
+        //   quarterDate: this.carryParam.quarterDate || '',
+        //   monthDate: this.carryParam.monthDate || '',
+        //   queryType: this.carryParam.queryType || '',
+        //   startTime: this.carryParam.startTime || '',
+        //   endTime: this.carryParam.endTime || ''
+        // }
+        // this.$gotoid('/caseManage/caseClaimStatistical', JSON.stringify(param))
+        this.$router.back(-1)
       }
     }
   },
@@ -1480,6 +1561,7 @@ export default {
     sessionStorage.removeItem('/caseManage/ajrl')
   },
   mounted() {
+    this.selectCurDep = {}
     this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     if (this.$route.query.from === 'portal') {
       // 首页过来的查待认领
@@ -1494,51 +1576,39 @@ export default {
     this.filters.curDeptCode = this.curDept.depCode
     this.filters.departType = this.curDept.depType
     // alert(JSON.stringify(this.filters))
-    // if (sessionStorage.getItem(this.$route.path)) {
-    //   this.carryParam = JSON.parse(sessionStorage.getItem(this.$route.path))
+    if (sessionStorage.getItem(this.$route.path)) {
+      this.carryParam = JSON.parse(sessionStorage.getItem(this.$route.path))
 
-    //   // if (this.carryParam.origin === 'statistical') {
-    //   this.showBackBtn = true // 显示返回按钮
-    //   // }
-    //   if (this.carryParam.type) {
-    //     this.qsStatus = this.carryParam.type
-    //     this.qsStatusChange(this.qsStatus)
-    //   }
-    //   if (this.carryParam.deptCode.substring(0, 6) === '610000') {
-    //     if (this.carryParam.deptLevel === 'first') {
-    //       this.tingOrgCode = [this.carryParam.deptCode]
-    //     } else {
-    //       this.tingOrgCode = [this.carryParam.curFirstLevelCode, this.carryParam.deptCode]
-    //     }
-    //   } else {
-    //     if (this.carryParam.deptLevel === 'first') {
-    //       this.shiOrgCode = [this.carryParam.deptCode.substring(0, 4)]
-    //     } else {
-    //       this.shiOrgCode = [this.carryParam.deptCode.substring(0, 4), this.carryParam.deptCode]
-    //       if (this.carryParam.deptCode.substring(4, 6) !== '00') {
-    //         this.qiOrgCode = this.carryParam.deptCode
-    //       }
-    //     }
-    //   }
-    //   this.shiDepChange(this.shiOrgCode)
-    //   if (this.carryParam.filtStartTime) { // 开始时间
-    //     this.filters.rlStartTime = this.carryParam.filtStartTime
-    //   }
-    //   if (this.carryParam.filtEndTime) { // 结束时间
-    //     this.filters.rlEndTime = this.carryParam.filtEndTime
-    //   }
-    //   if (this.carryParam.queryType) { // 认领时间筛选类型
-    //     this.filters.dType = this.carryParam.queryType
-    //   }
-    //   // if (this.carryParam.ajbh) { // 案件档案跳转过来的
-    //   //   this.filters.AJBH = this.carryParam.ajbh
-    //   // }
-    // } else if (this.$route.query.ajbh) { // 案件档案跳转过来的
-    //   this.filters.AJBH = this.$route.query.ajbh
-    //   this.showBackBtn = true // 显示返回按钮
-    // } else {
-    //   this.showBackBtn = false // 默认隐藏返回按钮
-    // }
+      if (this.carryParam.origin === 'statistical') { // 案件认领统计页过来的
+        this.showBackBtn = true // 显示返回按钮
+      }
+      if (this.carryParam.colType) { // 认领状态
+        this.qsStatus = this.carryParam.colType
+        this.qsStatusChange(this.qsStatus)
+      }
+      this.filters.rlStartTime = this.carryParam.rlStartTime || '' // 案件认领统计页面跳转过来   认领开始时间
+      this.filters.rlEndTime = this.carryParam.rlEndTime || '' // 案件认领统计页面跳转过来 认领结束时间
+      this.filters.parqStart = this.carryParam.parqStart || '' // 案件认领统计页面跳转过来 破案开始时间
+      this.filters.parqEnd = this.carryParam.parqEnd || '' // 案件认领统计页面跳转过来 破案开始时间
+      this.filters.larqStart = this.carryParam.larqStart || '' // 案件认领统计页面跳转过来 立案开始时间
+      this.filters.larqEnd = this.carryParam.larqEnd || '' // 案件认领统计页面跳转过来 立案开始时间
+      this.filters.dType = this.carryParam.dType || '' // 案件认领统计页面跳转过来 认领时间筛选类型
+      this.filters.fllb = this.carryParam.fllb || [] // 案件认领统计页面跳转过来 案件类型
+      this.filters.ajzt = this.carryParam.ajzt || '' // 案件认领统计页面跳转过来 案件状态
+      this.filters.ajlb = this.carryParam.ajlb || '' // 案件认领统计页面跳转过来 案件类别
+      this.filters.ajzm = this.carryParam.ajzm || '' // 案件认领统计页面跳转过来 案件罪名
+      this.startDateChange(this.filters.rlStartTime) // 认领开始时间change事件
+      this.endDateChange(this.filters.rlEndTime) // 认领开始时间change事件
+      this.startDateChangePa(this.filters.parqStart) // 破案开始时间change事件
+      this.endDateChangePa(this.filters.parqEnd) // 破案开始时间change事件
+      this.startDateChangeLa(this.filters.larqStart) // 立案开始时间change事件
+      this.endDateChangeLa(this.filters.larqEnd) // 立案开始结束change事件
+    } else if (this.$route.query.ajbh) { // 案件档案跳转过来的
+      this.filters.AJBH = this.$route.query.ajbh
+      this.showBackBtn = true // 显示返回按钮
+    } else {
+      this.showBackBtn = false // 默认隐藏返回按钮
+    }
     this.initList()
   },
   activated() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据

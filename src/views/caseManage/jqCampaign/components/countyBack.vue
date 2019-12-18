@@ -12,7 +12,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="deptName" label="单位"   min-width="200" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="xsNum" label="线索总数（条）" min-width="130">
+          <el-table-column prop="xsNum" label="线索总数（条）" min-width="140">
             <template slot-scope="scope">
               <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.xsNum>0"  @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
               <span v-else>{{scope.row.xsNum}}</span>
@@ -43,7 +43,7 @@
               </template>
             </el-table-column>
           </el-table-column>
-          <el-table-column prop="ysajList" label="移送行政部门处理（次）"  min-width="130"></el-table-column>
+          <el-table-column prop="ysxz" label="移送行政部门处理（次）"  min-width="130"></el-table-column>
           <el-table-column prop="" label="侦办刑事案件"  align="center" show-overflow-tooltip>
             <el-table-column prop="larqCount" label="立案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="parqCount" label="破案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
@@ -171,7 +171,8 @@ export default {
       var param = {
         parentCode: this.parentCode, // 上级部门Code
         assistId: this.clusterId, // 集群Id
-        curDeptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType
+        curDeptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType,
+        type: 2 // 集群
       }
       this.$query('caseassistclue/detailCount', param).then((res) => {
         this.listLoading = false
@@ -192,9 +193,9 @@ export default {
     controlClick(row) { // 数字点击权限控制
       if (this.listData.length > 0) {
         if (row.cityCode) { // 非合计行
-          return ((this.curDept.depType === '2' && (this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4))) || this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.depCode === row.deptCode || (this.curDept.depType === '4' && (this.curDept.parentDepCode === row.deptCode || this.curDept.parentDepCode === this.baseInfo.applyDeptCode))) // 上级单位/审核单位，申请单位，本单位可点。
+          return ((this.curDept.depType === '2' && this.curDept.areaCode === this.baseInfo.cityCode) || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.deptCode || (this.curDept.depType === '4' && (this.curDept.parentDepCode === row.deptCode || this.curDept.parentDepCode === this.baseInfo.applyDeptCode))) // 上级单位/审核单位，申请单位，本单位可点。
         } else { // 合计行
-          return ((this.curDept.depType === '2' && (this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4))) || this.curDept.areaCode === this.baseInfo.cityCode) // 上级单位/审核单位，申请单位可点。
+          return ((this.curDept.depType === '2' && this.curDept.areaCode === this.baseInfo.cityCode) || this.curDept.depCode === this.baseInfo.applyDeptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === this.baseInfo.applyDeptCode)) // 上级单位/审核单位，申请单位可点。
         }
       } else {
         return false

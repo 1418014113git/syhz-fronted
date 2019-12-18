@@ -52,7 +52,7 @@
           <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="syajs"  label='移送（次）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="ysxz"  label='移送（次）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="parqCount"  label='破案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
@@ -66,7 +66,7 @@
           <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作"  width="100" fixed="right">
+      <el-table-column label="操作"  width="80" fixed="right">
         <template slot-scope="scope">
           <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle   v-if="controlBtn(scope.row)"  @click="handleDetail(scope.$index, scope.row)"></el-button>
         </template>
@@ -83,7 +83,7 @@
 
     <!--线索反馈详情弹出层-->
     <el-dialog title="反馈" :visible.sync="isShowfkDialog" @close="clearChildData">
-      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog" :row="curRow"></cluefk-detail>
+      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog"   @closeDialog="clearChildData"   @init="query(true)"    :row="curRow"></cluefk-detail>
     </el-dialog>
   </section>
 </template>
@@ -194,21 +194,23 @@ export default {
     },
     handleDetail(index, row) { // 详情
       if (!row.fbId) {
-        this.$alert('该线索还未签收，请先前往详情页进行签收。', '提示', {
-          type: 'warning',
+        this.$confirm('该线索还未签收，请先前往详情页进行签收。', '提示', {
           confirmButtonText: '确定',
-          callback: action => {
-            if (this.$route.query.assistType) { // 协查详情
-              this.$gotoid('/caseAssist/detail', this.assistId)
-            } else {
-              this.$router.push({ path: '/jqCampaign/detail', query: { id: this.assistId }}) // 集群战役详情
-            }
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then((action) => {
+          if (this.$route.query.assistType) { // 协查详情
+            this.$gotoid('/caseAssist/detail', this.assistId)
+          } else {
+            this.$router.push({ path: '/jqCampaign/detail', query: { id: this.assistId }}) // 集群战役详情
           }
+        }).catch(() => {
+
         })
-        return false
+      } else {
+        this.isShowfkDialog = true
+        this.curRow = row
       }
-      this.isShowfkDialog = true
-      this.curRow = row
     },
     toback() { // 返回
       this.$router.back(-1)
