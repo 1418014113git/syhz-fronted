@@ -198,7 +198,7 @@ export default {
     border-radius: 18px;
     position: relative;
     top: -2px;
-    padding-right: 1px;
+    padding-right: 0;
   }
   .caseAssist_leftNavPer .navList li.on div .number {
     background-color: #fff;
