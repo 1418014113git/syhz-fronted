@@ -37,39 +37,26 @@ import {
 export default {
   data() {
     return {
-      deptId: '',
-      deptCode: '',
-      pcsDeptId: '', // 派出所父Id
       pcsDeptCode: '', // 派出所父Code
       listData: [
         {
-          'span': 6, 'title': '审核待办：', 'data': [
-            // { 'data_op': '本人发起待审核案件', 'num': 2 },
-            // { 'data_op': '被退回案件协查', 'num': 3 },
-            // { 'data_op': '案件协查申请', 'num': 1 },
+          'span': 6, 'title': '审核待办：', 'num': 0, 'data': [
             // { 'data_op': '全国性协查申请', 'num': 8 }
           ]
         },
         {
-          'span': 6, 'title': '签收待办：', 'data': [
-            // { 'data_op': '全国性协查待签收', 'num': 1 },
-            // { 'data_op': '专项任务通知待签收', 'num': 2 },
-            // { 'data_op': '专项任务通知待签收', 'num': 5 },
+          'span': 6, 'title': '签收待办：', 'num': 0, 'data': [
             // { 'data_op': '案件协查待签收', 'num': 2 }
           ]
         },
         {
-          'span': 6, 'title': '催办待办：', 'data': [
-            // { 'data_op': '案件督办', 'num': 3 },
-            // { 'data_op': '案件催办', 'num': 1 }
+          'span': 6, 'title': '催办待办：', 'num': 0, 'data': [
+            // { 'data_op': '案件督办', 'num': 3 }
           ]
         },
         {
-          'span': 6, 'title': '其他待办：', 'data': [
+          'span': 6, 'title': '其他待办：', 'num': 0, 'data': [
             // { 'data_op': '案件处置', 'num': 1 },
-            // { 'data_op': '专项任务', 'num': 2 },
-            // { 'data_op': '检验鉴定', 'num': 0 },
-            // { 'data_op': '全国性协查', 'num': 3 }
           ]
         }
       ],
@@ -87,6 +74,18 @@ export default {
         s += arr[i].num
       }
       return s
+    },
+    getCompare(property) {
+      return function(a, b) {
+        var value1 = a[property]
+        var value2 = b[property]
+        return value2 - value1
+      }
+    },
+    sortByIndex(index) {
+      this.listData[index].data = this.listData[index].data.sort(this.getCompare('num')) // 展开项根据num排序
+      this.listData[index].num = this.getTotal(this.listData[index].data) // 合计 计算一级的num
+      this.listData = this.listData.sort(this.getCompare('num')) // listData 根据num排序
     },
     goHandle(index, node) {
       // B案件管理 F教育训练 C基础业务
@@ -205,7 +204,7 @@ export default {
     },
     getSignCount() { // 签收待办
       const para = {
-        noticeOrgId: this.deptId,
+        noticeOrgId: this.currentDep.id,
         status: 1
       }
       getSignCount(para).then((response) => {
@@ -215,6 +214,7 @@ export default {
             const data = response.data[i]
             if (data.business_type <= 10) {
               this.listData[1].data.push(data)
+              this.sortByIndex(1) // 排序
             }
           }
         }
@@ -227,6 +227,7 @@ export default {
                 data_op: '站内通知签收待办', num: item.num, business_type: '9012'
               })
             }
+            this.sortByIndex(1) // 排序
           })
         }
 
@@ -251,6 +252,7 @@ export default {
                   data_op: '集群战役签收待办', num: item.num, business_type: 2
                 })
               }
+              this.sortByIndex(1) // 排序
             }
           })
         }
@@ -258,7 +260,7 @@ export default {
     },
     getCBAJCount() {
       const para = {
-        deptCode: this.currentDep.depCode
+        deptCode: this.currentDep.depType === '4' ? this.pcsDeptCode : this.currentDep.depCode
       }
       this.$query('dbcbajnum/' + para.deptCode, {}).then((response) => {
         if (response.code === '000000') {
@@ -268,6 +270,7 @@ export default {
               this.listData[2].data = [{
                 data_op: '案件催办反馈待办', num: response.data.num
               }]
+              this.sortByIndex(2) // 排序
             }
           }
         }
@@ -276,7 +279,7 @@ export default {
     },
     getWorkFlow() {
       const para = {
-        deptId: this.deptId
+        deptId: this.currentDep.id
       }
       getWorkGroup(para).then((response) => { // 审核待办
         this.listData[0].data = []
@@ -339,20 +342,15 @@ export default {
               })
             }
           }
+          this.sortByIndex(0) // 排序
         })
       })
     },
-    getAjrl() { // 其他待办 下的数据获取 this.listData[3] 加数据
-      // console.log('pcsParent' + JSON.stringify(this.pcsParentDept))
-      var para = {}
-      if (this.currentDep.depType === '4') {
-        para.businessType = 2
-        para.noticeOrgId = this.pcsDeptCode
-        para.status = 3
-      } else {
-        para.businessType = 2
-        para.noticeOrgId = this.deptCode
-        para.status = 3
+    getOtherCount() { // 其他待办 下的数据获取 this.listData[3] 加数据
+      var para = {
+        businessType: 2,
+        status: 3,
+        noticeOrgId: this.currentDep.depType === '4' ? this.pcsDeptCode : this.currentDep.depCode
       }
       getSignAjrl(para).then((res) => {
         if (res.code === '000000' && res.data && res.data.length > 0) {
@@ -362,6 +360,7 @@ export default {
           for (const i in this.otherData) {
             this.listData[3].data = this.listData[3].data.concat(this.otherData[i])
           }
+          this.sortByIndex(3) // 排序
         }
       })
 
@@ -376,8 +375,11 @@ export default {
           this.listData[3].data.push({
             data_op: '重复案件合并', num: data.num, business_type: 'cfajhb' // 重复案件合并
           })
+          this.sortByIndex(3) // 排序
         }
       })
+      // 待接收案件
+      this.getDjsaj()
     },
     queryjqzydfk() { // 查询集群战役或协查待反馈数量
       var deptCode = this.currentDep.depType === '4' ? this.pcsDeptCode : this.currentDep.depCode
@@ -395,6 +397,7 @@ export default {
                   data_op: '集群战役待反馈', num: item.num, business_type: 2
                 })
               }
+              this.sortByIndex(3) // 排序
             }
           })
         }
@@ -407,6 +410,7 @@ export default {
             data_op: '待接收案件', num: res.data.num, business_type: 'djsaj'
           }]
           this.listData[3].data = this.listData[3].data.concat(djsaj[0])
+          this.sortByIndex(3) // 排序
         }
       }).catch(() => {
       })
@@ -415,28 +419,25 @@ export default {
   mounted() {
     this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
     if (this.currentDep) {
-      if (this.currentDep.depType === '4') {
+      if (this.currentDep.depType === '4') { // 派出所，案件部分 需要当作父级处理
         // 调接口查 派出所的上级
         this.$query('hsyzparentdepart/' + this.currentDep.depCode, {}, 'upms').then((response) => {
           if (response.code === '000000') {
             this.pcsParentDept = response.data
-            // console.log('-->' + JSON.stringify(this.pcsParentDept))
-            this.pcsDeptId = this.pcsParentDept.id
             this.pcsDeptCode = this.pcsParentDept.departCode
-            this.getAjrl()
+            this.getSignCount() // listData[1]
+            this.getCBAJCount() // listData[2]
+            this.getOtherCount()// listData[3]
           }
         }).catch(() => {
-          this.caseLoading = false
         })
+      } else { // 非派出所
+        this.getSignCount() // listData[1]
+        this.getCBAJCount() // listData[2]
+        this.getOtherCount() // listData[3]
       }
-      this.deptId = this.currentDep.id
-      this.deptCode = this.currentDep.depCode
     }
-    this.getWorkFlow()
-    this.getCBAJCount()
-    this.getSignCount()
-    this.getAjrl()
-    this.getDjsaj()
+    this.getWorkFlow() // listData[0]
   }
 }
 
