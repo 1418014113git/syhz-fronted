@@ -2,7 +2,7 @@
   <!-- 案件档案升级版 -->
   <div class="leftNav">
     <ul class="navList">
-      <li v-for="(item,index) in navList" :key="index" :class="{'on':curIndex === index}" @click="clickNav(item.class,index)" >
+      <li v-for="(item,index) in navList" :key="index" :class="{'on':curClass === item.class}" @click="clickNav(item.class,index)" >
         <div>
           <img :src="item.icon">
           <span class="navName" :class="{'gray':item.number === 0 && index!==0 && index!==2 && index!==3 && index!==4}">{{item.name}}</span>
@@ -22,6 +22,7 @@ export default {
   data() {
     return {
       curIndex: 0, // 菜单当前索引
+      curClass: 'ajgg',
       navList: [
         { icon: '/static/image/caseFile_images/ajgg.png', name: '案件梗概', number: 0, type: 'aj0', class: 'ajgg' },
         { icon: '/static/image/caseFile_images/ydzc.png', name: '引导侦查', number: 0, type: 'aj1', class: 'ydzc' },
@@ -54,7 +55,8 @@ export default {
       this.getItemTotal() // 获取菜单对应的内容条数
     },
     clickNav(selector, index) {
-      this.curIndex = index
+      // this.curIndex = index
+      this.curClass = selector
       this.$store.dispatch('Ajdatotop', selector)
     },
     getItemTotal() {
@@ -72,7 +74,7 @@ export default {
       this.navList.forEach((item, i) => {
         var className = item.class
         if (className === val) {
-          this.curIndex = i
+          this.curClass = className
         }
       })
     },

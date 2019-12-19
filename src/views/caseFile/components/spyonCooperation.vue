@@ -204,6 +204,7 @@
 </template>
 <script>
 import { parseTime } from '@/utils/index'
+import Bus from '@/utils/bus.js'
 import {
   getAssistLevelText, getAssistStatusText
 } from '@/utils/codetotext'
@@ -335,6 +336,9 @@ export default {
         this.handleJyjd(true) // 检验鉴定
         this.handleAjrl(true) // 案件认领
       }
+      Bus.$on('bqType', (data) => { // 定位到对应的标签项
+        this.activeName = data
+      })
     },
     formatStatus(row, column) {
       const s = getAssistStatusText(row.status)
@@ -662,7 +666,6 @@ export default {
     rowClick() {
 
     }
-
   },
   mounted() {
     this.depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
