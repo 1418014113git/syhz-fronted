@@ -43,7 +43,7 @@
           :disabled="jsEndDateDisabled" clearable>
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="案件类型" prop="type">
+      <el-form-item label="案件分类" prop="type">
         <el-select v-model="filters.type" placeholder="全部" clearable>
           <el-option label="环境" value="3"></el-option>
           <el-option label="食品" value="1"></el-option>
