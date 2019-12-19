@@ -3,6 +3,7 @@
   <div class="ajTitle" v-loading="loading" style="">
      <div class="title">
         <div class="left">{{ajInfo.AJMC}}<a class="ajbh" @click="showTipsC(ajInfo.AJBH)">({{ajInfo.AJBH}})</a></div>
+        <span v-for="(item,index) in bqList" :key="index"  class="btnStyle"    @click="clickbtn(item)">{{item.name}}</span>
         <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com>
         <!-- <div class="right">
           <p>
@@ -33,6 +34,7 @@
 
 <script>
 import { getAJLBText } from '@/utils/codetotext'
+import Bus from '@/utils/bus.js'
 import ajbhCom from '@/components/ajbhTips' // 身份证号码点击弹出菜单功能
 export default {
   props: ['AjInfo', 'ajbh', 'ajid', 'type', 'Rl'],
@@ -48,7 +50,14 @@ export default {
       AJID: '', // 用户页面返回判断使用
       interFaceType: '',
       isRls: '',
-      source: 'ajda' // 页面来源，表示该模块是来自案件档案
+      source: 'ajda', // 页面来源，表示该模块是来自案件档案
+      bqList: [ // 快捷标签list
+        { name: '部督', type: 'third' },
+        { name: '厅督', type: 'third' },
+        { name: '市督', type: 'third' },
+        { name: '集群', type: 'first' },
+        { name: '协查', type: 'second' }
+      ]
     }
   },
   components: {
@@ -132,10 +141,15 @@ export default {
       }
     },
     showTipsC() {
-      this.showAjbhCom = true
+      // this.showAjbhCom = true
     },
     clickBlank() {
       this.showAjbhCom = false
+    },
+    clickbtn(item) {
+      this.$store.dispatch('Ajdatotop', 'zcxz') // 定位到侦查协作
+      this.$store.dispatch('AjMouleClass', 'zcxz')
+      Bus.$emit('bqType', item.type) // 定位到侦查协作对应的标签项
     }
   },
   mounted() {
@@ -179,6 +193,17 @@ export default {
         margin-left: 15px;
       }
     }
+  }
+   .btnStyle {
+    margin-left: 10px;
+    color: #fff;
+    font-size: 15px;
+    padding: 3px 12px;
+    text-shadow: 0 0 1px #000;
+    border-radius:10px;
+    background-image: linear-gradient(140deg, #177ce0 0%, #54afe0 100%),
+    linear-gradient(#ff8547, #ff8547);
+    cursor: pointer;
   }
 }
 
