@@ -13,7 +13,7 @@
           <!-- 右侧内容区 -->
           <el-col :span="20" class="rightCont"  :style="{height:countHeight}">
             <div class="rightContDoc" ref="rightContDoc" style="position:relative;">
-              <aj-title class="marb bg ajxx" :AjInfo="ajInfo" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl" :style="titleStyle"></aj-title>
+              <aj-title class="fixTitle bg ajxx" :AjInfo="ajInfo" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl" :style="{width:fixTitleWith}"></aj-title>
               <aj-info class="marb bg ajxx" :AjInfo="ajInfo" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl" style="margin-top:60px;" ></aj-info>
               <aj-status class="marb bg ajjd" :AjInfo="ajInfo" :ajbh="AJBH" ></aj-status>
               <aj-synopsis  class="marb bg ajgg" :info="ajInfo" :bh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl"></aj-synopsis>
@@ -76,7 +76,7 @@ export default {
       carryParam: {}, // 跳转过来的传参
       interfaceType: '',
       isRl: '',
-      titleStyle: ''
+      fixTitleWith: null
     }
   },
   components: {
@@ -221,15 +221,12 @@ export default {
   mounted() {
     const _this = this
     document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
-    console.log(document.querySelector('.rightCont').offsetWidth)
-    var width = document.querySelector('.rightCont').offsetWidth - 10
-    this.titleStyle = 'position:fixed;width:' + width + 'px;top:152px;left:16.2%;right:0;z-index:9999;background:rgba(0, 64, 94, 1)'
+    // console.log(document.querySelector('.rightCont').offsetWidth)
+    this.fixTitleWith = document.querySelector('.rightCont').offsetWidth - 7 + 'px'
   },
   activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
     document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
-    var width = document.querySelector('.rightCont').offsetWidth - 10
-
-    this.titleStyle = 'position:fixed;width:' + width + 'px;top:152px;left:16.2%;right:0;z-index:9999;background:rgba(0, 64, 94, 1)'
+    this.fixTitleWith = document.querySelector('.rightCont').offsetWidth - 7 + 'px'
     this.AJBH = ''
     this.init()
   }
@@ -387,12 +384,23 @@ export default {
   .breakall {
     word-break: break-all;
   }
+  .fixTitle{
+    position:fixed;
+    top:152px;
+    left:16.2%;
+    right:0;
+    z-index:999;
+    background:rgba(0, 64, 94, 1)
+  }
   @media only screen and (max-width: 1367px) {
     .leftCont {
       width: 17%;
     }
     .rightCont {
       width: 80.6%;
+    }
+    .fixTitle {
+      left: 19.5%;
     }
   }
 }
