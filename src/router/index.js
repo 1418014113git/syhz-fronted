@@ -260,6 +260,7 @@ export const constantRouterMap = [
       { path: '/basicService/equipNorm', component: () => import('@/views/basicService/equipNorm/index'), name: '装备配备标准' }, // 装备配备标准
       { path: '/basicService/equipNorm/classify', component: () => import('@/views/basicService/equipNorm/equipClassify'), name: '装备分类管理' }, // 装备分类管理
       { path: '/basicService/equipStatistical', component: () => import('@/views/basicService/basicStatistical/equipStatistical'), name: '装备信息统计' }, // 装备信息统计
+      { path: '/basicService/equipDeptStatistical', component: () => import('@/views/basicService/basicStatistical/equipDeptStatistical'), name: '单位机构装备信息统计' }, // 单位机构装备装备信息统计
       { path: '/notice/index', component: () => import('@/views/notice/noticeList'), name: '站内通知' },
       { path: '/notice/add', component: () => import('@/views/notice/noticeEdit'), name: '发布站内通知' },
       { path: '/notice/edit', component: () => import('@/views/notice/noticeEdit'), name: '编辑站内通知' },

@@ -86,8 +86,6 @@ export default {
       yslistData: [], // 移送案件列表
       zblistData: [], // 侦办刑事案件列表
       listLoading: false, // 页面加载loading
-      // yslistLoading: false, // 移送案件列表加载loading
-      // zblistLoading: false, // 侦办刑事案件列表加载loading
       xzqhOptions: [], // 行政区划数据
       deptOptions: [], // 部门数据
       curUser: {}, // 当前登录用户

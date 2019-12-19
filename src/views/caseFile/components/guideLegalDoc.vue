@@ -43,10 +43,12 @@
             <img :src="item" alt="" srcset="" style="max-width:100%;max-height:100%;">
           </el-carousel-item>
         </el-carousel>
-        <p>附件下载</p>
-        <p v-for="(item,index) in detailFiles" :key="index" style="padding-left: 30px;">
-          <a :download="item.name" :href="item.path" style="text-decoration: underline;">{{item.name}}</a>
-        </p>
+        <div v-if="detailFiles.length>0">
+          <p>附件下载</p>
+          <p v-for="(item,index) in detailFiles" :key="index" style="padding-left: 30px;">
+            <a :download="item.name" :href="item.path" style="text-decoration: underline;">{{item.name}}</a>
+          </p>
+        </div>
       </div>
       <p style="text-align:center;">
         <el-button @click="closeDia">关闭</el-button>

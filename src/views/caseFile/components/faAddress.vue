@@ -118,7 +118,8 @@ import { defaults } from 'ol/control/util.js'
 import { defaults as defaultInteractions } from 'ol/interaction.js'
 import { getWidth /* getTopLeft*/ } from 'ol/extent.js'
 import { get as getProjection } from 'ol/proj.js'
-import OSM from 'ol/source/OSM.js'
+// import OSM from 'ol/source/OSM.js'
+import XYZ from 'ol/source/XYZ.js'
 // import WMTS from 'ol/source/WMTS.js'
 // import WMTSTileGrid from 'ol/tilegrid/WMTS.js'
 
@@ -268,40 +269,31 @@ export default {
         controls: defaults({ zoom: true }), // 地图左上角的缩放按钮，默认是zoom:false不显示
         interactions: defaultInteractions({ mouseWheelZoom: false }), // 禁止鼠标缩放地图
         layers: [
-          new TileLayer({
-            source: new OSM()
-          })
-          // new TileLayer({
-          //   source: new WMTS({
-          //     // url: 'https://services.arcgisonline.com/arcgis/rest/services/Demographics/USA_Population_Density/MapServer/WMTS/', // 测试地址
-          //     url: 'http://26.3.12.44:6088/wmts?service=WMTS&request=GetCapabilities', // 公安地图资源服务地址
-          //     layer: '0',
-          //     matrixSet: 'EPSG:4326',
-          //     format: 'image/png',
-          //     projection: projection, // 采用WGS84坐标系
-          //     tileGrid: new WMTSTileGrid({
-          //       origin: getTopLeft(projectionExtent),
-          //       resolutions: resolutions,
-          //       matrixIds: matrixIds
-          //     }),
-          //     style: 'default',
-          //     wrapX: true
-          //   })
+          // new TileLayer({ // 测试地址
+          //   source: new OSM()
           // })
+          new TileLayer({ // 正式地址
+            source: new XYZ({
+              url: 'http://10.172.1.195/PGIS_S_TileMapServer/Maps/stsl/EzMap?Service=getImage&Type=RGB&ZoomOffset=0&Col={x}&Row={y}&Zoom={z}&V=1.0.0', // bjslyx矢量影像叠加 bjsl 矢量 bjyx影像
+              tilePixelRatio: 2, // THIS IS IMPORTANT
+              minZoom: 1, // 9 级以下没有
+              maxZoom: 22, // 15 级以上没有
+              projection: 'EPSG:4326' // 采用WGS84坐标系
+            })
+          })
         ],
         view: new View({
           // 指定地图投影模式
           projection: 'EPSG:4326', // 采用WGS84坐标系
           // 设置地图中心范围
-          center: [108.953098279, 34.2777998978], // 将呼和浩特市作为中心点
+          center: [108.9500, 34.22869],
           // 限制地图中心范围，但无法限制缩小范围
-          // extent: [110, 26, 114, 30],
-          // 定义地图显示层级为16
-          zoom: 13, // 1:2000
+          // extent: [109.40234, 33.59375, 104.96484, 35.38281],
+          zoom: 10, // 定义地图显示层级为 9-15
           // 限制缩放级别，可以和extent同用限制范围
-          maxZoom: 14, // 1:1000
+          maxZoom: 15,
           // 最小级别，越大则面积越大
-          minZoom: 5 // 1:500000
+          minZoom: 9
         })
       })
       _that.map.on('pointermove', function(e) {
@@ -321,7 +313,7 @@ export default {
       })
     },
     /**
-     * 批量添加车辆轨迹坐标点
+     * 获取发案地坐标点
      */
     handleAddBatchFeatureFa() {
       const _that = this
@@ -537,11 +529,11 @@ export default {
           // 设置地图中心范围
           center: _this.mapCenter, // 将当前坐标设置成中心点
           // 定义地图显示层级为16
-          zoom: 13, // 1:2000
-          // // 限制缩放级别，可以和extent同用限制范围
-          maxZoom: 14, // 1:1000
+          zoom: 10, // 定义地图显示层级为 9-15
+          // 限制缩放级别，可以和extent同用限制范围
+          maxZoom: 15,
           // 最小级别，越大则面积越大
-          minZoom: 5 // 1:500000
+          minZoom: 9
         })// 在外面创建一个view
         _this.map.setView(view)// 把这个view设置给map
         view.setCenter(_this.mapCenter)// 重复执行这行代码给地图设置中
