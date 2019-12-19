@@ -437,7 +437,7 @@ export default {
         }
       },
       rules: {
-        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }]
+        noticeOrgCode: [{ required: true, message: '请选择接收单位', trigger: 'change' }]
       },
       rules2: {
         revokeReason: [
@@ -446,14 +446,14 @@ export default {
         ]
       },
       rules3: {
-        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }],
+        noticeOrgCode: [{ required: true, message: '请选择接收单位', trigger: 'change' }],
         revokeReason: [
           { required: true, message: '请输入转发原因', trigger: 'blur' },
           { max: 200, message: '原因不能超过200字', trigger: 'blur' }
         ]
       },
       rules4: {
-        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }],
+        noticeOrgCode: [{ required: true, message: '请选择指定单位', trigger: 'change' }],
         revokeReason: [
           { required: true, message: '请输入恢复原因', trigger: 'blur' },
           { max: 200, message: '原因不能超过200字', trigger: 'blur' }
