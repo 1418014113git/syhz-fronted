@@ -5,16 +5,17 @@
       <img src="@/assets/icon/back.png" class="goBack" @click="toback">   <!--返回-->
     </el-row>
     <div class="caseFile">
-      <el-row>
+      <el-row style="position:relative;">
         <!-- 左侧导航区 -->
           <el-col class="leftCont" :span="4" :style="{height:countHeight}">
-            <left-nav class="bg"  :ajbh="AJBH" ></left-nav>
+            <left-nav class="bg" :ajbh="AJBH" ></left-nav>
           </el-col>
           <!-- 右侧内容区 -->
           <el-col :span="20" class="rightCont"  :style="{height:countHeight}">
-            <div class="rightContDoc" ref="rightContDoc">
-              <aj-info class="marb bg ajxx" :AjInfo="ajInfo" :ajbh="AJBH"  :ajid="AJID" :type="interfaceType" :Rl="isRl"></aj-info>
-              <aj-status class="marb bg ajjd" :AjInfo="ajInfo" :ajbh="AJBH"></aj-status>
+            <div class="rightContDoc" ref="rightContDoc" style="position:relative;">
+              <aj-title class="marb bg ajxx" :AjInfo="ajInfo" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl" :style="titleStyle"></aj-title>
+              <aj-info class="marb bg ajxx" :AjInfo="ajInfo" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl" style="margin-top:60px;" ></aj-info>
+              <aj-status class="marb bg ajjd" :AjInfo="ajInfo" :ajbh="AJBH" ></aj-status>
               <aj-synopsis  class="marb bg ajgg" :info="ajInfo" :bh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl"></aj-synopsis>
               <guide-detect class="marb ydzc" :ajbh="AJBH" :AjInfo="ajInfo"></guide-detect>
               <fa-address class="marb bg fadz" :AjInfo="ajInfo" :ajbh="AJBH"  :ajid="AJID"  :type="interfaceType" :Rl="isRl"></fa-address>
@@ -34,6 +35,7 @@
 
 <script>
 import LeftNav from './components/leftNav' // 左侧菜单
+import AjTitle from './components/ajTitle' // 右侧--案件信息
 import AjInfo from './components/ajInfo' // 右侧--案件信息
 import AjStatus from './components/ajStatus' // 右侧--案件进度
 import AjSynopsis from './components/ajSynopsis' // 右侧--案件梗概
@@ -53,7 +55,7 @@ export default {
   name: 'caseFile',
   data() {
     return {
-      countHeight: document.documentElement.clientHeight - 130 + 'px',
+      countHeight: document.documentElement.clientHeight - 160 + 'px',
       classList: [ // 模块类名
         // 'ajxx', // 案件信息
         // 'ajjd', // 案件进度
@@ -73,11 +75,13 @@ export default {
       ajInfo: {}, // 基础信息
       carryParam: {}, // 跳转过来的传参
       interfaceType: '',
-      isRl: ''
+      isRl: '',
+      titleStyle: ''
     }
   },
   components: {
     LeftNav,
+    AjTitle,
     AjInfo,
     AjSynopsis,
     guideDetect,
@@ -217,9 +221,15 @@ export default {
   mounted() {
     const _this = this
     document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
+    console.log(document.querySelector('.rightCont').offsetWidth)
+    var width = document.querySelector('.rightCont').offsetWidth - 10
+    this.titleStyle = 'position:fixed;width:' + width + 'px;top:152px;left:16.2%;right:0;z-index:9999;background:rgba(0, 64, 94, 1)'
   },
   activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
     document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
+    var width = document.querySelector('.rightCont').offsetWidth - 10
+
+    this.titleStyle = 'position:fixed;width:' + width + 'px;top:152px;left:16.2%;right:0;z-index:9999;background:rgba(0, 64, 94, 1)'
     this.AJBH = ''
     this.init()
   }
@@ -236,6 +246,7 @@ export default {
     width: 84.3%;
     overflow-y: auto;
     overflow-x: hidden;
+    position: relative;
   }
 
   .marb {

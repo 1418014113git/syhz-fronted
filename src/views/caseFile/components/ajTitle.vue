@@ -1,9 +1,14 @@
 <template>
 <!-- 案件信息 -->
-  <div class="ajInfo" v-loading="loading">
-     <!--<div class="title">
-        <div class="left">{{ajInfo.AJMC}}</div>
-         <div class="right">
+  <div class="ajTitle" v-loading="loading" style="">
+     <div class="title">
+        <div class="left">{{ajInfo.AJMC}}<a class="ajbh" @click="showTipsC(ajInfo.AJBH)">({{ajInfo.AJBH}})</a></div>
+        <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com>
+        <!-- <div class="right">
+          <p>
+            <img  class="downLoad" src="/static/image/syh_images/">
+            <span>关注</span>
+          </p>
           <p>
             <img  class="downLoad" src="/static/image/personFile_images/downLoad.png">
             <span>下载档案</span>
@@ -21,37 +26,8 @@
             <img  class="downLoad" src="/static/image/personFile_images/heart.png">
             <span>0</span>
           </p>
-        </div>
-     </div>-->
-     <el-row class="pat">
-        <el-form ref="form" :model="ajInfo" size="small" label-width="108px" label-position="left">
-          <el-col :span="8" class="pdr">
-            <!-- <el-form-item label="案件编号">
-              <a class="ajbh" @click="showTipsC(ajInfo.AJBH)">{{ajInfo.AJBH}}</a>
-            </el-form-item> -->
-             <el-form-item label="立案单位">
-              <span :title="ajInfo.LADW_NAME" class="whiteColor ellipsis-word">{{ajInfo.LADW_NAME}}</span>
-            </el-form-item>
-            <el-form-item label="案件类型">
-              <span class="whiteColor ajlx" v-for="(item, index) in ajlx" :key="index" :class="item.bg">{{item.lx}}</span>
-            </el-form-item>
-            <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com>
-          </el-col>
-          <el-col :span="8" class="pdr">
-            <el-form-item label="发案地">
-              <span  :title="ajInfo.FADZMLXZ" class="whiteColor ellipsis-word heig">{{ajInfo.FADZMLXZ}}</span>
-            </el-form-item>
-            <el-form-item label="案件状态">
-              <span :class="ajInfo.AJZT_NAME === '破案'?'green':'orange'">{{ajInfo.AJZT_NAME}}</span>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="案件类别">
-              <span class="whiteColor lbbg" v-if="ajInfo.AJLB_NAME">{{ajInfo.AJLB_NAME}}</span>
-            </el-form-item>
-          </el-col>
-        </el-form>
-      </el-row>
+        </div> -->
+     </div>
   </div>
 </template>
 
@@ -171,10 +147,10 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.ajInfo {
+.ajTitle {
   width: 100%;
   border: 2px solid rgb(0, 160, 233);
-  padding: 0 8px 8px 8px;
+  padding: 0 8px 0 8px;
   .el-form-item__label {
     color: #bce8fc;
     text-shadow: 0 0 1px #fff;
@@ -237,7 +213,7 @@ export default {
 .ajbhcom {
   position: absolute;
   top: -5px;
-  left: 50%;
+  left: 21%;
 }
 .pdr {
   padding-right: 10px;
