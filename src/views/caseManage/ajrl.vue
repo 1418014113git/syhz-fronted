@@ -226,10 +226,10 @@
     </el-col>
 
     <!--案件下发-->
-    <el-dialog title="案件下发" :visible.sync="dialogXFVisible" size="small">
+    <el-dialog title="下发案件" :visible.sync="dialogXFVisible" size="small">
       <el-form class="ajInfoForm" style="margin:0 auto" :rules="rules" :model="ajInfo" ref="ajxfForm" size="small" label-width="110px"
                @submit.prevent="onSubmit">
-        <el-form-item label="下发单位：" prop="noticeOrgCode">
+        <el-form-item label="接收单位：" prop="noticeOrgCode">
           <el-select v-model="noticeOrgCode" placeholder="请选择" style="width:100%" @change="getDeptNameChange">
             <el-option v-for="(item, index) in deptList" :key="'xf'+index" :label="item.name" :value="item.depCode"></el-option>
           </el-select>
@@ -437,7 +437,7 @@ export default {
         }
       },
       rules: {
-        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }]
+        noticeOrgCode: [{ required: true, message: '请选择接收单位', trigger: 'change' }]
       },
       rules2: {
         revokeReason: [
@@ -446,14 +446,14 @@ export default {
         ]
       },
       rules3: {
-        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }],
+        noticeOrgCode: [{ required: true, message: '请选择接收单位', trigger: 'change' }],
         revokeReason: [
           { required: true, message: '请输入转发原因', trigger: 'blur' },
           { max: 200, message: '原因不能超过200字', trigger: 'blur' }
         ]
       },
       rules4: {
-        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }],
+        noticeOrgCode: [{ required: true, message: '请选择指定单位', trigger: 'change' }],
         revokeReason: [
           { required: true, message: '请输入恢复原因', trigger: 'blur' },
           { max: 200, message: '原因不能超过200字', trigger: 'blur' }
