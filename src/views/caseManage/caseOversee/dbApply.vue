@@ -24,12 +24,12 @@
         <el-col :span="11">
           <el-form-item label="督办负责人" prop="supervisePersonId">
             <el-select v-model="dbApplyForm.supervisePersonId" placeholder="请选择督办负责人" filterable class="db_create_input" @change="fzrChange">
-              <el-option v-for="(item,index) in userData" :key="item.id + index" :label="item.name + ' (' + item.userName + ')'" :value="item.id"></el-option>
+              <el-option v-for="(item,index) in userData" :key="index" :label="item.name + ' (' + item.userName + ')'" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="督办联系人" prop="connectionPersonId">
             <el-select v-model="dbApplyForm.connectionPersonId" placeholder="请选择督办联系人" filterable class="db_create_input" @change="lxrChange">
-              <el-option v-for="(item,index) in userData" :key="item.id + index" :label="item.name + ' (' + item.userName + ')'" :value="item.id"></el-option>
+              <el-option v-for="(item,index) in userData" :key="index" :label="item.name + ' (' + item.userName + ')'" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
