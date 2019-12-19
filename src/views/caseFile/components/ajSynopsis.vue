@@ -42,8 +42,11 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="主办侦察员" prop="ZBR_NAME">
-            <span class="whiteColor">{{ajInfo.ZBR_NAME}}</span>
+          <el-form-item label="办案人员" prop="ZBR_NAME">
+            <!-- 主办侦查员 修改为 办案人员，显示 主办人 协办人 -->
+            <span class="whiteColor" v-if="ajInfo.ZBR_NAME&&ajInfo.XBR_NAME">{{ajInfo.XBR_NAME +'，'+ ajInfo.XBR_NAME}}</span>
+            <span class="whiteColor" v-else-if="ajInfo.ZBR_NAME">{{ajInfo.ZBR_NAME}}</span>
+            <span class="whiteColor" v-else-if="ajInfo.XBR_NAME">{{ajInfo.XBR_NAME}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -171,10 +174,10 @@ export default {
       curDeptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前用户的部门
       rlBtn: true,
       tingDeptData:
-      {
-        code: '610000530000',
-        name: '陕西省公安厅环食药总队'
-      },
+        {
+          code: '610000530000',
+          name: '陕西省公安厅环食药总队'
+        },
 
       laPickerOpt: {},
       paPickerOpt: {},

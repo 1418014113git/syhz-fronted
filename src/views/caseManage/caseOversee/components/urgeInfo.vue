@@ -10,8 +10,8 @@
               type="primary" size="small" @click="handleXfcb">下发催办</el-button>
         </div>
       </div>
-      <el-table :data="cbDataList" style="width: 100%;" v-loading="loading" max-height="156" class="table_th_center">
-        <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
+      <el-table :data="cbDataList" style="width: 100%;" v-loading="loading" class="table_th_center">
+        <el-table-column type="index" label="序号" width="55" align="center" fixed="left"></el-table-column>
         <el-table-column prop="urgentDeptName" label="催办部门"  min-width="240" show-overflow-tooltip></el-table-column>
         <el-table-column prop="urgentPersonName" label="催办人" min-width="120" show-overflow-tooltip></el-table-column>
         <el-table-column prop="urgedContent" label="催办内容"  min-width="240" show-overflow-tooltip></el-table-column>

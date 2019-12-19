@@ -33,8 +33,8 @@
           </div>
         </div>
       </div>
-      <el-table :data="jabgDataList" style="width: 100%;margin-top:20px;" v-loading="loading" max-height="156" class="table_th_center">
-        <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
+      <el-table :data="jabgDataList" style="width: 100%;margin-top:20px;" v-loading="loading" class="table_th_center">
+        <el-table-column type="index" label="序号" width="55" align="center" fixed="left"></el-table-column>
         <el-table-column prop="applyDepartName" label="上报单位" min-width="240" show-overflow-tooltip></el-table-column>
         <el-table-column prop="applyUserName" label="上报人" min-width="120" show-overflow-tooltip></el-table-column>
         <el-table-column prop="applyDate" label="上报时间" width="170" align="center"></el-table-column>
