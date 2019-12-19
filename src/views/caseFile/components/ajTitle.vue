@@ -132,7 +132,7 @@ export default {
       }
     },
     showTipsC() {
-      this.showAjbhCom = true
+      // this.showAjbhCom = true
     },
     clickBlank() {
       this.showAjbhCom = false

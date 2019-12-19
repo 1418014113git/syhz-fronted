@@ -269,9 +269,6 @@ export default {
         this.deptOptions = [] // 清空单位机构数据
         this.selectCurDep = { name: '' } // 清空当前选中的单位机构
         var param = {
-          // provinceCode: '610000',
-          // cityCode: val[0] || '',
-          // reginCode: val[1] || ''
           provinceCode: val[0] || '',
           cityCode: val[1] || '',
           reginCode: val[2] || ''
