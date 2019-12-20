@@ -44,7 +44,7 @@
         <el-col :span="8">
           <el-form-item label="办案人员" prop="ZBR_NAME">
             <!-- 主办侦查员 修改为 办案人员，显示 主办人 协办人 -->
-            <span class="whiteColor" v-if="ajInfo.ZBR_NAME&&ajInfo.XBR_NAME">{{ajInfo.XBR_NAME +'，'+ ajInfo.XBR_NAME}}</span>
+            <span class="whiteColor" v-if="ajInfo.ZBR_NAME&&ajInfo.XBR_NAME">{{ajInfo.ZBR_NAME +'，'+ ajInfo.XBR_NAME}}</span>
             <span class="whiteColor" v-else-if="ajInfo.ZBR_NAME">{{ajInfo.ZBR_NAME}}</span>
             <span class="whiteColor" v-else-if="ajInfo.XBR_NAME">{{ajInfo.XBR_NAME}}</span>
           </el-form-item>
