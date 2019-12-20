@@ -39,7 +39,7 @@
           </el-col>
           <el-col :span="8" class="pdr">
             <el-form-item label="案件来源">
-              <!-- <span  :title="" class="whiteColor ellipsis-word heig">{{}}</span> -->
+              <span  :title="ajInfo.AJLY_NAME" class="whiteColor ellipsis-word heig">{{ajInfo.AJLY_NAME}}</span>
             </el-form-item>
             <el-form-item label="案件状态">
               <span :class="ajInfo.AJZT_NAME === '破案'?'green':'orange'">{{ajInfo.AJZT_NAME}}</span>

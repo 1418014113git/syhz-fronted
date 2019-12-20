@@ -270,6 +270,8 @@
         this.$query('group/groupinfo', { creatorId: this.curUser.id, deptCode: this.curDept.depCode, type: 1 }).then(response => {
           if (response.data === null || response.data === undefined || response.data.length === 0) {
             // 没有常用联系人
+            this.transferLXRData = []
+            this.lXRData = []
           } else {
             this.lXRData = response.data
             const tData = []
@@ -434,6 +436,7 @@
           recipientUser: []
         }
         this.searchKey = ''
+        this.addBtnLoading = false
         this.checkLXR(this.curDept.depCode)
       },
       cancelEdit() {
@@ -501,6 +504,7 @@
                 message: '消息发送成功！',
                 type: 'success'
               })
+              this.addBtnLoading = false
               if (this.addForm.sendType === '1') {
                 this.closeDialog()
                 this.$confirm('是否需要将当前消息的接收人设定为常用联系人组？', '提示', {
@@ -511,6 +515,7 @@
                   this.noticeGroupForm.receiveDept = data
                   this.groupDialogVisible = true
                 }).catch(() => {
+                  this.addBtnLoading = false
                   this.query()
                   this.closeDialog()
                 })
