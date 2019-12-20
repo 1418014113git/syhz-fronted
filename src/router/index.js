@@ -302,7 +302,12 @@ export const constantRouterMap = [
       { path: '/caseAssist/clueList', component: () => import('@/views/caseAssist/clue/clueList'), name: '案件协查线索列表' },
       { path: '/caseAssist/clueFeedBackList', component: () => import('@/views/caseAssist/clue/clueFeedBackList'), name: '案件协查线索反馈列表' },
       { path: '/caseManage/caseMergeList', component: () => import('@/views/caseManage/caseMergeList'), name: '重复合并列表' },
-      { path: '/caseManage/caseMergeForm', component: () => import('@/views/caseManage/caseMergeForm'), name: '案件重复合并' }
+      { path: '/caseManage/caseMergeForm', component: () => import('@/views/caseManage/caseMergeForm'), name: '案件重复合并' },
+      { path: '/caseAssist/total_jq', component: () => import('@/views/caseAssist/assist_total'), name: '集群战役统计分析' },
+      { path: '/insideInfo/insideInfoList', component: () => import('@/views/information/insideInfo/insideInfoList'), name: '内部资源信息' },
+      { path: '/insideInfo/insideInfoDetail', component: () => import('@/views/information//insideInfo/insideInfoDetail'), name: '内部资源信息详情' },
+      { path: '/insideInfo/insideInfoToT', component: () => import('@/views/information//insideInfo/insideInfoToT'), name: '内部资源-培训资料添加' },
+      { path: '/insideInfo/insideInfoToK', component: () => import('@/views/information//insideInfo/insideInfoToK'), name: '内部资源-知识库资料添加' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },

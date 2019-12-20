@@ -82,6 +82,15 @@ export default {
       sessionStorage.removeItem('assistT3')
       sessionStorage.removeItem('assistT4')
       sessionStorage.removeItem('assistT5')
+    },
+    findParentDept(paramCode) {
+      const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+      for (let i = 0; i < deptArr.length; i++) {
+        const item = deptArr[i]
+        if (item.depCode === paramCode) {
+          return item
+        }
+      }
     }
   },
   mounted() {
@@ -95,8 +104,13 @@ export default {
         this.navList.push({ name: '区县签收', number: 0, type: 'assistT4', class: 'signInfo_area' })
         this.navList.push({ name: '区县反馈', number: 0, type: 'assistT5', class: 'feedbackInfo_area' })
       } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
-        this.navList[2].name = '区县签收'
-        this.navList[3].name = '区县反馈'
+        if (this.curDept.areaCode === '611400') { // 杨凌例外
+          this.navList[2].name = '地市签收'
+          this.navList[3].name = '地市反馈'
+        } else {
+          this.navList[2].name = '区县签收'
+          this.navList[3].name = '区县反馈'
+        }
       }
     }
     if (this.assistId) { // 正式
