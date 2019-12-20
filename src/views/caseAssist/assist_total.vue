@@ -506,7 +506,7 @@
       toAssistList(type, row, flag) {
         // type：0 发起  1 反馈
         const para = {
-          status: '4', // 状态
+          // status: '4', // 状态
           areaCode: [], // 行政区划
           type: type,
           deptCode: flag ? row.deptCode : '', // 部门code
