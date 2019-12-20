@@ -477,7 +477,7 @@ export default {
             curDeptId: this.caseAssistForm.curDeptId // 当前部门Id
           }
           if (this.pageOperationType === 'edit') {
-            param.status = state === 0 ? state : (this.category === '3' ? '4' : state)
+            param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
             param.operator = state === 0 ? 'update' : 'submit'
             param.id = this.editId
             if (this.secondSubmitVisible) {
@@ -502,7 +502,7 @@ export default {
               this.save(param, false, false, '', false)
             }
           } else if (this.pageOperationType === 'add') {
-            param.status = state === 0 ? state : (this.category === '3' ? '4' : state)
+            param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
             if (this.secondSubmitVisible) {
               param.operator = 'update'
               param.id = this.editId
@@ -705,12 +705,13 @@ export default {
     distribute(type, data) { // 分发
       if (type === 'list') { // 点击涉及单位当前行
         this.receiveName = data.deptName
+        this.qbxsDistribute = ''
       } else { // 点击线索数字时，获取当前数字的状态
         this.qbxsDistribute = data
       }
       this.distributeClueVisible = true
       if (this.$refs.distributeClue) {
-        this.$refs.distributeClue.init()
+        this.$refs.distributeClue.init(this.qbxsDistribute, this.receiveName)
       }
     },
     closeImportClueDialog(val) { // 关闭导入线索弹框
@@ -726,6 +727,9 @@ export default {
         this.updateOp = true
       } else {
         this.distributeClueVisible = false
+        if (this.$refs.distributeClue) {
+          this.$refs.distributeClue.initData()
+        }
         if (this.updateOp || val !== undefined) {
           this.queryList(this.editId) // 查询涉及单位对应的列表
         }
@@ -764,7 +768,7 @@ export default {
           this.curDeptCode = launchData[i].depCode // 当前部门code
           this.caseAssistForm.curDeptCode = this.curDeptCode
           this.caseAssistForm.curDeptName = this.curDeptName
-          this.caseAssistForm.curDeptId = this.curDeptId
+          this.caseAssistForm.curDeptId = this.curDepartId
         }
       }
     },
@@ -882,17 +886,18 @@ export default {
     color: #f56c6c;
     margin-left: 5px;
   }
-  .distribute_clue .el-dialog__body{
-    max-height: 550px;
-  }
   .caseAssist_edit .caseAssist_distributeClue .dis_table_div{
     width: 100%;
     overflow: auto;
-    max-height: 230px;
+    max-height: 500px;
   }
   .caseAssist_edit .numStyle{
     font-weight: bold;
     cursor: pointer;
     text-decoration: underline;
+  }
+  .caseAssist_edit .distribute_clue .el-dialog{
+    width: 80%;
+    overflow: auto;
   }
 </style>
