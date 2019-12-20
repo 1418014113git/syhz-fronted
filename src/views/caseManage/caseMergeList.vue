@@ -185,7 +185,7 @@
       <el-table :data="mergeRecoeds" highlight-current-row v-loading="recordsLoading" style="width: 100%;" :max-height="tableHeight">
         <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
         <el-table-column prop="deptName" label="操作单位" width="200" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="creationName" label="操作人" width="100" align="center"></el-table-column>
+        <el-table-column prop="creationName" label="操作人" width="120" align="center" show-overflow-tooltip></el-table-column>
         <el-table-column prop="creationTime" label="操作时间" width="170" show-overflow-tooltip></el-table-column>
         <el-table-column label="保留/移除案件编号" width="230" show-overflow-tooltip align="center">
           <template slot-scope="scope">
@@ -453,6 +453,8 @@ export default {
         })
         return false
       }
+      para.startDate = para.startDate ? para.startDate + ' 00:00:00' : '' // 开始时间
+      para.endDate = para.endDate ? para.endDate + ' 23:59:59' : '' // 结束时间
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
