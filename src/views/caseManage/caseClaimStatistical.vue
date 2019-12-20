@@ -86,7 +86,7 @@
             <el-option v-for="item in aztjSelectList" :key="item.code" :label="item.codeName" :value="item.code"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="案件类型">
+        <el-form-item label="案件分类">
           <el-cascader v-model="filters.fllb" change-on-select :options="fllbList" @change="changeajlxSelect" filterable clearable  class="inputw"></el-cascader>
         </el-form-item>
         <el-form-item label="案件类别" class="datezhi">
@@ -125,25 +125,25 @@
             <el-table-column prop="name" label="单位" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
             <el-table-column prop="claimed" label="已认领（新增案件）" min-width="6%" align="center">
               <template slot-scope="sonScope">
-                <span v-if="sonScope.row.claimed>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'2')">{{$thousSplit(sonScope.row.claimed+'')}}</span>
+                <span v-if="sonScope.row.claimed>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.districtCode,sonScope.row.deptCode,sonScope.row.deptType,'2')">{{$thousSplit(sonScope.row.claimed+'')}}</span>
                 <span v-else >{{sonScope.row.claimed}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="toClaimed" label="待认领" min-width="5%" align="center">
               <template slot-scope="sonScope">
-                <span v-if="sonScope.row.toClaimed>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'1')">{{$thousSplit(sonScope.row.toClaimed+'')}}</span>
+                <span v-if="sonScope.row.toClaimed>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.districtCode,sonScope.row.deptCode,sonScope.row.deptType,'1')">{{$thousSplit(sonScope.row.toClaimed+'')}}</span>
                 <span v-else >{{sonScope.row.toClaimed}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="downward" label="已下发" min-width="5%" align="center">
               <template slot-scope="sonScope">
-                <span v-if="sonScope.row.downward>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'"  @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'3')">{{$thousSplit(sonScope.row.downward+'')}}</span>
+                <span v-if="sonScope.row.downward>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'"  @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.districtCode,sonScope.row.deptCode,sonScope.row.deptType,'3')">{{$thousSplit(sonScope.row.downward+'')}}</span>
                 <span v-else >{{sonScope.row.downward}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="forward" label="已转发" min-width="5%" align="center">
               <template slot-scope="sonScope">
-                <span v-if="sonScope.row.forward>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'4')">{{$thousSplit(sonScope.row.forward+'')}}</span>
+                <span v-if="sonScope.row.forward>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.districtCode,sonScope.row.deptCode,sonScope.row.deptType,'4')">{{$thousSplit(sonScope.row.forward+'')}}</span>
                 <span v-else >{{sonScope.row.forward}}</span>
               </template>
             </el-table-column>
@@ -155,13 +155,13 @@
             </el-table-column>
              <el-table-column prop="others" label="其他" min-width="5%" align="center">
               <template slot-scope="sonScope">
-                <span v-if="sonScope.row.others>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'5')">{{$thousSplit(sonScope.row.others+'')}}</span>
+                <span v-if="sonScope.row.others>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.districtCode,sonScope.row.deptCode,sonScope.row.deptType,'5')">{{$thousSplit(sonScope.row.others+'')}}</span>
                 <span v-else >{{sonScope.row.others}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="total" label="案件总数" min-width="5%" align="center">
               <template slot-scope="sonScope">
-                <span v-if="sonScope.row.total>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.deptCode,sonScope.row.deptType,'','secondTotal')">{{$thousSplit(sonScope.row.total+'')}}</span>
+                <span v-if="sonScope.row.total>0" :class="sonScope.row.canClickSon?'linkColor':'notClick'" @click="linkAjrl(sonScope.row.canClickSon,'second',sonScope.row.cityCode,sonScope.row.districtCode,sonScope.row.deptCode,sonScope.row.deptType,'','secondTotal')">{{$thousSplit(sonScope.row.total+'')}}</span>
                 <span v-else >{{sonScope.row.total}}</span>
               </template>
             </el-table-column>
@@ -177,43 +177,43 @@
       <el-table-column prop="cityName" label="省市" min-width="10%" align="center"></el-table-column>
       <el-table-column prop="claimed" label="已认领" min-width="6%" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.claimed>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','2')">{{$thousSplit(scope.row.claimed+'')}}</span>
+          <span v-if="scope.row.claimed>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','','2')">{{$thousSplit(scope.row.claimed+'')}}</span>
           <span v-else >{{scope.row.claimed}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="toClaimed" label="待认领" min-width="5%" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.toClaimed>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','1')">{{$thousSplit(scope.row.toClaimed+'')}}</span>
+          <span v-if="scope.row.toClaimed>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','','1')">{{$thousSplit(scope.row.toClaimed+'')}}</span>
           <span v-else >{{scope.row.toClaimed}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="downward" label="已下发" min-width="5%" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.downward>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','3')">{{$thousSplit(scope.row.downward+'')}}</span>
+          <span v-if="scope.row.downward>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','','3')">{{$thousSplit(scope.row.downward+'')}}</span>
           <span v-else >{{scope.row.downward}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="forward" label="已转发" min-width="5%" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.forward>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','4')">{{$thousSplit(scope.row.forward+'')}}</span>
+          <span v-if="scope.row.forward>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','','4')">{{$thousSplit(scope.row.forward+'')}}</span>
           <span v-else >{{scope.row.forward}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="left" label="重复合并" min-width="5%" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.left>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkcfhb(scope.row.canClick,'first',scope.row.cityCode,'','','2')">{{$thousSplit(scope.row.left+'')}}</span>
+          <span v-if="scope.row.left>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkcfhb(scope.row.canClick,'first',scope.row.cityCode,'','','','2')">{{$thousSplit(scope.row.left+'')}}</span>
           <span v-else >{{scope.row.left}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="others" label="其他" min-width="5%" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.others>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','5')">{{$thousSplit(scope.row.others+'')}}</span>
+          <span v-if="scope.row.others>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','','5')">{{$thousSplit(scope.row.others+'')}}</span>
           <span v-else >{{scope.row.others}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="total" label="案件总数" min-width="5%" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.total>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','',scope.row.cityName)">{{$thousSplit(scope.row.total+'')}}</span>
+          <span v-if="scope.row.total>0" :class="scope.row.canClick?'linkColor':'notClick'" @click="linkAjrl(scope.row.canClick,'first',scope.row.cityCode,'','','','',scope.row.cityName)">{{$thousSplit(scope.row.total+'')}}</span>
           <span v-else>{{scope.row.total}}</span>
         </template>
       </el-table-column>
@@ -624,8 +624,7 @@ export default {
       }
       this.query()
     },
-
-    linkAjrl(canClick, level, cityCode, deptCode, deptType, type, isSum) { // 跳转到案件认领列表
+    linkAjrl(canClick, level, cityCode, districtCode, deptCode, deptType, type, isSum) { // 跳转到案件认领列表
       if (!canClick) {
         return false
       }
@@ -633,6 +632,7 @@ export default {
       param.origin = 'statistical' // 表示从统计跳转过去的
       param.deptLevel = level // 区分是一级还是二级
       param.cityCode = cityCode // 当前点击的cityCode
+      param.districtCode = districtCode // 区县code
       param.deptCode = deptCode// 当前点击的部门code  // 张开项里才有此值
       param.colType = type // 待认领...等  认领状态
       param.ajztName = this.curAjztName // 案件状态中文名称
