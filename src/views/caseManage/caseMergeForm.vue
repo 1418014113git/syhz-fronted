@@ -58,7 +58,7 @@
           </el-table-column>
         </el-table>
         <el-col :span="24">
-          <p @click="addData" style="text-align: center;font-size: 22px;border: 1px solid rgb(89, 125, 142);cursor:pointer;">
+          <p @click="addData" style="text-align: center;font-size: 28px;border: 1px solid rgb(89, 125, 142);cursor:pointer;">
             <i class="el-icon-plus"></i>
           </p>
           <el-form-item label="接收单位" prop="noticeDeptName" v-if="operateType === '1'">

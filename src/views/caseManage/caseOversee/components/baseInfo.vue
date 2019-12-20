@@ -79,10 +79,16 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="案件名称：" prop="ajmc">
-              <span class="whiteColor">{{baseInfo.ajmc}}</span>
+              <span v-if="baseInfo.ajmc&&baseInfo.ajmc.length<18" class="whiteColor">{{baseInfo.ajmc}}</span>
+              <el-tooltip v-else class="item" effect="dark" :content="baseInfo.ajmc" placement="top-start">
+                <span class="whiteColor" style="width: 100%;display: inherit;white-space: nowrap;overflow-x: hidden;text-overflow: ellipsis;">{{baseInfo.ajmc}}</span>
+              </el-tooltip>
             </el-form-item>
             <el-form-item label="案件类别：" prop="ajlb">
-              <span class="whiteColor">{{baseInfo.ajlb}}</span>
+              <span v-if="baseInfo.ajlb&&baseInfo.ajlb.length<18" class="whiteColor">{{baseInfo.ajlb}}</span>
+              <el-tooltip v-else class="item" effect="dark" :content="baseInfo.ajlb" placement="top-start">
+                <span class="whiteColor" style="width: 100%;display: inherit;white-space: nowrap;overflow-x: hidden;text-overflow: ellipsis;">{{baseInfo.ajlb}}</span>
+              </el-tooltip>
             </el-form-item>
             <el-form-item label="涉案价值：" prop="sajz">
               <span class="whiteColor" v-if="baseInfo.sajz">{{baseInfo.sajz}} 万元</span>
@@ -93,8 +99,8 @@
             <el-form-item label="案件编号：" prop="ajbh">
               <span class="whiteColor" @click="toAjDetail(baseInfo.caseId)" style="text-decoration: underline;cursor:pointer;">{{baseInfo.ajbh}}</span>
             </el-form-item>
-            <el-form-item label="案件类型：" prop="ajlx">
-              <span class="whiteColor">{{baseInfo.ajlx}}</span>
+            <el-form-item label="案件分类：" prop="ajlx">
+              <span class="whiteColor">{{getFllbName(baseInfo.ajlx)}}</span>
             </el-form-item>
             <el-form-item label="嫌疑人数：" prop="zars">
               <span class="whiteColor">{{baseInfo.zars}}</span>
@@ -130,6 +136,7 @@
 </template>
 
 <script>
+import { getAJLBText } from '@/utils/codetotext'
 import Bus from '@/utils/bus.js'
 import { getThousandNum } from '@/utils/public'
 import titlePub from './titlePub'
@@ -279,6 +286,28 @@ export default {
         this.$refs.auditForm.resetForm('auditForm')
       }
       this.isShowshDialog = false // 下发催办弹框隐藏
+    },
+    getFllbName(fllb) {
+      if (!fllb) {
+        return ''
+      }
+      if (fllb && fllb.indexOf(',') > -1) {
+        const array = fllb.split(',')
+        let text = ''
+        for (let i = 0; i < array.length; i++) {
+          const lbText = getAJLBText(array[i])
+          if (lbText) {
+            text += '，' + lbText
+          }
+        }
+        return text.substring(1, text.length)
+      } else {
+        const lbText = getAJLBText(fllb)
+        if (lbText) {
+          return getAJLBText(fllb)
+        }
+        return ''
+      }
     }
   },
   mounted() {
