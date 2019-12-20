@@ -29,7 +29,8 @@ const app = {
     personeltotop: '', // 人员档案升级版页面点击左侧区域，保存当前class值
     moduleClass: '', // 人员档案滑动右侧区域时，当当前模块距离顶部距离为0时，存储该class值
     ajdatotop: '', // 案件档案升级版页面点击左侧区域，保存当前class值
-    ajmoduleClass: '' // 人员档案滑动右侧区域时，当当前模块距离顶部距离为0时，存储该class值
+    ajmoduleClass: '', // 人员档案滑动右侧区域时，当当前模块距离顶部距离为0时，存储该class值
+    jqmoduleClass: '' // 集群战役详情滑动右侧区域时，当当前模块距离顶部距离为0时，存储该class值
   },
   mutations: {
     TOTOP_STATUS: (state, status) => {
@@ -85,6 +86,9 @@ const app = {
     },
     AJ_MOULE_CLASS: (state, status) => {
       state.ajmoduleClass = status
+    },
+    JQ_MOULE_CLASS: (state, status) => {
+      state.jqmoduleClass = status
     }
   },
   actions: {
@@ -126,6 +130,9 @@ const app = {
     },
     AjMouleClass: ({ commit }, status) => {
       commit('AJ_MOULE_CLASS', status)
+    },
+    JqMouleClass: ({ commit }, status) => {
+      commit('JQ_MOULE_CLASS', status)
     }
   }
 }

@@ -50,7 +50,7 @@ export default {
   },
   computed: {
     getModuleClass() {
-      return this.$store.state.app.moduleClass
+      return this.$store.state.app.jqmoduleClass
     }
   },
   watch: {

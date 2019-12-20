@@ -250,6 +250,8 @@ export default {
       exportBtn: false, // 导出按钮显隐
       checkId: [], // 复选框选中的列表id
       downLoadUrl: process.env.SYHZ_MODULE,
+      carryParam: {}, // 存储集群战役统计页传递过来的参数
+      totalType: '', // 要查申请获取下发标识
       props: {
         value: 'cityCode',
         label: 'cityName'
@@ -306,36 +308,37 @@ export default {
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
             }
           }
-          this.area = currentArea
-          this.handleAreaChange(currentArea) // 查单位机构
-          // 默认选择本单位
-          if (this.curDept.depType === '-1') { // 省
-            // this.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '1') { // 总队
-            // this.department = [this.curDept.parentDepCode, this.curDept.depCode]
-          } else if (this.curDept.depType === '2') { // 支队
-            this.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '3') { // 大队
-            this.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '4') { // 派出所
-            this.department = [this.curDept.parentDepCode] // 派出所登录进来，把它自己当作它的上级单位
-            // // 查询派出所的上上级(把派出所当大队，查大队的上级单位 )
-            // this.$query('hsyzparentdepart/' + this.curDept.parentDepCode, {}, 'upms').then((response) => {
-            //   if (response.code === '000000') {
-            //     this.pcsParentDept = response.data
-            //   }
-            // }).catch(() => {
-
-            // })
-            // // 查询派出所的上级(大队)的部门信息
-            this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
-              if (response.code === '000000') {
-                this.pcsParentDept = response.data
-              }
-            }).catch(() => {
-
-            })
+          if (this.carryParam.areaCode) { // 集群战役统计页传递过来的参数 行政区划
+            this.area = this.carryParam.areaCode
+          } else {
+            this.area = currentArea
           }
+
+          this.handleAreaChange(this.area) // 查单位机构
+          if (this.carryParam.deptCode) { // 集群战役统计页传递过来的参数 部门code
+            this.department = [this.carryParam.deptCode]
+          } else { // 默认选择本单位
+            if (this.curDept.depType === '-1') { // 省
+            // this.department = [this.curDept.depCode]
+            } else if (this.curDept.depType === '1') { // 总队
+            // this.department = [this.curDept.parentDepCode, this.curDept.depCode]
+            } else if (this.curDept.depType === '2') { // 支队
+              this.department = [this.curDept.depCode]
+            } else if (this.curDept.depType === '3') { // 大队
+              this.department = [this.curDept.depCode]
+            } else if (this.curDept.depType === '4') { // 派出所
+              this.department = [this.curDept.parentDepCode] // 派出所登录进来，把它自己当作它的上级单位
+              // // 查询派出所的上级(大队)的部门信息
+              this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+                if (response.code === '000000') {
+                  this.pcsParentDept = response.data
+                }
+              }).catch(() => {
+
+              })
+            }
+          }
+
           this.handleDeptChange(this.department)
           this.query(true, flag) // 查询列表
         }
@@ -430,13 +433,6 @@ export default {
       }
     },
     query(flag, hand) { // 列表数据查询
-      // if (this.filters.start2 && (this.filters.end1 > this.filters.start2)) {
-      //   this.$alert('结束日期的开始时间不能大于发起日期的结束时间', '提示', {
-      //     type: 'warning',
-      //     confirmButtonText: '确定'
-      //   })
-      //   return
-      // }
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -450,7 +446,8 @@ export default {
         curDeptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode, // 当前部门code
         status: this.filters.status, // 状态，
         isCheck: this.$isViewBtn('101908'), // 是否有审核权限
-        noCheck: this.noCheck // 从首页个人待办，待审核列表点击进来传递的标识。有标识只查询审核中和待审核的记录
+        noCheck: this.noCheck, // 从首页个人待办，待审核列表点击进来传递的标识。有标识只查询审核中和待审核的记录
+        curCreate: this.totalType // 要查申请、下发的标识
       }
       if (this.area && this.area.length > 0) { // 行政区划
         para.provinceCode = this.area[0] || '' // 省code
@@ -475,6 +472,7 @@ export default {
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
         para.noCheck = ''
+        para.curCreate = ''
       }
       this.$query('casecluster/list', para).then((response) => {
         this.listLoading = false
@@ -820,6 +818,19 @@ export default {
     }
     if (this.$route.query.status) { // 有参数，说明是从集群战役统计列表
       this.filters.status = this.$route.query.status
+    }
+    if (sessionStorage.getItem(this.$route.path)) {
+      this.carryParam = JSON.parse(sessionStorage.getItem(this.$route.path))
+      if (this.carryParam.status) { // 案件状态
+        this.filters.status = this.carryParam.status
+      }
+      if (this.carryParam.start && this.carryParam.end) {
+        this.dateRand1 = [this.carryParam.start, this.carryParam.end] // 发起日期
+        this.dateRand2 = [this.carryParam.start, this.carryParam.end] // 结束日期
+      }
+      if (this.carryParam.type) {
+        this.totalType = String(this.carryParam.type) === '0' ? 'curCreate' : '' // 要查申请、下发的标识
+      }
     }
 
     this.init()

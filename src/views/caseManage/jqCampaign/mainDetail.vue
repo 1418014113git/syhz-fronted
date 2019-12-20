@@ -101,8 +101,10 @@ export default {
       })
     },
     jump(val) {
-      var total = document.querySelector('.' + val).offsetTop
-      $('.rightCont').animate({ scrollTop: total }, 0)
+      if (val) {
+        var total = document.querySelector('.' + val).offsetTop
+        $('.rightCont').animate({ scrollTop: total }, 0)
+      }
     },
     toback() {
       // this.$router.back(-1)
@@ -110,41 +112,21 @@ export default {
     },
     // 监听滚动条变化
     handleScroll() {
-      // // var documentHeight = this.$refs.rightContDoc.offsetHeight
-      // // var difference = documentHeight - (document.documentElement.clientHeight - 143)
-      // if (document.querySelector('.rightCont').scrollTop > 0) { // 如何滚动条顶部距离>0,则将状态ToTop初始化为0
-      //   this.$store.dispatch('ToTop', 0)
-      //   this.$store.dispatch('Personeltotop', '')
-      // }
-      // for (var i = 0; i < this.classList.length - 1; i++) {
-      //   // if (document.querySelector('.rightCont').scrollTop === 0) {
-      //   //   this.$store.dispatch('MouleClass', this.classList[0])
-      //   // } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 10 && document.querySelector('.rightCont').scrollTop < difference) {
-      //   //   this.$store.dispatch('MouleClass', this.classList[i])
-      //   // } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
-      //   //   console.log('到底了')
-      //   //   this.$store.dispatch('MouleClass', this.classList[4])
-      //   // }
-      //   if (document.querySelector('.rightCont').scrollTop === 0) {
-      //     this.$store.dispatch('MouleClass', this.classList[0])
-      //   } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop) {
-      //     this.$store.dispatch('MouleClass', this.classList[i])
-      //   } else {
-      //   }
-      // }
       var documentHeight = this.$refs.rightContDoc.offsetHeight
       var difference = documentHeight - (document.documentElement.clientHeight - 130)
+      this.$store.dispatch('Personeltotop', '')
+      this.$store.dispatch('JqMouleClass', '')
       if (document.querySelector('.rightCont').scrollTop > 0) { // 如何滚动条顶部距离>0,则将状态ToTop初始化为0
         this.$store.dispatch('ToTop', 0)
-        this.$store.dispatch('Personeltotop', '')
       }
+
       for (var i = 0; i < this.classList.length - 1; i++) {
         if (document.querySelector('.rightCont').scrollTop === 0) {
-          this.$store.dispatch('AjMouleClass', this.classList[0])
-        } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 10 && document.querySelector('.rightCont').scrollTop < difference) {
-          this.$store.dispatch('AjMouleClass', this.classList[i])
+          this.$store.dispatch('JqMouleClass', this.classList[0])
+        } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 20 && document.querySelector('.rightCont').scrollTop < difference) {
+          this.$store.dispatch('JqMouleClass', this.classList[i])
         } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
-          this.$store.dispatch('AjMouleClass', this.classList[this.classList.length - 1])
+          this.$store.dispatch('JqMouleClass', this.classList[this.classList.length - 1])
         }
       }
     }
