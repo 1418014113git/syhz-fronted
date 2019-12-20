@@ -8,7 +8,11 @@
     </div>
     <div style="overflow: auto;">
       <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
-        <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+        <el-table-column type="index" label="序号" width="60" align="center" fixed="left">
+          <template slot-scope="scope">
+            {{scope.$index === listData.length - 1 ? '合计' : scope.$index + 1}}
+          </template>
+        </el-table-column>
         <el-table-column prop="deptName" label="单位" align="center" width="220" show-overflow-tooltip></el-table-column>
         <el-table-column prop="xsNum" label="线索总数（条）" width="160" align="center">
           <template slot-scope="scope">
@@ -41,7 +45,7 @@
             </template>
           </el-table-column>
         </el-table-column>
-        <el-table-column prop="" label="移送行政部门处理（次）" width="120" align="center"></el-table-column>
+        <el-table-column prop="ysxz" label="移送行政部门处理（次）" width="120" align="center"></el-table-column>
         <el-table-column label="侦办刑事案件" align="center" show-overflow-tooltip>
           <el-table-column prop="larqCount" label="立案（起）" width="120" align="center" show-overflow-tooltip></el-table-column>
           <el-table-column prop="parqCount" label="破案（起）" width="120" align="center" show-overflow-tooltip></el-table-column>
@@ -171,10 +175,25 @@ export default {
       return (row.hcl === 100 || curDate > endDate) && row.parentCode === this.curDept.depCode
     },
     enableDistributeClue(row) {
-      return row.deptCode === this.curDept.depCode && parseInt(row.parentType) <= 2 // && (String(this.info.status) === '5' || String(this.info.status) === '8')
+      if (row.cityCode !== '611400') {
+        if (row.deptCode === this.curDept.depCode) { // && (String(this.info.status) === '5' || String(this.info.status) === '8')
+          if (parseInt(row.parentType) <= 2) {
+            return true
+          }
+        }
+      }
+      return false
     },
     enableFeedBack(row) {
-      return row.deptCode === this.curDept.depCode // && (String(this.info.status) === '5' || String(this.info.status) === '8')
+      if (row.deptCode === this.curDept.depCode) { // && (String(this.info.status) === '5' || String(this.info.status) === '8')
+        return true
+      }
+      if (this.curDept.depType === '4') {
+        if (row.deptCode === this.curDept.parentDepCode) {
+          return true
+        }
+      }
+      return false
     },
     enableTo(row, index) {
       if (index === this.listData.length - 1) {
@@ -188,11 +207,13 @@ export default {
           return true
         }
       }
-      if (row.deptCode === this.curDept.depCode) {
+      if (row.deptCode === this.curDept.depCode || row.parentCode === this.curDept.depCode) {
         return true
       }
-      if (row.parentCode === this.curDept.depCode) {
-        return true
+      if (this.curDept.depType === '4') { // 派出所
+        if (row.deptCode === this.curDept.parentDepCode || this.info.applyDeptCode === this.curDept.parentDepCode) {
+          return true
+        }
       }
       return false
     },
@@ -229,7 +250,12 @@ export default {
       if (String(this.showType) === '2') {
         param.parentCode = this.curDept.depCode
       } else {
-        param.curDeptType = this.curDept.depType === '4' ? this.findParentDept(this.curDept.depCode).parentCode : this.curDept.depType
+        if (this.curDept.depType === '4') {
+          param.curDeptType = this.findParentDept(this.curDept.parentDepCode).parentCode
+          param.parentCode = this.findParentDept(this.curDept.parentDepCode).parentCode
+        } else {
+          param.curDeptType = this.curDept.depType
+        }
       }
       this.$query('caseassistclue/detailCount', param).then((response) => {
         this.listLoading = false
@@ -248,8 +274,14 @@ export default {
         if (String(this.showType) === '1') {
           if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 地市
             this.$resetSetItem('assistT3', this.total) // 将总数存在session中
-          } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 区县
+          } else if (this.curDept.depType === '3') { // 区县
             this.$resetSetItem('assistT5', this.total) // 将总数存在session中
+          } else if (this.curDept.depType === '4') {
+            if (this.curDept.areaCode === '611400') {
+              this.$resetSetItem('assistT3', this.total) // 将总数存在session中
+            } else {
+              this.$resetSetItem('assistT5', this.total) // 将总数存在session中
+            }
           }
         } else {
           this.$resetSetItem('assistT5', this.total)
@@ -259,8 +291,14 @@ export default {
         if (String(this.showType) === '1') {
           if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 地市
             this.$resetSetItem('assistT3', 0) // 将总数存在session中
-          } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 区县
+          } else if (this.curDept.depType === '3') { // 区县
             this.$resetSetItem('assistT5', 0) // 将总数存在session中
+          } else if (this.curDept.depType === '4') {
+            if (this.curDept.areaCode === '611400') {
+              this.$resetSetItem('assistT3', 0) // 将总数存在session中
+            } else {
+              this.$resetSetItem('assistT5', 0) // 将总数存在session中
+            }
           }
         } else {
           this.$resetSetItem('assistT3', 0)
@@ -303,8 +341,11 @@ export default {
     },
     handleFeedBack(index, row) { // 线索反馈
       this.curRow = row
-      let deptCode = ''
-      if (row.deptCode !== this.info.applyDeptCode && this.curDept.depType !== '1') {
+      let deptCode = row.deptCode
+      // if (row.deptCode !== this.info.applyDeptCode && this.curDept.depType !== '1') { // 发起单位可以查询所有
+      //   deptCode = row.deptCode
+      // }
+      if (this.curDept.depType === '3' || String(this.showType) !== '1') {
         deptCode = row.deptCode
       }
       this.$router.push({ path: '/caseAssist/clueFeedBackList', query: { id: this.curAssistId, deptCode: deptCode, assistType: 1 }}) // 跳转到线索反馈页
@@ -391,7 +432,11 @@ export default {
       if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 地市
         this.title = '地市'
       } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 区县
-        this.title = '区县'
+        if (this.curDept.areaCode === '611400') { // 杨凌例外
+          this.title = '地市'
+        } else {
+          this.title = '区县'
+        }
       }
     } else {
       this.title = '区县'
@@ -430,6 +475,11 @@ export default {
   .caseAssist_areaBack .clueDistribute .el-dialog{
     width: 80%;
     overflow: auto;
+  }
+  .caseAssist_areaBack .caseAssist_distributeClue .dis_table_div{
+    width: 100%;
+    overflow: auto;
+    max-height: 500px;
   }
   .caseAssist_areaBack .titlePub {
     font-size: 17px;

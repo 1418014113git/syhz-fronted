@@ -86,7 +86,7 @@
         </el-table-column>
         <el-table-column label="操作" align="center" width="100" fixed="right">
           <template slot-scope="scope">
-            <el-button size="mini" title="取消分发"  type="primary" circle  @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
+            <el-button size="mini" title="取消分发"  type="primary" circle v-if="scope.row.qbxsDistribute === 2" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
             <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='detail'"  @click="handleDel(scope.$index,scope.row)"></el-button>
           </template>
         </el-table-column>
@@ -129,8 +129,8 @@ export default {
       page: 1,
       pageSize: 15,
       exDeptData: [], // 接收单位下拉框数据
-      curUser: {}, // 当前登录用户
-      curDept: {}, // 当前登录的部门
+      curUser: JSON.parse(sessionStorage.getItem('userInfo')), // 当前登录用户
+      curDept: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前登录的部门
       curRow: {}, // 存储当前被点击行数据
       tableHeight: null,
       tableHead: [], // 表头
@@ -147,26 +147,6 @@ export default {
     source: {
       handler: function(val, oldeval) {
         this.pageSource = val
-      }
-    },
-    fastatus: { // 分发状态
-      handler: function(val, oldeval) {
-        if (val !== '0') {
-          this.filters.qbxsDistribute = val + ''
-        } else {
-          this.filters.qbxsDistribute = ''
-        }
-        this.filters.receiveName = ''
-        this.query(true)
-      }
-    },
-    jsdw: {
-      handler: function(val, oldeval) {
-        if (val) {
-          this.filters.receiveName = val
-        }
-        this.filters.qbxsDistribute = ''
-        this.query(true)
       }
     }
   },
@@ -186,7 +166,7 @@ export default {
         type: 1, // 1 案件协查
         assistId: this.assistId // 协查id
       }
-
+      para.queryType = this.pageSource === 'detail' ? 'execute' : 'create'
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
@@ -217,25 +197,6 @@ export default {
         this.initData()
         this.listLoading = false
       })
-    },
-    clearData() {
-      this.filters = {
-        address: '', // 地址
-        receiveName: '', // 接收单位
-        qbxsResult: '', // 协查情况
-        serialNumber: '', // 序号
-        qbxsCategory: '' // 分类
-      }
-      this.deptCode = '' // 接收单位code
-      this.acceptDeptName = '' // 接收单位名称
-      this.initData()
-    },
-    initData() {
-      this.page = 1
-      this.total = 0
-      this.pageSize = 15
-      this.listData = []
-      this.tableHead = []
     },
     handleDel(index, row) { // 删除线索
       this.$confirm('确定要删除线索吗？', '提示', {
@@ -358,11 +319,13 @@ export default {
           type: 'success'
         }).then(() => { // 继续分发
           this.checkId = []
+          this.xsNum = 0
           this.deptCode = ''
           this.query(true)
           this.$emit('result', response.data)
         }).catch(() => { // 完成分发
           this.checkId = []
+          this.xsNum = 0
           this.deptCode = ''
           this.query(true)
           this.$emit('result', response.data)
@@ -528,36 +491,50 @@ export default {
         confirmButtonText: '关闭'
       })
     },
-    init() {
+    clearData() {
+      this.filters = {
+        address: '', // 地址
+        receiveName: '', // 接收单位
+        qbxsResult: '', // 协查情况
+        serialNumber: '', // 序号
+        qbxsCategory: '' // 分类
+      }
+      this.deptCode = '' // 接收单位code
+      this.acceptDeptName = '' // 接收单位名称
+      this.initData()
+    },
+    initData() {
+      this.page = 1
+      this.total = 0
+      this.pageSize = 15
+      this.listData = []
+      this.tableHead = []
+    },
+    init(fastatus, jsdw) {
       this.clearData()
       this.checkId = []
+      if (fastatus && fastatus !== '0') { // 分状态
+        this.filters.qbxsDistribute = fastatus + ''
+      }
+      if (jsdw) {
+        this.filters.receiveName = jsdw
+      }
+      if (this.curDept.depType === '4') { // 派出所
+        this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
+      } else {
+        this.queryCubordinate()
+      }
       this.query(true)
     }
   },
   mounted() {
-    this.clearData()
-    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-    if (sessionStorage.getItem('depToken')) {
-      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    }
     if (this.assistId) {
       this.curAssistId = this.assistId
     }
     if (this.source) {
       this.pageSource = this.source
     }
-    if (this.fastatus && this.fastatus !== '0') { // 分状态
-      this.filters.qbxsDistribute = this.fastatus + ''
-    }
-    if (this.jsdw) {
-      this.filters.receiveName = this.jsdw
-    }
-    if (this.curDept.depType === '4') { // 派出所
-      this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
-    } else {
-      this.queryCubordinate()
-    }
-    this.query(true)
+    this.init(this.fastatus, this.jsdw)
   },
   activated() {
 
