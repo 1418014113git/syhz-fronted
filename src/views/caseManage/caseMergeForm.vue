@@ -58,7 +58,7 @@
           </el-table-column>
         </el-table>
         <el-col :span="24">
-          <p @click="addData" style="text-align: center;font-size: 22px;border: 1px solid rgb(89, 125, 142);cursor:pointer;">
+          <p @click="addData" style="text-align: center;font-size: 28px;border: 1px solid rgb(89, 125, 142);cursor:pointer;">
             <i class="el-icon-plus"></i>
           </p>
           <el-form-item label="接收单位" prop="noticeDeptName" v-if="operateType === '1'">
@@ -316,7 +316,7 @@ export default {
               creationDeptCode: this.deptInfo.depCode, // 创建单位
               creationDeptName: this.deptInfo.depName,
               userId: this.userInfo.id, // 用户信息
-              userName: this.userInfo.userName,
+              userName: this.userInfo.realName,
               caseList: this.formData.tableData, // 案件列表
               deptName: this.deptInfo.depName, // 当前操作单位
               deptCode: this.deptInfo.depCode
@@ -363,7 +363,7 @@ export default {
             // mergeFlag true合并，false不合并
             var param = JSON.parse(JSON.stringify(this.formData))
             param.userId = this.userInfo.id
-            param.userName = this.userInfo.userName
+            param.userName = this.userInfo.realName
             param.status = mergeFlag // 2合并 3不合并
             param.deptName = this.deptInfo.depName // 当前操作单位
             param.deptCode = this.deptInfo.depCode

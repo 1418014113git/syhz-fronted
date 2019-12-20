@@ -352,7 +352,7 @@ export default {
         pageNum: flag ? 1 : this.pageXyr
       }
       this.$query('page/ajxyr', param).then((res) => {
-        // this.xyrLoading = false
+        this.xyrLoading = false
         if (res.code === '000000') {
           var data = res.data.list
           var flag = true
@@ -388,7 +388,7 @@ export default {
         pageNum: flag ? 1 : this.pageShr
       }
       this.$query('page/ajshr', param).then((res) => {
-        // this.shrLoading = false
+        this.shrLoading = false
         if (res.code === '000000') {
           var data = res.data.list
           var flag = true
@@ -418,7 +418,9 @@ export default {
     },
     personDetailByCardXyr(item, data, flag) {
       // 根据身份证号码查询嫌疑人人员详细信息
-      // if (flag) {
+      this.xyrLoading = false // 服务资源未申请，暂时显示默认图片
+      this.xyrData = data // 服务资源未申请到，暂时显示默认图片
+      // if (flag) {  // 服务资源未申请到，暂时屏蔽图片请求资源接口
       //   this.xyrLoading = false
       //   this.xyrData = data
       // } else if (item.mgsfhm) {
@@ -447,7 +449,9 @@ export default {
     },
     personDetailByCard(item, data, flag) {
       // 根据身份证号码查询受害人人员详细信息
-      // if (flag) {
+      this.shrLoading = false // 服务资源未申请，暂时显示默认图片
+      this.shrData = data // 服务资源未申请，暂时显示默认图片
+      // if (flag) { // 服务资源未申请到，暂时屏蔽图片请求资源接口
       //   this.shrLoading = false
       //   this.shrData = data
       // } else if (item.mgsfhm) {

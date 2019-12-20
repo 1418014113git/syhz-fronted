@@ -1,9 +1,15 @@
 <template>
 <!-- 案件信息 -->
-  <div class="ajInfo" v-loading="loading">
-     <!--<div class="title">
-        <div class="left">{{ajInfo.AJMC}}</div>
-         <div class="right">
+  <div class="ajTitle" v-loading="loading" style="">
+     <div class="title">
+        <div class="left">{{ajInfo.AJMC}}<a class="ajbh" @click="showTipsC(ajInfo.AJBH)">({{ajInfo.AJBH}})</a></div>
+        <span v-for="(item,index) in bqList" :key="index"  class="btnStyle"    @click="clickbtn(item)">{{item.name}}</span>
+        <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com>
+        <!-- <div class="right">
+          <p>
+            <img  class="downLoad" src="/static/image/syh_images/">
+            <span>关注</span>
+          </p>
           <p>
             <img  class="downLoad" src="/static/image/personFile_images/downLoad.png">
             <span>下载档案</span>
@@ -21,42 +27,14 @@
             <img  class="downLoad" src="/static/image/personFile_images/heart.png">
             <span>0</span>
           </p>
-        </div>
-     </div>-->
-     <el-row class="pat">
-        <el-form ref="form" :model="ajInfo" size="small" label-width="108px" label-position="left">
-          <el-col :span="8" class="pdr">
-            <!-- <el-form-item label="案件编号">
-              <a class="ajbh" @click="showTipsC(ajInfo.AJBH)">{{ajInfo.AJBH}}</a>
-            </el-form-item> -->
-             <el-form-item label="立案单位">
-              <span :title="ajInfo.LADW_NAME" class="whiteColor ellipsis-word">{{ajInfo.LADW_NAME}}</span>
-            </el-form-item>
-            <el-form-item label="案件类型">
-              <span class="whiteColor ajlx" v-for="(item, index) in ajlx" :key="index" :class="item.bg">{{item.lx}}</span>
-            </el-form-item>
-            <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com>
-          </el-col>
-          <el-col :span="8" class="pdr">
-            <el-form-item label="案件来源">
-              <span  :title="ajInfo.AJLY_NAME" class="whiteColor ellipsis-word heig">{{ajInfo.AJLY_NAME}}</span>
-            </el-form-item>
-            <el-form-item label="案件状态">
-              <span :class="ajInfo.AJZT_NAME === '破案'?'green':'orange'">{{ajInfo.AJZT_NAME}}</span>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="案件类别">
-              <span class="whiteColor lbbg" v-if="ajInfo.AJLB_NAME">{{ajInfo.AJLB_NAME}}</span>
-            </el-form-item>
-          </el-col>
-        </el-form>
-      </el-row>
+        </div> -->
+     </div>
   </div>
 </template>
 
 <script>
 import { getAJLBText } from '@/utils/codetotext'
+import Bus from '@/utils/bus.js'
 import ajbhCom from '@/components/ajbhTips' // 身份证号码点击弹出菜单功能
 export default {
   props: ['AjInfo', 'ajbh', 'ajid', 'type', 'Rl'],
@@ -72,7 +50,14 @@ export default {
       AJID: '', // 用户页面返回判断使用
       interFaceType: '',
       isRls: '',
-      source: 'ajda' // 页面来源，表示该模块是来自案件档案
+      source: 'ajda', // 页面来源，表示该模块是来自案件档案
+      bqList: [ // 快捷标签list
+        { name: '部督', type: 'third' },
+        { name: '厅督', type: 'third' },
+        { name: '市督', type: 'third' },
+        { name: '集群', type: 'first' },
+        { name: '协查', type: 'second' }
+      ]
     }
   },
   components: {
@@ -156,10 +141,15 @@ export default {
       }
     },
     showTipsC() {
-      this.showAjbhCom = true
+      // this.showAjbhCom = true
     },
     clickBlank() {
       this.showAjbhCom = false
+    },
+    clickbtn(item) {
+      this.$store.dispatch('Ajdatotop', 'zcxz') // 定位到侦查协作
+      this.$store.dispatch('AjMouleClass', 'zcxz')
+      Bus.$emit('bqType', item.type) // 定位到侦查协作对应的标签项
     }
   },
   mounted() {
@@ -171,10 +161,10 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.ajInfo {
+.ajTitle {
   width: 100%;
   border: 2px solid rgb(0, 160, 233);
-  padding: 0 8px 8px 8px;
+  padding: 0 8px 0 8px;
   .el-form-item__label {
     color: #bce8fc;
     text-shadow: 0 0 1px #fff;
@@ -203,6 +193,17 @@ export default {
         margin-left: 15px;
       }
     }
+  }
+   .btnStyle {
+    margin-left: 10px;
+    color: #fff;
+    font-size: 15px;
+    padding: 3px 12px;
+    text-shadow: 0 0 1px #000;
+    border-radius:10px;
+    background-image: linear-gradient(140deg, #177ce0 0%, #54afe0 100%),
+    linear-gradient(#ff8547, #ff8547);
+    cursor: pointer;
   }
 }
 
@@ -237,7 +238,7 @@ export default {
 .ajbhcom {
   position: absolute;
   top: -5px;
-  left: 50%;
+  left: 21%;
 }
 .pdr {
   padding-right: 10px;

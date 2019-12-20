@@ -66,7 +66,7 @@
       </el-col>
       <el-col :span="24" style="padding-bottom: 0;">
         <el-form-item label="标题" >
-          <el-input v-model="filters.title" clearable placeholder="请输入标题" size="small" maxlength="50" :class="curDept.depType === '1'?'input_w1':'input_ws1'"></el-input>
+          <el-input v-model.trim="filters.title" clearable placeholder="请输入标题" size="small" maxlength="50" :class="curDept.depType === '1'?'input_w1':'input_ws1'"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small"  @click="query(true,true)">查询</el-button>
@@ -818,6 +818,10 @@ export default {
     if (this.$route.query.noCheck) { // 有参数，说明是从首页--个人待办--审查待办--集群战役待审核
       this.noCheck = this.$route.query.noCheck
     }
+    if (this.$route.query.status) { // 有参数，说明是从集群战役统计列表
+      this.filters.status = this.$route.query.status
+    }
+
     this.init()
   },
   activated() {

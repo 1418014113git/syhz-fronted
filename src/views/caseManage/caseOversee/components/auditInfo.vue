@@ -3,8 +3,8 @@
     <!-- 审核信息 -->
     <div class="auditInfo">
       <title-pub :title="title" url=""></title-pub>
-      <el-table :data="shDataList" style="width: 100%;" v-loading="loading" max-height="156" class="table_th_center">
-        <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
+      <el-table :data="shDataList" style="width: 100%;" v-loading="loading" class="table_th_center">
+        <el-table-column type="index" label="序号" width="55" align="center" fixed="left"></el-table-column>
         <el-table-column prop="applyDepartName" label="申请部门"  min-width="240" show-overflow-tooltip></el-table-column>
         <el-table-column prop="applyUserName" label="申请人" min-width="120" show-overflow-tooltip></el-table-column>
         <el-table-column prop="applyDate" label="申请时间" width="170" align="center"></el-table-column>

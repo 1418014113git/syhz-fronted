@@ -224,7 +224,7 @@ export default {
       }).then(() => {
         var param = JSON.parse(JSON.stringify(row))
         param.userId = this.userInfo.id
-        param.userName = this.userInfo.userName
+        param.userName = this.userInfo.realName
         param.deptName = this.deptInfo.depName
         param.deptCode = this.deptInfo.depCode
         this.loading = true

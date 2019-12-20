@@ -79,7 +79,7 @@
             <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="syajs"  label='移送行政部门处理（次）'  min-width="130" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="ysxz"  label='移送行政部门处理（次）'  min-width="130" show-overflow-tooltip></el-table-column>
         <el-table-column prop=""  label='侦办刑事案件' align="center" >
           <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column prop="parqCount"  label='破案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
@@ -269,9 +269,6 @@ export default {
         this.deptOptions = [] // 清空单位机构数据
         this.selectCurDep = { name: '' } // 清空当前选中的单位机构
         var param = {
-          // provinceCode: '610000',
-          // cityCode: val[0] || '',
-          // reginCode: val[1] || ''
           provinceCode: val[0] || '',
           cityCode: val[1] || '',
           reginCode: val[2] || ''
@@ -427,6 +424,13 @@ export default {
       this.query(true, true)
     },
     handleDetail(index, row) { // 详情
+      if (row.qbxsResult === 1) { // 待反馈
+        this.$alert('该线索还未反馈', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return false
+      }
       this.isShowdialog = true
       this.curRow = row
     },
