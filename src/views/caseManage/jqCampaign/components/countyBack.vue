@@ -3,9 +3,9 @@
     <!-- 区县反馈 -->
     <div class="countyBack pubStyle">
       <title-pub :title="title"></title-pub>
-      <div style="max-height:260px;overflow: auto;">
+      <!-- <div style="max-height:260px;overflow: auto;"> -->
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
-          <el-table-column type="index" label="序号" width="60" >
+          <el-table-column type="index" label="序号" width="60" fixed>
             <template slot-scope="scope">
               <span v-if="scope.$index+1<listData.length">{{scope.$index+1}}</span>
               <span v-else>总计</span>
@@ -63,7 +63,7 @@
             </template>
           </el-table-column>
         </el-table>
-      </div>
+      <!-- </div> -->
       <!-- <el-row>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[5,10,15,20]" @size-change="handleSizeChange"
@@ -169,9 +169,9 @@ export default {
       Bus.$emit('isShowfkbtn', false) // 线索反馈按钮
       this.listLoading = true
       var param = {
-        parentCode: this.parentCode, // 上级部门Code
+        parentCode: this.curDept.depType === '2' ? this.curDept.depCode : this.parentCode, // 上级部门Code
         assistId: this.clusterId, // 集群Id
-        curDeptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType,
+        // curDeptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType,
         type: 2 // 集群
       }
       this.$query('caseassistclue/detailCount', param).then((res) => {
@@ -210,7 +210,8 @@ export default {
           if (((this.curDept.depType === '4' && this.curDept.parentDepCode === item.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === item.deptCode)) && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) { // 当前登录的是派出所时，用他的父级单位的cdoe去判断   集群战役处于协查中、协查结束状态时
             Bus.$emit('isShowfkbtn', true) // 线索反馈按钮
           }
-          if (this.curDept.depType === '2' && Number(this.baseInfo.status) >= 4) { // 集群战役审核通过后  上级单位可以评价打分 区县上级单位是大队
+
+          if (this.curDept.depType === '2' && (this.curDept.depCode.substring(0, 4) === item.deptCode.substring(0, 4)) && Number(this.baseInfo.status) >= 4) { // 集群战役审核通过后  上级单位可以评价打分 区县上级单位是支队
             Bus.$emit('isShowpjbtn', true) // 评价打分
           }
         })
@@ -368,6 +369,16 @@ export default {
   }
   .el-table--border th, .el-table__fixed-right-patch {
     border-bottom: 0;
+  }
+  // 固定左侧列的样式问题
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
   }
 }
 @media only screen and (max-width: 1367px) {

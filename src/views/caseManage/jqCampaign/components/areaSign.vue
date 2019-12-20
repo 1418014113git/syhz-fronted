@@ -3,9 +3,9 @@
     <!-- 地市签收 -->
     <div class="areaSign pubStyle">
       <title-pub :title="title"></title-pub>
-      <div style="max-height:260px;overflow: auto;">
+      <!-- <div style="max-height:260px;overflow: auto;"> -->
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
-          <el-table-column type="index" label="序号" width="60" ></el-table-column>
+          <el-table-column type="index" label="序号" width="60"  fixed></el-table-column>
           <el-table-column prop="createDeptName" label="下发单位"   min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="createDate" label="下发日期"  min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="clueNum" label="线索数量" min-width="120">
@@ -28,7 +28,7 @@
             </template>
           </el-table-column>
         </el-table>
-      </div>
+      <!-- </div> -->
       <el-row>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[5,10,15,20]" @size-change="handleSizeChange"
@@ -111,7 +111,7 @@ export default {
       Bus.$emit('isShowqsbtn', false)
       if (data.length > 0) {
         data.forEach(item => {
-          if (this.curDept.depType === '2' && this.curDept.depCode === item.receiveDeptCode && this.baseInfo.status + '' === '4' && item.signStatus + '' === '1') { // 本单位显示签收，地市只能是支队  协查状态：审核通过  1：待签收
+          if (((this.curDept.depType === '2' && this.curDept.depCode === item.receiveDeptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === item.receiveDeptCode.substring(0, 4) === '6114')) && Number(this.baseInfo.status) >= 4 && item.signStatus + '' === '1') { // 本单位显示签收，地市只能是支队  协查状态：审核通过以后  1：待签收
             Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
             Bus.$emit('qsRow', item) // 当前待签收行的数据
           }
@@ -135,7 +135,7 @@ export default {
     },
     gotoxslist(row) {
       this.$router.push({
-        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: row.receiveDeptCode } // 线索列表页面
+        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: row.receiveDeptCode, deptType: 2 } // 线索列表页面
       })
     },
     handleSign(index, row) { // 签收
@@ -169,6 +169,15 @@ export default {
 </script>
 <style  rel="stylesheet/scss" lang="scss">
 .areaSign{
-
+  // 固定左侧列的样式问题
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
+  }
 }
 </style>
