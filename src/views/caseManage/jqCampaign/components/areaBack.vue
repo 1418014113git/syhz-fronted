@@ -3,9 +3,9 @@
     <!-- 地市反馈 -->
     <div class="areaBack pubStyle">
       <title-pub :title="title"></title-pub>
-      <div style="max-height:260px;overflow: auto;">
+      <!-- <div style="max-height:260px;overflow: auto;"> -->
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
-          <el-table-column type="index" label="序号" width="60">
+          <el-table-column type="index" label="序号" width="60" fixed>
             <template slot-scope="scope">
               <span v-if="scope.$index+1<listData.length">{{scope.$index+1}}</span>
               <span v-else>总计</span>
@@ -57,14 +57,14 @@
           <el-table-column prop="score" label="评价打分" min-width="100"></el-table-column>
           <el-table-column label="操作"  width="160" align="center" fixed="right">
             <template slot-scope="scope">
-            <el-button size="mini" title="线索分发"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfa(scope.row) && $isViewBtn('101909')"  @click="handlefenfa(scope.$index, scope.row)"><svg-icon icon-class="fenfa"></svg-icon></el-button>
-            <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')" @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
-            <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length &&  curDept.depType === '1' && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
-            <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score"  icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
+              <el-button size="mini" title="线索分发"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfa(scope.row) && $isViewBtn('101909')"  @click="handlefenfa(scope.$index, scope.row)"><svg-icon icon-class="fenfa"></svg-icon></el-button>
+              <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')" @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
+              <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length &&  curDept.depType === '1' && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
+              <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score"  icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
             </template>
           </el-table-column>
         </el-table>
-      </div>
+      <!-- </div> -->
       <!-- <el-row>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[5,10,15,20]" @size-change="handleSizeChange"
@@ -227,7 +227,8 @@ export default {
           if (this.curDept.depType === '2' && this.curDept.depCode === item.deptCode && this.curDept.depCode !== '611400390000' && item.deptCode !== '611400390000' && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) { // 集群战役处于协查中、协查结束状态时 本单位显示分发  杨凌不能分发，下面没有大队，派出所和支队同权限的
             Bus.$emit('isShowffbtn', true) // 线索分发
           }
-          if (((this.curDept.depType === '2' && this.curDept.depCode === item.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode === item.deptCode === '611400390000')) && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) { // 集群战役处于协查中、协查结束状态时 本单位显示反馈  派出所和支队同权限的，可以反馈支队的信息
+
+          if ((this.curDept.depType === '2' && this.curDept.depCode === item.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === item.deptCode.substring(0, 4) === '6114') && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) { // 集群战役处于协查中、协查结束状态时 本单位显示反馈  派出所和支队同权限的，可以反馈支队的信息
             Bus.$emit('isShowfkbtn', true) // 线索反馈
             Bus.$emit('xsfkRow', item) // 线索反馈当前行数据
           }
@@ -374,6 +375,16 @@ export default {
   }
   .el-table--border th, .el-table__fixed-right-patch {
     border-bottom: 0;
+  }
+  // 固定左侧列的样式问题
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
   }
 }
 @media only screen and (max-width: 1367px) {

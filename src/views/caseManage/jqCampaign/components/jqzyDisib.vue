@@ -209,8 +209,14 @@ export default {
 
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
-        this.checkId = []
+        // this.checkId = []
       }
+      if (this.pageSource === 'detail') { // 详情页进来的
+        para.queryType = 'execute'
+      } else { // 申请或下发集群时
+        para.queryType = 'create'
+      }
+
       if (this.pageSource === 'detail' && Number(this.xichastatus) > 3 && Number(this.curDept.depType) > 1) { // 详情页进来的， 协查状态>3 是审核不通过以及通过以后的状态，需要传递当前部门code 厅级不用传，支队大队传当前部门
         para.deptCode = this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode // 当前部门code  如果是派出所，传它的父部门code
       }
@@ -335,6 +341,8 @@ export default {
         }
         this.ffbtnLoading = true
         this.$update('caseassistclue/distribute', param).then((response) => {
+          this.xsNum = 0 // 已选线索数值初始化
+          this.checkId = [] // 已选线索线索集合初始化
           this.ffbtnLoading = false
           this.$confirm('线索分发成功', '', {
             confirmButtonText: '继续分发',

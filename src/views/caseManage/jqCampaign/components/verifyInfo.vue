@@ -5,7 +5,7 @@
       <title-pub :title="title"></title-pub>
       <div style="max-height:260px;overflow: auto;">
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="statisticCollect">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+          <el-table-column type="index" label="序号" width="60" fixed></el-table-column>
           <el-table-column prop="deptName" label="申请单位"  min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="userName" label="申请人" min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="acceptedTime" label="申请时间" min-width="180" show-overflow-tooltip></el-table-column>
@@ -173,6 +173,16 @@ export default {
     .el-form{
       padding: 10px 20px;
     }
+  }
+  // 固定左侧列的样式问题
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
   }
 }
 </style>

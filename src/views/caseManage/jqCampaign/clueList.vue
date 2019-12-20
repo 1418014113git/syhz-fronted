@@ -480,7 +480,7 @@ export default {
       this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type : '' // 核查情况
       this.applyDeptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 申请，下发单位code
       this.dqbmDeptCode = this.$route.query.curDeptCode ? this.$route.query.curDeptCode : '' // 存储集群列表当前点击行的部门code
-      this.curAreaCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 存储集群列表当前点击行的areaCode
+      this.curAreaCode = this.$route.query.curDeptCode ? this.$route.query.curDeptCode.substring(0, 6) : '' // 存储集群列表当前点击行的areaCode
       this.curDeptType = this.$route.query.deptType ? this.$route.query.deptType : '' // 存储集群列表当前点击行的部门类型
       this.init()
     }

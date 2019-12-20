@@ -23,7 +23,7 @@
               <img v-else src="/static/image/personFile_images/defaultUuser.png">
               <p class="per_name link_text" @click="handleXyrDetail(item)">{{item.xm}}</p>
               <p class="link_text" @click="showTipsC(item.mgsfhm,index,'xyr')">{{item.mgsfhm}}</p>
-              <card-com v-if="curIndexxyr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com>
+              <!-- <card-com v-if="curIndexxyr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com> -->
             </div>
           </div>
           <el-col :span="24" class="toolbar">
