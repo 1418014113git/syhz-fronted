@@ -129,7 +129,7 @@
             :disabled="endDateDisabled">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="案件类型" prop="fllb">
+        <el-form-item label="案件分类" prop="fllb">
           <el-tooltip effect="dark" :content="selectCurfllb.name" placement="top-start" :popper-class="(selectCurfllb.name&&selectCurfllb.name.length>9)===true?'tooltipShow':'tooltipHide'">
             <el-cascader v-model="filters.fllb" change-on-select filterable :options="fllbList" @change="ajlxHandleChange" clearable></el-cascader>
           </el-tooltip>
@@ -210,8 +210,8 @@
           <el-button size="small" type="primary" plain v-if="scope.row.status!=3 && $isViewBtn('100703')"  @click="handleAjDetail(scope.$index, scope.row)">案件详情</el-button>
           <el-button size="small" type="primary" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100704')"  :disabled="scope.row.status!=3" @click="handleAjDetail(scope.$index, scope.row)">案件认领</el-button>
           <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100705') && downBtn"  @click="handleZDGX(0, scope.row, 'ajxfForm')">下发案件</el-button>
-          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100707') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">转回上级案件</el-button>
-          <el-button size="small" type="danger"  plain v-if="scope.row.status==3  && hasAccess(scope.row) && $isViewBtn('100706')"  @click="handleZDGX(2, scope.row, 'ajcxForm')">非环食药案件</el-button>
+          <el-button size="small" type="warning" plain v-if="scope.row.status==3 && hasAccess(scope.row) && $isViewBtn('100707') && upBtn"  @click="handleZDGX(1, scope.row, 'ajzfForm')">转回上级</el-button>
+          <el-button size="small" type="danger"  plain v-if="scope.row.status==3  && hasAccess(scope.row) && $isViewBtn('100706')"  @click="handleZDGX(2, scope.row, 'ajcxForm')">非环食药</el-button>
           <el-button size="small" type="danger"  plain v-if="scope.row.status==10 && $isViewBtn('100708')"  @click="handleZDGX(3, scope.row, 'ajhfForm')">恢复案件</el-button>
           <el-button size="small" type="danger"  plain v-if="$isViewBtn('100702')"  @click="handleAJSIGN(scope.row.AJBH)">认领详情</el-button>
         </template>
@@ -437,7 +437,7 @@ export default {
         }
       },
       rules: {
-        noticeOrgCode: [{ required: true, message: '请选择接收单位', trigger: 'change' }]
+        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }]
       },
       rules2: {
         revokeReason: [
@@ -446,14 +446,14 @@ export default {
         ]
       },
       rules3: {
-        noticeOrgCode: [{ required: true, message: '请选择接收单位', trigger: 'change' }],
+        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }],
         revokeReason: [
           { required: true, message: '请输入转发原因', trigger: 'blur' },
           { max: 200, message: '原因不能超过200字', trigger: 'blur' }
         ]
       },
       rules4: {
-        noticeOrgCode: [{ required: true, message: '请选择指定单位', trigger: 'change' }],
+        noticeOrgCode: [{ required: true, message: '请选择单位', trigger: 'change' }],
         revokeReason: [
           { required: true, message: '请输入恢复原因', trigger: 'blur' },
           { max: 200, message: '原因不能超过200字', trigger: 'blur' }
@@ -463,8 +463,8 @@ export default {
         { value: '1', label: '待认领' },
         { value: '2', label: '已认领' },
         { value: '3', label: '下发案件' },
-        { value: '4', label: '转回上级案件' },
-        { value: '5', label: '非环食药案件' }
+        { value: '4', label: '转回上级' },
+        { value: '5', label: '非环食药' }
       ],
       cityList: [
         {
@@ -593,7 +593,6 @@ export default {
                 }
               }
               this.deptOptions = getTree(arr) // 机构
-              // alert('当前deptOptions' + JSON.stringify(this.deptOptions))
             }
           }
         }).catch(() => {
@@ -777,14 +776,14 @@ export default {
         return '已认领'
       } else if (row.status === '9') {
         if (row.notice_lx === 2) {
-          return '转回上级案件'
+          return '转回上级'
         } if (row.notice_lx === 1) {
           return '下发案件'
         } if (row.notice_lx === 3) {
           return '恢复案件'
         }
       } else if (row.status === '10') {
-        return '非环食药案件'
+        return '非环食药'
       }
       return row.status
     },
@@ -928,7 +927,7 @@ export default {
             }
           }
           if (obj.status === '10') {
-            str = '非环食药案件'
+            str = '非环食药'
           }
           if (obj.status === '9') {
             let receive = ''
@@ -1261,12 +1260,15 @@ export default {
             } else if (this.carryParam.deptType === 2) { // 支队
               this.filters.area = ['610000', this.carryParam.cityCode]
             } else if (this.carryParam.deptType === 3) { // 大队
-              this.filters.area = ['610000', this.carryParam.cityCode.substring(0, 4) + '00', this.carryParam.cityCode]
+              console.log('carryParam:' + JSON.stringify(this.carryParam))
+              this.filters.area = ['610000', this.carryParam.cityCode.substring(0, 4) + '00', this.carryParam.districtCode]
+
+              console.log(this.filters.area)
             } else if (this.carryParam.deptType === 4) { // 派出所
               if (this.carryParam.cityCode === '611400') { // 杨凌例外
                 this.filters.area = ['610000', '611400']
               } else { // 正常的派出所
-                this.filters.area = ['610000', this.carryParam.cityCode.substring(0, 4) + '00', this.carryParam.cityCode]
+                this.filters.area = ['610000', this.carryParam.cityCode.substring(0, 4) + '00', this.carryParam.districtCode]
               }
             }
           } else {
