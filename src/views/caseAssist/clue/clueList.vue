@@ -44,7 +44,12 @@
       <el-table :data="listData" v-loading="listLoading" style="width: 100%;" class="" :max-height="tableHeight">
         <el-table-column type="index" width="60" label="序号" ></el-table-column>
         <el-table-column prop="serialNumber"  label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="cityName"  label='行政区划'  min-width="180" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="cityName"  label='行政区划'  min-width="180" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span v-if="scope.row.cityName && scope.row.cityName !== undefined && scope.row.cityName !== null"> {{scope.row.cityName}} </span>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
           <template slot-scope="scope">
             <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
@@ -60,7 +65,7 @@
             <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="syajs"  label='移送行政部门处理（次）'  min-width="130" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="ysxz"  label='移送行政部门处理（次）'  min-width="130" show-overflow-tooltip></el-table-column>
         <el-table-column prop=""  label='侦办刑事案件' align="center" >
           <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
           <el-table-column prop="parqCount"  label='破案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
@@ -78,7 +83,7 @@
         </el-table-column>
         <el-table-column label="操作"  width="100" fixed="right">
           <template slot-scope="scope">
-            <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle   @click="handleDetail(scope.$index, scope.row)"></el-button>
+            <el-button size="mini" title="详情" type="primary" icon="el-icon-document" circle @click="handleDetail(scope.$index, scope.row)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -91,8 +96,8 @@
     </el-col>
 
     <!--线索详情弹出层-->
-    <el-dialog title="详情" :visible.sync="clueDetailVisible">
-      <clue-detail :row="curRow" :isShowdialog="clueDetailVisible"></clue-detail>
+    <el-dialog title="详情" :visible.sync="clueDetailVisible" @close="closeDialog" :close-on-click-modal="false">
+      <clue-detail ref="clueDetail" :row="this.curRow" @closeDialog="closeDialog"></clue-detail>
     </el-dialog>
   </section>
 </template>
@@ -394,8 +399,15 @@ export default {
       this.query(true, true)
     },
     handleDetail(index, row) { // 详情
-      this.clueDetailVisible = true
-      this.curRow = row
+      if (row.qbxsResult === 1) {
+        this.$alert('该线索还未反馈，请于线索反馈列表反馈后，再行查看', '提示')
+      } else {
+        this.clueDetailVisible = true
+        this.curRow = row
+        if (this.$refs.clueDetail) {
+          this.$refs.clueDetail.setRow(row)
+        }
+      }
     },
     resetForm() { // 重置
       this.filters = {
@@ -414,6 +426,10 @@ export default {
     },
     toback() { // 返回
       this.$router.back(-1)
+    },
+    closeDialog() {
+      this.clueDetailVisible = false
+      this.$refs.clueDetail.initData()
     }
   },
   mounted() {
@@ -423,35 +439,33 @@ export default {
 }
 </script>
 
-<style rel="stylesheet/scss" lang="scss">
-.clueList{
-  .el-dialog{
-    width: 70%;
-    max-height: 80vh;
+<style>
+  .clueList .el-dialog{
+    width: 60%;
+  }
+  .clueList .el-dialog__body {
+    padding: 10px 20px 15px 20px;
+    max-height: 70vh;
     overflow: auto;
   }
-  .el-dialog__body {
-    padding: 10px 0 15px 20px;
-  }
-  .el-table--border, .el-table--group {
+  .clueList .el-table--border, .el-table--group {
     border: 0;
   }
-  .el-table--border td, .el-table--border th, .el-table__body-wrapper{
+  .clueList .el-table--border td, .clueList .el-table--border th, .clueList .el-table__body-wrapper{
     border-right: 0;
   }
-  .el-table--border th, .el-table__fixed-right-patch {
+  .clueList .el-table--border th, .clueList .el-table__fixed-right-patch {
     border-bottom: 0;
   }
 
-  .el-table--border::after,
-  .el-table--group::after {
+  .clueList .el-table--border::after,
+  .clueList .el-table--group::after {
     width: 0;
   }
-  .tableBox{
+  .clueList .tableBox{
     width: 100%;
     overflow: auto;
   }
-}
  .el-cascader-menu__item.is-disabled{
   background-color: transparent;
 }

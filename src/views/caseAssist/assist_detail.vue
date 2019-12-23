@@ -111,10 +111,10 @@
             const offsetTop = document.querySelector('.' + this.classList[i]).offsetTop
             if (scrollTop === 0) {
               this.$store.dispatch('MouleClass', this.classList[0])
-            } else if (scrollTop >= offsetTop - 10 && scrollTop < difference) {
+            } else if (scrollTop >= offsetTop - 60) {
               this.$store.dispatch('MouleClass', this.classList[i])
             } else if (scrollTop === difference + 20) {
-              this.$store.dispatch('MouleClass', this.classList[4])
+              this.$store.dispatch('MouleClass', this.classList[this.classList.length - 1])
             }
           }
         }
@@ -125,6 +125,8 @@
       document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
       if (this.curDept.depType === '2' && this.curDept.areaCode !== '611400' && this.curDept.areaCode !== '616200') { // 地市 并且 不是杨凌 不是西咸
         this.areaVisible = true
+        this.classList.push('signInfo_area')
+        this.classList.push('feedbackInfo_area')
       }
       this.detail()
     }
@@ -217,6 +219,20 @@
     border: 2px solid rgb(0, 160, 233);
     border-radius: 6px;
     padding: 0 12px 10px 8px;
+  }
+  /*.el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even) {*/
+     /*background-color: #032c43; */
+  /*}*/
+
+  // 固定左侧列的样式问题
+  .caseAssistDetail .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .caseAssistDetail .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .caseAssistDetail .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
   }
 </style>
 

@@ -204,8 +204,10 @@ export default {
     qs() { // 签收, 定位到签收列表
       if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 总队，支队
         this.$store.dispatch('Personeltotop', 'dsqs') // 定位到地市签收
+        this.$store.dispatch('AjMouleClass', 'dsqs')
       } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
         this.$store.dispatch('Personeltotop', 'qxqs') // 定位到区县签收
+        this.$store.dispatch('AjMouleClass', 'qxqs')
       }
     },
     downFile(item) { // 下载附件

@@ -6,8 +6,8 @@
         <span class="letterSpc">{{title}}</span>
       </div>
     </div>
-    <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="" max-height="260">
-      <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+    <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
+      <el-table-column type="index" label="序号" width="60" align="center" fixed="left"></el-table-column>
       <el-table-column prop="createDeptName" label="下发单位" width="220" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column prop="createDate" label="下发日期" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
@@ -30,7 +30,7 @@
       <el-table-column prop="receiveDate" label="签收时间" align="center"></el-table-column>
       <el-table-column label="操作" align="center" width="100">
         <template slot-scope="scope">
-          <el-button v-if="$isViewBtn('100907') && String(scope.row.signStatus) !== '2' && scope.row.receiveDeptCode === curDept.depCode" size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline" @click="handleSign(scope.$index, scope.row)"></el-button>
+          <el-button v-if="$isViewBtn('100907') && String(scope.row.signStatus) !== '2' && signEnable(scope.row)" size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline" @click="handleSign(scope.$index, scope.row)"></el-button>
           <span v-else>-</span>
         </template>
       </el-table-column>
@@ -86,11 +86,24 @@ export default {
           return true
         }
       }
+      if (row.receiveDeptCode === this.curDept.depCode || row.parentCode === this.curDept.depCode) {
+        return true
+      }
+      if (this.curDept.depType === '4') { // 派出所
+        if (row.receiveDeptCode === this.curDept.parentDepCode || this.info.applyDeptCode === this.curDept.parentDepCode) {
+          return true
+        }
+      }
+      return false
+    },
+    signEnable(row) {
       if (row.receiveDeptCode === this.curDept.depCode) {
         return true
       }
-      if (row.parentCode === this.curDept.depCode) {
-        return true
+      if (this.curDept.depType === '4') { // 派出所
+        if (row.receiveDeptCode === this.curDept.parentDepCode) {
+          return true
+        }
       }
       return false
     },
@@ -142,8 +155,14 @@ export default {
         if (String(this.showType) === '1') {
           if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 地市
             this.$resetSetItem('assistT2', this.total) // 将总数存在session中
-          } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 区县
+          } else if (this.curDept.depType === '3') { // 区县
             this.$resetSetItem('assistT4', this.total) // 将总数存在session中
+          } else if (this.curDept.depType === '4') {
+            if (this.curDept.areaCode === '611400') {
+              this.$resetSetItem('assistT2', this.total) // 将总数存在session中
+            } else {
+              this.$resetSetItem('assistT4', this.total) // 将总数存在session中
+            }
           }
         } else {
           this.$resetSetItem('assistT4', this.total)
@@ -152,8 +171,14 @@ export default {
         if (String(this.showType) === '1') {
           if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 地市
             this.$resetSetItem('assistT2', 0) // 将总数存在session中
-          } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 区县
+          } else if (this.curDept.depType === '3') { // 区县
             this.$resetSetItem('assistT4', 0) // 将总数存在session中
+          } else if (this.curDept.depType === '4') {
+            if (this.curDept.areaCode === '611400') {
+              this.$resetSetItem('assistT2', 0) // 将总数存在session中
+            } else {
+              this.$resetSetItem('assistT4', 0) // 将总数存在session中
+            }
           }
         } else {
           this.$resetSetItem('assistT4', 0)
@@ -194,7 +219,7 @@ export default {
       const param = {
         userId: this.curUser.id,
         userName: this.curUser.realName,
-        deptCode: this.curDept.depCode,
+        deptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode,
         assistId: row.assistId, // 协查id
         signId: row.assistSignId // 签收表id
       }
@@ -216,7 +241,11 @@ export default {
       if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 地市
         this.title = '地市'
       } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 区县
-        this.title = '区县'
+        if (this.curDept.areaCode === '611400') { // 杨凌例外
+          this.title = '地市'
+        } else {
+          this.title = '区县'
+        }
       }
     } else {
       this.title = '区县'
