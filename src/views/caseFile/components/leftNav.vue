@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import Bus from '@/utils/bus.js'
 export default {
   props: ['ajbh'],
   name: 'caseFile',
@@ -56,6 +57,7 @@ export default {
     },
     clickNav(selector, index) {
       // this.curIndex = index
+      Bus.$emit('bqType', 'first') // 定位到侦查协作初始化时的状态
       this.curClass = selector
       this.$store.dispatch('Ajdatotop', selector)
     },

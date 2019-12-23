@@ -198,7 +198,7 @@ export default {
       this.$store.dispatch('Personeltotop', 'auditInfo')
     },
     clueDistribute() { // 线索分发
-      this.clueDialogVisible = true
+      this.$store.dispatch('Personeltotop', 'feedbackInfo')
     },
     clueFeedback() { // 线索反馈
       this.$store.dispatch('Personeltotop', 'feedbackInfo')

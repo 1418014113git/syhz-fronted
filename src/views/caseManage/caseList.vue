@@ -849,41 +849,34 @@ export default {
   text-shadow: 0 0 2px #6f6d6d;
 }
 .caseList .type3 {
-  background-image: linear-gradient(140deg, #138fb8 0%, #53c7e0 100%), linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
 }
 .caseList .type1 {
-  background-image: linear-gradient(140deg, #40a954 0%, #20e1aa 100%), linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(140deg, #40a954 0%, #20e1aa 100%);
 }
 .caseList .type2 {
-  background-image: linear-gradient(90deg, #fe595d 0%, #f789a6 100%), linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(140deg, #ff7a04 0%, #fdbc22 100%);
 }
 
 .caseList .bg0 {
-  background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%),
-  linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
 }
 .caseList .bg1 {
-  background-image: linear-gradient(90deg, #fe595d 0%, #f789a6 100%),
-  linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(90deg, #fe595d 0%, #f789a6 100%);
 }
 .caseList .bg2 {
-  background-image: linear-gradient(140deg, #138fb8 0%, #53c7e0 100%),
-  linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(140deg, #138fb8 0%, #53c7e0 100%);
 }
 .caseList .bg3 {
-  background-image: linear-gradient(140deg, #40a954 0%, #20e1aa 100%),
-  linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(140deg, #40a954 0%, #20e1aa 100%);
 }
 .caseList .bg4 {
-  background-image: linear-gradient(140deg, #177ce0 0%, #54afe0 100%),
-  linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(140deg, #177ce0 0%, #54afe0 100%);
 }
 .caseList .bg5 {
-  background-image: linear-gradient(140deg, #6e3ec8 0%, #8f55d5 100%),
-  linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(140deg, #6e3ec8 0%, #8f55d5 100%);
 }
 .caseList .bg6 {
-  background-image: linear-gradient(140deg, #ff7a04 0%, #fdbc22 100%),
-  linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(140deg, #ff7a04 0%, #fdbc22 100%);
 }
 </style>

@@ -169,7 +169,13 @@ export default {
           }
         } else if (type === 2) {
           if (item.depCode.substring(0, 6) === paramCode) {
-            return item
+            if (this.showType === '1') {
+              if (String(item.depType) === '2') {
+                return item
+              }
+            } else {
+              return item
+            }
           }
         }
       }
