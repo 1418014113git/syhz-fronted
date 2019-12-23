@@ -406,7 +406,7 @@
           start: this.filters.time ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : '',
           end: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '',
           cityCode: '',
-          departCode: this.filters.deptCode,
+          deptCode: this.filters.departCode,
           deptType: this.curDept.depType
         }
         this.listLoading = true
