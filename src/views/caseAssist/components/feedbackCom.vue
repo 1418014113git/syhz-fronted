@@ -172,7 +172,7 @@ export default {
     enableScore(row) {
       const curDate = new Date()
       const endDate = new Date(this.info.endDate)
-      return (row.hcl === 100 || curDate > endDate) && row.parentCode === this.curDept.depCode
+      return (curDate > endDate) && row.parentCode === this.curDept.depCode
     },
     enableDistributeClue(row) {
       if ((String(this.info.status) === '5' || String(this.info.status) === '8')) {
