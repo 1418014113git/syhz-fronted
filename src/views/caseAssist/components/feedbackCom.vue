@@ -175,22 +175,26 @@ export default {
       return (row.hcl === 100 || curDate > endDate) && row.parentCode === this.curDept.depCode
     },
     enableDistributeClue(row) {
-      if (row.cityCode !== '611400') {
-        if (row.deptCode === this.curDept.depCode) { // && (String(this.info.status) === '5' || String(this.info.status) === '8')
-          if (parseInt(row.parentType) <= 2) {
-            return true
+      if ((String(this.info.status) === '5' || String(this.info.status) === '8')) {
+        if (row.cityCode !== '611400') {
+          if (row.deptCode === this.curDept.depCode) {
+            if (parseInt(row.parentType) <= 2) {
+              return true
+            }
           }
         }
       }
       return false
     },
     enableFeedBack(row) {
-      if (row.deptCode === this.curDept.depCode) { // && (String(this.info.status) === '5' || String(this.info.status) === '8')
-        return true
-      }
-      if (this.curDept.depType === '4') {
-        if (row.deptCode === this.curDept.parentDepCode) {
+      if ((String(this.info.status) === '5' || String(this.info.status) === '8')) {
+        if (row.deptCode === this.curDept.depCode) {
           return true
+        }
+        if (this.curDept.depType === '4') {
+          if (row.deptCode === this.curDept.parentDepCode) {
+            return true
+          }
         }
       }
       return false

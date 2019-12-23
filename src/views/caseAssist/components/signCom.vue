@@ -124,10 +124,13 @@ export default {
     },
     query(flag) {
       this.listLoading = true
+      if (flag) {
+        this.page = 1
+      }
       const param = {
         assistId: this.curAssistId,
         pageSize: this.pageSize,
-        pageNum: flag ? 1 : this.page
+        pageNum: this.page
       }
       if (this.info.cityCode !== this.curDept.areaCode) {
         if (this.curDept.depType === '3') {
