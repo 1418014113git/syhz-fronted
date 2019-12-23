@@ -100,6 +100,7 @@
       },
       // 监听滚动条变化
       handleScroll() {
+        this.$store.dispatch('Personeltotop', '')
         const documentHeight = this.$refs.rightContDoc.offsetHeight
         const difference = documentHeight - (document.documentElement.clientHeight - 130)
         if (document.querySelector('.rightCont').scrollTop > 0) { // 如何滚动条顶部距离>0,则将状态ToTop初始化为0
@@ -111,7 +112,7 @@
             const offsetTop = document.querySelector('.' + this.classList[i]).offsetTop
             if (scrollTop === 0) {
               this.$store.dispatch('MouleClass', this.classList[0])
-            } else if (scrollTop >= offsetTop - 60) {
+            } else if (scrollTop >= offsetTop - 10) {
               this.$store.dispatch('MouleClass', this.classList[i])
             } else if (scrollTop === difference + 20) {
               this.$store.dispatch('MouleClass', this.classList[this.classList.length - 1])
