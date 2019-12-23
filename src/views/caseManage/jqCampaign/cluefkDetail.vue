@@ -48,7 +48,7 @@
             <el-table-column prop="ajmc"  label='案件名称'  min-width="120" show-overflow-tooltip></el-table-column>
             <el-table-column prop="ajbh"  label='案件编号'  min-width="140" show-overflow-tooltip>
               <template slot-scope="scope">
-                <a class="linkColor" @click="toAjDetail(scope.row.ajId)">{{scope.row.ajbh}}</a>
+                <a class="linkColor" @click="toAjDetail(scope.row.id)">{{scope.row.ajbh}}</a>
               </template>
             </el-table-column>
             <el-table-column prop="ajztName"  label='案件状态'  min-width="100" show-overflow-tooltip></el-table-column>
@@ -210,7 +210,6 @@ export default {
     detail() { // 查详情
       this.listLoading = true
       this.xsfkForm.qbxsResult = this.xsfkRow.qbxsResult ? this.xsfkRow.qbxsResult : ''
-      // this.querySelect(2) // 侦办刑事案件下拉列表
       const para = {
         assistId: this.xsfkRow.clusterId, // 集群Id
         type: 'detail', // 操作类型
@@ -249,8 +248,7 @@ export default {
       this.ysajSelectData = [] // 移送案件下拉框数据
       this.zbajSelectData = [] // 侦办案件下拉框数据
       this.zblistData = [] // 侦办刑事案件列表
-      this.zbajmc = '' // 存储下拉选项的侦办刑事案件编号
-      this.isShowTime = false // 隐藏更新时间
+      this.zbajmc = '' // 存储下拉选项的侦办刑事案件名称
     },
     toAjDetail(id) { // 跳转案件档案
       this.$router.push({
@@ -453,55 +451,53 @@ export default {
       this.zbajList = item
       this.isQueryName = false
     },
-    getSummaries(param) { // 合计
-      if (param.data.length > 0) {
-        const { columns, data } = param
-        const sums = []
-        columns.forEach((column, index) => {
-          if (index === 0) {
-            sums[index] = '合计'
-            return
-          }
-          if (index === 1 || index === 2 || index === 3) {
-            sums[index] = '-'
-            return
-          }
-          if (index === 4 || index === 5) { // 立案日期  破案日期
-            const values = data.map(item => Date.parse(item[column.property]))
-            if (!values.every(value => isNaN(value))) {
-              sums[index] = values.reduce((prev, curr) => {
-                const value = Number(curr)
-                if (!isNaN(value)) {
-                  return prev + 1
-                } else {
-                  return prev
-                }
-              }, 0)
-            } else {
-              sums[index] = 0
-            }
-            return
-          }
-          const values = data.map(item => Number(item[column.property]))
+    getSummaries(param) { // 总计
+      const { columns, data } = param
+      const sums = []
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = '总计'
+          return
+        }
+        if (index === 1 || index === 2 || index === 3) {
+          sums[index] = '-'
+          return
+        }
+        if (index === 4 || index === 5) { // 立案日期， 破案日期
+          const values = data.map(item => Date.parse(item[column.property]))
           if (!values.every(value => isNaN(value))) {
             sums[index] = values.reduce((prev, curr) => {
               const value = Number(curr)
               if (!isNaN(value)) {
-                return prev + curr
+                return prev + 1
               } else {
                 return prev
               }
             }, 0)
           } else {
-            sums[index] = ''
+            sums[index] = 0
           }
-        })
-        return sums
-      }
+          return
+        }
+        const values = data.map(item => Number(item[column.property]))
+        if (!values.every(value => isNaN(value))) {
+          sums[index] = values.reduce((prev, curr) => {
+            const value = Number(curr)
+            if (!isNaN(value)) {
+              return prev + curr
+            } else {
+              return prev
+            }
+          }, 0)
+          sums[index] = this.$thousSplit(sums[index] + '')
+        } else {
+          sums[index] = ''
+        }
+      })
+      return sums
     }
   },
   mounted() {
-    this.initData()
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
