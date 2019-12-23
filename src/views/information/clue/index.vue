@@ -126,7 +126,7 @@ export default {
     delBtn(row) {
       if (row.shareStatus + '' === '0') {
         // 删除按钮编号
-        return (this.$isViewBtn('100901') && row.submitDeptId + '' === JSON.parse(sessionStorage.getItem('depToken'))[0].id + '') || (row.submitPersonId + '' === JSON.parse(sessionStorage.getItem('userId')) + '')
+        return (this.$isViewBtn('103301') && row.submitDeptId + '' === JSON.parse(sessionStorage.getItem('depToken'))[0].id + '') || (row.submitPersonId + '' === JSON.parse(sessionStorage.getItem('userId')) + '')
       }
       return false
     },
