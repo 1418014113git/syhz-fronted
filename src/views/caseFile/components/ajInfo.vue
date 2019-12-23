@@ -116,7 +116,17 @@ export default {
         this.getColor(ajlxArry.length)
         for (var j = 0; j < ajlxObject.length; j++) {
           for (var k = 0; k < this.newColorData.length; k++) {
-            if (j === k) {
+            if (j === 0) {
+              if (ajlxObject[j].lx === '环境') {
+                ajlxObject[j].bg = 'bg4' // 蓝色
+              } else if (ajlxObject[j].lx === '食品') {
+                ajlxObject[j].bg = 'bg3' // 绿色
+              } else if (ajlxObject[j].lx === '药品') {
+                ajlxObject[j].bg = 'bg6' // 橙色
+              } else {
+                ajlxObject[j].bg = 'bg5' // 综合
+              }
+            } else if (j === k) {
               ajlxObject[j].bg = this.newColorData[k]
             }
           }
