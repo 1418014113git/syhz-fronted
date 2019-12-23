@@ -513,6 +513,7 @@ export default {
     init(fastatus, jsdw) {
       this.clearData()
       this.checkId = []
+      this.xsNum = 0
       if (fastatus && fastatus !== '0') { // 分状态
         this.filters.qbxsDistribute = fastatus + ''
       }
