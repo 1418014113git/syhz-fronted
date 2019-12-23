@@ -65,3 +65,11 @@ export function addJF(type, belongType, tableId, playType) {
     data: para
   })
 }
+
+export function moveInfo(para) {
+  return request({
+    url: ModuleName + 'reptileinfo/' + para.id,
+    method: 'get',
+    params: para
+  })
+}
