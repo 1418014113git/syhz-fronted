@@ -1,7 +1,8 @@
 <template>
   <section style="margin-top:12px;">
-    <el-table ref="goodTable" :data="flwsData" v-loading="flwsLoading" max-height="186" class="statisticCollect" style="width:100%;">
-      <el-table-column type="index" label="序号" width="56px"></el-table-column>
+    <!-- <el-table ref="goodTable" :data="flwsData" v-loading="flwsLoading" max-height="186" class="statisticCollect" style="width:100%;"> -->
+    <el-table ref="goodTable" :data="flwsData" v-loading="flwsLoading" class="statisticCollect" style="width:100%;">
+      <el-table-column type="index" label="序号" width="56px" fixed></el-table-column>
       <el-table-column prop="flwsmc" label="名称" min-width="150px" show-overflow-tooltip></el-table-column>
       <el-table-column prop="wh" label="文号" min-width="200px" show-overflow-tooltip></el-table-column>
       <el-table-column prop="tfdwName" label="填发单位" min-width="200px" show-overflow-tooltip></el-table-column>
