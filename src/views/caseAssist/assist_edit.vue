@@ -708,6 +708,7 @@ export default {
         this.qbxsDistribute = ''
       } else { // 点击线索数字时，获取当前数字的状态
         this.qbxsDistribute = data
+        this.receiveName = ''
       }
       this.distributeClueVisible = true
       if (this.$refs.distributeClue) {
