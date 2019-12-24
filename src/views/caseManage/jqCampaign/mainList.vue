@@ -760,7 +760,7 @@ export default {
       if (param) { // 外层列表
         this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.applyDeptCode, deptType: row.deptType }}) // 跳转到线索列表页
       } else { // 展开行列表
-        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode, deptType: row.deptType }}) // 跳转到线索列表页
+        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode, deptType: row.deptType, source: 'mainn' }}) // 跳转到线索列表页
       }
     },
     exportList() { // 导出

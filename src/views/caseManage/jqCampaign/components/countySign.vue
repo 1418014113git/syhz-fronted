@@ -99,7 +99,13 @@ export default {
       })
     },
     contrlollistqsbtn(row) { // 控制列表行的签收按钮显隐
-      return ((this.curDept.depType === '4' && this.curDept.parentDepCode === row.receiveDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.receiveDeptCode)) && Number(this.baseInfo.status) >= 4 && row.signStatus + '' === '1'
+      if (Number(this.baseInfo.status) >= 4) { // 审核通过以后
+        const curDate = new Date(this.baseInfo.systemTime)
+        const startDate = new Date(this.baseInfo.startDate)
+        return (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.receiveDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.receiveDeptCode)) && row.signStatus + '' === '1' && curDate > startDate)
+      } else {
+        return false
+      }
     },
     query(flag) {
       this.listLoading = true
@@ -133,11 +139,21 @@ export default {
       })
     },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的签收按钮
-      Bus.$emit('isShowqsbtn', false)
+      // Bus.$emit('isShowqsbtn', false)
+      const curDate = new Date(this.baseInfo.systemTime)
+      const startDate = new Date(this.baseInfo.startDate)
       if (data.length > 0) {
         data.forEach(item => {
-          if ((this.curDept.depType === '4' && this.curDept.parentDepCode === item.receiveDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === item.receiveDeptCode) && Number(this.baseInfo.status) >= 4 && item.signStatus + '' === '1') { // 当前登录的是派出所时，用他的父级单位的id去判断 1：待签收
-            Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
+          if (((this.curDept.depType === '4' && this.curDept.parentDepCode === item.receiveDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === item.receiveDeptCode)) && Number(this.baseInfo.status) >= 4 && item.signStatus + '' === '1') { // 当前登录的是派出所时，用他的父级单位的id去判断 1：待签收
+            if (Number(this.baseInfo.status) >= 4) {
+              if (curDate > startDate) {
+                Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
+              } else {
+                Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
+              }
+            } else {
+              Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
+            }
           }
         })
       }
