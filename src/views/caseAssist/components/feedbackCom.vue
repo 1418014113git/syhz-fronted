@@ -172,7 +172,7 @@ export default {
     enableScore(row) {
       const curDate = new Date(this.info.systemTime)
       const endDate = new Date(this.info.endDate)
-      return (row.hcl === 100 || curDate > endDate) && row.parentCode === this.curDept.depCode
+      return (String(row.hcl) === '100' || String(row.hcl) === '100.00' || curDate > endDate) && row.parentCode === this.curDept.depCode
     },
     enableDistributeClue(row) {
       const curDate = new Date(this.info.systemTime)
@@ -259,12 +259,16 @@ export default {
       }
       if (String(this.showType) === '2') {
         param.parentCode = this.curDept.depCode
+        this.$emit('setEvaluateBtnVisibleH', false)
       } else {
         if (this.curDept.depType === '4') {
           param.curDeptType = this.findParentDept(this.curDept.parentDepCode).parentCode
           param.parentCode = this.findParentDept(this.curDept.parentDepCode).parentCode
         } else {
           param.curDeptType = this.curDept.depType
+        }
+        if (this.curDept.depType === '1') {
+          this.$emit('setEvaluateBtnVisibleH', false)
         }
       }
       this.$query('caseassistclue/detailCount', param).then((response) => {
@@ -276,6 +280,9 @@ export default {
           const parentItem = this.findParentDept(paramCode)
           item.parentCode = parentItem.parentCode
           item.parentType = parentItem.depType
+          if (this.enableScore(item)) {
+            this.$emit('setEvaluateBtnVisibleH', true)
+          }
         }
         this.listData = arr
         this.total = response.data.totalCount
@@ -344,12 +351,26 @@ export default {
       this.$router.push({ path: '/caseAssist/clueList', query: para })
     },
     handleDistributeClue(index, row) { // 线索分发
+      if (String(row.signStatus) !== '2') {
+        this.$alert('该线索还未签收，请先前进行签收。', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return false
+      }
       this.clueDistributeDialogVisible = true
       if (this.$refs.distributeClue) {
         this.$refs.distributeClue.init()
       }
     },
     handleFeedBack(index, row) { // 线索反馈
+      if (String(row.signStatus) !== '2') {
+        this.$alert('该线索还未签收，请先前进行签收。', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return false
+      }
       this.curRow = row
       let deptCode = row.deptCode
       // if (row.deptCode !== this.info.applyDeptCode && this.curDept.depType !== '1') { // 发起单位可以查询所有
