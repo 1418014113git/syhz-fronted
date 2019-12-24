@@ -484,8 +484,20 @@ export default {
             assistId: this.detailPassForm.id
           }
           this.$update('caseAssist/detailPwd', para).then(response => {
-            this.detailDialogVisible = false
-            this.$gotoid('/caseAssist/detail', this.detailPassForm.id)
+            if (response.code !== '000000') {
+              this.$alert('密码输入错误，请重新输入', '提示', {
+                type: 'error'
+              })
+              this.detailPassBtnLoading = false
+              this.$refs.detailPassForm.resetFields()
+            } else {
+              this.detailDialogVisible = false
+              this.$gotoid('/caseAssist/detail', this.detailPassForm.id)
+            }
+          }).catch(() => {
+            this.detailPassForm.password = ''
+            this.detailPassBtnLoading = false
+            this.$refs.detailPassForm.resetFields()
           })
         }
       })

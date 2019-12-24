@@ -69,7 +69,7 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="案件编号：" prop="">
-            <span class="whiteColor">{{baseInfo.AJBH}}</span>
+            <span class="whiteColor" @click="toCase()" style="text-decoration: underline; cursor: pointer">{{baseInfo.AJBH}}</span>
           </el-form-item>
           <el-form-item label="案件类型：" prop="">
             <span class="whiteColor">{{baseInfo.SYH_AJLB_NAME}}</span>
@@ -80,7 +80,7 @@
             <span v-if="baseInfo.AJLB_NAME">{{baseInfo.AJLB_NAME}}</span>
           </el-form-item>
           <el-form-item label="发案部位：" prop="">
-            <span class="whiteColor">{{baseInfo.FABW}}</span>
+            <span class="whiteColor">{{baseInfo.FABW_NAME}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -149,8 +149,13 @@ export default {
     }
   },
   methods: {
+    toCase() {
+      this.$router.push({ path: '/caseFile/index', query: { id: this.baseInfo.id }})
+    },
     setBaseInfo(baseInfo) {
       this.baseInfo = baseInfo
+      const curDate = new Date(this.baseInfo.systemTime)
+      const startDate = new Date(this.baseInfo.startDate)
       if ((String(this.baseInfo.status) === '1' || String(this.baseInfo.status) === '2') && String(this.baseInfo.category) === '2') {
         if (String(this.baseInfo.status) === '2' && this.curDept.depType === '2') {
           this.auditBtnVisible = false
@@ -165,7 +170,7 @@ export default {
           this.applyBtnVisible = true
         }
       }
-      if (String(this.baseInfo.status) === '5' || String(this.baseInfo.status) === '8') {
+      if ((String(this.baseInfo.status) === '5' || String(this.baseInfo.status) === '8') && curDate > startDate) {
         if (String(this.curDept.depType) === '2') {
           this.clueDistributeBtnVisible = true
           this.clueFeedbackBtnVisible = true
