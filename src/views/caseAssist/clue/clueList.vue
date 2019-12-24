@@ -168,12 +168,12 @@ export default {
             return item
           }
         } else if (type === 2) {
-          if (item.depCode.substring(0, 6) === paramCode) {
-            if (this.showType === '1') {
-              if (String(item.depType) === '2') {
-                return item
-              }
-            } else {
+          if (this.paramFilter.deptCode === '') {
+            if (item.depCode.substring(0, 6) === paramCode && String(item.depType) === '2') {
+              return item
+            }
+          } else {
+            if (item.depCode.substring(0, 6) === paramCode) {
               return item
             }
           }
@@ -224,6 +224,7 @@ export default {
               currentArea = ['610000']
             } else {
               const curDept = this.findParentDept(this.paramFilter.cityCode, 2)
+              console.info(curDept)
               curDept.areaCode = this.paramFilter.cityCode
               if (curDept.depType === '2') { // 支队
                 currentArea = ['610000', curDept.areaCode]
