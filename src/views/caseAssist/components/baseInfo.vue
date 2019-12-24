@@ -69,7 +69,7 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="案件编号：" prop="">
-            <span class="whiteColor">{{baseInfo.AJBH}}</span>
+            <span class="whiteColor" @click="toCase()">{{baseInfo.AJBH}}</span>
           </el-form-item>
           <el-form-item label="案件类型：" prop="">
             <span class="whiteColor">{{baseInfo.SYH_AJLB_NAME}}</span>
@@ -149,6 +149,9 @@ export default {
     }
   },
   methods: {
+    toCase() {
+      this.$router.push({ path: '/caseFile/index', query: { id: this.baseInfo.id }})
+    },
     setBaseInfo(baseInfo) {
       this.baseInfo = baseInfo
       const curDate = new Date(this.baseInfo.systemTime)
