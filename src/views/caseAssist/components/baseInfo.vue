@@ -69,7 +69,7 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="案件编号：" prop="">
-            <span class="whiteColor" @click="toCase()">{{baseInfo.AJBH}}</span>
+            <span class="whiteColor" @click="toCase()" style="text-decoration: underline; cursor: pointer">{{baseInfo.AJBH}}</span>
           </el-form-item>
           <el-form-item label="案件类型：" prop="">
             <span class="whiteColor">{{baseInfo.SYH_AJLB_NAME}}</span>
