@@ -224,7 +224,6 @@ export default {
               currentArea = ['610000']
             } else {
               const curDept = this.findParentDept(this.paramFilter.cityCode, 2)
-              console.info(curDept)
               curDept.areaCode = this.paramFilter.cityCode
               if (curDept.depType === '2') { // 支队
                 currentArea = ['610000', curDept.areaCode]
