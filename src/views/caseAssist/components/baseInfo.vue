@@ -80,7 +80,7 @@
             <span v-if="baseInfo.AJLB_NAME">{{baseInfo.AJLB_NAME}}</span>
           </el-form-item>
           <el-form-item label="发案部位：" prop="">
-            <span class="whiteColor">{{baseInfo.FABW}}</span>
+            <span class="whiteColor">{{baseInfo.FABW_NAME}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -151,6 +151,8 @@ export default {
   methods: {
     setBaseInfo(baseInfo) {
       this.baseInfo = baseInfo
+      const curDate = new Date(this.baseInfo.systemTime)
+      const startDate = new Date(this.baseInfo.startDate)
       if ((String(this.baseInfo.status) === '1' || String(this.baseInfo.status) === '2') && String(this.baseInfo.category) === '2') {
         if (String(this.baseInfo.status) === '2' && this.curDept.depType === '2') {
           this.auditBtnVisible = false
@@ -165,7 +167,7 @@ export default {
           this.applyBtnVisible = true
         }
       }
-      if (String(this.baseInfo.status) === '5' || String(this.baseInfo.status) === '8') {
+      if ((String(this.baseInfo.status) === '5' || String(this.baseInfo.status) === '8') && curDate > startDate) {
         if (String(this.curDept.depType) === '2') {
           this.clueDistributeBtnVisible = true
           this.clueFeedbackBtnVisible = true
