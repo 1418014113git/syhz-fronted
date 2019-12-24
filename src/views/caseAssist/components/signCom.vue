@@ -143,12 +143,14 @@ export default {
       this.$query('caseAssist/signList', param).then((response) => {
         this.listLoading = false
         const arr = response.data.list
-        this.$emit('setSignBtnVisibleH', false)
+        if (String(this.showType) === '1') {
+          this.$emit('setSignBtnVisibleH', false)
+        }
         for (let i = 0; i < arr.length; i++) {
           const item = arr[i]
           const paramCode = item.receiveDeptCode
           item.parentCode = this.findParentDept(paramCode)
-          if (String(item.signStatus) !== '2' && item.receiveDeptCode === this.curDept.depCode) {
+          if (String(item.signStatus) !== '2' && item.receiveDeptCode === this.curDept.depCode && String(this.showType) === '1') {
             this.$emit('setSignBtnVisibleH', true)
           }
         }

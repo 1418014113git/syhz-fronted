@@ -99,7 +99,8 @@
         },
         nameCheckFlag: true,
         currentFile: '',
-        curUser: {}
+        curUser: {},
+        moveId: ''
       }
     },
     methods: {
@@ -147,9 +148,11 @@
             // 调用保存接口
             this.$save('traincourse', para).then(response => {
               this.loading = false
-              this.$message({
-                message: '上传资料成功',
-                type: 'success'
+              this.$update('reptileinfostatus/' + this.moveId, { status: 2 }).then(response => {
+                this.$message({
+                  message: '上传资料成功',
+                  type: 'success'
+                })
               })
               this.callback()
             }).catch(() => {
@@ -411,6 +414,7 @@
             this.detail()
           }
           if (param.moveId) {
+            this.moveId = param.moveId
             this.queryMove(param.moveId)
             this.filters = param.filters
           } else {

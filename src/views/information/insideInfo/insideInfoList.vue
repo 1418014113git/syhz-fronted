@@ -37,8 +37,8 @@
               <div @click='detail(item.id)'>{{ item.artTitle }}</div>
               <span :class="'type' + item.artGroup">{{ item.artGroup ? getType(String(item.artGroup)) : '' }}</span><span :class="'category' + item.artType">{{ getCategory(item.artType) }}</span>
               <div>
-                <el-button v-if="item.status === '0' && $isViewBtn('102903')" type="primary" @click="handleConfirm(item)">确认</el-button>
-                <el-button v-if="$isViewBtn('102902')" type="primary" @click="handlerMove(item)">移动</el-button>
+                <el-button v-if="String(item.status) === '0' && $isViewBtn('102903')" type="primary" @click="handleConfirm(item)">确认</el-button>
+                <el-button v-if="String(item.status) === '1' && $isViewBtn('102902')" type="primary" @click="handlerMove(item)">移动</el-button>
                 <el-button v-if="$isViewBtn('102904')" type="primary" @click="handlerRemove(item)">删除</el-button>
               </div>
             </div>
@@ -169,8 +169,10 @@ export default {
       this.$gotoid('/insideInfo/insideInfoDetail', JSON.stringify({ id: id }))
     },
     handleConfirm(item) {
-      this.$alert('信息资源《' + item.title + '》已开放并供大家查阅', '温馨提示', {
-        confirmButtonText: '知道了'
+      this.$update('reptileinfostatus/' + item.id, { status: 1 }).then(response => {
+        this.$alert('信息资源《' + item.artTitle + '》已开放并供大家查阅', '温馨提示', {
+          confirmButtonText: '知道了'
+        })
       })
     },
     handlerMove(item) {
@@ -184,7 +186,7 @@ export default {
         const para = {
           userId: this.curUser.id
         }
-        this.$update('reptileinfo/' + item.id, para).then((response) => {
+        this.$update('reptileinfoenable/' + item.id, para).then((response) => {
           this.$message({
             message: '删除成功',
             type: 'success'
@@ -309,16 +311,16 @@ export default {
     height: 22px;
   }
   .insideInfo .type3 {
-    background-color: #1cd516;
+    background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
   }
   .insideInfo .type1 {
-    background-color: #ffbb11;
+    background-image: linear-gradient(140deg, #40a954 0%, #20e1aa 100%);
   }
   .insideInfo .type2 {
-    background-color: #fd520e;
+    background-image: linear-gradient(140deg, #ff7a04 0%, #fdbc22 100%);
   }
   .insideInfo .type4 {
-    background-color: #7b4d12;
+    background-image: linear-gradient(140deg, #7b4d12 0%, #926840 100%);
   }
   .insideInfo .category1 {
     background-color: #ec808d;

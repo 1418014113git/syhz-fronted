@@ -13,12 +13,12 @@
         <!-- 右侧内容区 -->
         <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
-            <base-info ref="baseInfo" class="marb bg baseInfo" :assistId="assistId" :info="baseInfo" :signBtnVisibleH="signBtnVisibleH"></base-info>
+            <base-info ref="baseInfo" class="marb bg baseInfo" :assistId="assistId" :info="baseInfo" :signBtnVisibleH="signBtnVisibleH" :evaluateBtnVisibleH="evaluateBtnVisibleH"></base-info>
             <verify-info class="marb bg auditInfo" :assistId="assistId" :info="baseInfo"></verify-info>
             <SignCom class="marb bg signInfo" :assistId="assistId" :info="baseInfo" :showType="1" @setSignBtnVisibleH="setSignBtnVisibleH"></SignCom>
-            <FeedBackCom class="marb bg feedbackInfo" :assistId="assistId" :info="baseInfo" :showType="1"></FeedBackCom>
+            <FeedBackCom class="marb bg feedbackInfo" :assistId="assistId" :info="baseInfo" :showType="1" @setEvaluateBtnVisibleH="setEvaluateBtnVisibleH"></FeedBackCom>
             <SignCom v-if="areaVisible" class="marb bg signInfo_area" :assistId="assistId" :info="baseInfo" :showType="2" @setSignBtnVisibleH="setSignBtnVisibleH"></SignCom>
-            <FeedBackCom v-if="areaVisible" class="marb bg feedbackInfo_area" :assistId="assistId" :info="baseInfo" :showType="2"></FeedBackCom>
+            <FeedBackCom v-if="areaVisible" class="marb bg feedbackInfo_area" :assistId="assistId" :info="baseInfo" :showType="2" @setEvaluateBtnVisibleH="setEvaluateBtnVisibleH"></FeedBackCom>
           </div>
         </el-col>
       </el-row>
@@ -43,8 +43,10 @@
         curDept: JSON.parse(sessionStorage.getItem('depToken'))[0],
         assistId: sessionStorage.getItem(this.$route.path),
         baseInfo: {},
+        systemTime: null,
         areaVisible: false,
-        signBtnVisibleH: true
+        signBtnVisibleH: true,
+        evaluateBtnVisibleH: true
       }
     },
     components: {
@@ -56,7 +58,9 @@
     },
     computed: {
       getIstotop() {
-        return this.$store.state.app.personeltotop
+        if (this.$store.state.app.personeltotop) {
+          return this.$store.state.app.personeltotop
+        }
       },
       getUserIcons() {
         return this.$store.state.app.istotop
@@ -77,6 +81,9 @@
       setSignBtnVisibleH(val) {
         this.signBtnVisibleH = val
       },
+      setEvaluateBtnVisibleH(val) {
+        this.evaluateBtnVisibleH = val
+      },
       detail() { // 查询详情
         this.$query('caseAssist/' + this.assistId, {}).then((response) => {
           this.baseInfo = response.data
@@ -85,14 +92,23 @@
           } else {
             this.baseInfo.attachment = []
           }
+          this.baseInfo.systemTime = this.systemTime
           this.$refs.baseInfo.setBaseInfo(this.baseInfo)
         }).catch(() => {
         })
       },
+      getSysTime() {
+        this.$query('knowledge/queryTime').then(response => {
+          this.systemTime = response.data
+          this.detail()
+        })
+      },
       jump(val) {
-        if (document.querySelector('.' + val)) {
-          const total = document.querySelector('.' + val).offsetTop
-          $('.rightCont').animate({ scrollTop: total }, 0)
+        if (val !== undefined && val !== '') {
+          if (document.querySelector('.' + val)) {
+            const total = document.querySelector('.' + val).offsetTop
+            $('.rightCont').animate({ scrollTop: total }, 0)
+          }
         }
       },
       toback() {
@@ -129,7 +145,7 @@
         this.classList.push('signInfo_area')
         this.classList.push('feedbackInfo_area')
       }
-      this.detail()
+      this.getSysTime()
     }
   }
 </script>

@@ -69,7 +69,7 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="案件编号：" prop="">
-            <span class="whiteColor">{{baseInfo.AJBH}}</span>
+            <span class="whiteColor" @click="toCase()" style="text-decoration: underline; cursor: pointer">{{baseInfo.AJBH}}</span>
           </el-form-item>
           <el-form-item label="案件类型：" prop="">
             <span class="whiteColor">{{baseInfo.SYH_AJLB_NAME}}</span>
@@ -80,7 +80,7 @@
             <span v-if="baseInfo.AJLB_NAME">{{baseInfo.AJLB_NAME}}</span>
           </el-form-item>
           <el-form-item label="发案部位：" prop="">
-            <span class="whiteColor">{{baseInfo.FABW}}</span>
+            <span class="whiteColor">{{baseInfo.FABW_NAME}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -111,7 +111,7 @@ import {
 } from '@/utils/codetotext'
 
 export default {
-  props: ['assistId', 'info', 'signBtnVisibleH'],
+  props: ['assistId', 'info', 'signBtnVisibleH', 'evaluateBtnVisibleH'],
   name: 'baseInfo',
   data() {
     return {
@@ -146,11 +146,19 @@ export default {
   watch: {
     'signBtnVisibleH': function(val) {
       this.signBtnVisible = val
+    },
+    'evaluateBtnVisibleH': function(val) {
+      this.evaluateBtnVisible = val
     }
   },
   methods: {
+    toCase() {
+      this.$router.push({ path: '/caseFile/index', query: { id: this.baseInfo.id }})
+    },
     setBaseInfo(baseInfo) {
       this.baseInfo = baseInfo
+      const curDate = new Date(this.baseInfo.systemTime)
+      const startDate = new Date(this.baseInfo.startDate)
       if ((String(this.baseInfo.status) === '1' || String(this.baseInfo.status) === '2') && String(this.baseInfo.category) === '2') {
         if (String(this.baseInfo.status) === '2' && this.curDept.depType === '2') {
           this.auditBtnVisible = false
@@ -165,7 +173,7 @@ export default {
           this.applyBtnVisible = true
         }
       }
-      if (String(this.baseInfo.status) === '5' || String(this.baseInfo.status) === '8') {
+      if ((String(this.baseInfo.status) === '5' || String(this.baseInfo.status) === '8') && curDate > startDate) {
         if (String(this.curDept.depType) === '2') {
           this.clueDistributeBtnVisible = true
           this.clueFeedbackBtnVisible = true
@@ -173,23 +181,31 @@ export default {
         if (String(this.curDept.depType) === '3') {
           this.clueFeedbackBtnVisible = true
         }
-        if (String(this.baseInfo.category) === '2') {
-          if (this.baseInfo.auditDeptCode === this.curDept.depCode) {
-            this.evaluateBtnVisible = true
-          }
-        }
-        if (String(this.baseInfo.category) === '3') {
-          if (this.baseInfo.applyDeptCode === this.curDept.depCode) {
-            this.evaluateBtnVisible = true
-          }
-        }
+        // if (String(this.baseInfo.category) === '2') {
+        //   if (this.baseInfo.auditDeptCode === this.curDept.depCode) {
+        //     this.evaluateBtnVisible = this.evaluateBtnVisibleH
+        //   }
+        // }
+        // if (String(this.baseInfo.category) === '3') {
+        //   if (this.baseInfo.applyDeptCode === this.curDept.depCode) {
+        //     this.evaluateBtnVisible = this.evaluateBtnVisibleH
+        //   }
+        // }
+      }
+      if ((String(this.curDept.depType) === '1' || (String(this.curDept.depType) === '2' && this.curDept.areaCode !== '611400' && this.curDept.areaCode !== '616200'))) {
+        this.evaluateBtnVisible = this.evaluateBtnVisibleH
       }
       if (String(this.baseInfo.status) === '4') {
         this.signBtnVisible = this.signBtnVisibleH
       }
     },
     evaluate() { // 综合评价
-      this.$store.dispatch('Personeltotop', 'feedbackInfo')
+      if (this.curDept.depType === '1') {
+        this.$store.dispatch('Personeltotop', 'feedbackInfo')
+      }
+      if (this.curDept.depType === '2') {
+        this.$store.dispatch('Personeltotop', 'feedbackInfo_area')
+      }
     },
     reApply() { // 重新申请
       this.$router.push({ path: '/caseAssist/edit', query: { type: 'reApply', category: '2', id: this.assistId }})
