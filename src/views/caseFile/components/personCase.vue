@@ -35,7 +35,7 @@
                     <el-form-item label="文化程度">
                       <span class="writText">{{scope.row.bean.whcdMc}}</span>
                     </el-form-item>
-                    <card-com v-if="curIndex===scope.$index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com>
+                    <!-- <card-com v-if="curIndex===scope.$index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com> -->
                   </el-col>
                   <el-col :span="12">
                     <el-form-item label="性别">

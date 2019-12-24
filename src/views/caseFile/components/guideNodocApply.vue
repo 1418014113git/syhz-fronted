@@ -1,7 +1,8 @@
 <template>
   <section style="margin-top:12px;">
-    <el-table ref="goodTable" :data="nowsData" v-loading="nowsLoading" max-height="186" class="statisticCollect" style="width:100%;">
-      <el-table-column type="index" label="序号" width="56px"></el-table-column>
+    <!-- <el-table ref="goodTable" :data="nowsData" v-loading="nowsLoading" max-height="186" class="statisticCollect" style="width:100%;"> -->
+    <el-table ref="goodTable" :data="nowsData" v-loading="nowsLoading" class="statisticCollect" style="width:100%;">
+      <el-table-column type="index" label="序号" width="56px"  fixed></el-table-column>
       <el-table-column prop="content" label="申请事由" show-overflow-tooltip min-width="140"></el-table-column>
       <el-table-column prop="deptName" label="申请单位" show-overflow-tooltip min-width="140"></el-table-column>
       <el-table-column prop="userName" label="申请人" show-overflow-tooltip width="120"></el-table-column>

@@ -7,7 +7,7 @@
   </div>
   <div class="bg ajInfo ydzccout">
     <!-- <title-pub :title="title" url=""></title-pub> -->
-     <card-com v-if="gldwCard" class="cardcomajgl" :cardId="curCardId" @close="clickBlank"></card-com>
+    <!-- <card-com v-if="gldwCard" class="cardcomajgl" :cardId="curCardId" @close="clickBlank"></card-com> -->
     <el-tabs class="archiveTab xddw" v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="嫌疑人" name="first">
         <div slot="label">
@@ -47,7 +47,7 @@
               <img v-else src="/static/image/personFile_images/defaultUuser.png">
               <p class="per_name underLine" @click="handleShrDetail(item)">{{item.xm}}</p>
               <p class="link_text"  @click="showTipsC(item.mgsfhm,index,'shr')">{{item.mgsfhm}}</p>
-              <card-com v-if="curIndexshr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com>
+              <!-- <card-com v-if="curIndexshr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com> -->
             </div>
           </div>
           <el-col :span="24" class="toolbar">
@@ -63,8 +63,9 @@
           <p v-else class="no_data_title">案件关联单位</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table ref="companyTable" :data="dwData" class="statisticCollect" v-loading="dwLoading" max-height="186">
-          <el-table-column prop="DWMC" label="单位名称" show-overflow-tooltip></el-table-column>
+        <!-- <el-table ref="companyTable" :data="dwData" class="statisticCollect" v-loading="dwLoading" max-height="186"> -->
+        <el-table ref="companyTable" :data="dwData" class="statisticCollect" v-loading="dwLoading">
+          <el-table-column prop="DWMC" label="单位名称" show-overflow-tooltip  fixed></el-table-column>
           <el-table-column prop="DWXZ_NAME" label="单位性质" show-overflow-tooltip></el-table-column>
           <el-table-column prop="DWLX_NAME" label="单位类型" show-overflow-tooltip></el-table-column>
           <el-table-column prop="XYLB_NAME" label="行业类别" show-overflow-tooltip></el-table-column>
@@ -94,8 +95,9 @@
           <p v-else class="no_data_title">涉案物品</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table ref="goodTable" :data="sawpData" v-loading="sawpLoading" max-height="186">
-          <el-table-column prop="WPBH" label="物品编号"></el-table-column>
+        <!-- <el-table ref="goodTable" :data="sawpData" v-loading="sawpLoading" max-height="186"> -->
+        <el-table ref="goodTable" :data="sawpData" v-loading="sawpLoading">
+          <el-table-column prop="WPBH" label="物品编号" fixed></el-table-column>
           <el-table-column prop="MC" label="物品名称"></el-table-column>
           <el-table-column prop="LX_NAME" label="类型"></el-table-column>
           <el-table-column prop="XZ_NAME" label="性质"></el-table-column>
@@ -120,8 +122,9 @@
           <p v-else class="no_data_title">接收证据清单</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="zjqdData" v-loading="zjqdLoading" max-height="186">
-          <el-table-column label="标题" min-width="10%">
+        <!-- <el-table :data="zjqdData" v-loading="zjqdLoading" max-height="186"> -->
+        <el-table :data="zjqdData" v-loading="zjqdLoading">
+          <el-table-column label="标题" min-width="10%"  fixed>
             <template slot-scope="scope">
               <p :title="scope.row.WSBT" class="ellipsis-word">{{scope.row.WSBT}}&nbsp;</p>
             </template>
