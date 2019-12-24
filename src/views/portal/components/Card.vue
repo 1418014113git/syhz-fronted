@@ -117,10 +117,13 @@ export default {
       const arr = val.substring(1, val.length).split('/')
       if (arr.length > 0) {
         if (arr[0] === 'zhyp') {
-          localStorage.setItem('curAppCode', 'W')
+          localStorage.setItem('curAppCode', 'B') // 案件
         }
         if (arr[0] === 'notice') {
-          localStorage.setItem('curAppCode', 'C')
+          localStorage.setItem('curAppCode', 'C') // 基础业务
+        }
+        if (arr[0] === 'handlingGuide' || arr[0] === 'micro') {
+          localStorage.setItem('curAppCode', 'F') // 教育训练
         }
       }
       if (arr[0] === 'notice') {

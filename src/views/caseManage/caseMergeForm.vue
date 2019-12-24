@@ -150,6 +150,7 @@ export default {
                 this.queryDetailById(response.data.mergeId, 'noEdit')// 查详情
               } else {
                 this.operateType = ''
+                this.headerContent = '等待下级处理'
                 this.queryDetailById(response.data.mergeId, 'noEdit')// 查详情
               }
             } else {
