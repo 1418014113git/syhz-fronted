@@ -464,8 +464,8 @@ export default {
         }
       } else {
         param = {
-          areaCode: '610000', // 传省厅的区域code， 查所有的地市支队
-          curType: '1' // 传总队的类型
+          areaCode: this.curDept.areaCode, // 当前区域code
+          curType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType // 当前部门类型
         }
       }
       this.$query('dept/subordinate', param, 'upms').then((response) => {
