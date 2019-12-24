@@ -60,6 +60,7 @@ export default {
       isShow2: false,
       isShow3: false,
       jqid: '', // 集群id
+      systemTime: '', // 系统时间
       baseInfo: {}
 
     }
@@ -97,6 +98,7 @@ export default {
       this.$query('casecluster/' + id, {}).then((response) => {
         this.jqid = id
         this.baseInfo = response.data
+        this.baseInfo.systemTime = this.systemTime
       }).catch(() => {
       })
     },
@@ -109,6 +111,12 @@ export default {
     toback() {
       // this.$router.back(-1)
       this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
+    },
+    getSysTime(id) { // 获取当前系统时间
+      this.$query('knowledge/queryTime').then(response => {
+        this.systemTime = response.data
+        this.detail(id)
+      })
     },
     // 监听滚动条变化
     handleScroll() {
@@ -133,7 +141,7 @@ export default {
   },
   created() {
     if (this.$route.query.id) {
-      this.detail(this.$route.query.id)
+      this.getSysTime(this.$route.query.id)
     }
   },
   mounted() {
@@ -155,7 +163,7 @@ export default {
   },
   activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
     if (this.$route.query.id) {
-      this.detail(this.$route.query.id)
+      this.getSysTime(this.$route.query.id)
     }
     document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
   }
