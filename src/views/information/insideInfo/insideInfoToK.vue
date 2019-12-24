@@ -232,7 +232,72 @@
                 }
               }
             }
-          ]
+          ],
+          publishOrgName: [
+            {
+              required: false, trigger: 'blur', validator: (rule, value, callback) => {
+                if (value === '' || value === undefined) {
+                  return callback()
+                }
+                // const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
+                if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
+                  callback(new Error('颁布机关不能输入特殊字符'))
+                } else if (value.length > 50) {
+                  callback(new Error('颁布机关长度不能超过 50个字符'))
+                } else {
+                  callback()
+                }
+              }
+            }
+          ],
+          publishCode: [
+            {
+              required: false, trigger: 'blur', validator: (rule, value, callback) => {
+                if (value === '' || value === undefined) {
+                  return callback()
+                }
+                // const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
+                if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
+                  callback(new Error('颁布文号不能输入特殊字符'))
+                } else if (value.length > 50) {
+                  callback(new Error('颁布文号长度不能超过 50个字符'))
+                } else {
+                  callback()
+                }
+              }
+            }
+          ],
+          publishTime: [{
+            required: true, trigger: 'blur', validator: (rule, value, callback) => {
+              if (value === null || value === '') {
+                callback(new Error('请选择颁布日期'))
+              } else if (new Date() < value) {
+                callback(new Error('颁布日期不能大于当前日期'))
+              } else {
+                callback()
+              }
+            }
+          }],
+          effectiveTime: [{
+            required: true, trigger: 'blur', validator: (rule, value, callback) => {
+              if (value === null || value === '') {
+                return callback(new Error('请选择施行日期'))
+              } else if (new Date(this.lawInfo.publishTime) > value) {
+                callback(new Error('施行日期不能小于颁布日期'))
+              } else {
+                callback()
+              }
+              // else if (new Date() < value) {
+              //   callback(new Error('施行日期不能大于当前日期'))
+              // }
+            }
+          }]
         },
         enclosureList: [],
         uploadData: {
@@ -243,7 +308,8 @@
         departInfo: {},
         titleCheckFlag: false,
         nameCheckFlag: true,
-        curUser: {}
+        curUser: {},
+        moveId: ''
       }
     },
     methods: {
@@ -328,11 +394,26 @@
             para.belongAreaCode = para.areaCode
             para.adminFlag = this.$isViewBtn('129405') ? '0' : '1'
             para.moveFlag = 1
-            this.$update('caseinfo/save', para).then(response => {
+            let url = ''
+            if (this.moduleType === '1') {
+              url = 'lawInfo'
+            }
+            if (this.moduleType === '2') {
+              url = 'industryInfo'
+            }
+            if (this.moduleType === '3') {
+              url = 'standardInfo'
+            }
+            if (this.moduleType === '4') {
+              url = 'caseinfo'
+            }
+            this.$update(url + '/save', para).then(response => {
               this.loading = false
-              this.$message({
-                message: '添加成功',
-                type: 'success'
+              this.$update('reptileinfostatus/' + this.moveId, { status: 2 }).then(response => {
+                this.$message({
+                  message: '添加成功',
+                  type: 'success'
+                })
               })
               this.callback()
             }).catch(() => {
@@ -347,24 +428,6 @@
         const para = this.$setCurrentUser({})
         this.$query('parentdepartcode/' + para.belongDepCode, para, true).then(response => {
           this.departInfo = response.data
-        })
-      },
-      getDetail() {
-        this.loading = true
-        this.$query('caseinfo/' + this.id, {}).then(response => {
-          this.loading = false
-          this.lawInfo = response.data
-          this.showSave = (this.lawInfo.draft !== '1' && this.lawInfo.draft !== 1)
-          this.lbChange(this.lawInfo.articleType, '1')
-          for (let i = 0; i < response.data.enclosure.length; i++) {
-            const item = response.data.enclosure[i]
-            this.enclosureList.push({
-              name: item.enName + item.enClass,
-              url: item.enPathOld
-            })
-          }
-        }).catch(() => {
-          this.loading = false
         })
       },
       handleImageAdded(file, Editor, cursorLocation, resetUploader) {
@@ -551,6 +614,7 @@
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
         const para = JSON.parse(sessionStorage.getItem(this.$route.path))
         if (para.moveId) {
+          this.moveId = para.moveId
           this.queryMove(para.moveId)
           this.moduleType = para.moduleType
           this.filters = para.filters
