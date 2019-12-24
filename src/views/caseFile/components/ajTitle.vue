@@ -184,10 +184,10 @@ export default {
   },
   activated() {
     this.showAjbhCom = false
-    // this.handleBusOnEvent() // 顶部按钮的显隐判断
+    this.handleBusOnEvent() // 顶部按钮的显隐判断
   },
   created() {
-    // this.handleBusOnEvent() // 顶部按钮的显隐判断
+    this.handleBusOnEvent() // 顶部按钮的显隐判断
   }
 }
 </script>
