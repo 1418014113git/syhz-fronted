@@ -170,12 +170,14 @@ export default {
   },
   methods: {
     enableScore(row) {
-      const curDate = new Date()
+      const curDate = new Date(this.info.systemTime)
       const endDate = new Date(this.info.endDate)
-      return (curDate > endDate) && row.parentCode === this.curDept.depCode
+      return (row.hcl === 100 || curDate > endDate) && row.parentCode === this.curDept.depCode
     },
     enableDistributeClue(row) {
-      if ((String(this.info.status) === '5' || String(this.info.status) === '8')) {
+      const curDate = new Date(this.info.systemTime)
+      const startDate = new Date(this.info.startDate)
+      if ((String(this.info.status) === '5' || String(this.info.status) === '8') && (curDate > startDate)) {
         if (row.cityCode !== '611400') {
           if (row.deptCode === this.curDept.depCode) {
             if (parseInt(row.parentType) <= 2) {
@@ -187,13 +189,17 @@ export default {
       return false
     },
     enableFeedBack(row) {
-      if ((String(this.info.status) === '5' || String(this.info.status) === '8')) {
-        if (row.deptCode === this.curDept.depCode) {
-          return true
-        }
-        if (this.curDept.depType === '4') {
-          if (row.deptCode === this.curDept.parentDepCode) {
+      const curDate = new Date(this.info.systemTime)
+      const startDate = new Date(this.info.startDate)
+      if (curDate > startDate) {
+        if ((String(this.info.status) === '5' || String(this.info.status) === '8')) {
+          if (row.deptCode === this.curDept.depCode) {
             return true
+          }
+          if (this.curDept.depType === '4') {
+            if (row.deptCode === this.curDept.parentDepCode) {
+              return true
+            }
           }
         }
       }

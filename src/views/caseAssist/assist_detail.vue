@@ -43,6 +43,7 @@
         curDept: JSON.parse(sessionStorage.getItem('depToken'))[0],
         assistId: sessionStorage.getItem(this.$route.path),
         baseInfo: {},
+        systemTime: null,
         areaVisible: false,
         signBtnVisibleH: true
       }
@@ -85,8 +86,15 @@
           } else {
             this.baseInfo.attachment = []
           }
+          this.baseInfo.systemTime = this.systemTime
           this.$refs.baseInfo.setBaseInfo(this.baseInfo)
         }).catch(() => {
+        })
+      },
+      getSysTime() {
+        this.$query('knowledge/queryTime').then(response => {
+          this.systemTime = response.data
+          this.detail()
         })
       },
       jump(val) {
@@ -129,7 +137,7 @@
         this.classList.push('signInfo_area')
         this.classList.push('feedbackInfo_area')
       }
-      this.detail()
+      this.getSysTime()
     }
   }
 </script>
