@@ -13,7 +13,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" size="small" v-on:click="search(true)" v-if="$isViewBtn('103001')">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="search(true)">查询</el-button>
         <el-button type="primary" size="small" v-on:click="resetSearch(true)">重置</el-button>
       </el-form-item>
     </el-form>

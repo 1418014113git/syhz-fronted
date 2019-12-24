@@ -90,10 +90,10 @@
         </el-form-item>
         <!-- $isViewBtn('100701') -->
         <el-form-item>
-          <el-button type="primary" size="small" v-on:click="getCaseMerge(true,true)">查询</el-button>
+          <el-button type="primary" size="small" v-on:click="getCaseMerge(true,true)" v-if="$isViewBtn('103201')">查询</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="small" v-on:click="reset()">重置</el-button>
+          <el-button type="primary" size="small" v-on:click="reset()" v-if="$isViewBtn('103201')">重置</el-button>
         </el-form-item>
       </el-form>
     </el-col>

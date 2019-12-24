@@ -339,11 +339,11 @@ export default {
     },
     init() {
       if (this.AJBH) {
-        this.handleQgxxc(true) // 集群战役
-        this.handleAjxc(true) // 案件协查
+        // this.handleQgxxc(true) // 集群战役 12.24先注释掉此部分
+        // this.handleAjxc(true) // 案件协查
         this.handleAjdb(true) // 案件督办
-        this.handleZxrw(true) // 专项任务
-        this.handleJyjd(true) // 检验鉴定
+        // this.handleZxrw(true) // 专项任务
+        // this.handleJyjd(true) // 检验鉴定
         this.handleAjrl(true) // 案件认领
       }
       Bus.$on('bqType', (data) => { // 定位到对应的标签项
@@ -418,17 +418,32 @@ export default {
       })
     },
     controlBtn(str, type, data) { // 遍历列表信息，控制详情页上方的协查按钮显隐
-      Bus.$emit(str, false)
-      if (data.length > 0) {
-        data.forEach(item => {
-          if (type === 'jq' || type === 'xc') { // 集群，协查
+      if (type === 'jq' || type === 'xc') { // 集群，协查
+        Bus.$emit(str, false)
+        if (data.length > 0) {
+          data.forEach(item => {
             if (item.status && Number(item.status) >= 4) { // 审核通过之后，
               Bus.$emit(str, true)
             }
-          } else { // 督办   isShowbdbtn：部督，isShowtdbtn：厅督，isShowsdbtn：市督，
-
-          }
-        })
+          })
+        }
+      } else { // 督办   isShowbdbtn：部督，isShowtdbtn：厅督，isShowsdbtn：市督，
+        Bus.$emit('isShowbdbtn', false)
+        Bus.$emit('isShowtdbtn', false)
+        Bus.$emit('isShowsdbtn', false)
+        if (data.length > 0) {
+          data.forEach(item => {
+            if (item.dbStatus > 4 && item.dbLevel === 1) { // 部督
+              Bus.$emit('isShowbdbtn', true)
+            }
+            if (item.dbStatus > 4 && item.dbLevel === 2) { // 厅督
+              Bus.$emit('isShowtdbtn', true)
+            }
+            if (item.dbStatus > 4 && item.dbLevel === 3) { // 市督
+              Bus.$emit('isShowsdbtn', true)
+            }
+          })
+        }
       }
     },
     handleAjdb(flag) { // 案件督办

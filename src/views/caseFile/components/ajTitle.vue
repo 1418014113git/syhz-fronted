@@ -82,22 +82,25 @@ export default {
         this.loading = true
         this.ajInfo = this.AjInfo
         this.dealWithData() // 处理案件类型数据，添加颜色背景
-        Bus.$on('isShowjqbtn', (data) => { // 集群按钮
-          this.contorlBtn('集群', data)
-        })
-        Bus.$on('isShowxcbtn', (data) => { // 协查按钮
-          this.contorlBtn('协查', data)
-        })
-        Bus.$on('isShowbdbtn', (data) => { // 部督按钮
-          this.contorlBtn('部督', data)
-        })
-        Bus.$on('isShowtdbtn', (data) => { // 厅督按钮
-          this.contorlBtn('厅督', data)
-        })
-        Bus.$on('isShowsdbtn', (data) => { // 市督按钮
-          this.contorlBtn('市督', data)
-        })
+        this.handleBusOnEvent() // 顶部按钮的显隐判断
       }
+    },
+    handleBusOnEvent() {
+      Bus.$on('isShowjqbtn', (data) => { // 集群按钮
+        this.contorlBtn('集群', data)
+      })
+      Bus.$on('isShowxcbtn', (data) => { // 协查按钮
+        this.contorlBtn('协查', data)
+      })
+      Bus.$on('isShowbdbtn', (data) => { // 部督按钮
+        this.contorlBtn('部督', data)
+      })
+      Bus.$on('isShowtdbtn', (data) => { // 厅督按钮
+        this.contorlBtn('厅督', data)
+      })
+      Bus.$on('isShowsdbtn', (data) => { // 市督按钮
+        this.contorlBtn('市督', data)
+      })
     },
     contorlBtn(name, data) { // 控制当前按钮显隐
       this.bqList.forEach(item => {
@@ -181,6 +184,10 @@ export default {
   },
   activated() {
     this.showAjbhCom = false
+    this.handleBusOnEvent() // 顶部按钮的显隐判断
+  },
+  created() {
+    this.handleBusOnEvent() // 顶部按钮的显隐判断
   }
 }
 </script>
@@ -218,13 +225,13 @@ export default {
       }
     }
   }
-   .btnStyle {
+  .btnStyle {
     margin-left: 10px;
     color: #fff;
     font-size: 15px;
     padding: 2px 12px;
     text-shadow: 0 0 1px #000;
-    border-radius:10px;
+    border-radius: 10px;
     background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
     cursor: pointer;
   }
