@@ -192,7 +192,9 @@ export default {
         //   }
         // }
       }
-      this.evaluateBtnVisible = this.evaluateBtnVisibleH
+      if ((String(this.curDept.depType) === '1' || (String(this.curDept.depType) === '2' && this.curDept.areaCode !== '611400' && this.curDept.areaCode !== '616200'))) {
+        this.evaluateBtnVisible = this.evaluateBtnVisibleH
+      }
       if (String(this.baseInfo.status) === '4') {
         this.signBtnVisible = this.signBtnVisibleH
       }
