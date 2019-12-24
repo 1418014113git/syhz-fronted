@@ -433,13 +433,13 @@ export default {
         Bus.$emit('isShowsdbtn', false)
         if (data.length > 0) {
           data.forEach(item => {
-            if (item.dbStatus > 4 && item.dbLevel === 1) { // 部督
+            if ((item.dbStatus === 3 || item.dbStatus > 4) && item.dbLevel === 1) { // 部督
               Bus.$emit('isShowbdbtn', true)
             }
-            if (item.dbStatus > 4 && item.dbLevel === 2) { // 厅督
+            if ((item.dbStatus === 3 || item.dbStatus > 4) && item.dbLevel === 2) { // 厅督
               Bus.$emit('isShowtdbtn', true)
             }
-            if (item.dbStatus > 4 && item.dbLevel === 3) { // 市督
+            if ((item.dbStatus === 3 || item.dbStatus > 4) && item.dbLevel === 3) { // 市督
               Bus.$emit('isShowsdbtn', true)
             }
           })
