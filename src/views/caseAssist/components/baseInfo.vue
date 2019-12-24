@@ -111,7 +111,7 @@ import {
 } from '@/utils/codetotext'
 
 export default {
-  props: ['assistId', 'info', 'signBtnVisibleH'],
+  props: ['assistId', 'info', 'signBtnVisibleH', 'evaluateBtnVisibleH'],
   name: 'baseInfo',
   data() {
     return {
@@ -146,6 +146,9 @@ export default {
   watch: {
     'signBtnVisibleH': function(val) {
       this.signBtnVisible = val
+    },
+    'evaluateBtnVisibleH': function(val) {
+      this.evaluateBtnVisible = val
     }
   },
   methods: {
@@ -178,23 +181,31 @@ export default {
         if (String(this.curDept.depType) === '3') {
           this.clueFeedbackBtnVisible = true
         }
-        if (String(this.baseInfo.category) === '2') {
-          if (this.baseInfo.auditDeptCode === this.curDept.depCode) {
-            this.evaluateBtnVisible = true
-          }
-        }
-        if (String(this.baseInfo.category) === '3') {
-          if (this.baseInfo.applyDeptCode === this.curDept.depCode) {
-            this.evaluateBtnVisible = true
-          }
-        }
+        // if (String(this.baseInfo.category) === '2') {
+        //   if (this.baseInfo.auditDeptCode === this.curDept.depCode) {
+        //     this.evaluateBtnVisible = this.evaluateBtnVisibleH
+        //   }
+        // }
+        // if (String(this.baseInfo.category) === '3') {
+        //   if (this.baseInfo.applyDeptCode === this.curDept.depCode) {
+        //     this.evaluateBtnVisible = this.evaluateBtnVisibleH
+        //   }
+        // }
+      }
+      if ((String(this.curDept.depType) === '1' || (String(this.curDept.depType) === '2' && this.curDept.areaCode !== '611400' && this.curDept.areaCode !== '616200'))) {
+        this.evaluateBtnVisible = this.evaluateBtnVisibleH
       }
       if (String(this.baseInfo.status) === '4') {
         this.signBtnVisible = this.signBtnVisibleH
       }
     },
     evaluate() { // 综合评价
-      this.$store.dispatch('Personeltotop', 'feedbackInfo')
+      if (this.curDept.depType === '1') {
+        this.$store.dispatch('Personeltotop', 'feedbackInfo')
+      }
+      if (this.curDept.depType === '2') {
+        this.$store.dispatch('Personeltotop', 'feedbackInfo_area')
+      }
     },
     reApply() { // 重新申请
       this.$router.push({ path: '/caseAssist/edit', query: { type: 'reApply', category: '2', id: this.assistId }})
