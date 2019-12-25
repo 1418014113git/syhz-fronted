@@ -161,12 +161,12 @@ export default {
           if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 地市
             this.$resetSetItem('assistT2', this.total) // 将总数存在session中
           } else if (this.curDept.depType === '3') { // 区县
-            this.$resetSetItem('assistT4', this.total) // 将总数存在session中
+            this.$resetSetItem('assistT2', this.total) // 将总数存在session中
           } else if (this.curDept.depType === '4') {
             if (this.curDept.areaCode === '611400') {
               this.$resetSetItem('assistT2', this.total) // 将总数存在session中
             } else {
-              this.$resetSetItem('assistT4', this.total) // 将总数存在session中
+              this.$resetSetItem('assistT2', this.total) // 将总数存在session中
             }
           }
         } else {
@@ -213,6 +213,7 @@ export default {
         type: '',
         assistType: '1',
         deptCode: '',
+        receiveDate: row.createDate,
         cityCode: row.receiveDeptCode.substring(0, 6)
       }
       if (this.curDept.depType === '3' || String(this.showType) !== '1') {
@@ -231,9 +232,11 @@ export default {
       this.$update('caseAssist/signup', param).then((response) => {
         this.$alert('请尽快反馈线索核查情况', '签收成功', {
           type: 'success',
-          confirmButtonText: '知道了'
+          confirmButtonText: '知道了',
+          callback: action => {
+            location.reload()
+          }
         })
-        this.query(true)
       }).catch(() => {
 
       })

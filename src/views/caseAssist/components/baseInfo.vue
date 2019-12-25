@@ -49,6 +49,7 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="正文：" prop="">
+            <!--<vue-editor ref="child" v-model="baseInfo.assistContent" disabled></vue-editor>-->
             <span v-html="baseInfo.assistContent"></span>
           </el-form-item>
           <el-form-item label="附件：" prop="">
@@ -85,7 +86,7 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="简要案情：" prop="">
-            <span v-html="baseInfo.JYAQ"></span>
+            <span v-html="getReplace(baseInfo.JYAQ)"></span>
           </el-form-item>
         </el-col>
       </el-form>
@@ -104,6 +105,7 @@
 </template>
 
 <script>
+import VueEditor from '@/components/Editor/VueEditor'
 import auditCom from './auditCom' // 审核弹框dialogBtnUpLine
 import distributeClue from './distributeClue' // 分发线索
 import {
@@ -133,7 +135,8 @@ export default {
   },
   components: {
     auditCom,
-    distributeClue
+    distributeClue,
+    VueEditor
   },
   filters: {
     formatDate(value) {
@@ -152,6 +155,12 @@ export default {
     }
   },
   methods: {
+    getReplace(data) {
+      if (data) {
+        var item = data.split('/r/n').join('\r\n')
+        return item
+      }
+    },
     toCase() {
       this.$router.push({ path: '/caseFile/index', query: { id: this.baseInfo.id }})
     },
@@ -319,6 +328,15 @@ export default {
   }
   .caseAssist_baseInfo .auditForm .el-form{
     padding: 10px 20px;
+  }
+  .caseAssist_baseInfo .quillWrapper{
+    background: none;
+  }
+  .caseAssist_baseInfo .quillWrapper .ql-snow.ql-toolbar {
+    display: none;
+  }
+  .caseAssist_baseInfo .ql-container.ql-snow.ql-disabled{
+    border: none !important;
   }
   @media only screen and (max-width: 1367px) {
     .caseAssist_baseInfo .ffxsForm .el-dialog {

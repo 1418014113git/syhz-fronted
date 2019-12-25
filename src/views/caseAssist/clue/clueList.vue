@@ -17,10 +17,13 @@
         <el-form-item label="地址">
           <el-input v-model="filters.address" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
+        <el-form-item label="下发日期">
+          <el-date-picker v-model="filters.time" type="daterange" value-format="yyyy-MM-dd" start-placeholder="开始日期" end-placeholder="截止日期"></el-date-picker>
+        </el-form-item>
       </el-col>
       <el-col :span="24" style="padding-bottom: 0;">
         <el-form-item label="协查情况">
-          <el-select  v-model="filters.qbxsResult" size="small" placeholder="全部" clearable>
+          <el-select  v-model="filters.qbxsResult" size="small" multiple placeholder="全部" clearable>
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('qbxsfkzt')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
@@ -50,6 +53,7 @@
             <span v-else>-</span>
           </template>
         </el-table-column>
+        <el-table-column prop="receiveDate"  label='下发日期'  min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
           <template slot-scope="scope">
             <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
@@ -115,10 +119,11 @@ export default {
       filters: {
         area: [],
         department: [],
+        time: [],
         assistId: '', // 集群id
         address: '', // 地址
         departName: '', // 接收单位
-        qbxsResult: '', // 协查情况
+        qbxsResult: [], // 协查情况
         serialNumber: '', // 序号
         qbxsCategory: '' // 分类
       },
@@ -201,9 +206,13 @@ export default {
       }
       if (this.$route.query.id) {
         this.filters.assistId = this.$route.query.id
-        this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type : '' // 核查情况
+        this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type.split(',') : '' // 核查情况
         this.paramFilter.cityCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 地市
         this.paramFilter.deptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 接收部门
+        if (this.$route.query.receiveDate) {
+          const date = new Date(this.$route.query.receiveDate)
+          this.filters.time = [date, date]
+        }
       }
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
@@ -356,7 +365,7 @@ export default {
       this.page = flag ? 1 : this.page
       const para = {
         address: this.filters.address, // 地址
-        qbxsResult: this.filters.qbxsResult, // 协查情况
+        qbxsResult: this.filters.qbxsResult.length > 0 ? this.filters.qbxsResult.join(',') : '', // 协查情况
         serialNumber: this.filters.serialNumber, //  序号
         qbxsCategory: this.filters.qbxsCategory, // 分类
         pageNum: this.page, // 页数
@@ -364,6 +373,10 @@ export default {
         assistId: this.filters.assistId,
         assistType: this.$route.query.assistType,
         showType: this.showType
+      }
+      if (this.filters.time !== undefined && this.filters.time !== null && this.filters.time.length > 1) {
+        para.startTime = this.filters.time[0] ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : ''
+        para.endTime = this.filters.time[1] ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : ''
       }
       para.deptCode = this.filters.department.length > 0 ? this.filters.department[this.filters.department.length - 1] : ''
       para.provinceCode = this.filters.area[0] ? this.filters.area[0] : ''
@@ -419,6 +432,8 @@ export default {
       this.filters = {
         area: this.initArea,
         department: this.initDepartment,
+        qbxsResult: [],
+        time: [],
         assistId: this.$route.query.id,
         address: '', // 地址
         departName: '', // 接收单位
