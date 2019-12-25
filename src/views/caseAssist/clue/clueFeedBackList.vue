@@ -196,7 +196,7 @@
         this.query(true, true)
       },
       handleDetail(index, row) { // 详情
-        if (String(row.signStatus) !== '2') {
+        if (String(row.signStatus) !== '2' || !row.fbId) {
           this.$alert('该线索还未签收，请先前往详情页进行签收。', '提示', {
             type: 'warning',
             confirmButtonText: '确定',
