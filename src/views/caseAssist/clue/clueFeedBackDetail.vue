@@ -47,7 +47,7 @@
             <el-table-column prop="ajmc"  label='案件名称'  min-width="120" show-overflow-tooltip></el-table-column>
             <el-table-column prop="ajbh"  label='案件编号'  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <a class="linkColor" @click="toAjDetail(scope.row.ajId)">{{scope.row.ajbh}}</a>
+                <a class="linkColor" @click="toAjDetail(scope.row.id)">{{scope.row.ajbh}}</a>
               </template>
             </el-table-column>
             <el-table-column prop="ajztName"  label='案件状态'  min-width="100" show-overflow-tooltip></el-table-column>
@@ -312,6 +312,7 @@
 
       },
       toAjDetail(id) { // 跳转案件档案
+        this.$emit('closeDialog')
         this.$router.push({
           path: '/caseFile/index', query: { id: id }
         })
@@ -504,7 +505,7 @@
               setTimeout(function() {
                 _this.formLoading = false
                 _this.saveBtnLoading = false
-                _this.$emit('closeDialog')
+                _this.$emit('closeDialog', true)
               }, 2000)
             }).catch(() => {
               this.formLoading = false
@@ -520,7 +521,7 @@
         this.$confirm('确认要放弃操作吗?', '提示', {
           type: 'warning'
         }).then(() => {
-          this.$emit('closeDialog')
+          this.$emit('closeDialog', true)
         })
       },
       caseVisible(flag) {

@@ -170,9 +170,12 @@ export default {
   },
   methods: {
     enableScore(row) {
-      const curDate = new Date(this.info.systemTime)
-      const endDate = new Date(this.info.endDate)
-      return (String(row.hcl) === '100' || String(row.hcl) === '100.00' || curDate > endDate) && row.parentCode === this.curDept.depCode
+      if (parseInt(this.info.status) > 4) {
+        const curDate = new Date(this.info.systemTime)
+        const endDate = new Date(this.info.endDate)
+        return (String(row.hcl) === '100' || String(row.hcl) === '100.00' || curDate > endDate) && row.parentCode === this.curDept.depCode
+      }
+      return false
     },
     enableDistributeClue(row) {
       const curDate = new Date(this.info.systemTime)
@@ -352,7 +355,7 @@ export default {
     },
     handleDistributeClue(index, row) { // 线索分发
       if (String(row.signStatus) !== '2') {
-        this.$alert('该线索还未签收，请先前进行签收。', '提示', {
+        this.$alert('该线索还未签收，请先进行签收。', '提示', {
           type: 'warning',
           confirmButtonText: '确定'
         })
@@ -365,7 +368,7 @@ export default {
     },
     handleFeedBack(index, row) { // 线索反馈
       if (String(row.signStatus) !== '2') {
-        this.$alert('该线索还未签收，请先前进行签收。', '提示', {
+        this.$alert('该线索还未签收，请先进行签收。', '提示', {
           type: 'warning',
           confirmButtonText: '确定'
         })
