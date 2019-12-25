@@ -91,7 +91,7 @@
         </el-table-column>
         <el-table-column label="操作"  width="100" fixed="right">
           <template slot-scope="scope">
-            <el-button size="mini" title="取消分发"  type="primary" circle  @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
+            <el-button size="mini" title="取消分发"  type="primary" circle  v-if="scope.row.qbxsDistribute === 2 && getDeptType(scope.row.receiveCode)" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
             <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='edit' && pageSource!=='detail'"  @click="handleDel(scope.$index,scope.row)"></el-button>
           </template>
         </el-table-column>
@@ -154,6 +154,7 @@ export default {
       handler: function(val, oldeval) {
         if (val) {
           setTimeout(() => {
+            this.getParam()
             this.query(true)
           }, 500)
         }
@@ -168,10 +169,7 @@ export default {
       handler: function(val, oldeval) {
         if (val) {
           this.filters.qbxsDistribute = val + ''
-        } else {
-          this.filters.qbxsDistribute = ''
         }
-        // this.query(true)
       }
     },
     jsdw: {
@@ -179,14 +177,12 @@ export default {
         if (val) {
           this.filters.receiveName = val
         }
-        // this.query(true)
       }
     },
     xcstatus: { // 协查状态
       handler: function(val, oldeval) {
         if (val) {
           this.xichastatus = val + ''
-          // this.query(true)
         }
       }
     }
@@ -518,36 +514,54 @@ export default {
       this.$alert(text, '内容', {
         confirmButtonText: '关闭'
       })
+    },
+    getDeptType(deptCode) { // 获取当前行的部门类型
+      if (this.pageSource === 'detail') { // 从详情页点'线索分发'进来的
+        const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+        for (let i = 0; i < deptArr.length; i++) {
+          const item = deptArr[i]
+          if (item.depCode === deptCode) {
+            if (item.depType === '2') { // 支队
+              return false
+            } else {
+              return true
+            }
+          }
+        }
+      } else {
+        return true
+      }
+    },
+    getParam() {
+      console.log('获取参数')
+      if (this.id) {
+        this.assistId = this.id
+      }
+      if (this.source) {
+        this.pageSource = this.source
+      }
+      if (this.curDept.depType === '4') { // 派出所
+        this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
+      } else {
+        this.queryCubordinate() // 查接收单位
+      }
+      if (this.fastatus) { // 分发状态
+        this.filters.qbxsDistribute = this.fastatus
+      }
+      if (this.jsdw) { // 接收单位
+        this.filters.receiveName = this.jsdw
+      }
+      if (this.xcstatus) {
+        this.xichastatus = this.xcstatus
+      }
     }
   },
   mounted() {
-    this.clearData()
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    if (this.id) {
-      this.assistId = this.id
-    }
-    if (this.source) {
-      this.pageSource = this.source
-    }
-    if (this.curDept.depType === '4') { // 派出所
-      this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
-    } else {
-      this.queryCubordinate() // 查接收单位
-    }
-    if (this.fastatus) { // 分发状态
-      this.filters.qbxsDistribute = this.fastatus
-      // this.filters.receiveName = ''
-    }
-    if (this.jsdw) { // 接收单位
-      this.filters.receiveName = this.jsdw
-      // this.filters.qbxsDistribute = ''
-    }
-    if (this.xcstatus) {
-      this.xichastatus = this.xcstatus
-    }
+    this.getParam()
     this.query(true)
   },
   activated() {
