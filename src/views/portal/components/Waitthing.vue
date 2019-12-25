@@ -283,7 +283,7 @@ export default {
     },
     getSignCount() { // 签收待办
       const para = {
-        noticeOrgId: this.currentDep.id,
+        noticeOrgId: this.currentDep.depCode, // 12 25改为code
         status: 1
       }
       getSignCount(para).then((response) => {
