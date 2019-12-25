@@ -161,12 +161,12 @@ export default {
           if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 地市
             this.$resetSetItem('assistT2', this.total) // 将总数存在session中
           } else if (this.curDept.depType === '3') { // 区县
-            this.$resetSetItem('assistT4', this.total) // 将总数存在session中
+            this.$resetSetItem('assistT2', this.total) // 将总数存在session中
           } else if (this.curDept.depType === '4') {
             if (this.curDept.areaCode === '611400') {
               this.$resetSetItem('assistT2', this.total) // 将总数存在session中
             } else {
-              this.$resetSetItem('assistT4', this.total) // 将总数存在session中
+              this.$resetSetItem('assistT2', this.total) // 将总数存在session中
             }
           }
         } else {
