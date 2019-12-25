@@ -86,7 +86,7 @@
         </el-table-column>
         <el-table-column label="操作" align="center" width="100" fixed="right">
           <template slot-scope="scope">
-            <el-button size="mini" title="取消分发"  type="primary" circle v-if="scope.row.qbxsDistribute === 2" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
+            <el-button size="mini" title="取消分发"  type="primary" circle v-if="enable(scope.row)" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
             <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='detail'"  @click="handleDel(scope.$index,scope.row)"></el-button>
           </template>
         </el-table-column>
@@ -151,6 +151,29 @@ export default {
     }
   },
   methods: {
+    enable(row) {
+      if (row.qbxsDistribute === 2) {
+        if (this.pageSource === 'detail') {
+          const dept = this.findParentDept(row.receiveCode)
+          if (dept.depType === '2') {
+            return false
+          }
+          return true
+        } else {
+          return true
+        }
+      }
+      return false
+    },
+    findParentDept(paramCode) {
+      const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+      for (let i = 0; i < deptArr.length; i++) {
+        const item = deptArr[i]
+        if (item.depCode === paramCode) {
+          return item
+        }
+      }
+    },
     query(flag, hand) { // 列表数据查询
       this.listLoading = true
       this.page = flag ? 1 : this.page
@@ -323,6 +346,7 @@ export default {
           this.deptCode = ''
           this.query(true)
           this.$emit('result', response.data)
+          this.$emit('closeDialog', true)
         }).catch(() => { // 完成分发
           this.checkId = []
           this.xsNum = 0
