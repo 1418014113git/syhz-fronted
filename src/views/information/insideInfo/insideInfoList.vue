@@ -11,9 +11,7 @@
       </el-form-item>
       <el-form-item label="信息类别">
         <el-select v-model="filters.artType" placeholder="全部" clearable style="width: 222px">
-          <el-option label="安全知识" value="1"></el-option>
-          <el-option label="政策法规" value="2"></el-option>
-          <el-option label="典型案例" value="3"></el-option>
+          <el-option v-for="item in artTypeData" :key="item.index" :label="item.extractName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="确认状态">
@@ -29,13 +27,13 @@
     <div :span="24" v-loading="loading">
       <el-card class="box-card" >
         <div slot="header">
-          <span>为您检索到：{{ total }} &nbsp;条相关记录</span>
+          <span>平台为您找到相关结果约  {{ thousSplit(total) }} 个</span>
         </div>
-        <div style="overflow:auto;" :style="{maxHeight:tableHeight}">
+        <div style="overflow:auto;" :style="{maxHeight:tableHeight}" v-if="dataList.length > 0">
           <div v-for="item in dataList" :key="item.value" class="lineStyle">
             <div class="title">
               <div @click='detail(item.id)'>{{ item.artTitle }}</div>
-              <span :class="'type' + item.artGroup">{{ item.artGroup ? getType(String(item.artGroup)) : '' }}</span><span :class="'category' + item.artType">{{ getCategory(item.artType) }}</span>
+              <span :class="'type' + item.artGroup">{{ item.artGroup ? getType(String(item.artGroup)) : '' }}</span><span :style="'background:' + item.extractColor">{{ item.extractName }}</span>
               <div>
                 <el-button v-if="String(item.status) === '0' && $isViewBtn('102903')" type="primary" @click="handleConfirm(item)">确认</el-button>
                 <el-button v-if="String(item.status) === '1' && $isViewBtn('102902')" type="primary" @click="handlerMove(item)">移动</el-button>
@@ -44,6 +42,9 @@
             </div>
             <div @click='detail(item.id)' class="content content_ellipsis" v-html="item.artContent">{{item.artContent}}</div>
           </div>
+        </div>
+        <div v-else style="text-align: center; min-height: 150px; line-height: 150px;">
+          暂无数据
         </div>
       </el-card>
       <el-col :span="24" class="toolbar">
@@ -89,6 +90,7 @@ export default {
         artType: '',
         status: ''
       },
+      artTypeData: [],
       loading: false,
       total: 0,
       page: 1,
@@ -132,6 +134,18 @@ export default {
       if (val === '3') {
         return '典型案例'
       }
+    },
+    thousSplit(val, floatFlag) {
+      // if (val.indexOf('.') <= -1) {
+      //   val = val + '.00'
+      // }
+      val = String(val)
+      val = val.replace(/\s+/g, '').replace(/[\s|\~|`|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\-|\_|\+|\=|\||\|\[|\]|\{|\}|\;|\:|\"|\'|\。|\,|\<|\，|\>|\/|\?]/g, '')
+      const re = /\d{1,3}(?=(\d{3})+$)/g
+      const n1 = val.replace(/^(\d+)((\.\d+)?)$/, function(s, s1, s2, s3) {
+        return s1.replace(re, '$&,') + s2
+      })
+      return n1
     },
     handleCurrentChange(val) {
       this.page = val
@@ -232,6 +246,11 @@ export default {
     },
     handleChange(val) {
       this.moveForm.moduleType = ''
+    },
+    queryArtType() {
+      this.$query('reptileconfig').then(response => {
+        this.artTypeData = response.data
+      })
     }
   },
   mounted() {
@@ -241,6 +260,7 @@ export default {
       sessionStorage.setItem(this.$route.path, '')
     }
     this.tableHeight = document.documentElement.clientHeight - 320 + 'px'
+    this.queryArtType()
     this.query(true)
     this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
