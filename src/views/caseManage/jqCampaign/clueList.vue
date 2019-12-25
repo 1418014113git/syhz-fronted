@@ -36,10 +36,13 @@
         <el-form-item label="地址">
           <el-input v-model="filters.address" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
+        <el-form-item label="下发日期">
+          <el-date-picker v-model="filters.time" type="daterange" range-separator="至" value-format="yyyy-MM-dd" start-placeholder="开始日期" end-placeholder="截止日期"></el-date-picker>
+        </el-form-item>
       </el-col>
       <el-col :span="24" style="padding-bottom: 0;">
         <el-form-item label="协查情况">
-          <el-select  v-model="filters.qbxsResult" size="small" placeholder="全部" clearable>
+          <el-select  v-model="filters.qbxsResult" size="small" placeholder="全部" multiple clearable>
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('qbxsfkzt')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
@@ -64,6 +67,7 @@
         <el-table-column type="index" width="60" label="序号" ></el-table-column>
         <el-table-column prop="serialNumber"  label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column prop="cityName"  label='地市'  min-width="180" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="receiveDate"  label='下发日期'  min-width="180" show-overflow-tooltip></el-table-column>
         <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
           <template slot-scope="scope">
             <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
@@ -129,9 +133,10 @@ export default {
       filters: {
         address: '', // 地址
         departName: '', // 接收单位
-        qbxsResult: '', // 协查情况
+        qbxsResult: [], // 协查情况
         serialNumber: '', // 序号
-        qbxsCategory: '' // 分类
+        qbxsCategory: '', // 分类
+        time: [] // 下发日期
       },
       applyDeptCode: '', // 列表页传递过来的申请单位code
       passWordForm: {
@@ -165,11 +170,12 @@ export default {
       selectCurxzqhDep: { cityName: '' }, // 当前行政区划
       tableHeight: null, // 列表外层容器的高度
       dqbmDeptCode: '', // 存储集群列表当前点击行的部门code
-      curAreaCode: '', // 存储集群列表当前点击行的areaCode
+      // curAreaCode: '', // 存储集群列表当前点击行的areaCode
       curDeptType: '', // 存储集群列表当前点击行的部门类型
       tableHead: [], // 表头
       showTitle: '', // 显示 地市 还是区县
-      showType: '' // 显示类型
+      showType: '', // 显示类型
+      curCityCode: ''
     }
   },
   methods: {
@@ -180,37 +186,7 @@ export default {
           // this.xzqhOptions = response.data ? response.data[0].children : [] // 获取地市
           this.xzqhOptions = response.data ? response.data : []
           var currentArea = []
-          // if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
-          //   // currentArea = [this.curDept.areaCode] // 查所有
-          //   currentArea = [this.curAreaCode]
-          // } else if (this.curDept.depType === '2') { // 支队
-          //   currentArea = [this.curAreaCode]
-          //   if (this.applyDeptCode === this.dqbmDeptCode) { // 如果支队为申请，下发单位，查全部地市，
-
-          //   } else { // 市支队默认为本地市
-          //     for (var i = 0; i < this.xzqhOptions.length; i++) {
-          //       const element = this.xzqhOptions[i]
-          //       if (element.cityCode === this.curAreaCode) {
-          //         this.xzqhOptions[i].disabled = false
-          //       } else {
-          //         this.xzqhOptions[i].disabled = true
-          //       }
-          //     }
-          //   }
-          // } else if (this.curDept.depType === '3') { // 大队
-          //   if (this.curAreaCode) {
-          //     currentArea = [this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
-          //   }
-          // } else if (this.curDept.depType === '4') { // 派出所
-          //   if (this.curAreaCode) {
-          //     if (this.curAreaCode === '611400') { // 杨凌例外
-          //       currentArea = ['611400']
-          //     } else { // 正常的派出所
-          //       currentArea = [this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
-          //     }
-          //   }
-          // }
-          if (this.curDept.depType === '2') { // 登上来的是支队
+          if (this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 登上来的是支队 或者杨凌派出所（杨凌派出所权限同杨凌支队）
             this.xzqhOptions[0].disabled = true
             if (this.applyDeptCode === this.curDept.depCode) { // 如果登上来的支队是申请，下发单位，查全部地市，
 
@@ -225,29 +201,35 @@ export default {
               }
             }
           }
-          if (this.curDeptType === -1 || this.curDeptType === 1 || this.curDeptType === '') { // 当前行部门 省 总队
+          if (this.curDeptType === -1 || this.curDeptType === 1 || this.curDeptType === '' || this.curDept.depType === '-1' || this.curDept.depType === '1') { // 当前行部门/登陆部门是 省 总队
             currentArea = ['610000']
           } else if (this.curDeptType === 2) { // 当前行部门支队
-            if (this.curAreaCode) {
-              currentArea = ['610000', this.curAreaCode]
+            if (this.curCityCode) {
+              if (this.$route.query.source === 'mainw') {
+                currentArea = ['610000']
+              } else {
+                currentArea = ['610000', this.curCityCode]
+              }
             }
           } else if (this.curDeptType === 3) { // 大队
-            if (this.curAreaCode) {
-              if (this.$route.query.source !== 'mainn') {
-                currentArea = ['610000', this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
-              } else {
-                currentArea = ['610000', this.curAreaCode]
+            if (this.curCityCode) {
+              if (!this.$route.query.source) {
+                currentArea = ['610000', this.curCityCode.substring(0, 4) + '00', this.curCityCode]
+              } else if (this.$route.query.source === 'mainw') {
+                currentArea = ['610000']
+              } else if (this.$route.query.source === 'mainn') {
+                currentArea = ['610000', this.curCityCode]
               }
             }
           } else if (this.curDeptType === 4) { // 派出所
-            if (this.curAreaCode) {
-              if (this.curAreaCode === '611400') { // 杨凌例外
+            if (this.curCityCode) {
+              if (this.curCityCode === '611400') { // 杨凌例外
                 currentArea = ['610000', '611400']
               } else { // 正常的派出所
-                if (this.$route.query.source !== 'mainn') {
-                  currentArea = ['610000', this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+                if (!this.$route.query.source) {
+                  currentArea = ['610000', this.curCityCode.substring(0, 4) + '00', this.curCityCode]
                 } else {
-                  currentArea = ['610000', this.curAreaCode]
+                  currentArea = ['610000', this.curCityCode]
                 }
               }
             }
@@ -258,11 +240,11 @@ export default {
           if (this.curDeptType === -1 || this.curDeptType === 1) { // 省厅、总队
 
           } else if (this.curDeptType === 2) { // 支队
-            if (this.dqbmDeptCode && this.$route.query.source !== 'mainn') {
+            if (this.dqbmDeptCode && !this.$route.query.source) {
               this.department = [this.dqbmDeptCode]
             }
           } else if (this.curDeptType === 3) { // 大队
-            if (this.dqbmDeptCode && this.$route.query.source !== 'mainn') {
+            if (this.dqbmDeptCode && !this.$route.query.source) {
               this.department = [this.dqbmDeptCode]
             }
           }
@@ -352,9 +334,8 @@ export default {
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
-        // receiveName: this.filters.receiveName,	// 接收单位
         address: this.filters.address, // 地址
-        qbxsResult: this.filters.qbxsResult, // 协查情况
+        qbxsResult: this.filters.qbxsResult.join(','), // 协查情况
         serialNumber: this.filters.serialNumber, //  序号
         qbxsCategory: this.filters.qbxsCategory, // 分类
         pageNum: this.page, // 页数
@@ -363,8 +344,8 @@ export default {
         assistType: this.$route.query.assistType ? 1 : 2, // 1 协查， 2 集群
         showType: this.showType // 是查地市还是区县
       }
-      if (this.curAreaCode !== '610000') { // 省厅不传
-        if (this.curDeptType !== 2 && this.$route.query.source !== 'mainn') { // 传递过来的当前行部门类型不是支队,并且不是集群列表的内层点击捡来
+      if (this.curCityCode !== '610000') { // 省厅不传
+        if (this.curDeptType !== 2 && !this.$route.query.source) { // 传递过来的当前行部门类型不是支队,并且不是集群列表的内层点击捡来
           para.deptCode = this.applyDeptCode === this.dqbmDeptCode ? '' : this.dqbmDeptCode
         } else {
           para.deptCode = ''
@@ -373,6 +354,10 @@ export default {
 
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
+      }
+      if (this.filters.time !== undefined && this.filters.time !== null && this.filters.time.length > 1) {
+        para.startTime = this.filters.time[0] ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : ''
+        para.endTime = this.filters.time[1] ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : ''
       }
 
       // if (this.area && this.area.length > 0) { // 行政区划
@@ -454,9 +439,9 @@ export default {
       this.filters = {
         address: '', // 地址
         departName: '', // 接收单位
-        xcqk: '', // 协查情况
-        sort: '', // 序号
-        type: '' // 分类
+        qbxsResult: [], // 协查情况
+        serialNumber: '', // 序号
+        qbxsCategory: '' // 分类
       }
       this.area = []
       this.department = []
@@ -493,11 +478,16 @@ export default {
     }
     if (this.$route.query.id) {
       this.assistId = this.$route.query.id
-      this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type : '' // 核查情况
+      this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type.split(',') : [] // 核查情况
       this.applyDeptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 申请，下发单位code
       this.dqbmDeptCode = this.$route.query.curDeptCode ? this.$route.query.curDeptCode : '' // 存储集群列表当前点击行的部门code
-      this.curAreaCode = this.$route.query.curDeptCode ? this.$route.query.curDeptCode.substring(0, 6) : '' // 存储集群列表当前点击行的areaCode
+      // this.curAreaCode = this.$route.query.curDeptCode ? this.$route.query.curDeptCode.substring(0, 6) : '' // 存储集群列表当前点击行的areaCode
       this.curDeptType = this.$route.query.deptType ? this.$route.query.deptType : '' // 存储集群列表当前点击行的部门类型
+      this.curCityCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 存储集群列表当前点击行的cityCode
+      if (this.$route.query.createDate) { // 下发日期--集群详情页的签收表点击数字传递过来的
+        const date = new Date(this.$route.query.createDate)
+        this.filters.time = [date, date]
+      }
       this.init()
     }
   },
