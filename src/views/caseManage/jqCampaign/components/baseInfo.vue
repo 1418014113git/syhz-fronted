@@ -150,33 +150,7 @@ export default {
         this.baseInfo = this.info
         this.baseInfo.attachment = this.baseInfo.attachment ? JSON.parse(this.baseInfo.attachment) : []
       }
-      Bus.$on('isShowsqbtn', (data) => { // 重新申请按钮
-        this.isShowsqbtn = data
-      })
-      Bus.$on('isShowshbtn', (data) => { // 审核按钮
-        this.isShowshbtn = data
-      })
-      Bus.$on('row', (data) => { // 审核列表当前行信息
-        this.shlbRow = data
-      })
-      Bus.$on('isShowqsbtn', (data) => { // 签收按钮
-        this.isShowqsbtn = data
-      })
-      Bus.$on('qsRow', (data) => { // 签收列表当前行信息
-        this.qsRow = data
-      })
-      Bus.$on('isShowffbtn', (data) => { // 线索分发按钮
-        this.isShowffbtn = data
-      })
-      Bus.$on('isShowfkbtn', (data) => { // 线索反馈按钮
-        this.isShowfkbtn = data
-      })
-      Bus.$on('isShowpjbtn', (data) => { // 线索反馈按钮
-        this.isShowpjbtn = data
-      })
-      Bus.$on('xsfkRow', (data) => { // 线索反馈当前行数据
-        this.xsfkRow = data
-      })
+      this.controlBtnShow()
     },
     zhpj() { // 综合评价
       if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省厅，总队
@@ -192,9 +166,23 @@ export default {
       this.isShowshDialog = true
     },
     xsff() { // 线索分发
+      if (this.isShowqsbtn) { // 签收列表有签收按钮，表示有未签收的线索
+        this.$alert('请先签收线索后，再反馈线索。', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return false
+      }
       this.isShowffxsDialog = true
     },
     xsfk() { // 线索反馈
+      if (this.isShowqsbtn) { // 签收列表有签收按钮，表示有未签收的线索
+        this.$alert('请先签收线索后，再反馈线索。', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return false
+      }
       var deptCode = ''
       if (this.xsfkRow.deptCode !== this.baseInfo.applyDeptCode && this.curDept.depType !== '1') {
         deptCode = this.xsfkRow.deptCode
@@ -222,6 +210,35 @@ export default {
     closeffxsDialog(val) { // 关闭分发线索弹框
       this.isShowffxsDialog = val
       location.reload()
+    },
+    controlBtnShow() {
+      Bus.$on('isShowsqbtn', (data) => { // 重新申请按钮
+        this.isShowsqbtn = data
+      })
+      Bus.$on('isShowshbtn', (data) => { // 审核按钮
+        this.isShowshbtn = data
+      })
+      Bus.$on('row', (data) => { // 审核列表当前行信息
+        this.shlbRow = data
+      })
+      Bus.$on('isShowqsbtn', (data) => { // 签收按钮
+        this.isShowqsbtn = data
+      })
+      Bus.$on('qsRow', (data) => { // 签收列表当前行信息
+        this.qsRow = data
+      })
+      Bus.$on('isShowffbtn', (data) => { // 线索分发按钮
+        this.isShowffbtn = data
+      })
+      Bus.$on('isShowfkbtn', (data) => { // 线索反馈按钮
+        this.isShowfkbtn = data
+      })
+      Bus.$on('isShowpjbtn', (data) => { // 评价打分按钮
+        this.isShowpjbtn = data
+      })
+      Bus.$on('xsfkRow', (data) => { // 线索反馈当前行数据
+        this.xsfkRow = data
+      })
     }
   },
   mounted() {
