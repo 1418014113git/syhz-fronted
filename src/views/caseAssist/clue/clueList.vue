@@ -53,7 +53,7 @@
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column prop="larqCount"  label='下发日期'  min-width="100" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="receiveDate"  label='下发日期'  min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
           <template slot-scope="scope">
             <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
