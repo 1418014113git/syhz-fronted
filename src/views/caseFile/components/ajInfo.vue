@@ -35,7 +35,7 @@
             <el-form-item label="案件类型">
               <span class="whiteColor ajlx" v-for="(item, index) in ajlx" :key="index" :class="item.bg">{{item.lx}}</span>
             </el-form-item>
-            <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com>
+            <!-- <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com> -->
           </el-col>
           <el-col :span="8" class="pdr">
             <el-form-item label="案件来源">
@@ -231,8 +231,7 @@ export default {
 .lbbg {
   font-size: 14px;
   padding: 2px 6px;
-  background-image: linear-gradient(140deg, #177ce0 0%, #54afe0 100%),
-    linear-gradient(#ff8547, #ff8547);
+  background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
   background-blend-mode: normal, normal;
   border-radius: 4px;
 }

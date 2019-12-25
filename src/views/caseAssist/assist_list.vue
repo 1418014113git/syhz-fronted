@@ -277,7 +277,7 @@ export default {
         end2: this.filters.endEndDate,
         isCheck: this.$isViewBtn('100908'),
         noCheck: this.noCheck && !clear ? 'noCheck' : '',
-        curCreate: this.totalType === 'curCreate' && !clear ? this.totalType : ''
+        curCreate: this.totalType !== '' && !clear ? this.totalType : ''
       }
       para.queryDeptCode = this.filters.department.length > 0 ? this.filters.department[this.filters.department.length - 1] : ''
       para.provinceCode = this.filters.area[0] ? this.filters.area[0] : ''
@@ -484,8 +484,20 @@ export default {
             assistId: this.detailPassForm.id
           }
           this.$update('caseAssist/detailPwd', para).then(response => {
-            this.detailDialogVisible = false
-            this.$gotoid('/caseAssist/detail', this.detailPassForm.id)
+            if (response.code !== '000000') {
+              this.$alert('密码输入错误，请重新输入', '提示', {
+                type: 'error'
+              })
+              this.detailPassBtnLoading = false
+              this.$refs.detailPassForm.resetFields()
+            } else {
+              this.detailDialogVisible = false
+              this.$gotoid('/caseAssist/detail', this.detailPassForm.id)
+            }
+          }).catch(() => {
+            this.detailPassForm.password = ''
+            this.detailPassBtnLoading = false
+            this.$refs.detailPassForm.resetFields()
           })
         }
       })
@@ -631,8 +643,11 @@ export default {
         if (param.noCheck) {
           this.noCheck = param.noCheck
         }
-        if (param.type) {
-          this.totalType = String(param.type) === '0' ? 'curCreate' : ''
+        if (param.type !== undefined && String(param.type) === '0') {
+          this.totalType = 'curCreate'
+        }
+        if (param.type !== undefined && String(param.type) === '1') {
+          this.totalType = 'feed'
         }
         if (param.status) {
           this.filters.status = param.status

@@ -14,8 +14,9 @@
           <p v-else class="no_data_title">集群战役</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="qgxxcData" style="width: 100%;" v-loading="qgxxcLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="54"></el-table-column>
+        <!-- <el-table :data="qgxxcData" style="width: 100%;" v-loading="qgxxcLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="qgxxcData" style="width: 100%;" v-loading="qgxxcLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="assist_title" label="标题" width="200" show-overflow-tooltip></el-table-column>
           <el-table-column prop="apply_dept_name" label="申请部门" min-width="200" show-overflow-tooltip></el-table-column>
           <el-table-column prop="create_time" label="申请时间" show-overflow-tooltip width="180"></el-table-column>
@@ -33,8 +34,9 @@
           <p v-else class="no_data_title">案件协查</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="ajxcData" style="width: 100%;" v-loading="ajxcLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="54"></el-table-column>
+        <!-- <el-table :data="ajxcData" style="width: 100%;" v-loading="ajxcLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="ajxcData" style="width: 100%;" v-loading="ajxcLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="ajbh" label="案件编号" show-overflow-tooltip></el-table-column>
           <el-table-column prop="ajmc" label="案件名称" show-overflow-tooltip></el-table-column>
           <el-table-column prop="DWXZ_NAME" label="立案日期" width="120" show-overflow-tooltip>
@@ -51,7 +53,11 @@
               <span v-if="scope.row.createTime">{{scope.row.createTime | formatDate}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="status" label="协查状态" show-overflow-tooltip :formatter="formatStatus"></el-table-column>
+          <el-table-column prop="status" label="协查状态" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <span v-if='scope.row.status'>{{$getDictName(scope.row.status+'','jqzyzt')}}</span>
+            </template>
+          </el-table-column>
         </el-table>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="totalAjxc > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChangeAjxc"  :page-sizes="[5,10,15,20]" @size-change="handleSizeChangeAjxc"
@@ -65,8 +71,9 @@
           <p v-else class="no_data_title">案件督办</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="ajdbData" style="width: 100%;" v-loading="ajdbLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="54"></el-table-column>
+        <!-- <el-table :data="ajdbData" style="width: 100%;" v-loading="ajdbLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="ajdbData" style="width: 100%;" v-loading="ajdbLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="ajbh" label="案件编号" show-overflow-tooltip></el-table-column>
           <el-table-column prop="ajmc" label="案件名称" show-overflow-tooltip></el-table-column>
           <el-table-column prop="larq" label="立案日期" width="120" show-overflow-tooltip>
@@ -108,8 +115,9 @@
           <p v-else class="no_data_title">专项任务</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="zxrwData" style="width: 100%;" v-loading="zxrwLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="54"></el-table-column>
+        <!-- <el-table :data="zxrwData" style="width: 100%;" v-loading="zxrwLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="zxrwData" style="width: 100%;" v-loading="zxrwLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="task_name" label="任务名称"></el-table-column>
           <el-table-column prop="AJMC" label="开始时间" show-overflow-tooltip>
             <template slot-scope="scope">
@@ -150,8 +158,9 @@
           <p v-else class="no_data_title">检验鉴定</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="jyjdData" style="width: 100%;" v-loading="jyjdLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="54"></el-table-column>
+        <!-- <el-table :data="jyjdData" style="width: 100%;" v-loading="jyjdLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="jyjdData" style="width: 100%;" v-loading="jyjdLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="AJBH" label="申请单位">
             <template slot-scope="scope">
               <p :title="scope.row.apply_dept_name" class="ellipsis-word">{{scope.row.apply_dept_name}}</p>
@@ -183,8 +192,9 @@
           <p v-else class="no_data_title">案件认领</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="ajrlData" style="width: 100%;" v-loading="ajrlLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="54"></el-table-column>
+        <!-- <el-table :data="ajrlData" style="width: 100%;" v-loading="ajrlLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="ajrlData" style="width: 100%;" v-loading="ajrlLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="time" label="时间" width="180"></el-table-column>
           <el-table-column prop="optStr" label="操作" show-overflow-tooltip></el-table-column>
           <el-table-column prop="optOrg" label="操作单位" show-overflow-tooltip></el-table-column>
@@ -329,11 +339,11 @@ export default {
     },
     init() {
       if (this.AJBH) {
-        this.handleQgxxc(true) // 集群战役
-        this.handleAjxc(true) // 案件协查
+        // this.handleQgxxc(true) // 集群战役 12.24先注释掉此部分
+        // this.handleAjxc(true) // 案件协查
         this.handleAjdb(true) // 案件督办
-        this.handleZxrw(true) // 专项任务
-        this.handleJyjd(true) // 检验鉴定
+        // this.handleZxrw(true) // 专项任务
+        // this.handleJyjd(true) // 检验鉴定
         this.handleAjrl(true) // 案件认领
       }
       Bus.$on('bqType', (data) => { // 定位到对应的标签项
@@ -373,6 +383,7 @@ export default {
           this.qgxxcData = res.data.list
           this.totalQgxxc = res.data.totalCount
           this.pageSizeQgxxc = res.data.pageSize
+          this.controlBtn('isShowjqbtn', 'jq', this.qgxxcData) // 控制详情页上方的集群按钮显隐
           if (flag) { // 切换条数时 总数不变，不必要重新计算
             this.moduleAllTotal.push(this.totalQgxxc)
             this.calculateAll()
@@ -396,6 +407,7 @@ export default {
           this.ajxcData = res.data.list
           this.totalAjxc = res.data.totalCount
           this.pageSizeAjxc = res.data.pageSize
+          this.controlBtn('isShowxcbtn', 'xc', this.ajxcData) // 控制详情页上方的协查按钮显隐
           if (flag) { // 切换条数时 总数不变，不必要重新计算
             this.moduleAllTotal.push(this.totalAjxc)
             this.calculateAll()
@@ -404,6 +416,35 @@ export default {
       }).catch(() => {
         this.ajxcLoading = false
       })
+    },
+    controlBtn(str, type, data) { // 遍历列表信息，控制详情页上方的协查按钮显隐
+      if (type === 'jq' || type === 'xc') { // 集群，协查
+        Bus.$emit(str, false)
+        if (data.length > 0) {
+          data.forEach(item => {
+            if (item.status && Number(item.status) >= 4) { // 审核通过之后，
+              Bus.$emit(str, true)
+            }
+          })
+        }
+      } else { // 督办   isShowbdbtn：部督，isShowtdbtn：厅督，isShowsdbtn：市督，
+        Bus.$emit('isShowbdbtn', false)
+        Bus.$emit('isShowtdbtn', false)
+        Bus.$emit('isShowsdbtn', false)
+        if (data.length > 0) {
+          data.forEach(item => {
+            if ((item.dbStatus === 3 || item.dbStatus > 4) && item.dbLevel === 1) { // 部督
+              Bus.$emit('isShowbdbtn', true)
+            }
+            if ((item.dbStatus === 3 || item.dbStatus > 4) && item.dbLevel === 2) { // 厅督
+              Bus.$emit('isShowtdbtn', true)
+            }
+            if ((item.dbStatus === 3 || item.dbStatus > 4) && item.dbLevel === 3) { // 市督
+              Bus.$emit('isShowsdbtn', true)
+            }
+          })
+        }
+      }
     },
     handleAjdb(flag) { // 案件督办
       this.ajdbLoading = true
@@ -420,6 +461,7 @@ export default {
           this.ajdbData = res.data.list
           this.totalAjdb = res.data.totalCount
           this.pageSizeAjdb = res.data.pageSize
+          this.controlBtn('', 'db', this.ajdbData) // 控制详情页上方的督办按钮显隐 （部督、厅督、市督在该方法中分别判断）
           if (flag) { // 切换条数时 总数不变，不必要重新计算
             this.moduleAllTotal.push(this.totalAjdb)
             this.calculateAll()

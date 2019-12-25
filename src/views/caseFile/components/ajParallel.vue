@@ -14,8 +14,9 @@
             <p v-else class="no_data_title">案件串并</p>
             <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
           </div>
-          <el-table :data="dataList" style="width: 100%;" v-loading="loading" max-height="156">
-            <el-table-column type="index" label="序号" width="52"></el-table-column>
+          <!-- <el-table :data="dataList" style="width: 100%;" v-loading="loading" max-height="156"> -->
+          <el-table :data="dataList" style="width: 100%;" v-loading="loading">
+            <el-table-column type="index" label="序号" width="52" fixed></el-table-column>
             <el-table-column prop="CBABH" label="串并编号"></el-table-column>
             <el-table-column prop="CAZT_NAME" label="串案状态"></el-table-column>
             <el-table-column prop="CBFXBH" label="分析编号"></el-table-column>
@@ -41,8 +42,9 @@
             <p v-else class="no_data_title">重复合并</p>
             <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
           </div>
-          <el-table :data="mergeList" style="width: 100%;" v-loading="loading" max-height="156">
-            <el-table-column type="index" label="序号" width="52"></el-table-column>
+          <!-- <el-table :data="mergeList" style="width: 100%;" v-loading="loading" max-height="156"> -->
+          <el-table :data="mergeList" style="width: 100%;" v-loading="loading">
+            <el-table-column type="index" label="序号" width="52" fixed></el-table-column>
             <el-table-column prop="ajbh" label="案件编号" show-overflow-tooltip>
               <template slot-scope="props">
                 <a class="ajbh-color" @click="handleAjDetail(props.$index, props.row)">{{props.row.ajbh}}</a>

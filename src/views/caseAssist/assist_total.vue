@@ -38,7 +38,7 @@
               </el-form>
               <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
                 <el-tab-pane :label="title + '情况'" name="0">
-                  <el-table :data="caseAssistData" :border="false" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries">
+                  <el-table :data="caseAssistData" :class="curDept.depType !== '1' ? 'no_expand' : ''" :border="false" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries">
                     <el-table-column type="expand">
                       <template slot-scope="scope">
                         <el-table :data="scope.row.list" v-loading="listChildLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight">
@@ -56,7 +56,7 @@
                             </el-table-column>
                             <el-table-column prop="cyNum" align="center" width="90" label="反馈" show-overflow-tooltip>
                               <template slot-scope="scope">
-                                <a v-if="scope.row.cyNum > 0 && enableTo(scope.row, true)" class="linkColor" @click="toAssistList(0, scope.row, true)">{{scope.row.cyNum}}</a>
+                                <a v-if="scope.row.cyNum > 0 && enableTo(scope.row, true)" class="linkColor" @click="toAssistList(1, scope.row, true)">{{scope.row.cyNum}}</a>
                                 <span v-else>{{scope.row.cyNum || 0}}</span>
                               </template>
                             </el-table-column>
@@ -91,7 +91,7 @@
                       </template>
                     </el-table-column>
                     <el-table-column type="index" width="70" label="序号"></el-table-column>
-                    <el-table-column prop="cityName" align="center" label="地市" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="cityName" align="center" :label="areaTitle" show-overflow-tooltip></el-table-column>
                     <el-table-column align="center" :label="title + '数'">
                       <el-table-column prop="fqNum" align="center" width="90" label="发起" show-overflow-tooltip>
                         <template slot-scope="scope">
@@ -101,7 +101,7 @@
                       </el-table-column>
                       <el-table-column prop="cyNum" align="center" width="90" label="反馈" show-overflow-tooltip>
                         <template slot-scope="scope">
-                          <a v-if="scope.row.cyNum > 0 && enableTo(scope.row)" class="linkColor" @click="toAssistList(0, scope.row, false)">{{scope.row.cyNum}}</a>
+                          <a v-if="scope.row.cyNum > 0 && enableTo(scope.row) && curDept.depType !== '1'" class="linkColor" @click="toAssistList(1, scope.row, false)">{{scope.row.cyNum}}</a>
                           <span v-else>{{scope.row.cyNum || 0}}</span>
                         </template>
                       </el-table-column>
@@ -135,7 +135,7 @@
                   </el-table>
                 </el-tab-pane>
                 <el-tab-pane label="线索反馈情况" name="1">
-                  <el-table :data="clueAssistData" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries1">
+                  <el-table :data="clueAssistData" :class="curDept.depType !== '1' ? 'no_expand' : ''" v-loading="listLoading" style="width: 100%; margin-top: 5px;" :max-height="countHeight" :span-method="arraySpanMethod" show-summary sum-text="总计" :summary-method="getSummaries1">
                     <el-table-column type="expand">
                       <template slot-scope="scope">
                         <el-table :data="scope.row.list" v-loading="listChildLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight">
@@ -153,7 +153,7 @@
                             </el-table-column>
                             <el-table-column prop="cyNum" align="center" width="90" label="反馈" show-overflow-tooltip>
                               <template slot-scope="scope">
-                                <a v-if="scope.row.cyNum > 0 && enableTo(scope.row, true)" class="linkColor" @click="toAssistList(0, scope.row)">{{scope.row.cyNum}}</a>
+                                <a v-if="scope.row.cyNum > 0 && enableTo(scope.row, true)" class="linkColor" @click="toAssistList(1, scope.row)">{{scope.row.cyNum}}</a>
                                 <span v-else>{{scope.row.cyNum || 0}}</span>
                               </template>
                             </el-table-column>
@@ -167,20 +167,23 @@
                           <el-table-column align="center" label="线索核查核实情况（条）">
                             <el-table-column prop="cs" align="center" width="90" label="查实" show-overflow-tooltip>
                               <template slot-scope="scope">
-                                <a v-if="scope.row.cs > 0 && enableTo(scope.row, true)" class="linkColor" @click="toClueList('2', scope.row, true)">{{scope.row.cs}}</a>
-                                <span v-else>{{scope.row.cs || 0}}</span>
+                                <!--<a v-if="scope.row.cs > 0 && enableTo(scope.row, true)" class="linkColor" @click="toClueList('2', scope.row, true)">{{scope.row.cs}}</a>-->
+                                <!--<span v-else>{{scope.row.cs || 0}}</span>-->
+                                <span>{{scope.row.cs || 0}}</span>
                               </template>
                             </el-table-column>
                             <el-table-column prop="cf" align="center" width="90" label="查否" show-overflow-tooltip>
                               <template slot-scope="scope">
-                                <a v-if="scope.row.cf > 0 && enableTo(scope.row, true)" class="linkColor" @click="toClueList('3', scope.row, true)">{{scope.row.cf}}</a>
-                                <span v-else>{{scope.row.cf || 0}}</span>
+                                <!--<a v-if="scope.row.cf > 0 && enableTo(scope.row, true)" class="linkColor" @click="toClueList('3', scope.row, true)">{{scope.row.cf}}</a>-->
+                                <!--<span v-else>{{scope.row.cf || 0}}</span>-->
+                                <span>{{scope.row.cf || 0}}</span>
                               </template>
                             </el-table-column>
                             <el-table-column prop="whc" align="center" width="90" label="未核查" show-overflow-tooltip>
                               <template slot-scope="scope">
-                                <a v-if="scope.row.whc > 0 && enableTo(scope.row, true)" class="linkColor" @click="toClueList('', scope.row, true)">{{scope.row.whc}}</a>
-                                <span v-else>{{scope.row.whc || 0}}</span>
+                                <!--<a v-if="scope.row.whc > 0 && enableTo(scope.row, true)" class="linkColor" @click="toClueList('', scope.row, true)">{{scope.row.whc}}</a>-->
+                                <!--<span v-else>{{scope.row.whc || 0}}</span>-->
+                                <span>{{scope.row.whc || 0}}</span>
                               </template>
                             </el-table-column>
                             <el-table-column prop="hcl" align="center" width="90" label="核查率" show-overflow-tooltip>
@@ -213,7 +216,7 @@
                       </template>
                     </el-table-column>
                     <el-table-column type="index" width="70" label="序号"></el-table-column>
-                    <el-table-column prop="cityName" align="center" label="地市" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="cityName" align="center" :label="areaTitle" show-overflow-tooltip></el-table-column>
                     <el-table-column align="center" :label="title + '数'">
                       <el-table-column prop="fqNum" align="center" width="90" label="发起" show-overflow-tooltip>
                         <template slot-scope="scope">
@@ -223,7 +226,7 @@
                       </el-table-column>
                       <el-table-column prop="cyNum" align="center" width="90" label="反馈" show-overflow-tooltip>
                         <template slot-scope="scope">
-                          <a v-if="scope.row.cyNum > 0 && enableTo(scope.row)" class="linkColor" @click="toAssistList(0, scope.row)">{{scope.row.cyNum}}</a>
+                          <a v-if="scope.row.cyNum > 0 && enableTo(scope.row) && curDept.depType !== '1'" class="linkColor" @click="toAssistList(1, scope.row)">{{scope.row.cyNum}}</a>
                           <span v-else>{{scope.row.cyNum || 0}}</span>
                         </template>
                       </el-table-column>
@@ -237,20 +240,23 @@
                     <el-table-column align="center" label="线索核查核实情况（条）">
                       <el-table-column prop="cs" align="center" width="90" label="查实" show-overflow-tooltip>
                         <template slot-scope="scope">
-                          <a v-if="scope.row.cs > 0 && enableTo(scope.row)" class="linkColor" @click="toClueList('2', scope.row)">{{scope.row.cs}}</a>
-                          <span v-else>{{scope.row.cs || 0}}</span>
+                          <!--<a v-if="scope.row.cs > 0 && enableTo(scope.row)" class="linkColor" @click="toClueList('2', scope.row)">{{scope.row.cs}}</a>-->
+                          <!--<span v-else>{{scope.row.cs || 0}}</span>-->
+                          <span>{{scope.row.cs || 0}}</span>
                         </template>
                       </el-table-column>
                       <el-table-column prop="cf" align="center" width="90" label="查否" show-overflow-tooltip>
                         <template slot-scope="scope">
-                          <a v-if="scope.row.cf > 0 && enableTo(scope.row)" class="linkColor" @click="toClueList('3', scope.row)">{{scope.row.cf}}</a>
-                          <span v-else>{{scope.row.cf || 0}}</span>
+                          <!--<a v-if="scope.row.cf > 0 && enableTo(scope.row)" class="linkColor" @click="toClueList('3', scope.row)">{{scope.row.cf}}</a>-->
+                          <!--<span v-else>{{scope.row.cf || 0}}</span>-->
+                          <span>{{scope.row.cf || 0}}</span>
                         </template>
                       </el-table-column>
                       <el-table-column prop="whc" align="center" width="90" label="未核查" show-overflow-tooltip>
                         <template slot-scope="scope">
-                          <a v-if="scope.row.whc > 0 && enableTo(scope.row)" class="linkColor" @click="toClueList('', scope.row)">{{scope.row.whc}}</a>
-                          <span v-else>{{scope.row.whc || 0}}</span>
+                          <!--<a v-if="scope.row.whc > 0 && enableTo(scope.row)" class="linkColor" @click="toClueList('', scope.row)">{{scope.row.whc}}</a>-->
+                          <!--<span v-else>{{scope.row.whc || 0}}</span>-->
+                          <span>{{scope.row.whc || 0}}</span>
                         </template>
                       </el-table-column>
                       <el-table-column prop="hcl" align="center" width="90" label="核查率" show-overflow-tooltip>
@@ -296,6 +302,7 @@
     data() {
       return {
         title: '案件协查',
+        areaTitle: '',
         assistType: '1', // 协查类型：1 案件协查  2 集群战役
         activeName: '0',
         filters: {
@@ -398,7 +405,9 @@
           type: this.assistType,
           start: this.filters.time ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : '',
           end: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '',
-          cityCode: ''
+          cityCode: '',
+          deptCode: this.filters.departCode,
+          deptType: this.curDept.depType
         }
         this.listLoading = true
         this.$query('/assistStatistics/assistAj', para).then((response) => {
@@ -414,7 +423,9 @@
           type: this.assistType,
           start: this.filters.time ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : '',
           end: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '',
-          cityCode: ''
+          cityCode: '',
+          departCode: this.filters.deptCode,
+          deptType: this.curDept.depType
         }
         this.listLoading = true
         this.$query('assistStatistics/assistFk', para).then((response) => {
@@ -591,6 +602,28 @@
         this.title = '案件协查'
         this.assistType = '1'
       }
+      let currentDepartment = []
+      if (this.curDept.depType === '-1') { // 省
+        this.areaTitle = '地市'
+        currentDepartment = [this.curDept.depCode]
+      } else if (this.curDept.depType === '1') { // 总队
+        this.areaTitle = '地市'
+        currentDepartment = [this.curDept.parentDepCode, this.curDept.depCode]
+      } else if (this.curDept.depType === '2') { // 支队
+        this.areaTitle = '单位'
+        currentDepartment = [this.curDept.depCode]
+      } else if (this.curDept.depType === '3') { // 大队
+        this.areaTitle = '单位'
+        currentDepartment = [this.curDept.depCode]
+      } else if (this.curDept.depType === '4') { // 派出所
+        this.areaTitle = '单位'
+        if (this.curDept.areaCode === '611400') {
+          currentDepartment = [this.curDept.parentDepCode]
+        } else {
+          currentDepartment = [this.curDept.parentDepCode, this.curDept.depCode]
+        }
+      }
+      this.filters.departCode = currentDepartment[currentDepartment.length - 1]
       this.getSysTime()
     }
   }
@@ -633,9 +666,12 @@
   .caseAssist_totalList .el-table__body-wrapper .el-table__expanded-cell .is-center.left.is-leaf{
     text-align: center !important;
   }
-  .caseAssist_totalList .el-table__body tbody > tr:first-child .el-table__expand-column .cell > div{
-    /*display: none;*/
+  .caseAssist_totalList .no_expand .el-table__body tbody > tr .el-table__expand-column .cell > div{
+    display: none;
   }
+  /*.caseAssist_totalList .el-table__body tbody > tr:first-child .el-table__expand-column .cell > div{*/
+    /*display: none;*/
+  /*}*/
   .caseAssist_totalList .el-range-editor.is-disabled{
     background: none;
   }

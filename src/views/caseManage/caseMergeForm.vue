@@ -143,8 +143,16 @@ export default {
           if (response.code === '000000' && response.data) {
             this.formLoading = false
             if (response.data.status === 1) { // 该案件处于待合并状态
-              this.operateType = ''
-              this.queryDetailById(response.data.mergeId, 'noEdit') // 查详情
+              if (this.deptInfo.depCode === response.data.noticeDeptCode) {
+                this.operateType = '3'
+                this.headerContent = '认可重复合并后，被重复合并案件将不能用于统计或各类业务使用'
+                this.carryParam.id = response.data.mergeId
+                this.queryDetailById(response.data.mergeId, 'noEdit')// 查详情
+              } else {
+                this.operateType = ''
+                this.headerContent = '等待下级处理'
+                this.queryDetailById(response.data.mergeId, 'noEdit')// 查详情
+              }
             } else {
               if (this.currentCase) {
                 this.currentCase.noticeDeptName = response.data.noticeDeptName // 当前案件的认领单位

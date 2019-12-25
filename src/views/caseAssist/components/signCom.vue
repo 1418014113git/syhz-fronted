@@ -124,10 +124,13 @@ export default {
     },
     query(flag) {
       this.listLoading = true
+      if (flag) {
+        this.page = 1
+      }
       const param = {
         assistId: this.curAssistId,
         pageSize: this.pageSize,
-        pageNum: flag ? 1 : this.page
+        pageNum: this.page
       }
       if (this.info.cityCode !== this.curDept.areaCode) {
         if (this.curDept.depType === '3') {
@@ -140,12 +143,14 @@ export default {
       this.$query('caseAssist/signList', param).then((response) => {
         this.listLoading = false
         const arr = response.data.list
-        this.$emit('setSignBtnVisibleH', false)
+        if (String(this.showType) === '1') {
+          this.$emit('setSignBtnVisibleH', false)
+        }
         for (let i = 0; i < arr.length; i++) {
           const item = arr[i]
           const paramCode = item.receiveDeptCode
           item.parentCode = this.findParentDept(paramCode)
-          if (String(item.signStatus) !== '2' && item.receiveDeptCode === this.curDept.depCode) {
+          if (String(item.signStatus) !== '2' && item.receiveDeptCode === this.curDept.depCode && String(this.showType) === '1') {
             this.$emit('setSignBtnVisibleH', true)
           }
         }

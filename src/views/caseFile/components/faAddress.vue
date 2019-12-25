@@ -26,7 +26,7 @@
               <div>
                 <p class="tableTit">
                   <span>案件发生前同类案件</span>
-                  <span class="dateTime" v-if='ajInfo.FXSJ'>{{ $handlerDateTime(ajInfo.FXSJ) | formatDateTime }}</span>
+                  <span class="dateTime" v-if="ajInfo.FXSJ && ajInfo.FXSJ!=='0'">{{ $handlerDateTime(ajInfo.FXSJ) | formatDateTime }}</span>
                 </p>
                 <el-table :data="ajData.ajBefore" style="width: 100%;">
                   <el-table-column prop="time" label="时间" align="center">
@@ -64,7 +64,7 @@
               <div>
                 <p class="tableTit">
                   <span>案件发生后同类案件</span>
-                  <span class="dateTime" v-if='ajInfo.FXSJ'>{{ $handlerDateTime(ajInfo.FXSJ) | formatDateTime }}</span>
+                  <span class="dateTime" v-if="ajInfo.FXSJ && ajInfo.FXSJ!=='0'">{{ $handlerDateTime(ajInfo.FXSJ) | formatDateTime }}</span>
                 </p>
                 <el-table :data="ajData.ajAfter" style="width: 100%;">
                   <el-table-column prop="time" label="时间" align="center">

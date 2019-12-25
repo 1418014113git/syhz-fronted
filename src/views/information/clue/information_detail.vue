@@ -57,7 +57,8 @@
             <el-form-item label="线索附件：">
               <div v-if="attachments.length > 0" class="footer">
                 <p v-for="(item,index) in attachments" :key="index">
-                  <a @click="downFile(item.path)">{{item.name}}</a>
+                  <!-- <a @click="downFile(item.path)">{{item.name}}</a> -->
+                  <a @click="downFile(item)">{{item.name}}</a>
                 </p>
               </div>
             </el-form-item>
@@ -156,7 +157,7 @@ export default {
       shareStatusLable: {}, // 存储转换成数组的线索分享状态
       colorData2: ['bg5', 'bg6'], // 分享状态文字背景颜色默认集合
       collectionTypeLable: {}, // 存储转换成数组的采集类型
-      colorData3: ['bg7', 'bg8'], // 采集类型文字背景颜色默认集合
+      colorData3: ['bg9', 'bg10', 'bg11', 'bg7', 'bg8'], // 采集类型文字背景颜色默认集合
       information: {},
       attachments: [],
       xzqhOptions: [],
@@ -306,8 +307,11 @@ export default {
         this.loading = false
       })
     },
-    downFile(path) {
-      window.open(path)
+    downFile(item) {
+      // window.open(path)
+      const arr = item.path.split('/file')
+      const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
+      this.$download_http_mg(path, { fileName: item.name })
     },
     /**
      * 初始化地图
@@ -567,7 +571,10 @@ export default {
 .bg5,
 .bg6,
 .bg7,
-.bg8 {
+.bg8,
+.bg9,
+.bg10,
+.bg11 {
   padding: 2px 10px;
   background-blend-mode: normal, normal;
   border-radius: 4px;
@@ -605,6 +612,18 @@ export default {
 }
 .bg8 {
   background-image: linear-gradient(140deg, #bb3e6d 0%, #db4584 100%),
+    linear-gradient(#ff8547, #ff8547);
+}
+.bg9 {
+  background-image: linear-gradient(140deg, #0bd89e 0%, #2cf0b8 100%),
+    linear-gradient(#ff8547, #ff8547);
+}
+.bg10 {
+  background-image: linear-gradient(140deg, #e6a120 0%, #fdc762 100%),
+    linear-gradient(#ff8547, #ff8547);
+}
+.bg11 {
+  background-image: linear-gradient(140deg, #e17055 0%, #eb917b 100%),
     linear-gradient(#ff8547, #ff8547);
 }
 .ajlx {

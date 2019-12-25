@@ -483,8 +483,10 @@ export default {
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
                 this.$message({ message: '请导入线索', type: 'error' })
+                this.closeLoading()
               } else if (this.listData.length === 0) {
                 this.$message({ message: '请分发线索', type: 'error' })
+                this.closeLoading()
               } else {
                 let text = ''
                 if (state !== 0) {
@@ -504,9 +506,17 @@ export default {
           } else if (this.pageOperationType === 'add') {
             param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
             if (this.secondSubmitVisible) {
-              param.operator = 'update'
-              param.id = this.editId
-              this.save(param, true, true, '保存', true)
+              if (!this.clueNum.total) {
+                this.$message({ message: '请导入线索', type: 'error' })
+                this.closeLoading()
+              } else if (this.listData.length === 0) {
+                this.$message({ message: '请分发线索', type: 'error' })
+                this.closeLoading()
+              } else {
+                param.operator = 'update'
+                param.id = this.editId
+                this.save(param, true, true, '保存', true)
+              }
             } else {
               param.operator = 'other'
               this.save(param, true, false, '', false)
@@ -523,6 +533,11 @@ export default {
           return false
         }
       })
+    },
+    closeLoading() {
+      this.applyBtnLoading = false
+      this.saveBtnLoading = false
+      this.formLoading = false
     },
     save(param, flag, alert, alertMes, togo) {
       this.$save('caseAssist/save', param).then((response) => {
@@ -708,6 +723,7 @@ export default {
         this.qbxsDistribute = ''
       } else { // 点击线索数字时，获取当前数字的状态
         this.qbxsDistribute = data
+        this.receiveName = ''
       }
       this.distributeClueVisible = true
       if (this.$refs.distributeClue) {

@@ -3,8 +3,10 @@
   <div class="ajTitle" v-loading="loading" style="">
      <div class="title">
         <div class="left">{{ajInfo.AJMC}}<a class="ajbh" @click="showTipsC(ajInfo.AJBH)">({{ajInfo.AJBH}})</a></div>
-        <span v-for="(item,index) in bqList" :key="index"  class="btnStyle"    @click="clickbtn(item)">{{item.name}}</span>
-        <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com>
+        <span v-for="(item,index) in bqList" :key="index">
+          <span  class="btnStyle"  v-if="item.isShowbtn"  @click="clickbtn(item)">{{item.name}}</span>
+        </span>
+        <!-- <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com> -->
         <!-- <div class="right">
           <p>
             <img  class="downLoad" src="/static/image/syh_images/">
@@ -52,11 +54,11 @@ export default {
       isRls: '',
       source: 'ajda', // 页面来源，表示该模块是来自案件档案
       bqList: [ // 快捷标签list
-        { name: '部督', type: 'third' },
-        { name: '厅督', type: 'third' },
-        { name: '市督', type: 'third' },
-        { name: '集群', type: 'first' },
-        { name: '协查', type: 'second' }
+        { name: '部督', type: 'third', isShowbtn: false },
+        { name: '厅督', type: 'third', isShowbtn: false },
+        { name: '市督', type: 'third', isShowbtn: false },
+        { name: '集群', type: 'first', isShowbtn: false },
+        { name: '协查', type: 'second', isShowbtn: false }
       ]
     }
   },
@@ -80,7 +82,32 @@ export default {
         this.loading = true
         this.ajInfo = this.AjInfo
         this.dealWithData() // 处理案件类型数据，添加颜色背景
+        this.handleBusOnEvent() // 顶部按钮的显隐判断
       }
+    },
+    handleBusOnEvent() {
+      Bus.$on('isShowjqbtn', (data) => { // 集群按钮
+        this.contorlBtn('集群', data)
+      })
+      Bus.$on('isShowxcbtn', (data) => { // 协查按钮
+        this.contorlBtn('协查', data)
+      })
+      Bus.$on('isShowbdbtn', (data) => { // 部督按钮
+        this.contorlBtn('部督', data)
+      })
+      Bus.$on('isShowtdbtn', (data) => { // 厅督按钮
+        this.contorlBtn('厅督', data)
+      })
+      Bus.$on('isShowsdbtn', (data) => { // 市督按钮
+        this.contorlBtn('市督', data)
+      })
+    },
+    contorlBtn(name, data) { // 控制当前按钮显隐
+      this.bqList.forEach(item => {
+        if (item.name === name) { // 审核通过之后，
+          item.isShowbtn = data
+        }
+      })
     },
     dealWithData() { // 处理案件类型数据，添加颜色背景
       this.AJID = this.ajid
@@ -141,7 +168,7 @@ export default {
       }
     },
     showTipsC() {
-      // this.showAjbhCom = true
+      this.showAjbhCom = true
     },
     clickBlank() {
       this.showAjbhCom = false
@@ -157,6 +184,10 @@ export default {
   },
   activated() {
     this.showAjbhCom = false
+    this.handleBusOnEvent() // 顶部按钮的显隐判断
+  },
+  created() {
+    this.handleBusOnEvent() // 顶部按钮的显隐判断
   }
 }
 </script>
@@ -194,15 +225,14 @@ export default {
       }
     }
   }
-   .btnStyle {
+  .btnStyle {
     margin-left: 10px;
     color: #fff;
     font-size: 15px;
-    padding: 3px 12px;
+    padding: 2px 12px;
     text-shadow: 0 0 1px #000;
-    border-radius:10px;
-    background-image: linear-gradient(140deg, #177ce0 0%, #54afe0 100%),
-    linear-gradient(#ff8547, #ff8547);
+    border-radius: 10px;
+    background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
     cursor: pointer;
   }
 }
@@ -218,14 +248,6 @@ export default {
 }
 .orange {
   color: #ff7a04;
-}
-.lbbg {
-  font-size: 14px;
-  padding: 2px 6px;
-  background-image: linear-gradient(140deg, #177ce0 0%, #54afe0 100%),
-    linear-gradient(#ff8547, #ff8547);
-  background-blend-mode: normal, normal;
-  border-radius: 4px;
 }
 .pat {
   padding: 22px 0 0 22px;

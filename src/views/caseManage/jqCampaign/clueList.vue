@@ -226,21 +226,29 @@ export default {
             }
           }
           if (this.curDeptType === -1 || this.curDeptType === 1 || this.curDeptType === '') { // 当前行部门 省 总队
-            // currentArea = [this.curAreaCode]
+            currentArea = ['610000']
           } else if (this.curDeptType === 2) { // 当前行部门支队
             if (this.curAreaCode) {
               currentArea = ['610000', this.curAreaCode]
             }
           } else if (this.curDeptType === 3) { // 大队
             if (this.curAreaCode) {
-              currentArea = ['610000', this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+              if (this.$route.query.source !== 'mainn') {
+                currentArea = ['610000', this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+              } else {
+                currentArea = ['610000', this.curAreaCode]
+              }
             }
           } else if (this.curDeptType === 4) { // 派出所
             if (this.curAreaCode) {
               if (this.curAreaCode === '611400') { // 杨凌例外
                 currentArea = ['610000', '611400']
               } else { // 正常的派出所
-                currentArea = ['610000', this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+                if (this.$route.query.source !== 'mainn') {
+                  currentArea = ['610000', this.curAreaCode.substring(0, 4) + '00', this.curAreaCode]
+                } else {
+                  currentArea = ['610000', this.curAreaCode]
+                }
               }
             }
           }
@@ -249,8 +257,12 @@ export default {
           this.handleAreaChange(currentArea) // 查单位机构
           if (this.curDeptType === -1 || this.curDeptType === 1) { // 省厅、总队
 
-          } else if (this.curDeptType === 2 || this.curDeptType === 3) { // 支队， 大队
-            if (this.dqbmDeptCode) {
+          } else if (this.curDeptType === 2) { // 支队
+            if (this.dqbmDeptCode && this.$route.query.source !== 'mainn') {
+              this.department = [this.dqbmDeptCode]
+            }
+          } else if (this.curDeptType === 3) { // 大队
+            if (this.dqbmDeptCode && this.$route.query.source !== 'mainn') {
               this.department = [this.dqbmDeptCode]
             }
           }
@@ -352,7 +364,11 @@ export default {
         showType: this.showType // 是查地市还是区县
       }
       if (this.curAreaCode !== '610000') { // 省厅不传
-        para.deptCode = this.applyDeptCode === this.dqbmDeptCode ? '' : this.dqbmDeptCode
+        if (this.curDeptType !== 2 && this.$route.query.source !== 'mainn') { // 传递过来的当前行部门类型不是支队,并且不是集群列表的内层点击捡来
+          para.deptCode = this.applyDeptCode === this.dqbmDeptCode ? '' : this.dqbmDeptCode
+        } else {
+          para.deptCode = ''
+        }
       }
 
       if (hand) { // 手动点击时，添加埋点参数

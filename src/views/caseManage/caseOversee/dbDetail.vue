@@ -278,13 +278,12 @@ export default {
       letter-spacing: 3px;
     }
   }
+  // 固定左侧列的样式问题
   .el-table__fixed
     .el-table__fixed-body-wrapper
     .el-table__body
     tr:nth-child(odd) {
-    // background-color: rgba(0, 89, 130, 1);
-    background: #004f77;
-    opacity: 1;
+    background-color: #004f77;
   }
   .el-table__fixed
     .el-table__fixed-body-wrapper
