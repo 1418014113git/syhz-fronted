@@ -16,7 +16,7 @@
             <el-form-item label="分享时间：">
               {{share.shareTime | formatDate}}
             </el-form-item>
-            <el-form-item label="接收部门：" prop="selectedDepts">
+            <el-form-item label="接收单位：" prop="selectedDepts">
               <el-collapse>
                 <el-collapse-item name="1">
                   <template slot="title">
@@ -24,7 +24,7 @@
                         <span>选择部门</span>
                         <el-checkbox-group v-model="checkListDeps" style="position:absolute;top: 0;left: 100px;">
                           <!-- 当前登录部门的 所有上级复选框 禁用 -->
-                          <el-checkbox :label="1" :disabled="Number(deptInfo.depType)>1" @change="handleCheckedDepts($event,'1')">总队</el-checkbox>
+                          <!-- <el-checkbox :label="1" :disabled="Number(deptInfo.depType)>1" @change="handleCheckedDepts($event,'1')">总队</el-checkbox> -->
                           <el-checkbox :label="2" :disabled="Number(deptInfo.depType)>2" @change="handleCheckedDepts($event,'2')">支队</el-checkbox>
                           <el-checkbox :label="3" :disabled="Number(deptInfo.depType)>3" @change="handleCheckedDepts($event,'3')">大队</el-checkbox>
                           <el-checkbox :label="4" :disabled="Number(deptInfo.depType)>4" @change="handleCheckedDepts($event,'4')">派出所</el-checkbox>
@@ -32,11 +32,11 @@
                       </div>
                     </template>
                   <div class="dept-tree" v-loading="treeLoading">
+                     <!-- @check-change="deptChange" -->
                     <el-tree class="filter-tree" ref="depTree1" style="margin-top: 5px;"
                              :data="depData"
                              :props="{children: 'children',label: 'name',value: 'id' }"
                              highlight-current show-checkbox check-strictly
-                             @check-change="deptChange"
                              node-key="id">
                       <span slot-scope="{ node, data }" @mouseleave="mouseleave(data,$event)" @mouseover="mouseover(data,$event)" style="flex: 1; display: flex; align-items: center; justify-content: space-between; font-size: 14px; padding-right: 8px;">
                         <span>{{data.name}}</span>
@@ -51,9 +51,15 @@
               </el-collapse>
             </el-form-item>
             <el-form-item label="接收人：" prop="receivePersonId">
-              <el-select v-model="receivePersonIds" class="input_w" placeholder="请选择"
+              <!-- <el-select v-model="receivePersonIds" class="input_w" placeholder="请选择"
                          filterable multiple clearable>
                 <el-option v-for="item in userData" :key="item.value" :label="item.name + ' (' + item.userName + ')'" :value="item.value + ',' + item.name + ',' + item.deptId"></el-option>
+              </el-select> -->
+              <el-select v-model="receivePersonIds" filterable multiple clearable remote reserve-keyword
+                        placeholder="请输入警号或者真实姓名搜索" :remote-method="queryDeptsUser" :loading="userLoading" @visible-change="userVisible"
+                        @change="caseChange($event,scope.$index,scope.row)"
+                        value-key="id" class="input_w">
+                <el-option v-for="item in userData" :key="item.id" :label="item.id +'---'+item.name+' ('+item.userName+ ')'" :value="item.value + ',' + item.name + ',' + item.deptId"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item align="center">
@@ -96,6 +102,7 @@ export default {
       loading: false,
       noauth: false,
       selectedDepts: [],
+      userLoading: false, // 接收人loading
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       rules: {
@@ -261,7 +268,7 @@ export default {
           if (isChecked) { // 加人
             response.data.forEach(function(item) {
               _this.userData.push({
-                value: item.id, name: item.real_name, userName: item.user_name, deptId: deptId
+                value: item.id, name: item.real_name, userName: item.user_name, deptId: deptId, id: item.id
               })
             })
           } else {
@@ -314,6 +321,48 @@ export default {
         }
       }
       this.depData = getClueShareDepts(allList, this.curDept.parentDepCode, this.curDept.depCode)[0].children
+    },
+    userVisible(flag) {
+      if (!flag) {
+        this.userLoading = false
+        this.userData = []
+      }
+    },
+    queryDeptsUser(query) {
+      var list = this.$refs.depTree1.getCheckedNodes()
+      var deptArr = []
+      this.userData = [] // 接收人
+      if (query !== '' && list.length > 0) {
+        for (let index = 0; index < list.length; index++) {
+          const element = list[index]
+          deptArr.push(element.depCode)
+        }
+        var param = {
+          depts: deptArr,
+          name: query
+        }
+        this.userLoading = true
+        var _this = this
+        this.$queryPost('api/deptsuser', param, 'upms').then(response => {
+          this.userLoading = false
+          response.data.forEach(function(item) {
+            _this.userData.push({
+              value: item.id, name: item.real_name, userName: item.user_name, deptId: item.deptId, id: item.id
+            })
+          })
+        }).catch(() => {
+          this.userLoading = false
+        })
+      } else {
+        this.userLoading = false
+        this.userData = []
+        if (list.length === 0) {
+          this.$message({
+            message: '请先选择接收单位',
+            type: 'warning'
+          })
+        }
+      }
     }
   },
   mounted() {
@@ -380,5 +429,8 @@ export default {
   max-height: 400px;
   overflow-y: auto;
   padding: 5px;
+}
+.el-select__input {
+  color: #f2f6fc;
 }
 </style>
