@@ -18,7 +18,7 @@
           <el-input v-model="filters.address" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
         <el-form-item label="下发日期">
-          <el-date-picker v-model="filters.time" type="daterange" value-format="yyyy-MM-dd" start-placeholder="开始日期" end-placeholder="截止日期"></el-date-picker>
+          <el-date-picker v-model="filters.time" type="daterange" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期" end-placeholder="截止日期"></el-date-picker>
         </el-form-item>
       </el-col>
       <el-col :span="24" style="padding-bottom: 0;">
@@ -53,7 +53,11 @@
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column prop="receiveDate"  label='下发日期'  min-width="100" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="receiveDate"  label='下发日期'  min-width="120" show-overflow-tooltip>
+          <template slot-scope="scope">
+            {{$parseTime(scope.row.receiveDate, '{y}-{m}-{d}')}}
+          </template>
+        </el-table-column>
         <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
           <template slot-scope="scope">
             <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
