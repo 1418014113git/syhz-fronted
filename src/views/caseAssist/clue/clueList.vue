@@ -18,7 +18,7 @@
           <el-input v-model="filters.address" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
         <el-form-item label="下发日期">
-          <el-date-picker v-model="filters.time" type="daterange" value-format="yyyy-MM-dd" start-placeholder="开始日期" end-placeholder="截止日期"></el-date-picker>
+          <el-date-picker v-model="filters.time" type="daterange" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期" end-placeholder="截止日期"></el-date-picker>
         </el-form-item>
       </el-col>
       <el-col :span="24" style="padding-bottom: 0;">
