@@ -16,9 +16,7 @@
           v-model="query.createTimeStart"
           type="date"
           value-format="yyyy-MM-dd"
-          placeholder="请选择开始时间"
-          @change="createTimeStartChange"
-        >
+          placeholder="请选择开始时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="至" prop="createTimeEnd">
@@ -27,87 +25,47 @@
           type="date"
           size="small"
           value-format="yyyy-MM-dd"
-          placeholder="请选择结束时间"
-          @change="createTimeEndChange"
-        >
+          placeholder="请选择结束时间">
         </el-date-picker>
       </el-form-item>
-
       <el-form-item>
         <el-button type="primary" size="small" @click="getList">检索</el-button>
         <el-button size="small" @click="add">上传</el-button>
-        <!-- <el-button size="small" @click="exportExcel">导出线索</el-button> -->
       </el-form-item>
     </el-form>
-    <el-table :data="listData" v-loading="listLoading" style="width: 100%;">
-      <el-table-column type="index" label="序号" width="60"></el-table-column>
-
-      <el-table-column
-        prop="title"
-        label="报告标题"
-        min-width="10%"
-      ></el-table-column>
-      <el-table-column
-        prop="createTime"
-        label="生成时间"
-        min-width="5%"
-        format="yyyy-MM-dd"
-        value-format="yyyy-MM-dd"
-      ></el-table-column>
-      <el-table-column
-        prop="uploadTime"
-        label="上传时间"
-        min-width="5%"
-        format="yyyy-MM-dd"
-        value-format="yyyy-MM-dd"
-      ></el-table-column>
-
-      <el-table-column label="操作" width="165">
+    <el-table :data="listData" v-loading="listLoading" style="width: 100%;" class="table_th_center">
+      <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+      <el-table-column prop="title" label="报告标题" min-width="8%" show-overflow-tooltip align="center">
         <template slot-scope="scope">
-          <el-button
-            title="下载"
-            size="mini"
-            type="primary"
-            icon="el-icon-edit"
-            circle
-            @click="handleDownLoad(scope.$index, scope.row)"
-          ></el-button>
-          <el-button
-            title="删除"
-            size="mini"
-            type="danger"
-            icon="el-icon-delete"
-            circle
-            @click="handleDel(scope.row)"
-          ></el-button>
+          <span @click="previewReport(row)">{{scope.row.title}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="createTime" label="生成时间" min-width="6%" format="yyyy-MM-dd" align="center">
+        <template slot-scope="scope">
+          {{scope.row.createTime.substring(0,10)}}
+        </template>
+      </el-table-column>
+      <el-table-column prop="uploadTime"  label="上传时间"  min-width="6%"  format="yyyy-MM-dd" align="center">
+        <!-- <template slot-scope="scope">
+          {{scope.row.uploadTime.substring(0,10)}}
+        </template> -->
+      </el-table-column>
+      <el-table-column label="操作" width="100">
+        <template slot-scope="scope">
+          <el-button title="下载" size="mini" type="primary" icon="el-icon-download" circle @click="handleDownLoad(scope.$index, scope.row)"></el-button>
+          <el-button title="删除" size="mini" type="danger" icon="el-icon-delete" circle @click="handleDel(scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
     <!--工具条-->
     <el-col :span="24" class="toolbar">
-      <el-pagination
-        v-if="total > 0"
-        layout="total, sizes, prev, pager, next, jumper"
-        @current-change="handleCurrentChange"
-        :page-sizes="[15, 30, 50, 100]"
-        :page-size="pageSize"
-        @size-change="handleSizeChange"
-        :total="total"
-        :current-page="page"
-        style="float:right;"
-      >
-      </el-pagination>
+      <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper"  @current-change="handleCurrentChange" :page-sizes="[15, 30, 50, 100]"
+        :page-size="pageSize" @size-change="handleSizeChange" :total="total" :current-page="page" style="float:right;"></el-pagination>
     </el-col>
-    <el-dialog
-      title="提示"
-      :visible.sync="uploadDialogVisible"
-      width="30%"
-      center
-      @close="resetForm('ycReportForm')"
-    >
-      <el-form :model="filters" ref="ycReportForm">
-        <el-form-item label="报告类型">
-          <el-select v-model="filters.category" placeholder="请选择">
+    <el-dialog title="上传舆情报告" :visible.sync="uploadDialogVisible" @close="resetForm('ycReportForm')">
+      <el-form :model="ycReportForm" ref="ycReportForm" label-width="90px" style="width:94%;margin:10px auto 0;" v-loading="saveLoading">
+        <el-form-item label="报告类型" prop="category">
+          <el-select v-model="ycReportForm.category" placeholder="请选择">
             <el-option
               :label="item.label"
               :value="item.code"
@@ -116,13 +74,8 @@
             ></el-option>
           </el-select>
         </el-form-item>
-
-        <el-form-item label="报告文件" v-if="firstSubmitVisible">
-          <el-upload
-            class="upload-demo"
-            ref="upload"
-            drag
-            multiple
+        <el-form-item label="报告文件" prop="attachment" v-if="firstSubmitVisible">
+          <el-upload ref="upload" drag multiple
             :action="uploadAction"
             :limit="10"
             :auto-upload="true"
@@ -132,54 +85,34 @@
             :on-preview="imgPreview"
             :before-remove="imgBfRemove"
             :before-upload="beforeUpload"
-            :disabled="noauth"
-          >
+            :disabled="noauth">
             <i class="el-icon-upload"></i>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
-            <div class="el-upload__tip" slot="tip" style="text-align:center">
-              {{ UploadAttachment.tipText_ycReport_style }}
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__tip" slot="tip">{{ UploadAttachment.tipText_ycReport_style }}</div>
           </el-upload>
         </el-form-item>
-        <el-form-item>
-          <el-button
-            @click="cancelEdit"
-            class="cancelBtn"
-            :disabled="formLoading"
-            >取 消</el-button
-          >
-          <el-button
-            type="primary"
-            class="saveBtn"
-            @click="onSubmit(0)"
-            :loading="saveBtnLoading"
-            :disabled="saveBtnDisabled"
-            >保 存</el-button
-          >
+        <el-form-item style="text-align: center;">
+          <el-button @click="cancelEdit" class="cancelBtn" :disabled="saveLoading">取 消</el-button>
+          <el-button type="primary" class="saveBtn" @click="onSubmit(0)" :loading="saveLoading" :disabled="saveLoading">保 存</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
   </section>
 </template>
 <script>
-import { getCluePage } from '@/api/clue';
-import importexport from '@/api/importexport';
-import { uploadImg } from '@/utils/editorUpload';
+// import importexport from '@/api/importexport'
+// import { uploadImg } from '@/utils/editorUpload'
 export default {
   name: 'analysis',
   data() {
     return {
-      saveBtnDisabled: false,
       nameCheckFlag: false, // true为重复
-      formLoading: false,
-      uploadDialogVisible: false,
+      uploadDialogVisible: false, // 上传弹框
       firstSubmitVisible: true,
       uploadAction: this.UploadAttachment.uploadFileUrl,
       noauth: false,
       category: '',
-      saveBtnLoading: false,
+      saveLoading: false, // 弹框保存loading
       applyBtnLoading: false,
       defaultTime: ['00:00:00', '23:59:59'],
       categoryList: [
@@ -199,6 +132,7 @@ export default {
         createTime: '', // 生成时间，根据文件名获取
         attachment: ''
       },
+      ycReportForm: {}, // 上传弹框表单
       listData: [],
       uploadImgs: [],
       query: {
@@ -209,10 +143,10 @@ export default {
     }
   },
   methods: {
-    createTimeStartChange(val) {},
-    createTimeEndChange(val) {},
+    previewReport() { // 预览
+
+    },
     onSubmit(state) {
-      this.formLoading = true
       this.$refs.ycReportForm.validate(valid => {
         if (valid) {
           this.handleImg()
@@ -221,49 +155,41 @@ export default {
               message: '请至少选择一个文件',
               type: 'error'
             })
-            this.formLoading = false
-            return;
+            return
           }
           const param = {
-            attachment: this.filters.attachment,
-            category: this.filters.category
+            attachment: this.ycReportForm.attachment,
+            category: this.ycReportForm.category
           }
+          this.saveLoading = true
           if (!this.nameCheckFlag) {
             // 不重复
-            this.saveBtnDisabled = false
-            this.saveBtnLoading = true
-            this.$save('yqreport', param)
-              .then(response => {
-                if (response.code === '000000') {
-                  this.saveBtnLoading = false
-                  this.formLoading = false
-                  setTimeout(() => {
-                    this.uploadDialogVisible = false
-                  }, 2000)
-                  this.$message({
-                    message: '报告上传成功',
-                    type: 'success'
-                  })
-                }
-              })
-              .catch(() => {
-                this.btnLoading = false
-              })
-
-            /*
-          "[{\"name\":\"4bf32c45c1df4437a7164dd87bbffe9c (1).doc\",\"path\":\"http://192.168.43.32:9003/file/downloadFile/5e005f6356c8270910f24d50\"}]"
-          */
+            this.saveLoading = true
+            this.$save('yqreport', param).then(response => {
+              if (response.code === '000000') {
+                this.saveLoading = false
+                setTimeout(() => {
+                  this.uploadDialogVisible = false
+                }, 2000)
+                this.$message({
+                  message: '报告上传成功',
+                  type: 'success'
+                })
+                this.getList() // 页面刷新
+              }
+            }).catch(() => {
+              this.saveLoading = false
+            })
           } else {
             this.$message({
               message: '文件名重复，请确认后重新上传',
               type: 'error'
             })
-            this.formLoading = false
+            this.saveLoading = false
           }
         }
       })
     },
-
     // checkFileName(url, params) {
     //   return new Promise((resolve, reject) => {
     //     axios
@@ -307,7 +233,7 @@ export default {
         return this.$confirm('确定移除' + file.name + '？')
       }
     },
-    imgPreview(file) {},
+    imgPreview(file) { },
     beforeUpload(file) {
       const fileName = file.name
       var type = file.name.substring(
@@ -323,14 +249,7 @@ export default {
       // const audioReg = /^(audio\/mp3)$/
 
       let flag = false
-      if (
-        type === 'doc' ||
-        type === 'docx' ||
-        type === 'DOC' ||
-        type === 'DOCX' ||
-        type === 'pdf' ||
-        type === 'PDF'
-      ) {
+      if (type === 'doc' || type === 'docx' || type === 'DOC' || type === 'DOCX' || type === 'pdf' || type === 'PDF') {
         // this.uploadFileType = '0';
         flag = true
         if (file.size / 1024 / 1024 > 64) {
@@ -360,19 +279,17 @@ export default {
         fileName: fileName
       }
 
-      this.$query('YQFILENAMECHECK', param)
-        .then(res => {
-          this.btnLoading = false
-          if (res.code === '000000') {
-            if (Number(res.data[0].count) > 0) {
-              this.nameCheckFlag = true
-              return false
-            }
+      this.$query('YQFILENAMECHECK', param).then(res => {
+        this.btnLoading = false
+        if (res.code === '000000') {
+          if (Number(res.data[0].count) > 0) {
+            this.nameCheckFlag = true
+            return false
           }
-        })
-        .catch(() => {
-          this.btnLoading = false
-        })
+        }
+      }).catch(() => {
+        this.btnLoading = false
+      })
       // {
       // const rejected = checkFileName('YQFILENAMECHECK', {
       //   belongMode: '3',
@@ -419,69 +336,40 @@ export default {
             })
           }
         }
-        this.filters.attachment = JSON.stringify(arr)
+        this.ycReportForm.attachment = JSON.stringify(arr)
       }
     },
-
-    // 下载按钮控制显示
-    // downLoadBtn(row) {
-    //   return (
-    //     row.submitPersonId === JSON.parse(sessionStorage.getItem('userId'))
-    //   )
-    // },
-    // // 删除按钮控制显示
-    // delBtn(row) {
-    //   if (row.shareStatus + '' === '0') {
-    //     // 删除按钮编号
-    //     return (
-    //       (this.$isViewBtn('100901') &&
-    //         row.submitDeptId + '' ===
-    //           JSON.parse(sessionStorage.getItem('depToken'))[0].id + '') ||
-    //       row.submitPersonId + '' ===
-    //         JSON.parse(sessionStorage.getItem('userId')) + ''
-    //     )
-    //   }
-    //   return false
-    // },
-    // 查询
-    getList(flag) {
+    getList(flag, hand) {
+      this.page = flag ? 1 : this.page
+      // 可以只输入开始或者结束；只输入结束时，开始默认2019-12-01
+      if (this.query.createTimeStart && !this.query.createTimeEnd) { // 选择了开始时间,结束时间为空
+        this.query.createTimeEnd = this.$parseTime(new Date(), '{y}-{m}-{d}')
+      } else if (!this.query.createTimeStart && this.query.createTimeEnd) {
+        this.query.createTimeStart = '2019-12-01'
+      }
       this.listLoading = true
-      const para = {
+      var para = {
         createTimeStart: this.query.createTimeStart,
         createTimeEnd: this.query.createTimeEnd,
         category: this.query.category
       }
-      this.$query('page/yqreport', para)
-        .then(response => {
-          this.listLoading = false
-          if (response.data.list && response.data.list.length > 0) {
-            this.listData = response.data.list
-            this.total = response.data.totalCount
-            this.pageSize = response.data.pageSize
-          } else {
-            this.listData = []
-          }
-        })
-        .catch(() => {
-          this.listLoading = false
-        })
-    },
-    // 查询请求
-    queryRequest(param) {
-      this.listLoading = true
-      getCluePage(param)
-        .then(response => {
-          if (response.data) {
-            this.total = response.data.totalCount
-            this.listData = response.data.list
-            this.page = response.data.pageNum
-            this.pageSize = response.data.pageSize
-            this.listLoading = false
-          }
-        })
-        .catch(() => {
-          this.listLoading = false
-        })
+      if (hand) { // 手动点击时，添加埋点参数
+        para.logFlag = 1
+      }
+      para.createTimeStart = para.createTimeStart ? para.createTimeStart + ' 00:00:00' : '' // 开始时间
+      para.createTimeEnd = para.createTimeEnd ? para.createTimeEnd + ' 23:59:59' : '' // 结束时间
+      this.$query('page/yqreport', para).then(response => {
+        this.listLoading = false
+        if (response.data.list && response.data.list.length > 0) {
+          this.listData = response.data.list
+          this.total = response.data.totalCount
+          this.pageSize = response.data.pageSize
+        } else {
+          this.listData = []
+        }
+      }).catch(() => {
+        this.listLoading = false
+      })
     },
     // 重置
     reset() {
@@ -491,7 +379,7 @@ export default {
     add() {
       // alert(this.$refs.ycReportForm)
       this.uploadImgs = []
-      this.filters.category = '1';
+      this.ycReportForm.category = '1'
       this.uploadDialogVisible = true
     },
     // 分享
@@ -510,9 +398,10 @@ export default {
     },
     // 下载
     handleDownLoad(index, row) {
-      var attach = JSON.parse(row.attachment)
-      console.log(attach)
-      window.open(attach.path)
+      var item = JSON.parse(row.attachment)
+      const arr = item.path.split('/file')
+      const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
+      this.$download_http_mg(path, { fileName: item.name })
     },
     // 删除
     handleDel(row) {
@@ -520,63 +409,25 @@ export default {
         confirmButtonText: '是',
         cancelButtonText: '否',
         type: 'warning'
-      })
-        .then(() => {
-          alert('shi')
-          // this.listLoading = true
-          this.$remove('YQREPORT/' + row.id, {})
-            .then(response => {
-              alert('ok')
-              this.listLoading = false
-              this.$message({
-                message: '删除成功',
-                type: 'success'
-              })
-              this.getList(true)
-            })
-            .catch(() => {
-              this.listLoading = false
-            })
-        })
-        .catch(() => {
+      }).then(() => {
+        this.listLoading = true
+        this.$remove('YQREPORT/' + row.id, {}).then(response => {
+          this.listLoading = false
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
+          this.getList(true) // 页面刷新
+        }).catch(() => {
           this.listLoading = false
         })
-    },
-    dateTimeFormat() {},
-    // 线索来源格式化
-    collectionTypeFormat(row) {
-      var list = this.$getDicts('xsly')
-      for (let i = 0; i < list.length; i++) {
-        if (list[i].dictKey + '' === row.collectionTypeId + '') {
-          return list[i].dictName
-        }
-      }
-    },
-    // 线索分类格式化
-    clueSortFormat(row) {
-      var list = this.$getDicts('xsfl')
-      for (let i = 0; i < list.length; i++) {
-        if (list[i].dictKey + '' === row.clueSortId + '') {
-          return list[i].dictName
-        }
-      }
-    },
-
-    // 初始化
-    init() {
-      var param = {
-        currentPage: this.page,
-        pageSize: this.pageSize,
-        submitPersonId: JSON.parse(sessionStorage.getItem('userId')),
-        submitDeptId: JSON.parse(sessionStorage.getItem('depToken'))[0].id,
-        currentDeptId: JSON.parse(sessionStorage.getItem('depToken'))[0].id,
-        currentUserId: JSON.parse(sessionStorage.getItem('userId'))
-      }
-      this.queryRequest(param)
+      }).catch(() => {
+        this.listLoading = false
+      })
     }
   },
   mounted: function() {
-    this.getList()
+    this.getList(true)
   }
 }
 </script>
