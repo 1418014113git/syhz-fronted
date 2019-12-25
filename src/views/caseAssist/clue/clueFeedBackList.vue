@@ -167,10 +167,12 @@
         this.listData = []
         this.tableHead = []
       },
-      closeDialog() {
+      closeDialog(flag) {
         this.isShowfkDialog = false
         this.$refs.clueFeedBackDetail.initData()
-        this.query()
+        if (flag) {
+          this.query()
+        }
       },
       resetForm() { // 重置
         this.filters = {
@@ -194,7 +196,7 @@
         this.query(true, true)
       },
       handleDetail(index, row) { // 详情
-        if (!row.fbId) {
+        if (String(row.signStatus) !== '2' || !row.fbId) {
           this.$alert('该线索还未签收，请先前往详情页进行签收。', '提示', {
             type: 'warning',
             confirmButtonText: '确定',
@@ -215,7 +217,7 @@
         }
       },
       toback() { // 返回
-        this.$router.back(-1)
+        this.$gotoid('/caseAssist/detail', this.assistId)
       },
       rowClick(text) {
         this.$alert(text, '内容', {

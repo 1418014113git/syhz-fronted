@@ -363,7 +363,7 @@ export default {
     toXS(row, type, flag, parentRow) {
       const para = {
         id: row.assistId,
-        type: type,
+        type: type === '2' ? '2,3' : '',
         assistType: '1',
         deptCode: '',
         cityCode: row.cityCode
