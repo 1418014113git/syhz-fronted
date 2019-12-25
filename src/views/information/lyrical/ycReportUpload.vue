@@ -291,6 +291,8 @@ export default {
           if (Number(res.data[0].count) > 0) {
             this.nameCheckFlag = true
             return false
+          } else {
+            this.nameCheckFlag = false
           }
         }
       }).catch(() => {
