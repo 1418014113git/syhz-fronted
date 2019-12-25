@@ -58,7 +58,7 @@
         <template slot-scope="props">
           <el-form label-position="left" inline class="demo-table-expand">
             <el-form-item label="简要案情">
-              <span>{{ props.row.jyaq }}</span>
+              <span v-html="getReplace(props.row.jyaq)"></span>
             </el-form-item>
           </el-form>
         </template>
@@ -775,6 +775,12 @@ export default {
           }
         }
         sessionStorage.setItem(this.$route.path, '')
+      }
+    },
+    getReplace(data) {
+      if (data) {
+        var item = data.split('/r/n').join('\r\n')
+        return item
       }
     }
   },

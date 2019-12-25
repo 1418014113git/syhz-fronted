@@ -27,13 +27,13 @@
             </el-table-column>
             <el-table-column prop="cf" label="查否"  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.cf>0 "  @click="gotoxslist(scope.row,'1')">{{scope.row.cf}}</span>
+                <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.cf>0 "  @click="gotoxslist(scope.row,'3')">{{scope.row.cf}}</span>
                 <span v-else>{{scope.row.cf}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="whc" label="未核查"  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span class="linkColor"   v-if="controlClick(scope.row) && scope.row.whc>0" @click="gotoxslist(scope.row,'3')">{{scope.row.whc}}</span>
+                <span class="linkColor"   v-if="controlClick(scope.row) && scope.row.whc>0" @click="gotoxslist(scope.row,'1')">{{scope.row.whc}}</span>
                 <span v-else>{{scope.row.whc}}</span>
               </template>
             </el-table-column>
@@ -59,7 +59,7 @@
             <template slot-scope="scope">
               <el-button size="mini" title="线索分发"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfa(scope.row) && $isViewBtn('101909')"  @click="handlefenfa(scope.$index, scope.row)"><svg-icon icon-class="fenfa"></svg-icon></el-button>
               <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')" @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
-              <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length &&  curDept.depType === '1' && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
+              <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && controlpjdf(scope.row) && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
               <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score"  icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
             </template>
           </el-table-column>
@@ -172,6 +172,9 @@ export default {
         this.baseInfo = this.info
         this.getDeptsshdw() // 查上级单位
       }
+      // Bus.$on('dsqxbtn', (data) => { // 接收地市签收列表传递过来的参数
+      //   this.dsqxbtn = data
+      // })
     },
     controlClick(row) { // 数字点击权限控制
       if (this.listData.length > 0) {
@@ -190,11 +193,33 @@ export default {
       }
     },
     controlxsfa(row) { // 线索分发按钮显隐控制
-      return (this.curDept.depType === '2' && this.curDept.depCode === row.deptCode && this.curDept.depCode !== '611400390000' && row.deptCode !== '611400390000' && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8'))
+      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+        const curDate = new Date(this.baseInfo.systemTime)
+        const startDate = new Date(this.baseInfo.startDate)
+        return (this.curDept.depType === '2' && this.curDept.depCode === row.deptCode && this.curDept.depCode !== '611400390000' && row.deptCode !== '611400390000' && curDate > startDate)
+      } else {
+        return false
+      }
     },
     controlxsfk(row) { // 线索反馈按钮显隐控制
-      return (((this.curDept.depType === '2' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === row.deptCode.substring(0, 4) === '6114')) && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) // 611400390000 杨凌支队部门code
+      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+        const curDate = new Date(this.baseInfo.systemTime)
+        const startDate = new Date(this.baseInfo.startDate)
+        return (((this.curDept.depType === '2' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === row.deptCode.substring(0, 4) === '6114')) && curDate > startDate) // 611400390000 杨凌支队部门code
+      } else {
+        return false
+      }
     },
+    controlpjdf(row) { // 评价打分按钮显隐控制
+      if (Number(this.baseInfo.status) >= 4) { // 审核通过之后
+        const curDate = new Date(this.baseInfo.systemTime)
+        const endDate = new Date(this.baseInfo.endDate)
+        return this.curDept.depType === '1' && (String(row.hcl) === '100' || String(row.hcl) === '100.00') && curDate > endDate // 核查率是100，当前时间>结束时间，上级单位可以评价打分
+      } else {
+        return false
+      }
+    },
+
     query() { // 查询列表
       this.listLoading = true
       var param = {
@@ -219,21 +244,48 @@ export default {
       })
     },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的线索反馈、线索反馈按钮
-      Bus.$emit('isShowffbtn', false) // 线索分发
-      Bus.$emit('isShowfkbtn', false) // 线索反馈
-      Bus.$emit('isShowpjbtn', false) // 评价打分
+      // Bus.$emit('isShowffbtn', false) // 线索分发
+      // Bus.$emit('isShowfkbtn', false) // 线索反馈
+      // Bus.$emit('isShowdspjbtn', false) // 评价打分
+      const curDate = new Date(this.baseInfo.systemTime)
       if (data.length > 0) {
         data.forEach(item => {
-          if (this.curDept.depType === '2' && this.curDept.depCode === item.deptCode && this.curDept.depCode !== '611400390000' && item.deptCode !== '611400390000' && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) { // 集群战役处于协查中、协查结束状态时 本单位显示分发  杨凌不能分发，下面没有大队，派出所和支队同权限的
-            Bus.$emit('isShowffbtn', true) // 线索分发
+          if (this.curDept.depType === '2' && this.curDept.depCode === item.deptCode && this.curDept.depCode !== '611400390000' && item.deptCode !== '611400390000') { // 集群战役处于协查中、协查结束状态时 本单位显示分发  杨凌不能分发，下面没有大队，派出所和支队同权限的
+            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+              const startDate = new Date(this.baseInfo.startDate)
+              if (curDate > startDate) {
+                Bus.$emit('isShowffbtn', true) // 线索分发显示
+              } else {
+                Bus.$emit('isShowffbtn', false) // 线索分发隐藏
+              }
+            } else {
+              Bus.$emit('isShowffbtn', false) // 线索分发隐藏
+            }
           }
-
-          if ((this.curDept.depType === '2' && this.curDept.depCode === item.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === item.deptCode.substring(0, 4) === '6114') && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) { // 集群战役处于协查中、协查结束状态时 本单位显示反馈  派出所和支队同权限的，可以反馈支队的信息
-            Bus.$emit('isShowfkbtn', true) // 线索反馈
-            Bus.$emit('xsfkRow', item) // 线索反馈当前行数据
+          if (((this.curDept.depType === '2' && this.curDept.depCode === item.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === item.deptCode.substring(0, 4) === '6114'))) { // 集群战役处于协查中、协查结束状态时 本单位显示反馈  派出所和支队同权限的，可以反馈支队的信息
+            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+              const startDate = new Date(this.baseInfo.startDate)
+              if (curDate > startDate) {
+                Bus.$emit('isShowfkbtn', true) // 线索反馈显示
+                Bus.$emit('xsfkRow', item) // 线索反馈当前行数据
+              } else {
+                Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
+              }
+            } else {
+              Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
+            }
           }
-          if (this.curDept.depType === '1' && Number(this.baseInfo.status) >= 4) { // 集群战役审核通过后  上级单位可以评价打分
-            Bus.$emit('isShowpjbtn', true) // 评价打分
+          if (this.curDept.depType === '1' && (String(item.hcl) === '100' || String(item.hcl) === '100.00')) { // 核查率是100，当前时间>结束时间，上级单位可以评价打分
+            if (Number(this.baseInfo.status) >= 4) { // 审核通过以后
+              const endDate = new Date(this.baseInfo.endDate)
+              if (curDate > endDate) {
+                Bus.$emit('isShowpjbtn', true) // 显示评价打分按钮
+              } else {
+                Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
+              }
+            } else {
+              Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
+            }
           }
         })
       }
@@ -256,10 +308,24 @@ export default {
       }
     },
     handlefenfa(index, row) { // 线索分发
+      if (String(row.signStatus) !== '2') { // 签收列表有签收按钮，表示有未签收的线索
+        this.$alert('该线索还未签收，请先前进行签收。', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return false
+      }
       this.curRow = row
       this.isShowdrffxsDialog = true
     },
     handlefankui(index, row) { // 线索反馈
+      if (String(row.signStatus) !== '2') { // 签收列表有签收按钮，表示有未签收的线索
+        this.$alert('该线索还未签收，请先前进行签收。', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return false
+      }
       this.curRow = row
       var deptCode = ''
       if (row.deptCode !== this.baseInfo.applyDeptCode && this.curDept.depType !== '1') {

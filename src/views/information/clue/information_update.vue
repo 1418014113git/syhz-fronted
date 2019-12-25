@@ -291,16 +291,21 @@ export default {
         this.information.clueSortId = response.data.clueSortId + ''
         this.information.collectionTypeId = response.data.collectionTypeId + ''
         // 行政区划
-        const clArr = response.data.collectionLocation.replace(new RegExp(/\[/, 'gm'), '').replace(new RegExp(/\]/, 'gm'), '').split(',')
-        this.information.collectionLocation = []
-        if (clArr.length > 0) { // 省
-          this.information.collectionLocation.push(clArr[0].trim())
-        }
-        if (clArr.length > 1) { // 市
-          this.information.collectionLocation.push(clArr[1].trim())
-        }
-        if (clArr.length > 2) { // 区
-          this.information.collectionLocation.push(clArr[2].trim())
+        if (response.data.collectionLocation) {
+          var clArr = response.data.collectionLocation.replace(new RegExp(/\[/, 'gm'), '').replace(new RegExp(/\]/, 'gm'), '')
+          if (clArr.indexOf(',') !== -1) {
+            clArr = clArr.split(',')
+          }
+          this.information.collectionLocation = []
+          if (clArr.length > 0) { // 省
+            this.information.collectionLocation.push(clArr[0].trim())
+          }
+          if (clArr.length > 1) { // 市
+            this.information.collectionLocation.push(clArr[1].trim())
+          }
+          if (clArr.length > 2) { // 区
+            this.information.collectionLocation.push(clArr[2].trim())
+          }
         }
         // 附件
         if (response.data.attachment !== undefined && response.data.attachment !== null && response.data.attachment !== '') {
