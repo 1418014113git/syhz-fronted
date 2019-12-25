@@ -236,10 +236,16 @@ export default {
     imgPreview(file) { },
     beforeUpload(file) {
       const fileName = file.name
-      var type = file.name.substring(
-        file.name.lastIndexOf('.') + 1,
-        file.name.length
-      )
+      var type = file.name.substring(file.name.lastIndexOf('.') + 1, file.name.length)
+      if (this.uploadImgs.length > 0) {
+        for (let i = 0; i < this.uploadImgs.length; i++) {
+          if (this.uploadImgs[i].name === fileName) {
+            console.log('文件名重复')
+            this.nameCheckFlag = true
+            return
+          }
+        }
+      }
       // if(type.)
       // alert (fileName)
       // const wordReg = /^(application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)|(application\/msword)$/
