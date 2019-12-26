@@ -239,10 +239,10 @@ export default {
               if (curDate > startDate) {
                 Bus.$emit('isShowfkbtn', true) // 显示线索反馈按钮
               } else {
-                Bus.$emit('isShowfkbtn', false) // 隐藏线索反馈按钮
+                // Bus.$emit('isShowfkbtn', false) // 隐藏线索反馈按钮
               }
             } else {
-              Bus.$emit('isShowfkbtn', false) // 隐藏线索反馈按钮
+              // Bus.$emit('isShowfkbtn', false) // 隐藏线索反馈按钮
             }
           }
           if (Number(this.baseInfo.status) >= 4) { // 审核通过之后
@@ -251,7 +251,7 @@ export default {
               Bus.$emit('isShowpjbtn', true) // 显示评价打分按钮
             }
           } else {
-            Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
+            // Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
           }
         })
       }

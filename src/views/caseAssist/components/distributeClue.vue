@@ -66,7 +66,7 @@
     </el-form>
     <div class="dis_table_div">
       <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;"  @select="handleselectRow" @select-all="handleselectAll">
-        <el-table-column type="selection" width="50"></el-table-column>
+        <el-table-column type="selection" width="50" :selectable='selectInit'></el-table-column>
         <el-table-column type="index" width="60" label="序号" align="center"></el-table-column>
         <el-table-column prop="serialNumber" align="center" label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column prop="receiveName" align="center" label='接收单位'  min-width="250" show-overflow-tooltip >
@@ -102,7 +102,7 @@
 </template>
 <script>
 export default {
-  props: ['assistId', 'source', 'fastatus', 'jsdw', 'assistStatus'],
+  props: ['assistId', 'source', 'fastatus', 'jsdw', 'assistStatus', 'category'],
   name: 'distributeClue',
   components: {
   },
@@ -135,7 +135,8 @@ export default {
       tableHeight: null,
       tableHead: [], // 表头
       pcsParentDept: {}, // 派出所的上级部门
-      pageSource: '' // 进入页面的来源,
+      pageSource: '', // 进入页面的来源,
+      lycategory: '' // 是从主页的下发还是申请  2：申请，  3：下发
     }
   },
   watch: {
@@ -147,6 +148,11 @@ export default {
     source: {
       handler: function(val, oldeval) {
         this.pageSource = val
+      }
+    },
+    category: {
+      handler: function(val, oldeval) {
+        this.lycategory = val
       }
     }
   },
@@ -486,6 +492,11 @@ export default {
           areaCode: this.curDept.areaCode, // 当前区域code
           curType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType // 当前部门类型
         }
+      } else if (this.lycategory === '2') { // 主页点申请进来
+        param = {
+          areaCode: '610000', // 传省厅的区域code， 查所有的地市支队
+          curType: '1' // 传总队的类型
+        }
       } else {
         param = {
           areaCode: this.curDept.areaCode, // 当前区域code
@@ -534,6 +545,13 @@ export default {
       this.listData = []
       this.tableHead = []
     },
+    selectInit(row, index) { // 控制当前的行的复选框是否可选
+      if (row.distributeAble === 2) { // 以及分发过的线索
+        return false // 不可勾选
+      } else {
+        return true // 可勾选
+      }
+    },
     init(fastatus, jsdw) {
       this.clearData()
       this.checkId = []
@@ -559,6 +577,9 @@ export default {
     if (this.source) {
       this.pageSource = this.source
     }
+    if (this.category) {
+      this.lycategory = this.category
+    }
     this.init(this.fastatus, this.jsdw)
   },
   activated() {
@@ -583,7 +604,7 @@ export default {
     border: 1px solid #2f627a;
   }
   .caseAssist_distributeClue .el-table--border td {
-    // border-right: 1px solid #2f627a;
+   /* border-right: 1px solid #2f627a; */
     border-right-color: #2f627a;
   }
   .caseAssist_distributeClue .el-table--border::after,
