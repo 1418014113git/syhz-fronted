@@ -28,7 +28,7 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" @click="getList">检索</el-button>
+        <el-button type="primary" size="small" @click="getList(true,true)">检索</el-button>
         <el-button size="small" @click="add">上传</el-button>
       </el-form-item>
     </el-form>

@@ -21,9 +21,7 @@
 </template>
 
 <script>
-import {
-  getDBAJHome
-} from '@/api/supervise'
+// import { getDBAJHome } from '@/api/supervise'
 import {
   getAssistStatusText, getDBLevelText
 } from '@/utils/codetotext'
