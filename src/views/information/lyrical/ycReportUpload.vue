@@ -2,13 +2,12 @@
   <section>
     <el-form :inline="true" :model="filters" label-width="80px">
       <el-form-item label="报告类型">
-        <el-select v-model="query.category" placeholder="请选择">
+        <el-select v-model="query.category" placeholder="请选择" clearable>
           <el-option
             :label="item.label"
             :value="item.code"
             v-for="item in categoryList"
-            :key="item.code"
-          ></el-option>
+            :key="item.code"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="生成时间" prop="createTimeStart">
@@ -37,7 +36,8 @@
       <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
       <el-table-column prop="title" label="报告标题" min-width="8%" show-overflow-tooltip align="center">
         <template slot-scope="scope">
-          <span @click="previewReport(row)">{{scope.row.title}}</span>
+           <!-- @click="previewReport(scope.row)" -->
+          <span>{{scope.row.title}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="生成时间" min-width="6%" format="yyyy-MM-dd" align="center">
@@ -132,7 +132,9 @@ export default {
         createTime: '', // 生成时间，根据文件名获取
         attachment: ''
       },
-      ycReportForm: {}, // 上传弹框表单
+      ycReportForm: {
+        category: ''
+      }, // 上传弹框表单
       listData: [],
       uploadImgs: [],
       query: {
@@ -220,7 +222,9 @@ export default {
       })
     },
     resetForm(formName) {
-      this.$refs[formName].resetFields()
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
+      }
     },
     imgSuccess(res, file, fileList) {
       this.uploadImgs = fileList
@@ -324,12 +328,12 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
-      this.getList()
+      this.getList(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.getList()
+      this.getList(true, true)
     },
     handleImg() {
       if (this.uploadImgs.length > 0) {
@@ -385,9 +389,8 @@ export default {
     },
     // 添加
     add() {
-      // alert(this.$refs.ycReportForm)
       this.uploadImgs = []
-      this.ycReportForm.category = '1'
+      this.resetForm('ycReportForm')
       this.uploadDialogVisible = true
     },
     // 分享
