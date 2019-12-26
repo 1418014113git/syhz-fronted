@@ -59,7 +59,7 @@
             <el-checkbox v-model="allCheck" :indeterminate="isIndeterminate" @change="handleCheckAllChange" style="margin-right:20px;">全部</el-checkbox>
             <el-button type="primary" size="small" @click="batchDownloadReport" :disabled="checkedReport.length===0">批量下载</el-button>
           </div>
-          <div class="file_data_list clearfix" :style="'height:'+(clientHeight-160)+'px;overflow-y:auto;'">
+          <div class="file_data_list clearfix" :style="'height:'+(clientHeight-170)+'px;overflow-y:auto;'">
             <div v-for="item in listData" :key="item.key" class="file_data" @click="handlerClick(item)">
               <div>
                 <el-checkbox v-model="item.check" class="checkbox" @change="handleCheckedCitiesChange(item,$event)"></el-checkbox>
