@@ -259,10 +259,10 @@ export default {
               if (curDate > startDate) {
                 Bus.$emit('isShowffbtn', true) // 线索分发显示
               } else {
-                Bus.$emit('isShowffbtn', false) // 线索分发隐藏
+                // Bus.$emit('isShowffbtn', false) // 线索分发隐藏
               }
             } else {
-              Bus.$emit('isShowffbtn', false) // 线索分发隐藏
+              // Bus.$emit('isShowffbtn', false) // 线索分发隐藏
             }
           }
           if (((this.curDept.depType === '2' && this.curDept.depCode === item.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === item.deptCode.substring(0, 4) === '6114'))) { // 集群战役处于协查中、协查结束状态时 本单位显示反馈  派出所和支队同权限的，可以反馈支队的信息
@@ -272,10 +272,10 @@ export default {
                 Bus.$emit('isShowfkbtn', true) // 线索反馈显示
                 Bus.$emit('xsfkRow', item) // 线索反馈当前行数据
               } else {
-                Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
+                // Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
               }
             } else {
-              Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
+              // Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
             }
           }
           if (Number(this.baseInfo.status) >= 4) { // 审核通过之后
@@ -284,7 +284,7 @@ export default {
               Bus.$emit('isShowpjbtn', true) // 显示评价打分按钮
             }
           } else {
-            Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
+            // Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
           }
         })
       }

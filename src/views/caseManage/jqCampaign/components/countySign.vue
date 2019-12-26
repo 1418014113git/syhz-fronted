@@ -149,10 +149,10 @@ export default {
               if (curDate > startDate) {
                 Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
               } else {
-                Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
+                // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
               }
             } else {
-              Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
+              // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
             }
           }
         })

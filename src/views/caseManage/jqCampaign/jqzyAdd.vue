@@ -10,7 +10,7 @@
       <el-row type="flex" justify="center" v-if="isShowotherform">
         <el-col :span="23">
           <el-form-item label="标题" prop="clusterTitle">
-            <el-input v-model="form.clusterTitle" auto-complete="off" clearable maxlength="50"></el-input>
+            <el-input v-model.trim="form.clusterTitle" auto-complete="off" clearable maxlength="50"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
