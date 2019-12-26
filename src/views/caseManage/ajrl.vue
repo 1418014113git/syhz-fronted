@@ -339,6 +339,7 @@ export default {
       //   value: 'id'
       // },
       filters: {
+        statistic: '', // 是否案件认领统计跳转过来
         AJMC: '', // 案件名称
         AJBH: '', // 案件编号
         dType: '', // 时间筛选
@@ -1583,6 +1584,7 @@ export default {
 
       if (this.carryParam.origin === 'statistical') { // 案件认领统计页过来的
         this.showBackBtn = true // 显示返回按钮
+        this.filters.statistic = '1'
       }
       if (this.carryParam.colType) { // 认领状态
         this.qsStatus = this.carryParam.colType

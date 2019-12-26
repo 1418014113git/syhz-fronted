@@ -646,6 +646,7 @@ export default {
       if (param.dType && param.dType !== 'zdy') { // 认领时间筛选框
         param.dType = param.dType // 认领时间筛选值
       }
+      console.log(JSON.stringify(param))
       this.$gotoid('/caseManage/ajrl', JSON.stringify(param))
     },
     linkcfhb(canClick, level, cityCode, deptCode, deptType, type) { // 跳转重复合并列表
