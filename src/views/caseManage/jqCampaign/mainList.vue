@@ -250,6 +250,7 @@ export default {
       downLoadUrl: process.env.SYHZ_MODULE,
       carryParam: {}, // 存储集群战役统计页传递过来的参数
       totalType: '', // 要查申请获取下发标识
+      curparam: '', // 存储查询列表的参数临时变量
       props: {
         value: 'cityCode',
         label: 'cityName'
@@ -472,6 +473,7 @@ export default {
         para.noCheck = ''
         para.curCreate = ''
       }
+      this.curparam = para
       this.$query('casecluster/list', para).then((response) => {
         this.listLoading = false
         if (response.data && response.data.list.length > 0) {
@@ -796,14 +798,25 @@ export default {
           }
         })
       }
-      var para = {
-        clusterIds: checkAll.join(','), // 选中的列表集群战役Id集合，
-        curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 派出所取他的上级部门名称，非派出所取当前部门
-        realName: this.curUser.realName,
-        curUserPhone: this.curUser.phone ? this.curUser.phone : '',
-        fileName: '涉案线索协查参与地战果反馈表'
+      if (this.dcForm.type === 1) { // 全部
+        var parms = this.curparam
+        parms.category = 1
+        parms.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 派出所取他的上级部门名称，非派出所取当前部门
+        parms.realName = this.curUser.realName
+        parms.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
+        parms.fileName = '涉案线索协查参与地战果反馈表'
+        this.$download('cluster/export', parms)
+      } else { // 导出选中的
+        var para = {
+          category: 2,
+          clusterIds: checkAll.join(','), // 选中的列表集群战役Id集合，
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 派出所取他的上级部门名称，非派出所取当前部门
+          realName: this.curUser.realName,
+          curUserPhone: this.curUser.phone ? this.curUser.phone : '',
+          fileName: '涉案线索协查参与地战果反馈表'
+        }
+        this.$download('cluster/export', para)
       }
-      this.$download('cluster/export', para)
       setTimeout(() => {
         this.isShowdcdialog = false // 关闭弹框
         this.checkId = [] // 清空选中数组

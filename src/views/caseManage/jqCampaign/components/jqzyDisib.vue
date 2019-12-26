@@ -71,7 +71,7 @@
     </el-form>
     <div class="tableBox"  style="maxHeight:490px">
       <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;"  @select="handleselectRow" @select-all="handleselectAll">
-        <el-table-column type="selection" width="50"></el-table-column>
+        <el-table-column type="selection" width="50" :selectable='selectInit'></el-table-column>
         <el-table-column type="index" width="60" label="序号" ></el-table-column>
         <el-table-column prop="serialNumber"  label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
@@ -533,7 +533,6 @@ export default {
       }
     },
     getParam() {
-      console.log('获取参数')
       if (this.id) {
         this.assistId = this.id
       }
@@ -553,6 +552,13 @@ export default {
       }
       if (this.xcstatus) {
         this.xichastatus = this.xcstatus
+      }
+    },
+    selectInit(row, index) { // 控制当前的行的复选框是否可选
+      if (row.distributeAble === 2) { // 以及分发过的线索
+        return false // 不可勾选
+      } else {
+        return true // 可勾选
       }
     }
   },

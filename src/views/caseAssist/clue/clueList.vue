@@ -17,9 +17,9 @@
         <el-form-item label="地址">
           <el-input v-model="filters.address" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
-        <el-form-item label="下发日期">
+        <!-- <el-form-item label="下发日期">
           <el-date-picker v-model="filters.time" type="daterange" value-format="yyyy-MM-dd" range-separator="至" start-placeholder="开始日期" end-placeholder="截止日期"></el-date-picker>
-        </el-form-item>
+        </el-form-item> -->
       </el-col>
       <el-col :span="24" style="padding-bottom: 0;">
         <el-form-item label="协查情况">
@@ -213,10 +213,10 @@ export default {
         this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type.split(',') : '' // 核查情况
         this.paramFilter.cityCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 地市
         this.paramFilter.deptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 接收部门
-        if (this.$route.query.receiveDate) {
-          const date = new Date(this.$route.query.receiveDate)
-          this.filters.time = [date, date]
-        }
+        // if (this.$route.query.receiveDate) {
+        //   const date = new Date(this.$route.query.receiveDate)
+        //   this.filters.time = [date, date]
+        // }
       }
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
@@ -378,10 +378,10 @@ export default {
         assistType: this.$route.query.assistType,
         showType: this.showType
       }
-      if (this.filters.time !== undefined && this.filters.time !== null && this.filters.time.length > 1) {
-        para.startTime = this.filters.time[0] ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : ''
-        para.endTime = this.filters.time[1] ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : ''
-      }
+      // if (this.filters.time !== undefined && this.filters.time !== null && this.filters.time.length > 1) {
+      //   para.startTime = this.filters.time[0] ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : ''
+      //   para.endTime = this.filters.time[1] ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : ''
+      // }
       para.deptCode = this.filters.department.length > 0 ? this.filters.department[this.filters.department.length - 1] : ''
       para.provinceCode = this.filters.area[0] ? this.filters.area[0] : ''
       para.cityCode = this.filters.area[1] ? this.filters.area[1] : ''

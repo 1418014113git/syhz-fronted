@@ -36,9 +36,9 @@
         <el-form-item label="地址">
           <el-input v-model="filters.address" clearable placeholder="" size="small" maxlength="50"></el-input>
         </el-form-item>
-        <el-form-item label="下发日期">
+        <!-- <el-form-item label="下发日期">
           <el-date-picker v-model="filters.time" type="daterange" range-separator="至" value-format="yyyy-MM-dd" start-placeholder="开始日期" end-placeholder="截止日期"></el-date-picker>
-        </el-form-item>
+        </el-form-item> -->
       </el-col>
       <el-col :span="24" style="padding-bottom: 0;">
         <el-form-item label="协查情况">
@@ -67,7 +67,7 @@
         <el-table-column type="index" width="60" label="序号" ></el-table-column>
         <el-table-column prop="serialNumber"  label='线索序号'  min-width="100" show-overflow-tooltip></el-table-column>
         <el-table-column prop="cityName"  label='地市'  min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="receiveDate"  label='下发日期'  min-width="180" show-overflow-tooltip></el-table-column>
+        <!-- <el-table-column prop="receiveDate"  label='下发日期'  min-width="180" show-overflow-tooltip></el-table-column> -->
         <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
           <template slot-scope="scope">
             <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
@@ -201,7 +201,7 @@ export default {
               }
             }
           }
-          if (this.curDeptType === -1 || this.curDeptType === 1 || this.curDeptType === '' || this.curDept.depType === '-1' || this.curDept.depType === '1') { // 当前行部门/登陆部门是 省 总队
+          if (this.curDeptType === -1 || this.curDeptType === 1 || this.curDeptType === '') { // 当前行部门/登陆部门是 省 总队
             currentArea = ['610000']
           } else if (this.curDeptType === 2) { // 当前行部门支队
             if (this.curCityCode) {
@@ -355,10 +355,10 @@ export default {
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
-      if (this.filters.time !== undefined && this.filters.time !== null && this.filters.time.length > 1) {
-        para.startTime = this.filters.time[0] ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : ''
-        para.endTime = this.filters.time[1] ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : ''
-      }
+      // if (this.filters.time !== undefined && this.filters.time !== null && this.filters.time.length > 1) {
+      //   para.startTime = this.filters.time[0] ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : ''
+      //   para.endTime = this.filters.time[1] ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : ''
+      // }
 
       // if (this.area && this.area.length > 0) { // 行政区划
       //   // para.provinceCode = '610000' // 省code
@@ -484,10 +484,10 @@ export default {
       // this.curAreaCode = this.$route.query.curDeptCode ? this.$route.query.curDeptCode.substring(0, 6) : '' // 存储集群列表当前点击行的areaCode
       this.curDeptType = this.$route.query.deptType ? this.$route.query.deptType : '' // 存储集群列表当前点击行的部门类型
       this.curCityCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 存储集群列表当前点击行的cityCode
-      if (this.$route.query.createDate) { // 下发日期--集群详情页的签收表点击数字传递过来的
-        const date = new Date(this.$route.query.createDate)
-        this.filters.time = [date, date]
-      }
+      // if (this.$route.query.createDate) { // 下发日期--集群详情页的签收表点击数字传递过来的
+      //   const date = new Date(this.$route.query.createDate)
+      //   this.filters.time = [date, date]
+      // }
       this.init()
     }
   },
