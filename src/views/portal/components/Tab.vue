@@ -21,9 +21,7 @@
 </template>
 
 <script>
-import {
-  getDBAJHome
-} from '@/api/supervise'
+// import { getDBAJHome } from '@/api/supervise'
 import {
   getAssistStatusText, getDBLevelText
 } from '@/utils/codetotext'
@@ -50,16 +48,16 @@ export default {
       return getDBLevelText(level)
     },
     getData() {
-      getDBAJHome({
-        deptId: this.deptInfo.id,
-        deptCode: this.deptInfo.depCode, // 部门code
-        pageSize: 5,
-        pageNum: 1
-      }).then((res) => {
-        if (res.code === '000000' && res.data) {
-          this.listData = res.data.list
-        }
-      })
+      // getDBAJHome({
+      //   deptId: this.deptInfo.id,
+      //   deptCode: this.deptInfo.depCode, // 部门code
+      //   pageSize: 5,
+      //   pageNum: 1
+      // }).then((res) => {
+      //   if (res.code === '000000' && res.data) {
+      //     this.listData = res.data.list
+      //   }
+      // })
     },
     toDetail(id) {
       localStorage.setItem('curAppCode', 'B')

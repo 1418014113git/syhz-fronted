@@ -144,11 +144,11 @@ export default {
             path: '/caseManage/ajrl', params: { source: 'portal' }
           })
         }
-        if (node.data_op === '线索流转' || node.data_op === '案件督办催办' || node.data_op === '案件协查' || node.data_op === '全国性协查' || node.data_op === '案件督办' || node.business_type === '10') {
-          this.$router.push({
-            path: '/businessWork/' + node.business_type, query: {}
-          })
-        }
+        // if (node.data_op === '线索流转' || node.data_op === '案件督办催办' || node.data_op === '案件协查' || node.data_op === '全国性协查' || node.data_op === '案件督办' || node.business_type === '10') {
+        //   this.$router.push({
+        //     path: '/businessWork/' + node.business_type, query: {}
+        //   })
+        // }
         if (node.business_type === '9') {
           localStorage.setItem('curAppCode', 'W')
           this.$router.push({
@@ -159,22 +159,28 @@ export default {
           localStorage.setItem('curAppCode', 'C')
           this.$gotoid('/notice/index', JSON.stringify({ signStatus: '1' }))
         }
-
         if (node.business_type === 1) { // 案件协查
           localStorage.setItem('curAppCode', 'B')
           this.$router.push({ path: '/caseAssist/list' }) // 案件协查列表
         }
-
         if (node.business_type === 2) { // 集群战役
           localStorage.setItem('curAppCode', 'B')
           this.$router.push({ path: '/jqcampaign' }) // 集群战役列表
+        }
+        if (node.business_type === '4') { // 案件督办签收，跳转督办列表
+          localStorage.setItem('curAppCode', 'B')
+          this.$router.push({ path: '/caseManage/dbList', query: { origin: 'portal', businessType: '4' }}) // 来源，状态
+        }
+        if (node.business_type === '8') { // 案件催办签收待办，跳转督办列表
+          localStorage.setItem('curAppCode', 'B')
+          this.$router.push({ path: '/caseManage/dbList', query: { origin: 'portal', qsStatus: '1' }})
         }
       }
       if (index === 2) { // 催办待办
         localStorage.setItem('curAppCode', 'B')
         if (node.data_op === '案件催办反馈待办') {
           this.$router.push({
-            path: '/caseManage/dbList', query: { origin: 'portal', qsStatus: '1' } // 来源，签收状态标志
+            path: '/caseManage/dbList', query: { origin: 'portal', qsStatus: '2' } // 来源，案件催办反馈待办
           })
         }
       }

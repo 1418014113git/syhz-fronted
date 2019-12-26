@@ -93,7 +93,7 @@
           <span v-else-if="item.columnName === 'AJZT'">{{getAjztName(scope.row[item.titleName])}}</span>
           <span v-else-if="item.columnName === 'SYH_AJLB'">{{getAjzmName(scope.row[item.titleName])}}</span>
           <el-tooltip v-else-if="item.columnName === 'AJLY'" class="item" effect="dark" :content="getAjlyName(scope.row[item.titleName])" placement="top">
-            <span>{{getAjlyName(scope.row[item.titleName]).length > 4 ? (getAjlyName(scope.row[item.titleName]).substring(0, 4) + '...') : getAjlyName(scope.row[item.titleName])}}</span>
+            <span>{{(getAjlyName(scope.row[item.titleName])&&getAjlyName(scope.row[item.titleName]).length > 4) ? (getAjlyName(scope.row[item.titleName]).substring(0, 4) + '...') : getAjlyName(scope.row[item.titleName])}}</span>
           </el-tooltip>
           <span v-else-if="item.columnName === 'AJLB'">{{scope.row[item.titleName + 'Name']}}</span>
           <span v-else-if="item.columnName === 'AJXZ'">{{scope.row[item.titleName + 'Name']}}</span>
@@ -841,7 +841,8 @@ export default {
 .caseList_cascader .el-cascader-menu__item.is-disabled {
   background-color: #00537d;
 }
-.caseList .ajfl, .caseList .area {
+.caseList .ajfl,
+.caseList .area {
   height: 23px;
   line-height: 18px;
   margin-right: 6px;

@@ -36,8 +36,7 @@
                 type="date"
                 value-format="yyyy-MM-dd"
                 :picker-options="createTimeStartPickerOptions"
-                placeholder="请选择开始时间"
-                @change="createTimeStartChange">
+                placeholder="请选择开始时间">
               </el-date-picker>
             </el-form-item>
             <el-form-item label="至" prop="createTimeEnd" class="datezhi">
@@ -47,34 +46,32 @@
                 type="date"
                 value-format="yyyy-MM-dd"
                 placeholder="请选择结束时间"
-                :picker-options="createTimeEndPickerOptions"
-                @change="createTimeEndChange">
+                :picker-options="createTimeEndPickerOptions">
               </el-date-picker>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" size="small" @click="getList">检索</el-button>
+              <el-button type="primary" size="small" @click="queryYqList(true,true)">检索</el-button>
             </el-form-item>
           </el-form>
           <div style="margin:15px 0 10px;">
-            <el-checkbox v-model="allCheck" style="margin-right:20px;">全部</el-checkbox>
-            <el-button type="primary" size="small" @click="getList">批量下载</el-button>
+            <el-checkbox v-model="allCheck" :indeterminate="isIndeterminate" @change="handleCheckAllChange" style="margin-right:20px;">全部</el-checkbox>
+            <el-button type="primary" size="small" @click="batchDownloadReport" :disabled="checkedReport.length===0">批量下载</el-button>
           </div>
-          <!-- <el-checkbox-group v-model="checkedCities" @change="handleCheckedCitiesChange"> -->
-          <div class="file_data_list clearfix" :style="'height:'+(clientHeight-120)+'px;overflow-y:auto;'">
-            <div v-for="item in listData" :key="item.key" class="file_data" @click="handlerClick(item)">
+          <div class="file_data_list clearfix" :style="'height:'+(clientHeight-170)+'px;overflow-y:auto;'">
+            <div v-for="item in listData" :key="item.key" class="file_data">
               <div>
-                <el-checkbox v-model="item.check" class="checkbox"></el-checkbox>
+                <el-checkbox v-model="item.check" class="checkbox" @change="handleCheckedCitiesChange(item,$event)"></el-checkbox>
+                <!-- <el-checkbox v-for="city in cities" :label="city" :key="city">{{city}}</el-checkbox> -->
                 <img src="/static/image/lyrivalinfo_images/video.png" class="right_img"/>
                 <div class="file_name">{{item.title}}</div>
               </div>
               <div class="file_mask"></div>
               <div class="hover_div">
                 <i class="el-icon-download" @click="downloadSingle(item.attachment)"></i>
-                <i class="el-icon-menu" @click="previewReport(item.attachment)"></i>
+                <!-- <i class="el-icon-menu" @click="previewReport(item.attachment)"></i> -->
               </div>
             </div>
           </div>
-          <!-- </el-checkbox-group> -->
           <el-col :span="24" class="toolbar">
             <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper"  @current-change="handleCurrentChange" :page-sizes="[15, 30, 50, 100]"
               :page-size="pageSize" @size-change="handleSizeChange" :total="total" :current-page="page" style="float:right;"></el-pagination>
@@ -105,17 +102,77 @@ export default {
       pageSize: 15,
       total: 0,
       page: 1,
-      allCheck: false,
-      checkedCities: []
+      checkCount: 0,
+      allCheck: false, // 全选 checkbox
+      checkedReport: [], // 选中的报告 数组
+      isIndeterminate: false // 全选选中 只负责样式控制
     }
   },
   watch: {},
   methods: {
-    handleCheckedCitiesChange() {
-
+    handleCheckAllChange(val) {
+      this.isIndeterminate = false // 不设置半选中状态的样式
+      this.checkedReport = [] // 选中的报告
+      for (let index = 0; index < this.listData.length; index++) {
+        const element = this.listData[index]
+        if (val) {
+          element.check = true
+          this.checkedReport.push(element)
+        } else {
+          element.check = false
+        }
+      }
+    },
+    handleCheckedCitiesChange(item, value) {
+      if (value) {
+        item.check = true
+        this.checkedReport.push(item)
+      } else {
+        item.check = false
+      }
+      var allFlag = true
+      this.checkCount = 0
+      for (let index = 0; index < this.listData.length; index++) {
+        const element = this.listData[index]
+        if (element.check) {
+          this.checkCount++
+        } else {
+          allFlag = false
+        }
+      }
+      if (allFlag) {
+        this.allCheck = true // 全选框 设置为选中状态
+        this.isIndeterminate = false
+      } else {
+        if (this.checkCount === 0) { // 所有的都没有选中
+          this.allCheck = false // 全选框 设置为 不选中状态
+          this.isIndeterminate = false
+        } else if (this.checkCount < this.listData.length) { // 部分选中
+          this.allCheck = false
+          this.isIndeterminate = true // 全选框设置样式 半选中状态
+        }
+      }
+    },
+    queryTotal() {
+      this.leftLoading = true
+      const para = {}
+      this.$query('yqreport/total', para).then(response => {
+        this.leftLoading = false
+        if (response.data) {
+          this.totalData = response.data
+        }
+      }).catch(() => {
+        this.leftLoading = false
+      })
     },
     queryYqList(flag, hand) {
       this.page = flag ? 1 : this.page
+      // 可以只输入开始或者结束；只输入结束时，开始默认2019-12-01
+      if (this.filters.createTimeStart && !this.filters.createTimeEnd) { // 选择了开始时间,结束时间为空
+        this.filters.createTimeEnd = this.$parseTime(new Date(), '{y}-{m}-{d}')
+      } else if (!this.filters.createTimeStart && this.filters.createTimeEnd) {
+        this.filters.createTimeStart = '2019-12-01'
+      }
       const para = {
         createTimeStart: this.filters.createTimeStart,
         createTimeEnd: this.filters.createTimeEnd,
@@ -126,6 +183,8 @@ export default {
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
+      para.createTimeStart = para.createTimeStart ? para.createTimeStart + ' 00:00:00' : '' // 开始时间
+      para.createTimeEnd = para.createTimeEnd ? para.createTimeEnd + ' 23:59:59' : '' // 结束时间
       this.rightLoading = true
       this.$query('page/yqreport', para).then(response => {
         this.rightLoading = false
@@ -141,61 +200,37 @@ export default {
       })
     },
     downloadSingle(item) { // 单个下载
-      item = JSON.parse(item)
+      if (typeof item === 'string') {
+        item = JSON.parse(item)
+      }
       const arr = item.path.split('/file')
       const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
       this.$download_http_mg(path, { fileName: item.name })
+    },
+    batchDownloadReport() { // 批量下载
+      console.log(this.checkedReport)
+      for (let index = 0; index < this.checkedReport.length; index++) {
+        const element = this.checkedReport[index]
+        this.downloadSingle(element.attachment)
+      }
     },
     previewReport(item) {
       item = JSON.parse(item)
       window.open(item.path)
     },
-    handlerClick() { },
-    src() { },
-    getList() { },
     handleMenuClick(type) {
       this.filters.category = type
       this.active = type
       this.queryYqList(true)
     },
-    createTimeEndChange() { },
-    createTimeStartChange() { },
     handleCurrentChange(val) {
       this.page = val
-      this.queryYqList()
+      this.queryYqList(false, true)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.queryYqList()
-    },
-    queryTotal() {
-      this.leftLoading = true
-      const para = {}
-      this.$query('yqreport/total', para).then(response => {
-        this.leftLoading = false
-        if (response.data) {
-          this.totalData = response.data
-        }
-      }).catch(() => {
-        this.leftLoading = false
-      })
-    },
-
-    handleRowEdit(index, row) { },
-    handleRowDel(index, row) { },
-
-    closeDialog() {
-      this.auditDialogVisible = false
-      this.auditForm = {
-        auditId: '',
-        remark: '',
-        workId: '',
-        documentId: '',
-        userId: ''
-      }
-      this.isBatchAudit = false
-      this.$refs.auditForm.resetFields()
+      this.queryYqList(true, true)
     }
   },
   mounted() {
