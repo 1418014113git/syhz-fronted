@@ -24,6 +24,9 @@
           <el-form-item label="协查级别：" prop="">
             <span class="whiteColor" v-if="baseInfo.assistLevel">{{ formatType(baseInfo.assistLevel) }}</span>
           </el-form-item>
+          <el-form-item label="协查编号：" prop="">
+            <span class="whiteColor" v-if="baseInfo.assistNumber">{{baseInfo.assistNumber}}</span>
+          </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="发起单位：" prop="">
@@ -260,88 +263,88 @@ export default {
 }
 </script>
 <style>
-  .caseAssist_baseInfo {
-    width: 100%;
+.caseAssist_baseInfo {
+  width: 100%;
+}
+.caseAssist_baseInfo .el-form-item__label {
+  color: #bce8fc;
+  text-shadow: 0 0 1px #fff;
+}
+.caseAssist_baseInfo .title {
+  width: 100%;
+  padding: 7px 0 7px 7px;
+  border-bottom: 2px solid #00a0e9;
+  overflow: hidden;
+  color: #bce8fc;
+  text-shadow: 0 0 2px #fff;
+  font-size: 17px;
+}
+.caseAssist_baseInfo .title .left {
+  float: left;
+  letter-spacing: 3px;
+}
+.caseAssist_baseInfo .cardcom {
+  position: absolute;
+  bottom: 1px;
+  left: 318px;
+}
+.caseAssist_baseInfo .ffxsForm .el-dialog {
+  width: 80%;
+  height: 80vh;
+  overflow: auto;
+}
+.caseAssist_baseInfo .data_list {
+  padding: 0 10px 0 0;
+}
+.caseAssist_baseInfo .data_list > p {
+  display: inline-block;
+  width: 100%;
+}
+.caseAssist_baseInfo .data_list > p a:first-child {
+  float: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.caseAssist_baseInfo .whiteColor {
+  color: #fff;
+}
+.caseAssist_baseInfo .beyondTextClass {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.caseAssist_baseInfo .baseInfo_content {
+  padding: 18px 0 0 45px;
+}
+.caseAssist_baseInfo .fjlink {
+  color: #bce8fc;
+  text-shadow: 0 0 2px #fff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.caseAssist_baseInfo .fjlink:hover {
+  text-decoration: underline;
+}
+.caseAssist_baseInfo .auditForm .el-dialog {
+  width: 40%;
+}
+.caseAssist_baseInfo .auditForm .el-form {
+  padding: 10px 20px;
+}
+.caseAssist_baseInfo .quillWrapper {
+  background: none;
+}
+.caseAssist_baseInfo .quillWrapper .ql-snow.ql-toolbar {
+  display: none;
+}
+.caseAssist_baseInfo .ql-container.ql-snow.ql-disabled {
+  border: none !important;
+}
+@media only screen and (max-width: 1367px) {
+  .caseAssist_baseInfo .ffxsForm .el-dialog {
+    width: 85%;
   }
-  .caseAssist_baseInfo .el-form-item__label {
-    color: #bce8fc;
-    text-shadow: 0 0 1px #fff;
-  }
-  .caseAssist_baseInfo .title {
-    width: 100%;
-    padding: 7px 0 7px 7px;
-    border-bottom: 2px solid #00a0e9;
-    overflow: hidden;
-    color: #bce8fc;
-    text-shadow: 0 0 2px #fff;
-    font-size: 17px;
-  }
-  .caseAssist_baseInfo .title .left {
-    float: left;
-    letter-spacing: 3px;
-  }
-  .caseAssist_baseInfo .cardcom {
-    position: absolute;
-    bottom: 1px;
-    left: 318px;
-  }
-  .caseAssist_baseInfo .ffxsForm .el-dialog{
-    width: 80%;
-    height: 80vh;
-    overflow: auto;
-  }
-  .caseAssist_baseInfo .data_list{
-    padding: 0 10px 0 0;
-  }
-  .caseAssist_baseInfo .data_list > p{
-    display: inline-block;
-    width: 100%;
-  }
-  .caseAssist_baseInfo .data_list > p a:first-child{
-    float: left;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  .caseAssist_baseInfo .whiteColor {
-    color: #fff;
-  }
-  .caseAssist_baseInfo .beyondTextClass {
-    width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  .caseAssist_baseInfo .baseInfo_content{
-    padding: 18px 0 0 45px;
-  }
-  .caseAssist_baseInfo .fjlink{
-    color: #bce8fc;
-    text-shadow: 0 0 2px #fff;
-    text-decoration:underline;
-    cursor: pointer;
-  }
-  .caseAssist_baseInfo .fjlink:hover{
-    text-decoration:underline;
-  }
-  .caseAssist_baseInfo .auditForm .el-dialog{
-    width: 40%;
-  }
-  .caseAssist_baseInfo .auditForm .el-form{
-    padding: 10px 20px;
-  }
-  .caseAssist_baseInfo .quillWrapper{
-    background: none;
-  }
-  .caseAssist_baseInfo .quillWrapper .ql-snow.ql-toolbar {
-    display: none;
-  }
-  .caseAssist_baseInfo .ql-container.ql-snow.ql-disabled{
-    border: none !important;
-  }
-  @media only screen and (max-width: 1367px) {
-    .caseAssist_baseInfo .ffxsForm .el-dialog {
-      width: 85%;
-    }
-  }
+}
 </style>
 
