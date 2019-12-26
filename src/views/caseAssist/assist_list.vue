@@ -167,6 +167,7 @@ export default {
       deptOptions: [], // 部门数据
       selectCurDep: { name: '' }, // 当前选中的部门
       selectCurArea: { cityName: '' }, // 当前行政区划
+      curparam: '', // 存储查询列表的参数临时变量
       areaProps: {
         value: 'cityCode',
         label: 'cityName'
@@ -283,6 +284,7 @@ export default {
       para.provinceCode = this.filters.area[0] ? this.filters.area[0] : ''
       para.cityCode = this.filters.area[1] ? this.filters.area[1] : ''
       para.reginCode = this.filters.area[2] ? this.filters.area[2] : ''
+      this.curparam = para
       this.$query('caseAssist/list', para).then((response) => {
         this.listLoading = false
         this.listData = response.data.list
@@ -425,14 +427,26 @@ export default {
         const item = this.multipleSelection[i]
         ids.push(item.assistId)
       }
-      const para = {
-        assistIds: ids.join(','),
-        curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
-        realName: this.curUser.realName,
-        curUserPhone: this.curUser.phone ? this.curUser.phone : '',
-        fileName: '涉案线索协查参与地战果反馈表'
+
+      if (this.exportRadio === '1') { // 全部
+        var parms = this.curparam
+        parms.category = 1
+        parms.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName
+        parms.realName = this.curUser.realName
+        parms.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
+        parms.fileName = '涉案线索协查参与地战果反馈表'
+        this.$download('caseAssist/export', parms)
+      } else { // 导出选中的
+        var para = {
+          category: 2,
+          assistIds: ids.join(','),
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
+          realName: this.curUser.realName,
+          curUserPhone: this.curUser.phone ? this.curUser.phone : '',
+          fileName: '涉案线索协查参与地战果反馈表'
+        }
+        this.$download('caseAssist/export', para)
       }
-      this.$download('caseAssist/export', para)
       const _this = this
       setTimeout(function() {
         _this.$message({
