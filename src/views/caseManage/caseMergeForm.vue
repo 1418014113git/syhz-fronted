@@ -120,7 +120,7 @@ export default {
         remark: [{
           required: false, trigger: 'blur', validator: (rule, value, callback) => {
             // 文本域非必填；如果选择“其他”，文本域为必填。
-            if (this.formData.reason === '2') { // 选择的是重复录入
+            if (this.formData.remarkType === '2') { // 选择的是重复录入
               if (value) {
                 callback()
               } else {
