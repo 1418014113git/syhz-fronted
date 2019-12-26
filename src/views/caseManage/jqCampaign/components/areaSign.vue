@@ -151,7 +151,7 @@ export default {
     },
     gotoxslist(row) {
       this.$router.push({
-        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: row.receiveDeptCode, deptType: 2 } // 线索列表页面
+        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: '', deptType: 2, createDate: row.createDate } // 线索列表页面
       })
     },
     handleSign(index, row) { // 签收

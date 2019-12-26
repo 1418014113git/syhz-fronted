@@ -155,47 +155,43 @@ export default {
     zhpj() { // 综合评价
       if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省厅，总队
         this.$store.dispatch('Personeltotop', 'dsfk') // 定位到地市反馈
+        this.$store.dispatch('JqMouleClass', 'dsfk')
       } else if (this.curDept.depType === '2') { // 地市
         this.$store.dispatch('Personeltotop', 'qxfk') // 定位到区县反馈
+        this.$store.dispatch('JqMouleClass', 'qxfk')
       }
     },
     cxsq() { // 重新申请
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'detail', id: this.clusterId }}) // 跳转到集群战役申请页
+      this.$store.dispatch('Personeltotop', 'shxx') // 定位到审核模块
+      this.$store.dispatch('JqMouleClass', 'shxx')
+      // this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'detail', id: this.clusterId }}) // 跳转到集群战役申请页
     },
     audit() { // 审核
-      this.isShowshDialog = true
+      // this.isShowshDialog = true
+      this.$store.dispatch('Personeltotop', 'shxx') // 定位到审核模块
+      this.$store.dispatch('JqMouleClass', 'shxx')
     },
     xsff() { // 线索分发
-      if (this.isShowqsbtn) { // 签收列表有签收按钮，表示有未签收的线索
-        this.$alert('请先签收线索后，再反馈线索。', '提示', {
-          type: 'warning',
-          confirmButtonText: '确定'
-        })
-        return false
-      }
-      this.isShowffxsDialog = true
+      this.$store.dispatch('Personeltotop', 'dsfk') // 定位到地市反馈
+      this.$store.dispatch('JqMouleClass', 'dsfk')
     },
     xsfk() { // 线索反馈
-      if (this.isShowqsbtn) { // 签收列表有签收按钮，表示有未签收的线索
-        this.$alert('请先签收线索后，再反馈线索。', '提示', {
-          type: 'warning',
-          confirmButtonText: '确定'
-        })
-        return false
+      if (this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) === '6114')) { // 支队,杨凌派出所
+        this.$store.dispatch('Personeltotop', 'dsfk') // 定位到地市反馈
+        this.$store.dispatch('JqMouleClass', 'dsfk')
+      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 区县
+        console.log(333333333333)
+        this.$store.dispatch('Personeltotop', 'qxfk') // 定位到区县反馈
+        this.$store.dispatch('JqMouleClass', 'qxfk')
       }
-      var deptCode = ''
-      if (this.xsfkRow.deptCode !== this.baseInfo.applyDeptCode && this.curDept.depType !== '1') {
-        deptCode = this.xsfkRow.deptCode
-      }
-      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId, deptCode: deptCode }}) // 跳转到线索反馈页
     },
     qs() { // 签收, 定位到签收列表
-      if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 总队，支队
+      if (this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) === '6114')) { // 支队,杨凌派出所
         this.$store.dispatch('Personeltotop', 'dsqs') // 定位到地市签收
-        this.$store.dispatch('AjMouleClass', 'dsqs')
-      } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
+        this.$store.dispatch('JqMouleClass', 'dsqs')
+      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 大队，派出所(除杨凌以为的)
         this.$store.dispatch('Personeltotop', 'qxqs') // 定位到区县签收
-        this.$store.dispatch('AjMouleClass', 'qxqs')
+        this.$store.dispatch('JqMouleClass', 'qxqs')
       }
     },
     downFile(item) { // 下载附件
