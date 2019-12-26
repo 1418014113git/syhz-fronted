@@ -58,13 +58,13 @@
           </el-table-column>
         </el-table>
         <el-col :span="24">
-          <p @click="addData" style="text-align: center;font-size: 28px;border: 1px solid rgb(89, 125, 142);cursor:pointer;">
+          <p @click="addData" style="text-align: center;font-size: 28px;border: 1px solid rgb(89, 125, 142);cursor:pointer;" v-if="operateType!=='3'">
             <i class="el-icon-plus"></i>
           </p>
-          <el-form-item label="接收单位" prop="noticeDeptName" v-if="operateType === '1'">
+          <el-form-item label="接收单位" prop="noticeDeptName" v-if="operateType === '1'" style="margin-top:20px;">
             <el-input v-model="formData.noticeDeptName" :readonly="true"></el-input>
           </el-form-item>
-          <el-form-item label="原因" prop="remarkType">
+          <el-form-item label="原因" prop="remarkType" style="margin-top:20px;">
             <el-select v-model="formData.remarkType" class="form_input" @change="remarkTypeChange" @focus="caseBlur">
               <el-option label="重复录入" value="1"></el-option>
               <el-option label="其他" value="2"></el-option>
