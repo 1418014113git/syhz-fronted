@@ -257,6 +257,7 @@ export default {
   @media only screen and (max-width: 1367px) {
     .leftCont {
       // width: 17.5%;
+      margin-right: 5px;
     }
     .rightCont {
       // width: 80%;
