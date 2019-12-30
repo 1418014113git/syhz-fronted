@@ -373,7 +373,7 @@ export default {
       this.page = flag ? 1 : this.page
       // 可以只输入开始或者结束；只输入结束时，开始默认2019-12-01
       if (this.query.createTimeStart && !this.query.createTimeEnd) { // 选择了开始时间,结束时间为空
-        this.query.createTimeEnd = this.$parseTime(new Date(), '{y}-{m}-{d}')
+        // this.query.createTimeEnd = this.$parseTime(new Date(), '{y}-{m}-{d}')
       } else if (!this.query.createTimeStart && this.query.createTimeEnd) {
         this.query.createTimeStart = '2019-12-01'
       }
