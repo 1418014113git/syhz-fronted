@@ -149,10 +149,10 @@ export default {
               if (curDate > startDate) {
                 Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
               } else {
-                Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
+                // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
               }
             } else {
-              Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
+              // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
             }
           }
         })
@@ -174,8 +174,9 @@ export default {
       this.query(false)
     },
     gotoxslist(row) {
+      var cityCode = row.receiveDeptCode.substring(0, 6)
       this.$router.push({
-        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: row.receiveDeptCode, deptType: 3 } // 线索列表页面
+        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: cityCode, curDeptCode: row.receiveDeptCode, deptType: 3, createDate: row.createDate } // 线索列表页面
       })
     },
     handleSign(index, row) { // 签收

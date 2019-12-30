@@ -83,7 +83,7 @@
 
     <!--线索反馈详情弹出层-->
     <el-dialog title="反馈" :visible.sync="isShowfkDialog" @close="clearChildData">
-      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog"   @closeDialog="clearChildData"   @init="query(true)"    :row="curRow"></cluefk-detail>
+      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog"   @closeDialog="clearChildData"   @init="query(true)"  :row="curRow"></cluefk-detail>
     </el-dialog>
   </section>
 </template>

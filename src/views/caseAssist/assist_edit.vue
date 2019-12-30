@@ -114,7 +114,7 @@
 
     <!-- 分发线索-->
     <el-dialog title="分发线索" :visible.sync="distributeClueVisible" class="distribute_clue" :close-on-click-modal="false" @close="closeDistributeClueDialog">
-      <distributeClue ref="distributeClue" @closeDialog="closeDistributeClueDialog" :assistId="editId" :fastatus="qbxsDistribute" :jsdw="receiveName" source="add" @result="getDistributeResult"></distributeClue>
+      <distributeClue ref="distributeClue" @closeDialog="closeDistributeClueDialog" :assistId="editId" :fastatus="qbxsDistribute" :jsdw="receiveName" source="add" @result="getDistributeResult" :category="category"></distributeClue>
     </el-dialog>
   </div>
 </template>
