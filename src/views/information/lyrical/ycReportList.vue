@@ -271,6 +271,11 @@ export default {
             return false
           }
         })
+        this.endPickerOptions = Object.assign({}, 'startPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
       }
     },
     endDateChange(val) { // 结束时间change事件
