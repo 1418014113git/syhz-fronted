@@ -10,8 +10,8 @@
           <div class="insideInfoDetail">
             <div class="lineDetail">
               <div><span>信息分类：</span><span>{{ detailData.artGroup ? getType(String(detailData.artGroup)) : '-' }}</span></div>
-              <div><span>信息类型：</span><span>{{ detailData.artType ? getCategory(String(detailData.artType)) : '-' }}</span></div>
-              <div><span>来源：</span><span>{{detailData.artSourceUrl}}</span></div>
+              <div><span>信息类型：</span><span>{{ detailData.extractName ? detailData.extractName : '-' }}</span></div>
+              <div><span>来源：</span><span :title="detailData.artSourceUrl">{{detailData.artSourceUrl}}</span></div>
             </div>
           </div>
           <div v-if="detailData.artContent && detailData.artContent !== ''" :style="detailData.artContent && detailData.artContent !== '' ? {maxHeight:tableHeight} : ''" class="flfgContent">
@@ -109,7 +109,7 @@
 
 <style>
   .insideInfoDetail{
-    padding: 20px 40px;
+    padding: 20px 40px 0;
     display: inline-block;
     width: 100%;
   }
