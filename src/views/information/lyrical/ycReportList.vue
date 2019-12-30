@@ -35,7 +35,8 @@
                 v-model="filters.createTimeStart"
                 type="date"
                 value-format="yyyy-MM-dd"
-                :picker-options="createTimeStartPickerOptions"
+                :picker-options="startPickerOptions"
+                @change="startDateChange"
                 placeholder="请选择开始时间">
               </el-date-picker>
             </el-form-item>
@@ -45,17 +46,18 @@
                 v-model="filters.createTimeEnd"
                 type="date"
                 value-format="yyyy-MM-dd"
-                placeholder="请选择结束时间"
-                :picker-options="createTimeEndPickerOptions">
+                @change="endDateChange"
+                :picker-options="endPickerOptions"
+                placeholder="请选择结束时间">
               </el-date-picker>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" size="small" @click="queryYqList(true,true)">检索</el-button>
+              <el-button type="primary" size="small" @click="queryYqList(true,true)" v-if="$isViewBtn('103401')">检索</el-button>
             </el-form-item>
           </el-form>
           <div style="margin:15px 0 10px;">
             <el-checkbox v-model="allCheck" :indeterminate="isIndeterminate" @change="handleCheckAllChange" style="margin-right:20px;">全部</el-checkbox>
-            <el-button type="primary" size="small" @click="batchDownloadReport" :disabled="checkedReport.length===0">批量下载</el-button>
+            <el-button type="primary" size="small" @click="batchDownloadReport" :disabled="checkedReport.length===0" v-if="$isViewBtn('103404')">批量下载</el-button>
           </div>
           <div class="file_data_list clearfix" :style="'height:'+(clientHeight-170)+'px;overflow-y:auto;'">
             <div v-for="item in listData" :key="item.key" class="file_data">
@@ -67,8 +69,8 @@
               </div>
               <div class="file_mask"></div>
               <div class="hover_div">
-                <i class="el-icon-download" @click="downloadSingle(item.attachment)"></i>
-                <!-- <i class="el-icon-menu" @click="previewReport(item.attachment)"></i> -->
+                <i class="el-icon-download" @click="downloadSingle(item.attachment)" title="下载" v-if="$isViewBtn('103403')"></i>
+                <i class="el-icon-menu" @click="previewReport(item.attachment)" title="详情" v-if="$isViewBtn('103402')"></i>
               </div>
             </div>
           </div>
@@ -92,8 +94,8 @@ export default {
       totalData: [], // 左侧合计数量
       listData: [], // 右边列表
       active: '1', // 默认选中 舆情日报
-      createTimeEndPickerOptions: {},
-      createTimeStartPickerOptions: {},
+      endPickerOptions: {},
+      startPickerOptions: {},
       filters: {
         createTimeStart: '',
         createTimeEnd: '',
@@ -153,9 +155,13 @@ export default {
         }
       }
     },
-    queryTotal() {
+    queryTotal(date1, date2) {
       this.leftLoading = true
       const para = {}
+      if (date1 && date2) {
+        para.createTimeStart = date1
+        para.createTimeEnd = date2
+      }
       this.$query('yqreport/total', para).then(response => {
         this.leftLoading = false
         if (response.data) {
@@ -185,15 +191,18 @@ export default {
       }
       para.createTimeStart = para.createTimeStart ? para.createTimeStart + ' 00:00:00' : '' // 开始时间
       para.createTimeEnd = para.createTimeEnd ? para.createTimeEnd + ' 23:59:59' : '' // 结束时间
+      if (para.createTimeStart && para.createTimeEnd) { // 更新总数
+        this.queryTotal(para.createTimeStart, para.createTimeEnd)
+      } else {
+        this.queryTotal()
+      }
       this.rightLoading = true
       this.$query('page/yqreport', para).then(response => {
         this.rightLoading = false
-        if (response.data.list && response.data.list.length > 0) {
+        if (response.data) {
           this.listData = response.data.list
           this.total = response.data.totalCount
           this.pageSize = response.data.pageSize
-        } else {
-          this.listData = []
         }
       }).catch(() => {
         this.rightLoading = false
@@ -216,6 +225,16 @@ export default {
     },
     previewReport(item) {
       item = JSON.parse(item)
+      if (item.name) {
+        var arr = item.name.split('.')
+        if (arr[1] === 'doc' || arr[1] === 'docx') {
+          this.$message({
+            message: 'word暂不支持预览',
+            type: 'warning'
+          })
+          return false
+        }
+      }
       window.open(item.path)
     },
     handleMenuClick(type) {
@@ -231,6 +250,40 @@ export default {
       this.page = 1
       this.pageSize = val
       this.queryYqList(true, true)
+    },
+    startDateChange(val) {
+      if (val) {
+        // this.endDateDisabled = false
+        // 限制 截止时间 必须是开始时间之后
+        this.endPickerOptions = Object.assign({}, 'endPickerOptions', {
+          disabledDate: (time) => {
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
+          }
+        })
+      } else {
+        this.filters.createTimeEnd = '' // 结束时间清空
+        // this.endDateDisabled = true
+        this.startPickerOptions = Object.assign({}, 'startPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+      }
+    },
+    endDateChange(val) { // 结束时间change事件
+      if (val) {
+        this.startPickerOptions = Object.assign({}, 'startPickerOptions', {
+          disabledDate: (time) => {
+            return time.getTime() > new Date(val).getTime()
+          }
+        })
+      } else {
+        this.startPickerOptions = Object.assign({}, 'endPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+      }
     }
   },
   mounted() {
