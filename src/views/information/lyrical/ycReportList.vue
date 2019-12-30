@@ -28,33 +28,36 @@
       </el-col>
       <el-col :span="20" class="content">
         <el-card :style="'height:'+clientHeight+'px'" v-loading="rightLoading" >
-          <el-form :inline="true" :model="filters" label-width="80px" class="reportForm">
-            <el-form-item label="生成时间" prop="createTimeStart">
-              <el-date-picker
-                class="inputw"
-                v-model="filters.createTimeStart"
-                type="date"
-                value-format="yyyy-MM-dd"
-                :picker-options="startPickerOptions"
-                @change="startDateChange"
-                placeholder="请选择开始时间">
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item label="至" prop="createTimeEnd" class="datezhi">
-              <el-date-picker
-                class="inputw"
-                v-model="filters.createTimeEnd"
-                type="date"
-                value-format="yyyy-MM-dd"
-                @change="endDateChange"
-                :picker-options="endPickerOptions"
-                placeholder="请选择结束时间">
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" size="small" @click="queryYqList(true,true)" v-if="$isViewBtn('103401')">检索</el-button>
-            </el-form-item>
-          </el-form>
+          <div class="clearfix reportForm">
+            <span class="left">日报列表</span>
+            <el-form :inline="true" :model="filters" label-width="80px" class="right" style="margin-right: 30px;">
+              <el-form-item label="生成时间" prop="createTimeStart">
+                <el-date-picker
+                  class="inputw"
+                  v-model="filters.createTimeStart"
+                  type="date"
+                  value-format="yyyy-MM-dd"
+                  :picker-options="startPickerOptions"
+                  @change="startDateChange"
+                  placeholder="请选择开始时间">
+                </el-date-picker>
+              </el-form-item>
+              <el-form-item label="至" prop="createTimeEnd" class="datezhi" label-width="36px">
+                <el-date-picker
+                  class="inputw"
+                  v-model="filters.createTimeEnd"
+                  type="date"
+                  value-format="yyyy-MM-dd"
+                  @change="endDateChange"
+                  :picker-options="endPickerOptions"
+                  placeholder="请选择结束时间">
+                </el-date-picker>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" size="small" @click="queryYqList(true,true)" v-if="$isViewBtn('103401')">检索</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
           <div style="margin:15px 0 10px;">
             <el-checkbox v-model="allCheck" :indeterminate="isIndeterminate" @change="handleCheckAllChange" style="margin-right:20px;">全部</el-checkbox>
             <el-button type="primary" size="small" @click="batchDownloadReport" :disabled="checkedReport.length===0" v-if="$isViewBtn('103404')">批量下载</el-button>

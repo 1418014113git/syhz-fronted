@@ -20,7 +20,7 @@
           placeholder="请选择开始时间">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="至" prop="createTimeEnd">
+      <el-form-item label="至" prop="createTimeEnd" label-width="36px">
         <el-date-picker
           v-model="query.createTimeEnd"
           type="date"
