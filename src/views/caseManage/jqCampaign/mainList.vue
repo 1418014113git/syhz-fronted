@@ -82,18 +82,16 @@
       <el-table :data="listData" v-loading="listLoading"  ref="multipleTable" style="width: 100%;"  :max-height="tableHeight"  :row-class-name="getRowClassName" @select="handleselectRow" @select-all="handleselectAll">
         <el-table-column type="expand">
           <template slot-scope="scope">
-            <el-table :data="scope.row.deptList"  v-loading="listChildLoading" style="width: 100%;">
-              <el-table-column prop="" width="47"></el-table-column>
-              <el-table-column prop="" width="50"></el-table-column>
-              <el-table-column type="index" width="60" label="序号"></el-table-column>
-              <el-table-column prop="deptName" label="地市"  min-width="200" show-overflow-tooltip></el-table-column>
-              <el-table-column prop=""  label="核查线索数量（已核查/总）" >
+            <el-table :data="scope.row.deptList"  v-loading="listChildLoading">
+              <el-table-column type="index" width="100" align="center" label="序号"></el-table-column>
+              <el-table-column prop="deptName" label="地市"  align="center" width="200" show-overflow-tooltip></el-table-column>
+              <el-table-column prop=""  align="center" label="核查线索数量（已核查/总）" >
                 <template slot-scope="sonScope">
                   <span v-if="constrolxsnum(scope.row,sonScope.row)">
-                    <span class="linkColor" v-if="sonScope.row.hc && sonScope.row.hc>0" @click="handleClueList(sonScope.row,'2')">{{sonScope.row.hc}}</span>
+                    <span class="linkColor" v-if="sonScope.row.hc && sonScope.row.hc>0" @click="handleClueList(sonScope.row,'2,3',false)">{{sonScope.row.hc}}</span>
                     <span v-else>0</span>
                     /
-                    <span class="linkColor"  v-if="sonScope.row.xsNum && sonScope.row.xsNum>0" @click="handleClueList(sonScope.row,'')">{{sonScope.row.xsNum}}</span>
+                    <span class="linkColor"  v-if="sonScope.row.xsNum && sonScope.row.xsNum>0" @click="handleClueList(sonScope.row,'',false)">{{sonScope.row.xsNum}}</span>
                     <span v-else>0</span>
                   </span>
                   <span v-else>
@@ -103,7 +101,7 @@
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column prop="hcl" label="核查率">
+              <el-table-column prop="hcl" align="center" label="核查率">
                 <template slot-scope="sonScope">
                   <span>{{sonScope.row.hcl ? sonScope.row.hcl : 0}}%</span>
                 </template>
@@ -125,7 +123,7 @@
         <el-table-column prop=""  label='总线索数（已核查/总）'  min-width="200" show-overflow-tooltip>
           <template slot-scope="scope">
             <span  v-if="constrolxsTotal(scope.row)">
-              <span class="linkColor"  v-if="scope.row.hcCount && scope.row.hcCount>0" @click="handleClueList(scope.row,'2',true)">{{scope.row.hcCount}}</span>
+              <span class="linkColor"  v-if="scope.row.hcCount && scope.row.hcCount>0" @click="handleClueList(scope.row,'2,3',true)">{{scope.row.hcCount}}</span>
               <span v-else>0</span>
               /
               <span class="linkColor" v-if="scope.row.xsCount && scope.row.xsCount>0" @click="handleClueList(scope.row,'',true)">{{scope.row.xsCount}}</span>
@@ -138,14 +136,14 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column prop="status"  label='状态'  min-width="200" show-overflow-tooltip>
+        <el-table-column prop="status"  label='状态'  min-width="100" show-overflow-tooltip>
           <template slot-scope="scope">
             <span v-if='scope.row.status'>{{$getDictName(scope.row.status+'','jqzyzt')}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="tCount"  label='厅评价'  min-width="200" v-if="curDept.depType === '1' || curDept.depType === '2'"    show-overflow-tooltip></el-table-column>
-        <el-table-column prop="sCount"  label='市评价'  min-width="200" v-if="curDept.depType === '2' || curDept.depType === '3' || curDept.depType === '4'"  show-overflow-tooltip></el-table-column>
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column prop="tCount"  label='厅评价'  min-width="100" v-if="curDept.depType === '1' || curDept.depType === '2'"    show-overflow-tooltip></el-table-column>
+        <el-table-column prop="sCount"  label='市评价'  min-width="100" v-if="curDept.depType === '2' || curDept.depType === '3' || curDept.depType === '4'"  show-overflow-tooltip></el-table-column>
+        <el-table-column label="操作" width="130">
           <template slot-scope="scope">
             <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
             <el-button size="mini" title="修改"  type="primary" icon="el-icon-edit" circle  v-if="controlxg(scope.row)"  @click="handleEdit(scope.$index, scope.row)"></el-button>
@@ -252,6 +250,7 @@ export default {
       downLoadUrl: process.env.SYHZ_MODULE,
       carryParam: {}, // 存储集群战役统计页传递过来的参数
       totalType: '', // 要查申请获取下发标识
+      curparam: '', // 存储查询列表的参数临时变量
       props: {
         value: 'cityCode',
         label: 'cityName'
@@ -474,6 +473,7 @@ export default {
         para.noCheck = ''
         para.curCreate = ''
       }
+      this.curparam = para
       this.$query('casecluster/list', para).then((response) => {
         this.listLoading = false
         if (response.data && response.data.list.length > 0) {
@@ -758,7 +758,13 @@ export default {
     },
     handleClueList(row, type, param) { // 线索列表
       if (param) { // 外层列表
-        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.applyDeptCode, deptType: row.deptType }}) // 跳转到线索列表页
+        var cityCode = ''
+        if (row.deptList.length > 1) {
+          cityCode = '610000'
+        } else {
+          cityCode = row.cityCode
+        }
+        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: cityCode, curDeptCode: row.applyDeptCode, deptType: row.deptType, source: 'mainw' }}) // 跳转到线索列表页
       } else { // 展开行列表
         this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode, deptType: row.deptType, source: 'mainn' }}) // 跳转到线索列表页
       }
@@ -792,14 +798,25 @@ export default {
           }
         })
       }
-      var para = {
-        clusterIds: checkAll.join(','), // 选中的列表集群战役Id集合，
-        curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 派出所取他的上级部门名称，非派出所取当前部门
-        realName: this.curUser.realName,
-        curUserPhone: this.curUser.phone ? this.curUser.phone : '',
-        fileName: '涉案线索协查参与地战果反馈表'
+      if (this.dcForm.type === 1) { // 全部
+        var parms = this.curparam
+        parms.category = 1
+        parms.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 派出所取他的上级部门名称，非派出所取当前部门
+        parms.realName = this.curUser.realName
+        parms.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
+        parms.fileName = '涉案线索协查参与地战果反馈表'
+        this.$download('cluster/export', parms)
+      } else { // 导出选中的
+        var para = {
+          category: 2,
+          clusterIds: checkAll.join(','), // 选中的列表集群战役Id集合，
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 派出所取他的上级部门名称，非派出所取当前部门
+          realName: this.curUser.realName,
+          curUserPhone: this.curUser.phone ? this.curUser.phone : '',
+          fileName: '涉案线索协查参与地战果反馈表'
+        }
+        this.$download('cluster/export', para)
       }
-      this.$download('cluster/export', para)
       setTimeout(() => {
         this.isShowdcdialog = false // 关闭弹框
         this.checkId = [] // 清空选中数组
@@ -879,9 +896,9 @@ export default {
   .input_ws1 {
     width: 350px;
   }
-  .el-table__expanded-cell {
-    padding: 0;
-  }
+  // .el-table__expanded-cell {
+  //   padding: 0;
+  // }
   .iconStyle {
     color: #e6a23c;
     font-size: 16px;

@@ -224,7 +224,9 @@ import { getTree } from '@/api/dept'
 export default {
   data() {
     return {
-      filters: {},
+      filters: {
+        status: '' // 合并状态
+      },
       xzqhOptionsRl: [], // 认领单位 行政区划数据
       deptOptionsRl: [],
       xzqhOptionsXf: [], // 下发单位 行政区划数据

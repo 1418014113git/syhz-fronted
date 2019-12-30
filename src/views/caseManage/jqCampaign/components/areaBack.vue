@@ -60,7 +60,7 @@
               <el-button size="mini" title="线索分发"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfa(scope.row) && $isViewBtn('101909')"  @click="handlefenfa(scope.$index, scope.row)"><svg-icon icon-class="fenfa"></svg-icon></el-button>
               <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')" @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
               <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && controlpjdf(scope.row) && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
-              <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score"  icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
+              <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score && controlpjxq(scope.row)"  icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -214,7 +214,7 @@ export default {
       if (Number(this.baseInfo.status) >= 4) { // 审核通过之后
         const curDate = new Date(this.baseInfo.systemTime)
         const endDate = new Date(this.baseInfo.endDate)
-        return this.curDept.depType === '1' && (String(row.hcl) === '100' || String(row.hcl) === '100.00') && curDate > endDate // 核查率是100，当前时间>结束时间，上级单位可以评价打分
+        return this.curDept.depType === '1' && (String(row.hcl) === '100' || String(row.hcl) === '100.00' || curDate > endDate) // 核查率是100，当前时间>结束时间，上级单位可以评价打分
       } else {
         return false
       }
@@ -243,6 +243,9 @@ export default {
         this.initData()
       })
     },
+    controlpjxq(row) { // 评价详情按钮显隐控制
+      return this.curDept.depType === '1' || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode) // 当前登录的是派出所时，用他的父级单位的cdoe去判断
+    },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的线索反馈、线索反馈按钮
       // Bus.$emit('isShowffbtn', false) // 线索分发
       // Bus.$emit('isShowfkbtn', false) // 线索反馈
@@ -256,10 +259,10 @@ export default {
               if (curDate > startDate) {
                 Bus.$emit('isShowffbtn', true) // 线索分发显示
               } else {
-                Bus.$emit('isShowffbtn', false) // 线索分发隐藏
+                // Bus.$emit('isShowffbtn', false) // 线索分发隐藏
               }
             } else {
-              Bus.$emit('isShowffbtn', false) // 线索分发隐藏
+              // Bus.$emit('isShowffbtn', false) // 线索分发隐藏
             }
           }
           if (((this.curDept.depType === '2' && this.curDept.depCode === item.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === item.deptCode.substring(0, 4) === '6114'))) { // 集群战役处于协查中、协查结束状态时 本单位显示反馈  派出所和支队同权限的，可以反馈支队的信息
@@ -269,23 +272,19 @@ export default {
                 Bus.$emit('isShowfkbtn', true) // 线索反馈显示
                 Bus.$emit('xsfkRow', item) // 线索反馈当前行数据
               } else {
-                Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
+                // Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
               }
             } else {
-              Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
+              // Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
             }
           }
-          if (this.curDept.depType === '1' && (String(item.hcl) === '100' || String(item.hcl) === '100.00')) { // 核查率是100，当前时间>结束时间，上级单位可以评价打分
-            if (Number(this.baseInfo.status) >= 4) { // 审核通过以后
-              const endDate = new Date(this.baseInfo.endDate)
-              if (curDate > endDate) {
-                Bus.$emit('isShowpjbtn', true) // 显示评价打分按钮
-              } else {
-                Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
-              }
-            } else {
-              Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
+          if (Number(this.baseInfo.status) >= 4) { // 审核通过之后
+            const endDate = new Date(this.baseInfo.endDate)
+            if (this.curDept.depType === '1' && (String(item.hcl) === '100' || String(item.hcl) === '100.00' || curDate > endDate)) { // 核查率是100，或当前时间>结束时间，上级单位可以评价打分
+              Bus.$emit('isShowpjbtn', true) // 显示评价打分按钮
             }
+          } else {
+            // Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
           }
         })
       }
@@ -299,7 +298,7 @@ export default {
     gotoxslist(row, type) {
       if (row.cityCode) { // 列表行
         this.$router.push({
-          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: this.baseInfo.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode, deptType: row.deptType } // 线索列表页面
+          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: this.baseInfo.applyDeptCode, cityCode: row.cityCode, curDeptCode: '', deptType: row.deptType } // 线索列表页面
         })
       } else { // 合计行
         this.$router.push({
@@ -309,7 +308,7 @@ export default {
     },
     handlefenfa(index, row) { // 线索分发
       if (String(row.signStatus) !== '2') { // 签收列表有签收按钮，表示有未签收的线索
-        this.$alert('该线索还未签收，请先前进行签收。', '提示', {
+        this.$alert('该线索还未签收，请先进行签收。', '提示', {
           type: 'warning',
           confirmButtonText: '确定'
         })
@@ -320,7 +319,7 @@ export default {
     },
     handlefankui(index, row) { // 线索反馈
       if (String(row.signStatus) !== '2') { // 签收列表有签收按钮，表示有未签收的线索
-        this.$alert('该线索还未签收，请先前进行签收。', '提示', {
+        this.$alert('该线索还未签收，请先进行签收。', '提示', {
           type: 'warning',
           confirmButtonText: '确定'
         })
@@ -336,6 +335,12 @@ export default {
     handledafen(index, row) { // 评价打分
       this.isShowpjdf = true
       this.curRow = row
+      if (this.curRow.score) {
+        this.pjdfForm.score = this.curRow.score
+      }
+      if (this.curRow.commentText) {
+        this.pjdfForm.commentText = this.curRow.commentText
+      }
     },
     handleDetail(index, row) { // 评价详情
       this.isShowpjdfdetail = true
@@ -343,7 +348,7 @@ export default {
     },
     closeffxsDialog(val) { // 关闭分发线索弹框
       this.isShowdrffxsDialog = val
-      this.query()
+      location.reload()
     },
     getDeptsshdw() { // 查询上级单位
       this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {

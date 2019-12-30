@@ -10,7 +10,7 @@
       <el-row type="flex" justify="center" v-if="isShowotherform">
         <el-col :span="23">
           <el-form-item label="标题" prop="clusterTitle">
-            <el-input v-model="form.clusterTitle" auto-complete="off" clearable maxlength="50"></el-input>
+            <el-input v-model.trim="form.clusterTitle" auto-complete="off" clearable maxlength="50"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -565,7 +565,9 @@ export default {
     distribute(type, data) { // 分发
       if (type === 'list') { // 点击涉及单位当前行
         this.receiveName = data.deptName
+        this.qbxsDistribute = ''
       } else { // 点击线索数字时，获取当前数字的状态
+        this.receiveName = ''
         this.qbxsDistribute = data
       }
       this.isShowdrffxsDialog = true
@@ -726,8 +728,10 @@ export default {
         this.btnLoading = true
         param.id = this.editId
         if (!this.xsNum.total) {
+          this.btnLoading = false
           this.$message({ message: '请导入线索', type: 'error' })
         } else if (!this.xsNum.distribute) {
+          this.btnLoading = false
           this.$message({ message: '请分发线索', type: 'error' })
         } else {
           this.$save('casecluster/save', param).then((response) => {
@@ -736,6 +740,7 @@ export default {
               type: 'success',
               duration: 2000
             })
+            this.btnLoading = false
             if (this.pageType === 'detail') {
               this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
             } else {
@@ -773,8 +778,10 @@ export default {
         param.category = 3
         if (!this.xsNum.total) {
           this.$message({ message: '请导入线索', type: 'error' })
+          this.btnLoading = false
         } else if (this.listData.length === 0) {
           this.$message({ message: '请分发线索', type: 'error' })
+          this.btnLoading = false
         } else {
           param.status = 1
           this.$save('casecluster/save', param).then((response) => {
@@ -802,14 +809,16 @@ export default {
         param.startDate = this.form.startDate // 开始时间
         param.endDate = this.form.endDate // 结束时间
         param.clusterNumber = this.form.clusterNumber // 集群战役编号
-        if (this.pageType === 'xf') { // 下发
+        if (this.pageType === 'xf' || this.pageType === 'editxf') { // 下发 或者 编辑时的下发
           param.category = 2
-        } else if (this.pageType === 'bxf') { // 部下发
+        } else if (this.pageType === 'bxf' || this.pageType === 'editbxf') { // 部下发 或者 编辑时的部下发
           param.category = 1
         }
         if (!this.xsNum.total) {
+          this.btnLoading = false
           this.$message({ message: '请导入线索', type: 'error' })
         } else if (this.listData.length === 0) {
+          this.btnLoading = false
           this.$message({ message: '请分发线索', type: 'error' })
         } else {
           param.status = 5
