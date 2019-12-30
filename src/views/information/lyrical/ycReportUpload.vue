@@ -15,6 +15,8 @@
           v-model="query.createTimeStart"
           type="date"
           value-format="yyyy-MM-dd"
+          :picker-options="startPickerOptions"
+          @change="startDateChange"
           placeholder="请选择开始时间">
         </el-date-picker>
       </el-form-item>
@@ -24,20 +26,21 @@
           type="date"
           size="small"
           value-format="yyyy-MM-dd"
+          @change="endDateChange"
+          :picker-options="endPickerOptions"
           placeholder="请选择结束时间">
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" @click="getList(true,true)">检索</el-button>
-        <el-button size="small" @click="add">上传</el-button>
+        <el-button type="primary" size="small" @click="getList(true,true)" v-if="$isViewBtn('103501')">检索</el-button>
+        <el-button size="small" @click="add" v-if="$isViewBtn('103502')">上传</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="listData" v-loading="listLoading" style="width: 100%;" class="table_th_center">
       <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
       <el-table-column prop="title" label="报告标题" min-width="8%" show-overflow-tooltip align="center">
         <template slot-scope="scope">
-           <!-- @click="previewReport(scope.row)" -->
-          <span>{{scope.row.title}}</span>
+          <span @click="previewReport(scope.row.attachment)" :class="$isViewBtn('103504')?'linkColor':''" >{{scope.row.title}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="生成时间" min-width="6%" format="yyyy-MM-dd" align="center">
@@ -52,8 +55,8 @@
       </el-table-column>
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
-          <el-button title="下载" size="mini" type="primary" icon="el-icon-download" circle @click="handleDownLoad(scope.$index, scope.row)"></el-button>
-          <el-button title="删除" size="mini" type="danger" icon="el-icon-delete" circle @click="handleDel(scope.row)"></el-button>
+          <el-button title="下载" size="mini" type="primary" icon="el-icon-download" circle @click="handleDownLoad(scope.$index, scope.row)" v-if="$isViewBtn('103505')"></el-button>
+          <el-button title="删除" size="mini" type="danger" icon="el-icon-delete" circle @click="handleDel(scope.row)" v-if="$isViewBtn('103503')"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -141,12 +144,27 @@ export default {
         category: '',
         createTimeStart: '',
         createTimeEnd: ''
-      }
+      },
+      endPickerOptions: {},
+      startPickerOptions: {}
     }
   },
   methods: {
-    previewReport() { // 预览
-
+    previewReport(item) { // 预览
+      if (this.$isViewBtn('103504')) {
+        item = JSON.parse(item)
+        if (item.name) {
+          var arr = item.name.split('.')
+          if (arr[1] === 'doc' || arr[1] === 'docx') {
+            this.$message({
+              message: 'word暂不支持预览',
+              type: 'warning'
+            })
+            return false
+          }
+        }
+        window.open(item.path)
+      }
     },
     onSubmit(state) {
       this.$refs.ycReportForm.validate(valid => {
@@ -372,12 +390,10 @@ export default {
       para.createTimeEnd = para.createTimeEnd ? para.createTimeEnd + ' 23:59:59' : '' // 结束时间
       this.$query('page/yqreport', para).then(response => {
         this.listLoading = false
-        if (response.data.list && response.data.list.length > 0) {
+        if (response.data) {
           this.listData = response.data.list
           this.total = response.data.totalCount
           this.pageSize = response.data.pageSize
-        } else {
-          this.listData = []
         }
       }).catch(() => {
         this.listLoading = false
@@ -435,6 +451,40 @@ export default {
       }).catch(() => {
         this.listLoading = false
       })
+    },
+    startDateChange(val) {
+      if (val) {
+        // this.endDateDisabled = false
+        // 限制 截止时间 必须是开始时间之后
+        this.endPickerOptions = Object.assign({}, 'endPickerOptions', {
+          disabledDate: (time) => {
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
+          }
+        })
+      } else {
+        this.query.createTimeEnd = '' // 结束时间清空
+        // this.endDateDisabled = true
+        this.startPickerOptions = Object.assign({}, 'startPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+      }
+    },
+    endDateChange(val) { // 结束时间change事件
+      if (val) {
+        this.startPickerOptions = Object.assign({}, 'startPickerOptions', {
+          disabledDate: (time) => {
+            return time.getTime() > new Date(val).getTime()
+          }
+        })
+      } else {
+        this.startPickerOptions = Object.assign({}, 'endPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+      }
     }
   },
   mounted: function() {
