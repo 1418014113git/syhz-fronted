@@ -29,7 +29,7 @@
         <div slot="header">
           <span>平台为您找到相关结果约  {{ thousSplit(total) }} 个</span>
         </div>
-        <div style="overflow:auto;" :style="{maxHeight:tableHeight}" v-if="dataList.length > 0">
+        <div class="insideInfo_content" style="overflow:auto;" :style="{maxHeight:tableHeight}" v-if="dataList.length > 0">
           <div v-for="item in dataList" :key="item.value" class="lineStyle">
             <div class="title">
               <div @click='detail(item.id)'>{{ item.artTitle }}</div>
@@ -40,7 +40,7 @@
                 <el-button v-if="$isViewBtn('102904')" type="primary" @click="handlerRemove(item)">删除</el-button>
               </div>
             </div>
-            <div @click='detail(item.id)' class="content content_ellipsis" v-html="item.artContent">{{item.artContent}}</div>
+            <div @click='detail(item.id)' class="content content_ellipsis" v-html="item.artContent.replace(/&nbsp;/g, '')"></div>
           </div>
         </div>
         <div v-else style="text-align: center; min-height: 150px; line-height: 150px;">
@@ -82,6 +82,7 @@
 </template>
 
 <script>
+import $ from 'jquery'
 export default {
   data() {
     return {
@@ -168,6 +169,7 @@ export default {
       }
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
+        $('.insideInfo_content').animate({ scrollTop: 0 }, 0)
       }
       this.$query('page/reptileinfo', para).then(response => {
         this.loading = false
@@ -185,7 +187,10 @@ export default {
     handleConfirm(item) {
       this.$update('reptileinfostatus/' + item.id, { status: 1 }).then(response => {
         this.$alert('信息资源《' + item.artTitle + '》已开放并供大家查阅', '温馨提示', {
-          confirmButtonText: '知道了'
+          confirmButtonText: '知道了',
+          callback: action => {
+            this.query(false, false)
+          }
         })
       })
     },
@@ -233,10 +238,11 @@ export default {
             filters: this.filters
           }
           this.moveBtnLoading = false
-          this.closeDialog()
-          if (this.moveForm.moduleName === '1') {
+          if (String(this.moveForm.moduleName) === '1') {
+            this.closeDialog()
             this.$gotoid('/insideInfo/insideInfoToK', JSON.stringify(para))
           } else {
+            this.closeDialog()
             this.$gotoid('/insideInfo/insideInfoToT', JSON.stringify(para))
           }
         } else {
@@ -311,7 +317,7 @@ export default {
     cursor: pointer;
   }
   .insideInfo .lineStyle .content *{
-    display: inline-block;
+    display: inline;
     font-size: 16px !important;
     font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif !important;
     font-weight: normal !important;
@@ -319,7 +325,7 @@ export default {
     line-height: 22px !important;
     background: none !important;
   }
-  .insideInfo .lineStyle .content img{
+  .insideInfo .lineStyle .content img, .insideInfo .lineStyle .content br{
     display: none;
   }
   .insideInfo .content_ellipsis {
@@ -328,7 +334,7 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     color: #c7c7c7;
-    height: 22px;
+    /*height: 22px;*/
   }
   .insideInfo .type3 {
     background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
