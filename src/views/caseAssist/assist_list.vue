@@ -674,11 +674,11 @@ export default {
         }
         if (param.start) {
           this.filters.createStartDate = param.start
-          this.filters.endStartDate = param.start
+          // this.filters.endStartDate = param.start
         }
         if (param.end) {
           this.filters.createEndDate = param.end
-          this.filters.endEndDate = param.end
+          // this.filters.endEndDate = param.end
         }
       }
       sessionStorage.setItem(this.$route.path, '')

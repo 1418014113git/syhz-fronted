@@ -20,7 +20,7 @@
           placeholder="请选择开始时间">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="至" prop="createTimeEnd">
+      <el-form-item label="至" prop="createTimeEnd" label-width="36px">
         <el-date-picker
           v-model="query.createTimeEnd"
           type="date"
@@ -49,9 +49,9 @@
         </template>
       </el-table-column>
       <el-table-column prop="uploadTime"  label="上传时间"  min-width="6%"  format="yyyy-MM-dd" align="center">
-        <!-- <template slot-scope="scope">
+        <template slot-scope="scope">
           {{scope.row.uploadTime.substring(0,10)}}
-        </template> -->
+        </template>
       </el-table-column>
       <el-table-column label="操作" width="100">
         <template slot-scope="scope">
@@ -373,7 +373,7 @@ export default {
       this.page = flag ? 1 : this.page
       // 可以只输入开始或者结束；只输入结束时，开始默认2019-12-01
       if (this.query.createTimeStart && !this.query.createTimeEnd) { // 选择了开始时间,结束时间为空
-        this.query.createTimeEnd = this.$parseTime(new Date(), '{y}-{m}-{d}')
+        // this.query.createTimeEnd = this.$parseTime(new Date(), '{y}-{m}-{d}')
       } else if (!this.query.createTimeStart && this.query.createTimeEnd) {
         this.query.createTimeStart = '2019-12-01'
       }
@@ -465,6 +465,11 @@ export default {
         this.query.createTimeEnd = '' // 结束时间清空
         // this.endDateDisabled = true
         this.startPickerOptions = Object.assign({}, 'startPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+        this.endPickerOptions = Object.assign({}, 'startPickerOptions', {
           disabledDate: (time) => {
             return false
           }
