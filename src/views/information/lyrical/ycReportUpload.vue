@@ -45,12 +45,12 @@
       </el-table-column>
       <el-table-column prop="createTime" label="生成时间" min-width="6%" format="yyyy-MM-dd" align="center">
         <template slot-scope="scope">
-          {{scope.row.createTime.substring(0,10)}}
+          <span v-if="scope.row.createTime">{{scope.row.createTime.substring(0,10)}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="uploadTime"  label="上传时间"  min-width="6%"  format="yyyy-MM-dd" align="center">
         <template slot-scope="scope">
-          {{scope.row.uploadTime.substring(0,10)}}
+          <span v-if="scope.row.uploadTime">{{scope.row.uploadTime.substring(0,10)}}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="100">
@@ -66,7 +66,7 @@
         :page-size="pageSize" @size-change="handleSizeChange" :total="total" :current-page="page" style="float:right;"></el-pagination>
     </el-col>
     <el-dialog title="上传舆情报告" :visible.sync="uploadDialogVisible" @close="resetForm('ycReportForm')">
-      <el-form :model="ycReportForm" ref="ycReportForm" label-width="90px" style="width:94%;margin:10px auto 0;" v-loading="saveLoading">
+      <el-form :model="ycReportForm" ref="ycReportForm" label-width="90px" style="width:94%;margin:10px auto 0;" v-loading="saveLoading" :rules="rules">
         <el-form-item label="报告类型" prop="category">
           <el-select v-model="ycReportForm.category" placeholder="请选择">
             <el-option
@@ -146,7 +146,12 @@ export default {
         createTimeEnd: ''
       },
       endPickerOptions: {},
-      startPickerOptions: {}
+      startPickerOptions: {},
+      rules: {
+        category: [{
+          required: true, message: '请选择报告类型', trigger: 'change'
+        }]
+      }
     }
   },
   methods: {
