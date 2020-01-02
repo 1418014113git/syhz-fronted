@@ -397,7 +397,7 @@
           id: moveId
         }
         moveInfo(para).then(response => {
-          this.form.type = response.data.artGroup
+          this.form.type = String(response.data.artGroup)
           this.form.content = response.data.artContent
           this.form.title = response.data.artTitle
         })
