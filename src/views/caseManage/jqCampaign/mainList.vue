@@ -843,7 +843,7 @@ export default {
       }
       if (this.carryParam.start && this.carryParam.end) {
         this.dateRand1 = [this.carryParam.start, this.carryParam.end] // 发起日期
-        this.dateRand2 = [this.carryParam.start, this.carryParam.end] // 结束日期
+        // this.dateRand2 = [this.carryParam.start, this.carryParam.end] // 结束日期
       }
       if (this.carryParam.type !== undefined && String(this.carryParam.type) === '0') { // 要查申请的标识
         this.totalType = 'curCreate'

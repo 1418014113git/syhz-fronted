@@ -91,7 +91,11 @@
                       </template>
                     </el-table-column>
                     <el-table-column type="index" width="70" label="序号"></el-table-column>
-                    <el-table-column prop="cityName" align="center" :label="areaTitle" show-overflow-tooltip></el-table-column>
+                    <el-table-column :prop="String(curDept.depType) === '1' ? 'cityName' : 'deptName'" align="center" :label="areaTitle" show-overflow-tooltip>
+                      <template slot-scope="scope">
+                        {{ String(curDept.depType) === '1' ? scope.row.cityName : scope.row.deptName }}
+                      </template>
+                    </el-table-column>
                     <el-table-column align="center" :label="title + '数'">
                       <el-table-column prop="fqNum" align="center" width="90" label="发起" show-overflow-tooltip>
                         <template slot-scope="scope">
@@ -216,7 +220,11 @@
                       </template>
                     </el-table-column>
                     <el-table-column type="index" width="70" label="序号"></el-table-column>
-                    <el-table-column prop="cityName" align="center" :label="areaTitle" show-overflow-tooltip></el-table-column>
+                    <el-table-column :prop="String(curDept.depType) === '1' ? 'cityName' : 'deptName'" align="center" :label="areaTitle" show-overflow-tooltip>
+                      <template slot-scope="scope">
+                        {{ String(curDept.depType) === '1' ? scope.row.cityName : scope.row.deptName }}
+                      </template>
+                    </el-table-column>
                     <el-table-column align="center" :label="title + '数'">
                       <el-table-column prop="fqNum" align="center" width="90" label="发起" show-overflow-tooltip>
                         <template slot-scope="scope">
@@ -424,7 +432,7 @@
           start: this.filters.time ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : '',
           end: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '',
           cityCode: '',
-          departCode: this.filters.deptCode,
+          deptCode: this.filters.departCode,
           deptType: this.curDept.depType
         }
         this.listLoading = true
@@ -520,7 +528,7 @@
           // status: '4', // 状态
           areaCode: [], // 行政区划
           type: type,
-          deptCode: flag ? row.deptCode : '', // 部门code
+          deptCode: flag || String(this.curDept.depType) !== '1' ? row.deptCode : '', // 部门code
           start: this.filters.time ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : '', // 开始时间
           end: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '' // 截止时间
         }
@@ -550,7 +558,7 @@
           end: this.filters.time ? this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59' : '',
           type: type,
           areaCode: [], // 行政区划
-          deptCode: flag ? row.deptCode : '' // 部门code
+          deptCode: flag || String(this.curDept.depType) !== '1' ? row.deptCode : '' // 部门code
         }
         const dept = this.findParentDept(row.deptCode)
         const cityCode = dept.depCode.substring(0, 6)
