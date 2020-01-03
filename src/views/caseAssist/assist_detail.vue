@@ -80,9 +80,11 @@
     methods: {
       setSignBtnVisibleH(val) {
         this.signBtnVisibleH = val
+        this.$refs.baseInfo.setSignBtnVisibleH(this.signBtnVisibleH)
       },
       setEvaluateBtnVisibleH(val) {
         this.evaluateBtnVisibleH = val
+        this.$refs.baseInfo.setEvaluateBtnVisibleH(this.evaluateBtnVisibleH)
       },
       detail() { // 查询详情
         this.$query('caseAssist/' + this.assistId, {}).then((response) => {

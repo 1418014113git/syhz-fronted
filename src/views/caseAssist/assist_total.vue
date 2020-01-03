@@ -68,24 +68,24 @@
                             <el-table-column prop="fllbnum" align="center" width="90" label="总计" show-overflow-tooltip></el-table-column>
                           </el-table-column>
                           <el-table-column align="center" label="侦办刑事案件">
-                            <el-table-column prop="larqCount" align="center" width="90" label="立案（起）" show-overflow-tooltip>
+                            <el-table-column prop="larqCount" align="center" width="90" label="　立案　（起）" show-overflow-tooltip>
                               <template slot-scope="scope">
                                 <a v-if="scope.row.larqCount > 0" class="linkColor" @click="toCaseList(0, scope.row, true)">{{scope.row.larqCount}}</a>
                                 <span v-else>{{scope.row.larqCount || 0}}</span>
                               </template>
                             </el-table-column>
-                            <el-table-column prop="parqCount" align="center" width="90" label="破案（起）" show-overflow-tooltip>
+                            <el-table-column prop="parqCount" align="center" width="90" label="　破案　（起）" show-overflow-tooltip>
                               <template slot-scope="scope">
                                 <a v-if="scope.row.parqCount > 0" class="linkColor" @click="toCaseList(1, scope.row, true)">{{scope.row.parqCount}}</a>
                                 <span v-else>{{scope.row.parqCount || 0}}</span>
                               </template>
                             </el-table-column>
-                            <el-table-column prop="zhrys" align="center" width="90" label="抓获（人）" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="xsjl" align="center" width="90" label="刑拘（人）" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="pzdb" align="center" width="90" label="批捕（人）" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="yjss" align="center" width="90" label="移诉（人）" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="dhwd" align="center" width="110" label="捣毁窝点（个）" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="sajz" align="center" width="110" label="涉案金额（万元）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="zhrys" align="center" width="90" label="　抓获　（人）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="xsjl" align="center" width="90" label="　刑拘　（人）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="pzdb" align="center" width="90" label="　批捕　（人）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="yjss" align="center" width="90" label="　移诉　（人）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="dhwd" align="center" width="110" label="　捣毁窝点（个）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="sajz" align="center" width="110" label="　涉案金额（万元）" show-overflow-tooltip></el-table-column>
                           </el-table-column>
                         </el-table>
                       </template>
@@ -117,24 +117,24 @@
                       <el-table-column prop="fllbnum" align="center" width="90" label="总计" show-overflow-tooltip></el-table-column>
                     </el-table-column>
                     <el-table-column align="center" label="侦办刑事案件">
-                      <el-table-column prop="larqCount" align="center" width="90" label="立案（起）" show-overflow-tooltip>
+                      <el-table-column prop="larqCount" align="center" width="90" label="　立案　（起）" show-overflow-tooltip>
                         <template slot-scope="scope">
                           <a v-if="scope.row.larqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(0, scope.row)">{{scope.row.larqCount}}</a>
                           <span v-else>{{scope.row.larqCount || 0}}</span>
                         </template>
                       </el-table-column>
-                      <el-table-column prop="parqCount" align="center" width="90" label="破案（起）" show-overflow-tooltip>
+                      <el-table-column prop="parqCount" align="center" width="90" label="　破案　（起）" show-overflow-tooltip>
                         <template slot-scope="scope">
                           <a v-if="scope.row.parqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(1, scope.row)">{{scope.row.parqCount}}</a>
                           <span v-else>{{scope.row.parqCount || 0}}</span>
                         </template>
                       </el-table-column>
-                      <el-table-column prop="zhrys" align="center" width="90" label="抓获（人）" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="xsjl" align="center" width="90" label="刑拘（人）" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="pzdb" align="center" width="90" label="批捕（人）" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="yjss" align="center" width="90" label="移诉（人）" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="dhwd" align="center" width="110" label="捣毁窝点（个）" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="sajz" align="center" width="110" label="涉案金额（万元）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="zhrys" align="center" width="90" label="　抓获　（人）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="xsjl" align="center" width="90" label="　刑拘　（人）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="pzdb" align="center" width="90" label="　批捕　（人）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="yjss" align="center" width="90" label="　移诉　（人）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="dhwd" align="center" width="110" label="　捣毁窝点（个）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="sajz" align="center" width="110" label="　涉案金额（万元）" show-overflow-tooltip></el-table-column>
                     </el-table-column>
                   </el-table>
                 </el-tab-pane>
@@ -197,24 +197,24 @@
                             </el-table-column>
                           </el-table-column>
                           <el-table-column align="center" label="侦办刑事案件">
-                            <el-table-column prop="larqCount" align="center" width="90" label="立案（起）" show-overflow-tooltip>
+                            <el-table-column prop="larqCount" align="center" width="90" label="　立案　（起）" show-overflow-tooltip>
                               <template slot-scope="scope">
                                 <a v-if="scope.row.larqCount > 0 && enableTo(scope.row, true)" class="linkColor" @click="toCaseList(0, scope.row, true)">{{scope.row.larqCount}}</a>
                                 <span v-else>{{scope.row.larqCount || 0}}</span>
                               </template>
                             </el-table-column>
-                            <el-table-column prop="parqCount" align="center" width="90" label="破案（起）" show-overflow-tooltip>
+                            <el-table-column prop="parqCount" align="center" width="90" label="　破案　（起）" show-overflow-tooltip>
                               <template slot-scope="scope">
                                 <a v-if="scope.row.parqCount > 0 && enableTo(scope.row, true)" class="linkColor" @click="toCaseList(1, scope.row, true)">{{scope.row.parqCount}}</a>
                                 <span v-else>{{scope.row.parqCount || 0}}</span>
                               </template>
                             </el-table-column>
-                            <el-table-column prop="zhrys" align="center" width="90" label="抓获（人）" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="xsjl" align="center" width="90" label="刑拘（人）" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="pzdb" align="center" width="90" label="批捕（人）" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="yjss" align="center" width="90" label="移诉（人）" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="dhwd" align="center" width="110" label="捣毁窝点（个）" show-overflow-tooltip></el-table-column>
-                            <el-table-column prop="sajz" align="center" width="110" label="涉案金额（万元）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="zhrys" align="center" width="90" label="　抓获　（人）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="xsjl" align="center" width="90" label="　刑拘　（人）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="pzdb" align="center" width="90" label="　批捕　（人）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="yjss" align="center" width="90" label="　移诉　（人）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="dhwd" align="center" width="110" label="　捣毁窝点（个）" show-overflow-tooltip></el-table-column>
+                            <el-table-column prop="sajz" align="center" width="110" label="　涉案金额（万元）" show-overflow-tooltip></el-table-column>
                           </el-table-column>
                         </el-table>
                       </template>
@@ -274,24 +274,24 @@
                       </el-table-column>
                     </el-table-column>
                     <el-table-column align="center" label="侦办刑事案件">
-                      <el-table-column prop="larqCount" align="center" width="90" label="立案（起）" show-overflow-tooltip>
+                      <el-table-column prop="larqCount" align="center" width="90" label="　立案　（起）" show-overflow-tooltip>
                         <template slot-scope="scope">
                           <a v-if="scope.row.larqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(0, scope.row)">{{scope.row.larqCount}}</a>
                           <span v-else>{{scope.row.larqCount || 0}}</span>
                         </template>
                       </el-table-column>
-                      <el-table-column prop="parqCount" align="center" width="90" label="破案（起）" show-overflow-tooltip>
+                      <el-table-column prop="parqCount" align="center" width="90" label="　破案　（起）" show-overflow-tooltip>
                         <template slot-scope="scope">
                           <a v-if="scope.row.parqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(1, scope.row)">{{scope.row.parqCount}}</a>
                           <span v-else>{{scope.row.parqCount || 0}}</span>
                         </template>
                       </el-table-column>
-                      <el-table-column prop="zhrys" align="center" width="90" label="抓获（人）" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="xsjl" align="center" width="90" label="刑拘（人）" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="pzdb" align="center" width="90" label="批捕（人）" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="yjss" align="center" width="90" label="移诉（人）" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="dhwd" align="center" width="110" label="捣毁窝点（个）" show-overflow-tooltip></el-table-column>
-                      <el-table-column prop="sajz" align="center" width="110" label="涉案金额（万元）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="zhrys" align="center" width="90" label="　抓获　（人）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="xsjl" align="center" width="90" label="　刑拘　（人）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="pzdb" align="center" width="90" label="　批捕　（人）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="yjss" align="center" width="90" label="　移诉　（人）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="dhwd" align="center" width="110" label="　捣毁窝点（个）" show-overflow-tooltip></el-table-column>
+                      <el-table-column prop="sajz" align="center" width="110" label="　涉案金额（万元）" show-overflow-tooltip></el-table-column>
                     </el-table-column>
                   </el-table>
                 </el-tab-pane>
@@ -338,7 +338,7 @@
         if (this.curDept.areaCode === row.cityCode) {
           return true
         }
-        if (flag && row.deptCode === this.curDept.depCode) {
+        if ((flag && row.deptCode === this.curDept.depCode) || !flag) {
           return true
         }
         return false
@@ -397,7 +397,11 @@
               }
             }, 0)
             if (index === 9) {
-              sums[index] = ((sums[6] + sums[7]) / sums[5] * 100).toFixed(2) + '%'
+              if (sums[5] === 0 || sums[6] + sums[7] === 0) {
+                sums[index] = '0.00 %'
+              } else {
+                sums[index] = ((sums[6] + sums[7]) / sums[5] * 100).toFixed(2) + ' %'
+              }
             } else {
               sums[index] = sums[index]
             }
@@ -548,7 +552,7 @@
         if (this.assistType === '1') {
           this.$gotoid('/caseAssist/list', JSON.stringify(para))
         } else {
-          this.$router.push({ path: '/jqcampaign', query: para })
+          this.$gotoid('/jqcampaign', JSON.stringify(para))
         }
       },
       toCaseList(type, row, flag) {
