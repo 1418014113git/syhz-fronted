@@ -158,6 +158,12 @@ export default {
     }
   },
   methods: {
+    setSignBtnVisibleH(val) {
+      this.signBtnVisible = val
+    },
+    setEvaluateBtnVisibleH(val) {
+      this.evaluateBtnVisible = val
+    },
     getReplace(data) {
       if (data) {
         var item = data.split('/r/n').join('\r\n')
@@ -185,7 +191,7 @@ export default {
           this.applyBtnVisible = true
         }
       }
-      if ((String(this.baseInfo.status) === '5' || String(this.baseInfo.status) === '8') && curDate > startDate) {
+      if ((String(this.info.status) === '5' || String(this.info.status) === '6' || String(this.info.status) === '7') && curDate > startDate) {
         if (String(this.curDept.depType) === '2') {
           this.clueDistributeBtnVisible = true
           this.clueFeedbackBtnVisible = true

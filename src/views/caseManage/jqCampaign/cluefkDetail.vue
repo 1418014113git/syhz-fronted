@@ -209,7 +209,7 @@ export default {
   methods: {
     detail() { // 查详情
       this.listLoading = true
-      this.xsfkForm.qbxsResult = this.xsfkRow.qbxsResult ? this.xsfkRow.qbxsResult : ''
+      this.xsfkForm.qbxsResult = this.xsfkRow.qbxsResult ? (this.xsfkRow.qbxsResult !== 1 ? this.xsfkRow.qbxsResult : '') : ''
       const para = {
         assistId: this.xsfkRow.clusterId, // 集群Id
         type: 'detail', // 操作类型
