@@ -264,8 +264,26 @@ export default {
         param.parentCode = this.curDept.depCode
         this.$emit('setEvaluateBtnVisibleH', false)
       } else {
+        // if (this.curDept.depType === '-1') { // 省
+        // } else if (this.curDept.depType === '1') { // 总队
+        //   param.parentCode = this.curDept.parentDepCode
+        // } else if (this.curDept.depType === '2') { // 支队
+        //   param.curDeptCode = this.curDept.depCode
+        //   param.parentCode = ''
+        // } else if (this.curDept.depType === '3') { // 大队
+        //   param.curDeptCode = this.curDept.depCode
+        //   param.parentCode = ''
+        // } else if (this.curDept.depType === '4') { // 派出所
+        //   if (this.curDept.areaCode === '611400') {
+        //     param.curDeptCode = this.curDept.parentDepCode
+        //     param.parentCode = ''
+        //   } else {
+        //     param.curDeptCode = this.curDept.parentDepCode
+        //     param.parentCode = ''
+        //   }
+        // }
         if (this.curDept.depType === '4') {
-          param.curDeptType = this.findParentDept(this.curDept.parentDepCode).parentCode
+          param.curDeptType = this.findParentDept(this.curDept.parentDepCode).depType
           param.parentCode = this.findParentDept(this.curDept.parentDepCode).parentCode
         } else {
           param.curDeptType = this.curDept.depType
