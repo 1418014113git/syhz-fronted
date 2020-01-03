@@ -191,7 +191,7 @@ export default {
           this.applyBtnVisible = true
         }
       }
-      if ((String(this.baseInfo.status) === '5' || String(this.baseInfo.status) === '8') && curDate > startDate) {
+      if ((String(this.info.status) === '5' || String(this.info.status) === '6' || String(this.info.status) === '7') && curDate > startDate) {
         if (String(this.curDept.depType) === '2') {
           this.clueDistributeBtnVisible = true
           this.clueFeedbackBtnVisible = true

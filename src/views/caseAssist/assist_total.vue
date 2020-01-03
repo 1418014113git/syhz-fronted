@@ -338,7 +338,7 @@
         if (this.curDept.areaCode === row.cityCode) {
           return true
         }
-        if (flag && row.deptCode === this.curDept.depCode) {
+        if ((flag && row.deptCode === this.curDept.depCode) || !flag) {
           return true
         }
         return false
