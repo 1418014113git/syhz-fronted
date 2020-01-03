@@ -552,7 +552,7 @@
         if (this.assistType === '1') {
           this.$gotoid('/caseAssist/list', JSON.stringify(para))
         } else {
-          this.$router.push({ path: '/jqcampaign', query: para })
+          this.$gotoid('/jqcampaign', JSON.stringify(para))
         }
       },
       toCaseList(type, row, flag) {
