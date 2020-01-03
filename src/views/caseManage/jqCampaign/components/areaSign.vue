@@ -60,7 +60,8 @@ export default {
       page: 1,
       total: 0,
       baseInfo: {}, // 基础信息
-      clusterId: '' // 存储列表传递过来的集群战役id
+      clusterId: '', // 存储列表传递过来的集群战役id
+      parentCode: '' // 上级部门code
     }
   },
   watch: {
@@ -68,7 +69,8 @@ export default {
       if (val.clusterId) {
         this.clusterId = val.clusterId
         this.baseInfo = this.info
-        this.query(true)
+        this.getDeptsshdw() // 查上级单位
+        // this.query(true)
       }
     }
   },
@@ -77,7 +79,8 @@ export default {
       if (this.info.clusterId) {
         this.clusterId = this.info.clusterId
         this.baseInfo = this.info
-        this.query(true)
+        this.getDeptsshdw() // 查上级单位
+        // this.query(true)
       }
     },
     query(flag) {
@@ -85,11 +88,20 @@ export default {
       var param = {
         assistId: this.clusterId,
         pageSize: this.pageSize,
-        pageNum: flag ? 1 : this.page
+        pageNum: flag ? 1 : this.page,
+        deptType: this.curDept.depType === '4' ? '2' : this.curDept.depType // 杨凌派出所 类型取杨凌支队的类型
       }
       // if (this.baseInfo.cityCode !== this.curDept.areaCode && this.curDept.depType === '3') {
       //   param.deptCode = this.curDept.depCode
       // }
+      if (this.curDept.depType === '1') { // 总队 传上级部门code
+        param.parentCode = this.parentCode
+      } else if (this.curDept.depType === '2') { // 支队  传本部门code
+        param.curDeptCode = this.curDept.depCode
+      } else if (this.curDept.depType === '4') { // 杨凌派出所，传父级部门code
+        param.curDeptCode = this.curDept.parentDepCode
+      }
+
       this.$query('casecluster/signList', param).then((res) => {
         this.listLoading = false
         this.listData = res.data.list
@@ -170,6 +182,15 @@ export default {
             location.reload()
           }
         })
+      }).catch(() => {
+      })
+    },
+    getDeptsshdw() { // 查询上级单位
+      this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.parentCode = response.data.departCode
+          this.query(true)
+        }
       }).catch(() => {
       })
     }
