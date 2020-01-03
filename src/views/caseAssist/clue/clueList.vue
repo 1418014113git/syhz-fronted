@@ -210,7 +210,7 @@ export default {
       }
       if (this.$route.query.id) {
         this.filters.assistId = this.$route.query.id
-        this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type.split(',') : '' // 核查情况
+        this.filters.qbxsResult = this.$route.query.type && this.$route.query.type !== '' ? this.$route.query.type.split(',') : [] // 核查情况
         this.paramFilter.cityCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 地市
         this.paramFilter.deptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 接收部门
         // if (this.$route.query.receiveDate) {
