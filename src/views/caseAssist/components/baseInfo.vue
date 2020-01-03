@@ -158,6 +158,12 @@ export default {
     }
   },
   methods: {
+    setSignBtnVisibleH(val) {
+      this.signBtnVisible = val
+    },
+    setEvaluateBtnVisibleH(val) {
+      this.evaluateBtnVisible = val
+    },
     getReplace(data) {
       if (data) {
         var item = data.split('/r/n').join('\r\n')

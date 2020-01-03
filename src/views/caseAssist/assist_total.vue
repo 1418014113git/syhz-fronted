@@ -274,7 +274,7 @@
                       </el-table-column>
                     </el-table-column>
                     <el-table-column align="center" label="侦办刑事案件">
-                      <el-table-column prop="larqCount" align="center" width="90" label="立案（起）" show-overflow-tooltip>
+                      <el-table-column prop="larqCount" align="center" width="90" label="　立案　（起）" show-overflow-tooltip>
                         <template slot-scope="scope">
                           <a v-if="scope.row.larqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(0, scope.row)">{{scope.row.larqCount}}</a>
                           <span v-else>{{scope.row.larqCount || 0}}</span>
