@@ -852,7 +852,7 @@ export default {
         this.totalType = 'feed'
       }
     }
-
+    sessionStorage.removeItem(this.$route.path) // 移除session参数
     this.init()
   },
   activated() {

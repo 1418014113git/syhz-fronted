@@ -118,7 +118,7 @@ export default {
       for (let i = 0; i < deptArr.length; i++) {
         const item = deptArr[i]
         if (item.depCode === paramCode) {
-          return item.parentCode
+          return item
         }
       }
     },
@@ -129,6 +129,7 @@ export default {
       }
       const param = {
         assistId: this.curAssistId,
+        deptType: this.curDept.depType,
         pageSize: this.pageSize,
         pageNum: this.page
       }
@@ -139,6 +140,25 @@ export default {
       }
       if (String(this.showType) === '2') {
         param.deptCode = this.curDept.depCode
+        param.parentCode = this.curDept.depCode
+        param.deptType = '2'
+      } else {
+        if (this.curDept.depType === '-1') { // 省
+        } else if (this.curDept.depType === '1') { // 总队
+          param.parentCode = this.curDept.parentDepCode
+        } else if (this.curDept.depType === '2') { // 支队
+          param.curDeptCode = this.curDept.depCode
+        } else if (this.curDept.depType === '3') { // 大队
+          param.curDeptCode = this.curDept.depCode
+        } else if (this.curDept.depType === '4') { // 派出所
+          if (this.curDept.areaCode === '611400') {
+            param.curDeptCode = this.curDept.parentDepCode
+            param.deptType = this.findParentDept(this.curDept.parentDepCode).depType
+          } else {
+            param.curDeptCode = this.curDept.parentDepCode
+            param.deptType = this.findParentDept(this.curDept.parentDepCode).depType
+          }
+        }
       }
       this.$query('caseAssist/signList', param).then((response) => {
         this.listLoading = false
@@ -149,9 +169,16 @@ export default {
         for (let i = 0; i < arr.length; i++) {
           const item = arr[i]
           const paramCode = item.receiveDeptCode
-          item.parentCode = this.findParentDept(paramCode)
-          if (String(item.signStatus) !== '2' && item.receiveDeptCode === this.curDept.depCode && String(this.showType) === '1') {
-            this.$emit('setSignBtnVisibleH', true)
+          const dept = this.findParentDept(paramCode)
+          item.parentCode = dept.parentCode
+          if (this.curDept.depType === '4') {
+            if (String(item.signStatus) !== '2' && item.receiveDeptCode === dept.depCode && String(this.showType) === '1') {
+              this.$emit('setSignBtnVisibleH', true)
+            }
+          } else {
+            if (String(item.signStatus) !== '2' && item.receiveDeptCode === this.curDept.depCode && String(this.showType) === '1') {
+              this.$emit('setSignBtnVisibleH', true)
+            }
           }
         }
         this.listData = arr
