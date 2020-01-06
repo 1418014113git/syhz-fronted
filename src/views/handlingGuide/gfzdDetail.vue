@@ -28,15 +28,15 @@
             <div><span>颁布文号：</span><span>{{detailData.publishCode}}</span></div>
             <div><span>施行日期：</span><span>{{this.$parseTime(detailData.effectiveTime, '{y}-{m}-{d}')}}</span></div>
           </div>
-          <div class="lineDetail">
-            <div><span>发布单位：</span><span>{{detailData.belongDepName}}</span></div>
-            <div><span>发布人：</span><span>{{detailData.creationName}}</span></div>
-          </div>
-          <div class="lineDetail">
-            <div><span>发布日期：</span><span>{{this.$parseTime(detailData.creationTime, '{y}-{m}-{d}')}}</span></div>
-          </div>
+          <!--<div class="lineDetail">-->
+            <!--<div><span>发布单位：</span><span>{{detailData.belongDepName}}</span></div>-->
+            <!--<div><span>发布人：</span><span>{{detailData.creationName}}</span></div>-->
+          <!--</div>-->
+          <!--<div class="lineDetail">-->
+            <!--<div><span>发布日期：</span><span>{{this.$parseTime(detailData.creationTime, '{y}-{m}-{d}')}}</span></div>-->
+          <!--</div>-->
         </div>
-        <div v-if="detailData.content && detailData.content !== ''" class="gfzdContent">
+        <div v-if="detailData.content && detailData.content !== ''" :style="detailData.content && detailData.content !== '' ? {maxHeight:tableHeight} : ''" class="gfzdContent">
           <div v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
         </div>
         <div v-if="detailData.enclosure && detailData.enclosure.length > 0" class="enclosure_con">
@@ -69,19 +69,19 @@
     <el-row class="caseEdit">
       <img src="@/assets/icon/back.png"  class="goBack" @click="dialogClose">   <!--返回-->
     </el-row>
-    <audio-player ref="audioPlayer" :playType="1" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></audio-player>
+    <audio-player ref="audioPlayer" :playType="3" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></audio-player>
   </el-dialog>
   <el-dialog title="" :visible.sync="videoDialogVisible" :close-on-click-modal="false" :show-close="false" @close="dialogClose" class="play_dialog">
     <el-row class="caseEdit">
       <img src="@/assets/icon/back.png"  class="goBack" @click="dialogClose">   <!--返回-->
     </el-row>
-    <video-player ref="videoPlayer" :playType="1" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></video-player>
+    <video-player ref="videoPlayer" :playType="3" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></video-player>
   </el-dialog>
   <el-dialog title="" :visible.sync="documentDialogVisible" :close-on-click-modal="false" :show-close="false" @close="dialogClose" class="play_dialog">
     <el-row class="caseEdit">
       <img src="@/assets/icon/back.png"  class="goBack" @click="dialogClose">   <!--返回-->
     </el-row>
-    <document-player ref="documentPlayer" :playType="1" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></document-player>
+    <document-player ref="documentPlayer" :playType="3" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></document-player>
   </el-dialog>
 </div>
 </template>
@@ -93,7 +93,7 @@
   import VueEditor from '@/components/Editor/VueEditor'
   import { uploadImg } from '@/utils/editorUpload'
   import Attachment from '@/api/attachment'
-
+  import { addJF } from '@/api/trainRuleConfig'
   export default {
     name: 'caseEdit',
     components: {
@@ -125,7 +125,15 @@
           { label: '司法解释', value: '3' },
           { label: '其他规范性文件', value: '4' }
         ],
-        viewId: ''
+        viewId: '',
+        detailViewId: '',
+        tableHeight: null,
+        currentTime: new Date(),
+        autoUpdateInterval: null,
+        waitInterval: null,
+        timeInterval: null,
+        intervalSplit: 3000, // 毫秒
+        learningTime: 10000 // 毫秒
       }
     },
     methods: {
@@ -167,6 +175,7 @@
         this.$gotoid('/handlingGuide/gfzd/edit', this.id)
       },
       callback() {
+        this.clearTimeInterval()
         if (this.callBack === '') {
           this.$router.push('/handlingGuide/gfzdList')
         } else {
@@ -182,9 +191,7 @@
         this.$query('standardinfodetail/' + this.id, {}).then(response => {
           this.loading = false
           this.detailData = response.data
-          if (this.callBack === '') { // 从列表页进来的
-            this.viewLog('0', '0')
-          }
+          this.bindSetTimeOut()
         }).catch(() => {
           this.loading = false
         })
@@ -248,33 +255,87 @@
           stopTime: '',
           remark: '',
           ip: sessionStorage.getItem('currentIp'),
-          ensId: this.playerDetail.id,
           belongMode: '3',
           belongType: this.detailData.articleType,
           documentId: this.detailData.documentId,
           viewType: viewType, // 0 文章， 1 附件
           operateType: operateType // 0 预览， 1 下载
         }
+        if (viewType === '0') {
+          para.ensId = this.playerDetail.id
+        }
         para = this.$setCurrentUser(para)
         this.$save('konwledgeLog', para).then(response => {
           if (viewType === '1' && operateType === '0') {
             this.viewId = response.data
           }
+          if (viewType === '0') {
+            this.detailViewId = response.data
+          }
         })
       },
-      uploadViewLog(stopTime) {
+      uploadViewLog(stopTime, detailFlag) {
         let para = {
           stopTime: stopTime
         }
         para = this.$setCurrentUser(para)
         para.lastId = para.creationId
         para.lastName = para.creationName
-        this.$update('Knowledge/' + this.viewId, para).then(response => {
+        const id = detailFlag ? this.detailViewId : this.viewId
+        this.$update('Knowledge/' + id, para).then(response => {
           console.info('更新停留时间')
         })
+      },
+      bindSetTimeOut() {
+        if (this.callBack === '' && this.notTake && (this.detailData.content !== undefined && this.detailData.content !== null && this.detailData.content !== '')) {
+          setTimeout(() => {
+            addJF('1', this.detailData.articleType, this.detailData.id, '3').then(response => {
+            })
+          }, this.learningTime)
+          this.viewLog('0', '0')
+          this.bindSetInterval()
+        }
+      },
+      bindSetInterval() {
+        this.autoUpdateInterval = setInterval(() => {
+          const time = new Date()
+          const longC = parseFloat((time.getTime() - this.currentTime.getTime()) / 1000).toFixed(3)
+          this.uploadViewLog(longC, true)
+        }, this.learningTime)
+        this.timeInterval = setInterval(() => {
+          addJF('4', this.detailData.articleType, this.detailData.id, '3').then(response => {
+          })
+        }, this.intervalSplit)
+      },
+      clearTimeInterval() {
+        clearInterval(this.autoUpdateInterval)
+        clearInterval(this.timeInterval)
+      },
+      initSplit() {
+        const config = JSON.parse(sessionStorage.getItem('config'))
+        const currentTypeConfig = config['ruleType4']
+        this.intervalSplit = currentTypeConfig.ruleTime * 1000
+        const currentTypeConfig1 = config['ruleType1']
+        this.learningTime = currentTypeConfig1.ruleTime * 1000
       }
     },
+    created() {
+      this.$navigation.on('forward', (to, from) => {
+        this.clearTimeInterval()
+      })
+      this.$navigation.on('back', (to, from) => {
+        this.clearTimeInterval()
+      })
+    },
     mounted() {
+      this.initSplit()
+      const data = JSON.parse(sessionStorage.getItem('depToken'))
+      if (data !== undefined && data !== null && data.length > 0) {
+        this.notTake = true
+      } else {
+        this.notTake = false
+      }
+      this.tableHeight = document.documentElement.clientHeight - 519 + 'px'
       this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
@@ -326,7 +387,7 @@
   .gfzdContent{
     border-top: 1px solid #eeeeee;
     padding-top: 20px;
-    min-height: 500px;
+    overflow-y: auto;
   }
   .gfzdDetail .title{
     color: rgb(32, 160, 255);
@@ -401,6 +462,9 @@
   }
   .play_dialog .el-dialog .el-dialog__header{
     border: none;
+  }
+  .play_dialog .el-dialog .el-dialog__body .caseEdit{
+    min-width: 100%;
   }
   .play_dialog .el-dialog .el-dialog__body .caseEdit.el-row {
     width: 100%;

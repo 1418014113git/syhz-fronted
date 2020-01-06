@@ -50,8 +50,8 @@
         <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange"
                      style="padding: 0 14px; color:#1E98D2">全选
         </el-checkbox>
-        <el-button type="primary" @click="batchDeleteMessage()"><i class="el-icon-delete"></i>删除</el-button>
-        <el-button type="primary" @click="batchUpdateMessage()"><i class="el-icon-message"></i>已读</el-button>
+        <el-button type="primary" @click="batchDeleteMessage()" :disabled="this.multipleSelection.length === 0"><i class="el-icon-delete"></i>删除</el-button>
+        <el-button type="primary" @click="batchUpdateMessage()" :disabled="this.multipleSelection.length === 0"><i class="el-icon-message"></i>已读</el-button>
         <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
                        :page-size="pageSize" :total="total" :current-page="page" style="float:right; padding-bottom: 20px;">
         </el-pagination>
@@ -60,7 +60,8 @@
     <el-dialog :title="detail.title" :visible.sync="dialogVisible" :close-on-click-modal="false" class="audit_dialog" @close="closeDialog">
       <el-form :model="detail" label-width="100px" style="padding-left: 20px; padding-right: 15px;" v-loading="dialogLoading">
         <el-form-item label="消息内容">{{detail.content}}</el-form-item>
-        <el-form-item label="发送时间">{{detail.creatorDate}}</el-form-item>
+        <el-form-item label="发送时间">{{formatTime(detail.creatorDate)}}</el-form-item>
+        <el-form-item label="发送人">{{detail.creatorName ? detail.creatorName : '-'}}</el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="closeDialog" class="cancelBtn">关闭</el-button>
@@ -102,7 +103,8 @@ export default {
       curUser: {},
       bizType: 0,
       tableHeight: document.documentElement.clientHeight - 300,
-      detail: {}
+      detail: {},
+      id: ''
     }
   },
   methods: {
@@ -222,6 +224,19 @@ export default {
         this.dialogLoading = false
       })
     },
+    wDetail() {
+      this.dialogLoading = true
+      this.dialogVisible = true
+      this.$query('sysmessagesdetail/' + this.id, {}).then(response => {
+        if (response.data.status === 0) {
+          this.updMessage(this.id, 1)
+        }
+        this.dialogLoading = false
+        this.detail = response.data
+      }).catch(() => {
+        this.dialogLoading = false
+      })
+    },
     updMessage(id) {
       this.loading = true
       const para = {
@@ -230,11 +245,13 @@ export default {
       this.$update('sysmessagesstatus/1', para).then((res) => {
         this.loading = false
         if (res.code === '000000') {
-          this.$message({
-            message: '操作成功', type: 'success'
-          })
           this.query()
         }
+      }).catch(() => {
+        this.loading = false
+        this.$message({
+          message: '标记已读失败', type: 'success'
+        })
       })
     },
     deleteMessage(row) {
@@ -246,10 +263,15 @@ export default {
         this.loading = false
         if (res.code === '000000') {
           this.$message({
-            message: '操作成功', type: 'success'
+            message: '删除成功', type: 'success'
           })
           this.query()
         }
+      }).catch(() => {
+        this.loading = false
+        this.$message({
+          message: '删除失败', type: 'success'
+        })
       })
     },
     batchDeleteMessage() {
@@ -270,12 +292,15 @@ export default {
         this.loading = false
         if (res.code === '000000') {
           this.$message({
-            message: '操作成功', type: 'success'
+            message: '批量删除成功', type: 'success'
           })
           this.query()
         }
       }).catch(() => {
         this.loading = false
+        this.$message({
+          message: '批量删除失败', type: 'success'
+        })
       })
     },
     batchUpdateMessage() {
@@ -293,22 +318,29 @@ export default {
           params.messagesId.push(this.multipleSelection[i]['messagesId'])
         }
       }
+      if (params.messagesId.length === 0) {
+        this.$message({
+          message: '没有未读的消息', type: 'warning'
+        })
+        return false
+      }
       this.loading = true
       this.$update('sysmessagesstatus/1', params).then((res) => {
         this.loading = false
         if (res.code === '000000') {
-          this.$message({
-            message: '操作成功', type: 'success'
-          })
           this.query()
         }
       }).catch(() => {
         this.loading = false
+        this.$message({
+          message: '批量标记已读失败', type: 'success'
+        })
       })
     },
     query() {
       this.queryCount()
       this.queryData()
+      this.$refs.multipleTable.clearSelection()
     }
   },
   mounted() {
@@ -317,6 +349,11 @@ export default {
     if (this.curDept) {
       this.queryCount()
       this.queryData()
+    }
+    if (sessionStorage.getItem(this.$route.path)) {
+      this.id = sessionStorage.getItem(this.$route.path)
+      this.wDetail()
+      sessionStorage.setItem(this.$route.path, '')
     }
   }
 }

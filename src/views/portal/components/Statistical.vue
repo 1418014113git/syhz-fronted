@@ -3,15 +3,15 @@
     <div v-if="tableData.length === 0" style="line-height: 260px; text-align: center; color: #fff;font-size:15px;">
       暂无数据
     </div>
-    <el-table v-else :data="tableData" style="width: 100%" class="statisticCollect">
-      <el-table-column type="index" width="30" label="序号" align="center"></el-table-column>
-      <el-table-column prop="cityName" label="市" align="center" min-width="80"></el-table-column>
+    <el-table v-else :data="tableData" style="width: 100%" class="statisticCollect" show-summary :summary-method="getSummaries">
+      <el-table-column type="index" width="52" label="序号" align="center"></el-table-column>
+      <el-table-column prop="cityName" label="地市" align="center" min-width="70" show-overflow-tooltip></el-table-column>
       <el-table-column label="破获案件数" align="center">
-        <el-table-column prop="sp" label="食品类" align="center" min-width="70"></el-table-column>
-        <el-table-column prop="yp" label="药品类" align="center" min-width="70"></el-table-column>
-        <el-table-column prop="hj" label="资源环境类" align="center"></el-table-column>
-        <el-table-column prop="num" label="总计案件数" align="center" min-width="90"></el-table-column>
+        <el-table-column prop="hj" label="资源环境类" align="center" min-width="80"></el-table-column>
+        <el-table-column prop="sp" label="食品类" align="center" min-width="60"></el-table-column>
+        <el-table-column prop="yp" label="药品类" align="center" min-width="60"></el-table-column>
       </el-table-column>
+      <el-table-column prop="num" label="总计案件数" align="center" min-width="90"></el-table-column>
     </el-table>
   </section>
 </template>
@@ -55,11 +55,41 @@ export default {
         },
         {
           cityName: '商洛市', sp: '0', yp: '0', hj: '0', num: '0'
+        },
+        {
+          cityName: '杨凌区', sp: '0', yp: '0', hj: '0', num: '0'
+        },
+        {
+          cityName: '西咸新区', sp: '0', yp: '0', hj: '0', num: '0'
         }
       ]
     }
   },
   methods: {
+    getSummaries(param) {
+      const { columns, data } = param
+      const sums = []
+      columns.forEach((column, index) => {
+        if (index === 1) {
+          sums[index] = '总计'
+          return
+        }
+        const values = data.map(item => Number(item[column.property]))
+        if (!values.every(value => isNaN(value))) {
+          sums[index] = values.reduce((prev, curr) => {
+            const value = Number(curr)
+            if (!isNaN(value)) {
+              return prev + curr
+            } else {
+              return prev
+            }
+          }, 0)
+        } else {
+          sums[index] = ''
+        }
+      })
+      return sums
+    },
     init() {
       citysajorderlist().then((res) => {
         if (res.code === '000000' && res.data) {
@@ -95,7 +125,7 @@ export default {
 </script>
 <style rel="stylesheet/scss" lang="scss">
 .poajBox {
-   margin-top: 10px;
+  margin-top: 10px;
   .el-table--scrollable-x .el-table__body-wrapper {
     overflow-x: hidden;
   }
@@ -110,10 +140,8 @@ export default {
   }
 }
 @media only screen and (max-width: 1367px) {
-  .el-table{
+  .poajBox .el-table {
     font-size: 12px;
   }
 }
-
-
 </style>

@@ -8,14 +8,15 @@
   <div class="bg ajInfo">
     <div class="more_btn" v-if="isMore"  @click="linkMore">更多</div>
     <el-tabs class="archiveTab" v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="全国性协查" name="first">
+      <el-tab-pane label="集群战役" name="first">
         <div slot="label">
-          <p v-if="totalQgxxc>0">全国性协查<span class="circle_number">{{totalQgxxc}}</span></p>
-          <p v-else class="no_data_title">全国性协查</p>
+          <p v-if="totalQgxxc>0">集群战役<span class="circle_number">{{totalQgxxc}}</span></p>
+          <p v-else class="no_data_title">集群战役</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="qgxxcData" style="width: 100%;" v-loading="qgxxcLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+        <!-- <el-table :data="qgxxcData" style="width: 100%;" v-loading="qgxxcLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="qgxxcData" style="width: 100%;" v-loading="qgxxcLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="assist_title" label="标题" width="200" show-overflow-tooltip></el-table-column>
           <el-table-column prop="apply_dept_name" label="申请部门" min-width="200" show-overflow-tooltip></el-table-column>
           <el-table-column prop="create_time" label="申请时间" show-overflow-tooltip width="180"></el-table-column>
@@ -33,11 +34,12 @@
           <p v-else class="no_data_title">案件协查</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="ajxcData" style="width: 100%;" v-loading="ajxcLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+        <!-- <el-table :data="ajxcData" style="width: 100%;" v-loading="ajxcLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="ajxcData" style="width: 100%;" v-loading="ajxcLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="ajbh" label="案件编号" show-overflow-tooltip></el-table-column>
           <el-table-column prop="ajmc" label="案件名称" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="DWXZ_NAME" label="立案日期" width="140" show-overflow-tooltip>
+          <el-table-column prop="DWXZ_NAME" label="立案日期" width="120" show-overflow-tooltip>
             <template slot-scope="scope">
               <span v-if="scope.row.larq">{{$handlerDateTime(scope.row.larq)}}</span>
             </template>
@@ -45,13 +47,17 @@
           <el-table-column prop="ajlbName" label="案件类别" show-overflow-tooltip></el-table-column>
           <el-table-column prop="applyDeptName" label="申请部门" show-overflow-tooltip></el-table-column>
           <el-table-column prop="applyPersonName" label="申请人" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="assistType" label="协查级别" :formatter="formatType" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="createTime" label="申请时间" show-overflow-tooltip>
+          <el-table-column prop="assistType" label="协查级别" :formatter="formatType" show-overflow-tooltip  width="100"></el-table-column>
+          <el-table-column prop="createTime" label="申请时间"  width="160" show-overflow-tooltip>
             <template slot-scope="scope">
               <span v-if="scope.row.createTime">{{scope.row.createTime | formatDate}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="status" label="协查状态" show-overflow-tooltip :formatter="formatStatus"></el-table-column>
+          <el-table-column prop="status" label="协查状态" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <span v-if='scope.row.status'>{{$getDictName(scope.row.status+'','jqzyzt')}}</span>
+            </template>
+          </el-table-column>
         </el-table>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="totalAjxc > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChangeAjxc"  :page-sizes="[5,10,15,20]" @size-change="handleSizeChangeAjxc"
@@ -65,34 +71,35 @@
           <p v-else class="no_data_title">案件督办</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="ajdbData" style="width: 100%;" v-loading="ajdbLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
-          <el-table-column prop="AJBH" label="案件编号" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="AJMC" label="案件名称" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="DWXZ_NAME" label="立案日期" width="140" show-overflow-tooltip>
+        <!-- <el-table :data="ajdbData" style="width: 100%;" v-loading="ajdbLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="ajdbData" style="width: 100%;" v-loading="ajdbLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
+          <el-table-column prop="ajbh" label="案件编号" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="ajmc" label="案件名称" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="larq" label="立案日期" width="120" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.LARQ">{{$handlerDateTime(scope.row.LARQ)}}</span>
+              <span v-if="scope.row.larq">{{$handlerDateTime(scope.row.larq)}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="AJLB_NAME" label="案件类别" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="DWXZ_NAME" label="发起时间" show-overflow-tooltip>
+          <el-table-column prop="ajlbName" label="案件类别" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="createTime" label="发起时间"  width="160" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.create_time">{{scope.row.create_time | formatDate}}</span>
+              <span v-if="scope.row.createTime">{{scope.row.createTime | formatDate}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="supervise_level" label="督办级别" show-overflow-tooltip>
+          <el-table-column prop="dbLevel" label="督办级别" width="100" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.supervise_level">{{formatterLevel(scope.row.supervise_level)}}</span>
+              {{$getDictName(scope.row.dbLevel+'','dbjb')}}
             </template>
           </el-table-column>
-          <el-table-column prop="DWXZ_NAME" label="督办状态" show-overflow-tooltip>
+          <el-table-column prop="dbStatus" label="督办状态" width="100" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.status">{{filterStateText(scope.row.status)}}</span>
+               {{$getDictName(scope.row.dbStatus+'','dbajzt')}}
             </template>
           </el-table-column>
-          <el-table-column prop="DWXZ_NAME" label="截止时间" show-overflow-tooltip>
+          <el-table-column prop="endTime" label="截止时间" width="160" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.end_date">{{scope.row.end_date | formatDate}}</span>
+              <span v-if="scope.row.endTime">{{scope.row.endTime | formatDate}}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -108,8 +115,9 @@
           <p v-else class="no_data_title">专项任务</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="zxrwData" style="width: 100%;" v-loading="zxrwLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+        <!-- <el-table :data="zxrwData" style="width: 100%;" v-loading="zxrwLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="zxrwData" style="width: 100%;" v-loading="zxrwLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="task_name" label="任务名称"></el-table-column>
           <el-table-column prop="AJMC" label="开始时间" show-overflow-tooltip>
             <template slot-scope="scope">
@@ -150,8 +158,9 @@
           <p v-else class="no_data_title">检验鉴定</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="jyjdData" style="width: 100%;" v-loading="jyjdLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+        <!-- <el-table :data="jyjdData" style="width: 100%;" v-loading="jyjdLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="jyjdData" style="width: 100%;" v-loading="jyjdLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="AJBH" label="申请单位">
             <template slot-scope="scope">
               <p :title="scope.row.apply_dept_name" class="ellipsis-word">{{scope.row.apply_dept_name}}</p>
@@ -183,8 +192,9 @@
           <p v-else class="no_data_title">案件认领</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="ajrlData" style="width: 100%;" v-loading="ajrlLoading" class="statisticCollect" max-height="186">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+        <!-- <el-table :data="ajrlData" style="width: 100%;" v-loading="ajrlLoading" class="statisticCollect" max-height="186"> -->
+        <el-table :data="ajrlData" style="width: 100%;" v-loading="ajrlLoading" class="statisticCollect">
+          <el-table-column type="index" label="序号" width="54" fixed></el-table-column>
           <el-table-column prop="time" label="时间" width="180"></el-table-column>
           <el-table-column prop="optStr" label="操作" show-overflow-tooltip></el-table-column>
           <el-table-column prop="optOrg" label="操作单位" show-overflow-tooltip></el-table-column>
@@ -204,8 +214,9 @@
 </template>
 <script>
 import { parseTime } from '@/utils/index'
+import Bus from '@/utils/bus.js'
 import {
-  getAssistLevelText, getAssistStatusText, getDBLevelText
+  getAssistLevelText, getAssistStatusText
 } from '@/utils/codetotext'
 export default {
   props: ['ajbh', 'ajid', 'type', 'Rl'],
@@ -217,10 +228,10 @@ export default {
       title: '社保人事',
       activeName: 'first',
       curUser: {},
-      paramDept: sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode : '',
+      depToken: {}, // 当前部门
       // cardId: '110101199008076340',
-      qgxxcData: [], // 全国性协查
-      qgxxcLoading: false, // 全国性协查loading
+      qgxxcData: [], // 集群战役
+      qgxxcLoading: false, // 集群战役loading
       ajxcData: [], // 案件协查
       ajxcLoading: false, // 案件协查loading
       ajdbData: [], // 案件督办
@@ -232,7 +243,7 @@ export default {
       ajrlData: [], // 案件认领
       ajrlLoading: false,
       pageSize: 5,
-      pageQgxxc: 1, // 全国性协查页数
+      pageQgxxc: 1, // 集群战役页数
       totalQgxxc: 0,
       pageAjxc: 1, // 案件协查页数
       totalAjxc: 0,
@@ -251,7 +262,7 @@ export default {
       isRls: '',
       source: 'ajda', // 页面来源，表示该模块是来自案件档案
       isMore: false, // 是否显示更多按钮
-      pageSizeQgxxc: 5, // 全国性协查条数
+      pageSizeQgxxc: 5, // 集群战役条数
       pageSizeAjxc: 5, // 案件协查条数
       pageSizeAjdb: 5, // 案件督办条数
       pageSizeZxrw: 5, // 专项任务条数
@@ -282,12 +293,6 @@ export default {
   methods: {
     formatStatusQgxxc(row, column) {
       return getAssistStatusText(row.status)
-    },
-    filterStateText(state) { // 督办状态
-      return getAssistStatusText(state)
-    },
-    formatterLevel(level) { // 督办级别
-      return getDBLevelText(level)
     },
     formatType(row, column) { // 协查级别
       return getAssistLevelText(row.assistType)
@@ -334,13 +339,16 @@ export default {
     },
     init() {
       if (this.AJBH) {
-        this.handleQgxxc(true) // 全国性协查
-        this.handleAjxc(true) // 案件协查
+        // this.handleQgxxc(true) // 集群战役 12.24先注释掉此部分
+        // this.handleAjxc(true) // 案件协查
         this.handleAjdb(true) // 案件督办
-        this.handleZxrw(true) // 专项任务
-        this.handleJyjd(true) // 检验鉴定
+        // this.handleZxrw(true) // 专项任务
+        // this.handleJyjd(true) // 检验鉴定
         this.handleAjrl(true) // 案件认领
       }
+      Bus.$on('bqType', (data) => { // 定位到对应的标签项
+        this.activeName = data
+      })
     },
     formatStatus(row, column) {
       const s = getAssistStatusText(row.status)
@@ -361,10 +369,10 @@ export default {
         this.$resetSetItem('aj8', 0) // 将总数存在session中
       }
     },
-    handleQgxxc(flag) { // 全国性协查
+    handleQgxxc(flag) { // 集群战役
       this.qgxxcLoading = true
       var param = {
-        curDepId: this.curDeptId,
+        curDepId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeQgxxc,
         pageNum: flag ? 1 : this.pageQgxxc
@@ -375,8 +383,11 @@ export default {
           this.qgxxcData = res.data.list
           this.totalQgxxc = res.data.totalCount
           this.pageSizeQgxxc = res.data.pageSize
-          this.moduleAllTotal.push(this.totalQgxxc)
-          this.calculateAll()
+          this.controlBtn('isShowjqbtn', 'jq', this.qgxxcData) // 控制详情页上方的集群按钮显隐
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalQgxxc)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.qgxxcLoading = false
@@ -385,7 +396,7 @@ export default {
     handleAjxc(flag) { // 案件协查
       this.ajxcLoading = true
       var param = {
-        curDepId: this.curDeptId,
+        curDepId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeAjxc,
         pageNum: flag ? 1 : this.pageAjxc
@@ -396,29 +407,65 @@ export default {
           this.ajxcData = res.data.list
           this.totalAjxc = res.data.totalCount
           this.pageSizeAjxc = res.data.pageSize
-          this.moduleAllTotal.push(this.totalAjxc)
-          this.calculateAll()
+          this.controlBtn('isShowxcbtn', 'xc', this.ajxcData) // 控制详情页上方的协查按钮显隐
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalAjxc)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.ajxcLoading = false
       })
     },
+    controlBtn(str, type, data) { // 遍历列表信息，控制详情页上方的协查按钮显隐
+      if (type === 'jq' || type === 'xc') { // 集群，协查
+        Bus.$emit(str, false)
+        if (data.length > 0) {
+          data.forEach(item => {
+            if (item.status && Number(item.status) >= 4) { // 审核通过之后，
+              Bus.$emit(str, true)
+            }
+          })
+        }
+      } else { // 督办   isShowbdbtn：部督，isShowtdbtn：厅督，isShowsdbtn：市督，
+        Bus.$emit('isShowbdbtn', false)
+        Bus.$emit('isShowtdbtn', false)
+        Bus.$emit('isShowsdbtn', false)
+        if (data.length > 0) {
+          data.forEach(item => {
+            if ((item.dbStatus === 3 || item.dbStatus > 4) && item.dbLevel === 1) { // 部督
+              Bus.$emit('isShowbdbtn', true)
+            }
+            if ((item.dbStatus === 3 || item.dbStatus > 4) && item.dbLevel === 2) { // 厅督
+              Bus.$emit('isShowtdbtn', true)
+            }
+            if ((item.dbStatus === 3 || item.dbStatus > 4) && item.dbLevel === 3) { // 市督
+              Bus.$emit('isShowsdbtn', true)
+            }
+          })
+        }
+      }
+    },
     handleAjdb(flag) { // 案件督办
       this.ajdbLoading = true
       var param = {
-        deptId: this.curDeptId,
+        deptId: this.depToken.id,
+        departCode: this.depToken.depType === '4' ? this.depToken.parentDepCode : this.depToken.depCode, // 当前部门编号
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeAjdb,
         pageNum: flag ? 1 : this.pageAjxc
       }
-      this.$query('page/dbaj', param).then((res) => {
+      this.$query('page/dbajinfo', param).then((res) => {
         this.ajdbLoading = false
         if (res.code === '000000') {
           this.ajdbData = res.data.list
           this.totalAjdb = res.data.totalCount
           this.pageSizeAjdb = res.data.pageSize
-          this.moduleAllTotal.push(this.totalAjdb)
-          this.calculateAll()
+          this.controlBtn('', 'db', this.ajdbData) // 控制详情页上方的督办按钮显隐 （部督、厅督、市督在该方法中分别判断）
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalAjdb)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.ajdbLoading = false
@@ -427,7 +474,7 @@ export default {
     handleZxrw(flag) { // 专项任务
       this.zxrwLoading = true
       var param = {
-        deptId: this.curDeptId,
+        deptId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeZxrw,
         pageNum: flag ? 1 : this.pageAjxc
@@ -438,8 +485,10 @@ export default {
           this.zxrwData = res.data.list
           this.totalZxrw = res.data.totalCount
           this.pageSizeZxrw = res.data.pageSize
-          this.moduleAllTotal.push(this.totalZxrw)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalZxrw)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.zxrwLoading = false
@@ -448,7 +497,7 @@ export default {
     handleJyjd(flag) { // 检验鉴定
       this.jyjdLoading = true
       var param = {
-        curDepId: this.curDeptId,
+        curDepId: this.depToken.id,
         ajbh: this.AJBH || '', // 案件编号
         pageSize: this.pageSizeJyjd,
         pageNum: flag ? 1 : this.pageJyjd
@@ -459,8 +508,10 @@ export default {
           this.jyjdData = res.data.list
           this.totalJyjd = res.data.totalCount
           this.pageSizeJyjd = res.data.pageSize
-          this.moduleAllTotal.push(this.totalJyjd)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalJyjd)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.jyjdLoading = false
@@ -489,18 +540,18 @@ export default {
             str = '案件认领'
           }
           if (obj.status === '9') {
-            if (obj.notice_lx === 1) {
+            if (String(obj.notice_lx) === '1') {
               str = '案件下发'
             }
-            if (obj.notice_lx === 2) {
-              str = '案件转发'
+            if (String(obj.notice_lx) === '2') {
+              str = '转回上级'
             }
-            if (obj.notice_lx === 3) {
+            if (String(obj.notice_lx) === '3') {
               str = '恢复案件'
             }
           }
           if (obj.status === '10') {
-            str = '撤销案件'
+            str = '非环食药案件'
           }
           if (obj.status === '9') {
             let receive = ''
@@ -528,17 +579,19 @@ export default {
           }
         }
         this.totalAjrl = this.ajrlData.length
-        this.moduleAllTotal.push(this.totalAjrl)
-        this.calculateAll()
+        if (flag) { // 切换条数时 总数不变，不必要重新计算
+          this.moduleAllTotal.push(this.totalAjrl)
+          this.calculateAll()
+        }
       }).catch(() => {
         this.ajrlLoading = false
       })
     },
-    handleCurrentChangeQgxxc(val) { // 全国性协查分页
+    handleCurrentChangeQgxxc(val) { // 集群战役分页
       this.pageQgxxc = val
       this.handleQgxxc(false)
     },
-    handleSizeChangeQgxxc(val) { // 全国性协查条数
+    handleSizeChangeQgxxc(val) { // 集群战役条数
       this.pageQgxxc = 1
       this.pageSizeQgxxc = val
       this.handleQgxxc(false)
@@ -655,11 +708,10 @@ export default {
     rowClick() {
 
     }
-
   },
   mounted() {
-    const depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    if (depToken.depCode.substring(0, 6) === '610000') {
+    this.depToken = JSON.parse(sessionStorage.getItem('depToken'))[0]
+    if (this.depToken.depCode.substring(0, 6) === '150000') {
       this.isMore = true
     }
     if (this.ajbh) {
@@ -667,10 +719,6 @@ export default {
       this.AJID = this.ajid
       this.interFaceType = this.type
       this.isRls = this.Rl
-    }
-    if (depToken) {
-      this.curDeptId = depToken.id
-      // this.init()
     }
     // this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     // this.cardNumber = this.cardId

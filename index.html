@@ -7,17 +7,40 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="stylesheet" href="./static/css/reset.css">
     <title>环食药侦综合应用平台</title>
-    <link rel="stylesheet" href="https://openlayers.org/en/v5.3.0/css/ol.css" type="text/css">
+    <!-- <link rel="stylesheet" href="https://openlayers.org/en/v5.3.0/css/ol.css" type="text/css"> -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="./static/js/vendor.dll.js"></script>
     <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
     <script src="https://openlayers.org/en/v3.20.1/build/ol.js"></script>
+
+    <script src="src/api/login/pnxclient.js"></script>
   </head>
    <style>
      embed{ height: 0px;}
+     body {
+      background: #072251 url('/static/image/portal_newImg/mainBg.png') no-repeat center;
+      background-size: 100% 100%;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+    }
    </style>
   <body>
     <div id="app"></div>
     <div style="z-index: auto; position: absolute;"><embed type="application/x-jit-sign-vctk-s-plugin-boc" id="vctkobj" src="/static/JITComVCTK_S.cab" width="0px" height="0px" style="height: 0px"/></div>
   </body>
+  <script type="text/javascript">
+    var userAgent = navigator.userAgent // 取得浏览器的userAgent字符串
+    // console.log('userAgent', userAgent)
+    var isIE = userAgent.indexOf('compatible') > -1 && userAgent.indexOf('MSIE') > -1 // 判断是否IE11以下的浏览器
+    if (isIE) { // IE11以下的浏览器
+      // console.log('IE11以下的浏览器')
+      var head = document.getElementsByTagName('head')[0]
+      var script = document.createElement('script')
+      script.type = 'text/javascript'
+      script.src = './static/js/upLoad.js'
+      head.appendChild(script)
+    }
+  </script>
 </html>

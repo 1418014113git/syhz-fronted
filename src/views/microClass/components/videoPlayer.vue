@@ -28,7 +28,12 @@
                 <li><span>上传者：</span><span>{{detailData.creationName}}</span></li>
                 <li><span>上传时间：</span><span>{{detailData.creationTime}}</span></li>
                 <li><span>审核时间：</span><span>{{detailData.auditTime ? detailData.auditTime : '-'}}</span></li>
-                <li><span>内容简介：</span><span>{{detailData.describe ? detailData.describe : '暂无'}}</span></li>
+                <li class="con"><span>内容简介：</span>
+                  <el-tooltip v-if="detailData.describe" effect="light" popper-class="con_tooltip" :content="detailData.describe" placement="top">
+                    <span>{{detailData.describe ? detailData.describe : '暂无'}}</span>
+                  </el-tooltip>
+                  <span v-else>暂无</span>
+                </li>
               </ul>
             </div>
             <div class="video_player_clean"></div>
@@ -62,6 +67,7 @@
     },
     data() {
       return {
+        notTake: false,
         playerOptions: {
           playbackRates: [0.7, 1.0, 1.5, 2.0], // 播放速度
           autoplay: false, // 如果true,浏览器准备好时开始回放。
@@ -107,7 +113,7 @@
       },
       // listen event
       onPlayerPlay(player) {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           if (this.num === 0) {
             if (this.playType === '5') {
               this.$emit('viewLog', '0')
@@ -119,15 +125,16 @@
           this.bindSetInterval()
           this.bindSetTimeOut()
         }
+        this.bindWaitInterval()
       },
       onPlayerPause(player) {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.uploadViewLog()
         }
         this.clearTimeInterval()
       },
       onPlayerEnded(player) {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.uploadViewLog()
         }
         this.clearTimeInterval()
@@ -163,6 +170,12 @@
         console.log('example 01: the player is readied', player)
       },
       setDetail(playerDetail) {
+        const data = JSON.parse(sessionStorage.getItem('depToken'))
+        if (data !== undefined && data !== null && data.length > 0) {
+          this.notTake = true
+        } else {
+          this.notTake = false
+        }
         this.detailData = playerDetail
         this.playerOptions.poster = this.src()
         this.playerOptions.sources[0].src = this.detailData.enPath
@@ -201,7 +214,7 @@
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.addJF('3')
           this.$emit('viewLog', '1', '1')
         }
@@ -232,7 +245,7 @@
         }
         this.$save('trainFraction', para).then(response => {
           if (type === '4' && response.data === '999') {
-            this.clearTimeInterval()
+            this.clearJFInterval()
           }
         })
       },
@@ -240,18 +253,26 @@
         this.$emit('uploadViewLog', this.waitTime)
       },
       bindSetInterval() {
+        if (this.waitTime * 1000 < this.intervalSplit) {
+          this.intervalSplit = this.intervalSplit - this.waitTime * 1000
+        } else if (this.waitTime * 1000 > this.intervalSplit) {
+          this.intervalSplit = this.waitTime * 1000 - this.intervalSplit
+        }
         this.timeInterval = setInterval(() => {
           this.addJF('4')
+          this.initSplit()
         }, this.intervalSplit)
         this.autoUpdateInterval = setInterval(() => {
           this.uploadViewLog()
         }, this.learningTime)
+      },
+      bindWaitInterval() {
         this.waitInterval = setInterval(() => {
           this.waitTime += 1
         }, 1000)
       },
-      clearWaitInterval() {
-        clearInterval(this.waitInterval)
+      clearJFInterval() {
+        clearInterval(this.timeInterval)
       },
       clearTimeInterval() {
         clearInterval(this.timeInterval)
@@ -317,7 +338,7 @@
     /*border-right: 1px solid #00A0E9;*/
   }
   .classRoom_videoPlayer .video_player_txt {
-    width: 30%;
+    width: 40%;
     float: left;
     padding: 20px 10px 10px 20px;
   }
@@ -326,13 +347,47 @@
   }
   .classRoom_videoPlayer .video_player_txt ul li span{
     display: inline-block;
-    width: 40%;
+    width: 20%;
     text-align: right;
   }
   .classRoom_videoPlayer .video_player_txt ul li span:last-child{
     text-align: left;
-    width: 60%;
+    width: 70%;
   }
+  .classRoom_videoPlayer .video_player_txt ul li.con{
+    padding-bottom: 0;
+    position: relative;
+  }
+  .classRoom_videoPlayer .video_player_txt ul li.con span:first-child{
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+  }
+  .classRoom_videoPlayer .video_player_txt ul li.con span:last-child{
+    max-height: 240px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 11;
+    display: -webkit-box;
+    position: absolute;
+    top: 10px;
+    left: 20%;
+  }
+  .con_tooltip{
+    width: 30%;
+    color: #565656;
+    background: #f1f1f1 !important;
+  }
+  /*.con_tooltip{*/
+    /*width: 30%;*/
+    /*background: #023a5a !important;*/
+    /*color: #89c0de !important;*/
+  /*}*/
+  /*.el-tooltip__popper.con_tooltip .popper__arrow::after{*/
+    /*border-top-color: #023a5a !important;*/
+  /*}*/
   .classRoom_videoPlayer .video_player_clean{
     clear: both;
   }
@@ -398,5 +453,27 @@
   .classRoom_videoPlayer .video_player_fj ul li:hover{
     background-color: #0077af;
     cursor: pointer;
+  }
+  /*.classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover,*/
+  /*.classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:active,*/
+  /*.classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal.vjs-slider-active{*/
+    /*width: 4em;*/
+  /*}*/
+  .classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover .vjs-volume-control.vjs-control.vjs-volume-horizontal{
+    z-index: 99;
+  }
+  .classRoom_videoPlayer .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:hover{
+    background: rgba(43, 51, 63, 0.8);
+  }
+  .classRoom_videoPlayer .vjs-volume-control.vjs-control.vjs-volume-horizontal{
+    /*position: absolute!important;*/
+    /*bottom: 36px;*/
+    /*left: 0;*/
+    background: rgba(43, 51, 63, 0.8);
+    width: 6em !important;
+    padding-right: 10px;
+    /*-webkit-transform: rotate(-90deg);!*Safari 4+,Google Chrome 1+ *!*/
+    /*-moz-transform: rotate(-90deg);!*Firefox 3.5+*!*/
+    /*filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);!*ie*!*/
   }
 </style>

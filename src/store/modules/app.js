@@ -12,10 +12,10 @@ const app = {
       // { 'name': '检验鉴定', 'path': '/inspection', 'appcode': 'E', 'icon': '/static/image/portal_images/jyjd.png', 'src': '/static/image/portal_newImg/jyjd.png' },
       // { 'name': '教育训练', 'path': '/handlingGuide/knowLedgeBase', 'appcode': 'F', 'icon': '/static/image/portal_images/bazy.png', 'src': '/static/image/portal_newImg/bazy.png' },
       // { 'name': '情报管理', 'path': '/intellSystem', 'appcode': 'G', 'icon': '/static/image/portal_images/qbcj.png', 'src': '/static/image/portal_newImg/qbhcfx.png' }
-      { 'name': '案件管理', 'path': '/caseManage', 'appcode': 'B', 'icon': '/static/image/portal_newImg/ajgl_new.png', 'src': '/static/image/portal_newImg/ajgl_new.png' },
-      { 'name': '情报管理', 'path': '/intellSystem', 'appcode': 'G', 'icon': '/static/image/portal_newImg/qbgl_new.png', 'src': '/static/image/portal_newImg/qbgl_new.png' },
+      { 'name': '案件管理', 'path': '/caseManage/caseList', 'appcode': 'B', 'icon': '/static/image/portal_newImg/ajgl_new.png', 'src': '/static/image/portal_newImg/ajgl_new.png' },
+      { 'name': '情报管理', 'path': '/information/clueList', 'appcode': 'G', 'icon': '/static/image/portal_newImg/qbgl_new.png', 'src': '/static/image/portal_newImg/qbgl_new.png' },
       { 'name': '教育训练', 'path': '/handlingGuide/knowLedgeBase', 'appcode': 'F', 'icon': '/static/image/portal_newImg/jyxl_new.png', 'src': '/static/image/portal_newImg/jyxl_new.png' },
-      { 'name': '基础业务', 'path': '/baseInfoCount/index', 'appcode': 'C', 'icon': '/static/image/portal_newImg/jcyw_new.png', 'src': '/static/image/portal_newImg/jcyw_new.png' }
+      { 'name': '基础业务', 'path': '/notice/index', 'appcode': 'C', 'icon': '/static/image/portal_newImg/jcyw_new.png', 'src': '/static/image/portal_newImg/jcyw_new.png' }
     ],
     menuIcons: ['xgcx', 'gxhcx', 'afqs', 'gwdqaffx', 'gfhyfx', 'whclgjfx', 'ztajmxfxyc', 'dyatslb', 'gfajlbtj', 'zdrylkgl', 'ajrl', 'ajlb', 'ajdb', 'ajxc',
       'qgxxc', 'zxrwlb', 'tjzxrw', 'zxrwfxzx', 'jyjdlb', 'sqjyjd', 'qgjyjdjgml', 'flfg', 'hybz', 'alzy', 'spwkt', 'xslb', 'xscj', 'xstjfx', 'hycj', 'rycj',
@@ -29,7 +29,8 @@ const app = {
     personeltotop: '', // 人员档案升级版页面点击左侧区域，保存当前class值
     moduleClass: '', // 人员档案滑动右侧区域时，当当前模块距离顶部距离为0时，存储该class值
     ajdatotop: '', // 案件档案升级版页面点击左侧区域，保存当前class值
-    ajmoduleClass: '' // 人员档案滑动右侧区域时，当当前模块距离顶部距离为0时，存储该class值
+    ajmoduleClass: '', // 人员档案滑动右侧区域时，当当前模块距离顶部距离为0时，存储该class值
+    jqmoduleClass: '' // 集群战役详情滑动右侧区域时，当当前模块距离顶部距离为0时，存储该class值
   },
   mutations: {
     TOTOP_STATUS: (state, status) => {
@@ -85,6 +86,9 @@ const app = {
     },
     AJ_MOULE_CLASS: (state, status) => {
       state.ajmoduleClass = status
+    },
+    JQ_MOULE_CLASS: (state, status) => {
+      state.jqmoduleClass = status
     }
   },
   actions: {
@@ -126,6 +130,9 @@ const app = {
     },
     AjMouleClass: ({ commit }, status) => {
       commit('AJ_MOULE_CLASS', status)
+    },
+    JqMouleClass: ({ commit }, status) => {
+      commit('JQ_MOULE_CLASS', status)
     }
   }
 }

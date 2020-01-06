@@ -661,6 +661,15 @@ label {
 .el-cascader-menu__item--extensible:after {
   right: 4px;
 }
+.el-cascader.is-disabled .el-cascader__label {
+  cursor: not-allowed;
+}
+.el-cascader-menu__item.is-disabled,
+.el-cascader-menu__item.is-disabled:hover {
+  color: #c0c4cc;
+  background-color: rgba(0, 89, 130, 0.7);
+  cursor: not-allowed;
+}
 
 // 树形结构
 .el-tree-node:focus > .el-tree-node__content {
@@ -1250,13 +1259,11 @@ label {
 }
 
 .noticeellipsis-word {
-
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-
   word-wrap: break-word;
   word-break: break-all;
 }
@@ -1294,9 +1301,9 @@ label {
 ::-webkit-scrollbar-thumb {
   /*滚动条里面小方块*/
   border-radius: 10px;
-  -webkit-box-shadow: inset 0 0 5px rgba(160, 184, 190, 0.3);
-  box-shadow: inset 0 0 5px rgba(160, 184, 190, 0.3);
-  background: rgba(122, 168, 190, 0.3);
+  -webkit-box-shadow: inset 0 0 5px rgba(59, 209, 247, 0.8);
+  box-shadow: inset 0 0 5px rgba(160, 184, 190, 0.8);
+  background: rgba(122, 168, 190, 0.8);
 }
 
 ::-webkit-scrollbar-track {
@@ -1517,6 +1524,12 @@ label {
 .el-dialog__header {
   padding: 10px 0px 10px 10px;
   border-bottom: 2px solid #00a0e9;
+
+  // padding: 5px 15px 9px 38px;
+  // background: url(/static/image/portal_newImg/subTitle.png) no-repeat center center;
+  // background-size: 100%;
+  // text-align: left;
+  // text-indent: 15px;
 }
 .el-dialog__headerbtn {
   top: 14px;
@@ -1545,6 +1558,13 @@ label {
 .el-transfer-panel__item.el-checkbox{
   color: #fff;
 }
+.el-transfer-panel .el-transfer-panel__footer{
+  background-color: rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(0, 160, 233, 0.6);
+}
+.transfer-footer{
+  margin-left: 15px;
+}
 .richTextWrap {
  display: inline-block;
   margin: 0;
@@ -1570,4 +1590,66 @@ label {
 }
 .table_th_center th .cell {
   text-align: center;
+}
+.dialogBtnUpLine {
+  padding-top: 15px;
+  border-top: 2px solid #00a0e9;
+}
+
+// 下拉检索框背景样式
+.el-autocomplete-suggestion {
+  border: 1px solid #00a0e9;
+}
+.el-autocomplete-suggestion__wrap {
+  background-color: #005982 !important;
+  border: 0 !important;
+}
+.el-autocomplete-suggestion li {
+  color: #fff;
+}
+.el-autocomplete-suggestion.is-loading li:hover,
+.el-autocomplete-suggestion li.highlighted,
+.el-autocomplete-suggestion li:hover {
+  background-color: rgba(188, 232, 252, 0.1);
+}
+// 文字链接样式
+.linkColor{
+  color: #00a0e9;
+  cursor: pointer;
+}
+.linkColor:hover{
+  text-decoration:underline;
+}
+.redColor{
+  color: #f72929 !important;
+  text-decoration:underline;
+}
+// tooltip样式统一
+.tooltipShow {
+  opacity: 1;
+}
+.tooltipHide {
+  opacity: 0;
+}
+.el-progress__text { // upload 文件 “100%” 文字颜色设置
+  color: #ffffff;
+}
+
+// 固定右侧列 的样式问题
+.el-table__fixed-right .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+  background-color: rgba(0, 89, 130, 1);
+}
+.el-table__fixed-right .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+  background-color: #032c43;
+}
+.el-table__fixed-right .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+  background-color: #2164a1;
+}
+.el-table__fixed-right::before, .el-table__fixed::before{
+  opacity: 0;
+}
+
+.el-table__fixed-right-patch {
+  background-color: transparent;
+  border-bottom:0;
 }

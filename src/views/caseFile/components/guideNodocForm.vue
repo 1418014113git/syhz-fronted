@@ -1,19 +1,19 @@
 <template>
   <section>
-    <el-row>
-      <el-col :span="20">
+    <el-row style="width:90%;margin:10px auto 0;">
+      <el-col :span="24">
         <el-form ref="nowsForm" :model="nowsForm" :rules="rules" label-width="110px" class="flws-form">
-          <el-form-item label="申请事由：" prop="content">
+          <el-form-item label="申请事由" prop="content">
             <el-input type="textarea" :autosize="{minRows: 3, maxRows: 5}" v-model="nowsForm.content" maxlength="200" placeholder="请输入理由（不超过200字）" show-word-limit></el-input>
           </el-form-item>
-          <el-form-item label="审核单位：" prop="acptDept">
+          <el-form-item label="审核单位" prop="acptDept">
             <el-tooltip class="item" effect="dark" :content="nowsForm.acptDeptName" placement="top-start" :popper-class="(nowsForm.acptDeptName&&nowsForm.acptDeptName.length>11)?'tooltipShow':'tooltipHide'">
               <el-select v-model="nowsForm.acptDept" placeholder="请选择审核单位" class="db_create_input" @change="deptChange" style="width:100%;">
                 <el-option v-for="item in auditDeptData" :key="item.id" :label="item.name" :value="item.id"></el-option>
               </el-select>
              </el-tooltip>
           </el-form-item>
-          <el-form-item label="文书附件：" prop="uploadImgs" class="uploadImgs">
+          <el-form-item label="文书附件" prop="uploadImgs" class="uploadImgs">
             <el-upload drag multiple :action="uploadAction"
                        :auto-upload="true"
                        :file-list="uploadImgs"
@@ -117,7 +117,7 @@ export default {
             acptDeptName: this.nowsForm.acptDeptName,
             files: this.nowsForm.files, // 文书附件
             ajbh: this.AJBH,
-            // ajbh: 'J6104296813050800001',
+            // ajbh: 'J1504296813050800001',
             content: this.nowsForm.content
           }
           this.$save('flws/examine', param).then((response) => {
@@ -145,7 +145,7 @@ export default {
       var dept = getSessionDeptSelect()
       for (let index = 0; index < dept.length; index++) {
         const element = dept[index]
-        if (element.depCode === '610000535300' || element.depCode === '610000535400' || element.depCode === '610000535500') {
+        if (element.depCode === '610000530000') {
           this.auditDeptData.push(element)
         }
       }
@@ -215,10 +215,14 @@ export default {
 </script>
 <style rel="stylesheet/scss" lang="scss">
 .flws-form {
-  .uploadImgs.el-form-item .el-form-item__label:before {
+  .uploadImgs.el-form-item .el-form-item__label::after {
     content: "*";
     color: #f56c6c;
-    margin-right: 4px;
+    margin-left: 5px;
+  }
+  .uploadImgs.el-form-item::before {
+    display: table;
+    content: "";
   }
 }
 </style>

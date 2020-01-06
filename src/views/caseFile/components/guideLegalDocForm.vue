@@ -1,24 +1,24 @@
 <template>
   <section>
-    <el-row>
-      <el-col :span="20">
-        <el-form ref="legalDocForm" :model="legalDocForm" :rules="rules" label-width="135px" class="flws-form">
-          <el-form-item label="法律文书名称：" prop="wsbt">
+    <el-row style="width:90%;margin:0 auto;">
+      <el-col :span="24">
+        <el-form ref="legalDocForm" :model="legalDocForm" :rules="rules" label-width="124px" class="flws-form">
+          <el-form-item label="法律文书名称" prop="wsbt">
             <el-select v-model="legalDocForm.wsbt" placeholder="请选择法律文书名称" filterable @change="wsbtChange" style="width:100%;">
               <el-option v-for="item in wsbtList" :key="item.code" :label="item.codeName" :value="item.code"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="文号：" prop="wh">
-            <el-input v-model="legalDocForm.wh" maxlength="30" placeholder="请输入文号" ></el-input>
+          <el-form-item label="文号" prop="wh">
+            <el-input v-model="legalDocForm.wh" maxlength="30" placeholder="请输入文号"></el-input>
           </el-form-item>
-          <el-form-item label="填发单位：" prop="tfdw">
+          <el-form-item label="填发单位" prop="tfdw">
             <el-tooltip class="item" effect="dark" :content="legalDocForm.tfdwName" placement="top-start" :popper-class="(legalDocForm.tfdwName&&legalDocForm.tfdwName.length>11)?'tooltipShow':'tooltipHide'">
               <el-select v-model="legalDocForm.tfdw" placeholder="请选择填发单位" filterable @change="deptChange" style="width:100%;">
                 <el-option v-for="item in tfdwData" :key="item.id" :label="item.name" :value="item.depCode"></el-option>
               </el-select>
              </el-tooltip>
           </el-form-item>
-          <el-form-item label="填发日期：" prop="tfrq">
+          <el-form-item label="填发日期" prop="tfrq">
             <el-date-picker
               v-model="legalDocForm.tfrq"
               type="date"
@@ -27,20 +27,20 @@
               :picker-options="pickerOptions">
             </el-date-picker>
           </el-form-item>
-          <el-form-item label="填发人：" prop="tfrName">
+          <el-form-item label="填发人" prop="tfrName">
             <el-input v-model="legalDocForm.tfrName" maxlength="30" placeholder="请输入填发人" ></el-input>
           </el-form-item>
-          <el-form-item label="是否有效：" prop="sfyx">
+          <el-form-item label="是否有效" prop="sfyx">
             <el-select v-model="legalDocForm.sfyx" placeholder="请选择" clearable @change="selectChange($event,'sfyxData')">
               <el-option v-for="item in sfyxData" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="审批标识：" prop="spbs">
+          <el-form-item label="审批标识" prop="spbs">
             <el-select v-model="legalDocForm.spbs" placeholder="请选择" clearable @change="selectChange($event,'spbsData')">
               <el-option v-for="item in spbsData" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="文书图片：" prop="uploadImgs" class="uploadImgs">
+          <el-form-item label="文书图片" prop="uploadImgs" class="uploadImgs">
             <el-upload drag multiple :action="uploadAction"
                        :auto-upload="true"
                        :file-list="uploadImgs"
@@ -57,7 +57,7 @@
               <div class="el-upload__tip" slot="tip">{{UploadAttachment.tipTextImg}}</div>
             </el-upload>
           </el-form-item>
-          <el-form-item label="文书附件：" prop="uploadFiles" class="uploadImgs">
+          <el-form-item label="文书附件" prop="uploadFiles" class="uploadImgs">
             <el-upload drag multiple :action="uploadAction"
                        :auto-upload="true"
                        :file-list="uploadFiles"
@@ -226,7 +226,7 @@ export default {
           param.tfrq = param.tfrq.replace(/-/g, '') // 将日期中的短横线去掉
           param.czdw = this.curDept.depCode // 存当前部门code
           param.ajbh = this.AJBH
-          console.log(param)
+          // console.log(param)
           this.$save('ajflws', param).then((response) => {
             if (response.code === '000000') {
               this.saveLoading = false
@@ -389,10 +389,14 @@ export default {
   .el-date-editor {
     width: 100%;
   }
-  .uploadImgs.el-form-item .el-form-item__label:before {
+  .uploadImgs.el-form-item .el-form-item__label:after {
     content: "*";
     color: #f56c6c;
-    margin-right: 4px;
+    margin-left: 5px;
+  }
+  .uploadImgs.el-form-item::before {
+    display: table;
+    content: "";
   }
 }
 </style>

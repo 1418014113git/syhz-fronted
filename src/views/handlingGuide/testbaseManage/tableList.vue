@@ -1,13 +1,16 @@
 <template>
   <section class="testTableList">
     <div class="addTestQuestion">
-      <el-button type="primary" size="small" @click="addTestQuestion" icon="el-icon-plus" v-if="menuItemNode.deleteable==='0'">添加试题</el-button>
+      <el-button type="primary" size="small" @click="addTestQuestion" icon="el-icon-plus" v-if="menuItemNode.id && $isViewBtn('181002')">添加试题</el-button>
       <a :href="downLoadUrl+'试题导入模板.xlsx'"  download="试题导入模板.xlsx" style="margin:0 10px;">
-        <el-button type="primary" icon="el-icon-upload2">模板导出</el-button>
+        <el-button type="primary" icon="el-icon-upload2" v-if="$isViewBtn('181005')">模板导出</el-button>
       </a>
-      <el-button type="primary" @click="importTem('importInfo')" :loading="importLoading" icon="el-icon-download">批量导入</el-button>
+      <el-button type="primary" @click="importTem('importInfo')" :loading="importLoading" icon="el-icon-download" v-if="$isViewBtn('181006')">批量导入</el-button>
     </div>
-    <el-form :inline="true" :model="filters" ref="filters" label-width="84px" style="text-align: left;">
+    <el-form :inline="true" :model="filters" ref="filters" label-width="76px" style="text-align: left;">
+      <el-form-item label="" prop="">
+        {{menuItemNode.label}}
+      </el-form-item>
       <el-form-item label="试题类型" prop="AJMC">
         <el-select v-model="filters.tx" placeholder="请选择题型" @change="questionTypeChange">
           <el-option v-for="item in txData" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -15,7 +18,7 @@
       </el-form-item>
     </el-form>
     <!--列表-->
-    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
+    <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="statisticCollect table_th_center">
       <el-table-column type="index" label="序号" width="70" class-name="tabC" align="center"></el-table-column>
       <el-table-column prop="subjectName" label="题目内容" show-overflow-tooltip>
         <template slot-scope="scope">
@@ -33,8 +36,8 @@
       <el-table-column label="操作" width="150">
         <template slot-scope="scope">
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
-          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑"></el-button>
-          <el-button size="mini" circle type="danger" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除"></el-button>
+          <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" v-if="$isViewBtn('181003')"></el-button>
+          <el-button size="mini" circle type="danger" @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除" v-if="$isViewBtn('181004')"></el-button>
           <!-- <el-button size="mini" circle type="danger" v-if="scope.row.deleteable=='1'" @click="handleRevord(scope.$index, scope.row)" title="发布">
             <svg-icon icon-class="audit"></svg-icon>
           </el-button> -->
@@ -133,7 +136,7 @@ export default {
       listLoading: false,
       tableHeight: null,
       filters: {
-        tx: '1'
+        tx: '1' // 默认试题类型为单选题
       },
       // txData: questionTypeAll('all'),
       txData: questionTypeAll('1'),
@@ -223,8 +226,7 @@ export default {
       const para = {
         pageNum: this.page,
         pageSize: this.pageSize,
-        logFlag: 1, // 添加埋点参数
-        subjectCategoryId: this.menuItemNode.id // 试题模块的id
+        subjectCategoryId: this.menuItemNode.id || '' // 试题模块的id
       }
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
@@ -290,7 +292,16 @@ export default {
               type: 'warning'
             }).then(() => {
               this.listLoading = false
-              this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type, questionCatrgory: row.subjectCategoryId }})
+              var param = {
+                questinoId: row.id, // 试题id
+                questionType: row.type, // 试题类型
+                questionCatrgory: row.subjectCategoryId, // 试题所属模块id
+                nodeCategoryId: this.menuItemNode.id, // 左边模块id
+                nodeCategoryName: this.menuItemNode.label, // 左边模块name
+                filtersTx: this.filters.tx, // 当前选中的题型
+                page: this.page // 当前页码
+              }
+              this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: param })
             }).catch(() => {
               this.listLoading = false
               this.$message({
@@ -301,7 +312,16 @@ export default {
           }
         } else { // 未引用到考试
           this.listLoading = false
-          this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: { questinoId: row.id, questionType: row.type, questionCatrgory: row.subjectCategoryId }})
+          var param = {
+            questinoId: row.id, // 试题id
+            questionType: row.type, // 试题类型
+            questionCatrgory: row.subjectCategoryId, // 试题所属模块id
+            nodeCategoryId: this.menuItemNode.id, // 左边模块id
+            nodeCategoryName: this.menuItemNode.label, // 左边模块name
+            filtersTx: this.filters.tx, // 当前选中的题型
+            page: this.page // 当前页码
+          }
+          this.$router.push({ path: '/handlingGuide/testbaseManage/edit', query: param })
         }
       }).catch(() => {
         this.listLoading = false
@@ -390,7 +410,12 @@ export default {
       })
     },
     addTestQuestion() { // 添加试题
-      this.$router.push({ path: '/handlingGuide/testbaseManage/add', query: { questionCatrgory: this.menuItemNode.id }})
+      var param = {
+        nodeCategoryId: this.menuItemNode.id, // 左边模块id
+        nodeCategoryName: this.menuItemNode.label, // 左边模块name
+        filtersTx: this.filters.tx // 当前选中的题型
+      }
+      this.$router.push({ path: '/handlingGuide/testbaseManage/add', query: param })
     },
     importTem() { // 试题导入
       this.dialogImportVisible = true
@@ -490,7 +515,27 @@ export default {
   },
   mounted() {
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 200
-    this.queryList(true, true)
+    if (this.$route.query && this.$route.query.filtersTx) {
+      this.filters.tx = this.$route.query.filtersTx // 所选题型
+      this.menuItemNode.id = this.$route.query.nodeCategoryId // 左边选中的模块的id
+      this.menuItemNode.label = this.$route.query.nodeCategoryName // 左边模块的name
+      this.page = this.$route.query.page // 页码
+      this.queryList(false, true)
+    } else {
+      this.queryList(true, true)
+    }
+  },
+  activated() {
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 200
+    if (this.$route.query && this.$route.query.filtersTx) {
+      this.filters.tx = this.$route.query.filtersTx // 所选题型
+      this.menuItemNode.id = this.$route.query.nodeCategoryId // 左边选中的模块的id
+      this.menuItemNode.label = this.$route.query.nodeCategoryName // 左边模块的name
+      this.page = this.$route.query.page // 页码
+      this.queryList(false, true)
+    } else {
+      this.queryList(true, true)
+    }
   }
 }
 </script>

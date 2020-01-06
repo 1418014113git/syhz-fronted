@@ -2,8 +2,9 @@
 <!-- 接警处 -->
   <div class="ajInfo jjccout">
     <title-pub title="接处警" url=""></title-pub>
-    <el-table :data="jcjData" style="width: 100%;" v-loading="jcjLoading" class="statisticCollect" max-height="156">
-      <el-table-column type="index" label="序号" width="60"></el-table-column>
+    <!-- <el-table :data="jcjData" style="width: 100%;" v-loading="jcjLoading" class="statisticCollect" max-height="156"> -->
+    <el-table :data="jcjData" style="width: 100%;" v-loading="jcjLoading" class="statisticCollect">
+      <el-table-column type="index" label="序号" width="52" fixed></el-table-column>
       <el-table-column prop="BJR" label="报警人" show-overflow-tooltip></el-table-column>
       <el-table-column prop="BJNR" label="报警内容" show-overflow-tooltip></el-table-column>
       <el-table-column prop="JJSJ" label="接警时间"  width="200" show-overflow-tooltip>

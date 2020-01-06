@@ -35,7 +35,7 @@
                     <el-form-item label="文化程度">
                       <span class="writText">{{scope.row.bean.whcdMc}}</span>
                     </el-form-item>
-                    <card-com v-if="curIndex===scope.$index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com>
+                    <!-- <card-com v-if="curIndex===scope.$index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com> -->
                   </el-col>
                   <el-col :span="12">
                     <el-form-item label="性别">
@@ -219,70 +219,60 @@ export default {
     },
     // 人员重点类型查询
     getzdryhc(item, data) {
-      this.personData = data
-      if (this.personData.length > 0) {
-        this.total = this.personData.length
-        this.$resetSetItem('aj5', this.personData.length)
-        this.$emit('personCaseNum', this.personData.length)
-      } else {
-        this.total = 0
-        this.$resetSetItem('aj5', 0)
-        this.$emit('personCaseNum', 0)
+      var param = {
+        'XM': '', 'SFZH': item.bean.gmsfhm, 'XB': '', 'CSRQ': '', 'MZ': '',
+        'ZZ': '', 'QFJG': '', 'YXQX': '', 'HCDD': '', 'HCSJ': '', 'BZ': '', 'HCLY': ''
       }
-      // var param = {
-      //   'XM': '', 'SFZH': item.bean.gmsfhm, 'XB': '', 'CSRQ': '', 'MZ': '',
-      //   'ZZ': '', 'QFJG': '', 'YXQX': '', 'HCDD': '', 'HCSJ': '', 'BZ': '', 'HCLY': ''
-      // }
-      // this.$zdryhc('ryhc', param).then(res => {
-      //   // var data1 = {"HJDQH":"","BARDH1":"","ZZ":"","BAR1":"","SSGAJGDM":"","ZDRYBH":"","SQRDWDM":"","SG":"","CSD":"","SSPCS":"","RYLB":"","LBBJ":"","HJDXZ":"","BKJB":"","FWCS":"","HYZK":"","ZDRLY":"","SQSY":"","SFZH":"","ZZXZ":"","XB":"","MZ":"","CSRQ":"","XL":"正常","XM":"","ZZSSXQ":"","HCID":"8ae48ff8684f95ed016b45885fb033d8","ZY":""}
-      //   if (res.data) {
-      //     var arry = res.data.LBBJ ? res.data.LBBJ.split(',') : []
-      //     for (var n = 0; n < arry.length; n++) { // 去掉数组里的空值。
-      //       if (arry[n] === '') {
-      //         arry.splice(n, 1)
-      //         n = n - 1
-      //       }
-      //     }
-      //     var arryLength = arry.length
-      //     if (arryLength > 0) {
-      //       item.isKeyPerson = true // 重点人员
-      //     } else {
-      //       item.isKeyPerson = false // 正常人员
-      //     }
-      //     this.personData = data
-      //     if (this.personData.length > 0) {
-      //       this.total = this.personData.length
-      //       this.$resetSetItem('aj5', this.personData.length)
-      //       this.$emit('personCaseNum', this.personData.length)
-      //     } else {
-      //       this.total = 0
-      //       this.$resetSetItem('aj5', 0)
-      //       this.$emit('personCaseNum', 0)
-      //     }
-      //   } else {
-      //     this.personData = data
-      //     if (this.personData.length > 0) {
-      //       this.total = this.personData.length
-      //       this.$resetSetItem('aj5', this.personData.length)
-      //       this.$emit('personCaseNum', this.personData.length)
-      //     } else {
-      //       this.total = 0
-      //       this.$resetSetItem('aj5', 0)
-      //       this.$emit('personCaseNum', 0)
-      //     }
-      //   }
-      // }).catch(() => {
-      //   this.personData = data
-      //   if (this.personData.length > 0) {
-      //     this.total = this.personData.length
-      //     this.$resetSetItem('aj5', this.personData.length)
-      //     this.$emit('personCaseNum', this.personData.length)
-      //   } else {
-      //     this.total = 0
-      //     this.$resetSetItem('aj5', 0)
-      //     this.$emit('personCaseNum', 0)
-      //   }
-      // })
+      this.$zdryhc('ryhc', param).then(res => {
+        // var data1 = {"HJDQH":"","BARDH1":"","ZZ":"","BAR1":"","SSGAJGDM":"","ZDRYBH":"","SQRDWDM":"","SG":"","CSD":"","SSPCS":"","RYLB":"","LBBJ":"","HJDXZ":"","BKJB":"","FWCS":"","HYZK":"","ZDRLY":"","SQSY":"","SFZH":"","ZZXZ":"","XB":"","MZ":"","CSRQ":"","XL":"正常","XM":"","ZZSSXQ":"","HCID":"8ae48ff8684f95ed016b45885fb033d8","ZY":""}
+        if (res.data) {
+          var arry = res.data.LBBJ ? res.data.LBBJ.split(',') : []
+          for (var n = 0; n < arry.length; n++) { // 去掉数组里的空值。
+            if (arry[n] === '') {
+              arry.splice(n, 1)
+              n = n - 1
+            }
+          }
+          var arryLength = arry.length
+          if (arryLength > 0) {
+            item.isKeyPerson = true // 重点人员
+          } else {
+            item.isKeyPerson = false // 正常人员
+          }
+          this.personData = data
+          if (this.personData.length > 0) {
+            this.total = this.personData.length
+            this.$resetSetItem('aj5', this.personData.length)
+            this.$emit('personCaseNum', this.personData.length)
+          } else {
+            this.total = 0
+            this.$resetSetItem('aj5', 0)
+            this.$emit('personCaseNum', 0)
+          }
+        } else {
+          this.personData = data
+          if (this.personData.length > 0) {
+            this.total = this.personData.length
+            this.$resetSetItem('aj5', this.personData.length)
+            this.$emit('personCaseNum', this.personData.length)
+          } else {
+            this.total = 0
+            this.$resetSetItem('aj5', 0)
+            this.$emit('personCaseNum', 0)
+          }
+        }
+      }).catch(() => {
+        this.personData = data
+        if (this.personData.length > 0) {
+          this.total = this.personData.length
+          this.$resetSetItem('aj5', this.personData.length)
+          this.$emit('personCaseNum', this.personData.length)
+        } else {
+          this.total = 0
+          this.$resetSetItem('aj5', 0)
+          this.$emit('personCaseNum', 0)
+        }
+      })
       // 测试
       // var data1 = { 'HJDQH': '', 'BARDH1': '', 'ZZ': '', 'BAR1': '', 'SSGAJGDM': '', 'ZDRYBH': '', 'SQRDWDM': '', 'SG': '', 'CSD': '', 'SSPCS': '', 'RYLB': '', 'LBBJ': '1', 'HJDXZ': '', 'BKJB': '', 'FWCS': '', 'HYZK': '', 'ZDRLY': '', 'SQSY': '', 'SFZH': '', 'ZZXZ': '', 'XB': '', 'MZ': '', 'CSRQ': '', 'XL': '正常', 'XM': '', 'ZZSSXQ': '', 'HCID': '8ae48ff8684f95ed016b45885fb033d8', 'ZY': '' }
       // if (data1) {
@@ -465,6 +455,7 @@ export default {
     margin-top: 2px;
   }
   .recordWrap {
+    width: 26%;
     padding: 6px 0 0 15px;
     .row {
       .el-col {
@@ -533,7 +524,7 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.pointer {
+.pointer{
   cursor: pointer;
 }
 @media only screen and (max-width: 1366px) {
@@ -557,4 +548,5 @@ export default {
     padding-top: 0;
   }
 }
+
 </style>

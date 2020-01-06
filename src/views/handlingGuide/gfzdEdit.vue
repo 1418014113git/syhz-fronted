@@ -52,7 +52,7 @@
                          multiple>
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                <div class="el-upload__tip" slot="tip">支持Word、PDF、视频、音频和PPT文件！最多可一次性上传5个文件！过大的视频文件建议单个上传！（视频支持MP4、AVI、WMV，最大2G；音频支持MP3，最大512M）</div>
+                <div class="el-upload__tip" slot="tip">视频支持MP4、AVI、WMV，最大2G；音频支持PM3，最大512M；文档最大64M；</div>
               </el-upload>
             </el-form-item>
             <el-form-item>
@@ -117,8 +117,10 @@
           title: [
             {
               required: true, trigger: 'blur', validator: (rule, value, callback) => {
-                const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value === undefined || value === null || value === '') {
                   callback(new Error('请输入标题'))
                 } else if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
@@ -140,8 +142,10 @@
                 if (value === '' || value === undefined) {
                   return callback()
                 }
-                const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('颁布机关不能输入特殊字符'))
                 } else if (value.length > 50) {
@@ -158,8 +162,10 @@
                 if (value === '' || value === undefined) {
                   return callback()
                 }
-                const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
-                const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
+                // const regEnCode = /[`~!@$%^&()_+<>?:"{},.\/;'[\]]/
+                // const regCnCode = /[·！￥（——）：；“”‘、，|《。》？、【】[\]]/
+                const regEnCode = this.$regCode
+                const regCnCode = this.$regCode
                 if (value.length > 0 && (regEnCode.test(value) || regCnCode.test(value))) {
                   callback(new Error('颁布文号不能输入特殊字符'))
                 } else if (value.length > 50) {
@@ -182,16 +188,17 @@
             }
           }],
           effectiveTime: [{
-            required: false, trigger: 'blur', validator: (rule, value, callback) => {
+            required: true, trigger: 'blur', validator: (rule, value, callback) => {
               if (value === null || value === '') {
-                return callback()
-              } else if (new Date() < value) {
-                callback(new Error('施行日期不能大于当前日期'))
+                return callback(new Error('请选择施行日期'))
               } else if (new Date(this.lawInfo.publishTime) > value) {
                 callback(new Error('施行日期不能小于颁布日期'))
               } else {
                 callback()
               }
+              // else if (new Date() < value) {
+              //   callback(new Error('施行日期不能大于当前日期'))
+              // }
             }
           }]
         },
@@ -210,7 +217,7 @@
     methods: {
       async titleCheckAsyns(callback) {
         // 同步处理
-        const response = await this.$queryAsyns('trainstandardinfobytitle', { title: this.lawInfo.title })
+        const response = await this.$updateAsyns('trainstandardinfobytitle', { title: this.lawInfo.title })
         const data = response.data
         if (this.id !== '') {
           if (data.data === null || data.data.length === 0 || (this.id === data.data[0].id && data.data.length === 1)) {
@@ -337,7 +344,7 @@
       },
       parentdepartcode() {
         const para = this.$setCurrentUser({})
-        this.$query('parentdepartcode/' + para.belongDepCode, {}, true).then(response => {
+        this.$query('parentdepartcode/' + para.belongDepCode, para, true).then(response => {
           this.departInfo = response.data
         })
       },
@@ -381,9 +388,9 @@
         if (wordReg.test(file.type) || pdfReg.test(file.type) || pptReg.test(file.type)) {
           this.uploadFileType = '0'
           flag = true
-          if (file.size / 1024 / 1024 > 10) {
+          if (file.size / 1024 / 1024 > 64) {
             this.$message({
-              message: '文件上传失败！上传文档大小不得超过10M！',
+              message: '文件上传失败！上传文档大小不得超过64M！',
               type: 'error'
             })
             return false
@@ -425,16 +432,22 @@
           })
           return false
         }
-        const rejected = checkFileName('knowledgeenclosurebyname', { belongMode: '3', enName: file.name.substring(0, file.name.lastIndexOf('.')), enClass: file.name.substring(file.name.lastIndexOf('.'), file.name.length) })
-        rejected.catch(() => {
-          this.nameCheckFlag = true
-          this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {
-            confirmButtonText: '知道了',
-            callback: action => {
-            }
+        if (this.detailId === undefined || this.detailId === null || this.detailId === '') {
+          const rejected = checkFileName('knowledgeenclosurebyname', {
+            belongMode: '3',
+            enName: file.name.substring(0, file.name.lastIndexOf('.')),
+            enClass: file.name.substring(file.name.lastIndexOf('.'), file.name.length)
           })
-        })
-        return rejected
+          rejected.catch(() => {
+            this.nameCheckFlag = true
+            this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {
+              confirmButtonText: '知道了',
+              callback: action => {
+              }
+            })
+          })
+          return rejected
+        }
       },
       fileError() {
       },
@@ -526,7 +539,9 @@
           this.callBack = para.jumpType
           this.active = para.active
         }
-        if (para.filters) {
+        if (para.checkboxGroup1) {
+          this.filters = para
+        } else {
           this.filters = para.filters
         }
       }

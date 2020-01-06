@@ -2,7 +2,7 @@
   <!-- 案件档案升级版 -->
   <div class="leftNav">
     <ul class="navList">
-      <li v-for="(item,index) in navList" :key="index" :class="{'on':curIndex === index}" @click="clickNav(item.class,index)" >
+      <li v-for="(item,index) in navList" :key="index" :class="{'on':curClass === item.class}" @click="clickNav(item.class,index)" >
         <div>
           <img :src="item.icon">
           <span class="navName" :class="{'gray':item.number === 0 && index!==0 && index!==2 && index!==3 && index!==4}">{{item.name}}</span>
@@ -16,12 +16,14 @@
 </template>
 
 <script>
+import Bus from '@/utils/bus.js'
 export default {
   props: ['ajbh'],
   name: 'caseFile',
   data() {
     return {
       curIndex: 0, // 菜单当前索引
+      curClass: 'ajgg',
       navList: [
         { icon: '/static/image/caseFile_images/ajgg.png', name: '案件梗概', number: 0, type: 'aj0', class: 'ajgg' },
         { icon: '/static/image/caseFile_images/ydzc.png', name: '引导侦查', number: 0, type: 'aj1', class: 'ydzc' },
@@ -30,7 +32,7 @@ export default {
         { icon: '/static/image/caseFile_images/xxbc.png', name: '信息补采', number: 0, type: 'aj4', class: 'xxbc' },
         { icon: '/static/image/caseFile_images/bzts.png', name: '比中推送', number: 0, type: 'aj5', class: 'bzts' },
         { icon: '/static/image/caseFile_images/jcj.png', name: '接处警', number: 0, type: 'aj6', class: 'jcj' },
-        { icon: '/static/image/caseFile_images/xsgl.png', name: '线索关联', number: 0, type: 'aj7', class: 'xsgl' },
+        // { icon: '/static/image/caseFile_images/xsgl.png', name: '线索关联', number: 0, type: 'aj7', class: 'xsgl' },
         { icon: '/static/image/caseFile_images/zcxz.png', name: '侦查协作', number: 0, type: 'aj8', class: 'zcxz' },
         { icon: '/static/image/caseFile_images/ajcb.png', name: '案件串并', number: 0, type: 'aj9', class: 'ajcb' }
       ]
@@ -54,7 +56,9 @@ export default {
       this.getItemTotal() // 获取菜单对应的内容条数
     },
     clickNav(selector, index) {
-      this.curIndex = index
+      // this.curIndex = index
+      Bus.$emit('bqType', 'first') // 定位到侦查协作初始化时的状态
+      this.curClass = selector
       this.$store.dispatch('Ajdatotop', selector)
     },
     getItemTotal() {
@@ -72,7 +76,7 @@ export default {
       this.navList.forEach((item, i) => {
         var className = item.class
         if (className === val) {
-          this.curIndex = i
+          this.curClass = className
         }
       })
     },

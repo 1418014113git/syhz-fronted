@@ -6,7 +6,7 @@ const LoginModuleName = process.env.LOGIN_MODULE
 const zdryModuleName = process.env.MODULE_ZDRY
 // const downModuleName = process.env.DOWN_MODULE
 export default {
-  ModuleName
+  ModuleName, LoginModuleName
 }
 // 查询操作
 export function query(url, params, moduleType) {
@@ -14,6 +14,7 @@ export function query(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
+  // params.requestId = new Date().getTime()
   return request({
     url: moduleName + url,
     method: 'get',
@@ -27,6 +28,7 @@ export function queryAsyns(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
+  // params.requestId = new Date().getTime()
   return new Promise((resolve, reject) => {
     axios.get(moduleName + url, {
       params: params
@@ -44,6 +46,7 @@ export function save(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
+  params.requestId = new Date().getTime()
   return request({
     url: moduleName + url,
     method: 'put',
@@ -57,10 +60,35 @@ export function update(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
+  params.requestId = new Date().getTime()
   return request({
     url: moduleName + url,
     method: 'post',
     data: params
+  })
+}
+
+// 修改操作
+export function updateFile(url, params) {
+  return request({
+    url: url,
+    method: 'post',
+    data: params
+  })
+}
+
+// 同步查询
+export function updateAsyns(url, params, moduleType) {
+  let moduleName = ModuleName
+  if (moduleType) {
+    moduleName = LoginModuleName
+  }
+  return new Promise((resolve, reject) => {
+    axios.post(moduleName + url, params).then((res) => {
+      resolve(res)
+    }).catch((err) => {
+      reject(err)
+    })
   })
 }
 
@@ -70,6 +98,7 @@ export function remove(url, params, moduleType) {
   if (moduleType) {
     moduleName = LoginModuleName
   }
+  params.requestId = new Date().getTime()
   return request({
     url: moduleName + url,
     method: 'delete',
@@ -84,7 +113,11 @@ export function download(url, params) {
     params: params,
     responseType: 'arraybuffer'
   }).then(response => {
-    downloadFile(response)
+    if (params.fileName) {
+      downloadFile_view(response, params.fileName)
+    } else {
+      downloadFile(response)
+    }
     return response
   }).catch((error) => {
     Promise.reject(error)
@@ -93,6 +126,21 @@ export function download(url, params) {
 
 // 下载文件
 export function download_http(url, params) {
+  axios({
+    method: 'get',
+    url: url,
+    params: params,
+    responseType: 'arraybuffer'
+  }).then(response => {
+    downloadFile_view(response, params.fileName)
+    return response
+  }).catch((error) => {
+    Promise.reject(error)
+  })
+}
+
+// 下载文件
+export function download_http_mg(url, params) {
   axios({
     method: 'get',
     url: url,
@@ -148,3 +196,15 @@ export function zdryhc(url, param) {
   })
 }
 
+// post 查询，有时候接口要求 查询用post
+export function queryPost(url, params, moduleType) {
+  let moduleName = ModuleName
+  if (moduleType) {
+    moduleName = LoginModuleName
+  }
+  return request({
+    url: moduleName + url,
+    method: 'post',
+    data: params
+  })
+}

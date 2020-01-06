@@ -7,7 +7,7 @@
   </div>
   <div class="bg ajInfo ydzccout">
     <!-- <title-pub :title="title" url=""></title-pub> -->
-     <card-com v-if="gldwCard" class="cardcomajgl" :cardId="curCardId" @close="clickBlank"></card-com>
+    <!-- <card-com v-if="gldwCard" class="cardcomajgl" :cardId="curCardId" @close="clickBlank"></card-com> -->
     <el-tabs class="archiveTab xddw" v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="嫌疑人" name="first">
         <div slot="label">
@@ -23,7 +23,7 @@
               <img v-else src="/static/image/personFile_images/defaultUuser.png">
               <p class="per_name link_text" @click="handleXyrDetail(item)">{{item.xm}}</p>
               <p class="link_text" @click="showTipsC(item.mgsfhm,index,'xyr')">{{item.mgsfhm}}</p>
-              <card-com v-if="curIndexxyr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com>
+              <!-- <card-com v-if="curIndexxyr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com> -->
             </div>
           </div>
           <el-col :span="24" class="toolbar">
@@ -47,7 +47,7 @@
               <img v-else src="/static/image/personFile_images/defaultUuser.png">
               <p class="per_name underLine" @click="handleShrDetail(item)">{{item.xm}}</p>
               <p class="link_text"  @click="showTipsC(item.mgsfhm,index,'shr')">{{item.mgsfhm}}</p>
-              <card-com v-if="curIndexshr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com>
+              <!-- <card-com v-if="curIndexshr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com> -->
             </div>
           </div>
           <el-col :span="24" class="toolbar">
@@ -63,8 +63,9 @@
           <p v-else class="no_data_title">案件关联单位</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table ref="companyTable" :data="dwData" class="statisticCollect" v-loading="dwLoading" max-height="186">
-          <el-table-column prop="DWMC" label="单位名称" show-overflow-tooltip></el-table-column>
+        <!-- <el-table ref="companyTable" :data="dwData" class="statisticCollect" v-loading="dwLoading" max-height="186"> -->
+        <el-table ref="companyTable" :data="dwData" class="statisticCollect" v-loading="dwLoading">
+          <el-table-column prop="DWMC" label="单位名称" show-overflow-tooltip  fixed></el-table-column>
           <el-table-column prop="DWXZ_NAME" label="单位性质" show-overflow-tooltip></el-table-column>
           <el-table-column prop="DWLX_NAME" label="单位类型" show-overflow-tooltip></el-table-column>
           <el-table-column prop="XYLB_NAME" label="行业类别" show-overflow-tooltip></el-table-column>
@@ -94,8 +95,9 @@
           <p v-else class="no_data_title">涉案物品</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table ref="goodTable" :data="sawpData" v-loading="sawpLoading" max-height="186">
-          <el-table-column prop="WPBH" label="物品编号"></el-table-column>
+        <!-- <el-table ref="goodTable" :data="sawpData" v-loading="sawpLoading" max-height="186"> -->
+        <el-table ref="goodTable" :data="sawpData" v-loading="sawpLoading">
+          <el-table-column prop="WPBH" label="物品编号" fixed></el-table-column>
           <el-table-column prop="MC" label="物品名称"></el-table-column>
           <el-table-column prop="LX_NAME" label="类型"></el-table-column>
           <el-table-column prop="XZ_NAME" label="性质"></el-table-column>
@@ -120,8 +122,9 @@
           <p v-else class="no_data_title">接收证据清单</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="zjqdData" v-loading="zjqdLoading" max-height="186">
-          <el-table-column label="标题" min-width="10%">
+        <!-- <el-table :data="zjqdData" v-loading="zjqdLoading" max-height="186"> -->
+        <el-table :data="zjqdData" v-loading="zjqdLoading">
+          <el-table-column label="标题" min-width="10%"  fixed>
             <template slot-scope="scope">
               <p :title="scope.row.WSBT" class="ellipsis-word">{{scope.row.WSBT}}&nbsp;</p>
             </template>
@@ -160,7 +163,6 @@
             <p :class="curFlwsType==='2'?'active_flws':''" @click="switchFlws('2')">无文书申请（{{nowsNum}}）</p>
           </div>
           <div class="flws_right clearfix" v-if="AJBH">
-            <!-- && showFlwsBtn -->
             <p class="left" @click="handleFlwsForm('1')">
               <img src="/static/image/caseFile_images/flws_add.png" alt="" class="flws_icon">
               新增文书
@@ -315,14 +317,21 @@ export default {
     },
     judgeShowFlwsBtn() { // 判断是否展示法律文书的两个按钮
       // 未认领的 有两种情况DISTRICT_CODE前4 或 LADW前4  等于当前部门前4 ；已认领的deptCode 和当前的相等
+
+      /*
+      (this.ajInfo.DISTRICT_CODE) && this.ajInfo.DISTRICT_CODE.substr(0, 4) === this.curDept.depCode.substr(0, 4) ||
+          ((this.ajInfo.LADW) && this.ajInfo.LADW.substr(0, 4) === this.curDept.depCode.substr(0, 4))
+      */
       if (this.ajInfo) {
         if (this.ajInfo.deptCode && (this.ajInfo.deptCode === this.curDept.depCode)) { // 已认领
           this.showFlwsBtn = true
-        } else if (this.ajInfo.DISTRICT_CODE.substr(0, 4) === this.curDept.depCode.substr(0, 4) ||
-          this.ajInfo.LADW.substr(0, 4) === this.curDept.depCode.substr(0, 4)) { // 未认领
-          this.showFlwsBtn = true
-        } else {
-          this.showFlwsBtn = false
+        } else { // 未认领
+          if (this.ajInfo.DISTRICT_CODE) {
+            if (this.ajInfo.DISTRICT_CODE.substr(0, 4) === this.curDept.depCode.substr(0, 4)) { this.showFlwsBtn = true }
+          }
+          if (this.ajInfo.LADW) {
+            if (this.ajInfo.LADW.substr(0, 4) === this.curDept.depCode.substr(0, 4)) { this.showFlwsBtn = true }
+          }
         }
       }
     },
@@ -346,7 +355,7 @@ export default {
         pageNum: flag ? 1 : this.pageXyr
       }
       this.$query('page/ajxyr', param).then((res) => {
-        // this.xyrLoading = false
+        this.xyrLoading = false
         if (res.code === '000000') {
           var data = res.data.list
           var flag = true
@@ -370,6 +379,8 @@ export default {
         }
       }).catch(() => {
         this.xyrLoading = false
+        this.moduleAllTotal.push(0)
+        this.calculateAll()
       })
     },
     handleShr(flag) { // 受害人
@@ -380,7 +391,7 @@ export default {
         pageNum: flag ? 1 : this.pageShr
       }
       this.$query('page/ajshr', param).then((res) => {
-        // this.shrLoading = false
+        this.shrLoading = false
         if (res.code === '000000') {
           var data = res.data.list
           var flag = true
@@ -404,13 +415,15 @@ export default {
         }
       }).catch(() => {
         this.shrLoading = false
+        this.moduleAllTotal.push(0)
+        this.calculateAll()
       })
     },
     personDetailByCardXyr(item, data, flag) {
       // 根据身份证号码查询嫌疑人人员详细信息
-      this.xyrLoading = false
-      this.xyrData = data
-      // if (flag) {
+      this.xyrLoading = false // 服务资源未申请，暂时显示默认图片
+      this.xyrData = data // 服务资源未申请到，暂时显示默认图片
+      // if (flag) {  // 服务资源未申请到，暂时屏蔽图片请求资源接口
       //   this.xyrLoading = false
       //   this.xyrData = data
       // } else if (item.mgsfhm) {
@@ -439,9 +452,9 @@ export default {
     },
     personDetailByCard(item, data, flag) {
       // 根据身份证号码查询受害人人员详细信息
-      this.shrLoading = false
-      this.shrData = data
-      // if (flag) {
+      this.shrLoading = false // 服务资源未申请，暂时显示默认图片
+      this.shrData = data // 服务资源未申请，暂时显示默认图片
+      // if (flag) { // 服务资源未申请到，暂时屏蔽图片请求资源接口
       //   this.shrLoading = false
       //   this.shrData = data
       // } else if (item.mgsfhm) {
@@ -480,15 +493,15 @@ export default {
           this.dwData = res.data.list
           this.totalDw = res.data.totalCount
           this.pageSizeDw = res.data.pageSize
-          this.moduleAllTotal.push(this.totalDw)
-          this.calculateAll()
-          // if (this.listData.length > 0) {
-          //   this.xyrCurDetail = this.listData[0]
-          //   this.$emit('involvedCompany', this.total)
-          // }
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalDw)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.dwLoading = false
+        this.moduleAllTotal.push(0)
+        this.calculateAll()
       })
     },
     handleSawp(flag) { // 涉案物品
@@ -503,11 +516,15 @@ export default {
           this.sawpData = res.data.list
           this.totalSawp = res.data.totalCount
           this.pageSizeSawp = res.data.pageSize
-          this.moduleAllTotal.push(this.totalSawp)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalSawp)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.sawpLoading = false
+        this.moduleAllTotal.push(0)
+        this.calculateAll()
       })
     },
     handleZjqd(flag) { // 接收证据清单
@@ -522,11 +539,15 @@ export default {
           this.zjqdData = res.data.list
           this.totalZjqd = res.data.totalCount
           this.pageSizeZjqd = res.data.pageSize
-          this.moduleAllTotal.push(this.totalZjqd)
-          this.calculateAll()
+          if (flag) { // 切换条数时 总数不变，不必要重新计算
+            this.moduleAllTotal.push(this.totalZjqd)
+            this.calculateAll()
+          }
         }
       }).catch(() => {
         this.zjqdLoading = false
+        this.moduleAllTotal.push(0)
+        this.calculateAll()
       })
     },
     handleCurrentChangeXyr(val) { // 嫌疑人
@@ -822,7 +843,6 @@ export default {
   }
   .flws_right {
     float: right;
-    // width: 250px;
     .flws_icon {
       width: 22px;
       vertical-align: middle;
@@ -833,6 +853,7 @@ export default {
       height: 28px;
       line-height: 28px;
       margin-right: 40px;
+      display: inline-block;
     }
   }
 }

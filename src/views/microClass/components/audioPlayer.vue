@@ -21,9 +21,12 @@
                   <div><el-slider v-model="value" :format-tooltip="formatTooltip" :show-tooltip="false" @change="sliderChange"></el-slider></div>
                   <div>{{allTime}}</div>
                 </div>
-                <audio id="mp3Btn" @ended="ended" ref="audio">
-                  <source :src="detailData.enPath" type="audio/mpeg" />
-                </audio>
+                <div id="audioDiv">
+                  <!--<audio id="mp3Btn" class='music-audio' @ended="ended" loop ref="audio">-->
+                    <!--<source :src="detailData.enPath" type="audio/mpeg" />-->
+                    <!--&lt;!&ndash;<source src="http://192.168.42.189:85/files/20191120183804/20191120183729.mp3" type="audio/mpeg" />&ndash;&gt;-->
+                  <!--</audio>-->
+                </div>
               </div>
             </div>
             <div v-if="playType === '5'" class="audio_player_txt">
@@ -31,7 +34,12 @@
                 <li><span>上传者：</span><span>{{detailData.creationName}}</span></li>
                 <li><span>上传时间：</span><span>{{detailData.creationTime}}</span></li>
                 <li><span>审核时间：</span><span>{{detailData.auditTime ? detailData.auditTime : '-'}}</span></li>
-                <li><span>内容简介：</span><span>{{detailData.describe ? detailData.describe : '暂无'}}</span></li>
+                <li class="con"><span>内容简介：</span>
+                  <el-tooltip v-if="detailData.describe" effect="light" popper-class="con_tooltip" :content="detailData.describe" placement="top">
+                    <span>{{detailData.describe ? detailData.describe : '暂无'}}</span>
+                  </el-tooltip>
+                  <span v-else>暂无</span>
+                </li>
               </ul>
             </div>
             <div class="audio_player_clean"></div>
@@ -60,6 +68,7 @@
     ],
     data() {
       return {
+        notTake: false,
         srcUrl: '',
         value: 0,
         playTime: '00:00',
@@ -112,8 +121,23 @@
         }
       },
       setDetail(playerDetail) {
+        const data = JSON.parse(sessionStorage.getItem('depToken'))
+        if (data !== undefined && data !== null && data.length > 0) {
+          this.notTake = true
+        } else {
+          this.notTake = false
+        }
         this.detailData = playerDetail
         this.src()
+
+        document.getElementById('audioDiv').innerHTML = '<audio id="mp3Btn" class=\'music-audio\' @ended="ended" loop ref="audio">' +
+          '<source src="' + this.detailData.enPath + '" type="audio/mpeg" />' +
+          '</audio>'
+
+        document.getElementById('mp3Btn').addEventListener('ended', function(e) {
+          this.ended()
+        }, true)
+
         const audio = document.getElementById('mp3Btn')
         audio.load()
         this.audioMusic = {
@@ -140,7 +164,7 @@
       },
       handlerDown() {
         this.$download_http(this.detailData.enPathOld, { fileName: this.detailData.enName + this.detailData.enClass })
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.addJF('3')
           this.$emit('viewLog', '1', '1')
         }
@@ -171,7 +195,7 @@
         }
         this.$save('trainFraction', para).then(response => {
           if (type === '4' && response.data === '999') {
-            this.clearTimeInterval()
+            this.clearJFInterval()
           }
         })
       },
@@ -179,18 +203,26 @@
         this.$emit('uploadViewLog', this.waitTime)
       },
       bindSetInterval() {
+        if (this.waitTime * 1000 < this.intervalSplit) {
+          this.intervalSplit = this.intervalSplit - this.waitTime * 1000
+        } else if (this.waitTime * 1000 > this.intervalSplit) {
+          this.intervalSplit = this.waitTime * 1000 - this.intervalSplit
+        }
         this.timeInterval = setInterval(() => {
           this.addJF('4')
+          this.initSplit()
         }, this.intervalSplit)
         this.autoUpdateInterval = setInterval(() => {
           this.uploadViewLog()
         }, this.learningTime)
+      },
+      bindWaitInterval() {
         this.waitInterval = setInterval(() => {
           this.waitTime += 1
         }, 1000)
       },
-      clearWaitInterval() {
-        clearInterval(this.waitInterval)
+      clearJFInterval() {
+        clearInterval(this.timeInterval)
       },
       clearTimeInterval() {
         clearInterval(this.timeInterval)
@@ -207,7 +239,7 @@
         }, this.learningTime)
       },
       ended() {
-        if (this.detailData.flag) {
+        if (this.detailData.flag && this.notTake) {
           this.uploadViewLog()
         }
         this.clearTimeInterval()
@@ -215,7 +247,7 @@
         document.getElementsByClassName('btn-audio')[0].classList.add('paused')
       },
       audioClick() {
-        const audio = document.getElementById('mp3Btn')
+        const audio = document.getElementsByClassName('music-audio')[0]
         event.stopPropagation()
         if (audio.paused) {
           if (audio.duration === undefined || audio.duration === null || audio.duration === '' || isNaN(audio.duration)) {
@@ -235,7 +267,7 @@
           document.getElementsByClassName('btn-audio')[0].classList.remove('paused')
           document.getElementsByClassName('btn-audio')[0].classList.add('player')
           audio.play()
-          if (this.detailData.flag) {
+          if (this.detailData.flag && this.notTake) {
             if (this.num === 0) {
               if (this.playType === '5') {
                 this.$emit('viewLog', '0')
@@ -247,13 +279,14 @@
             this.bindSetInterval()
             this.bindSetTimeOut()
           }
+          this.bindWaitInterval()
           return
         } else {
           document.getElementsByClassName('btn-audio')[0].classList.remove('player')
           document.getElementsByClassName('btn-audio')[0].classList.add('paused')
           audio.pause()
           clearInterval(this.playInterval)
-          if (this.detailData.flag) {
+          if (this.detailData.flag && this.notTake) {
             this.uploadViewLog()
           }
           this.clearTimeInterval()
@@ -395,7 +428,7 @@
     position: relative;
   }
   .classRoom_audioPlayer .audio_player_txt {
-    width: 30%;
+    width: 40%;
     float: left;
     padding: 20px 10px 10px 20px;
   }
@@ -404,13 +437,47 @@
   }
   .classRoom_audioPlayer .audio_player_txt ul li span{
     display: inline-block;
-    width: 40%;
+    width: 20%;
     text-align: right;
   }
   .classRoom_audioPlayer .audio_player_txt ul li span:last-child{
     text-align: left;
-    width: 60%;
+    width: 73%;
   }
+  .classRoom_audioPlayer .audio_player_txt ul li.con{
+    padding-bottom: 0;
+    position: relative;
+  }
+  .classRoom_audioPlayer .audio_player_txt ul li.con span:first-child{
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+  }
+  .classRoom_audioPlayer .audio_player_txt ul li.con span:last-child{
+    max-height: 240px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 11;
+    display: -webkit-box;
+    position: absolute;
+    top: 10px;
+    left: 20%;
+  }
+  .con_tooltip{
+    width: 30%;
+    color: #565656;
+    background: #f1f1f1 !important;
+  }
+  /*.con_tooltip{*/
+    /*width: 30%;*/
+    /*background: #023a5a !important;*/
+    /*color: #89c0de !important;*/
+  /*}*/
+  /*.el-tooltip__popper.con_tooltip .popper__arrow::after{*/
+    /*border-top-color: #023a5a !important;*/
+  /*}*/
   .classRoom_audioPlayer .audio_player_clean{
     clear: both;
   }
@@ -535,4 +602,7 @@
   .classRoom_audioPlayer .el-slider__button{
     border-color: #074f71;
   }
+</style>
+<style>
+  .music-all{width:500px;height:500px;border:1px solid red;margin:30px auto 0;position:relative}.music-range{width:350px;height:10px;background:#2386e4;border-radius:5px;-webkit-appearance:none;margin:0 auto;cursor:pointer}.music-range::-webkit-slider-thumb{width:15px;height:15px;background:#fff;border:1px solid #f18900;cursor:pointer;border-radius:5px;-webkit-appearance:none}.music-animation{width:70px;height:70px;background:red;margin:0 auto;text-align:center;line-height:70px;font-size:12px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}.play-an{animation:dong 5s linear infinite}@keyframes dong{0%{background:red;left:0;top:0;width:10px;height:30px}25%{background:#ff0;left:500px;top:0;width:30px;height:10px}50%{background:blue;left:500px;top:500px;width:10px;height:30px}75%{background:green;left:0;top:500px;width:30px;height:10px}100%{background:red;left:0;top:0;width:10px;height:30px}}a{text-align:center}
 </style>

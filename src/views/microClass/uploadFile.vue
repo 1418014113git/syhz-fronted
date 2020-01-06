@@ -46,11 +46,12 @@
                 multiple>
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                <div class="el-upload__tip" slot="tip">支持Word、PDF、视频、音频和PPT文件！最多可一次性上传5个文件！过大的视频文件建议单个上传！（视频支持MP4、AVI、WMV，最大2G；音频支持MP3，最大512M）</div>
+                <div class="el-upload__tip" slot="tip">视频支持MP4、AVI、WMV，最大2G；音频支持PM3，最大512M；文档最大64M；<br>资料标题是上传的资料名称，上传前请确认资料名称！</div>
               </el-upload>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="add" class="saveBtn" v-loading.fullscreen.lock="loading">保 存</el-button>
+              <el-button v-if="showSave" type="primary" class="saveBtn" @click="add('0')" v-loading.fullscreen.lock="loading">保 存</el-button>
+              <el-button type="primary" class="saveBtn" @click="add('1')" v-loading.fullscreen.lock="loading">提 交</el-button>
               <el-button @click="callback" class="cancelBtn">取 消</el-button>
             </el-form-item>
           </el-form>
@@ -65,6 +66,7 @@
   export default {
     data() {
       return {
+        showSave: true,
         uploadAction: this.UploadAttachment.uploadFileUrl,
         source: '',
         active: '',
@@ -117,7 +119,8 @@
         }
         return cfNum > 0
       },
-      add() {
+      add(draft) {
+        this.form.draft = draft
         this.loading = true
         this.$refs.form.validate(valid => {
           if (valid) {
@@ -249,9 +252,9 @@
         if (wordReg.test(file.type) || pdfReg.test(file.type) || pptReg.test(file.type)) {
           this.uploadFileType = '0'
           flag = true
-          if (file.size / 1024 / 1024 > 10) {
+          if (file.size / 1024 / 1024 > 64) {
             this.$message({
-              message: '文件上传失败！上传文档大小不得超过10M！',
+              message: '文件上传失败！上传文档大小不得超过64M！',
               type: 'error'
             })
             return false
@@ -303,15 +306,20 @@
             return false
           }
         }
-        const rejected = checkFileName('traincourseonly', { enName: file.name.substring(0, file.name.lastIndexOf('.')), entype: this.uploadFileType })
-        rejected.catch(() => {
-          this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {
-            confirmButtonText: '知道了',
-            callback: action => {
-            }
+        if (this.detailId === undefined || this.detailId === null || this.detailId === '') {
+          const rejected = checkFileName('traincourseonly', {
+            enName: file.name.substring(0, file.name.lastIndexOf('.')),
+            entype: this.uploadFileType
           })
-        })
-        return rejected
+          rejected.catch(() => {
+            this.$alert('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！', '提示', {
+              confirmButtonText: '知道了',
+              callback: action => {
+              }
+            })
+          })
+          return rejected
+        }
       },
       fileError() {
       },
@@ -383,7 +391,7 @@
       },
       parentdepartcode() {
         const para = this.$setCurrentUser({})
-        this.$query('parentdepartcode/' + para.belongDepCode, {}, true).then(response => {
+        this.$query('parentdepartcode/' + para.belongDepCode, para, true).then(response => {
           this.departInfo = response.data
         })
       },
@@ -400,8 +408,10 @@
               enName: response.data.enName,
               enPath: response.data.enPath,
               enPathOld: response.data.enPathOld
-            }]
+            }],
+            draft: response.data.draft
           }
+          this.showSave = (response.data.draft !== '1' && response.data.draft !== 1)
           this.imgList = [{
             name: response.data.enIcon.substring(response.data.enIcon.lastIndexOf('/') + 1, response.data.enIcon.length),
             url: response.data.enIcon
@@ -414,6 +424,7 @@
       },
       executeUpdate() {
         let para = JSON.parse(JSON.stringify(this.form))
+        para.subType = this.form.draft
         para.enCode = this.form.enclosure[0].enCode
         para.enType = this.form.enclosure[0].enType
         para.enClass = this.form.enclosure[0].enClass

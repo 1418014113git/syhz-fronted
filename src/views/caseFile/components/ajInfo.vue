@@ -1,9 +1,9 @@
 <template>
 <!-- 案件信息 -->
   <div class="ajInfo" v-loading="loading">
-     <div class="title">
+     <!--<div class="title">
         <div class="left">{{ajInfo.AJMC}}</div>
-        <!-- <div class="right">
+         <div class="right">
           <p>
             <img  class="downLoad" src="/static/image/personFile_images/downLoad.png">
             <span>下载档案</span>
@@ -21,22 +21,25 @@
             <img  class="downLoad" src="/static/image/personFile_images/heart.png">
             <span>0</span>
           </p>
-        </div> -->
-     </div>
+        </div>
+     </div>-->
      <el-row class="pat">
         <el-form ref="form" :model="ajInfo" size="small" label-width="108px" label-position="left">
           <el-col :span="8" class="pdr">
-            <el-form-item label="案件编号">
+            <!-- <el-form-item label="案件编号">
               <a class="ajbh" @click="showTipsC(ajInfo.AJBH)">{{ajInfo.AJBH}}</a>
+            </el-form-item> -->
+             <el-form-item label="立案单位">
+              <span :title="ajInfo.LADW_NAME" class="whiteColor ellipsis-word">{{ajInfo.LADW_NAME}}</span>
             </el-form-item>
             <el-form-item label="案件类型">
               <span class="whiteColor ajlx" v-for="(item, index) in ajlx" :key="index" :class="item.bg">{{item.lx}}</span>
             </el-form-item>
-            <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com>
+            <!-- <ajbh-com v-if="showAjbhCom" class="ajbhcom" :ajbh="ajInfo.AJBH" :id="AJID"  :interfaceType="interFaceType"  :isRl="isRls"  :source='source'  @close="clickBlank"></ajbh-com> -->
           </el-col>
           <el-col :span="8" class="pdr">
-            <el-form-item label="发案地">
-              <span  :title="ajInfo.FADZMLXZ" class="whiteColor ellipsis-word heig">{{ajInfo.FADZMLXZ}}</span>
+            <el-form-item label="案件来源">
+              <span  :title="ajInfo.AJLY_NAME" class="whiteColor ellipsis-word heig">{{ajInfo.AJLY_NAME}}</span>
             </el-form-item>
             <el-form-item label="案件状态">
               <span :class="ajInfo.AJZT_NAME === '破案'?'green':'orange'">{{ajInfo.AJZT_NAME}}</span>
@@ -45,9 +48,6 @@
           <el-col :span="8">
             <el-form-item label="案件类别">
               <span class="whiteColor lbbg" v-if="ajInfo.AJLB_NAME">{{ajInfo.AJLB_NAME}}</span>
-            </el-form-item>
-            <el-form-item label="立案单位">
-              <span :title="ajInfo.LADW_NAME" class="whiteColor ellipsis-word">{{ajInfo.LADW_NAME}}</span>
             </el-form-item>
           </el-col>
         </el-form>
@@ -116,7 +116,17 @@ export default {
         this.getColor(ajlxArry.length)
         for (var j = 0; j < ajlxObject.length; j++) {
           for (var k = 0; k < this.newColorData.length; k++) {
-            if (j === k) {
+            if (j === 0) {
+              if (ajlxObject[j].lx === '环境') {
+                ajlxObject[j].bg = 'bg4' // 蓝色
+              } else if (ajlxObject[j].lx === '食品') {
+                ajlxObject[j].bg = 'bg3' // 绿色
+              } else if (ajlxObject[j].lx === '药品') {
+                ajlxObject[j].bg = 'bg6' // 橙色
+              } else {
+                ajlxObject[j].bg = 'bg5' // 综合
+              }
+            } else if (j === k) {
               ajlxObject[j].bg = this.newColorData[k]
             }
           }
@@ -171,34 +181,34 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.ajInfo{
+.ajInfo {
   width: 100%;
   border: 2px solid rgb(0, 160, 233);
   padding: 0 8px 8px 8px;
-  .el-form-item__label{
+  .el-form-item__label {
     color: #bce8fc;
     text-shadow: 0 0 1px #fff;
   }
-  .title{
+  .title {
     width: 100%;
     height: 40px;
     padding: 8px 0 7px 10px;
-    border-bottom: 2px solid #00a0e9;
+    // border-bottom: 2px solid #00a0e9;
     overflow: hidden;
     color: #bce8fc;
     text-shadow: 0 0 2px #fff;
     font-size: 17px;
-    .left{
+    .left {
       float: left;
-      letter-spacing: 3px;
+      // letter-spacing: 3px;
     }
-    .right{
+    .right {
       float: right;
       font-size: 14px;
-      .downLoad{
+      .downLoad {
         width: 16px;
       }
-      p{
+      p {
         display: inline-block;
         margin-left: 15px;
       }
@@ -206,53 +216,47 @@ export default {
   }
 }
 
- .beyondTextClass {
+.beyondTextClass {
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.green{
+.green {
   color: #00ff00;
 }
-.orange{
+.orange {
   color: #ff7a04;
 }
-.lbbg{
+.lbbg {
   font-size: 14px;
   padding: 2px 6px;
-  background-image: linear-gradient(140deg,
-		#177ce0 0%,
-		#54afe0 100%),
-	linear-gradient(
-		#ff8547,
-		#ff8547);
-	background-blend-mode: normal,
-		normal;
-	border-radius: 4px;
+  background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
+  background-blend-mode: normal, normal;
+  border-radius: 4px;
 }
-.pat{
+.pat {
   padding: 22px 0 0 22px;
 }
-.ajbh{
+.ajbh {
   color: #bce8fc;
   text-shadow: 0 0 2px #fff;
-  text-decoration:underline;
+  text-decoration: underline;
 }
-.ajbhcom{
+.ajbhcom {
   position: absolute;
   top: -5px;
-  left:21%;
+  left: 50%;
 }
-.pdr{
+.pdr {
   padding-right: 10px;
 }
-.heig{
+.heig {
   height: 22px;
 }
-@media only screen and (max-width: 1367px){
-  .ajbhcom{
-    left:31%;
+@media only screen and (max-width: 1367px) {
+  .ajbhcom {
+    left: 31%;
   }
 }
 </style>

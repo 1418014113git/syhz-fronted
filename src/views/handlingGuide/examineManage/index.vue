@@ -14,12 +14,13 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" size="small" @click="queryList(true,true)">查询</el-button>
+        <el-button type="primary" size="small" @click="reset">重置</el-button>
       </el-form-item>
     </el-form>
     <!--列表-->
     <el-table :data="tableData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center">
       <el-table-column type="index" label="序号" width="70" align="center"></el-table-column>
-      <el-table-column prop="examinationName" label="考试" min-width="160" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="examinationName" label="考试名称" min-width="160" show-overflow-tooltip></el-table-column>
       <el-table-column prop="date" label="考试时间" width="400" align="center">
         <template slot-scope="scope">
           {{scope.row.startDate}} ~ {{scope.row.endDate}}
@@ -41,12 +42,12 @@
         <template slot-scope="scope">
           <el-button size="mini" circle @click="handleDetail(scope.$index, scope.row)" icon="el-icon-document" title="详情"></el-button>
           <el-button size="mini" circle @click="handleEdit(scope.$index, scope.row)" icon="el-icon-edit" title="编辑" :disabled="scope.row.status"></el-button>
-          <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除" :disabled="scope.row.status"></el-button>
-          <!-- 未开始的考试或者已经发布成绩的 发布按钮禁用 -->
+          <el-button size="mini" circle @click="handleDelete(scope.$index, scope.row)" icon="el-icon-delete" title="删除" :disabled="!(scope.row.isDelete)"></el-button>
+          <!-- 未开始的考试或者已经发布成绩的 发布按钮禁用 11.29 考试时间截至24小时以后 系统自动发布成绩 -->
           <el-button size="mini" circle @click="handlePublishScore(scope.$index, scope.row)" title="发布成绩" :disabled="scope.row.examStatus===1 || scope.row.status">
             <svg-icon icon-class="release"></svg-icon>
           </el-button>
-          <!-- <el-button size="mini" circle @click="handleGoOverExam(scope.$index, scope.row)" icon="el-icon-view" title="阅卷" v-if="scope.row.isGoOver===1" :disabled="scope.row.status"></el-button> -->
+          <el-button size="mini" circle @click="handleLookGrade(scope.$index, scope.row)" icon="el-icon-more" title="成绩单" v-if="scope.row.status===true"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -109,14 +110,20 @@ export default {
           this.pageSize = response.data.pageSize
           for (let index = 0; index < response.data.list.length; index++) {
             var element = response.data.list[index]
-            if (element.markPeople) {
-              var markArr = element.markPeople.split(',')
-              if (markArr.indexOf(this.userInfo.id + '') > -1) {
-                element.isGoOver = 1 // 是否可以阅卷
-              } else {
-                element.isGoOver = 0
-              }
+            // 删除考试 （取消：考试未开始前，可以取消）
+            if (new Date(element.startDate).getTime() > new Date().getTime()) { // 考试开始时间 大于 当前时间
+              element.isDelete = true
+            } else {
+              element.isDelete = false
             }
+            // if (element.markPeople) {
+            //   var markArr = element.markPeople.split(',')
+            //   if (markArr.indexOf(this.userInfo.id + '') > -1) {
+            //     element.isGoOver = 1 // 是否可以阅卷
+            //   } else {
+            //     element.isGoOver = 0
+            //   }
+            // }
           }
           this.tableData = response.data.list
         } else {
@@ -139,17 +146,33 @@ export default {
     },
     handleEdit(index, row) { // 编辑
       // 检查是否可编辑
-      var para = {
-        id: row.id
-      }
-      this.$query('examination/checkexamination', para).then((response) => {
-        this.listLoading = false
-        if (response.code === '000000') {
+      // var para = {
+      //   id: row.id
+      // }
+      // this.$query('examination/checkexamination', para).then((response) => {
+      //   this.listLoading = false
+      //   if (response.code === '000000') {
+      // 考试未开始前，所有项目可以编辑；考试已开始，只能修改截止时间。
+      if (row.examStatus === 2 || row.examStatus === 3) { // 已经开始的考试
+        this.$confirm('考试已经开始，只能修改截止时间, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
           this.$router.push({ path: '/handlingGuide/examineManage/edit', query: { examId: row.id }})
-        }
-      }).catch(() => {
-        this.listLoading = false
-      })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消'
+          })
+        })
+      } else {
+        this.$router.push({ path: '/handlingGuide/examineManage/edit', query: { examId: row.id }})
+      }
+      //   }
+      // }).catch(() => {
+      //   this.listLoading = false
+      // })
     },
     handleDelete(index, row) { // 删除
       this.listLoading = true
@@ -227,9 +250,10 @@ export default {
       })
     },
     addTestQuestion() { // 添加考试
-      this.$router.push({ path: '/handlingGuide/examineManage/edit' })
+      this.$router.push({ path: '/handlingGuide/examineManage/add' })
     },
-    handleGoOverExam(index, row) { // 阅卷
+    handleLookGrade(index, row) { // 查看成绩单 --考试id、考试名称、发布时间
+      this.$router.push({ path: '/handlingGuide/examTrainingManage/scoreRanking', query: { examinationId: row.id, examinationName: row.examinationName, startTime: row.modifyDate }})
       // this.$router.push({ path: '/handlingGuide/goOverExamPaper/index', query: { examId: row.id }})
     },
     importTem() {
@@ -248,6 +272,15 @@ export default {
         file.value = ''
       }
       this.dialogImportVisible = false
+    },
+    reset() { // 重置
+      this.resetForm('filters') // 清空查询条件
+      this.queryList(true)
+    },
+    resetForm(formName) { // 重置表单
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
+      }
     }
   },
   mounted() {

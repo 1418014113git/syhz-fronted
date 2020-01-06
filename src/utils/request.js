@@ -28,7 +28,51 @@ service.interceptors.request.use(config => {
       config.headers['realName'] = encodeURI(JSON.parse(sessionStorage.getItem('userInfo')).realName)
     }
   }
-  return config
+  // 对put请求进行重复过滤
+  if (config.method === 'put' || config.method === 'PUT') {
+    const configData = config.md5
+    const randomObj = {
+      url: config.url,
+      randomData: configData,
+      requestId: config.data.requestId
+    }
+    const randomData_JSON = sessionStorage.getItem('randomData')
+    if (randomData_JSON === undefined || randomData_JSON === null || randomData_JSON === '') {
+      sessionStorage.setItem('randomData', JSON.stringify(randomObj))
+      return config
+    } else {
+      const randomData = JSON.parse(randomData_JSON).randomData
+      if (randomData === configData && config.data.requestId - JSON.parse(randomData_JSON).requestId < 1000 && JSON.parse(randomData_JSON).url === config.url) {
+        console.info('重复提交：' + config.url + '__' + configData)
+        return Promise.reject(new Error('repeatGet'))
+      } else {
+        sessionStorage.setItem('randomData', JSON.stringify(randomObj))
+        return config
+      }
+    }
+  } else {
+    // if (config.method === 'get' || config.method === 'GET') {
+    //   const randomObj = {
+    //     url: config.url,
+    //     requestId: config.params.requestId
+    //   }
+    //   const randomData_JSON = sessionStorage.getItem('_requestId')
+    //   if (randomData_JSON === undefined || randomData_JSON === null || randomData_JSON === '') {
+    //     sessionStorage.setItem('_requestId', JSON.stringify(randomObj))
+    //     return config
+    //   } else {
+    //     const randomData = JSON.parse(randomData_JSON).url
+    //     if (randomData === config.url && config.params.requestId - JSON.parse(randomData_JSON).requestId < 1000) {
+    //       console.info('请求太快了' + config.url)
+    //       return Promise.reject(new Error('repeatSubmit'))
+    //     } else {
+    //       sessionStorage.setItem('_requestId', JSON.stringify(randomObj))
+    //       return config
+    //     }
+    //   }
+    // }
+    return config
+  }
 }, error => {
   // Do something with request error
   console.log(error) // for debug
@@ -70,19 +114,23 @@ service.interceptors.response.use(
     } else if (res.code === ACCESS_TOKEN_EXPIRE) { // accessToken过期
       console.log('accessToken过期')
     } else {
-      // 非000000以外的其他异常提示
-      var message = res.message ? res.message : '请求无法受理，请稍后再试!'
-      if (!mb_flag) {
-        mb_flag = true
-        MessageBox.alert(message, '提示', {
-          confirmButtonText: '确定',
-          type: 'warning'
-        }).then(() => {
-          mb_flag = false
-        }).catch(() => {
-          mb_flag = false
-        })
-        return Promise.reject('error')
+      if (res === 'ok') {
+        console.info('附件删除成功')
+      } else {
+        // 非000000以外的其他异常提示
+        var message = res.message ? res.message : '请求无法受理，请稍后再试!'
+        if (!mb_flag) {
+          mb_flag = true
+          MessageBox.alert(message, '提示', {
+            confirmButtonText: '确定',
+            type: 'warning'
+          }).then(() => {
+            mb_flag = false
+          }).catch(() => {
+            mb_flag = false
+          })
+          return Promise.reject('error')
+        }
       }
     }
   },

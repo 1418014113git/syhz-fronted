@@ -53,25 +53,25 @@ export default {
         },
         {
           type: 'YSQSRQ',
-          name: '移起诉讼',
+          name: '移诉',
           date: '',
           time: '',
           icon: '/static/image/caseFile_images/default.png'
         },
-        {
-          type: 'AJYSSJ',
-          name: '一审',
-          date: '',
-          time: '',
-          icon: '/static/image/caseFile_images/default.png'
-        },
-        {
-          type: 'ESSJ',
-          name: '二审',
-          date: '',
-          time: '',
-          icon: '/static/image/caseFile_images/default.png'
-        },
+        // {
+        //   type: 'AJYSSJ',
+        //   name: '一审',
+        //   date: '',
+        //   time: '',
+        //   icon: '/static/image/caseFile_images/default.png'
+        // },
+        // {
+        //   type: 'ESSJ',
+        //   name: '二审',
+        //   date: '',
+        //   time: '',
+        //   icon: '/static/image/caseFile_images/default.png'
+        // },
         {
           type: 'GDRQ',
           name: '归档',
@@ -145,20 +145,20 @@ export default {
             item.time = date5.length > 10 ? date5.substr(11) : ''
           }
         }
-        if (item.type === 'AJYSSJ') {
-          var date6 = this.ajInfo.AJYSSJ ? this.$handlerDateTime(this.ajInfo.AJYSSJ) : ''
-          if (date6) {
-            item.date = date6.substring(0, 10)
-            item.time = date6.length > 10 ? date6.substr(11) : ''
-          }
-        }
-        if (item.type === 'ESSJ') {
-          var date7 = this.ajInfo.ESSJ ? this.$handlerDateTime(this.ajInfo.ESSJ) : ''
-          if (date7) {
-            item.date = date7.substring(0, 10)
-            item.time = date7.length > 10 ? date7.substr(11) : ''
-          }
-        }
+        // if (item.type === 'AJYSSJ') {
+        //   var date6 = this.ajInfo.AJYSSJ ? this.$handlerDateTime(this.ajInfo.AJYSSJ) : ''
+        //   if (date6) {
+        //     item.date = date6.substring(0, 10)
+        //     item.time = date6.length > 10 ? date6.substr(11) : ''
+        //   }
+        // }
+        // if (item.type === 'ESSJ') {
+        //   var date7 = this.ajInfo.ESSJ ? this.$handlerDateTime(this.ajInfo.ESSJ) : ''
+        //   if (date7) {
+        //     item.date = date7.substring(0, 10)
+        //     item.time = date7.length > 10 ? date7.substr(11) : ''
+        //   }
+        // }
         if (item.type === 'GDRQ') {
           var date8 = this.ajInfo.GDRQ ? this.$handlerDateTime(this.ajInfo.GDRQ) : ''
           if (date8) {
@@ -182,33 +182,32 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.ajStatus{
+.ajStatus {
   width: 100%;
   max-height: 170px;
   border: 2px solid rgb(0, 160, 233);
   padding: 18px 10px 18px 13px;
   text-align: center;
-  .ajStatusCont{
-     background:url('../../../assets/caseFile_images/ajline.png')no-repeat center 37px;
-     background-size: 100% 5px;
-    .itemName{
+  .ajStatusCont {
+    background: url("../../../assets/caseFile_images/ajline.png") no-repeat
+      center 37px;
+    background-size: 100% 5px;
+    .itemName {
       color: #bce8fc;
       text-shadow: 0 0 1px #fff;
       margin-bottom: 6px;
     }
-    img{
+    img {
       width: 18px;
       margin-bottom: 5px;
     }
   }
-
 }
-.dateStyle{
+.dateStyle {
   font-size: 14px;
   color: #fff;
 }
-@media only screen and (max-width: 1367px){
-
+@media only screen and (max-width: 1367px) {
 }
 </style>
 

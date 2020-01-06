@@ -4,36 +4,38 @@
     <el-row>
       <img src="@/assets/icon/back.png" class="goBack" @click="toback">   <!--返回-->
     </el-row>
-     <div class="caseFile">
-     <el-row>
-       <!-- 左侧导航区 -->
-        <el-col class="leftCont" :span="4" :style="{height:countHeight}">
-          <left-nav class="bg"  :ajbh="AJBH" ></left-nav>
-        </el-col>
-        <!-- 右侧内容区 -->
-        <el-col :span="20" class="rightCont"  :style="{height:countHeight}">
-          <div class="rightContDoc" ref="rightContDoc">
-            <aj-info class="marb bg ajxx" :AjInfo="ajInfo" :ajbh="AJBH"  :ajid="AJID" :type="interfaceType" :Rl="isRl"></aj-info>
-            <aj-status class="marb bg ajjd" :AjInfo="ajInfo" :ajbh="AJBH"></aj-status>
-            <aj-synopsis  class="marb bg ajgg" :info="ajInfo" :bh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl"></aj-synopsis>
-            <guide-detect class="marb ydzc" :ajbh="AJBH" :AjInfo="ajInfo"></guide-detect>
-            <fa-address class="marb bg fadz" :AjInfo="ajInfo" :ajbh="AJBH"  :ajid="AJID"  :type="interfaceType" :Rl="isRl"></fa-address>
-            <relation-mesh class="marb bg swkx" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl"></relation-mesh>
-            <info-supplement class="marb xxbc" :info="ajInfo" :ajbh="AJBH"></info-supplement>
-            <bz-push class="marb bzts" :ajbh="AJBH"></bz-push>
-            <receive-police class="marb bg jcj" :ajbh="AJBH"></receive-police>
-            <clues-associate class="marb xsgl" :info="ajInfo" :ajbh="AJBH"></clues-associate>
-            <spyon-cooperation class="marb zcxz" :ajbh="AJBH"  :ajid="AJID" :type="interfaceType" :Rl="isRl"></spyon-cooperation>
-            <aj-parallel class="marb bg ajcb" :ajbh="AJBH"></aj-parallel>
-          </div>
-        </el-col>
-     </el-row>
-  </div>
+    <div class="caseFile">
+      <el-row style="position:relative;">
+        <!-- 左侧导航区 -->
+          <el-col class="leftCont" :span="4" :style="{height:countHeight}">
+            <left-nav class="bg" :ajbh="AJBH" ></left-nav>
+          </el-col>
+          <!-- 右侧内容区 -->
+          <el-col :span="20" class="rightCont"  :style="{height:countHeight}">
+            <div class="rightContDoc" ref="rightContDoc" style="position:relative;">
+              <aj-title class="fixTitle bg ajxx" :AjInfo="ajInfo" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl" :style="{width:fixTitleWith}"></aj-title>
+              <aj-info class="marb bg ajxx" :AjInfo="ajInfo" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl" style="margin-top:60px;" ></aj-info>
+              <aj-status class="marb bg ajjd" :AjInfo="ajInfo" :ajbh="AJBH" ></aj-status>
+              <aj-synopsis  class="marb bg ajgg" :info="ajInfo" :bh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl"></aj-synopsis>
+              <guide-detect class="marb ydzc" :ajbh="AJBH" :AjInfo="ajInfo"></guide-detect>
+              <fa-address class="marb bg fadz" :AjInfo="ajInfo" :ajbh="AJBH"  :ajid="AJID"  :type="interfaceType" :Rl="isRl"></fa-address>
+              <relation-mesh class="marb bg swkx" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl"></relation-mesh>
+              <info-supplement class="marb xxbc" :info="ajInfo" :ajbh="AJBH"></info-supplement>
+              <bz-push class="marb bzts" :ajbh="AJBH"></bz-push>
+              <receive-police class="marb bg jcj" :ajbh="AJBH"></receive-police>
+              <!--<clues-associate class="marb xsgl" :info="ajInfo" :ajbh="AJBH"></clues-associate>-->
+              <spyon-cooperation class="marb zcxz" :ajbh="AJBH" :ajid="AJID" :type="interfaceType" :Rl="isRl"></spyon-cooperation>
+              <aj-parallel class="marb ajcb" :ajbh="AJBH"></aj-parallel>
+            </div>
+          </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
 <script>
 import LeftNav from './components/leftNav' // 左侧菜单
+import AjTitle from './components/ajTitle' // 右侧--案件信息
 import AjInfo from './components/ajInfo' // 右侧--案件信息
 import AjStatus from './components/ajStatus' // 右侧--案件进度
 import AjSynopsis from './components/ajSynopsis' // 右侧--案件梗概
@@ -43,17 +45,17 @@ import RelationMesh from './components/relationMesh' // 右侧--关系挖掘
 import InfoSupplement from './components/infoSupplement' // 信息补采
 import BzPush from './components/bzPush' // 右侧--比中推送
 import ReceivePolice from './components/receivePolice' // 接处警
-import CluesAssociate from './components/cluesAssociate' // 线索关联
+// import CluesAssociate from './components/cluesAssociate' // 线索关联
 import SpyonCooperation from './components/spyonCooperation' // 侦查协作
 import AjParallel from './components/ajParallel' // 案件串并
-
 import { getAJJBXXSYHID, getAjJbxxEtlAjbh } from '@/api/caseManage'
+import Bus from '@/utils/bus.js'
 import $ from 'jquery'
 export default {
   name: 'caseFile',
   data() {
     return {
-      countHeight: document.documentElement.clientHeight - 130 + 'px',
+      countHeight: document.documentElement.clientHeight - 160 + 'px',
       classList: [ // 模块类名
         // 'ajxx', // 案件信息
         // 'ajjd', // 案件进度
@@ -64,7 +66,7 @@ export default {
         'xxbc', // 信息补采
         'bzts', // 比中推送
         'jcj', // 接处警
-        'xsgl', // 线索关联
+        // 'xsgl', // 线索关联
         'zcxz', // 侦查协作
         'ajcb' // 案件串并
       ],
@@ -73,11 +75,13 @@ export default {
       ajInfo: {}, // 基础信息
       carryParam: {}, // 跳转过来的传参
       interfaceType: '',
-      isRl: ''
+      isRl: '',
+      fixTitleWith: null
     }
   },
   components: {
     LeftNav,
+    AjTitle,
     AjInfo,
     AjSynopsis,
     guideDetect,
@@ -86,7 +90,7 @@ export default {
     FaAddress,
     InfoSupplement,
     ReceivePolice,
-    CluesAssociate,
+    // CluesAssociate,
     SpyonCooperation,
     BzPush,
     AjParallel
@@ -136,6 +140,7 @@ export default {
       }
       for (var i = 0; i < this.classList.length - 1; i++) {
         if (document.querySelector('.rightCont').scrollTop === 0) {
+          Bus.$emit('bqType', 'first') // 定位到侦查协作初始化时的状态
           this.$store.dispatch('AjMouleClass', this.classList[0])
         } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 10 && document.querySelector('.rightCont').scrollTop < difference) {
           this.$store.dispatch('AjMouleClass', this.classList[i])
@@ -217,169 +222,192 @@ export default {
   mounted() {
     const _this = this
     document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
+    // console.log(document.querySelector('.rightCont').offsetWidth)
+    this.fixTitleWith = document.querySelector('.rightCont').offsetWidth - 7 + 'px'
   },
   activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
     document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
+    this.fixTitleWith = document.querySelector('.rightCont').offsetWidth - 7 + 'px'
     this.AJBH = ''
     this.init()
   }
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.leftCont {
-  width: 14%;
-  overflow: auto;
-  margin-right: 20px;
-}
-.rightCont {
-  width: 84.3%;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-.marb {
-  margin-bottom: 20px;
-}
-.bg {
-  background-color: rgba(0, 64, 94, 0.7);
-  border-radius: 8px;
-}
-.cell_title {
-  margin: 0 0 10px 5px;
-  .text {
-    line-height: 20px;
-    color: #bce8fc;
-    text-shadow: 0 0 2px #fff;
-    margin-left: 3px;
-    font-size: 17px;
-  }
-  .small_line {
-    display: inline-block;
-    width: 8px;
-    height: 20px;
-    background: #00a0e9;
-    border-radius: 3px;
-    vertical-align: middle;
-  }
-}
-.archiveTab.el-tabs {
-  border: none;
-  background: none;
-  .el-tabs__header {
-    background: url(/static/image/personFile_images/titlePub.png) no-repeat
-      center center;
-    background-size: 100% 65%;
-    margin: 0;
-  }
-  .el-tabs__nav-scroll {
-    padding: 6px 18px 16px 5px;
-  }
-  .el-tabs__nav-wrap::after {
-    // 去掉tab自带的下划线
-    height: 0;
-  }
-  .el-tabs__active-bar {
-    height: 0;
-  }
-  .el-tabs__item {
-    padding: 0 20px;
-    height: 20px;
-    line-height: 20px;
-  }
-  .el-tabs__item.is-top:last-child {
-    padding-right: 20px;
-  }
-  .el-tabs__item.is-active {
-    color: #bce8fc;
-    text-shadow: 0 0 2px #fff;
-    .no_data_title {
-      color: #bce8fc;
-      text-shadow: 0 0 2px #fff;
-    }
-  }
-  .el-tabs__item {
-    color: #00a0e9;
-  }
-  .tab_title_line {
-    // taba页签右边的斜线
-    width: 26px;
-    position: absolute;
-    right: -10px;
-    top: -1px;
-  }
-  .no_data_title {
-    color: #586d7e;
-    text-shadow: none;
-  }
-}
-.goBack {
-  margin: 0 10px 5px 0;
-}
-.toolbar {
-  margin: 2px 0 0 !important;
-}
-.whiteColor {
-  color: #fff;
-}
-.bg1,
-.bg2,
-.bg3,
-.bg4,
-.bg5,
-.bg6 {
-  padding: 2px 10px;
-  background-blend-mode: normal, normal;
-  border-radius: 4px;
-  margin-right: 6px;
-  font-size: 14px;
-  word-break: keep-all;
-}
-.bg1 {
-  background-image: linear-gradient(90deg, #fe595d 0%, #f789a6 100%),
-    linear-gradient(#ff8547, #ff8547);
-}
-.bg2 {
-  background-image: linear-gradient(140deg, #138fb8 0%, #53c7e0 100%),
-    linear-gradient(#ff8547, #ff8547);
-}
-.bg3 {
-  background-image: linear-gradient(140deg, #40a954 0%, #20e1aa 100%),
-    linear-gradient(#ff8547, #ff8547);
-}
-.bg4 {
-  background-image: linear-gradient(140deg, #177ce0 0%, #54afe0 100%),
-    linear-gradient(#ff8547, #ff8547);
-}
-.bg5 {
-  background-image: linear-gradient(140deg, #6e3ec8 0%, #8f55d5 100%),
-    linear-gradient(#ff8547, #ff8547);
-}
-.bg6 {
-  background-image: linear-gradient(140deg, #ff7a04 0%, #fdbc22 100%),
-    linear-gradient(#ff8547, #ff8547);
-}
-.ajlx {
-  height: 23px;
-  line-height: 18px;
-  margin-right: 6px;
-  font-size: 14px;
-  word-break: keep-all;
-  display: inline-block;
-}
-.ellipsis-word {
-  height: 23px;
-}
-.prt {
-  padding-right: 15px;
-}
-.breakall {
-  word-break: break-all;
-}
-@media only screen and (max-width: 1367px) {
+.caseFile {
   .leftCont {
-    width: 17%;
+    width: 14%;
+    overflow: auto;
+    margin-right: 20px;
   }
   .rightCont {
-    width: 80.6%;
+    width: 84.3%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .marb {
+    margin-bottom: 20px;
+  }
+  .bg {
+    background-color: rgba(0, 64, 94, 0.7);
+    border-radius: 8px;
+  }
+  .cell_title {
+    margin: 0 0 10px 5px;
+    .text {
+      line-height: 20px;
+      color: #bce8fc;
+      text-shadow: 0 0 2px #fff;
+      margin-left: 3px;
+      font-size: 17px;
+    }
+    .small_line {
+      display: inline-block;
+      width: 8px;
+      height: 20px;
+      background: #00a0e9;
+      border-radius: 3px;
+      vertical-align: middle;
+    }
+  }
+  .archiveTab.el-tabs {
+    border: none;
+    background: none;
+    .el-tabs__header {
+      background: url(/static/image/personFile_images/titlePub.png) no-repeat
+        center center;
+      background-size: 100% 65%;
+      margin: 0;
+    }
+    .el-tabs__nav-scroll {
+      padding: 6px 18px 16px 5px;
+    }
+    .el-tabs__nav-wrap::after {
+      // 去掉tab自带的下划线
+      height: 0;
+    }
+    .el-tabs__active-bar {
+      height: 0;
+    }
+    .el-tabs__item {
+      padding: 0 20px;
+      height: 20px;
+      line-height: 20px;
+    }
+    .el-tabs__item.is-top:last-child {
+      padding-right: 20px;
+    }
+    .el-tabs__item.is-active {
+      color: #bce8fc;
+      text-shadow: 0 0 2px #fff;
+      .no_data_title {
+        color: #bce8fc;
+        text-shadow: 0 0 2px #fff;
+      }
+    }
+    .el-tabs__item {
+      color: #00a0e9;
+    }
+    .tab_title_line {
+      // taba页签右边的斜线
+      width: 26px;
+      position: absolute;
+      right: -10px;
+      top: -1px;
+    }
+    .no_data_title {
+      color: #586d7e;
+      text-shadow: none;
+    }
+  }
+  .goBack {
+    margin: 0 10px 5px 0;
+  }
+  .toolbar {
+    margin: 2px 0 0 !important;
+  }
+  .whiteColor {
+    color: #fff;
+  }
+  .bg1,
+  .bg2,
+  .bg3,
+  .bg4,
+  .bg5,
+  .bg6 {
+    padding: 2px 10px;
+    background-blend-mode: normal, normal;
+    border-radius: 4px;
+    margin-right: 6px;
+    font-size: 14px;
+    word-break: keep-all;
+  }
+  .bg1 {
+    background-image: linear-gradient(90deg, #fe595d 0%, #f789a6 100%);
+  }
+  .bg2 {
+    background-image: linear-gradient(140deg, #138fb8 0%, #53c7e0 100%);
+  }
+  .bg3 {
+    background-image: linear-gradient(140deg, #40a954 0%, #20e1aa 100%);
+  }
+  .bg4 {
+    background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
+  }
+  .bg5 {
+    background-image: linear-gradient(140deg, #6e3ec8 0%, #8f55d5 100%);
+  }
+  .bg6 {
+    background-image: linear-gradient(140deg, #ff7a04 0%, #fdbc22 100%);
+  }
+  .ajlx {
+    height: 23px;
+    line-height: 18px;
+    margin-right: 6px;
+    font-size: 14px;
+    word-break: keep-all;
+    display: inline-block;
+  }
+  .ellipsis-word {
+    height: 23px;
+  }
+  .prt {
+    padding-right: 15px;
+  }
+  .breakall {
+    word-break: break-all;
+  }
+  .fixTitle{
+    position:fixed;
+    top:152px;
+    left:16.2%;
+    right:0;
+    z-index:999;
+    background:rgba(0, 64, 94, 1)
+  }
+
+  // 固定左侧列的样式问题
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
+  }
+  @media only screen and (max-width: 1367px) {
+    .leftCont {
+      width: 17%;
+    }
+    .rightCont {
+      width: 80.6%;
+    }
+    .fixTitle {
+      left: 19.5%;
+    }
   }
 }
 </style>

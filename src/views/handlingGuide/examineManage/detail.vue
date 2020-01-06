@@ -61,18 +61,44 @@
               </el-form-item>
               <el-form-item label="开放单位" prop="openDepts" class="clearfix">
                 <!-- 可以多选；只能是本单位或者下级单位，无法选择上级及其他单位 -->
-                <el-select v-model="examForm.openDepts" placeholder="请选择开放单位" multiple class="left openWrap" :disabled="true" style="width:calc(100% - 30px)">
+                <!-- <el-select v-model="examForm.openDepts" placeholder="请选择开放单位" multiple class="left openWrap" :disabled="true" style="width:calc(100% - 30px)">
                   <el-option v-for="item in openDeptsList" :key="item.id" :label="item.deptName" :value="item.id"></el-option>
-                </el-select>
+                </el-select> -->
+                <el-collapse class="left" style="width:calc(100% - 30px)">
+                  <el-collapse-item title="选择部门" name="1">
+                    <div class="dept-tree" v-loading="treeLoading">
+                      <el-tree class="filter-tree" :data="openDeptsList"
+                        :props="{children: 'child',label: 'deptName',value: 'deptId',disabled:'deptId'}"
+                        :default-expand-all="false"
+                        ref="depTree"
+                        highlight-current
+                        show-checkbox
+                        check-strictly
+                        @check-change="checkDeptChange"
+                        :expand-on-click-node="false" node-key="deptId"
+                        :default-expanded-keys="defaultExpandedKeys"
+                        :default-checked-keys="defaultCheckedKeys"
+                        style="margin-top: 5px;">
+                        <span slot-scope="{ node, data }" @mouseleave="mouseleave(data,$event)" @mouseover="mouseover(data,$event)" style="flex: 1; display: flex; align-items: center; justify-content: space-between; font-size: 14px; padding-right: 8px;">
+                          <span>
+                            <span>{{data.deptName}}</span>
+                          </span>
+                          <span class="node_none">
+                            <el-button v-if="data.child && data.child.length>0" size="mini" circle icon="el-icon-check" title="选中子部门" :disabled="true"></el-button>
+                            <el-button v-if="data.child && data.child.length>0" size="mini" circle icon="el-icon-close" title="取消子部门" :disabled="true"></el-button>
+                          </span>
+                        </span>
+                      </el-tree>
+                    </div>
+                  </el-collapse-item>
+                </el-collapse>
                 <el-tooltip class="right" effect="dark" content="根据实际情况，选择可以参加本次考试的机构单位！" placement="top">
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
               </el-form-item>
-              <el-form-item label="阅卷人员" prop="yjry" class="clearfix">
-                <!-- <el-input type="text" v-model="ry" clearable class="left" style="width:410px;"></el-input> -->
+              <el-form-item label="阅卷人员" prop="markPeople" class="clearfix" v-show="yjryIsShow">
+                <el-input type="text" v-model="yjry" clearable class="left" style="width:360px;" @keyup.enter.native="filterMarkPeople(yjry)" placeholder="请输入关键字，回车键搜索"></el-input>
                 <el-transfer class="left" style="width:calc(100% - 30px)" :disabled="true"
-                  filterable
-                  :filter-method="filterMethod"
                   filter-placeholder="请输入关键字检索人员"
                   v-model="examForm.markPeople"
                   :button-texts="['移除', '选中']"
@@ -135,106 +161,127 @@ export default {
       endPickerOptions: {},
       formLoading: false, // 表单loading
       allSystemPeople: [], // 系统所有人员
+      markPerFormattingOwn: [], // 自己单位人员
+      markPerFormattingAll: [], // 格式化后的所有人员
       carryParam: {}, // 列表带过来的参数
+      yjry: '', // 阅卷人员筛选框
+      treeLoading: true, // 开放单位加载的loading
+      defaultExpandedKeys: [], // 默认展开的节点的 key 的数组
+      defaultCheckedKeys: [], // 默认勾选的节点的 key 的数组
+      yjryIsShow: false, // 是否显示阅卷人员
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
-      rules: {
-        examinationName: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            // const reg = /^[A-Za-z0-9\u4e00-\u9fa5]+$/
-            // const reg = /^(!)|(@)|(#)|(￥)|(%)|(...)|(&)|(*)$/
-            // if (value === '') {
-            //   callback(new Error('请输入考试名称'))
-            // } else if (!reg.test(value)) {
-            //   callback(new Error('请不要输入特殊字符，如：！@#￥%……&* '))
-            // } else {
-            callback()
-            // }
-          }
-        }],
-        startDate: {
-          required: true, message: '请输入开始时间', trigger: 'blur'
-        },
-        endDate: {
-          required: true, message: '请输入截止时间', trigger: 'blur'
-        },
-        totalDate: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            const reg = /^[0-9]+$/
-            if (value === '') {
-              callback(new Error('请输入考试时限'))
-            } else if (reg.test(value)) {
-              callback()
-            } else {
-              callback(new Error('考试时限最多为三位数字'))
-            }
-          }
-        }],
-        permitNumber: {
-          required: true, message: '请输入允许次数', trigger: 'blur'
-        },
-        type: {
-          required: true, message: '请选择试卷类型', trigger: 'blur'
-        },
-        paperId: {
-          required: true, message: '请选择试卷', trigger: 'blur'
-        },
-        examinationType: {
-          required: true, message: '请选择分类', trigger: 'change'
-        },
-        openDepts: {
-          required: true, message: '请选择开放单位', trigger: 'blur'
-        }
-      }
+      rules: {}
     }
   },
   methods: {
+    filterMarkPeople(val) { // 阅卷老师筛选框
+      this.markingPeopleData = []
+      // 根据当前的val 查询
+      var _this = this
+      if (val) {
+        for (let k = 0; k < _this.markPerFormattingAll.length; k++) {
+          var itemK = _this.markPerFormattingAll[k]
+          if (itemK.label.indexOf(val) > -1) {
+            _this.markingPeopleData.push(itemK)
+          }
+        }
+      } else {
+        _this.markingPeopleData = _this.markPerFormattingOwn
+      }
+    },
     filterMethod(query, item) {
       return item.label.indexOf(query) > -1
     },
+    mouseleave(data, $event) {
+      $event.currentTarget.firstElementChild.nextElementSibling.setAttribute('class', 'node_none')
+    },
+    mouseover(data, $event) {
+      $event.currentTarget.firstElementChild.nextElementSibling.setAttribute('class', 'node_block')
+    },
+    checkDeptChange(data) { // 复选框事件
+      // this.$refs.depTree.store.nodesMap[data.id].expanded = true // 展开当前部门的子部门
+    },
     init() {
       // 开放单位：获取本单位和下级单位
-      this.$query('deptsbyparentdeptcode', { deptCode: this.deptInfo.depCode }, 'upms').then((response) => {
+      // this.$query('deptsbyparentdeptcode', { deptCode: this.deptInfo.depCode }, 'upms').then((response) => {
+      //   if (response.code === '000000') {
+      //     this.openDeptsList = response.data
+      //   } else {
+      //     this.openDeptsList = []
+      //   }
+      // }).catch(() => {
+      //   this.openDeptsList = []
+      // })
+      this.treeLoading = true
+      this.$query('childDept', { deptCode: this.deptInfo.depCode }).then((response) => {
+        this.treeLoading = false
         if (response.code === '000000') {
-          this.openDeptsList = response.data
+          this.openDeptsList = [response.data]
         } else {
           this.openDeptsList = []
         }
+        // this.openDeptsList = JSON.parse(sessionStorage.getItem('DeptTree')) // 全部的部门
+        this.defaultExpandedKeys = [this.deptInfo.id] // 默认展开当前部门的下一级
       }).catch(() => {
+        this.treeLoading = false
         this.openDeptsList = []
       })
       // 阅卷人员 查所有人
       this.markingPeopleData = []
+      var _this = this
       this.$query('userallbyenable', {}, 'upms').then((response) => {
         if (response.code === '000000') {
           this.allSystemPeople = response.data
-          var markPer = []
-          // for (let index = 0; index < this.allSystemPeople.length; index++) {
-          //   var element = this.allSystemPeople[index]
-          //   if (element.deptCode === this.deptInfo.depCode) {
-          //     markPer.push(element)
-          //   }
-          // }
-          markPer = this.allSystemPeople
+          _this.markPerOwn = []
+          for (let index = 0; index < this.allSystemPeople.length; index++) {
+            var element = this.allSystemPeople[index]
+            if (element.deptCode === this.deptInfo.depCode) {
+              _this.markPerOwn.push(element)
+            }
+          }
           var nameArr = [] // 用户名
           var jinghaoArr = [] // 警号
           var deptArr = [] // 所在单位
           var userIdArr = [] // 用户id
-          for (let index = 0; index < markPer.length; index++) {
-            const element = markPer[index]
+          _this.markPerFormattingOwn = []
+          for (let index = 0; index < _this.markPerOwn.length; index++) {
+            const element = _this.markPerOwn[index]
             nameArr.push(element.realName)
             jinghaoArr.push(element.userName)
             deptArr.push(element.deptName)
             userIdArr.push(element.userId)
           }
           nameArr.forEach((name, index) => {
-            this.markingPeopleData.push({
+            _this.markPerFormattingOwn.push({
               label: name + '-' + jinghaoArr[index], // 将姓名和警号拼一起 方便查询
               key: userIdArr[index],
               dept: deptArr[index],
               disabled: true
             })
           })
+
+          var nameArrAll = [] // 用户名
+          var jinghaoArrAll = [] // 警号
+          var deptArrAll = [] // 所在单位
+          var userIdArrAll = [] // 用户id
+          _this.markPerFormattingAll = []
+          for (let m = 0; m < _this.allSystemPeople.length; m++) {
+            const item = _this.allSystemPeople[m]
+            nameArrAll.push(item.realName)
+            jinghaoArrAll.push(item.userName)
+            deptArrAll.push(item.deptName)
+            userIdArrAll.push(item.userId)
+          }
+          nameArrAll.forEach((name, index) => {
+            _this.markPerFormattingAll.push({
+              label: name + '-' + jinghaoArrAll[index], // 将姓名和警号拼一起 方便查询
+              key: userIdArrAll[index],
+              dept: deptArrAll[index],
+              disabled: true
+            })
+          })
+          this.markingPeopleData = _this.markPerFormattingOwn
         } else {
           this.markingPeopleData = []
         }
@@ -253,6 +300,7 @@ export default {
           response.data.examinationType = response.data.examinationType + '' // 分类
           response.data.type = response.data.type + '' // 试卷类型
           this.examPaperTypeChange(response.data.type) // 查试卷
+          this.paperChange(response.data.paperId) // 查是否含有主观题，判断是否显示阅卷老师
 
           var choosedDepts = response.data.openDepts.split(',') // 开放单位
           var newDeptsArr = []
@@ -260,6 +308,7 @@ export default {
             var element = Number(choosedDepts[index])
             newDeptsArr.push(element)
           }
+          this.$refs.depTree.setCheckedKeys(newDeptsArr)
 
           if (response.data.markPeople) { // 阅卷人员
             var choosedPers = response.data.markPeople.split(',')
@@ -270,12 +319,27 @@ export default {
             }
           }
           this.examForm = response.data
-          this.examForm.openDepts = newDeptsArr
+          // this.examForm.openDepts = newDeptsArr
           this.examForm.markPeople = newPersArr
         }
       }).catch(() => {
         this.formLoading = false
       })
+    },
+    paperChange(val) { // 选择试卷 判断是否有主观题，如果没有主观题 则不能选择阅卷老师
+      if (val) {
+        this.$query('exampaperinfotypes', { paperId: val }).then((response) => {
+          this.formLoading = false
+          if (response.code === '000000' && response.data.length > 0) { // 有主观题
+            this.yjryIsShow = true
+          } else {
+            this.yjryIsShow = false
+            this.examForm.markPeople = []
+          }
+        }).catch(() => {
+          this.yjryIsShow = false
+        })
+      }
     },
     handleImageAdded(file, Editor, cursorLocation, resetUploader) {
       const formData = new FormData()
@@ -303,60 +367,6 @@ export default {
     },
     cancel() {
       this.$router.push({ path: '/handlingGuide/examineManage' })
-    },
-    handleSave(formName) {
-      this.$refs[formName].validate(valid => {
-        if (valid) {
-          // console.log(this.questionForm)
-          this.formLoading = true
-          var param = JSON.parse(JSON.stringify(this.examForm))
-          if (param.openDepts && param.openDepts.length > 0) { // 开放单位
-            param.openDepts = param.openDepts.join(',')
-          }
-          if (param.markPeople && param.markPeople.length > 0) { // 阅卷老师
-            param.markPeople = param.markPeople.join(',')
-          } else {
-            param.markPeople = ''
-          }
-          param.deptCode = this.deptInfo.depCode // 当前部门code
-          param.deptName = this.deptInfo.depName
-          if (this.carryParam.examId) {
-            param.modifier = this.userInfo.userName
-          } else {
-            param.creator = this.userInfo.userName
-          }
-          // console.log(param)
-          // if (this.carryParam.questinoId) {
-          //   // 编辑
-          //   this.$update('examquestion/' + this.carryParam.questinoId, param).then((response) => {
-          //     this.formLoading = false
-          //     if (response.code === '000000') {
-          //       this.$message({
-          //         message: '修改成功', type: 'success'
-          //       })
-          //       this.$router.push({ path: '/handlingGuide/testbaseManage' })
-          //     }
-          //   }).catch(() => {
-          //     this.formLoading = false
-          //   })
-          // } else {
-          // 添加
-          this.$update('examination/save', param).then((response) => {
-            if (response.code === '000000') {
-              this.formLoading = true
-              this.loading = false
-              this.$message({
-                type: 'success',
-                message: '添加成功!'
-              })
-              this.$router.push({ path: '/handlingGuide/examineManage' })
-            }
-          }).catch(() => {
-            this.formLoading = false
-          })
-        }
-        // }
-      })
     },
     examPaperTypeChange(val) { // 试卷类型change，只能选择本单位组织的试卷，其他单位的无法选择
       if (val) {
@@ -402,6 +412,9 @@ export default {
   .el-transfer-panel {
     width: 360px;
   }
+  .el-transfer__buttons {
+    padding: 0 20px;
+  }
   .left {
     float: left;
   }
@@ -413,10 +426,24 @@ export default {
     content: "";
     display: block;
   }
+  .el-collapse-item__content {
+    padding: 0 20px;
+  }
+  .dept-tree {
+    max-height: 400px;
+    overflow-y: auto;
+    // padding: 5px;
+  }
 }
 .spt_report {
   width: 80%;
   min-width: 1200px;
   margin: 0 auto;
+}
+.node_block {
+  display: inline-block;
+}
+.node_none {
+  display: none;
 }
 </style>

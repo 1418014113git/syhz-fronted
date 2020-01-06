@@ -162,23 +162,23 @@ const user = {
             const depStr = JSON.stringify(deps)
             setDepToken(depStr)
             commit('SET_DEPS', depStr) // 部门列表
-            data.menus.forEach(function(item) {
-              if (item.menuName === '要素查询') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '业务查询') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '关联查询') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '新谷查询') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '从案到人分析') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '从人到案分析') {
-                item.url = 'http://znjs.gat.nm'
-              } else if (item.menuName === '人案关联引擎') {
-                item.url = 'http://znjs.gat.nm'
-              }
-            })
+            // data.menus.forEach(function(item) {
+            //   if (item.menuName === '要素查询') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '业务查询') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '关联查询') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '新谷查询') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '从案到人分析') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '从人到案分析') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   } else if (item.menuName === '人案关联引擎') {
+            //     item.url = 'http://znjs.gat.nm'
+            //   }
+            // })
             const menus = handleMenu(data.menus)
             sessionStorage.setItem('menusData', JSON.stringify(data.menus))
             // const apps = handleApp(data.apps)

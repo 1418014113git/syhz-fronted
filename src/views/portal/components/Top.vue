@@ -17,14 +17,17 @@
           <i class="el-icon-arrow-down el-icon-caret-bottom"></i>
         </div>
         <el-dropdown-menu class="user-dropdown" slot="dropdown">
-          <el-dropdown-item v-if="isShow()" style="font-size:14px;" divided>
+          <el-dropdown-item  style="font-size:14px;" >
+            <span style="display:block;" @click="getInfo">个人信息</span>
+          </el-dropdown-item>
+          <el-dropdown-item  style="font-size:14px;" >
             <span style="display:block;" @click="EditPassword">修改密码</span>
           </el-dropdown-item>
-          <el-dropdown-item v-if="isShow()" style="font-size:14px;" divided>
+          <el-dropdown-item v-if="isShow()" style="font-size:14px;" >
             <span style="display:block;" @click="toUpms">系统管理</span>
           </el-dropdown-item>
-          <el-dropdown-item style="font-size:14px;" divided>
-            <span style="display:block;" @click="goOut">退出</span>
+          <el-dropdown-item style="font-size:14px;" >
+            <span style="display:block;" @click="goOut">注销退出</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -33,7 +36,7 @@
       </div>
   </div>
 
-   <!--修改密码弹出层-->
+  <!--修改密码弹出层-->
   <el-dialog title="修改密码" :visible.sync="isShowdialog">
     <el-form ref="resetPwdForm" :rules="resetPwdFormRules" :model="resetPwdForm" size="mini" :label-width="formLabelWidth">
       <el-form-item label="原密码" prop="loginPwd" :label-width="formLabelWidth">
@@ -46,7 +49,7 @@
         <el-input v-model.trim="resetPwdForm.loginPwdNew1" type="password" auto-complete="off" maxlength="20" clearable></el-input>
       </el-form-item>
     </el-form>
-    <el-row class="tabC martop">
+    <el-row class="tabC martop btnUpLine">
       <el-button  @click="handleResetPwdCancel" class="cancelBtn">取 消</el-button>
       <el-button  type="primary" @click="handleResetPwdSubmit" v-loading.fullscreen.lock="loadingFlag" class="saveBtn">保 存</el-button>
     </el-row>
@@ -58,6 +61,7 @@
 // import { getMessagesCount } from '@/api/messages'
 import SearchApp from './searchApp'
 export default {
+  props: ['upmsUrl'],
   name: '',
   data() {
     return {
@@ -197,13 +201,11 @@ export default {
       return flag
     },
     toUpms() {
-      const ModuleName = process.env.LOCATIONUPMS
-      // window.location.href = ModuleName + '?n=' + sessionStorage.getItem('username') + '&p=' + sessionStorage.getItem('userpass')
-      // var username=this.compile(sessionStorage.getItem('username'))
-      // var userpass=this.compile(sessionStorage.getItem('userpass'))
-      var userToken=sessionStorage.getItem('userToken')
-      var address=ModuleName + '?n=' + userToken
-      window.open(address)
+      if(this.upmsUrl){
+        var userToken=sessionStorage.getItem('userToken')
+        var address='http://'+this.upmsUrl + '?n=' + userToken
+        window.open(address)
+      }
     },
     compile(code) { // 参数加密
       var c=String.fromCharCode(code.charCodeAt(0)+code.length)
@@ -268,6 +270,9 @@ export default {
       this.resetPwdForm.loginPwdNew = ''
       this.resetPwdForm.loginPwdNew1 = ''
     },
+    getInfo(){
+      this.$router.push({ path: '/basicService/personInfo', query: { id: this.curUser.id }})
+    }
   },
   created() {
     this.init()
@@ -369,7 +374,10 @@ export default {
     margin: 0 auto;
   }
   .martop{
-    margin-top: 15px;
+    margin-top: 30px;
+  }
+  .el-dialog__body{
+    padding: 20px 0;
   }
 }
 @media only screen and (max-width: 1367px) {

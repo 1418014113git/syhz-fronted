@@ -126,24 +126,24 @@
         helpList: [
           {
             src: '/static/image/question_images/handbook.png',
-            describe: '系统使用手册',
-            downloadUrl: 'http://192.168.42.189:91/file/用户使用手册_[公安食药环侦实战应用平台建设].doc'
+            describe: 'PPT转换PDF格式说明',
+            downloadUrl: '/file/PPT转换PDF格式说明.docx'
           },
-          {
-            src: '/static/image/question_images/browser.png',
-            describe: '浏览器',
-            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
-          },
+          // {
+          //   src: '/static/image/question_images/browser.png',
+          //   describe: '浏览器',
+          //   downloadUrl: '/file/谷歌and插件and安装插件说明.zip'
+          // },
           {
             src: '/static/image/question_images/certificate.png',
-            describe: 'PKI数字证书',
-            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
-          },
-          {
-            src: '/static/image/question_images/specification.png',
-            describe: '插件安装说明',
-            downloadUrl: 'http://192.168.42.189:91/file/谷歌and插件and安装插件说明.zip'
+            describe: '视频格式工厂',
+            downloadUrl: '/file/视频格式工厂.zip'
           }
+          // {
+          //   src: '/static/image/question_images/specification.png',
+          //   describe: '视频格式工厂',
+          //   downloadUrl: '/file/视频格式工厂.zip'
+          // }
         ]
       }
     },
@@ -157,7 +157,7 @@
           creationId: this.myflag === true ? a.id : null,
           quTitle: this.search,
           currentPage: flag === true ? this.page : 1,
-          pageSize: 10
+          pageSize: 15
         }
         this.query(para)
       },
@@ -272,7 +272,7 @@
         const para = {
           creationId: a.id,
           currentPage: flag ? this.page : 1,
-          pageSize: flag ? this.pageSize : 10
+          pageSize: flag ? this.pageSize : 15
         }
         this.query(para)
       },
@@ -316,7 +316,7 @@
         const para = {
           quType: index !== '0' ? index : '',
           currentPage: flag === 1 ? this.page : 1,
-          pageSize: flag === 1 ? this.pageSize : 10
+          pageSize: flag === 1 ? this.pageSize : 15
         }
         this.query(para)
       },

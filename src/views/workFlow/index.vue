@@ -20,7 +20,7 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" size="small" v-if="$isViewBtn('100707')" v-on:click="getList()">查询</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('121002')" v-on:click="getList()">查询</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="listData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight">
