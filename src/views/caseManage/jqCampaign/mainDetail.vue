@@ -15,10 +15,20 @@
           <div class="rightContDoc" ref="rightContDoc">
             <base-info class="marb bg jbxx"  :info="baseInfo"></base-info>
             <verify-info class="marb bg shxx"  :info="baseInfo"></verify-info>
-            <area-sign class="marb bg dsqs"  :info="baseInfo" v-if="isShow"></area-sign>
-            <area-back class="marb bg dsfk"  :info="baseInfo" v-if="isShow"></area-back>
-            <county-sign class="marb bg qxqs"  :info="baseInfo" v-if="!isShow"></county-sign>
-            <county-back class="marb bg qxfk"  :info="baseInfo" v-if="!isShow"></county-back>
+            <div v-if="isShow1">
+              <area-sign class="marb bg dsqs"  :info="baseInfo"></area-sign>
+              <area-back class="marb bg dsfk"  :info="baseInfo"></area-back>
+            </div>
+            <div v-else-if="isShow2">
+              <area-sign class="marb bg dsqs"  :info="baseInfo"></area-sign>
+              <area-back class="marb bg dsfk"  :info="baseInfo"></area-back>
+              <county-sign class="marb bg qxqs"  :info="baseInfo"></county-sign>
+              <county-back class="marb bg qxfk"  :info="baseInfo"></county-back>
+            </div>
+            <div v-else-if="isShow3">
+              <county-sign class="marb bg qxqs"  :info="baseInfo"></county-sign>
+              <county-back class="marb bg qxfk"  :info="baseInfo"></county-back>
+            </div>
           </div>
         </el-col>
      </el-row>
@@ -43,10 +53,14 @@ export default {
       classList: [],
       classList1: ['jbxx', 'shxx', 'dsqs', 'dsfk'], // 地市
       classList2: ['jbxx', 'shxx', 'qxqs', 'qxfk'], // 区县
+      classList3: ['jbxx', 'shxx', 'dsqs', 'dsfk', 'qxqs', 'qxfk'], // 地市、区县
       curUser: {}, // sessionStorage获取用户信息
       curDept: {}, // sessionStorage获取机构信息
-      isShow: false,
+      isShow1: false,
+      isShow2: false,
+      isShow3: false,
       jqid: '', // 集群id
+      systemTime: '', // 系统时间
       baseInfo: {}
 
     }
@@ -84,80 +98,72 @@ export default {
       this.$query('casecluster/' + id, {}).then((response) => {
         this.jqid = id
         this.baseInfo = response.data
+        this.baseInfo.systemTime = this.systemTime
       }).catch(() => {
       })
     },
     jump(val) {
-      var total = document.querySelector('.' + val).offsetTop
-      $('.rightCont').animate({ scrollTop: total }, 0)
+      if (val) {
+        var total = document.querySelector('.' + val).offsetTop
+        $('.rightCont').animate({ scrollTop: total }, 0)
+      }
     },
     toback() {
       // this.$router.back(-1)
       this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
     },
+    getSysTime(id) { // 获取当前系统时间
+      this.$query('knowledge/queryTime').then(response => {
+        this.systemTime = response.data
+        this.detail(id)
+      })
+    },
     // 监听滚动条变化
     handleScroll() {
-      // // var documentHeight = this.$refs.rightContDoc.offsetHeight
-      // // var difference = documentHeight - (document.documentElement.clientHeight - 143)
-      // if (document.querySelector('.rightCont').scrollTop > 0) { // 如何滚动条顶部距离>0,则将状态ToTop初始化为0
-      //   this.$store.dispatch('ToTop', 0)
-      //   this.$store.dispatch('Personeltotop', '')
-      // }
-      // for (var i = 0; i < this.classList.length - 1; i++) {
-      //   // if (document.querySelector('.rightCont').scrollTop === 0) {
-      //   //   this.$store.dispatch('MouleClass', this.classList[0])
-      //   // } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 10 && document.querySelector('.rightCont').scrollTop < difference) {
-      //   //   this.$store.dispatch('MouleClass', this.classList[i])
-      //   // } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
-      //   //   console.log('到底了')
-      //   //   this.$store.dispatch('MouleClass', this.classList[4])
-      //   // }
-      //   if (document.querySelector('.rightCont').scrollTop === 0) {
-      //     this.$store.dispatch('MouleClass', this.classList[0])
-      //   } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop) {
-      //     this.$store.dispatch('MouleClass', this.classList[i])
-      //   } else {
-      //   }
-      // }
       var documentHeight = this.$refs.rightContDoc.offsetHeight
       var difference = documentHeight - (document.documentElement.clientHeight - 130)
+      this.$store.dispatch('Personeltotop', '')
+      this.$store.dispatch('JqMouleClass', '')
       if (document.querySelector('.rightCont').scrollTop > 0) { // 如何滚动条顶部距离>0,则将状态ToTop初始化为0
         this.$store.dispatch('ToTop', 0)
-        this.$store.dispatch('Personeltotop', '')
       }
+
       for (var i = 0; i < this.classList.length - 1; i++) {
         if (document.querySelector('.rightCont').scrollTop === 0) {
-          this.$store.dispatch('AjMouleClass', this.classList[0])
-        } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 10 && document.querySelector('.rightCont').scrollTop < difference) {
-          this.$store.dispatch('AjMouleClass', this.classList[i])
+          this.$store.dispatch('JqMouleClass', this.classList[0])
+        } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 20 && document.querySelector('.rightCont').scrollTop < difference) {
+          this.$store.dispatch('JqMouleClass', this.classList[i])
         } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
-          this.$store.dispatch('AjMouleClass', this.classList[this.classList.length - 1])
+          this.$store.dispatch('JqMouleClass', this.classList[this.classList.length - 1])
         }
       }
     }
   },
   created() {
     if (this.$route.query.id) {
-      this.detail(this.$route.query.id)
+      this.getSysTime(this.$route.query.id)
     }
   },
   mounted() {
     const _this = this
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      if (this.curDept.depType === '1' || this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.parentDepCode === '611400390000')) { // 总队 支队 (杨凌派出所和杨凌支队同权限)
-        this.classList = this.classList1
-        this.isShow = true
-      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.parentDepCode !== '611400390000')) { // 大队，派出所
-        this.classList = this.classList2
-        this.isShow = false
+      if (this.curDept.depType === '1' || this.curDept.areaCode.substring(0, 4) === '6114') { // 总队、杨凌支队、杨凌派出所(杨凌派出所和杨凌支队同权限)
+        this.classList = this.classList1 // 显示地市签收、反馈右侧列表
+        this.isShow1 = true
+      } else if (this.curDept.depType === '2' && this.curDept.areaCode.substring(0, 4) !== '6114') { // 非杨凌的支队
+        this.classList = this.classList3 // 显示地市签收、反馈，区县签收、反馈右侧列表
+        this.isShow2 = true
+      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 大队，非杨凌的派出所
+        this.classList = this.classList2 // 显示区县签收、反馈右侧列表
+        this.isShow3 = true
       }
     }
     document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
   },
   activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
     if (this.$route.query.id) {
-      this.detail(this.$route.query.id)
+      this.getSysTime(this.$route.query.id)
     }
     document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
   }

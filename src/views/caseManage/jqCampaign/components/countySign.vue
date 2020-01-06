@@ -3,12 +3,12 @@
     <!-- 地市签收 -->
     <div class="countySign pubStyle">
       <title-pub :title="title"></title-pub>
-      <div style="max-height:260px;overflow: auto;">
+      <!-- <div style="max-height:260px;overflow: auto;"> -->
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
-          <el-table-column type="index" label="序号" width="60" ></el-table-column>
+          <el-table-column type="index" label="序号" width="60" fixed></el-table-column>
           <el-table-column prop="createDeptName" label="下发单位"   min-width="180" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="createDate" label="下发日期"  show-overflow-tooltip></el-table-column>
-          <el-table-column prop="clueNum" label="线索数量" >
+          <el-table-column prop="createDate" label="下发日期"  min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="clueNum" label="线索数量" min-width="120">
             <template slot-scope="scope">
               <span class="linkColor"  @click="gotoxslist(scope.row)">{{scope.row.clueNum}}</span>
             </template>
@@ -35,7 +35,7 @@
           </el-pagination>
         </el-col>
       </el-row>
-    </div>
+    <!-- </div> -->
   </section>
 </template>
 <script>
@@ -60,6 +60,7 @@ export default {
       total: 0,
       baseInfo: {}, // 基础信息
       clusterId: '', // 存储列表传递过来的集群战役id
+      pcsParentDept: {}, // 派出所上级部门的数据信息
       pcsParentDeptcode: '' // 派出所的上上级code
     }
   },
@@ -91,6 +92,7 @@ export default {
       // 查询派出所的上上级(把派出所当大队，查大队的上级单位 )
       this.$query('hsyzparentdepart/' + this.curDept.parentDepCode, {}, 'upms').then((response) => {
         if (response.code === '000000') {
+          this.pcsParentDept = response.data
           this.pcsParentDeptcode = response.data.departCode
           this.query(true)
         }
@@ -99,22 +101,37 @@ export default {
       })
     },
     contrlollistqsbtn(row) { // 控制列表行的签收按钮显隐
-      return ((this.curDept.depType === '4' && this.curDept.parentDepCode === row.receiveDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.receiveDeptCode)) && Number(this.baseInfo.status) >= 4 && row.signStatus + '' === '1'
+      if (Number(this.baseInfo.status) >= 4) { // 审核通过以后
+        const curDate = new Date(this.baseInfo.systemTime)
+        const startDate = new Date(this.baseInfo.startDate)
+        return (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.receiveDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.receiveDeptCode)) && row.signStatus + '' === '1' && curDate > startDate)
+      } else {
+        return false
+      }
     },
     query(flag) {
       this.listLoading = true
       var param = {
         assistId: this.clusterId,
-        // deptCode: this.curDept.depType === '4' ? this.pcsParentDeptcode : this.curDept.parentDepCode, // 派出所取上上级部门code， 非派出所取本部门上级code
         pageSize: this.pageSize,
-        pageNum: flag ? 1 : this.page
+        pageNum: flag ? 1 : this.page,
+        deptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType
       }
-      if (this.baseInfo.cityCode !== this.curDept.areaCode && this.curDept.depType === '3') { // 只有大队传当前部门
+      if (this.baseInfo.cityCode !== this.curDept.areaCode) { // 登录的部门不是申请单位
+        if (this.curDept.depType === '3') { // 是大队时，传当前部门
+          param.deptCode = this.curDept.depCode
+        } else if (this.curDept.depType === '4') { // 派出所同大队权限，传父级部门code
+          param.deptCode = this.curDept.parentDepCode
+        }
+      }
+      if (this.curDept.depType === '2') { // 支队登上来查看，传当前部门 不传curDeptCode
         param.deptCode = this.curDept.depCode
+      } else if (this.curDept.depType === '3') { // 大队 传当前部门code
+        param.curDeptCode = this.curDept.depCode
+      } else if (this.curDept.depType === '4') { // 派出所，传父级部门code
+        param.curDeptCode = this.curDept.parentDepCode
       }
-      // if (this.baseInfo.cityCode !== this.curDept.areaCode) {
-      //   param.deptCode = this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode // 派出所取上级部门code， 非派出所取本部门code
-      // }
+
       this.$query('casecluster/signList', param).then((res) => {
         this.listLoading = false
         this.listData = res.data.list
@@ -130,11 +147,21 @@ export default {
       })
     },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的签收按钮
-      Bus.$emit('isShowqsbtn', false)
+      // Bus.$emit('isShowqsbtn', false)
+      const curDate = new Date(this.baseInfo.systemTime)
+      const startDate = new Date(this.baseInfo.startDate)
       if (data.length > 0) {
         data.forEach(item => {
-          if ((this.curDept.depType === '4' && this.curDept.parentDepCode === item.receiveDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === item.receiveDeptCode) && item.signStatus + '' === '1') { // 当前登录的是派出所时，用他的父级单位的id去判断 1：待签收
-            Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
+          if (((this.curDept.depType === '4' && this.curDept.parentDepCode === item.receiveDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === item.receiveDeptCode)) && Number(this.baseInfo.status) >= 4 && item.signStatus + '' === '1') { // 当前登录的是派出所时，用他的父级单位的id去判断 1：待签收
+            if (Number(this.baseInfo.status) >= 4) {
+              if (curDate > startDate) {
+                Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
+              } else {
+                // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
+              }
+            } else {
+              // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
+            }
           }
         })
       }
@@ -155,8 +182,9 @@ export default {
       this.query(false)
     },
     gotoxslist(row) {
+      var cityCode = row.receiveDeptCode.substring(0, 6)
       this.$router.push({
-        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: row.receiveDeptCode } // 线索列表页面
+        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: cityCode, curDeptCode: row.receiveDeptCode, deptType: 3, createDate: row.createDate } // 线索列表页面
       })
     },
     handleSign(index, row) { // 签收
@@ -200,6 +228,15 @@ export default {
 </script>
 <style  rel="stylesheet/scss" lang="scss">
 .areaSign{
-
+  // 固定左侧列的样式问题
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
+  }
 }
 </style>

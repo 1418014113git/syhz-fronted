@@ -1,6 +1,6 @@
 <template>
-<!-- 集群战役详情 -->
-  <div class="mainDetail">
+<!-- 督办详情 -->
+  <div class="dbDetail">
     <el-row>
       <img src="@/assets/icon/back.png" class="goBack" @click="toback">   <!--返回-->
     </el-row>
@@ -161,120 +161,148 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.leftCont {
-  width: 11.8%;
-  margin-right: 10px;
-}
-.rightCont {
-  overflow: auto;
-}
-.marb {
-  margin-bottom: 20px;
-}
-.bg {
-  background-color: rgba(0, 64, 94, 0.7);
-}
-.cell_title {
-  margin: 0 0 10px 5px;
-  .text {
-    // display: inline-block;
-    line-height: 20px;
-    color: #bce8fc;
-    text-shadow: 0 0 2px #fff;
-    margin-left: 3px;
-  }
-  .small_line {
-    display: inline-block;
-    width: 8px;
-    height: 20px;
-    background: #00a0e9;
-    border-radius: 3px;
-    vertical-align: middle;
-  }
-}
-.archiveTab.el-tabs {
-  border: none;
-  background: none;
-  .el-tabs__header {
-    background: url(/static/image/personFile_images/titlePub.png) no-repeat
-      center center;
-    background-size: 100% 65%;
-    margin: 0;
-  }
-  .el-tabs__nav-scroll {
-    padding: 6px 18px 16px 5px;
-  }
-  .el-tabs__nav-wrap::after {
-    // 去掉tab自带的下划线
-    height: 0;
-  }
-  .el-tabs__active-bar {
-    height: 0;
-  }
-  .el-tabs__item {
-    padding: 0 20px;
-    height: 20px;
-    line-height: 20px;
-  }
-  .el-tabs__item.is-top:last-child {
-    padding-right: 20px;
-  }
-  .el-tabs__item.is-active {
-    color: #bce8fc;
-    text-shadow: 0 0 2px #fff;
-    .no_data_title {
-      color: #bce8fc;
-      text-shadow: 0 0 2px #fff;
-    }
-  }
-  .el-tabs__item {
-    color: #00a0e9;
-  }
-  .tab_title_line {
-    // taba页签右边的斜线
-    width: 26px;
-    position: absolute;
-    right: -10px;
-    top: -1px;
-  }
-}
-.goBack {
-  margin: 0 10px 5px 0;
-}
-.toolbar {
-  margin: 2px 0 0 !important;
-}
-.rightCont {
-  // width: 83.3%;
-}
-.pubStyle {
-  border: 2px solid rgb(0, 160, 233);
-  border-radius: 6px;
-  padding: 0 12px 0 8px;
-}
-
-@media only screen and (max-width: 1367px) {
+.dbDetail {
   .leftCont {
-    // width: 17.5%;
+    width: 11.8%;
+    margin-right: 10px;
   }
   .rightCont {
-    // width: 80%;
+    overflow: auto;
   }
-}
+  .marb {
+    margin-bottom: 20px;
+  }
+  .bg {
+    background-color: rgba(0, 64, 94, 0.7);
+  }
+  .cell_title {
+    margin: 0 0 10px 5px;
+    .text {
+      // display: inline-block;
+      line-height: 20px;
+      color: #bce8fc;
+      text-shadow: 0 0 2px #fff;
+      margin-left: 3px;
+    }
+    .small_line {
+      display: inline-block;
+      width: 8px;
+      height: 20px;
+      background: #00a0e9;
+      border-radius: 3px;
+      vertical-align: middle;
+    }
+  }
+  .archiveTab.el-tabs {
+    border: none;
+    background: none;
+    .el-tabs__header {
+      background: url(/static/image/personFile_images/titlePub.png) no-repeat
+        center center;
+      background-size: 100% 65%;
+      margin: 0;
+    }
+    .el-tabs__nav-scroll {
+      padding: 6px 18px 16px 5px;
+    }
+    .el-tabs__nav-wrap::after {
+      // 去掉tab自带的下划线
+      height: 0;
+    }
+    .el-tabs__active-bar {
+      height: 0;
+    }
+    .el-tabs__item {
+      padding: 0 20px;
+      height: 20px;
+      line-height: 20px;
+    }
+    .el-tabs__item.is-top:last-child {
+      padding-right: 20px;
+    }
+    .el-tabs__item.is-active {
+      color: #bce8fc;
+      text-shadow: 0 0 2px #fff;
+      .no_data_title {
+        color: #bce8fc;
+        text-shadow: 0 0 2px #fff;
+      }
+    }
+    .el-tabs__item {
+      color: #00a0e9;
+    }
+    .tab_title_line {
+      // taba页签右边的斜线
+      width: 26px;
+      position: absolute;
+      right: -10px;
+      top: -1px;
+    }
+  }
+  .goBack {
+    margin: 0 10px 5px 0;
+  }
+  .toolbar {
+    margin: 2px 0 0 !important;
+  }
+  .rightCont {
+    // width: 83.3%;
+  }
+  .pubStyle {
+    border: 2px solid rgb(0, 160, 233);
+    border-radius: 6px;
+    padding: 0 12px 0 8px;
+  }
 
-// 带按钮的 标题栏
-.titleWrap {
-  width: 100%;
-  padding: 7px 0 7px 7px;
-  border-bottom: 2px solid #00a0e9;
-  overflow: hidden;
-  color: #bce8fc;
-  text-shadow: 0 0 2px #fff;
-  font-size: 17px;
-  margin-bottom: 10px;
-  .left {
-    float: left;
-    letter-spacing: 3px;
+  @media only screen and (max-width: 1367px) {
+    .leftCont {
+      // width: 17.5%;
+      margin-right: 5px;
+    }
+    .rightCont {
+      // width: 80%;
+    }
+  }
+
+  // 带按钮的 标题栏
+  .titleWrap {
+    width: 100%;
+    padding: 7px 0 7px 7px;
+    border-bottom: 2px solid #00a0e9;
+    overflow: hidden;
+    color: #bce8fc;
+    text-shadow: 0 0 2px #fff;
+    font-size: 17px;
+    margin-bottom: 10px;
+    .left {
+      float: left;
+      letter-spacing: 3px;
+    }
+  }
+  // 固定左侧列的样式问题
+  .el-table__fixed
+    .el-table__fixed-body-wrapper
+    .el-table__body
+    tr:nth-child(odd) {
+    background-color: #004f77;
+  }
+  .el-table__fixed
+    .el-table__fixed-body-wrapper
+    .el-table__body
+    tr:nth-child(even) {
+    background-color: #032c43;
+  }
+  .el-table__fixed
+    .el-table__fixed-body-wrapper
+    .el-table__body
+    .el-table__body
+    tr:hover
+    > td {
+    background-color: #2164a1;
+  }
+  .el-table__fixed::before,
+  .el-table__fixed::before {
+    opacity: 0;
   }
 }
 </style>

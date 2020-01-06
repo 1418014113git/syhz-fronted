@@ -42,8 +42,11 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="主办侦察员" prop="ZBR_NAME">
-            <span class="whiteColor">{{ajInfo.ZBR_NAME}}</span>
+          <el-form-item label="办案人员" prop="ZBR_NAME">
+            <!-- 主办侦查员 修改为 办案人员，显示 主办人 协办人 -->
+            <span class="whiteColor" v-if="ajInfo.ZBR_NAME&&ajInfo.XBR_NAME">{{ajInfo.ZBR_NAME +'，'+ ajInfo.XBR_NAME}}</span>
+            <span class="whiteColor" v-else-if="ajInfo.ZBR_NAME">{{ajInfo.ZBR_NAME}}</span>
+            <span class="whiteColor" v-else-if="ajInfo.XBR_NAME">{{ajInfo.XBR_NAME}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -72,7 +75,7 @@
           </div> -->
           <div class="right" style="margin-top: -5px;" v-if="carryParam && carryParam.isRl==='0'">
             <div class="shadow_text right_cell">
-              案件类型
+              案件分类
               <el-cascader v-model="ajInfo.fllb" change-on-select filterable :options="fllbList" @change="handleChange" clearable class="ajlx_cascader"></el-cascader>
             </div>
             <!-- <el-button type="success" style="margin-left: 20px;" @click="rlsave()" :loading="rlLoading">案件认领</el-button> -->
@@ -178,7 +181,8 @@ export default {
 
       laPickerOpt: {},
       paPickerOpt: {},
-      pcsParentDept: {}
+      pcsParentDept: {},
+      ajflwsYear: ''
     }
   },
   components: {
@@ -229,7 +233,7 @@ export default {
           this.paDate = this.ajInfo.PARQ
           this.paPickerChange(this.paDate)
         }
-        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2020) {
+        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2019) {
           this.showYear = false
         } else {
           this.showYear = true
@@ -517,7 +521,7 @@ export default {
       if (!this.ajInfo.fllb || this.ajInfo.fllb.length === 0) {
         this.$message({
           type: 'error',
-          message: '请选择案件类型'
+          message: '请选择案件分类'
         })
         return false
       }
@@ -585,29 +589,42 @@ export default {
         this.ajInfo.parq = this.paDate.replace(/-/g, '')
       }
       this.ajInfo.ajzt = this.ajInfo.AJZT
-      // 判断案件是否是2019年以前的 2019年以前的不需要有法律文书相关信息
-      if (this.ajInfo.larq && Number(this.ajInfo.larq.substr(0, 4)) > 2020) {
-        if (!(this.flwsInfo.list > 0)) { // 判断是否有法律文书
-          var messageHtml = ''
-          if (this.flwsInfo.examine) {
-            if (this.flwsInfo.examine === '1' || this.flwsInfo.examine === '2') {
-              messageHtml = '<p>无法律文书申请正在审核中，不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
-            } else if (this.flwsInfo.examine === '4') {
-              messageHtml = '<p>无法律文书申请未通过审核，不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
+
+      // 查法律文书的配置年限
+      const para = {
+        'configKey': 'flwsYear'
+      }
+      this.$query('sysconfig', para).then((response) => {
+        if (response.code === '000000') {
+          this.ajflwsYear = response.data[0].configValue
+          console.log('flwsYear' + this.ajflwsYear)
+          if (this.ajInfo.larq && Number(this.ajInfo.larq.substr(0, 4)) > Number(this.ajflwsYear)) {
+            if (!(this.flwsInfo.list > 0)) { // 判断是否有法律文书
+              var messageHtml = ''
+              if (this.flwsInfo.examine) {
+                if (this.flwsInfo.examine === '1' || this.flwsInfo.examine === '2') {
+                  messageHtml = '<p>无法律文书申请正在审核中，不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
+                } else if (this.flwsInfo.examine === '4') {
+                  messageHtml = '<p>无法律文书申请未通过审核，不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
+                }
+              } else {
+                messageHtml = '<p>没有法律文书不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
+              }
+              if (messageHtml) {
+                this.$alert(messageHtml, '提示', {
+                  confirmButtonText: '我知道了',
+                  center: false,
+                  dangerouslyUseHTMLString: true
+                })
+                return false
+              }
             }
-          } else {
-            messageHtml = '<p>没有法律文书不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
-          }
-          if (messageHtml) {
-            this.$alert(messageHtml, '提示', {
-              confirmButtonText: '我知道了',
-              center: false,
-              dangerouslyUseHTMLString: true
-            })
-            return false
           }
         }
-      }
+      }).catch(() => {
+        this.caseLoading = false
+      })
+
       var ajString = JSON.stringify(this.ajInfo)
       ajString = JSON.parse(ajString)
       // if (ajString.fllb[0] === '1') {

@@ -60,7 +60,7 @@
     <el-dialog :title="detail.title" :visible.sync="dialogVisible" :close-on-click-modal="false" class="audit_dialog" @close="closeDialog">
       <el-form :model="detail" label-width="100px" style="padding-left: 20px; padding-right: 15px;" v-loading="dialogLoading">
         <el-form-item label="消息内容">{{detail.content}}</el-form-item>
-        <el-form-item label="发送时间">{{detail.creatorDate}}</el-form-item>
+        <el-form-item label="发送时间">{{formatTime(detail.creatorDate)}}</el-form-item>
         <el-form-item label="发送人">{{detail.creatorName ? detail.creatorName : '-'}}</el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

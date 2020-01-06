@@ -46,7 +46,7 @@
           </el-form-item>
           <el-form-item label="公民身份号码">
             <span  @click="showTipsC(xyrInfo.GMSFHM)" class="ajbh-color underLine">{{xyrInfo.GMSFHM}}</span>
-            <card-com v-if="showCardCom" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com>
+            <!-- <card-com v-if="showCardCom" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com> -->
           </el-form-item>
           <el-form-item label="出生日期">
             <span v-if="xyrInfo.CSRQ">{{xyrInfo.CSRQ | formatDate}}&nbsp;</span>

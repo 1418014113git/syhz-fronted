@@ -1,15 +1,11 @@
 <template>
   <section class="clueDetail">
    <!--线索反馈详情-->
-      <div class="tipText">
-        <p style="color: #f56c6c; float:left;">本页面的所有操作均自动保存，不需要手动保存！</p>
-        <p style="color: #67C23A; float:right;" v-if="isShowTime">实时保存，保存时间 <span>{{updateTime}}</span></p>
-      </div>
-      <el-form :model="xsfkForm" size="small" ref="xsfkForm" v-loading="listLoading"  label-width="120px" class="xsfkForm">
-        <el-form-item label="核查情况："  class="stxt">
+      <el-form :model="xsfkForm" size="small" ref="xsfkForm" :rules="rules" v-loading="listLoading"  label-width="120px" class="xsfkForm">
+        <el-form-item label="核查情况"  prop="qbxsResult">
           <el-radio-group v-model="xsfkForm.qbxsResult" @change="changeQbxsResult">
             <el-radio :label="2">查实</el-radio>
-            <el-radio :label="3">查否</el-radio>
+            <el-radio :label="3" style="margin-left:50px;">查否</el-radio>
             <el-popover
             class="qkts"
             placement="right"
@@ -28,121 +24,172 @@
           </el-popover>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="移送案件">
-          <el-select  v-model="ysajbh" size="small" placeholder="请选择..."  class="inputW"  filterable>
-            <el-option v-for="(item,index) in ysajSelectData" :key="index" :label="item.ajmc +'('+ item.ajbh + ')'" :value="item.ajbh"></el-option>
-          </el-select>
-          <el-button type="primary" size="small"  @click="checkaj(1)">选择</el-button>
+        <el-form-item label="处理方式"  prop="handleResult"  v-if="xsfkForm.qbxsResult===2">
+          <el-radio-group v-model="xsfkForm.handleResult" @change="changeclfsResult">
+            <el-radio :label="1">立案</el-radio>
+            <el-radio :label="2" style="margin-left:50px;">移送行政部门处理</el-radio>
+            <el-radio :label="3" style="margin-left:50px;">其他处理</el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="">
-          <el-table :data="yslistData" v-loading="yslistLoading" style="width: 100%;" class="">
-            <el-table-column type="index" width="60" label="序号" ></el-table-column>
-            <el-table-column prop="ajmc"  label='案件名称'  show-overflow-tooltip></el-table-column>
-            <el-table-column prop="ajbh"  label='案件编号'  show-overflow-tooltip>
-              <template slot-scope="scope">
-                <a class="linkColor" @click="toAjDetail(scope.row.ajId)">{{scope.row.ajbh}}</a>
-              </template>
-            </el-table-column>
-            <el-table-column prop="ajlbName"  label='案件类别'  show-overflow-tooltip></el-table-column>
-            <el-table-column label="操作"  width="100">
-              <template slot-scope="scope">
-                <el-button size="mini" title="移除案件"  type="primary" icon="el-icon-delete" circle  @click="handleDel(1, scope.row)"></el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+        <el-form-item label="侦办刑事案件" prop="zbajmc"  v-if="isShowzbaj" class="stxt">
+          <el-autocomplete
+              class="inputW"
+              v-model="zbajmc"
+              :fetch-suggestions="querySearchAsyncName"
+              placeholder="请输入案件名称搜索"
+              :trigger-on-focus="false"
+              @select="handleSelectName"
+            ></el-autocomplete>
+          <el-button type="primary" size="small"  @click="checkaj">选择</el-button>
         </el-form-item>
-        <el-form-item label="侦办刑事案件">
-          <el-select  v-model="zbajbh" size="small" placeholder="请选择..."  class="inputW"  filterable>
-            <el-option v-for="(item,index) in zbajSelectData" :key="index" :label="item.ajmc +'('+ item.ajbh + ')'" :value="item.ajbh"></el-option>
-          </el-select>
-          <el-button type="primary" size="small"  @click="checkaj(2)">选择</el-button>
-        </el-form-item>
-        <el-form-item label="">
-          <el-table :data="zblistData" v-loading="zblistLoading" style="width: 100%;" class="">
-            <el-table-column type="index" width="60" label="序号" >
-              <template slot-scope="scope">
-                <span v-if="scope.$index+1<zblistData.length">{{scope.$index+1}}</span>
-                <span v-else>总计</span>
-              </template>
-            </el-table-column>
+        <el-form-item label=""  v-if="isShowzbaj">
+          <el-table :data="zblistData"  style="width: 100%;" class=""  show-summary :summary-method="getSummaries" sum-text="总计">
+            <el-table-column type="index" width="60" label="序号"></el-table-column>
             <el-table-column prop="ajmc"  label='案件名称'  min-width="120" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="ajbh"  label='案件编号'  min-width="100" show-overflow-tooltip>
+            <el-table-column prop="ajbh"  label='案件编号'  min-width="140" show-overflow-tooltip>
               <template slot-scope="scope">
-                <a class="linkColor" @click="toAjDetail(scope.row.ajId)">{{scope.row.ajbh}}</a>
+                <a class="linkColor" @click="toAjDetail(scope.row.id)">{{scope.row.ajbh}}</a>
               </template>
             </el-table-column>
             <el-table-column prop="ajztName"  label='案件状态'  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="larq"  label='立案日期'  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="parq"  label='破案日期'  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="larq"  label='立案日期'  min-width="100" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <span v-if="scope.row.larq">{{scope.row.larq}}</span>
+                <span v-else>-</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="parq"  label='破案日期'  min-width="100" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <span v-if="scope.row.parq">{{scope.row.parq}}</span>
+                <span v-else>-</span>
+              </template>
+            </el-table-column>
             <el-table-column prop="zhrys"  label='抓获（人）'  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.zhrys"  maxlength="11" @keyup.native="number('zhrys',scope.row)" class="textCen"></el-input>
-                <span v-else>{{scope.row.zhrys}}</span>
+                <span v-if="scope.row.zhrys">{{scope.row.zhrys}}</span>
+                <span v-else>0</span>
               </template>
             </el-table-column>
             <el-table-column prop="ryclcs"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
             <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.pzdb"  maxlength="11" @keyup.native="number('pzdb',scope.row)" class="textCen"></el-input>
-                <span v-else>{{scope.row.pzdb}}</span>
+                <span v-if="scope.row.pzdb">{{scope.row.pzdb}}</span>
+                <span v-else>0</span>
               </template>
             </el-table-column>
              <el-table-column prop="yjss" label="移诉（人）"  min-width="100"  show-overflow-tooltip>
               <template slot-scope="scope">
-                <el-input  v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.yjss"  maxlength="11" @keyup.native="number('yjss',scope.row)" class="textCen"></el-input>
-                <span v-else>{{scope.row.yjss}}</span>
+                <span v-if='scope.row.yjss'>{{scope.row.yjss}}</span>
+                <span v-else>0</span>
               </template>
             </el-table-column>
             <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="140" show-overflow-tooltip>
               <template slot-scope="scope">
-                <el-input  v-if="scope.$index+1<zblistData.length"  v-model.trim="scope.row.dhwd"  maxlength="11" @keyup.native="number('dhwd',scope.row)" class="textCen"></el-input>
-                <span v-else>{{scope.row.dhwd}}</span>
+                <span v-if="scope.row.dhwd">{{scope.row.dhwd}}</span>
+                <span v-else>0</span>
               </template>
             </el-table-column>
             <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="150" show-overflow-tooltip>
               <template slot-scope="scope">
-                <el-input v-if="scope.$index+1<zblistData.length" v-model.trim="scope.row.sajz"  maxlength="11" @keyup.native="number('sajz',scope.row)" class="textCen"></el-input>
-                <span v-else>{{scope.row.sajz}}</span>
+                <span v-if="scope.row.sajz">{{scope.row.sajz}}</span>
+                <span v-else>0</span>
               </template>
             </el-table-column>
             <el-table-column label="操作"  width="100" fixed="right">
               <template slot-scope="scope">
-                <el-button v-if="scope.$index+1<zblistData.length" size="mini" title="提交"  type="primary" icon="el-icon-check" circle  @click="handleSubmit(scope.row)"></el-button>
-                <el-button v-if="scope.$index+1<zblistData.length" size="mini" title="移除案件"  type="primary" icon="el-icon-delete" circle  @click="handleDel(2, scope.row)"></el-button>
+                <el-button  size="mini" title="移除案件"  type="primary" icon="el-icon-delete" circle  @click="handleDel(scope.$index, scope.row)"></el-button>
               </template>
             </el-table-column>
           </el-table>
         </el-form-item>
+        <el-form-item label="反馈内容" prop="backResult"  placeholder="请输入反馈内容">
+          <vue-editor v-model="xsfkForm.backResult" useCustomImageHandler  @imageAdded="handleImageAdded"></vue-editor>
+        </el-form-item>
+        <el-form-item label="附件" style="margin-top: 15px;">
+          <el-upload class="upload-demo" drag multiple  ref="fileUpload"
+              :action="uploadAction"
+              :auto-upload="true"
+              :file-list="backFiles"
+              :on-success="imgSuccess"
+              :on-remove="imgRemove"
+              :before-remove="imgBfRemove"
+              :before-upload="beforeUpload"
+              :on-exceed="handleExceed"
+              :limit="10"
+            >
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em>，最多10个</div>
+            <div class="el-upload__tip" slot="tip">{{UploadAttachment.tipText}}</div>
+          </el-upload>
+        </el-form-item>
       </el-form>
+      <el-row class="tabC dialogBtnUpLine">
+        <el-button  @click="cancel" class="cancelBtn">取 消</el-button>
+        <el-button  type="primary" @click="save" :loading="btnLoading" class="saveBtn">反 馈</el-button>
+      </el-row>
   </section>
 </template>
 <script>
+import { uploadImg } from '@/utils/editorUpload'
+import VueEditor from '@/components/Editor/VueEditor'
 export default {
   props: ['row', 'isShowdialog'],
   name: 'clueDetail',
+  components: {
+    VueEditor
+  },
   data() {
     return {
       xsfkForm: {
-        qbxsResult: '' // 核查情况
+        qbxsResult: '', // 核查情况
+        handleResult: '', // 处理方式
+        backResult: '', // 反馈内容
+        backFiles: '' // 附件
       },
+      zbajmc: '', // 存储检索框输入的案件名称
+      zbajList: [], // 侦办案件选择的下拉框item
+      backFiles: [], // 导入的附件集合
       curDeptName: '', // 当前部门名称
       curDepartId: '', // 当前部门id
       curDeptCode: '', // 当前部门code
       xsfkRow: {}, // 存储线索反馈列表传递过来的当前行的数据
-      yslistData: [], // 移送案件列表
-      ysajSelectData: [], // 移送案件下拉框数据
+      // yslistData: [], // 移送案件列表
+      // ysajSelectData: [], // 移送案件下拉框数据
       zbajSelectData: [], // 侦办案件下拉框数据
       zblistData: [], // 侦办刑事案件列表
-      yslistLoading: false, // 移送案件列表加载loading
-      zblistLoading: false, // 侦办刑事案件列表加载loading
+      // yslistLoading: false, // 移送案件列表加载loading
+      // zblistLoading: false, // 侦办刑事案件列表加载loading
       listLoading: false, // 页面加载loading
-      isShowTime: false, // 是否显示更新时间
+      // isShowTime: false, // 是否显示更新时间
+      isShowzbaj: false, // 是否显示侦办刑事案件  选查否后隐藏处理方式和侦办刑事案件， 选立案时显示侦办刑事案件，其他选项时隐藏
+      isQueryName: false,
       curUser: {}, // 当前登录用户
       curDept: {}, // 当前登录的部门
-      updateTime: '', // 存储更新时间
-      detailInfo: {}, // 存储详情信息
-      ysajbh: '', // 存储下拉选项的移送案件编号
-      zbajbh: '' // 存储下拉选项的侦办刑事案件编号
+      // updateTime: '', // 存储更新时间
+      // detailInfo: {}, // 存储详情信息
+      // ysajbh: '', // 存储下拉选项的移送案件编号
+      btnLoading: false, // 反馈按钮loading
+      uploadAction: this.UploadAttachment.uploadFileUrl,
+      rules: {
+        qbxsResult: [ //  协查情况
+          { required: true, trigger: 'change', message: '请选择协查情况' }
+        ],
+        handleResult: [ //  处理方式
+          { required: true, trigger: 'change', message: '请选择处理方式' }
+        ],
+        // zbajmc: [ //  侦办刑事案件名称
+        //   { required: true, trigger: 'blur', message: '请选择侦办刑事案件' }
+        // ],
+        backResult: [{ // 反馈内容
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            if (value === '' || value === undefined || value === null) {
+              return callback(new Error('请输入反馈内容'))
+            } else {
+              callback()
+            }
+          }
+        }]
+      }
     }
   },
   watch: { // 监听state状态变化
@@ -162,80 +209,27 @@ export default {
   methods: {
     detail() { // 查详情
       this.listLoading = true
-      this.xsfkForm.qbxsResult = this.xsfkRow.qbxsResult ? this.xsfkRow.qbxsResult : ''
-      this.querySelect(1) // 移送案件下拉列表
-      this.querySelect(2) // 侦办刑事案件下拉列表
+      this.xsfkForm.qbxsResult = this.xsfkRow.qbxsResult ? (this.xsfkRow.qbxsResult !== 1 ? this.xsfkRow.qbxsResult : '') : ''
       const para = {
         assistId: this.xsfkRow.clusterId, // 集群Id
         type: 'detail', // 操作类型
         fbId: this.xsfkRow.fbId, // 反馈Id
-        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
+        assistType: 2 // 2 集群
       }
       this.$query('caseassistclue/feedBack/detail', para).then((response) => {
         this.listLoading = false
-        // this.detailInfo = response.data
-        if (response.data.zbxss && response.data.zbxss > 0) { // 查询侦办刑事案件列表接口
-          this.queryzbxsaj() // 侦办刑事案件列表数据查询
-        }
-        if (response.data.syajs && response.data.syajs > 0) { // 查询移送案件案件接口
-          this.queryysaj() // 移送案件列表数据查询
+        this.xsfkForm.handleResult = response.data.handleResult || '' // 处理方式
+        this.xsfkForm.backResult = response.data.backResult || '' // 反馈内容
+        this.xsfkForm.backFiles = response.data.backFiles || '' // 附件
+        this.backFiles = response.data.backFiles ? JSON.parse(response.data.backFiles) : [] // 附件
+        this.zblistData = response.data.zbxssList || [] // 侦办案件列表集合
+        if (this.xsfkForm.qbxsResult === 2 && this.xsfkForm.handleResult === 1) { // 查实  立案
+          this.isShowzbaj = true
+        } else {
+          this.isShowzbaj = false
         }
       }).catch(() => {
         this.listLoading = false
-      })
-    },
-    queryysaj() { // 移送案件列表数据查询
-      this.yslistLoading = true
-      const para = {
-        assistId: this.xsfkRow.clusterId, // 集群Id
-        type: 'ys', // 操作类型
-        fbId: this.xsfkRow.fbId, // 反馈Id
-        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
-      }
-      this.$query('caseassistclue/feedBack/detail', para).then((response) => {
-        this.yslistLoading = false
-        this.yslistData = response.data
-      }).catch(() => {
-        this.yslistLoading = false
-        this.yslistData = []
-      })
-    },
-    querySelect(type) { // 移送案件/侦办案件 下拉列表
-      const para = {
-        type: type, // 1移送案件，2侦办案件
-        fbId: this.xsfkRow.fbId, // 反馈Id
-        assistId: this.xsfkRow.clusterId, // 集群Id
-        deptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
-        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
-      }
-      this.$query('caseassistclue/ajSearch', para).then((response) => {
-        if (type === 1) { // 移送案件
-          this.ysajSelectData = response.data // 移送案件下拉框数据
-        } else { // 侦办案件
-          this.zbajSelectData = response.data // 侦办案件下拉框数据
-        }
-      }).catch(() => {
-        if (type === 1) { // 移送案件
-          this.ysajSelectData = [] // 移送案件下拉框数据
-        } else { // 侦办案件
-          this.zbajSelectData = [] // 侦办案件下拉框数据
-        }
-      })
-    },
-    queryzbxsaj() { // 侦办刑事案件列表数据查询
-      this.zblistLoading = true
-      const para = {
-        assistId: this.xsfkRow.clusterId, // 集群Id
-        type: 'zb', // 操作类型
-        fbId: this.xsfkRow.fbId, // 反馈Id
-        assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
-      }
-      this.$query('caseassistclue/feedBack/detail', para).then((response) => {
-        this.zblistLoading = false
-        this.zblistData = response.data
-      }).catch(() => {
-        this.zblistLoading = false
-        this.zblistData = []
       })
     },
     getfqDepts() { // 如果登上来的是派出所 发起单位显示他的父级单位
@@ -249,240 +243,261 @@ export default {
       })
     },
     initData() {
-      // this.xsfkForm.qbxsResult = '' // 核查情况
+      this.$refs['xsfkForm'].resetFields()
       this.yslistData = [] // 移送案件列表
       this.ysajSelectData = [] // 移送案件下拉框数据
       this.zbajSelectData = [] // 侦办案件下拉框数据
       this.zblistData = [] // 侦办刑事案件列表
-      this.ysajbh = '' // 存储下拉选项的移送案件编号
-      this.zbajbh = '' // 存储下拉选项的侦办刑事案件编号
-      this.updateTime = '' // 存储更新时间
-      this.isShowTime = false // 隐藏更新时间
-    },
-    zbajChange(val) { // 侦办案件change事件
-
+      this.zbajmc = '' // 存储下拉选项的侦办刑事案件名称
     },
     toAjDetail(id) { // 跳转案件档案
       this.$router.push({
         path: '/caseFile/index', query: { id: id }
       })
     },
-    checkaj(type) { // 选择案件
-      if (type === 1) { // 移送案件
-        if (!this.ysajbh) {
-          this.$message.error('请选择案件')
-        } else {
-          this.$confirm('确定要添加该案件吗？', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            const param = {
-              type: 'saveSyajs',
-              assistId: this.xsfkRow.clusterId, // 集群Id
-              fbId: this.xsfkRow.fbId, // 反馈Id
-              syajs: this.ysajbh, // 案件编号
-              userId: this.curUser.id, // 当前用户Id
-              userName: this.curUser.realName, // 当前用户真实姓名
-              curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-              curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
-              assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
-            }
-            this.$update('caseassistclue/feedBack', param).then((response) => {
-              this.listLoading = false
-              this.isShowTime = true
-              this.updateTime = response.data
-              this.$message({
-                message: '添加成功',
-                type: 'success'
-              })
-              this.queryysaj() // 移送案件列表数据查询
-            }).catch(() => {
-              this.listLoading = false
-            })
-          }).catch(() => {
-            this.listLoading = false
-          })
-        }
-      } else { // 侦办案件
-        if (!this.zbajbh) {
-          this.$message.error('请选择案件')
-        } else {
-          this.$confirm('确定要添加该案件吗？', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            const param = {
-              type: 'saveZbxss',
-              assistId: this.xsfkRow.clusterId, // 集群Id
-              fbId: this.xsfkRow.fbId, // 反馈Id
-              zbxss: this.zbajbh + ',0,0,0,0,0', // 案件编号，捣毁窝点、涉案金额、批准逮捕、抓获、移诉
-              userId: this.curUser.id, // 当前用户Id
-              userName: this.curUser.realName, // 当前用户真实姓名
-              curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-              curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
-              assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
-            }
-            this.$update('caseassistclue/feedBack', param).then((response) => {
-              this.listLoading = false
-              this.isShowTime = true
-              this.updateTime = response.data
-              this.$message({
-                message: '添加成功',
-                type: 'success'
-              })
-              this.queryzbxsaj() // 侦办刑事案件列表数据查询
-            }).catch(() => {
-              this.listLoading = false
-            })
-          }).catch(() => {
-            this.listLoading = false
-          })
+    checkaj() { // 选择案件
+      // 侦办案件
+      if (!this.zbajmc) {
+        this.$message.error('请选择案件')
+      } else {
+        this.zblistData.push(this.zbajList)
+        this.zblistData = this.unique(this.zblistData) // 去重
+      }
+    },
+    unique(arr) { // 数组列表去重
+      for (var i = 0; i < arr.length; i++) {
+        for (var j = i + 1; j < arr.length; j++) {
+          if (arr[i].ajbh === arr[j].ajbh) { // 第一个等同于第二个，splice方法删除第二个
+            arr.splice(j, 1)
+            j--
+          }
         }
       }
+      return arr
     },
     changeQbxsResult(val) { // 查实、查否操作
-      var title = ''
       if (val === 3) { // 查否
-        title = '查否'
+        this.isShowzbaj = false
+        this.xsfkForm.handleResult = '' // 清空处理方式
       } else { // 查实
-        title = '查实'
+        if (!this.xsfkForm.handleResult || this.xsfkForm.handleResult === 1) { // 处理方式未选 或 选的是立案
+          this.isShowzbaj = true
+        }
       }
-      this.$confirm('确定要' + title + '吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        const param = {
-          qbxsId: this.xsfkRow.qbxsId, // 线索id
-          type: 'result', // 操作类型
-          fbId: this.xsfkRow.fbId, // 反馈Id
-          qbxsResult: val, // 核查结果
-          assistId: this.xsfkRow.clusterId, // 集群Id
-          userId: this.curUser.id, // 当前用户Id
-          userName: this.curUser.realName, // 当前用户真实姓名
-          curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-          curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
-          assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
-        }
-        this.$update('caseassistclue/feedBack', param).then((response) => {
-          this.isShowTime = true
-          this.updateTime = response.data
-          this.$message({
-            message: '核查成功',
-            type: 'success'
-          })
-        }).catch(() => {
-
-        })
-      }).catch(() => {
-
-      })
     },
-    number(props, row) { // 只能是数字
-      var num = row[props].replace(/[^\.\d]/g, '').replace('.', '')
-      setTimeout(() => {
-        if (num) {
-          this.$set(row, props, num)
-        } else {
-          this.$set(row, props, 0)
-        }
-      }, 50)
+    changeclfsResult(val) { // 处理方式操作
+      if (val === 1) { // 立案
+        this.isShowzbaj = true
+      } else if (val === 2) { // 移送行政部门处理
+        this.isShowzbaj = false
+      } else { // 其他处理
+        this.isShowzbaj = false
+      }
     },
-    handleSubmit(row) { // 提交侦办案件当前行数据
-      if (row.dhwd === '' || row.dhwd === undefined || row.dhwd === null) {
-        this.$message.error('捣毁窝点数量不能为空。')
-      } else if (row.pzdb === '' || row.pzdb === undefined || row.pzdb === null) {
-        this.$message.error('批捕人数不能为空。')
-      } else if (row.sajz === '' || row.sajz === undefined || row.sajz === null) {
-        this.$message.error('涉案金额不能为空。')
-      } else if (row.zhrys === '' || row.zhrys === undefined || row.zhrys === null) {
-        this.$message.error('抓获人数不能为空。')
-      } else if (row.yjss === '' || row.yjss === undefined || row.yjss === null) {
-        this.$message.error('移诉人数不能为空。')
-      } else {
-        this.$confirm('确定要提交数据吗？', '提示', {
+    handleDel(index, row) { // 移除案件
+      this.zblistData.splice(index, 1)
+    },
+    handleImageAdded(file, Editor, cursorLocation, resetUploader) {
+      const formData = new FormData()
+      formData.append('file', file)
+      uploadImg(formData).then((response) => {
+        if (response.code === '000000') {
+          Editor.insertEmbed(cursorLocation, 'image', response.data)
+          resetUploader()
+        }
+      }).catch((e) => { })
+    },
+    imgSuccess(res, file, fileList) {
+      if (res.code !== '000000') {
+        this.$alert('上传失败， 请重新上传', '提示', {
           confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
+          callback: action => {
+            this.clearFileList()
+          }
+        })
+        return false
+      }
+      this.backFiles = fileList
+    },
+    clearFileList() {
+      this.$refs.fileUpload.abort()
+      const elementArr = document.getElementsByClassName('el-upload-list__item')
+      for (let i = 0; i < elementArr.length; i++) {
+        const element = elementArr[i]
+        if (i === elementArr.length - 1) {
+          element.setAttribute('style', 'display: none;')
+          element.remove()
+        }
+      }
+    },
+    handleExceed() { // 上传文件超过最大限制时，提示信息
+      this.$message.error(`最多上传10个文件`)
+    },
+    beforeUpload(file) {
+      const msg = this.UploadAttachment.fileValid(file)
+      if (msg.length > 0) {
+        this.$message({
+          message: msg, type: 'warning'
+        })
+        return false
+      }
+    },
+    imgRemove(file, fileList) {
+      this.backFiles = fileList
+    },
+    imgBfRemove(file, fileList) {
+      if (file && file.status === 'success') {
+        return this.$confirm('确定移除' + file.name + '？')
+      }
+    },
+    handleImg() {
+      if (this.backFiles.length > 0) {
+        const arr = []
+        for (let i = 0; i < this.backFiles.length; i++) {
+          const img = this.backFiles[i]
+          if (img.status === 'success') {
+            arr.push({
+              name: img.name, path: img.path ? img.path : img.response.data
+            })
+          }
+        }
+        this.xsfkForm.backFiles = JSON.stringify(arr)
+      }
+    },
+    cancel() { // 取消
+      this.$emit('closeDialog', false) // 关闭弹框
+    },
+    save() { // 反馈
+      this.$refs.xsfkForm.validate(valid => {
+        if (valid) {
+          this.handleImg() // 附件list数据改造，用于编辑时的附件展示使用
+          if (this.isShowzbaj && this.zblistData.length === 0) {
+            this.$alert('请选择案件', '提示', {
+              type: 'error',
+              confirmButtonText: '确定'
+            })
+            return false
+          }
+          var zbxssList = []
+          this.zblistData.forEach(function(item) {
+            zbxssList.push(item.ajbh)
+          })
           const param = {
-            type: 'saveZbxss',
-            assistId: this.xsfkRow.clusterId, // 集群Id
+            qbxsId: this.xsfkRow.qbxsId, // 线索id
             fbId: this.xsfkRow.fbId, // 反馈Id
-            zbxss: row.ajbh + ',' + row.dhwd + ',' + row.sajz + ',' + row.pzdb + ',' + row.zhrys + ',' + row.yjss, // 案件编号，捣毁窝点、涉案金额、批准逮捕、抓获、移诉
+            qbxsResult: this.xsfkForm.qbxsResult, // 核查结果
+            assistId: this.xsfkRow.clusterId, // 集群Id
+            handleResult: this.xsfkForm.handleResult, // 处理方式
+            zbxss: this.xsfkForm.qbxsResult === 3 ? '' : (this.xsfkForm.handleResult === 1 ? zbxssList.join(',') : ''), // 案件编号逗号分隔
+            backResult: this.xsfkForm.backResult, // 处理方式
+            backFiles: this.xsfkForm.backFiles, // 附件
             userId: this.curUser.id, // 当前用户Id
             userName: this.curUser.realName, // 当前用户真实姓名
             curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
             curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
-            assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
+            assistType: 2 // 2 集群
           }
+          this.btnLoading = true
           this.$update('caseassistclue/feedBack', param).then((response) => {
-            this.listLoading = false
-            this.isShowTime = true
-            this.updateTime = response.data
+            this.btnLoading = false
             this.$message({
-              message: '提交成功',
+              message: '反馈成功',
               type: 'success'
             })
-            this.queryzbxsaj() // 侦办刑事案件列表数据查询
+            this.$emit('closeDialog', false) // 关闭弹框   init
+            this.$emit('init')
           }).catch(() => {
-            this.listLoading = false
+            this.btnLoading = false
           })
-        }).catch(() => {
-          this.listLoading = false
-        })
+        } else {
+          this.btnLoading = false
+          return false
+        }
+      })
+    },
+    querySearchAsyncName(queryString, cb) { // 根据案件名称检索
+      if (queryString) {
+        this.isQueryName = true
+        if (this.isQueryName) {
+          var param = {
+            ajmc: this.zbajmc, // 案件名称
+            type: 2, // 1移送案件，2侦办案件
+            fbId: this.xsfkRow.fbId, // 反馈Id
+            assistId: this.xsfkRow.clusterId, // 集群Id
+            deptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
+            assistType: 2 //  2 集群
+          }
+          this.$query('caseassistclue/ajSearch', param).then((response) => {
+            var restaurants = response.data
+            restaurants.forEach(element => {
+              element.value = element.ajmc
+            })
+            queryString = queryString.trim() // 去掉输入框的首尾空格
+            var results = queryString ? restaurants.filter(this.createStateFilter(queryString)) : restaurants
+            cb(results)
+          })
+        }
+      } else {
+        this.isQueryName = false
       }
     },
-    handleDel(type, row) { // 移除案件
-      this.$confirm('确定要移除该案件吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        const param = {
-          assistId: this.xsfkRow.clusterId, // 集群Id
-          fbId: this.xsfkRow.fbId, // 反馈Id
-          userId: this.curUser.id, // 当前用户Id
-          userName: this.curUser.realName, // 当前用户真实姓名
-          curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-          curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
-          assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
+    createStateFilter(queryString) {
+      return (state) => {
+        return (state.value.toLowerCase().indexOf(queryString.toLowerCase()) !== -1)
+      }
+    },
+    handleSelectName(item) {
+      this.zbajmc = item.ajmc
+      this.zbajList = item
+      this.isQueryName = false
+    },
+    getSummaries(param) { // 总计
+      const { columns, data } = param
+      const sums = []
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = '总计'
+          return
         }
-        if (type === 1) { // 移送案件
-          param.type = 'deleteSyajs'
-          param.syajs = row.ajbh
-          this.yslistLoading = true // 移送案件列表加载loading
-        } else { // 侦办刑事案件
-          param.type = 'deleteZbxss'
-          param.zbxss = row.ajbh
-          this.zblistLoading = true // 侦办刑事案件列表加载loading
+        if (index === 1 || index === 2 || index === 3) {
+          sums[index] = '-'
+          return
         }
-        this.$update('caseassistclue/feedBack', param).then((response) => {
-          this.yslistLoading = false
-          this.zblistLoading = false
-          this.$message({
-            message: '移除成功',
-            type: 'success'
-          })
-          if (type === 1) { // 移送案件
-            this.queryysaj() // 查询移送案件列表
-          } else { // 侦办刑事案件
-            this.queryzbxsaj() // 查询侦办刑事案件
+        if (index === 4 || index === 5) { // 立案日期， 破案日期
+          const values = data.map(item => Date.parse(item[column.property]))
+          if (!values.every(value => isNaN(value))) {
+            sums[index] = values.reduce((prev, curr) => {
+              const value = Number(curr)
+              if (!isNaN(value)) {
+                return prev + 1
+              } else {
+                return prev
+              }
+            }, 0)
+          } else {
+            sums[index] = 0
           }
-        }).catch(() => {
-          this.yslistLoading = false
-          this.zblistLoading = false
-        })
-      }).catch(() => {
-        this.yslistLoading = false
-        this.zblistLoading = false
+          return
+        }
+        const values = data.map(item => Number(item[column.property]))
+        if (!values.every(value => isNaN(value))) {
+          sums[index] = values.reduce((prev, curr) => {
+            const value = Number(curr)
+            if (!isNaN(value)) {
+              return prev + curr
+            } else {
+              return prev
+            }
+          }, 0)
+          sums[index] = this.$thousSplit(sums[index] + '')
+        } else {
+          sums[index] = ''
+        }
       })
+      return sums
     }
   },
   mounted() {
-    this.initData()
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
@@ -531,6 +546,27 @@ export default {
       text-align: center;
     }
   }
+  .inputW{
+    width: 400px;
+  }
+
+  // 动态添加列表行时，需要修改下样式
+  .el-table__fixed-footer-wrapper tbody td {
+    background: rgba(0, 89, 130, 1);
+    border: none;
+  }
+  // 将滚定条设置到合计行下方
+  // .el-table{
+  //   overflow: auto;
+  // }
+  // .el-table__body-wrapper,
+  // .el-table__header-wrapper,
+  // .el-table__footer-wrapper{
+  //   overflow:visible !important;
+  // }
+  // .el-table::after{
+  //   position: relative !important;
+  // }
 }
 .redC{
   color: #f72929;
@@ -543,9 +579,6 @@ export default {
   .svg-icon[data-v-5d4549d3] {
     width: 1.2em;
     height: 1.2em;
-  }
-  .inputW{
-    width: 400px;
   }
 }
 </style>

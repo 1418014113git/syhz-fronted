@@ -299,7 +299,7 @@ export default {
             this.xzqhOptions[0].disabled = true
             for (let index = 0; index < this.xzqhOptions[0].children.length; index++) {
               const element = this.xzqhOptions[0].children[index]
-              if (element.cityCode === this.curDept.areaCode) {
+              if (element.cityCode === this.deptInfo.areaCode) {
                 _this.xzqhOptions[0].children[index].disabled = false
               } else {
                 _this.xzqhOptions[0].children[index].disabled = true

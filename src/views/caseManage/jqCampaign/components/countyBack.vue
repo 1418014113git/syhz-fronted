@@ -3,37 +3,37 @@
     <!-- 区县反馈 -->
     <div class="countyBack pubStyle">
       <title-pub :title="title"></title-pub>
-      <div style="max-height:260px;overflow: auto;">
+      <!-- <div style="max-height:260px;overflow: auto;"> -->
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
-          <el-table-column type="index" label="序号" width="60" >
+          <el-table-column type="index" label="序号" width="60" fixed>
             <template slot-scope="scope">
               <span v-if="scope.$index+1<listData.length">{{scope.$index+1}}</span>
               <span v-else>总计</span>
             </template>
           </el-table-column>
           <el-table-column prop="deptName" label="单位"   min-width="200" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="xsNum" label="线索总数（条）" min-width="130">
+          <el-table-column prop="xsNum" label="线索总数（条）" min-width="140">
             <template slot-scope="scope">
-              <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
+              <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.xsNum>0"  @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
               <span v-else>{{scope.row.xsNum}}</span>
             </template>
           </el-table-column>
           <el-table-column prop="" label="线索核查核实情况（条）"  align="center" show-overflow-tooltip>
             <el-table-column prop="cs" label="查实"  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'2')">{{scope.row.cs}}</span>
+                <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.cs>0"  @click="gotoxslist(scope.row,'2')">{{scope.row.cs}}</span>
                 <span v-else>{{scope.row.cs}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="cf" label="查否"  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span class="linkColor"  v-if="controlClick(scope.row)"  @click="gotoxslist(scope.row,'1')">{{scope.row.cf}}</span>
+                <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.cf>0"  @click="gotoxslist(scope.row,'3')">{{scope.row.cf}}</span>
                 <span v-else>{{scope.row.cf}}</span>
               </template>
             </el-table-column>
             <el-table-column prop="whc" label="未核查"  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span class="linkColor"   v-if="controlClick(scope.row)" @click="gotoxslist(scope.row,'3')">{{scope.row.whc}}</span>
+                <span class="linkColor"   v-if="controlClick(scope.row) && scope.row.whc" @click="gotoxslist(scope.row,'1')">{{scope.row.whc}}</span>
                 <span v-else>{{scope.row.whc}}</span>
               </template>
             </el-table-column>
@@ -43,27 +43,27 @@
               </template>
             </el-table-column>
           </el-table-column>
-          <el-table-column prop="ysajList" label="移送行政部门处理（次）"  min-width="120"></el-table-column>
+          <el-table-column prop="ysxz" label="移送行政部门处理（次）"  min-width="130"></el-table-column>
           <el-table-column prop="" label="侦办刑事案件"  align="center" show-overflow-tooltip>
-            <el-table-column prop="larqCount" label="立案（起）"  min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="parqCount" label="破案（起）"  min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="zhrys" label="抓获（人）"  min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="xsjl" label="刑拘（人）"  min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="pzdb" label="批捕（人）"   min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="yjss" label="移诉（人）"   min-width="90" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="dhwd" label="捣毁窝点（个）"  min-width="100" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="sajz" label="涉案金额（万元）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="larqCount" label="立案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="parqCount" label="破案（起）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="xsjl" label="刑拘（人）"  min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="pzdb" label="批捕（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="dhwd" label="捣毁窝点（个）"  min-width="140" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="sajz" label="涉案金额（万元）"  min-width="150" show-overflow-tooltip></el-table-column>
           </el-table-column>
           <el-table-column prop="score" label="评价打分" min-width="100"></el-table-column>
           <el-table-column label="操作"  width="160" align="center" fixed="right">
             <template slot-scope="scope">
             <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')"  @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
-            <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && curDept.depType === '2' && (curDept.depCode.substring(0, 4) === row.deptCode.substring(0, 4))  && Number(baseInfo.status)>= 4 && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
-            <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score"   icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
+            <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && controlpjdf(scope.row) && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
+            <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score && controlpjxq(scope.row)"   icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
             </template>
           </el-table-column>
         </el-table>
-      </div>
+      <!-- </div> -->
       <!-- <el-row>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[5,10,15,20]" @size-change="handleSizeChange"
@@ -77,8 +77,8 @@
           <el-form-item label="打分" prop="score">
             <el-rate v-model="pjdfForm.score"></el-rate>
           </el-form-item>
-          <el-form-item label="评价" prop="evaluate">
-            <el-input v-model.trim="pjdfForm.evaluate" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
+          <el-form-item label="评价" prop="commentText">
+            <el-input v-model.trim="pjdfForm.commentText" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
           </el-form-item>
         </el-form>
         <el-row class="tabC dialogBtnUpLine">
@@ -94,7 +94,8 @@
             <el-rate v-model="curRow.score" disabled></el-rate>
           </el-form-item>
           <el-form-item label="评价" prop="commentText">
-            <el-input v-model.trim="curRow.commentText" type="textarea" :rows="4" disabled maxlength="500"></el-input>
+            <!-- <el-input v-model.trim="curRow.commentText" type="textarea" :rows="4" disabled maxlength="500"></el-input> -->
+            <span>{{curRow.commentText}}</span>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -115,7 +116,7 @@ export default {
       title: '区县线索协查战果反馈表',
       pjdfForm: { // 评价打分
         score: 0,
-        evaluate: ''
+        commentText: ''
       },
       baseInfo: {}, // 基础信息
       parentCode: '', // 当前部门的上级单位
@@ -133,6 +134,7 @@ export default {
       total: 0,
       clusterId: '', // 存储列表传递过来的id
       pcsParentDept: '', // 派出所上级部门的数据信息
+      qxqsbtn: false, // 区县签收也是否有签收按钮
       rules: {
         score: [ // 评价打分
           {
@@ -164,14 +166,18 @@ export default {
         this.baseInfo = this.info
         this.getDeptsshdw() // 查上级单位
       }
+      Bus.$on('qxqsbtn', (data) => { // 接收地市签收列表传递过来的参数
+        this.qxqsbtn = data
+      })
     },
     query() { // 查询列表
       Bus.$emit('isShowfkbtn', false) // 线索反馈按钮
       this.listLoading = true
       var param = {
-        parentCode: this.parentCode, // 上级部门Code
+        parentCode: this.curDept.depType === '2' ? this.curDept.depCode : this.parentCode, // 上级部门Code
         assistId: this.clusterId, // 集群Id
-        curDeptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType
+        // curDeptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType,
+        type: 2 // 集群
       }
       this.$query('caseassistclue/detailCount', param).then((res) => {
         this.listLoading = false
@@ -191,26 +197,61 @@ export default {
     },
     controlClick(row) { // 数字点击权限控制
       if (this.listData.length > 0) {
-        if (!row.cityCode) { // 合计行可点
-          return (Number(this.curDept.depType) < 3 || this.curDept.areaCode === this.baseInfo.cityCode || this.$isViewBtn('101908')) // 上级单位、申请单位、审核单位可点。
-        } else {
-          return false
+        if (row.cityCode) { // 非合计行
+          return ((this.curDept.depType === '2' && this.curDept.areaCode === this.baseInfo.cityCode) || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.deptCode || (this.curDept.depType === '4' && (this.curDept.parentDepCode === row.deptCode || this.curDept.parentDepCode === this.baseInfo.applyDeptCode))) // 上级单位/审核单位，申请单位，本单位可点。
+        } else { // 合计行
+          return ((this.curDept.depType === '2' && this.curDept.areaCode === this.baseInfo.cityCode) || this.curDept.depCode === this.baseInfo.applyDeptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === this.baseInfo.applyDeptCode)) // 上级单位/审核单位，申请单位可点。
         }
       } else {
         return false
       }
     },
     controlxsfk(row) { // 线索反馈按钮显隐控制
-      return ((this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode)) && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') // 当前登录的是派出所时，用他的父级单位的cdoe去判断   集群战役处于协查中、协查结束状态时
+      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+        const curDate = new Date(this.baseInfo.systemTime)
+        const startDate = new Date(this.baseInfo.startDate)
+        return (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode)) && curDate > startDate) // 当前登录的是派出所时，用他的父级单位的cdoe去判断   集群战役处于协查中、协查结束状态时
+      } else {
+        return false
+      }
+    },
+    controlpjdf(row) { // 评价打分按钮显隐控制
+      if (Number(this.baseInfo.status) >= 4) { // 审核通过之后
+        const curDate = new Date(this.baseInfo.systemTime)
+        const endDate = new Date(this.baseInfo.endDate)
+        return (this.curDept.depType === '2' && this.curDept.areaCode === row.cityCode) && (String(row.hcl) === '100' || String(row.hcl) === '100.00' || curDate > endDate) // 核查率是100，当前时间>结束时间，上级单位可以评价打分
+      } else {
+        return false
+      }
+    },
+    controlpjxq(row) { // 评价详情按钮显隐控制
+      return (this.curDept.depType === '2' && this.curDept.areaCode === row.cityCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode) // 当前登录的是派出所时，用他的父级单位的cdoe去判断
     },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的线索反馈、线索分发按钮
+      // Bus.$emit('isShowfkbtn', false) // 线索反馈
+      // Bus.$emit('isShowqxpjbtn', false) // 评价打分
+      const curDate = new Date(this.baseInfo.systemTime)
       if (data.length > 0) {
         data.forEach(item => {
-          if (((this.curDept.depType === '4' && this.curDept.parentDepCode === item.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === item.deptCode)) && (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8')) { // 当前登录的是派出所时，用他的父级单位的cdoe去判断   集群战役处于协查中、协查结束状态时
-            Bus.$emit('isShowfkbtn', true) // 线索反馈按钮
+          if (((this.curDept.depType === '4' && this.curDept.parentDepCode === item.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === item.deptCode))) { // 当前登录的是派出所时，用他的父级单位的cdoe去判断   集群战役处于协查中、协查结束状态时
+            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+              const startDate = new Date(this.baseInfo.startDate)
+              if (curDate > startDate) {
+                Bus.$emit('isShowfkbtn', true) // 显示线索反馈按钮
+              } else {
+                // Bus.$emit('isShowfkbtn', false) // 隐藏线索反馈按钮
+              }
+            } else {
+              // Bus.$emit('isShowfkbtn', false) // 隐藏线索反馈按钮
+            }
           }
-          if (this.curDept.depType === '2' && Number(this.baseInfo.status) >= 4) { // 集群战役审核通过后  上级单位可以评价打分 区县上级单位是大队
-            Bus.$emit('isShowpjbtn', true) // 评价打分
+          if (Number(this.baseInfo.status) >= 4) { // 审核通过之后
+            const endDate = new Date(this.baseInfo.endDate)
+            if ((this.curDept.depType === '2' && this.curDept.areaCode === item.cityCode) && (String(item.hcl) === '100' || String(item.hcl) === '100.00' || curDate > endDate)) {
+              Bus.$emit('isShowpjbtn', true) // 显示评价打分按钮
+            }
+          } else {
+            // Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
           }
         })
       }
@@ -222,9 +263,14 @@ export default {
       this.page = 1
     },
     gotoxslist(row, type) { // 线索列表
-      if (!row.cityCode) { // 合计行
+      if (row.cityCode) { // 列表行
+        var cityCode = row.deptCode.substring(0, 6)
         this.$router.push({
-          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: '', curDeptCode: '' } // 线索列表页面
+          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: this.baseInfo.applyDeptCode, cityCode: cityCode, curDeptCode: row.deptCode, deptType: row.deptType } // 线索列表页面
+        })
+      } else { // 合计行
+        this.$router.push({
+          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: '', curDeptCode: '', deptType: '' } // 线索列表页面
         })
       }
     },
@@ -233,12 +279,15 @@ export default {
       this.isShowdrffxsDialog = true
     },
     handlefankui(index, row) { // 线索反馈
+      if (String(row.signStatus) !== '2') { // 签收列表有签收按钮，表示有未签收的线索
+        this.$alert('该线索还未签收，请先进行签收。', '提示', {
+          type: 'warning',
+          confirmButtonText: '确定'
+        })
+        return false
+      }
       this.curRow = row
       var deptCode = ''
-      // if (((this.curDept.depType !== '4' && this.curDept.depCode !== this.baseInfo.applyDeptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode !== this.baseInfo.applyDeptCode)) && this.curDept.depType !== '1') { // 当前部门如果和发起单位相同时不传，不同时传当前部门，如果需要查询接受单位，需要覆盖此字段。
-      //   deptCode = this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode
-      // }
-      // this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId, deptCode: deptCode, curDeptCode: row.deptCode }}) // 跳转到线索反馈页
       if (row.deptCode !== this.baseInfo.applyDeptCode && this.curDept.depType !== '1') {
         deptCode = row.deptCode
       }
@@ -247,13 +296,20 @@ export default {
     handledafen(index, row) { // 评价打分
       this.isShowpjdf = true
       this.curRow = row
+      if (this.curRow.score) {
+        this.pjdfForm.score = this.curRow.score
+      }
+      if (this.curRow.commentText) {
+        this.pjdfForm.commentText = this.curRow.commentText
+      }
     },
     handleDetail(index, row) { // 评价详情
       this.isShowpjdfdetail = true
+      this.curRow = row
     },
     closeffxsDialog(val) { // 关闭分发线索弹框
       this.isShowdrffxsDialog = val
-      this.query()
+      location.reload()
     },
     getDeptsshdw() { // 查询上级单位
       var paramCode = ''
@@ -294,6 +350,11 @@ export default {
           })
         }
       })
+    },
+    resetForm(formName) { // 重置表单
+      if (this.$refs[formName]) {
+        this.$refs[formName].resetFields()
+      }
     },
     cancel() {
       this.isShowpjdf = false
@@ -363,6 +424,16 @@ export default {
   }
   .el-table--border th, .el-table__fixed-right-patch {
     border-bottom: 0;
+  }
+  // 固定左侧列的样式问题
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
   }
 }
 @media only screen and (max-width: 1367px) {

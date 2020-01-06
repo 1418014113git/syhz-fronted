@@ -28,7 +28,12 @@
                 <li><span>上传者：</span><span>{{detailData.creationName}}</span></li>
                 <li><span>上传时间：</span><span>{{detailData.creationTime}}</span></li>
                 <li><span>审核时间：</span><span>{{detailData.auditTime ? detailData.auditTime : '-'}}</span></li>
-                <li><span>内容简介：</span><span>{{detailData.describe ? detailData.describe : '暂无'}}</span></li>
+                <li class="con"><span>内容简介：</span>
+                  <el-tooltip v-if="detailData.describe" effect="light" popper-class="con_tooltip" :content="detailData.describe" placement="top">
+                    <span>{{detailData.describe ? detailData.describe : '暂无'}}</span>
+                  </el-tooltip>
+                  <span v-else>暂无</span>
+                </li>
               </ul>
             </div>
             <div class="video_player_clean"></div>
@@ -333,7 +338,7 @@
     /*border-right: 1px solid #00A0E9;*/
   }
   .classRoom_videoPlayer .video_player_txt {
-    width: 30%;
+    width: 40%;
     float: left;
     padding: 20px 10px 10px 20px;
   }
@@ -342,13 +347,47 @@
   }
   .classRoom_videoPlayer .video_player_txt ul li span{
     display: inline-block;
-    width: 40%;
+    width: 20%;
     text-align: right;
   }
   .classRoom_videoPlayer .video_player_txt ul li span:last-child{
     text-align: left;
-    width: 60%;
+    width: 70%;
   }
+  .classRoom_videoPlayer .video_player_txt ul li.con{
+    padding-bottom: 0;
+    position: relative;
+  }
+  .classRoom_videoPlayer .video_player_txt ul li.con span:first-child{
+    display: inline-block;
+    height: 100%;
+    vertical-align: top;
+  }
+  .classRoom_videoPlayer .video_player_txt ul li.con span:last-child{
+    max-height: 240px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 11;
+    display: -webkit-box;
+    position: absolute;
+    top: 10px;
+    left: 20%;
+  }
+  .con_tooltip{
+    width: 30%;
+    color: #565656;
+    background: #f1f1f1 !important;
+  }
+  /*.con_tooltip{*/
+    /*width: 30%;*/
+    /*background: #023a5a !important;*/
+    /*color: #89c0de !important;*/
+  /*}*/
+  /*.el-tooltip__popper.con_tooltip .popper__arrow::after{*/
+    /*border-top-color: #023a5a !important;*/
+  /*}*/
   .classRoom_videoPlayer .video_player_clean{
     clear: both;
   }

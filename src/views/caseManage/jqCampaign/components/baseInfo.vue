@@ -150,6 +150,64 @@ export default {
         this.baseInfo = this.info
         this.baseInfo.attachment = this.baseInfo.attachment ? JSON.parse(this.baseInfo.attachment) : []
       }
+      this.controlBtnShow()
+    },
+    zhpj() { // 综合评价
+      if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省厅，总队
+        this.$store.dispatch('Personeltotop', 'dsfk') // 定位到地市反馈
+        this.$store.dispatch('JqMouleClass', 'dsfk')
+      } else if (this.curDept.depType === '2') { // 地市
+        this.$store.dispatch('Personeltotop', 'qxfk') // 定位到区县反馈
+        this.$store.dispatch('JqMouleClass', 'qxfk')
+      }
+    },
+    cxsq() { // 重新申请
+      this.$store.dispatch('Personeltotop', 'shxx') // 定位到审核模块
+      this.$store.dispatch('JqMouleClass', 'shxx')
+      // this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'detail', id: this.clusterId }}) // 跳转到集群战役申请页
+    },
+    audit() { // 审核
+      // this.isShowshDialog = true
+      this.$store.dispatch('Personeltotop', 'shxx') // 定位到审核模块
+      this.$store.dispatch('JqMouleClass', 'shxx')
+    },
+    xsff() { // 线索分发
+      this.$store.dispatch('Personeltotop', 'dsfk') // 定位到地市反馈
+      this.$store.dispatch('JqMouleClass', 'dsfk')
+    },
+    xsfk() { // 线索反馈
+      if (this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) === '6114')) { // 支队,杨凌派出所
+        this.$store.dispatch('Personeltotop', 'dsfk') // 定位到地市反馈
+        this.$store.dispatch('JqMouleClass', 'dsfk')
+      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 区县
+        console.log(333333333333)
+        this.$store.dispatch('Personeltotop', 'qxfk') // 定位到区县反馈
+        this.$store.dispatch('JqMouleClass', 'qxfk')
+      }
+    },
+    qs() { // 签收, 定位到签收列表
+      if (this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) === '6114')) { // 支队,杨凌派出所
+        this.$store.dispatch('Personeltotop', 'dsqs') // 定位到地市签收
+        this.$store.dispatch('JqMouleClass', 'dsqs')
+      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 大队，派出所(除杨凌以为的)
+        this.$store.dispatch('Personeltotop', 'qxqs') // 定位到区县签收
+        this.$store.dispatch('JqMouleClass', 'qxqs')
+      }
+    },
+    downFile(item) { // 下载附件
+      const arr = item.path.split('/file')
+      const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
+      this.$download_http_mg(path, { fileName: item.name })
+    },
+    closeshDialog(val) { // 关闭审核弹框 点击"通过/不通过"时，页面需要重新加载，更新审核状态。
+      this.isShowshDialog = val
+      location.reload()
+    },
+    closeffxsDialog(val) { // 关闭分发线索弹框
+      this.isShowffxsDialog = val
+      location.reload()
+    },
+    controlBtnShow() {
       Bus.$on('isShowsqbtn', (data) => { // 重新申请按钮
         this.isShowsqbtn = data
       })
@@ -171,55 +229,12 @@ export default {
       Bus.$on('isShowfkbtn', (data) => { // 线索反馈按钮
         this.isShowfkbtn = data
       })
-      Bus.$on('isShowpjbtn', (data) => { // 线索反馈按钮
+      Bus.$on('isShowpjbtn', (data) => { // 评价打分按钮
         this.isShowpjbtn = data
       })
       Bus.$on('xsfkRow', (data) => { // 线索反馈当前行数据
         this.xsfkRow = data
       })
-    },
-    zhpj() { // 综合评价
-      if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省厅，总队
-        this.$store.dispatch('Personeltotop', 'dsfk') // 定位到地市反馈
-      } else if (this.curDept.depType === '2') { // 地市
-        this.$store.dispatch('Personeltotop', 'qxfk') // 定位到区县反馈
-      }
-    },
-    cxsq() { // 重新申请
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'detail', id: this.clusterId }}) // 跳转到集群战役申请页
-    },
-    audit() { // 审核
-      this.isShowshDialog = true
-    },
-    xsff() { // 线索分发
-      this.isShowffxsDialog = true
-    },
-    xsfk() { // 线索反馈
-      var deptCode = ''
-      if (this.xsfkRow.deptCode !== this.baseInfo.applyDeptCode && this.curDept.depType !== '1') {
-        deptCode = this.xsfkRow.deptCode
-      }
-      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId, deptCode: deptCode }}) // 跳转到线索反馈页
-    },
-    qs() { // 签收, 定位到签收列表
-      if (this.curDept.depType === '1' || this.curDept.depType === '2') { // 总队，支队
-        this.$store.dispatch('Personeltotop', 'dsqs') // 定位到地市签收
-      } else if (this.curDept.depType === '3' || this.curDept.depType === '4') { // 大队，派出所
-        this.$store.dispatch('Personeltotop', 'qxqs') // 定位到区县签收
-      }
-    },
-    downFile(item) { // 下载附件
-      const arr = item.path.split('/file')
-      const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
-      this.$download_http_mg(path, { fileName: item.name })
-    },
-    closeshDialog(val) { // 关闭审核弹框 点击"通过/不通过"时，页面需要重新加载，更新审核状态。
-      this.isShowshDialog = val
-      location.reload()
-    },
-    closeffxsDialog(val) { // 关闭分发线索弹框
-      this.isShowffxsDialog = val
-      location.reload()
     }
   },
   mounted() {

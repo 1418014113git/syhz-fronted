@@ -9,8 +9,8 @@
     <el-form :model="form" size="small" ref="form"  :rules="rules"  label-width="120px" style="width:80%;margin:0 auto;">
       <el-row type="flex" justify="center" v-if="isShowotherform">
         <el-col :span="23">
-          <el-form-item label="标题：" prop="clusterTitle">
-            <el-input v-model="form.clusterTitle" auto-complete="off" clearable maxlength="50"></el-input>
+          <el-form-item label="标题" prop="clusterTitle">
+            <el-input v-model.trim="form.clusterTitle" auto-complete="off" clearable maxlength="50"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -106,10 +106,10 @@
               </el-table-column>
             </el-table>
           </el-form-item>
-          <el-form-item label="正文：" prop="assistContent"  v-if="isShowotherform" placeholder="请输入正文">
+          <el-form-item label="正文" prop="assistContent"  v-if="isShowotherform" placeholder="请输入正文">
             <vue-editor v-model="form.assistContent" useCustomImageHandler @imageAdded="handleImageAdded"></vue-editor>
           </el-form-item>
-          <el-form-item label="附件：" style="margin-top: 15px;"  v-if="isShowotherform">
+          <el-form-item label="附件" style="margin-top: 15px;"  v-if="isShowotherform">
             <el-upload class="upload-demo" drag multiple  ref="fileUpload"
                 :action="uploadAction"
                 :auto-upload="true"
@@ -127,9 +127,9 @@
             </el-upload>
           </el-form-item>
           <el-form-item label="查阅密码" prop="passKey" v-if="isShowotherform">
-            <el-input v-model.trim="form.passKey"  type="password" auto-complete="off" clearable  maxlength="8"></el-input>
+            <el-input v-model.trim="form.passKey"  type="password" auto-complete="off" clearable  maxlength="8" placeholder="6~20位大小写字母、数字"></el-input>
           </el-form-item>
-          <el-form-item label="审核单位：" prop="acceptDeptId"  v-if="isShowotherform && pageType!=='xf' && pageType!=='bxf' && pageType !=='editxf' && pageType!=='editbxf'">
+          <el-form-item label="审核单位" prop="acceptDeptId"  v-if="isShowotherform && pageType!=='xf' && pageType!=='bxf' && pageType !=='editxf' && pageType!=='editbxf'">
             <el-select v-model="form.acceptDeptId" class="input_w"  @change="deptChange">
               <el-option v-for="(item,index) in exDeptData" :key="index" :label="item.departName" :value="item.acceptDeptId"></el-option>
             </el-select>
@@ -285,7 +285,7 @@ export default {
             } else if (!regNumber.test(value)) {
               callback(new Error('仅支持英文、数字'))
             } else {
-              if (this.pageType === 'editbxf') { // 部下发编辑时，不做重复校验
+              if (this.pageType === 'editbxf' || this.pageType === 'edit' || this.pageType === 'detail' || this.pageType === 'editxf') { // 编辑时，不做重复校验
                 callback()
               } else {
                 this.$query('casecluster/numberValid', { dept: this.curDept.depCode, numStr: value, id: this.id }).then((response) => { // 查询是否重复
@@ -337,8 +337,19 @@ export default {
           }
         ],
         passKey: [ //   查阅密码
-          { required: false, message: '请输入查阅密码', trigger: 'blur' },
-          { min: 6, max: 8, message: '长度在6到8个字符', trigger: 'blur' }
+          {
+            required: false, trigger: 'blur', validator: (rule, value, callback) => {
+              if (value === undefined || value === null || value === '') {
+                return callback()
+              } else {
+                if (!this.$regEnNumber.test(value)) {
+                  return callback(new Error('查阅密码只支持输入6~20位英文和数字！'))
+                }
+              }
+              return callback()
+            }
+          },
+          { min: 6, max: 8, message: '长度在6~20位英文和数字', trigger: 'blur' }
         ]
       }
     }
@@ -554,7 +565,9 @@ export default {
     distribute(type, data) { // 分发
       if (type === 'list') { // 点击涉及单位当前行
         this.receiveName = data.deptName
+        this.qbxsDistribute = ''
       } else { // 点击线索数字时，获取当前数字的状态
+        this.receiveName = ''
         this.qbxsDistribute = data
       }
       this.isShowdrffxsDialog = true
@@ -715,8 +728,10 @@ export default {
         this.btnLoading = true
         param.id = this.editId
         if (!this.xsNum.total) {
+          this.btnLoading = false
           this.$message({ message: '请导入线索', type: 'error' })
         } else if (!this.xsNum.distribute) {
+          this.btnLoading = false
           this.$message({ message: '请分发线索', type: 'error' })
         } else {
           this.$save('casecluster/save', param).then((response) => {
@@ -725,6 +740,7 @@ export default {
               type: 'success',
               duration: 2000
             })
+            this.btnLoading = false
             if (this.pageType === 'detail') {
               this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
             } else {
@@ -762,8 +778,10 @@ export default {
         param.category = 3
         if (!this.xsNum.total) {
           this.$message({ message: '请导入线索', type: 'error' })
+          this.btnLoading = false
         } else if (this.listData.length === 0) {
           this.$message({ message: '请分发线索', type: 'error' })
+          this.btnLoading = false
         } else {
           param.status = 1
           this.$save('casecluster/save', param).then((response) => {
@@ -791,14 +809,16 @@ export default {
         param.startDate = this.form.startDate // 开始时间
         param.endDate = this.form.endDate // 结束时间
         param.clusterNumber = this.form.clusterNumber // 集群战役编号
-        if (this.pageType === 'xf') { // 下发
+        if (this.pageType === 'xf' || this.pageType === 'editxf') { // 下发 或者 编辑时的下发
           param.category = 2
-        } else if (this.pageType === 'bxf') { // 部下发
+        } else if (this.pageType === 'bxf' || this.pageType === 'editbxf') { // 部下发 或者 编辑时的部下发
           param.category = 1
         }
         if (!this.xsNum.total) {
+          this.btnLoading = false
           this.$message({ message: '请导入线索', type: 'error' })
         } else if (this.listData.length === 0) {
+          this.btnLoading = false
           this.$message({ message: '请分发线索', type: 'error' })
         } else {
           param.status = 5

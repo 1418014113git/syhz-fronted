@@ -726,13 +726,16 @@ export default {
       this.carryParam = this.$route.query
       if (this.carryParam.origin === 'portal') { // 首页 跳转来的
         if (this.$route.query.status) {
-          this.filters.status = this.$route.query.status // 首页-审核待办
+          this.filters.status = this.$route.query.status // 首页-审核待办-督办审核
         }
         if (this.$route.query.jabgStatus) {
-          this.filters.jabgStatus = this.$route.query.jabgStatus // 首页-审核待办
+          this.filters.jabgStatus = this.$route.query.jabgStatus // 首页-审核待办-结案报告审核
         }
         if (this.$route.query.qsStatus) {
-          this.filters.qsStatus = this.$route.query.qsStatus // 首页-审核待办
+          this.filters.qsStatus = this.$route.query.qsStatus // 首页-催办待办-1是案件催办签收待办  2案件催办反馈待办
+        }
+        if (this.$route.query.businessType) {
+          this.filters.businessType = this.$route.query.businessType // 首页-签收待办 4是案件督办签收
         }
         this.initData()
       }

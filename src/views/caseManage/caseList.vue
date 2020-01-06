@@ -21,6 +21,7 @@
             <el-option v-if="item.columnName === 'AJXZ'" v-for="option in AJXZList" :key="option.code" :label="option.code_name" :value="option.code"></el-option>
             <el-option v-if="item.columnName === 'AJSX'" v-for="option in AJSXList" :key="option.value" :label="option.label" :value="option.value"></el-option>
             <el-option v-if="item.columnName === 'BARXB'" v-for="option in XBList" :key="option.value" :label="option.label" :value="option.value"></el-option>
+            <el-option v-if="item.columnName === 'AJLY'" v-for="option in ajlyData" :key="option.code" :label="option.codeName" :value="option.code"></el-option>
           </el-select>
           <span v-if="item.columnType === 2">
             <el-date-picker v-model="filters[item.filterName + 'Start']" type="date" value-format="yyyy-MM-dd" placeholder="请选择开始日期" @change="startDateChange($event, item.filterName, item.columnDescribe)"></el-date-picker>
@@ -49,6 +50,7 @@
         <el-button type="primary" size="small" v-on:click="restForm()">重置</el-button>
         <el-button type="primary" size="small" v-on:click="clearTable()">清除过滤条件</el-button>
         <el-button v-if="$isViewBtn('182003') || $isViewBtn('182004') || $isViewBtn('182005')" type="primary" size="small" v-on:click="toTemplate()">维护模板</el-button>
+        <el-button type="primary" size="small" v-if="$isViewBtn('103001')" v-on:click="gotoMergeList()">重复合并列表</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="caseData" ref="caseTable" highlight-current-row v-loading="listLoading" style="width: 100%;">
@@ -56,12 +58,17 @@
         <template slot-scope="props">
           <el-form label-position="left" inline class="demo-table-expand">
             <el-form-item label="简要案情">
-              <span>{{ props.row.jyaq }}</span>
+              <span v-html="getReplace(props.row.jyaq)"></span>
             </el-form-item>
           </el-form>
         </template>
       </el-table-column>
       <el-table-column label="序号" type="index" width="52"></el-table-column>
+      <el-table-column label="地区" type="index" width="100">
+        <template slot-scope="scope">
+          <span class="area bg0">{{getArea(scope.row, scope.$index)}}</span>
+        </template>
+      </el-table-column>
       <el-table-column v-for="item in titleData" :key="item.index" :label="item.columnDescribe" :prop="item.titleName" :sortable="sortable"
                        :width="setWidth(item)"
                        :min-width="item.columnName === 'AJMC' ? '200px' : '130px'"
@@ -69,15 +76,25 @@
                        :column-key="item.titleName"
                        :filters="(item.columnName === 'AJZT' ? ajztFilter : (item.columnName === 'SYH_AJLB' ? ajlbFilter : (item.columnName === 'CONFIRM_STATUS' ? confirmStatusFilter : [])))"
                        :filter-method="filterHandler"
-                       :show-overflow-tooltip="true">
+                       :show-overflow-tooltip="(item.columnName === 'AJBH' || item.columnName === 'AJLY' ? false : true)">
         <template slot-scope="scope">
-          <a v-if="item.columnName === 'AJMC' || item.columnName === 'AJBH'" class="ajbh-color" @click="handleAjDetail(scope.$index, scope.row)">{{scope.row[item.titleName]}}</a>
+          <el-tooltip v-if="item.columnName === 'AJBH'" class="item" effect="dark" :content="scope.row[item.titleName]" placement="top">
+            <a class="ajbh-color" @click="handleAjDetail(scope.$index, scope.row)">
+              {{ scope.row[item.titleName].substring(0, 7) + '...' }}
+            </a>
+          </el-tooltip>
+          <a v-else-if="item.columnName === 'AJMC'" class="ajbh-color" @click="handleAjDetail(scope.$index, scope.row)">
+            {{ scope.row[item.titleName] }}
+          </a>
           <span v-else-if="item.columnName === 'CONFIRM_STATUS'">
             {{scope.row[item.titleName] === 2 ? ('上报已读') : (scope.row[item.titleName] === 1 || scope.row[item.titleName] === undefined || scope.row[item.titleName] === null ? '上报未读': '')}}
           </span>
-          <span v-else-if="item.columnName === 'SYH_FLLB'">{{getFllbName(scope.row[item.titleName])}}</span>
+          <span v-else-if="item.columnName === 'SYH_FLLB'" :class="'ajfl type' + (scope.row[item.titleName].indexOf(',') > -1 ? scope.row[item.titleName].split(',')[0] : scope.row[item.titleName])">{{getFllbName(scope.row[item.titleName])}}</span>
           <span v-else-if="item.columnName === 'AJZT'">{{getAjztName(scope.row[item.titleName])}}</span>
           <span v-else-if="item.columnName === 'SYH_AJLB'">{{getAjzmName(scope.row[item.titleName])}}</span>
+          <el-tooltip v-else-if="item.columnName === 'AJLY'" class="item" effect="dark" :content="getAjlyName(scope.row[item.titleName])" placement="top">
+            <span>{{(getAjlyName(scope.row[item.titleName])&&getAjlyName(scope.row[item.titleName]).length > 4) ? (getAjlyName(scope.row[item.titleName]).substring(0, 4) + '...') : getAjlyName(scope.row[item.titleName])}}</span>
+          </el-tooltip>
           <span v-else-if="item.columnName === 'AJLB'">{{scope.row[item.titleName + 'Name']}}</span>
           <span v-else-if="item.columnName === 'AJXZ'">{{scope.row[item.titleName + 'Name']}}</span>
           <span v-else-if="item.columnName === 'AJSX'">{{scope.row[item.titleName + 'Name']}}</span>
@@ -85,9 +102,10 @@
           <span v-else>{{scope.row[item.titleName]}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="60">
+      <el-table-column label="操作" width="90">
         <template slot-scope="scope">
-          <el-button size="mini" type="primary" icon="el-icon-tickets"  circle @click="handleAjDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" type="primary" icon="el-icon-tickets" title="详情" circle @click="handleAjDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" type="primary" icon="el-icon-rank" circle title="重复合并" @click="handleAjMerge(scope.$index, scope.row)" v-if="$isViewBtn('103002')"></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -111,8 +129,15 @@ export default {
         department: [],
         templateId: '',
         words: '',
-        queryType: '1'
+        queryType: '1',
+        ajzt: '',
+        larqStart: '', // 立案开始日期
+        larqEnd: '', // 立案结束日期
+        parqStart: '', // 破案开始日期
+        parqEnd: '' // 破案结束日期
       },
+      queryArea: [],
+      queryDeptCode: '',
       lastTemplateId: '',
       selectCurDep: { name: '' },
       deptOptions: [],
@@ -138,6 +163,8 @@ export default {
       ajztData: [], // 案件状态
       ajlbData: [], // 案件类别
       ajzmData: [], // 案件罪名
+      ajlyData: [], // 案件来源
+      ajlyList: [],
       dqztData: [
         { label: '上报未读', value: 1 },
         { label: '上报已读', value: 2 }
@@ -157,19 +184,69 @@ export default {
         { text: '上报未读', value: '1' },
         { text: '上报已读', value: '2' }
       ],
-      ajlxFirst: ''
+      ajlxFirst: '',
+      areaList: {},
+      areaColorList: {}
     }
   },
   methods: {
+    getArea(row, index) {
+      let areaCode = row.deptCode.substring(0, 6)
+      if (this.areaList[areaCode] !== undefined) {
+        return this.areaList[areaCode].substring(0, 2)
+      }
+      if (this.curDept.depType === '1' || this.curDept.depType === '-1') {
+        const dept = this.findParentDept(row.deptCode)
+        if (dept.depType === '3') {
+          areaCode = dept.parentCode.substring(0, 6)
+        }
+        if (dept.depType === '4') {
+          const dept = this.findParentDept(dept.parentCode)
+          areaCode = dept.parentCode.substring(0, 6)
+        }
+      }
+      const arr = []
+      this.eachArea(this.areaOptions, areaCode, arr)
+      this.areaList[row.deptCode.substring(0, 6)] = arr.join(',')
+      return arr.join(',').substring(0, 2)
+    },
+    eachArea(child, value, arr) {
+      for (let i = 0; i < child.length; i++) {
+        const item = child[i]
+        if (item.cityCode === value) {
+          arr.push(item.cityName)
+          break
+        } else {
+          if (item.children) {
+            this.eachArea(item.children, value, arr)
+          }
+        }
+      }
+    },
+    findParentDept(paramCode) {
+      const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+      for (let i = 0; i < deptArr.length; i++) {
+        const item = deptArr[i]
+        if (item.depCode === paramCode) {
+          return item
+        }
+      }
+    },
     setWidth(item) {
       if (item.columnName === 'AJMC') {
         return ''
       }
+      if (item.columnName === 'AJBH') {
+        return '140px'
+      }
+      if (item.columnName === 'AJLY') {
+        return '110px'
+      }
       if (this.titleData.length < 8) {
         return '240px'
       }
-      if (item.columnName === 'CONFIRM_STATUS' || item.columnName === 'AJZT' || item.columnName === 'AJSX' || item.columnName === 'LARQ' || item.columnName === 'PARQ') {
-        return '120px'
+      if (item.columnName === 'SYH_FLLB' || item.columnName === 'CONFIRM_STATUS' || item.columnName === 'AJZT' || item.columnName === 'AJSX' || item.columnName === 'LARQ' || item.columnName === 'PARQ') {
+        return '130px'
       }
       if (item.columnName === 'BARHJSZDSSXQ_NAME' || item.columnName === 'BARSJJZDSSXQ_NAME') {
         return '240px'
@@ -249,35 +326,58 @@ export default {
           }
           this.areaOptions = arr
           let currentArea = []
-          if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
-            currentArea = [this.curDept.areaCode]
-          } else if (this.curDept.depType === '2') { // 支队
-            currentArea = ['610000', this.curDept.areaCode]
-          } else if (this.curDept.depType === '3') { // 大队 派出所
-            currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
-            this.deptDisabled = true
-            this.areaDisabled = true
-          } else if (this.curDept.depType === '4') {
-            this.areaDisabled = true
-            if (this.curDept.areaCode === '611400') { // 杨凌例外
-              currentArea = ['610000', '611400']
-            } else { // 正常的派出所
+          if (this.queryArea.length > 0) { // 案件协查、集群战役 跳转进入
+            currentArea = this.queryArea
+          } else {
+            if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
+              currentArea = [this.curDept.areaCode]
+            } else if (this.curDept.depType === '2') { // 支队
+              currentArea = ['610000', this.curDept.areaCode]
+            } else if (this.curDept.depType === '3') { // 大队 派出所
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+              this.deptDisabled = true
+              this.areaDisabled = true
+            } else if (this.curDept.depType === '4') {
+              this.areaDisabled = true
+              if (this.curDept.areaCode === '611400') { // 杨凌例外
+                currentArea = ['610000', '611400']
+              } else { // 正常的派出所
+                currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+              }
             }
           }
-          this.filters.area = currentArea
-          this.handleAreaChange(currentArea) // 查单位机构
-          // 默认选择本单位
-          if (this.curDept.depType === '-1') { // 省
-            // this.filters.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '1') { // 总队
-            // this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
-          } else if (this.curDept.depType === '2') { // 支队
-            this.filters.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '3') { // 大队
-            this.filters.department = [this.curDept.depCode]
-          } else if (this.curDept.depType === '4') { // 派出所
-            this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
+          if (this.$route.query.fadz) { // 案件档案 发案地址--点击列表数字跳转过来的
+            if (this.$route.query.cityCode) {
+              this.filters.area = ['610000', this.$route.query.cityCode]
+            } else {
+              this.filters.area = currentArea
+            }
+          } else {
+            this.filters.area = currentArea
+          }
+
+          this.handleAreaChange(this.filters.area) // 查单位机构
+          if (this.queryArea.length > 0) {
+            let currentDepartment = []
+            if (this.queryDeptCode !== '') {
+              currentDepartment = [this.queryDeptCode]
+            } else {
+              currentDepartment = []
+            }
+            this.filters.department = currentDepartment
+          } else {
+            // 默认选择本单位
+            if (this.curDept.depType === '-1') { // 省
+              // this.filters.department = [this.curDept.depCode]
+            } else if (this.curDept.depType === '1') { // 总队
+              // this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
+            } else if (this.curDept.depType === '2') { // 支队
+              this.filters.department = [this.curDept.depCode]
+            } else if (this.curDept.depType === '3') { // 大队
+              this.filters.department = [this.curDept.depCode]
+            } else if (this.curDept.depType === '4') { // 派出所
+              this.filters.department = [this.curDept.parentDepCode, this.curDept.depCode]
+            }
           }
           this.queryTemplate()
         }
@@ -314,13 +414,13 @@ export default {
       this.listLoading = true
       this.$query('caseManage/template', { deptCode: this.curDept.depCode }).then(response => {
         this.templateData = response.data
-        if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
-          const templateId = sessionStorage.getItem(this.$route.path)
-          this.filters.templateId = parseInt(templateId)
-          sessionStorage.setItem(this.$route.path, '')
-        } else {
-          this.filters.templateId = this.templateData[0].id
-        }
+        // if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
+        //   const templateId = sessionStorage.getItem(this.$route.path)
+        //   this.filters.templateId = parseInt(templateId)
+        //   sessionStorage.setItem(this.$route.path, '')
+        // } else {
+        this.filters.templateId = this.templateData[0].id
+        // }
         this.lastTemplateId = this.filters.templateId
         this.sortable = this.isDisabledSort()
         this.queryFilter()
@@ -403,6 +503,13 @@ export default {
     },
     clearTable() {
       this.$refs.caseTable.clearSort()
+      this.filters.words = ''
+      this.filters.queryType = '1'
+      this.filters.ajzt = ''
+      this.filters.larqStart = '' // 立案开始日期
+      this.filters.larqEnd = '' // 立案结束日期
+      this.filters.parqStart = '' // 破案开始日期
+      this.filters.parqEnd = '' // 破案结束日期
     },
     query(flag) {
       this.listLoading = true
@@ -439,7 +546,6 @@ export default {
             arr1.push({ value: temp[key], text: key })
           }
           this.ajztData = arr
-          this.ajztFilter = arr1
         }
       }).catch(() => {
       })
@@ -478,6 +584,34 @@ export default {
       //   })
       // }).catch(() => {
       // })
+    },
+    initAjly() { // 初始化案件来源 (去重)
+      this.$query('tcpcode', { codeLx: 'ajly' }).then((response) => {
+        this.ajlyList = response.data
+        if (response.data && response.data.length > 0) {
+          const arr = response.data
+          const array = []
+          const nameArr = []
+          const codeArr = []
+          for (let i = 0; i < arr.length; i++) {
+            const item = arr[i]
+            if (nameArr.indexOf(item.codeName) > -1) {
+              const index = nameArr.indexOf(item.codeName)
+              const oldCode = codeArr[index]
+              if (parseInt(oldCode) < parseInt(item.code)) {
+                codeArr[index] = item.code
+                array[index] = item
+              }
+            } else {
+              nameArr.push(item.codeName)
+              codeArr.push(item.code)
+              array.push(item)
+            }
+          }
+          this.ajlyData = array
+        }
+      }).catch(() => {
+      })
     },
     initAjxz() {
       const para = {
@@ -543,6 +677,7 @@ export default {
         const arr = []
         for (let i = 0; i < array.length; i++) {
           data = this.eachData(data, array[i], arr)
+          break
         }
         return arr.join('，')
       } else {
@@ -575,6 +710,14 @@ export default {
         }
       }
     },
+    getAjlyName(ajly) {
+      for (let i = 0; i < this.ajlyList.length; i++) {
+        const item = this.ajlyList[i]
+        if (String(ajly) === String(item.code)) {
+          return item.codeName
+        }
+      }
+    },
     AJLXHandler(val) {
       if (val && val.length > 0) {
         if (this.ajlxFirst || this.ajlxFirst !== val[0]) {
@@ -583,11 +726,71 @@ export default {
           this.initAjzm(this.ajlxFirst) // 案件罪名
         }
       }
+    },
+    gotoMergeList() { // 跳转 重复合并列表
+      // this.$router.push({ path: '/caseManage/caseMergeList', query: { origin: 'caseList' }})
+      var param = {
+        origin: 'caseList'
+      }
+      this.$gotoid('/caseManage/caseMergeList', JSON.stringify(param))
+    },
+    handleAjMerge(index, row) { // 案件重复合并 12.4
+      var param = {
+        type: 'merge',
+        caseId: row.id, // 案件id
+        ajmc: row.ajmc,
+        ajbh: row.ajbh
+      }
+      this.$gotoid('/caseManage/caseMergeForm', JSON.stringify(param))
+    },
+    setFilter() {
+      if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
+        const param = JSON.parse(sessionStorage.getItem(this.$route.path))
+        if (param) {
+          if (param.areaCode) {
+            this.queryArea = param.areaCode
+          }
+          if (param.deptCode) {
+            this.queryDeptCode = param.deptCode
+          }
+          // if (String(param.type) === '0') {
+          //   this.filters.ajzt = '402'
+          // }
+          // if (String(param.type) === '1') {
+          //   this.filters.ajzt = '402'
+          // }
+          if (param.start) {
+            if (String(param.type) === '0') {
+              // this.filters.larqStart = param.start
+            }
+            if (String(param.type) === '1') {
+              this.filters.parqStart = param.start
+            }
+          }
+          if (param.end) {
+            if (String(param.type) === '0') {
+              this.filters.larqEnd = param.end
+            }
+            if (String(param.type) === '1') {
+              this.filters.parqEnd = param.end
+            }
+          }
+        }
+        sessionStorage.setItem(this.$route.path, '')
+      }
+    },
+    getReplace(data) {
+      if (data) {
+        var item = data.split('/r/n').join('\r\n')
+        return item
+      }
     }
   },
   mounted() {
     this.initAjzt() // 案件状态
     this.initAjxz() // 案件性质
+    this.initAjly() // 案件来源
+    this.setFilter()
     this.initData()
   }
 }
@@ -637,5 +840,52 @@ export default {
 }
 .caseList_cascader .el-cascader-menu__item.is-disabled {
   background-color: #00537d;
+}
+.caseList .ajfl,
+.caseList .area {
+  height: 23px;
+  line-height: 18px;
+  margin-right: 6px;
+  font-size: 14px;
+  word-break: keep-all;
+  display: inline-block;
+  padding: 2px 10px;
+  background-blend-mode: normal, normal;
+  border-radius: 4px;
+}
+.caseList .area {
+  color: #ffffff;
+  text-shadow: 0 0 2px #6f6d6d;
+}
+.caseList .type3 {
+  background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
+}
+.caseList .type1 {
+  background-image: linear-gradient(140deg, #40a954 0%, #20e1aa 100%);
+}
+.caseList .type2 {
+  background-image: linear-gradient(140deg, #ff7a04 0%, #fdbc22 100%);
+}
+
+.caseList .bg0 {
+  background-image: linear-gradient(90deg, #187be0 0%, #54aedf 100%);
+}
+.caseList .bg1 {
+  background-image: linear-gradient(90deg, #fe595d 0%, #f789a6 100%);
+}
+.caseList .bg2 {
+  background-image: linear-gradient(140deg, #138fb8 0%, #53c7e0 100%);
+}
+.caseList .bg3 {
+  background-image: linear-gradient(140deg, #40a954 0%, #20e1aa 100%);
+}
+.caseList .bg4 {
+  background-image: linear-gradient(140deg, #177ce0 0%, #54afe0 100%);
+}
+.caseList .bg5 {
+  background-image: linear-gradient(140deg, #6e3ec8 0%, #8f55d5 100%);
+}
+.caseList .bg6 {
+  background-image: linear-gradient(140deg, #ff7a04 0%, #fdbc22 100%);
 }
 </style>

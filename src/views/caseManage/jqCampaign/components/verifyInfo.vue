@@ -5,7 +5,7 @@
       <title-pub :title="title"></title-pub>
       <div style="max-height:260px;overflow: auto;">
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="statisticCollect">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+          <el-table-column type="index" label="序号" width="60" fixed></el-table-column>
           <el-table-column prop="deptName" label="申请单位"  min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="userName" label="申请人" min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="acceptedTime" label="申请时间" min-width="180" show-overflow-tooltip></el-table-column>
@@ -21,7 +21,7 @@
           <el-table-column label="操作"  width="100" align="center" fixed="right">
             <template slot-scope="scope">
               <el-button size="mini" title="重新申请"  type="primary" circle  v-if="controlcxsq(scope.row) && $isViewBtn('101901')" @click="handleApply(scope.$index, scope.row)"><svg-icon icon-class="shenqing"></svg-icon></el-button>
-              <el-button size="mini" title="审核"  type="primary" circle  v-if="(Number(curDept.depType) < 3 && curDept.id===scope.row.acceptedDeptId && scope.row.wflowStatus==='1' && $isViewBtn('101908'))" @click="handleVerify(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
+              <el-button size="mini" title="审核"  type="primary" circle  v-if="controlshbtn(scope.row) && $isViewBtn('101908')"  @click="handleVerify(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -112,9 +112,12 @@ export default {
     controlcxsq(row) { // 重新申请按钮显隐控制
       return (((this.curDept.depType === '4' && this.curDept.parentDepId === row.createDeptId) || (this.curDept.depType !== '4' && this.curDept.id === row.createDeptId)) && row.wflowStatus + '' === '4')
     },
+    controlshbtn(row) { // 审核按钮显隐控制
+      return (Number(this.curDept.depType) < 3 && this.curDept.id === row.acceptedDeptId && row.wflowStatus === '1')
+    },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的申请，审核按钮
-      Bus.$emit('isShowsqbtn', false)
-      Bus.$emit('isShowshbtn', false)
+      // Bus.$emit('isShowsqbtn', false)
+      // Bus.$emit('isShowshbtn', false)
       if (data.length > 0) {
         data.forEach(item => {
           if (((this.curDept.depType === '4' && this.curDept.parentDepId === item.createDeptId) || (this.curDept.depType !== '4' && this.curDept.id === item.createDeptId)) && item.wflowStatus + '' === '4') { // 当前登录的是派出所时，用他的父级单位的id去判断  4：审核不通过
@@ -173,6 +176,16 @@ export default {
     .el-form{
       padding: 10px 20px;
     }
+  }
+  // 固定左侧列的样式问题
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
   }
 }
 </style>

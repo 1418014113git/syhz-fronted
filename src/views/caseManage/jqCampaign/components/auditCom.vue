@@ -2,7 +2,7 @@
 <!-- 审核弹框 -->
   <div class="auditCom">
     <!-- 省厅审核弹框 -->
-    <div class="stshForm" v-if='roleType===1'>
+    <div class="stshForm" v-if='roleType===1'  v-loading="tshLoading">
       <el-form ref="stshForm" :rules="rules" :model="stshForm" size="small" label-width="100px">
         <el-form-item label="编号" prop="number">
           <el-input v-model.trim="stshForm.number" disabled maxlength="50" placeholder=""  class="inputW"></el-input>
@@ -84,6 +84,7 @@ export default {
       contentType: '', // 当前选择的审核状态   3通过，4不通过 6向上申请
       roleType: '', // 角色类型，  1： 省厅， 2：地市
       stbtnLoading: false, // 省厅弹框按钮loading
+      tshLoading: false, // 省厅弹框页面loading
       pickerOptions: { // 控制开始时间只能大于等于当前时间
         disabledDate(time) {
           return time.getTime() <= Date.now()
@@ -185,6 +186,7 @@ export default {
           this.roleType = 1
           this.queryNumber() // 查询编号
         } else if (this.curDept.depType === '2') { // 地市  支队
+          this.tshLoading = false
           this.roleType = 2
           this.sjdwData = getSessionDeptSelect()
           this.sjdwData.forEach(item => {
@@ -210,6 +212,7 @@ export default {
     },
     initData() {
       this.remarkType = ''
+      this.tshLoading = false
       this.stbtnLoading = false
       this.resetForm('stshForm')
       this.resetForm('dsshForm')
@@ -220,13 +223,17 @@ export default {
       }
     },
     queryNumber() { // 获取编号
+      this.tshLoading = true
       const param = {
         dept: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode // 当前部门code
       }
       this.$query('casecluster/number', param).then((response) => {
+        this.tshLoading = false
         if (response.data) {
           this.stshForm.number = response.data
         }
+      }).catch(() => {
+        this.tshLoading = false
       })
     },
     checkstOption(type) { //   省厅审核  type:3通过，4不通过
