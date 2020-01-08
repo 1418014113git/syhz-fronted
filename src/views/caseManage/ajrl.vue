@@ -1073,18 +1073,19 @@ export default {
 
       // para.curDeptCode = this.filters.department[this.filters.department.length - 1] // 部门code
       if (this.filters.dType === '') {
-        if (this.filters.rlStartTime === '' && this.filters.rlEndTime) { // 开始时间为空,结束时间不为空
-          this.$message({
-            message: '开始时间不能为空', type: 'error'
-          })
+        // if (this.filters.rlStartTime === '' && this.filters.rlEndTime) { // 开始时间为空,结束时间不为空
+        //   this.$message({
+        //     message: '开始时间不能为空', type: 'error'
+        //   })
 
-          return false
-        } else if (this.filters.rlStartTime && this.filters.rlEndTime === '') { // 选择了开始时间,结束时间为空
-          this.$message({
-            message: '结束时间不能为空', type: 'error'
-          })
-          return false
-        } else if (this.filters.rlStartTime && this.filters.rlEndTime) { // 开始时间和结束时间均不为空
+        //   return false
+        // } else if (this.filters.rlStartTime && this.filters.rlEndTime === '') { // 选择了开始时间,结束时间为空
+        //   this.$message({
+        //     message: '结束时间不能为空', type: 'error'
+        //   })
+        //   return false
+        // } else
+        if (this.filters.rlStartTime && this.filters.rlEndTime) { // 开始时间和结束时间均不为空
           if (new Date(this.filters.rlStartTime).getTime() > new Date(this.filters.rlEndTime).getTime()) {
             this.$message({
               message: '结束时间不能小于开始时间', type: 'error'
