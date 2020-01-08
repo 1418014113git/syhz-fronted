@@ -46,7 +46,7 @@
         </el-select>
       </el-form-item>
       <el-form-item >
-        <el-button type="primary" size="small" v-on:click="query(true)">查询</el-button>
+        <el-button type="primary" size="small" v-on:click="query(true, true)">查询</el-button>
         <el-button type="primary" size="small" v-on:click="restForm()">重置</el-button>
         <el-button type="primary" size="small" v-on:click="clearTable()">清除过滤条件</el-button>
         <el-button v-if="$isViewBtn('182003') || $isViewBtn('182004') || $isViewBtn('182005')" type="primary" size="small" v-on:click="toTemplate()">维护模板</el-button>
@@ -124,6 +124,9 @@ export default {
   name: 'caseList',
   data() {
     return {
+      childFlag: '',
+      ajzts: '',
+      fadyName: '',
       filters: {
         area: [],
         department: [],
@@ -161,6 +164,7 @@ export default {
       titleData: [],
       caseData: [],
       ajztData: [], // 案件状态
+      ajztList: [],
       ajlbData: [], // 案件类别
       ajzmData: [], // 案件罪名
       ajlyData: [], // 案件来源
@@ -511,7 +515,7 @@ export default {
       this.filters.parqStart = '' // 破案开始日期
       this.filters.parqEnd = '' // 破案结束日期
     },
-    query(flag) {
+    query(flag, hand) {
       this.listLoading = true
       const para = JSON.parse(JSON.stringify(this.filters))
       para.department = this.filters.department.join(',')
@@ -524,6 +528,11 @@ export default {
       this.page = flag ? 1 : this.page
       para.pageNum = this.page
       para.pageSize = this.pageSize
+      if (!hand) {
+        para.childFlag = this.childFlag
+        para.fadyName = this.fadyName
+        para.ajzt = this.ajzts !== '' ? this.ajzts : this.filters.ajzt
+      }
       this.$query('caseManage/caseList', para).then(response => {
         this.caseData = response.data.list
         this.total = response.data.totalCount
@@ -534,10 +543,15 @@ export default {
     initAjzt() { // 初始化案件状态数据源
       this.$query('tcpcode', { codeLx: 'ajzt' }).then((response) => {
         if (response.data && response.data.length > 0) {
+          this.ajztList = response.data
           const temp = {}
           for (let index = 0; index < response.data.length; index++) {
             const element = response.data[index]
-            temp[element.codeName] = element.code
+            if (temp[element.codeName] !== undefined && temp[element.codeName] !== '') {
+              temp[element.codeName] = temp[element.codeName] + ',' + element.code
+            } else {
+              temp[element.codeName] = element.code
+            }
           }
           const arr = []
           const arr1 = []
@@ -695,8 +709,8 @@ export default {
       return children
     },
     getAjztName(ajzt) {
-      for (let i = 0; i < this.ajztData.length; i++) {
-        const item = this.ajztData[i]
+      for (let i = 0; i < this.ajztList.length; i++) {
+        const item = this.ajztList[i]
         if (String(ajzt) === String(item.code)) {
           return item.codeName
         }
@@ -728,7 +742,6 @@ export default {
       }
     },
     gotoMergeList() { // 跳转 重复合并列表
-      // this.$router.push({ path: '/caseManage/caseMergeList', query: { origin: 'caseList' }})
       var param = {
         origin: 'caseList'
       }
@@ -747,10 +760,10 @@ export default {
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
         const param = JSON.parse(sessionStorage.getItem(this.$route.path))
         if (param) {
-          if (param.areaCode) {
+          if (param.areaCode) { // 区域code ['610000', '610100']
             this.queryArea = param.areaCode
           }
-          if (param.deptCode) {
+          if (param.deptCode) { // 部门code '610000530000'
             this.queryDeptCode = param.deptCode
           }
           // if (String(param.type) === '0') {
@@ -773,6 +786,35 @@ export default {
             }
             if (String(param.type) === '1') {
               this.filters.parqEnd = param.end
+            }
+          }
+          if (param.analysis) { // 分析研判 跳转标识 传：true
+            if (param.ajzt) { // 案件状态 '102,103'
+              this.filters.ajzt = param.ajzt
+            }
+            if (param.larqStart) { // 立案日期开始 '2019-12-01 00:00:00'
+              this.filters.larqStart = param.larqStart
+            }
+            if (param.larqEnd) { // 立案日期结束 '2019-12-31 23:59:59'
+              this.filters.larqEnd = param.larqEnd
+            }
+            if (param.parqStart) { // 破案日期开始 '2019-12-01 00:00:00'
+              this.filters.parqStart = param.parqStart
+            }
+            if (param.parqEnd) { // 破案日期结束 '2019-12-31 23:59:59'
+              this.filters.parqEnd = param.parqEnd
+            }
+            if (param.syhFllb) { // 案件分类 ['1', '1001', '100101']
+              this.filters.syhFllb = param.syhFllb
+            }
+            if (param.childFlag) { // 是否统计子级 字符串： 'y' / 'n'
+              this.childFlag = param.childFlag
+            }
+            if (param.ajzts) { // 查询某几个案件状态的 '102,103,104,105'
+              this.ajzts = param.ajzts
+            }
+            if (param.fadyName) { // 发案地域 传汉字名称 '城区' / '郊区' / '镇' / '乡村' / '林区' / '其它'
+              this.fadyName = param.fadyName
             }
           }
         }
