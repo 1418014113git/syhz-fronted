@@ -193,7 +193,7 @@ export default {
       }
     },
     controlxsfa(row) { // 线索分发按钮显隐控制
-      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '7' || this.baseInfo.status + '' === '8') { // 协查中 , 协查超时, 协查结束
         const curDate = new Date(this.baseInfo.systemTime)
         const startDate = new Date(this.baseInfo.startDate)
         return (this.curDept.depType === '2' && this.curDept.depCode === row.deptCode && this.curDept.depCode !== '611400390000' && row.deptCode !== '611400390000' && curDate > startDate)
@@ -202,7 +202,7 @@ export default {
       }
     },
     controlxsfk(row) { // 线索反馈按钮显隐控制
-      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '7' || this.baseInfo.status + '' === '8') { // 协查中 , 协查超时, 协查结束
         const curDate = new Date(this.baseInfo.systemTime)
         const startDate = new Date(this.baseInfo.startDate)
         return (((this.curDept.depType === '2' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === row.deptCode.substring(0, 4) === '6114')) && curDate > startDate) // 611400390000 杨凌支队部门code
@@ -228,6 +228,18 @@ export default {
         curDeptType: this.curDept.depType === '4' ? '2' : this.curDept.depType, // 杨凌派出所 类型取杨凌支队的类型
         type: 2 // 集群
       }
+      // var param = {
+      //   assistId: this.clusterId, // 集群Id,
+      //   curDeptType: this.curDept.depType === '4' ? '2' : this.curDept.depType, // 杨凌派出所 类型取杨凌支队的类型
+      //   type: 2 // 集群
+      // }
+      // if (this.curDept.depType === '1') { // 总队 传上级部门code
+      //   param.parentCode = this.parentCode
+      // } else if (this.curDept.depType === '2') { // 支队  传本部门code
+      //   param.curDeptCode = this.curDept.depCode
+      // } else if (this.curDept.depType === '4') { // 杨凌派出所，传父级部门code
+      //   param.curDeptCode = this.curDept.parentDepCode
+      // }
       this.$query('caseassistclue/detailCount', param).then((res) => {
         this.listLoading = false
         this.listData = res.data
@@ -254,7 +266,7 @@ export default {
       if (data.length > 0) {
         data.forEach(item => {
           if (this.curDept.depType === '2' && this.curDept.depCode === item.deptCode && this.curDept.depCode !== '611400390000' && item.deptCode !== '611400390000') { // 集群战役处于协查中、协查结束状态时 本单位显示分发  杨凌不能分发，下面没有大队，派出所和支队同权限的
-            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '7' || this.baseInfo.status + '' === '8') { // 协查中 , 协查超时, 协查结束
               const startDate = new Date(this.baseInfo.startDate)
               if (curDate > startDate) {
                 Bus.$emit('isShowffbtn', true) // 线索分发显示
@@ -266,7 +278,7 @@ export default {
             }
           }
           if (((this.curDept.depType === '2' && this.curDept.depCode === item.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === item.deptCode.substring(0, 4) === '6114'))) { // 集群战役处于协查中、协查结束状态时 本单位显示反馈  派出所和支队同权限的，可以反馈支队的信息
-            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '7' || this.baseInfo.status + '' === '8') { // 协查中 , 协查超时, 协查结束
               const startDate = new Date(this.baseInfo.startDate)
               if (curDate > startDate) {
                 Bus.$emit('isShowfkbtn', true) // 线索反馈显示
