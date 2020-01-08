@@ -187,31 +187,31 @@ export default {
             category: this.ycReportForm.category
           }
           this.saveLoading = true
-          if (!this.nameCheckFlag) {
-            // 不重复
-            this.saveLoading = true
-            this.$save('yqreport', param).then(response => {
-              if (response.code === '000000') {
-                this.saveLoading = false
-                setTimeout(() => {
-                  this.uploadDialogVisible = false
-                }, 2000)
-                this.$message({
-                  message: '报告上传成功',
-                  type: 'success'
-                })
-                this.getList() // 页面刷新
-              }
-            }).catch(() => {
+          // if (!this.nameCheckFlag) {
+          // 不重复
+          this.saveLoading = true
+          this.$save('yqreport', param).then(response => {
+            if (response.code === '000000') {
               this.saveLoading = false
-            })
-          } else {
-            this.$message({
-              message: '文件名重复，请确认后重新上传',
-              type: 'error'
-            })
+              setTimeout(() => {
+                this.uploadDialogVisible = false
+              }, 2000)
+              this.$message({
+                message: '报告上传成功',
+                type: 'success'
+              })
+              this.getList() // 页面刷新
+            }
+          }).catch(() => {
             this.saveLoading = false
-          }
+          })
+          // } else {
+          //   this.$message({
+          //     message: '文件名重复，请确认后重新上传',
+          //     type: 'error'
+          //   })
+          //   this.saveLoading = false
+          // }
         }
       })
     },
@@ -267,7 +267,6 @@ export default {
       if (this.uploadImgs.length > 0) {
         for (let i = 0; i < this.uploadImgs.length; i++) {
           if (this.uploadImgs[i].name === fileName) {
-            console.log('文件名重复')
             this.nameCheckFlag = true
             return
           }
@@ -431,9 +430,12 @@ export default {
     // 下载
     handleDownLoad(index, row) {
       var item = JSON.parse(row.attachment)
+      var fileName = item.name
+      var index1 = fileName.lastIndexOf('.')
+      var suffix = fileName.substr(index1 + 1)
       const arr = item.path.split('/file')
       const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
-      this.$download_http_mg(path, { fileName: item.name })
+      this.$download_http_mg(path, { fileName: '' + row.title + '.' + suffix })
     },
     // 删除
     handleDel(row) {
