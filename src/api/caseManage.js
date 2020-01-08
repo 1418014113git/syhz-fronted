@@ -9,15 +9,6 @@ export function getAJJBXXETLRLPage(para) {
     params: para
   })
 }
-
-export function getAJJBXXETLRLTJPAGE(para) {
-  return request({
-    url: ModuleName + 'ajrllist/pageTjList',
-    method: 'get',
-    params: para
-  })
-}
-
 // 单条查询
 export function getAJJBXXETLRL(para) {
   return request({
