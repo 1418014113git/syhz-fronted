@@ -283,6 +283,7 @@ export default {
       isDisable: true, // 案件类别、案件罪名是否可选，默认不可选，当选择了案件类型时，案件类别、案件罪名可选。
       endDateDisabledLa: true, // 立案结束日期禁用
       endDateDisabledPa: true, // 破案结束日期禁用
+      endDateDisabled: true, // 认领结束时间选择框禁用
       curUser: {}, // 当前登录用户
       curDept: {}, // 当前登录的部门
       aztjSelectList: [], // 案件状态下拉框数据
