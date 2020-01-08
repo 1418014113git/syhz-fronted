@@ -60,6 +60,7 @@ export default {
       total: 0,
       baseInfo: {}, // 基础信息
       clusterId: '', // 存储列表传递过来的集群战役id
+      pcsParentDept: {}, // 派出所上级部门的数据信息
       pcsParentDeptcode: '' // 派出所的上上级code
     }
   },
@@ -91,6 +92,7 @@ export default {
       // 查询派出所的上上级(把派出所当大队，查大队的上级单位 )
       this.$query('hsyzparentdepart/' + this.curDept.parentDepCode, {}, 'upms').then((response) => {
         if (response.code === '000000') {
+          this.pcsParentDept = response.data
           this.pcsParentDeptcode = response.data.departCode
           this.query(true)
         }
@@ -112,7 +114,8 @@ export default {
       var param = {
         assistId: this.clusterId,
         pageSize: this.pageSize,
-        pageNum: flag ? 1 : this.page
+        pageNum: flag ? 1 : this.page,
+        deptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType
       }
       if (this.baseInfo.cityCode !== this.curDept.areaCode) { // 登录的部门不是申请单位
         if (this.curDept.depType === '3') { // 是大队时，传当前部门
@@ -121,9 +124,14 @@ export default {
           param.deptCode = this.curDept.parentDepCode
         }
       }
-      if (this.curDept.depType === '2') { // 支队登上来查看，传当前部门
+      if (this.curDept.depType === '2') { // 支队登上来查看，传当前部门 不传curDeptCode
         param.deptCode = this.curDept.depCode
+      } else if (this.curDept.depType === '3') { // 大队 传当前部门code
+        param.curDeptCode = this.curDept.depCode
+      } else if (this.curDept.depType === '4') { // 派出所，传父级部门code
+        param.curDeptCode = this.curDept.parentDepCode
       }
+
       this.$query('casecluster/signList', param).then((res) => {
         this.listLoading = false
         this.listData = res.data.list

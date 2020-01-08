@@ -28,34 +28,39 @@
       </el-col>
       <el-col :span="20" class="content">
         <el-card :style="'height:'+clientHeight+'px'" v-loading="rightLoading" >
-          <el-form :inline="true" :model="filters" label-width="80px" class="reportForm">
-            <el-form-item label="生成时间" prop="createTimeStart">
-              <el-date-picker
-                class="inputw"
-                v-model="filters.createTimeStart"
-                type="date"
-                value-format="yyyy-MM-dd"
-                :picker-options="createTimeStartPickerOptions"
-                placeholder="请选择开始时间">
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item label="至" prop="createTimeEnd" class="datezhi">
-              <el-date-picker
-                class="inputw"
-                v-model="filters.createTimeEnd"
-                type="date"
-                value-format="yyyy-MM-dd"
-                placeholder="请选择结束时间"
-                :picker-options="createTimeEndPickerOptions">
-              </el-date-picker>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" size="small" @click="queryYqList(true,true)">检索</el-button>
-            </el-form-item>
-          </el-form>
+          <div class="clearfix reportForm">
+            <span class="left">日报列表</span>
+            <el-form :inline="true" :model="filters" label-width="80px" class="right" style="margin-right: 30px;">
+              <el-form-item label="生成时间" prop="createTimeStart">
+                <el-date-picker
+                  class="inputw"
+                  v-model="filters.createTimeStart"
+                  type="date"
+                  value-format="yyyy-MM-dd"
+                  :picker-options="startPickerOptions"
+                  @change="startDateChange"
+                  placeholder="请选择开始时间">
+                </el-date-picker>
+              </el-form-item>
+              <el-form-item label="至" prop="createTimeEnd" class="datezhi" label-width="36px">
+                <el-date-picker
+                  class="inputw"
+                  v-model="filters.createTimeEnd"
+                  type="date"
+                  value-format="yyyy-MM-dd"
+                  @change="endDateChange"
+                  :picker-options="endPickerOptions"
+                  placeholder="请选择结束时间">
+                </el-date-picker>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" size="small" @click="queryYqList(true,true)" v-if="$isViewBtn('103401')">检索</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
           <div style="margin:15px 0 10px;">
             <el-checkbox v-model="allCheck" :indeterminate="isIndeterminate" @change="handleCheckAllChange" style="margin-right:20px;">全部</el-checkbox>
-            <el-button type="primary" size="small" @click="batchDownloadReport" :disabled="checkedReport.length===0">批量下载</el-button>
+            <el-button type="primary" size="small" @click="batchDownloadReport" :disabled="checkedReport.length===0" v-if="$isViewBtn('103404')">批量下载</el-button>
           </div>
           <div class="file_data_list clearfix" :style="'height:'+(clientHeight-170)+'px;overflow-y:auto;'">
             <div v-for="item in listData" :key="item.key" class="file_data">
@@ -67,8 +72,8 @@
               </div>
               <div class="file_mask"></div>
               <div class="hover_div">
-                <i class="el-icon-download" @click="downloadSingle(item.attachment)"></i>
-                <!-- <i class="el-icon-menu" @click="previewReport(item.attachment)"></i> -->
+                <i class="el-icon-download" @click="downloadSingle(item.attachment,item.title)" title="下载" v-if="$isViewBtn('103403')"></i>
+                <i class="el-icon-menu" @click="previewReport(item.attachment)" title="详情" v-if="$isViewBtn('103402')"></i>
               </div>
             </div>
           </div>
@@ -92,8 +97,8 @@ export default {
       totalData: [], // 左侧合计数量
       listData: [], // 右边列表
       active: '1', // 默认选中 舆情日报
-      createTimeEndPickerOptions: {},
-      createTimeStartPickerOptions: {},
+      endPickerOptions: {},
+      startPickerOptions: {},
       filters: {
         createTimeStart: '',
         createTimeEnd: '',
@@ -153,9 +158,13 @@ export default {
         }
       }
     },
-    queryTotal() {
+    queryTotal(date1, date2) {
       this.leftLoading = true
       const para = {}
+      if (date1 && date2) {
+        para.createTimeStart = date1
+        para.createTimeEnd = date2
+      }
       this.$query('yqreport/total', para).then(response => {
         this.leftLoading = false
         if (response.data) {
@@ -169,7 +178,7 @@ export default {
       this.page = flag ? 1 : this.page
       // 可以只输入开始或者结束；只输入结束时，开始默认2019-12-01
       if (this.filters.createTimeStart && !this.filters.createTimeEnd) { // 选择了开始时间,结束时间为空
-        this.filters.createTimeEnd = this.$parseTime(new Date(), '{y}-{m}-{d}')
+        // this.filters.createTimeEnd = this.$parseTime(new Date(), '{y}-{m}-{d}')
       } else if (!this.filters.createTimeStart && this.filters.createTimeEnd) {
         this.filters.createTimeStart = '2019-12-01'
       }
@@ -185,37 +194,54 @@ export default {
       }
       para.createTimeStart = para.createTimeStart ? para.createTimeStart + ' 00:00:00' : '' // 开始时间
       para.createTimeEnd = para.createTimeEnd ? para.createTimeEnd + ' 23:59:59' : '' // 结束时间
+      if (para.createTimeStart && para.createTimeEnd) { // 更新总数
+        this.queryTotal(para.createTimeStart, para.createTimeEnd)
+      } else {
+        this.queryTotal()
+      }
       this.rightLoading = true
       this.$query('page/yqreport', para).then(response => {
         this.rightLoading = false
-        if (response.data.list && response.data.list.length > 0) {
+        if (response.data) {
           this.listData = response.data.list
           this.total = response.data.totalCount
           this.pageSize = response.data.pageSize
-        } else {
-          this.listData = []
         }
       }).catch(() => {
         this.rightLoading = false
       })
     },
-    downloadSingle(item) { // 单个下载
+    downloadSingle(item, title) { // 单个下载
       if (typeof item === 'string') {
         item = JSON.parse(item)
       }
+      var fileName = item.name
+      var index = fileName.lastIndexOf('.')
+      var suffix = fileName.substr(index + 1)
+
       const arr = item.path.split('/file')
       const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
-      this.$download_http_mg(path, { fileName: item.name })
+      this.$download_http_mg(path, { fileName: title + '.' + suffix })
     },
     batchDownloadReport() { // 批量下载
       console.log(this.checkedReport)
       for (let index = 0; index < this.checkedReport.length; index++) {
         const element = this.checkedReport[index]
-        this.downloadSingle(element.attachment)
+        this.downloadSingle(element.attachment, element.title)
       }
     },
     previewReport(item) {
       item = JSON.parse(item)
+      if (item.name) {
+        var arr = item.name.split('.')
+        if (arr[1] === 'doc' || arr[1] === 'docx') {
+          this.$message({
+            message: 'word暂不支持预览',
+            type: 'warning'
+          })
+          return false
+        }
+      }
       window.open(item.path)
     },
     handleMenuClick(type) {
@@ -231,6 +257,45 @@ export default {
       this.page = 1
       this.pageSize = val
       this.queryYqList(true, true)
+    },
+    startDateChange(val) {
+      if (val) {
+        // this.endDateDisabled = false
+        // 限制 截止时间 必须是开始时间之后
+        this.endPickerOptions = Object.assign({}, 'endPickerOptions', {
+          disabledDate: (time) => {
+            return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
+          }
+        })
+      } else {
+        this.filters.createTimeEnd = '' // 结束时间清空
+        // this.endDateDisabled = true
+        this.startPickerOptions = Object.assign({}, 'startPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+        this.endPickerOptions = Object.assign({}, 'startPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+      }
+    },
+    endDateChange(val) { // 结束时间change事件
+      if (val) {
+        this.startPickerOptions = Object.assign({}, 'startPickerOptions', {
+          disabledDate: (time) => {
+            return time.getTime() > new Date(val).getTime()
+          }
+        })
+      } else {
+        this.startPickerOptions = Object.assign({}, 'endPickerOptions', {
+          disabledDate: (time) => {
+            return false
+          }
+        })
+      }
     }
   },
   mounted() {
