@@ -318,7 +318,7 @@
   </section>
 </template>
 <script>
-import { getAJJBXXETLRLPage, getAJJBXXETLRLTJPAGE, addAJJBXXSYHZDGX, editAJJBXXSYH } from '@/api/caseManage'
+import { getAJJBXXETLRLPage, addAJJBXXSYHZDGX, editAJJBXXSYH } from '@/api/caseManage'
 import { getSessionDeptSelect } from '@/api/depts'
 // getDeptLevel, ajrlListDepts,
 import { getAjrlDept, getAjrlParentDept, getAjrlNSXJ } from '@/api/dept'
@@ -1108,27 +1108,15 @@ export default {
         para.statusStr = this.carryParam.statusStr
       }
       this.listLoading = true
-      if (para.statistic !== '1') {
-        getAJJBXXETLRLPage(para).then((response) => {
-          const data = response.data
-          this.total = data.totalCount
-          this.pageSize = data.pageSize
-          this.cases = data.list
-          this.listLoading = false
-        }).catch(() => {
-          this.listLoading = false
-        })
-      } else {
-        getAJJBXXETLRLTJPAGE(para).then((response) => {
-          const data = response.data
-          this.total = data.totalCount
-          this.pageSize = data.pageSize
-          this.cases = data.list
-          this.listLoading = false
-        }).catch(() => {
-          this.listLoading = false
-        })
-      }
+      getAJJBXXETLRLPage(para).then((response) => {
+        const data = response.data
+        this.total = data.totalCount
+        this.pageSize = data.pageSize
+        this.cases = data.list
+        this.listLoading = false
+      }).catch(() => {
+        this.listLoading = false
+      })
     },
     reset() {
       this.filters = {

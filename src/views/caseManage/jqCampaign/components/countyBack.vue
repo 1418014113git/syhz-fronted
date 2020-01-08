@@ -128,12 +128,11 @@ export default {
       isShowpjdf: false, // 评价打分弹出框
       isShowpjdfdetail: false, // 评价打分弹出框
       btnLoading: false, // 评价打分按钮loading
-      isShowdrffxsDialog: false, // 是否显示分发线索弹出框
       pageSize: 5,
       page: 1,
       total: 0,
       clusterId: '', // 存储列表传递过来的id
-      pcsParentDept: '', // 派出所上级部门的数据信息
+      pcsParentDept: {}, // 派出所上级部门的数据信息
       qxqsbtn: false, // 区县签收也是否有签收按钮
       rules: {
         score: [ // 评价打分
@@ -179,6 +178,19 @@ export default {
         // curDeptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType,
         type: 2 // 集群
       }
+      // var param = {
+      //   // parentCode: this.curDept.depType === '2' ? this.curDept.depCode : this.parentCode, // 上级部门Code
+      //   assistId: this.clusterId, // 集群Id
+      //   curDeptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType,
+      //   type: 2 // 集群
+      // }
+      // if (this.curDept.depType === '2') { // 支队  传本部门code
+      //   param.parentCode = this.curDept.depCode
+      // } else if (this.curDept.depType === '3') { // 大队 传当前部门code
+      //   param.curDeptCode = this.curDept.depCode
+      // } else if (this.curDept.depType === '4') { // 派出所，传父级部门code
+      //   param.curDeptCode = this.curDept.parentDepCode
+      // }
       this.$query('caseassistclue/detailCount', param).then((res) => {
         this.listLoading = false
         this.listData = res.data
@@ -207,7 +219,7 @@ export default {
       }
     },
     controlxsfk(row) { // 线索反馈按钮显隐控制
-      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '7' || this.baseInfo.status + '' === '8') { // 协查中 , 协查超时, 协查结束
         const curDate = new Date(this.baseInfo.systemTime)
         const startDate = new Date(this.baseInfo.startDate)
         return (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode)) && curDate > startDate) // 当前登录的是派出所时，用他的父级单位的cdoe去判断   集群战役处于协查中、协查结束状态时
@@ -234,7 +246,7 @@ export default {
       if (data.length > 0) {
         data.forEach(item => {
           if (((this.curDept.depType === '4' && this.curDept.parentDepCode === item.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === item.deptCode))) { // 当前登录的是派出所时，用他的父级单位的cdoe去判断   集群战役处于协查中、协查结束状态时
-            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '8') {
+            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '7' || this.baseInfo.status + '' === '8') { // 协查中 , 协查超时, 协查结束
               const startDate = new Date(this.baseInfo.startDate)
               if (curDate > startDate) {
                 Bus.$emit('isShowfkbtn', true) // 显示线索反馈按钮
@@ -274,10 +286,6 @@ export default {
         })
       }
     },
-    handlefenfa(index, row) { // 线索分发
-      this.curRow = row
-      this.isShowdrffxsDialog = true
-    },
     handlefankui(index, row) { // 线索反馈
       if (String(row.signStatus) !== '2') { // 签收列表有签收按钮，表示有未签收的线索
         this.$alert('该线索还未签收，请先进行签收。', '提示', {
@@ -306,10 +314,6 @@ export default {
     handleDetail(index, row) { // 评价详情
       this.isShowpjdfdetail = true
       this.curRow = row
-    },
-    closeffxsDialog(val) { // 关闭分发线索弹框
-      this.isShowdrffxsDialog = val
-      location.reload()
     },
     getDeptsshdw() { // 查询上级单位
       var paramCode = ''
