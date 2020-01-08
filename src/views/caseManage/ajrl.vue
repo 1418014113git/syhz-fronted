@@ -197,7 +197,13 @@
           {{scope.row.rlTime | formatDate}}
         </template>
       </el-table-column>
-      <el-table-column prop="noticeOrgName" label="认领单位" width="260" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="noticeOrgName" label="认领单位" width="260" show-overflow-tooltip>
+
+        <template slot-scope="scope">
+          {{scope.row.nextOrgName? scope.row.nextOrgName:scope.row.noticeOrgName }}
+        </template>
+
+      </el-table-column>
       <el-table-column prop="status"  label="认领状态" width="100" align="center"> <!--:formatter="getStatusName"-->
         <template slot-scope="scope">
           <el-tag :type="scope.row.status==3?'':(scope.row.status==5?'success':(scope.row.status==9?'warning':'danger'))">{{getStatusName(scope.row)}}</el-tag>
@@ -491,11 +497,6 @@ export default {
         }, {
           label: '杨凌区', value: '6111', depCode: '611100000000'
         }
-        // {
-        //   label: '锡林郭勒盟', value: '1525', depCode: '152500000000'
-        // }, {
-        //   label: '阿拉善盟', value: '1529', depCode: '152900000000'
-        // }
       ],
       sel_val1: '',
       sel_val2: '',
@@ -1092,33 +1093,7 @@ export default {
           }
         }
       }
-      // if (this.qiOrgCode) {
-      //   this.cityCode = this.qiOrgCode
-      // } else {
-      //   if (this.shiOrgCode && this.shiOrgCode.length > 0) {
-      //     if (this.shiOrgCode.length > 1) {
-      //       this.cityCode = this.shiOrgCode[this.shiOrgCode.length - 1]
-      //     } else {
-      //       this.cityCode = this.shiOrgCode[0]
-      //     }
-      //   } else {
-      //     if (this.tingOrgCode && this.tingOrgCode.length > 0) {
-      //       if (this.tingOrgCode.length > 1) {
-      //         this.cityCode = this.tingOrgCode[this.tingOrgCode.length - 1]
-      //       } else {
-      //         this.cityCode = this.tingOrgCode[0]
-      //       }
-      //     }
-      //   }
-      // }
-      // if (this.filters.slsj && this.filters.slsj.length > 0) {
-      //   para.startTime = this.filters.slsj[0]
-      //   para.endTime = this.filters.slsj[1]
-      // } else {
-      //   para.startTime = ''
-      //   para.endTime = ''
-      // }
-      // para.cityCode = this.cityCode
+
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
       }
@@ -1133,7 +1108,6 @@ export default {
         para.statusStr = this.carryParam.statusStr
       }
       this.listLoading = true
-
       getAJJBXXETLRLPage(para).then((response) => {
         const data = response.data
         this.total = data.totalCount
@@ -1167,6 +1141,7 @@ export default {
         area: [],
         status: ''
       }
+
       this.qsStatusChange('')
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
 
@@ -1176,6 +1151,7 @@ export default {
       // this.filters.curDeptCode = this.curDept.depCode
       // this.filters.departType = this.curDept.depType
       this.qsStatus = '' // 认领状态设置为空
+
       this.initList()
     },
     handleAjDetail(index, row) {
@@ -1211,21 +1187,6 @@ export default {
       }
     },
     initList(hand) {
-      // this.depLevel = getDeptLevel(this.curDept.depCode)
-      // if (this.depLevel === 1) {
-      //   //this.getTingTree()
-      // } else if (this.depLevel === 2) {
-      //   this.getShiArray()
-      //   if (this.shiOrgCode.length === 0) {
-      //     this.shiOrgCode = [this.curDept.depCode.substring(0, 4), this.curDept.depCode]
-      //   }
-      //   this.shiDepChange(this.shiOrgCode)
-      // } else if (this.depLevel === 3) {
-      //   this.qiDep = ajrlListDepts(getSessionDeptSelect(), this.curDept.depCode)
-      //   this.qiOrgCode = this.curDept.depCode
-      //   this.qiDepChange(this.qiOrgCode)
-      // }
-
       var _this = this
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
@@ -1261,10 +1222,7 @@ export default {
             } else if (this.carryParam.deptType === 2) { // 支队
               this.filters.area = ['610000', this.carryParam.cityCode]
             } else if (this.carryParam.deptType === 3) { // 大队
-              console.log('carryParam:' + JSON.stringify(this.carryParam))
               this.filters.area = ['610000', this.carryParam.cityCode.substring(0, 4) + '00', this.carryParam.districtCode]
-
-              console.log(this.filters.area)
             } else if (this.carryParam.deptType === 4) { // 派出所
               if (this.carryParam.cityCode === '611400') { // 杨凌例外
                 this.filters.area = ['610000', '611400']
@@ -1599,6 +1557,7 @@ export default {
       this.filters.dType = this.carryParam.dType || '' // 案件认领统计页面跳转过来 认领时间筛选类型
       this.filters.fllb = this.carryParam.fllb || [] // 案件认领统计页面跳转过来 案件类型
       this.filters.ajzt = this.carryParam.ajzt || '' // 案件认领统计页面跳转过来 案件状态
+      this.filters.ajztName = this.carryParam.ajztName || '' // 案件认领统计页面跳转过来 案件状态名称
       this.filters.ajlb = this.carryParam.ajlb || '' // 案件认领统计页面跳转过来 案件类别
       this.filters.ajzm = this.carryParam.ajzm || '' // 案件认领统计页面跳转过来 案件罪名
       this.startDateChange(this.filters.rlStartTime) // 认领开始时间change事件

@@ -1,15 +1,14 @@
 import request from '@/utils/request'
 const ModuleName = process.env.SYHZ_MODULE
 
-// 分页查询
+// 案件认领分页查询
 export function getAJJBXXETLRLPage(para) {
   return request({
-    url: ModuleName + 'page/ajjbxxetlrl',
+    url: ModuleName + 'ajrllist/pageList',
     method: 'get',
     params: para
   })
 }
-
 // 单条查询
 export function getAJJBXXETLRL(para) {
   return request({

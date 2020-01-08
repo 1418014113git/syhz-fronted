@@ -169,7 +169,11 @@ export default {
       smallItemWidth: 60, // 表格最小格子的宽度
       filters: {
         area: [],
-        department: []
+        department: [],
+        startDate1: '',
+        startDate2: '',
+        endDate1: '',
+        endDate2: ''
       },
       dbCaseData: [], // 队伍统计
       tableHeight: null,
@@ -264,7 +268,8 @@ export default {
     },
     queryDbCase(city, param) { // 查督办案件
       this.echartDivLoading = true
-      this.$query('casesupervisetotal/1', param).then((response) => {
+      // casesupervisetotal/1
+      this.$queryPost('casesupervise/one', param).then((response) => {
         this.echartDivLoading = false
         if (response.code === '000000') {
           this.drawChart(response.data)
@@ -378,6 +383,7 @@ export default {
             return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
+        this.filters.timeType = '' // 清空timeType
       } else {
         this.filters.startDate2 = '' // 结束时间清空
         this.ksEndDateDisabled = true
@@ -395,6 +401,7 @@ export default {
             return time.getTime() > new Date(val).getTime()
           }
         })
+        this.filters.timeType = '' // 清空timeType
       } else {
         this.ksStartPickerOptions = Object.assign({}, 'ksStartPickerOptions', {
           disabledDate: (time) => {
@@ -411,6 +418,7 @@ export default {
             return time.getTime() < new Date(val).getTime() - (60 * 60 * 24 * 1000)
           }
         })
+        this.filters.timeType = '' // 清空timeType
       } else {
         this.filters.endDate2 = '' // 结束时间清空
         this.jsEndDateDisabled = true
@@ -428,6 +436,7 @@ export default {
             return time.getTime() > new Date(val).getTime()
           }
         })
+        this.filters.timeType = '' // 清空timeType
       } else {
         this.jsStartPickerOptions = Object.assign({}, 'jsStartPickerOptions', {
           disabledDate: (time) => {
