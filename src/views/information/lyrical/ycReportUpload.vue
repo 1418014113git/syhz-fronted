@@ -476,7 +476,7 @@ export default {
             return false
           }
         })
-        this.endPickerOptions = Object.assign({}, 'startPickerOptions', {
+        this.endPickerOptions = Object.assign({}, 'endPickerOptions', {
           disabledDate: (time) => {
             return false
           }
@@ -491,7 +491,7 @@ export default {
           }
         })
       } else {
-        this.startPickerOptions = Object.assign({}, 'endPickerOptions', {
+        this.startPickerOptions = Object.assign({}, 'startPickerOptions', {
           disabledDate: (time) => {
             return false
           }
