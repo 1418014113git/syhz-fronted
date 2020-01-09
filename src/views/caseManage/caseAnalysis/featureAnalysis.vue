@@ -207,6 +207,7 @@ export default {
         pendDate: '',
         lstartDate: '',
         lendDate: '',
+        syhFllb: [],
         syhFllbType: true, // 默认选中勾选子级
         ajzt: '' // 案件状态
       },
@@ -327,9 +328,7 @@ export default {
       } else if (param.ptimeType === '6') { // 接口要求 如果是自定义传空
         param.ptimeType = ''
       }
-      if (param.syhFllb) { // 案件分类
-        param.syhFllb = param.syhFllb.join(',')
-      }
+      param.syhFllb = param.syhFllb.join(',') // 案件分类
       param.syhFllbType = param.syhFllbType ? '1' : '2' // 筛选条件-是否统计子级
       this.queryCaseLbfx(param) // 查询案件类别分析
       this.queryCaseZmfx(param) // 查询案件罪名分析
@@ -496,9 +495,7 @@ export default {
       } else if (param.ptimeType === '6') { // 接口要求 如果是自定义传空
         param.ptimeType = ''
       }
-      if (param.syhFllb) { // 案件分类
-        param.syhFllb = param.syhFllb.join(',')
-      }
+      param.syhFllb = param.syhFllb.join(',') // 案件分类
       param.syhFllbType = param.syhFllbType ? '1' : '2' // 筛选条件-是否统计子级
       this.tableLoading = true
       this.page = flag ? 1 : this.page
@@ -637,11 +634,7 @@ export default {
       } else if (param.ptimeType === '6') { // 接口要求 如果是自定义传空
         param.ptimeType = ''
       }
-      if (param.syhFllb) { // 案件分类
-        param.syhFllb = param.syhFllb.join(',')
-      } else {
-        param.syhFllb = []
-      }
+      param.syhFllb = param.syhFllb.join(',') // 案件分类
       param.syhFllbType = param.syhFllbType ? '1' : '2' // 筛选条件-是否统计子级
       param.flag = this.dcType
       param.type = this.curType

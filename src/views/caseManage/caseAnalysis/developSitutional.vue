@@ -489,6 +489,7 @@ export default {
         pendDate: '',
         lstartDate: '',
         lendDate: '',
+        syhFllb: [],
         syhFllbType: true // 默认选中勾选子级
       },
       teamData: [], // 队伍统计
@@ -669,9 +670,7 @@ export default {
       if (!param.ptimeType) { // 破案日期类型
         param.ptimeType = '0'
       }
-      if (param.syhFllb) { // 案件分类
-        param.syhFllb = param.syhFllb.join(',')
-      }
+      param.syhFllb = param.syhFllb.join(',')
       param.syhFllbType = param.syhFllbType ? '1' : '2' // 筛选条件-是否统计子级
       if (city) { // 点击表格展开的查询
         this.listChildLoading = true
