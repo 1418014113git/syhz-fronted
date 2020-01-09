@@ -644,8 +644,8 @@
             trigger: 'axis'
           },
           grid: {
-            left: '2%',
-            right: '3%',
+            left: '4%',
+            right: '6%',
             top: '15%',
             containLabel: true
           },
@@ -849,8 +849,8 @@
             }
           },
           grid: {
-            left: '2%',
-            right: '3%',
+            left: '4%',
+            right: '6%',
             containLabel: true
           },
           legend: {
@@ -1024,7 +1024,7 @@
                 }
               }
             }
-            this.runChart1Option.grid.right = '3%'
+            this.runChart1Option.grid.right = '6%'
             if (yIndex !== 0) {
               yAxis.position = 'right'
               if (yIndex > 1) {

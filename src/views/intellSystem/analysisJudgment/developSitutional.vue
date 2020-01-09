@@ -483,7 +483,6 @@ export default {
       endPickerOptions2: {},
       fllbList: getSYHFLLBList(), // 案件类型下拉框数据
       caseStatusTable: [], // 案件状态统计 表格
-
       filters: {
         ltimeType: '',
         ptimeType: '',

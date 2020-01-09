@@ -529,7 +529,7 @@ export default {
       para.pageNum = this.page
       para.pageSize = this.pageSize
       if (!hand) {
-        para.childFlag = this.childFlag
+        para.childFlag = this.childFlag === 'y' ? 'yes' : 'no'
         para.fadyName = this.fadyName
         para.ajzt = this.ajzts !== '' ? this.ajzts : this.filters.ajzt
       }
