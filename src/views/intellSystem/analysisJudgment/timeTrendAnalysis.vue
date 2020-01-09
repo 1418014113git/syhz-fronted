@@ -43,7 +43,7 @@
                   </el-form-item>
                 </el-row>
               </el-form>
-              <div class="runChart">
+              <div class="runChart" v-loading="runChart1Loading">
                 <div class="runChart_title">
                   <span>案件趋势分析</span>
                   <el-tooltip popper-class="message_tooltip" effect="light" content="根据查询条件分析案件数量变化趋势" placement="right">
@@ -74,7 +74,7 @@
                 </div>
                 <div class="runChart_container" id="container"></div>
               </div>
-              <div class="runChart mar_top_50">
+              <div class="runChart mar_top_50" v-loading="runChart2Loading">
                 <div class="runChart_title">
                   <span>案件同比/环比分析</span>
                   <el-tooltip popper-class="message_tooltip" effect="light" content="根据查询条件分析案件同比/环比" placement="right">
@@ -268,8 +268,8 @@
         }
         this.runChart1Loading = true
         this.$query('/analysis/caseTime', para).then((response) => {
-          this.runChart1Loading = false
           this.buildRunChart1Data(response)
+          this.runChart1Loading = false
         }).catch(() => {
           this.runChart1Loading = false
         })
@@ -356,8 +356,8 @@
         }
         this.runChart2Loading = true
         this.$query('/analysis/caseContrast', para).then((response) => {
-          this.runChart2Loading = false
           this.buildRunChart2Data(response)
+          this.runChart2Loading = false
         }).catch(() => {
           this.runChart2Loading = false
         })
@@ -936,7 +936,8 @@
           type: 'bar',
           barGap: 0,
           label: labelOption,
-          data: data0
+          data: data0,
+          barMaxWidth: 50
         })
         if (this.runChart2DayType !== '1') {
           this.runChart2Option.legend.data.push('同比数量')
@@ -944,7 +945,8 @@
             name: '同比数量',
             type: 'bar',
             label: labelOption,
-            data: data1
+            data: data1,
+            barMaxWidth: 50
           })
         }
         this.runChart2Option.legend.data.push('环比数量')
@@ -952,7 +954,8 @@
           name: '环比数量',
           type: 'bar',
           label: labelOption,
-          data: data2
+          data: data2,
+          barMaxWidth: 50
         })
         if (this.runChart2Option && typeof this.runChart2Option === 'object') {
           this.runChart2.setOption(this.runChart2Option, true)
