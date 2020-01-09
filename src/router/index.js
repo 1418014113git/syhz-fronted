@@ -307,9 +307,9 @@ export const constantRouterMap = [
       { path: '/caseManage/caseMergeForm', component: () => import('@/views/caseManage/caseMergeForm'), name: '案件重复合并' },
       { path: '/caseAssist/total_jq', component: () => import('@/views/caseAssist/assist_total'), name: '集群战役统计分析' },
       { path: '/insideInfo/insideInfoList', component: () => import('@/views/information/insideInfo/insideInfoList'), name: '内部资源信息' },
-      { path: '/insideInfo/insideInfoDetail', component: () => import('@/views/information//insideInfo/insideInfoDetail'), name: '内部资源信息详情' },
-      { path: '/insideInfo/insideInfoToT', component: () => import('@/views/information//insideInfo/insideInfoToT'), name: '内部资源-培训资料添加' },
-      { path: '/insideInfo/insideInfoToK', component: () => import('@/views/information//insideInfo/insideInfoToK'), name: '内部资源-知识库资料添加' },
+      { path: '/insideInfo/insideInfoDetail', component: () => import('@/views/information/insideInfo/insideInfoDetail'), name: '内部资源信息详情' },
+      { path: '/insideInfo/insideInfoToT', component: () => import('@/views/information/insideInfo/insideInfoToT'), name: '内部资源-培训资料添加' },
+      { path: '/insideInfo/insideInfoToK', component: () => import('@/views/information/insideInfo/insideInfoToK'), name: '内部资源-知识库资料添加' },
       { path: '/intellSystem/timeTrendAnalysis', component: () => import('@/views/intellSystem/analysisJudgment/timeTrendAnalysis'), name: '时间变化趋势分析' }
     ]
   },
