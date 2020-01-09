@@ -203,8 +203,8 @@ export default {
       fllbList: getSYHFLLBList(), // 案件类型下拉框数据
       dialogVisible: false, // 更多 弹框是否显示
       filters: {
-        ltimeType: '1', // 特征分析默认查本年
-        ptimeType: '1',
+        ltimeType: '',
+        ptimeType: '',
         pstartDate: '',
         pendDate: '',
         lstartDate: '',
@@ -595,8 +595,6 @@ export default {
     getSysTime() {
       this.$query('knowledge/queryTime').then(response => {
         this.systemTime = response.data
-        this.buildTime('la') // 默认选择本年
-        this.buildTime('pa')
       })
     },
     downloadTable() {
