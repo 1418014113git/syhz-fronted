@@ -1,353 +1,257 @@
 <template>
-  <div>
+  <!-- 协查详情 -->
+  <div class="caseAssistDetail">
     <el-row>
-      <img src="@/assets/icon/back.png"  class="goBack" @click="toback">   <!--返回-->
+      <img src="@/assets/icon/back.png" class="goBack" @click="toback">   <!--返回-->
     </el-row>
-    <div class="db_detail">
-    <el-row>
-      <el-col :span="8">
-        <el-card class="box-card" style="height: 500px;">
-          <el-row>
-            <el-col :span="16" class="card_title">
-              <span style="margin-right:50px;">协查案件信息</span>
-            </el-col>
-            <el-col :span="8">
-              <el-button type="primary" size="mini" v-if="Number(assist.status) >= 5 && showQsBtn && $isViewBtn('100910') && bsId" @click="doStateDb(0)"
-                         v-loading.fullscreen.lock="doStateLoading">签收
-              </el-button>
-            </el-col>
-          </el-row>
-          <el-row style="margin-top: 20px;">
-            <el-col :span="10" class="text_c">状态</el-col>
-            <el-col :span="10" class="text_c">协查级别</el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="10" class="text_c">
-              <span v-if="assist.status === 1">待审核</span>
-              {{formatStatus(assist.status)}}
-            </el-col>
-            <el-col :span="10" class="text_c">
-              {{formatType(assist.assistType)}}
-            </el-col>
-          </el-row>
-          <el-row style="margin-top: 20px;">
-            <el-col>任务案件</el-col>
-          </el-row>
-          <el-row style="margin-top: 10px;" type="flex" justify="center">
-            <el-col class="text_c" style="font-size: 18px;">
-              <el-button type="text" @click="toAjDetail()" style="font-size: 18px;" :title="caseInfo.AJMC" class="ellipsis-word">{{ caseInfo.AJMC }}</el-button>
-            </el-col>
-          </el-row>
-          <el-row style="margin-top: 10px;" type="flex" justify="center">
-            <el-col class="text_c" style="font-size: 18px;">
-              <el-button type="text" @click="toAjDetail()" style="font-size: 18px;">{{ caseInfo.AJBH }}</el-button>
-            </el-col>
-          </el-row>
-          <el-row style="margin-top: 20px;" type="flex" justify="center">
-            <el-col :span="6">
-              <p class="p_htl1">
-                <el-button v-if="!isConcern" type="warning" icon="el-icon-star-off" circle
-                           @click="saveConcern"></el-button>
-                <el-button v-else type="success" icon="el-icon-star-off" circle @click="saveConcern"></el-button>
-              </p>
-              <p v-if="!isConcern" class="p_htl2">关注</p>
-              <p v-else class="p_htl2">已关注</p>
-            </el-col>
-            <el-col :span="6">
-              <p class="p_htl1">状态</p>
-              <p class="p_htl2">{{caseInfo.AJZT_NAME}}</p>
-            </el-col>
-            <el-col :span="6">
-              <p class="p_htl1">涉案价值 </p>
-              <p class="p_htl2">¥ {{ caseInfo.SAJZ }}</p>
-            </el-col>
-          </el-row>
-          <el-row style="border:1px solid #CCC; padding:0 10px;">
-            <el-row style="margin-top: 10px;">
-              <el-col :span="6"></el-col>
-              <el-col :span="10">案件类型:{{ caseInfo.AJXZ_NAME}}</el-col>
-            </el-row>
-            <el-row style="margin-top: 10px;">
-              <el-col :span="6">案件类别:</el-col>
-              <el-col :span="16">{{ caseInfo.AJLB_NAME }}</el-col>
-            </el-row>
-            <el-row style="margin: 10px 0;">
-              <el-col :span="6">立案日期:</el-col>
-              <el-col :span="16">{{ $handlerDateTime(caseInfo.LARQ) }}</el-col>
-            </el-row>
-          </el-row>
-        </el-card>
-      </el-col>
-      <el-col :span="16">
-        <el-card class="box-card" style="height: 500px;">
-          <div>
-            <p class="card_title"><span style="margin-right:50px;">最新进展</span><span>{{ caseInfo.AJMC }}</span></p>
-            <time-line-small :caseId="assist_id" :type="5" style=" max-height: 420px; overflow-y: auto; padding: 0 50px 50px;"></time-line-small>
+    <div class="caseAssist_detail">
+      <el-row>
+        <!-- 左侧导航区 -->
+        <el-col class="leftCont" :span="3" :style="{height:countHeight}">
+          <left-nav class="bg" :assistId="assistId"></left-nav>
+        </el-col>
+        <!-- 右侧内容区 -->
+        <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
+          <div class="rightContDoc" ref="rightContDoc">
+            <base-info ref="baseInfo" class="marb bg baseInfo" :assistId="assistId" :info="baseInfo" :signBtnVisibleH="signBtnVisibleH" :evaluateBtnVisibleH="evaluateBtnVisibleH"></base-info>
+            <verify-info class="marb bg auditInfo" :assistId="assistId" :info="baseInfo"></verify-info>
+            <SignCom class="marb bg signInfo" :assistId="assistId" :info="baseInfo" :showType="1" @setSignBtnVisibleH="setSignBtnVisibleH"></SignCom>
+            <FeedBackCom class="marb bg feedbackInfo" :assistId="assistId" :info="baseInfo" :showType="1" @setEvaluateBtnVisibleH="setEvaluateBtnVisibleH"></FeedBackCom>
+            <SignCom v-if="areaVisible" class="marb bg signInfo_area" :assistId="assistId" :info="baseInfo" :showType="2" @setSignBtnVisibleH="setSignBtnVisibleH"></SignCom>
+            <FeedBackCom v-if="areaVisible" class="marb bg feedbackInfo_area" :assistId="assistId" :info="baseInfo" :showType="2" @setEvaluateBtnVisibleH="setEvaluateBtnVisibleH"></FeedBackCom>
           </div>
-        </el-card>
-      </el-col>
-    </el-row>
-    <el-row style="margin-top: 10px;">
-      <el-col style="min-height: 200px; margin-bottom: 50px;">
-        <el-tabs type="border-card">
-          <el-tab-pane label="协查信息">
-            <assist-info :assistInfoData="assist"></assist-info>
-          </el-tab-pane>
-          <el-tab-pane label="反馈信息">
-            <feed-back :id="assist.id" :assistDepts="assistDepts" :state="assist.status" :bs-id="bsId"></feed-back>
-          </el-tab-pane>
-          <el-tab-pane label="审核信息">
-            <examine-list :id="assist.id" type="0005"></examine-list>
-          </el-tab-pane>
-        </el-tabs>
-      </el-col>
-    </el-row>
-  </div>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
 <script>
-import {
-  getConcernCase, concernCase, cancelConcern
-} from '@/api/common'
-import timeLineSmall from '../common/timeLineSmall'
-import AssistInfoTab from './components/assistInfoTab'
-import ExamineList from '../common/ExamineList'
-import feedBack from './components/feedBack'
-import {
-  getAssistCase
-} from '@/api/assistCase'
-import {
-  getAJJBXXSYHID
-} from '@/api/caseManage'
-import {
-  getAssistLevelText, getAssistStatusText
-} from '@/utils/codetotext'
-import {
-  updBusinessSignAssist, getBisSignOne
-} from '@/api/workSignList'
-
-export default {
-  name: 'casedb',
-  data() {
-    return {
-      caseId: '',
-      assist_id: '',
-      doStateLoading: false,
-      assist: {},
-      caseInfo: {},
-      curUserId: '',
-      isConcern: false,
-      concernId: '',
-      bsId: '',
-      curUser: {},
-      curDept: {},
-      showQsBtn: false,
-      assistDepts: ''
-    }
-  },
-  components: {
-    'time-line-small': timeLineSmall,
-    'assist-info': AssistInfoTab,
-    'examine-list': ExamineList,
-    'feed-back': feedBack
-  },
-  methods: {
-    formatStatus(status) {
-      return getAssistStatusText(status)
-    },
-    formatType(assistType) {
-      return getAssistLevelText(assistType)
-    },
-    ajBaseInfo(id) {
-      if (id) {
-        getAJJBXXSYHID({ id: id }).then((response) => {
-          const data = response.data
-          if (data) {
-            this.caseInfo = {
-              AJMC: data.AJMC,
-              AJBH: data.AJBH,
-              AJZT_NAME: data.AJZT_NAME,
-              SAJZ: data.SAJZ,
-              SYH_FLLB: data.SYH_FLLB,
-              AJLB_NAME: data.AJLB_NAME,
-              LARQ: data.LARQ
-            }
-            this.getConcern()
-          }
-        })
+  import LeftNav from './components/leftNav' // 左侧菜单
+  import BaseInfo from './components/baseInfo' // 右侧--基本信息
+  import VerifyInfo from './components/verifyInfo' // 右侧--审核信息
+  import SignCom from './components/signCom'
+  import FeedBackCom from './components/feedbackCom'
+  import $ from 'jquery'
+  export default {
+    name: 'assist_detail',
+    data() {
+      return {
+        countHeight: document.documentElement.clientHeight - 160 + 'px',
+        classList: ['baseInfo', 'auditInfo', 'signInfo', 'feedbackInfo'],
+        curUser: JSON.parse(sessionStorage.getItem('userInfo')),
+        curDept: JSON.parse(sessionStorage.getItem('depToken'))[0],
+        assistId: sessionStorage.getItem(this.$route.path),
+        baseInfo: {},
+        systemTime: null,
+        areaVisible: false,
+        signBtnVisibleH: true,
+        evaluateBtnVisibleH: true
       }
     },
-    assistInfo() {
-      if (this.assist_id) {
-        const para = {
-          id: this.assist_id
+    components: {
+      LeftNav,
+      BaseInfo,
+      VerifyInfo,
+      SignCom,
+      FeedBackCom
+    },
+    computed: {
+      getIstotop() {
+        if (this.$store.state.app.personeltotop) {
+          return this.$store.state.app.personeltotop
         }
-        getAssistCase(para).then((response) => {
-          if (response.data) {
-            this.assist = response.data
-            if (response.data.attachement) {
-              this.assist.attachement = JSON.parse(response.data.attachement)
-            }
-            this.caseId = response.data.caseId
-            this.ajBaseInfo(response.data.caseId)
-            if (this.assist.assistDeptId.indexOf('[' + this.curDept.id + ']') > -1) {
-              this.showQsBtn = true
-            }
-            if (this.assist.assistDeptId) {
-              this.assistDepts = this.assist.assistDeptId
-            }
-          }
-        })
+      },
+      getUserIcons() {
+        return this.$store.state.app.istotop
       }
     },
-    doStateDb(type) {
-      const req = {
-        id: this.assist_id
-      }
-      let msg = ''
-      if (type === 0) {
-        req.status = 6
-        msg = '确认要签收吗?'
-      }
-      if (!this.bsId) {
-        return false
-      }
-      this.$confirm(msg, '提示', {
-        type: 'warning'
-      }).then(() => {
-        updBusinessSignAssist({
-          id: this.bsId,
-          status: 2,
-          localInegId: this.assist_id,
-          signUserId: this.curUser.id,
-          updateUserId: this.curUser.id,
-          bizType: 5,
-          action: '签收案件协查',
-          bizId: this.assist_id,
-          userId: this.curUser.id,
-          userName: this.curUser.realName
-        }).then((res) => {
-          if (res.code === '000000') {
-            this.$message({
-              message: '签收成功',
-              type: 'success'
-            })
-            location.reload()
-          }
-        }).catch(() => {
-          this.doStateLoading = false
-        })
-      }).catch(() => {
-        this.listLoading = false
-      })
-    },
-    getBisSign(id) {
-      getBisSignOne({
-        businessValue: id,
-        businessTable: 'aj_local_investigation', noticeOrgId: this.curDept.id, businessType: 6, status: 1
-      }).then((res) => {
-        if (res.code === '000000' && res.data) {
-          if (res.data.length > 0) {
-            this.bsId = res.data[0]['id']
-          }
+    watch: {
+      getIstotop(val) {
+        // 监听state状态变化
+        this.jump(val)
+      },
+      getUserIcons(val) { // 监听state状态变化
+        if (val === 1 && document.querySelector('.rightCont').scrollTop > 0) {
+          document.querySelector('.rightCont').scrollTop = 0
         }
-      })
-    },
-    saveConcern() {
-      if (this.concernId) {
-        const flag = this.isConcern ? 0 : 1
-        const msg = this.isConcern ? '取消关注' : '关注成功'
-        cancelConcern({
-          id: this.concernId, enable: flag
-        }).then((res) => {
-          if (res.code === '000000') {
-            this.$message({
-              message: msg,
-              type: 'success'
-            })
-            this.isConcern = flag
-          }
-        })
-      } else if (!this.concernId && !this.isConcern) {
-        concernCase({
-          AJBH: this.caseInfo.AJBH, userId: this.curUserId
-        }).then((res) => {
-          if (res.code === '000000') {
-            this.$message({
-              message: '关注成功',
-              type: 'success'
-            })
-            this.isConcern = true
-            this.concernId = res.data
-          }
-        })
       }
     },
-    getConcern() {
-      getConcernCase({
-        ajbh: this.caseInfo.AJBH, userId: this.curUserId
-      }).then((res) => {
-        if (res.data && res.data.length > 0) {
-          const data = res.data[0]
-          if (data['enable'] === 1) {
-            this.isConcern = true
+    methods: {
+      setSignBtnVisibleH(val) {
+        this.signBtnVisibleH = val
+        this.$refs.baseInfo.setSignBtnVisibleH(this.signBtnVisibleH)
+      },
+      setEvaluateBtnVisibleH(val) {
+        this.evaluateBtnVisibleH = val
+        this.$refs.baseInfo.setEvaluateBtnVisibleH(this.evaluateBtnVisibleH)
+      },
+      detail() { // 查询详情
+        this.$query('caseAssist/' + this.assistId, {}).then((response) => {
+          this.baseInfo = response.data
+          if (response.data.attachment !== undefined && response.data.attachment !== null && response.data.attachment !== '') {
+            this.baseInfo.attachment = JSON.parse(response.data.attachment)
           } else {
-            this.isConcern = false
+            this.baseInfo.attachment = []
           }
-          this.concernId = data['id']
+          this.baseInfo.systemTime = this.systemTime
+          this.$refs.baseInfo.setBaseInfo(this.baseInfo)
+        }).catch(() => {
+        })
+      },
+      getSysTime() {
+        this.$query('knowledge/queryTime').then(response => {
+          this.systemTime = response.data
+          this.detail()
+        })
+      },
+      jump(val) {
+        if (val !== undefined && val !== '') {
+          if (document.querySelector('.' + val)) {
+            const total = document.querySelector('.' + val).offsetTop
+            $('.rightCont').animate({ scrollTop: total }, 0)
+          }
         }
-      })
+      },
+      toback() {
+        this.$router.push({ path: '/caseAssist/list' }) // 跳转到列表页
+      },
+      // 监听滚动条变化
+      handleScroll() {
+        this.$store.dispatch('Personeltotop', '')
+        const documentHeight = this.$refs.rightContDoc.offsetHeight
+        const difference = documentHeight - (document.documentElement.clientHeight - 130)
+        if (document.querySelector('.rightCont').scrollTop > 0) { // 如何滚动条顶部距离>0,则将状态ToTop初始化为0
+          this.$store.dispatch('ToTop', 0)
+        }
+        for (let i = 0; i < this.classList.length - 1; i++) {
+          const scrollTop = document.querySelector('.rightCont').scrollTop
+          if (document.querySelector('.' + this.classList[i])) {
+            const offsetTop = document.querySelector('.' + this.classList[i]).offsetTop
+            if (scrollTop === 0) {
+              this.$store.dispatch('MouleClass', this.classList[0])
+            } else if (scrollTop >= offsetTop - 10) {
+              this.$store.dispatch('MouleClass', this.classList[i])
+            } else if (scrollTop === difference + 20) {
+              this.$store.dispatch('MouleClass', this.classList[this.classList.length - 1])
+            }
+          }
+        }
+      }
     },
-    toAjDetail() {
-      // this.$router.push({ path: '/caseManage/detailSyh/' + this.caseId })
-      this.$router.push({
-        path: '/caseFile/index', query: { id: this.caseId }
-      })
-    },
-    toback() {
-      this.$router.back(-1)
+    mounted() {
+      const _this = this
+      document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
+      if (this.curDept.depType === '2' && this.curDept.areaCode !== '611400' && this.curDept.areaCode !== '616200') { // 地市 并且 不是杨凌 不是西咸
+        this.areaVisible = true
+        this.classList.push('signInfo_area')
+        this.classList.push('feedbackInfo_area')
+      }
+      this.getSysTime()
     }
-  },
-  mounted() {
-    this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-    if (this.curUser && this.curDept) {
-      this.curUserId = this.curUser.id
-      this.getBisSign(this.assist_id)
-    }
-  },
-  created() {
-    this.assist_id = this.$route.params.id
-    this.assistInfo()
   }
-}
 </script>
+<style rel="stylesheet/scss" lang="scss">
+  .caseAssistDetail .leftCont {
+    width: 11.8%;
+    margin-right: 10px;
+  }
+  .caseAssistDetail .rightCont {
+    overflow: auto;
+  }
+  .caseAssistDetail .marb {
+    margin-bottom: 20px;
+  }
+  .caseAssistDetail .bg {
+    background-color: rgba(0, 64, 94, 0.7);
+  }
+  .caseAssistDetail .cell_title {
+    margin: 0 0 10px 5px;
+  }
+  .caseAssistDetail .cell_title .text {
+    // display: inline-block;
+    line-height: 20px;
+    color: #bce8fc;
+    text-shadow: 0 0 2px #fff;
+    margin-left: 3px;
+  }
+  .caseAssistDetail .cell_title .small_line {
+    display: inline-block;
+    width: 8px;
+    height: 20px;
+    background: #00a0e9;
+    border-radius: 3px;
+    vertical-align: middle;
+  }
+  .caseAssistDetail .archiveTab.el-tabs {
+    border: none;
+    background: none;
+  }
+  .caseAssistDetail .archiveTab.el-tabs .el-tabs__header {
+    background: url(/static/image/personFile_images/titlePub.png) no-repeat center center;
+    background-size: 100% 65%;
+    margin: 0;
+  }
+  .caseAssistDetail .archiveTab.el-tabs .el-tabs__nav-scroll {
+    padding: 6px 18px 16px 5px;
+  }
+  .caseAssistDetail .archiveTab.el-tabs .el-tabs__nav-wrap::after {
+    // 去掉tab自带的下划线
+    height: 0;
+  }
+  .caseAssistDetail .archiveTab.el-tabs .el-tabs__active-bar {
+    height: 0;
+  }
+  .caseAssistDetail .archiveTab.el-tabs .el-tabs__item {
+    padding: 0 20px;
+    height: 20px;
+    line-height: 20px;
+  }
+  .caseAssistDetail .archiveTab.el-tabs .el-tabs__item.is-top:last-child {
+    padding-right: 20px;
+  }
+  .caseAssistDetail .archiveTab.el-tabs .el-tabs__item.is-active {
+    color: #bce8fc;
+    text-shadow: 0 0 2px #fff;
+    .no_data_title {
+      color: #bce8fc;
+      text-shadow: 0 0 2px #fff;
+    }
+  }
+  .caseAssistDetail .archiveTab.el-tabs .el-tabs__item {
+    color: #00a0e9;
+  }
+  .caseAssistDetail .archiveTab.el-tabs .tab_title_line {
+    // taba页签右边的斜线
+    width: 26px;
+    position: absolute;
+    right: -10px;
+    top: -1px;
+  }
+  .caseAssistDetail .goBack {
+    margin: 0 10px 5px 0;
+  }
+  .caseAssistDetail .toolbar {
+    margin: 2px 0 0 !important;
+  }
+  .caseAssistDetail .pubStyle {
+    border: 2px solid rgb(0, 160, 233);
+    border-radius: 6px;
+    padding: 0 12px 10px 8px;
+  }
+  /*.el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even) {*/
+     /*background-color: #032c43; */
+  /*}*/
 
-<style scoped>
-.db_detail .text_c {
-  text-align: center;
-}
-
-.db_detail .p_htl1 {
-  height: 33px;
-  text-align: center;
-  line-height: 33px;
-}
-
-.db_detail .p_htl2 {
-  text-align: center;
-  height: 40px;
-  line-height: 40px;
-}
-
-.db_detail .box-card {
-  margin: 2px 2px 0 2px;
-}
-
-.db_detail .box-card .card_title {
-  display: inline-block;
-  height: 40px;
-  line-height: 45px;
-}
+  // 固定左侧列的样式问题
+  .caseAssistDetail .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .caseAssistDetail .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .caseAssistDetail .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
+  }
 </style>
+

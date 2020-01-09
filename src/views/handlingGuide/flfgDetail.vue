@@ -131,6 +131,8 @@
         currentTime: new Date(),
         autoUpdateInterval: null,
         waitInterval: null,
+        timeInterval: null,
+        intervalSplit: 3000, // 毫秒
         learningTime: 10000 // 毫秒
       }
     },
@@ -285,7 +287,7 @@
         })
       },
       bindSetTimeOut() {
-        if (this.callBack === '' && this.notTake) {
+        if (this.callBack === '' && this.notTake && (this.detailData.content !== undefined && this.detailData.content !== null && this.detailData.content !== '')) {
           setTimeout(() => {
             addJF('1', this.detailData.articleType, this.detailData.id, '1').then(response => {
             })
@@ -300,9 +302,21 @@
           const longC = parseFloat((time.getTime() - this.currentTime.getTime()) / 1000).toFixed(3)
           this.uploadViewLog(longC, true)
         }, this.learningTime)
+        this.timeInterval = setInterval(() => {
+          addJF('4', this.detailData.articleType, this.detailData.id, '1').then(response => {
+          })
+        }, this.intervalSplit)
       },
       clearTimeInterval() {
         clearInterval(this.autoUpdateInterval)
+        clearInterval(this.timeInterval)
+      },
+      initSplit() {
+        const config = JSON.parse(sessionStorage.getItem('config'))
+        const currentTypeConfig = config['ruleType4']
+        this.intervalSplit = currentTypeConfig.ruleTime * 1000
+        const currentTypeConfig1 = config['ruleType1']
+        this.learningTime = currentTypeConfig1.ruleTime * 1000
       }
     },
     created() {
@@ -314,6 +328,7 @@
       })
     },
     mounted() {
+      this.initSplit()
       const data = JSON.parse(sessionStorage.getItem('depToken'))
       if (data !== undefined && data !== null && data.length > 0) {
         this.notTake = true

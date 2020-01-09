@@ -10,6 +10,7 @@ const tipText_Notice_size = '点击或将文件拖拽到这里上传，最多10�
 const tipText_Notice_style = '支持扩展名：.rar .zip .doc .docx .pdf .jpg .xls .xlsx...'
 const tipText_clue_size = '点击或将文件拖拽到这里上传，最多5个，单个文件最大50M'
 const tipText_clue_style = '支持扩展名：.rar .zip .doc .docx .pdf .jpg .xls .xlsx...'
+const tipText_ycReport_style = '报告格式仅支持Word、PDF!'
 // const tipText_Notice = '只能上传rar、zip、doc、docx、pdf、jpg、xls、xlsx格式文件，最多10个，单个文件大小不超过500M'
 
 function fileValid(file) {
@@ -24,7 +25,7 @@ function fileValid(file) {
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(txt)|(doc)|(docx)|(xls)|(xlsx)|(pdf)|(jpg)|(png)|(zip)|(rar)$/
   if (!reg.test(fileType)) {
     return '上传txt、doc、docx、xls、xlsx、pdf、jpg、png、zip、rar格式文件，且大小不超过500M'
@@ -43,7 +44,7 @@ function fileValid_Notice(file) {
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(rar)|(zip)|(doc)|(docx)|(pdf)|(jpg)|(xls)|(xlsx)$/
   if (!reg.test(fileType)) {
     return '只支持上传rar、zip、doc、docx、pdf、jpg、xls、xlsx格式文件'
@@ -62,7 +63,7 @@ function imgValid(file) { // 仅图片
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(png)|(jpg)|(jpeg)|(bmp)$/
   if (!reg.test(fileType)) {
     return tipTextImg
@@ -81,7 +82,7 @@ function fileOtherValid(file) { // 除了图片 其他附件
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(doc)|(docx)|(pdf)|(zip)|(rar)$/
   if (!reg.test(fileType)) {
     return tipTextOther
@@ -100,13 +101,14 @@ function fileNoWsValid(file) { // 无文书
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(doc)|(docx)|(pdf)|(zip)|(rar)|(png)|(jpg)|(jpeg)|(bmp)$/
   if (!reg.test(fileType)) {
     return tipTextNoWs
   }
   return ''
 }
+
 function fileValid_clue(file) {
   const num = 1024.00 // byte
   if (file.size) {
@@ -118,7 +120,7 @@ function fileValid_clue(file) {
   }
   const name = file.name.split('.')
   const arrayLength = name.length
-  const fileType = name[arrayLength - 1]
+  const fileType = name[arrayLength - 1].toLowerCase()
   const reg = /^(rar)|(zip)|(doc)|(docx)|(pdf)|(jpg)|(xls)|(xlsx)$/
   if (!reg.test(fileType)) {
     return '只支持上传rar、zip、doc、docx、pdf、jpg、xls、xlsx格式文件'
@@ -142,5 +144,6 @@ export default {
   tipText_Notice_style,
   fileValid_clue,
   tipText_clue_size,
-  tipText_clue_style
+  tipText_clue_style,
+  tipText_ycReport_style
 }

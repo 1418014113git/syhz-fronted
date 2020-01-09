@@ -3,52 +3,48 @@
     <el-row class="clearfix">
       <img src="@/assets/icon/back.png" class="goBack" @click="back" style="margin-right: 10px;">
     </el-row>
-    <div style="margin: 0 0 10px 0;" v-if="deptPerData && deptPerData.length > 0">{{deptPerData[0].name}}_队伍基本情况</div>
+    <div style="margin: 0 0 10px 0;" v-if="deptPerData && deptPerData.length > 0">{{deptPerData[0].deptName}}_队伍基本情况</div>
     <el-table :data="deptPerData"  style="width: 100%;" :max-height="tableHeight"
       v-loading="teamLoading" class="table_th_center">
-      <el-table-column prop="count" label="合计" :min-width="smallItemWidth+10" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="" label="民警">
-        <el-table-column prop="count1" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
-        <el-table-column prop="age1" label="平均年龄" :min-width="smallItemWidth-10" align="center"></el-table-column>
-        <el-table-column prop="" label="性别" align="center">
-          <el-table-column prop="sex01" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="sex11" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
-        </el-table-column>
-        <el-table-column prop="" label="学历" align="center">
-          <el-table-column prop="culture11" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture21" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture31" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
-        </el-table-column>
+      <el-table-column prop="usort" label="人员类型" :min-width="smallItemWidth-10" align="center">
+        <template slot-scope="scope">
+          <span v-if="scope.row.usort">{{$getDictName(scope.row.usort+'','rylx')}}</span>
+          <span v-else>其他</span>
+        </template>
       </el-table-column>
-      <el-table-column prop="" label="辅警">
-        <el-table-column prop="count2" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
-        <el-table-column prop="age2" label="平均年龄" :min-width="smallItemWidth-10" align="center"></el-table-column>
-        <el-table-column prop="" label="性别" align="center">
-          <el-table-column prop="sex02" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="sex12" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
-        </el-table-column>
-        <el-table-column prop="" label="学历" align="center">
-          <el-table-column prop="culture12" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture22" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture32" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
-        </el-table-column>
+      <el-table-column prop="ryNum" label="人员数量" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="avgAge" label="平均年龄" :min-width="smallItemWidth" align="center">
+        <template slot-scope="scope">
+          <span v-if="scope.row.sumAge&&scope.row.sumAgeCount">{{Math.round(scope.row.sumAge / scope.row.sumAgeCount)}}</span>
+          <span v-else>0</span>
+        </template>
       </el-table-column>
-      <el-table-column prop="" label="工勤">
-        <el-table-column prop="count3" label="数量" :min-width="smallItemWidth+10" align="center"></el-table-column>
-        <el-table-column prop="age3" label="平均年龄" :min-width="smallItemWidth-10" align="center"></el-table-column>
-        <el-table-column prop="" label="性别" align="center">
-          <el-table-column prop="sex03" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="sex13" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
-        </el-table-column>
-        <el-table-column prop="" label="学历" align="center">
-          <el-table-column prop="culture13" label="研" :min-width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture23" label="本" :min-width="smallItemWidth" align="center"></el-table-column>
-          <el-table-column prop="culture33" label="专" :min-width="smallItemWidth" align="center"></el-table-column>
-        </el-table-column>
+      <el-table-column prop="" label="性别" align="center">
+        <el-table-column prop="sex0" label="男" :min-width="smallItemWidth" align="center"></el-table-column>
+        <el-table-column prop="sex1" label="女" :min-width="smallItemWidth" align="center"></el-table-column>
+      </el-table-column>
+      <el-table-column prop="" label="政治面貌" align="center">
+        <el-table-column prop="zzmm1" label="中共党员" :min-width="smallItemWidth+26" align="center"></el-table-column>
+        <el-table-column prop="zzmm3" label="共青团员" :min-width="smallItemWidth+26" align="center"></el-table-column>
+        <el-table-column prop="zzmm2" label="民主党派" :min-width="smallItemWidth+26" align="center"></el-table-column>
+        <el-table-column prop="zzmm4" label="群众" :min-width="smallItemWidth+26" align="center"></el-table-column>
+      </el-table-column>
+      <el-table-column prop="" label="文化程度（学历）" align="center">
+        <el-table-column prop="whcd1" label="研究生" :min-width="smallItemWidth+16" align="center"></el-table-column>
+        <el-table-column prop="whcd3" label="本科" :min-width="smallItemWidth+16" align="center"></el-table-column>
+        <el-table-column prop="whcd2" label="专科" :min-width="smallItemWidth+16" align="center"></el-table-column>
+        <el-table-column prop="whcd4" label="高中" :min-width="smallItemWidth+16" align="center"></el-table-column>
+        <el-table-column prop="whcd5" label="初中" :min-width="smallItemWidth+16" align="center"></el-table-column>
+        <el-table-column prop="whcd6" label="小学" :min-width="smallItemWidth+16" align="center"></el-table-column>
+      </el-table-column>
+      <el-table-column prop="" label="获得学位">
+        <el-table-column prop="xw1" label="博士" :min-width="smallItemWidth" align="center"></el-table-column>
+        <el-table-column prop="xw2" label="硕士" :min-width="smallItemWidth" align="center"></el-table-column>
+        <el-table-column prop="xw3" label="学士" :min-width="smallItemWidth" align="center"></el-table-column>
+        <el-table-column prop="xw4" label="无" :min-width="smallItemWidth" align="center"></el-table-column>
       </el-table-column>
     </el-table>
-
-    <div style="margin: 30px 0 10px 0;" v-if="deptPerData && deptPerData.length > 0">{{deptPerData[0].name}}_相关人员及联系人</div>
+    <div style="margin: 30px 0 10px 0;" v-if="deptPerData && deptPerData.length > 0">{{deptPerData[0].deptName}}_相关人员及联系人</div>
     <el-table :data="deptDetail" style="width: 100%;border-left: none;" v-loading="detailLoading" max-height="400">
       <el-table-column prop="mainName" label="主要负责人" align="center" :min-width="smallItemWidth+100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="mainDuty" label="主要负责人职务" :min-width="smallItemWidth+100" align="center" show-overflow-tooltip>
@@ -56,21 +52,41 @@
           {{ $getDictName(scope.row.mainDuty+'', xrzw) }}
         </template>
       </el-table-column>
-      <el-table-column prop="mainPhone" label="主要负责人联系方式" :min-width="smallItemWidth+160" align="center"  show-overflow-tooltip></el-table-column>
+      <el-table-column prop="mainPhone" label="主要负责人联系方式" :min-width="smallItemWidth+160" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.mainWorkPhone && scope.row.mainPhone">{{scope.row.mainWorkPhone+','+scope.row.mainPhone}}</span>
+          <span v-else-if="scope.row.mainWorkPhone">{{scope.row.mainWorkPhone}}</span>
+          <span v-else-if="scope.row.mainPhone">{{scope.row.mainPhone}}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="dailyName" label="日常联系人" align="center" :min-width="smallItemWidth+100" show-overflow-tooltip></el-table-column>
       <el-table-column prop="dailyDuty" label="日常联系人职务" :min-width="smallItemWidth+100" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
           {{ $getDictName(scope.row.mainDuty+'', xrzw) }}
         </template>
       </el-table-column>
-      <el-table-column prop="dailyPhone" label="日常联系人联系方式" :min-width="smallItemWidth+160" align="center"  show-overflow-tooltip></el-table-column>
+      <el-table-column prop="dailyPhone" label="日常联系人联系方式" :min-width="smallItemWidth+160" align="center" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <span v-if="scope.row.dailyWorkerPhone && scope.row.dailyPhone">{{scope.row.dailyWorkerPhone+','+scope.row.dailyPhone}}</span>
+          <span v-else-if="scope.row.dailyWorkerPhone">{{scope.row.dailyWorkerPhone}}</span>
+          <span v-else-if="scope.row.dailyPhone">{{scope.row.dailyPhone}}</span>
+        </template>
+      </el-table-column>
     </el-table>
-
     <!-- 饼状图 -->
     <div class="clearfix" style="margin: 50px 0 80px;">
       <div id="echartAge" style="width: 33%; height: 400px; float:left;"></div>
       <div id="echartGender" style="width: 33%; height: 400px; float:left;"></div>
       <div id="echartEducation" style="width: 33%; height: 400px; float:left;"></div>
+    </div>
+    <!-- 自选择统计 -->
+    <el-select  v-model="customChart" size="small" placeholder="请选择" @change="customChartChange">
+      <el-option label="政治面貌构成" value="1"></el-option>
+      <el-option label="获得学位构成" value="2"></el-option>
+    </el-select>
+    <div class="clearfix" style="margin: 50px 0 80px;">
+      <div id="echartZzmm" style="width: 500px; height: 400px;" v-show="customChart==='1'"></div>
+      <div id="echartHdxw" style="width: 500px; height: 400px;" v-show="customChart==='2'"></div>
     </div>
   </div>
 </template>
@@ -80,8 +96,8 @@ export default {
   name: 'examinationStatistical',
   data() {
     return {
-      smallItemWidth: 70, // 表格最小格子的宽度
-      deptPerData: [], // 考试统计
+      smallItemWidth: 60, // 表格最小格子的宽度
+      deptPerData: [], // 队伍基本情况统计
       deptDetail: [], // 相关人员及联系人
       expandstab: [], // 设置当前的展开行
       caseData: [], // 市的列表数据
@@ -93,6 +109,7 @@ export default {
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       carryParam: {}, // 传递来的参数
       curDept: {}, // 当前部门
+      customChart: '', // 自选择统计图
       xrzw: '' // 根据当前用户角色是总队，还是支队，存储对应的字典key值， ‘xrzwzod’：总队， 'xrzwzhd':支队
     }
   },
@@ -107,10 +124,14 @@ export default {
       if (hand) { // 手动点击时，添加埋点参数
         param.logFlag = 1
       }
-      this.$query('hsyzusertotal', param, 'upms').then((response) => {
+      // hsyzusertotal
+      this.$query('dept/statisticsDetail', param, 'upms').then((response) => {
         if (response.code === '000000') {
           this.teamLoading = false
           this.deptPerData = response.data
+          if (!this.deptPerData[0].deptName) {
+            this.deptPerData[0].deptName = this.carryParam.departName // 机构名称
+          }
         }
       }).catch(() => {
         this.teamLoading = false
@@ -118,12 +139,15 @@ export default {
       this.queryEchart(param) // 查询统计图数据
     },
     queryEchart(param) { // 查询统计数据
-      this.$query('hsyzgusertotal', param, 'upms').then((response) => {
+      // hsyzgusertotal
+      this.$query('dept/statisticsChart', param, 'upms').then((response) => {
         if (response.code === '000000') {
           this.echartAllData = response.data[0]
-          this.drawChartAge()
-          this.drawChartGender()
-          this.drawChartEducation()
+          this.drawChartAge() // 年龄
+          this.drawChartGender() // 性别
+          this.drawChartEducation() // 学历
+          this.drawChartZzmm() // 政治面貌
+          this.drawChartXw() // 学位
         }
       }).catch(() => {
         this.teamLoading = false
@@ -147,9 +171,9 @@ export default {
           // else if (this.deptDetail.depType === '4') { // 派出所
           //   this.xrzw = 'xrzwpcs'
           // }
-          this.drawChartAge()
-          this.drawChartGender()
-          this.drawChartEducation()
+          // this.drawChartAge() // 年龄
+          // this.drawChartGender() // 性别
+          // this.drawChartEducation() // 学历
         }
       }).catch(() => {
         this.teamLoading = false
@@ -381,6 +405,169 @@ export default {
           }
         ]
       })
+    },
+    drawChartZzmm() { // 政治面貌 饼状图
+      // var scoreArr = []
+      // if (this.cityData.length > 0) {
+      var scoreArr = [
+        { value: this.echartAllData.zzmm1, name: '中共党员' },
+        { value: this.echartAllData.zzmm2, name: '民主党派' },
+        { value: this.echartAllData.zzmm3, name: '共青团员' },
+        { value: this.echartAllData.zzmm4, name: '群众' }
+      ]
+      // }
+      var echartZzmm = echarts.init(document.getElementById('echartZzmm'))
+      echartZzmm.setOption({
+        color: ['#1088F6', '#00C9E9', '#2CEC8B', '#FAD345', '#F67C4E', '#F84C6E', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
+        title: {
+          text: '人员政治面貌构成',
+          subtext: '',
+          x: 'left',
+          textStyle: {
+            color: '#ddd'
+          }
+        },
+        toolbox: {
+          show: true,
+          orient: 'horizontal',
+          right: 50,
+          top: 0,
+          feature: {
+            saveAsImage: {
+              show: true,
+              title: '人员政治面貌构成保存为图片',
+              icon: 'image://static/image/download.png'
+              // emphasis: {
+              //   icon: 'image://static/image/download_b.png'
+              // }
+            }
+          },
+          itemSize: 20,
+          iconStyle: {
+            emphasis: { color: '#fff' }
+          }
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+          type: 'scroll',
+          bottom: 0,
+          itemGap: 15,
+          data: ['中共党员', '民主党派', '共青团员', '群众'],
+          textStyle: {
+            color: '#bbbbbb',
+            fontSize: 14
+          }
+        },
+        series: [
+          {
+            name: '数量',
+            type: 'pie',
+            radius: ['0', '60%'],
+            data: scoreArr,
+            itemStyle: {
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            },
+            label: {
+              fontSize: 14
+            }
+          }
+        ]
+      })
+      // echartZzmm.resize() // 重置echarts的宽度，达到自适应
+    },
+    drawChartXw() { // 学位 饼状图
+      // var scoreArr = []
+      // if (this.cityData.length > 0) {
+      var scoreArr = [
+        { value: this.echartAllData.xw1, name: '博士' },
+        { value: this.echartAllData.xw2, name: '硕士' },
+        { value: this.echartAllData.xw3, name: '学士' },
+        { value: this.echartAllData.xw4, name: '无' }
+      ]
+      // }
+      var echartHdxw = echarts.init(document.getElementById('echartHdxw'))
+      echartHdxw.setOption({
+        color: ['#1088F6', '#00C9E9', '#2CEC8B', '#FAD345', '#F67C4E', '#F84C6E', '#01ccff', '#07ecc8', '#22AC38', '#0086D1'],
+        title: {
+          text: '人员学位构成',
+          subtext: '',
+          x: 'left',
+          textStyle: {
+            color: '#ddd'
+          }
+        },
+        toolbox: {
+          show: true,
+          orient: 'horizontal',
+          right: 50,
+          top: 0,
+          feature: {
+            saveAsImage: {
+              show: true,
+              title: '人员学位构成保存为图片',
+              icon: 'image://static/image/download.png'
+              // emphasis: {
+              //   icon: 'image://static/image/download_b.png'
+              // }
+            }
+          },
+          itemSize: 20,
+          iconStyle: {
+            emphasis: { color: '#fff' }
+          }
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+          type: 'scroll',
+          bottom: 0,
+          itemGap: 15,
+          data: ['博士', '硕士', '学士', '无'],
+          textStyle: {
+            color: '#bbbbbb',
+            fontSize: 14
+          }
+        },
+        series: [
+          {
+            name: '数量',
+            type: 'pie',
+            radius: ['0', '60%'],
+            data: scoreArr,
+            itemStyle: {
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            },
+            label: {
+              fontSize: 14
+            }
+          }
+        ]
+      })
+      // echartHdxw.resize() // 重置echarts的宽度，达到自适应
+    },
+    customChartChange(val) { // 自选择统计图 change事件
+      if (val) {
+        if (val === '1') { // 政治面貌构成
+          this.drawChartZzmm()
+        } else if (val === '2') { // 获得学位构成
+          this.drawChartXw()
+        }
+      } else {
+        // 统计图隐藏
+      }
     },
     back() {
       this.$router.back(-1)

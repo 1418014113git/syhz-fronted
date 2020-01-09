@@ -60,7 +60,7 @@
     <el-dialog :title="detail.title" :visible.sync="dialogVisible" :close-on-click-modal="false" class="audit_dialog" @close="closeDialog">
       <el-form :model="detail" label-width="100px" style="padding-left: 20px; padding-right: 15px;" v-loading="dialogLoading">
         <el-form-item label="消息内容">{{detail.content}}</el-form-item>
-        <el-form-item label="发送时间">{{detail.creatorDate}}</el-form-item>
+        <el-form-item label="发送时间">{{formatTime(detail.creatorDate)}}</el-form-item>
         <el-form-item label="发送人">{{detail.creatorName ? detail.creatorName : '-'}}</el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -103,7 +103,8 @@ export default {
       curUser: {},
       bizType: 0,
       tableHeight: document.documentElement.clientHeight - 300,
-      detail: {}
+      detail: {},
+      id: ''
     }
   },
   methods: {
@@ -223,6 +224,19 @@ export default {
         this.dialogLoading = false
       })
     },
+    wDetail() {
+      this.dialogLoading = true
+      this.dialogVisible = true
+      this.$query('sysmessagesdetail/' + this.id, {}).then(response => {
+        if (response.data.status === 0) {
+          this.updMessage(this.id, 1)
+        }
+        this.dialogLoading = false
+        this.detail = response.data
+      }).catch(() => {
+        this.dialogLoading = false
+      })
+    },
     updMessage(id) {
       this.loading = true
       const para = {
@@ -335,6 +349,11 @@ export default {
     if (this.curDept) {
       this.queryCount()
       this.queryData()
+    }
+    if (sessionStorage.getItem(this.$route.path)) {
+      this.id = sessionStorage.getItem(this.$route.path)
+      this.wDetail()
+      sessionStorage.setItem(this.$route.path, '')
     }
   }
 }

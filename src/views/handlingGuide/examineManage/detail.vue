@@ -96,7 +96,7 @@
                   <el-button circle><i class="el-icon-question"></i></el-button>
                 </el-tooltip>
               </el-form-item>
-              <el-form-item label="阅卷人员" prop="markPeople" class="clearfix">
+              <el-form-item label="阅卷人员" prop="markPeople" class="clearfix" v-show="yjryIsShow">
                 <el-input type="text" v-model="yjry" clearable class="left" style="width:360px;" @keyup.enter.native="filterMarkPeople(yjry)" placeholder="请输入关键字，回车键搜索"></el-input>
                 <el-transfer class="left" style="width:calc(100% - 30px)" :disabled="true"
                   filter-placeholder="请输入关键字检索人员"
@@ -168,6 +168,7 @@ export default {
       treeLoading: true, // 开放单位加载的loading
       defaultExpandedKeys: [], // 默认展开的节点的 key 的数组
       defaultCheckedKeys: [], // 默认勾选的节点的 key 的数组
+      yjryIsShow: false, // 是否显示阅卷人员
       userInfo: JSON.parse(sessionStorage.getItem('userInfo')), // 当前用户信息
       deptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前部门信息
       rules: {}
@@ -299,6 +300,7 @@ export default {
           response.data.examinationType = response.data.examinationType + '' // 分类
           response.data.type = response.data.type + '' // 试卷类型
           this.examPaperTypeChange(response.data.type) // 查试卷
+          this.paperChange(response.data.paperId) // 查是否含有主观题，判断是否显示阅卷老师
 
           var choosedDepts = response.data.openDepts.split(',') // 开放单位
           var newDeptsArr = []
@@ -323,6 +325,21 @@ export default {
       }).catch(() => {
         this.formLoading = false
       })
+    },
+    paperChange(val) { // 选择试卷 判断是否有主观题，如果没有主观题 则不能选择阅卷老师
+      if (val) {
+        this.$query('exampaperinfotypes', { paperId: val }).then((response) => {
+          this.formLoading = false
+          if (response.code === '000000' && response.data.length > 0) { // 有主观题
+            this.yjryIsShow = true
+          } else {
+            this.yjryIsShow = false
+            this.examForm.markPeople = []
+          }
+        }).catch(() => {
+          this.yjryIsShow = false
+        })
+      }
     },
     handleImageAdded(file, Editor, cursorLocation, resetUploader) {
       const formData = new FormData()

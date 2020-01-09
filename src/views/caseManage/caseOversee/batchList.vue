@@ -12,7 +12,8 @@
           change-on-select
           @change="handleAreaChange"
           :show-all-levels="false"
-          clearable placeholder="全部"
+          placeholder="全部"
+          :clearable="Number(deptInfo.depType)<2"
           :disabled="Number(deptInfo.depType)>2">
         </el-cascader>
       </el-form-item>
@@ -286,6 +287,7 @@ export default {
     initData() { // 初始化筛选条件
       // 行政区划
       this.listLoading = true
+      var _this = this
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
           this.xzqhOptions = response.data ? response.data : []
@@ -294,6 +296,15 @@ export default {
             currentArea = [this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '2') { // 支队
             currentArea = ['610000', this.deptInfo.areaCode]
+            this.xzqhOptions[0].disabled = true
+            for (let index = 0; index < this.xzqhOptions[0].children.length; index++) {
+              const element = this.xzqhOptions[0].children[index]
+              if (element.cityCode === this.deptInfo.areaCode) {
+                _this.xzqhOptions[0].children[index].disabled = false
+              } else {
+                _this.xzqhOptions[0].children[index].disabled = true
+              }
+            }
           } else if (this.deptInfo.depType === '3') { // 大队 派出所
             currentArea = ['610000', this.deptInfo.areaCode.substring(0, 4) + '00', this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '4') {

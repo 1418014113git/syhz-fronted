@@ -50,7 +50,7 @@
                   <el-date-picker v-model="filters.time" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"> </el-date-picker>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" v-if="$isViewBtn('139006')" @click="query(true)" icon="el-icon-search">查询</el-button>
+                  <el-button type="primary" v-if="$isViewBtn('139006')" @click="query(true, true)" icon="el-icon-search">查询</el-button>
                   <el-button type="primary" v-if="$isViewBtn('139001')" @click="uploadFile" icon="el-icon-upload">上传资料</el-button>
                   <el-button type="primary" v-if="$isViewBtn('139010') && curDept.depType !== '4'" @click="batchAudit"><svg-icon icon-class="audit" style="margin-right:2px;"></svg-icon>批量审核</el-button>
                 </el-form-item>
@@ -58,7 +58,7 @@
               <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" :selectable="selectable"></el-table-column>
                 <el-table-column type="index" label="序号" width="60"></el-table-column>
-                <el-table-column prop="enName" label="资料名称">
+                <el-table-column prop="enName" label="资料名称" show-overflow-tooltip>
                   <template slot-scope="scope">
                     <span v-if="$isViewBtn('139007')" @click="handleRowView(scope.$index, scope.row)" class="url_text">{{scope.row.enName}}</span>
                     <span v-else>{{scope.row.enName}}</span>
@@ -79,8 +79,8 @@
                     <span v-if="scope.row.type === 4">综合</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="belongOrgName" label="上传单位" width="200px"></el-table-column>
-                <el-table-column prop="creationName" label="上传者" width="100px"></el-table-column>
+                <el-table-column prop="belongOrgName" label="上传单位" width="200px" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="creationName" label="上传者" width="100px" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="creationTime" label="上传时间" width="120px"></el-table-column>
                 <el-table-column prop="auditStatus" label="审核状态" width="100px">
                   <template slot-scope="scope">
@@ -161,6 +161,7 @@
         active: '3',
         deptList: [],
         deptUserList: [],
+        noCheck: false,
         filters: {
           title: '',
           type: '3',
@@ -262,7 +263,10 @@
         }
         this.$gotoid('/micro/uploadFile', JSON.stringify(para))
       },
-      query(flag) {
+      query(flag, clear) {
+        if (clear) {
+          this.noCheck = false
+        }
         this.listLoading = true
         this.page = flag ? 1 : this.page
         this.active = this.filters.type
@@ -270,6 +274,7 @@
           title: this.filters.title.trim(),
           type: this.filters.type,
           auditStatus: this.filters.auditStatus,
+          noCheck: this.noCheck && !clear ? 'noCheck' : '',
           creationId: this.filters.creationId,
           startTime: this.filters.time && this.filters.time.length > 0 ? (this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00') : '',
           endTime: this.filters.time && this.filters.time.length > 0 ? (this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59') : '',
@@ -366,6 +371,7 @@
         this.auditForm.workId = row.workId
         this.auditForm.userId = row.userId
         this.auditForm.title = row.title
+        this.auditForm.belongType = row.enType
       },
       closeDialog() {
         this.auditDialogVisible = false
@@ -390,7 +396,7 @@
             let para = {
               tableId: this.auditForm.auditId,
               belongMode: '1',
-              belongType: this.active,
+              belongType: this.auditForm.belongType,
               belongSys: '2',
               workId: this.auditForm.workId,
               currentAuditType: auditStatus,
@@ -545,8 +551,12 @@
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
         const param = JSON.parse(sessionStorage.getItem(this.$route.path))
         if (param) {
-          this.active = param.active
-          this.filters = param.filters
+          if (param.noCheck) {
+            this.noCheck = param.noCheck
+          } else {
+            this.active = param.active
+            this.filters = param.filters
+          }
         }
         sessionStorage.setItem(this.$route.path, '')
       }
@@ -555,7 +565,7 @@
       }
       this.queryDept()
       this.queryTotal()
-      this.query()
+      this.query(false, false)
     }
   }
 </script>

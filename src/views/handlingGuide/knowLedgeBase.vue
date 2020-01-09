@@ -12,6 +12,13 @@
               <ul><li class="menu" @click="handleMenuClick('3')" :class="active === '3' ? 'activeSpan' : ''"><i class="el-icon-picture"></i><span>规范制度（{{ totalData.type3 }}）</span></li></ul>
               <ul><li class="menu" @click="handleMenuClick('4')" :class="active === '4' ? 'activeSpan' : ''"><i class="el-icon-picture"></i><span>案例指引（{{ totalData.type4 }}）</span></li></ul>
             </el-card>
+            <el-card style="margin-top: 10px;">
+              <div slot="header"><span>知识类别</span></div>
+              <ul><li class="menu" @click="handleMenuTwoClick('3')" :class="typeActive === '3'?'activeSpan':''"><i class="el-icon-picture"></i><span>环境相关</span></li></ul>
+              <ul><li class="menu" @click="handleMenuTwoClick('1')" :class="typeActive === '1'?'activeSpan':''"><i class="el-icon-document"></i><span>食品安全</span></li></ul>
+              <ul><li class="menu" @click="handleMenuTwoClick('2')" :class="typeActive === '2'?'activeSpan':''"><i class="el-icon-picture"></i><span>药品安全</span></li></ul>
+              <ul><li class="menu" @click="handleMenuTwoClick('4')" :class="typeActive === '4'?'activeSpan':''"><i class="el-icon-picture"></i><span>综合相关</span></li></ul>
+            </el-card>
           </el-col>
           <el-col :span="20" class="content">
             <el-card>
@@ -50,7 +57,7 @@
                   <el-date-picker v-model="filters.time" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"> </el-date-picker>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" v-if="$isViewBtn('129401')" @click="query(true)" icon="el-icon-search">查询</el-button>
+                  <el-button type="primary" v-if="$isViewBtn('129401')" @click="query(true, true)" icon="el-icon-search">查询</el-button>
                   <el-button type="primary" v-if="$isViewBtn('129402')" @click="uploadFile" icon="el-icon-upload">添加</el-button>
                   <el-button type="primary" v-if="$isViewBtn('129405') && curDept.depType !== '4'" @click="batchAudit"><svg-icon icon-class="audit" style="margin-right:2px;"></svg-icon>批量审核</el-button>
                 </el-form-item>
@@ -58,7 +65,7 @@
               <el-table :data="curriculumData" v-loading="listLoading" style="width: 100%; margin-top: 5px;"  :max-height="countHeight" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55" :selectable="selectable"></el-table-column>
                 <el-table-column type="index" label="序号" width="60"></el-table-column>
-                <el-table-column prop="title" label="标题">
+                <el-table-column prop="title" label="标题" show-overflow-tooltip>
                   <template slot-scope="scope">
                     <span v-if="$isViewBtn('129403')" @click="handleRowView(scope.$index, scope.row)" class="url_text">{{scope.row.title}}</span>
                     <span v-else>{{scope.row.title}}</span>
@@ -80,8 +87,8 @@
                     <span v-if="scope.row.articleType === 4">综合</span>
                   </template>
                 </el-table-column>
-                <el-table-column prop="belongDepName" label="上传单位" width="200px"></el-table-column>
-                <el-table-column prop="creationName" label="上传者" width="100px"></el-table-column>
+                <el-table-column prop="belongDepName" label="上传单位" width="200px" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="creationName" label="上传者" width="100px" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="creationTime" label="上传时间" width="120px"></el-table-column>
                 <el-table-column prop="auditStatus" label="审核状态" width="100px">
                   <template slot-scope="scope">
@@ -159,8 +166,10 @@
           type4: 0
         },
         active: '1',
+        typeActive: '',
         deptList: [],
         deptUserList: [],
+        noCheck: false,
         filters: {
           title: '',
           type: '',
@@ -214,6 +223,13 @@
         isNormal: false // true 普通民警， false 审核者
       }
     },
+    watch: {
+      'filters.articleType': function(val) {
+        if (val === undefined || val === null || val === '') {
+          this.typeActive = ''
+        }
+      }
+    },
     methods: {
       editBtn(row) {
         if (!this.isNormal) {
@@ -254,6 +270,11 @@
         this.active = type
         this.query(true)
       },
+      handleMenuTwoClick(type) {
+        this.filters.articleType = type
+        this.typeActive = type
+        this.query(true)
+      },
       uploadFile() {
         const para = {
           filters: this.filters,
@@ -273,7 +294,10 @@
           this.$gotoid('/handlingGuide/alzy/add', JSON.stringify(para))
         }
       },
-      query(flag) {
+      query(flag, clear) {
+        if (clear) {
+          this.noCheck = false
+        }
         this.listLoading = true
         this.page = flag ? 1 : this.page
         this.filters.type = this.active
@@ -281,6 +305,7 @@
           title: this.filters.title.trim(),
           type: this.filters.type,
           auditStatus: this.filters.auditStatus,
+          noCheck: this.noCheck && !clear ? 'noCheck' : '',
           creationId: this.filters.creationId,
           startTime: this.filters.time && this.filters.time.length > 0 ? (this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00') : '',
           endTime: this.filters.time && this.filters.time.length > 0 ? (this.$parseTime(this.filters.time[1], '{y}-{m}-{d}') + ' 23:59:59') : '',
@@ -574,8 +599,12 @@
       if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
         const param = JSON.parse(sessionStorage.getItem(this.$route.path))
         if (param) {
-          this.active = param.active
-          this.filters = param.filters
+          if (param.noCheck) {
+            this.noCheck = param.noCheck
+          } else {
+            this.active = param.active
+            this.filters = param.filters
+          }
         }
         sessionStorage.setItem(this.$route.path, '')
       }
@@ -584,7 +613,7 @@
       }
       this.queryDept()
       this.queryTotal()
-      this.query()
+      this.query(false, false)
     }
   }
 </script>

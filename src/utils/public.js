@@ -468,7 +468,7 @@ export function getLabelByValue(value, array) {
   var result = ''
   array.forEach(item => {
     if (item.value === value) {
-      result = item.label
+      result = item.label || item.name // 有的list汉字是label ，有的是name
     }
   })
   return result

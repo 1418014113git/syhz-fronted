@@ -7,7 +7,7 @@
   </div>
   <div class="bg ajInfo ydzccout">
     <!-- <title-pub :title="title" url=""></title-pub> -->
-     <card-com v-if="gldwCard" class="cardcomajgl" :cardId="curCardId" @close="clickBlank"></card-com>
+    <!-- <card-com v-if="gldwCard" class="cardcomajgl" :cardId="curCardId" @close="clickBlank"></card-com> -->
     <el-tabs class="archiveTab xddw" v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="嫌疑人" name="first">
         <div slot="label">
@@ -23,7 +23,7 @@
               <img v-else src="/static/image/personFile_images/defaultUuser.png">
               <p class="per_name link_text" @click="handleXyrDetail(item)">{{item.xm}}</p>
               <p class="link_text" @click="showTipsC(item.mgsfhm,index,'xyr')">{{item.mgsfhm}}</p>
-              <card-com v-if="curIndexxyr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com>
+              <!-- <card-com v-if="curIndexxyr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com> -->
             </div>
           </div>
           <el-col :span="24" class="toolbar">
@@ -47,7 +47,7 @@
               <img v-else src="/static/image/personFile_images/defaultUuser.png">
               <p class="per_name underLine" @click="handleShrDetail(item)">{{item.xm}}</p>
               <p class="link_text"  @click="showTipsC(item.mgsfhm,index,'shr')">{{item.mgsfhm}}</p>
-              <card-com v-if="curIndexshr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com>
+              <!-- <card-com v-if="curIndexshr===index" class="cardcom" :cardId="curCardId" @close="clickBlank"></card-com> -->
             </div>
           </div>
           <el-col :span="24" class="toolbar">
@@ -63,8 +63,9 @@
           <p v-else class="no_data_title">案件关联单位</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table ref="companyTable" :data="dwData" class="statisticCollect" v-loading="dwLoading" max-height="186">
-          <el-table-column prop="DWMC" label="单位名称" show-overflow-tooltip></el-table-column>
+        <!-- <el-table ref="companyTable" :data="dwData" class="statisticCollect" v-loading="dwLoading" max-height="186"> -->
+        <el-table ref="companyTable" :data="dwData" class="statisticCollect" v-loading="dwLoading">
+          <el-table-column prop="DWMC" label="单位名称" show-overflow-tooltip  fixed></el-table-column>
           <el-table-column prop="DWXZ_NAME" label="单位性质" show-overflow-tooltip></el-table-column>
           <el-table-column prop="DWLX_NAME" label="单位类型" show-overflow-tooltip></el-table-column>
           <el-table-column prop="XYLB_NAME" label="行业类别" show-overflow-tooltip></el-table-column>
@@ -94,8 +95,9 @@
           <p v-else class="no_data_title">涉案物品</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table ref="goodTable" :data="sawpData" v-loading="sawpLoading" max-height="186">
-          <el-table-column prop="WPBH" label="物品编号"></el-table-column>
+        <!-- <el-table ref="goodTable" :data="sawpData" v-loading="sawpLoading" max-height="186"> -->
+        <el-table ref="goodTable" :data="sawpData" v-loading="sawpLoading">
+          <el-table-column prop="WPBH" label="物品编号" fixed></el-table-column>
           <el-table-column prop="MC" label="物品名称"></el-table-column>
           <el-table-column prop="LX_NAME" label="类型"></el-table-column>
           <el-table-column prop="XZ_NAME" label="性质"></el-table-column>
@@ -120,8 +122,9 @@
           <p v-else class="no_data_title">接收证据清单</p>
           <img src="static/image/personFile_images/tab_title_line.png" class="tab_title_line" alt="" srcset="">
         </div>
-        <el-table :data="zjqdData" v-loading="zjqdLoading" max-height="186">
-          <el-table-column label="标题" min-width="10%">
+        <!-- <el-table :data="zjqdData" v-loading="zjqdLoading" max-height="186"> -->
+        <el-table :data="zjqdData" v-loading="zjqdLoading">
+          <el-table-column label="标题" min-width="10%"  fixed>
             <template slot-scope="scope">
               <p :title="scope.row.WSBT" class="ellipsis-word">{{scope.row.WSBT}}&nbsp;</p>
             </template>
@@ -189,7 +192,7 @@
 import {
   getAjDeptByAjId, getAJDETAILASSETS, getZjqdByAjbh
 } from '@/api/caseManage'
-import { personByCardId } from '@/api/personSearch/personSearch'
+// import { personByCardId } from '@/api/personSearch/personSearch'
 import cardCom from '@/components/idCardTips' // 身份证号码点击弹出菜单功能
 import XyrDetail from './xyrDetail' // 嫌疑人详情
 import legalDoc from './guideLegalDoc' // 法律文书列表
@@ -352,7 +355,7 @@ export default {
         pageNum: flag ? 1 : this.pageXyr
       }
       this.$query('page/ajxyr', param).then((res) => {
-        // this.xyrLoading = false
+        this.xyrLoading = false
         if (res.code === '000000') {
           var data = res.data.list
           var flag = true
@@ -388,7 +391,7 @@ export default {
         pageNum: flag ? 1 : this.pageShr
       }
       this.$query('page/ajshr', param).then((res) => {
-        // this.shrLoading = false
+        this.shrLoading = false
         if (res.code === '000000') {
           var data = res.data.list
           var flag = true
@@ -418,61 +421,65 @@ export default {
     },
     personDetailByCardXyr(item, data, flag) {
       // 根据身份证号码查询嫌疑人人员详细信息
-      if (flag) {
-        this.xyrLoading = false
-        this.xyrData = data
-      } else if (item.mgsfhm) {
-        const para = {
-          method: 'Query',
-          byUserCard: item.mgsfhm,
-          userCardId: this.curUser.cardNumber,
-          userCertId: this.curUser.cardNumber,
-          userDept: this.paramDept,
-          userName: this.curUser.realName
-        }
-        personByCardId(para).then((response) => {
-          this.xyrLoading = false
-          if (response.code === '000000') {
-            item.xp = response.data.xp || ''
-          }
-          this.xyrData = data
-        }).catch(() => {
-          this.xyrLoading = false
-          this.xyrData = data
-        })
-      } else {
-        this.xyrLoading = false
-        this.xyrData = data
-      }
+      this.xyrLoading = false // 服务资源未申请，暂时显示默认图片
+      this.xyrData = data // 服务资源未申请到，暂时显示默认图片
+      // if (flag) {  // 服务资源未申请到，暂时屏蔽图片请求资源接口
+      //   this.xyrLoading = false
+      //   this.xyrData = data
+      // } else if (item.mgsfhm) {
+      //   const para = {
+      //     method: 'Query',
+      //     byUserCard: item.mgsfhm,
+      //     userCardId: this.curUser.cardNumber,
+      //     userCertId: this.curUser.cardNumber,
+      //     userDept: this.paramDept,
+      //     userName: this.curUser.realName
+      //   }
+      //   personByCardId(para).then((response) => {
+      //     this.xyrLoading = false
+      //     if (response.code === '000000') {
+      //       item.xp = response.data.xp || ''
+      //     }
+      //     this.xyrData = data
+      //   }).catch(() => {
+      //     this.xyrLoading = false
+      //     this.xyrData = data
+      //   })
+      // } else {
+      //   this.xyrLoading = false
+      //   this.xyrData = data
+      // }
     },
     personDetailByCard(item, data, flag) {
       // 根据身份证号码查询受害人人员详细信息
-      if (flag) {
-        this.shrLoading = false
-        this.shrData = data
-      } else if (item.mgsfhm) {
-        const para = {
-          method: 'Query',
-          byUserCard: item.mgsfhm,
-          userCardId: this.curUser.cardNumber,
-          userCertId: this.curUser.cardNumber,
-          userDept: this.paramDept,
-          userName: this.curUser.realName
-        }
-        personByCardId(para).then((response) => {
-          this.shrLoading = false
-          if (response.code === '000000') {
-            item.xp = response.data.xp || ''
-          }
-          this.shrData = data
-        }).catch(() => {
-          this.shrLoading = false
-          this.shrData = data
-        })
-      } else {
-        this.shrLoading = false
-        this.shrData = data
-      }
+      this.shrLoading = false // 服务资源未申请，暂时显示默认图片
+      this.shrData = data // 服务资源未申请，暂时显示默认图片
+      // if (flag) { // 服务资源未申请到，暂时屏蔽图片请求资源接口
+      //   this.shrLoading = false
+      //   this.shrData = data
+      // } else if (item.mgsfhm) {
+      //   const para = {
+      //     method: 'Query',
+      //     byUserCard: item.mgsfhm,
+      //     userCardId: this.curUser.cardNumber,
+      //     userCertId: this.curUser.cardNumber,
+      //     userDept: this.paramDept,
+      //     userName: this.curUser.realName
+      //   }
+      //   personByCardId(para).then((response) => {
+      //     this.shrLoading = false
+      //     if (response.code === '000000') {
+      //       item.xp = response.data.xp || ''
+      //     }
+      //     this.shrData = data
+      //   }).catch(() => {
+      //     this.shrLoading = false
+      //     this.shrData = data
+      //   })
+      // } else {
+      //   this.shrLoading = false
+      //   this.shrData = data
+      // }
     },
     handleDw(flag) { // 案件关联单位
       this.dwLoading = true

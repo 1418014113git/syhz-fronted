@@ -33,7 +33,8 @@
         </el-form-item>
       </el-col>
     </el-form>
-    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;overflow:auto;" max-height="490">
+  <!-- <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}"> -->
+    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;" :max-height="tableHeight">
       <el-table-column type="index" width="60" label="序号" ></el-table-column>
       <el-table-column prop="serialNumber"  label='线索序号'  min-width="100"></el-table-column>
       <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
@@ -41,39 +42,40 @@
           <span @click="rowClick(scope.row.receiveName)">{{scope.row.receiveName}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="qbxsCategory"  label='线索分类'  min-width="150" show-overflow-tooltip>
+      <el-table-column prop="qbxsCategory"  label='线索分类'  min-width="120" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if='scope.row.qbxsCategory'>{{$getDictName(scope.row.qbxsCategory+'','fllb')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="qbxsResult"  label='核查情况'  min-width="150" show-overflow-tooltip>
+      <el-table-column prop="qbxsResult"  label='核查情况'  min-width="120" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="syajs"  label='移送（次）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="larqCount"  label='立案（起）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="parqCount"  label='破案（起）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="zhrys" label="抓获（人）"  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="xsjl"  label='刑拘（人）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="pzdb"  label='批捕（人）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="yjss" label="移诉（人）"   min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="90" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="ysxz"  label='移送（次）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="parqCount"  label='破案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="zhrys" label="抓获（人）"  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="xsjl"  label='刑拘（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="pzdb"  label='批捕（人）'  min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="yjss" label="移诉（人）"   min-width="100" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="140" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="150" show-overflow-tooltip></el-table-column>
       <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
         <template slot-scope="scope">
           <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作"  width="100" fixed="right">
+      <el-table-column label="操作"  width="80" fixed="right">
         <template slot-scope="scope">
           <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle   v-if="controlBtn(scope.row)"  @click="handleDetail(scope.$index, scope.row)"></el-button>
         </template>
       </el-table-column>
     </el-table>
+  <!-- </div> -->
 
      <!--工具条-->
-    <el-col :span="24" class="toolbar" style="margin-top:10px;">
+    <el-col :span="24" class="toolbar">
       <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" :page-size="pageSize" @size-change="handleSizeChange"
                      :total="total" :current-page="page" style="float:right;">
       </el-pagination>
@@ -81,7 +83,7 @@
 
     <!--线索反馈详情弹出层-->
     <el-dialog title="反馈" :visible.sync="isShowfkDialog" @close="clearChildData">
-      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog" :row="curRow"></cluefk-detail>
+      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog"   @closeDialog="clearChildData"   @init="query(true)"  :row="curRow"></cluefk-detail>
     </el-dialog>
   </section>
 </template>
@@ -111,7 +113,7 @@ export default {
       curUser: {}, // 当前登录用户
       curDept: {}, // 当前登录的部门
       curRow: {}, // 存储当前被点击行数据
-      tableHeight: null,
+      tableHeight: null, // 列表外层容器的高度
       paramDeptCode: '', // 详情页传递过来的参数
       tableHead: [] // 表头
     }
@@ -144,6 +146,7 @@ export default {
           this.pageSize = response.data.pageSize
           this.listData = response.data.list // 列表
           var titles = response.data.titles // 表头
+          this.tableHead = []
           titles.forEach((item, index) => {
             if (index > 0) {
               this.tableHead.push(item) // 表头数据只取序号之后的
@@ -191,21 +194,23 @@ export default {
     },
     handleDetail(index, row) { // 详情
       if (!row.fbId) {
-        this.$alert('该线索还未签收，请先前往详情页进行签收。', '提示', {
-          type: 'warning',
+        this.$confirm('该线索还未签收，请先前往详情页进行签收。', '提示', {
           confirmButtonText: '确定',
-          callback: action => {
-            if (this.$route.query.assistType) { // 协查详情
-              this.$gotoid('/caseAssist/detail', this.assistId)
-            } else {
-              this.$router.push({ path: '/jqCampaign/detail', query: { id: this.assistId }}) // 集群战役详情
-            }
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then((action) => {
+          if (this.$route.query.assistType) { // 协查详情
+            this.$gotoid('/caseAssist/detail', this.assistId)
+          } else {
+            this.$router.push({ path: '/jqCampaign/detail', query: { id: this.assistId }}) // 集群战役详情
           }
+        }).catch(() => {
+
         })
-        return false
+      } else {
+        this.isShowfkDialog = true
+        this.curRow = row
       }
-      this.isShowfkDialog = true
-      this.curRow = row
     },
     toback() { // 返回
       this.$router.back(-1)
@@ -221,6 +226,7 @@ export default {
   },
   mounted() {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+    this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 320
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
@@ -268,6 +274,10 @@ export default {
   }
   .el-cascader-menu__item.is-disabled{
     background-color: transparent;
+  }
+  .tableBox{
+    width: 100%;
+    overflow: auto;
   }
 }
 </style>

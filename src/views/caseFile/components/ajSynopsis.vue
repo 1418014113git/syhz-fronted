@@ -38,12 +38,15 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="简要案情" prop="JYAQ">
-            <span class="whiteColor  breakall">{{ajInfo.JYAQ}}</span>
+            <span  v-html="getReplace(ajInfo.JYAQ)"  class="whiteColor  breakall"></span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="主办侦察员" prop="ZBR_NAME">
-            <span class="whiteColor">{{ajInfo.ZBR_NAME}}</span>
+          <el-form-item label="办案人员" prop="ZBR_NAME">
+            <!-- 主办侦查员 修改为 办案人员，显示 主办人 协办人 -->
+            <span class="whiteColor" v-if="ajInfo.ZBR_NAME&&ajInfo.XBR_NAME">{{ajInfo.ZBR_NAME +'，'+ ajInfo.XBR_NAME}}</span>
+            <span class="whiteColor" v-else-if="ajInfo.ZBR_NAME">{{ajInfo.ZBR_NAME}}</span>
+            <span class="whiteColor" v-else-if="ajInfo.XBR_NAME">{{ajInfo.XBR_NAME}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -72,16 +75,16 @@
           </div> -->
           <div class="right" style="margin-top: -5px;" v-if="carryParam && carryParam.isRl==='0'">
             <div class="shadow_text right_cell">
-              案件类型
+              案件分类
               <el-cascader v-model="ajInfo.fllb" change-on-select filterable :options="fllbList" @change="handleChange" clearable class="ajlx_cascader"></el-cascader>
             </div>
             <!-- <el-button type="success" style="margin-left: 20px;" @click="rlsave()" :loading="rlLoading">案件认领</el-button> -->
             <div class="flws_text shadow_text" v-if="flwsInfo.list>0">法律文书（ <span class="orange_text" @click="handleGoFlws('1')">{{flwsInfo.list}}</span> ）</div>
             <div class="flws_text shadow_text" v-else>
-              <span @click="handleGoFlws('2')" style="cursor:pointer;">无法律文书&nbsp;&nbsp;</span>
-              <span v-if="flwsInfo.examine==='4'" class="orange_text" @click="handleGoFlws('2')">未通过</span>
-              <span v-else-if="flwsInfo.examine==='3'" class="green_text" @click="handleGoFlws('2')">审核通过</span>
-              <span v-else-if="flwsInfo.examine==='1'||flwsInfo.examine==='2'" class="blue_text" @click="handleGoFlws('2')">审核中</span>
+              <div @click="handleGoFlws('2')" style="cursor:pointer;">无法律文书</div>
+              <div v-if="flwsInfo.examine==='4'" class="orange_text" @click="handleGoFlws('2')">未通过</div>
+              <div v-else-if="flwsInfo.examine==='3'" class="green_text" @click="handleGoFlws('2')">审核通过</div>
+              <div v-else-if="flwsInfo.examine==='1'||flwsInfo.examine==='2'" class="blue_text" @click="handleGoFlws('2')">审核中</div>
             </div>
             <div class="shadow_text right_cell" v-if="showYear" >
               案件年份
@@ -178,7 +181,8 @@ export default {
 
       laPickerOpt: {},
       paPickerOpt: {},
-      pcsParentDept: {}
+      pcsParentDept: {},
+      ajflwsYear: ''
     }
   },
   components: {
@@ -517,7 +521,7 @@ export default {
       if (!this.ajInfo.fllb || this.ajInfo.fllb.length === 0) {
         this.$message({
           type: 'error',
-          message: '请选择案件类型'
+          message: '请选择案件分类'
         })
         return false
       }
@@ -585,29 +589,42 @@ export default {
         this.ajInfo.parq = this.paDate.replace(/-/g, '')
       }
       this.ajInfo.ajzt = this.ajInfo.AJZT
-      // 判断案件是否是2019年以前的 2019年以前的不需要有法律文书相关信息
-      if (this.ajInfo.larq && Number(this.ajInfo.larq.substr(0, 4)) > 2018) {
-        if (!(this.flwsInfo.list > 0)) { // 判断是否有法律文书
-          var messageHtml = ''
-          if (this.flwsInfo.examine) {
-            if (this.flwsInfo.examine === '1' || this.flwsInfo.examine === '2') {
-              messageHtml = '<p>无法律文书申请正在审核中，不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
-            } else if (this.flwsInfo.examine === '4') {
-              messageHtml = '<p>无法律文书申请未通过审核，不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
+
+      // 查法律文书的配置年限
+      const para = {
+        'configKey': 'flwsYear'
+      }
+      this.$query('sysconfig', para).then((response) => {
+        if (response.code === '000000') {
+          this.ajflwsYear = response.data[0].configValue
+          console.log('flwsYear' + this.ajflwsYear)
+          if (this.ajInfo.larq && Number(this.ajInfo.larq.substr(0, 4)) > Number(this.ajflwsYear)) {
+            if (!(this.flwsInfo.list > 0)) { // 判断是否有法律文书
+              var messageHtml = ''
+              if (this.flwsInfo.examine) {
+                if (this.flwsInfo.examine === '1' || this.flwsInfo.examine === '2') {
+                  messageHtml = '<p>无法律文书申请正在审核中，不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
+                } else if (this.flwsInfo.examine === '4') {
+                  messageHtml = '<p>无法律文书申请未通过审核，不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
+                }
+              } else {
+                messageHtml = '<p>没有法律文书不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
+              }
+              if (messageHtml) {
+                this.$alert(messageHtml, '提示', {
+                  confirmButtonText: '我知道了',
+                  center: false,
+                  dangerouslyUseHTMLString: true
+                })
+                return false
+              }
             }
-          } else {
-            messageHtml = '<p>没有法律文书不允许认领案件。请先完成以下工作中的一项。</p><p>1、请关联法律文书</p><p>2、申请无法律文书且审核通过</p>'
-          }
-          if (messageHtml) {
-            this.$alert(messageHtml, '提示', {
-              confirmButtonText: '我知道了',
-              center: false,
-              dangerouslyUseHTMLString: true
-            })
-            return false
           }
         }
-      }
+      }).catch(() => {
+        this.caseLoading = false
+      })
+
       var ajString = JSON.stringify(this.ajInfo)
       ajString = JSON.parse(ajString)
       // if (ajString.fllb[0] === '1') {
@@ -751,6 +768,12 @@ export default {
         }
       }
       return result
+    },
+    getReplace(data) {
+      if (data) {
+        var item = data.split('/r/n').join('\r\n')
+        return item
+      }
     }
   },
   created: function() { // 监听 无文书提交申请后 更新案件梗概的状态显示
@@ -893,8 +916,12 @@ export default {
   .flws_text {
     float: left;
     // margin-left: 20px;
-    height: 30px;
-    line-height: 30px;
+    height: 25px;
+    line-height: 25px;
+    div {
+      display: inline-block;
+      margin-right: 8px;
+    }
   }
   .shadow_text {
     color: #bce8fc;
@@ -902,6 +929,9 @@ export default {
   }
   .el-message-box .el-message-box__btns {
     text-align: right;
+  }
+  .el-cascader--small {
+    line-height: 30px;
   }
 }
 // 案件认领按钮 被禁止样式重写

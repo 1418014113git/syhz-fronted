@@ -3,30 +3,32 @@
     <!-- 地市签收 -->
     <div class="areaSign pubStyle">
       <title-pub :title="title"></title-pub>
-      <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="" max-height="260">
-        <el-table-column type="index" label="序号" width="60" ></el-table-column>
-        <el-table-column prop="createDeptName" label="下发单位"   min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="createDate" label="下发日期"  min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="clueNum" label="线索数量" min-width="120">
-          <template slot-scope="scope">
-            <span class="linkColor"   v-if="curDept.depCode === scope.row.receiveDeptCode"   @click="gotoxslist(scope.row)">{{scope.row.clueNum}}</span>
-            <span v-else>{{scope.row.clueNum}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="receiveDeptName" label="接收单位"  min-width="180"  show-overflow-tooltip></el-table-column>
-        <el-table-column prop="signStatus" label="签收状态" min-width="180" show-overflow-tooltip>
-          <template slot-scope="scope">
-            <span v-if='scope.row.signStatus'>{{$getDictName(scope.row.signStatus+'','qszt')}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="receiveUserName" label="签收人" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="receiveDate" label="签收时间" min-width="180" show-overflow-tooltip></el-table-column>
-        <el-table-column label="操作"  width="100" align="center">
-          <template slot-scope="scope">
-            <el-button size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline"  v-if="contrlollistqsbtn(scope.row)  && $isViewBtn('101907')"  @click="handleSign(scope.$index, scope.row)"></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <!-- <div style="max-height:260px;overflow: auto;"> -->
+        <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
+          <el-table-column type="index" label="序号" width="60"  fixed></el-table-column>
+          <el-table-column prop="createDeptName" label="下发单位"   min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="createDate" label="下发日期"  min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="clueNum" label="线索数量" min-width="120">
+            <template slot-scope="scope">
+              <span class="linkColor"   v-if="curDept.depCode === scope.row.receiveDeptCode"   @click="gotoxslist(scope.row)">{{scope.row.clueNum}}</span>
+              <span v-else>{{scope.row.clueNum}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="receiveDeptName" label="接收单位"  min-width="180"  show-overflow-tooltip></el-table-column>
+          <el-table-column prop="signStatus" label="签收状态" min-width="180" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <span v-if='scope.row.signStatus'>{{$getDictName(scope.row.signStatus+'','qszt')}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="receiveUserName" label="签收人" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="receiveDate" label="签收时间" min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column label="操作"  width="100" align="center" fixed="right">
+            <template slot-scope="scope">
+              <el-button size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline"  v-if="contrlollistqsbtn(scope.row)  && $isViewBtn('101907')"  @click="handleSign(scope.$index, scope.row)"></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      <!-- </div> -->
       <el-row>
         <el-col :span="24" class="toolbar">
           <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[5,10,15,20]" @size-change="handleSizeChange"
@@ -58,7 +60,8 @@ export default {
       page: 1,
       total: 0,
       baseInfo: {}, // 基础信息
-      clusterId: '' // 存储列表传递过来的集群战役id
+      clusterId: '', // 存储列表传递过来的集群战役id
+      parentCode: '' // 上级部门code
     }
   },
   watch: {
@@ -66,7 +69,8 @@ export default {
       if (val.clusterId) {
         this.clusterId = val.clusterId
         this.baseInfo = this.info
-        this.query(true)
+        this.getDeptsshdw() // 查上级单位
+        // this.query(true)
       }
     }
   },
@@ -75,7 +79,8 @@ export default {
       if (this.info.clusterId) {
         this.clusterId = this.info.clusterId
         this.baseInfo = this.info
-        this.query(true)
+        this.getDeptsshdw() // 查上级单位
+        // this.query(true)
       }
     },
     query(flag) {
@@ -83,11 +88,20 @@ export default {
       var param = {
         assistId: this.clusterId,
         pageSize: this.pageSize,
-        pageNum: flag ? 1 : this.page
+        pageNum: flag ? 1 : this.page,
+        deptType: this.curDept.depType === '4' ? '2' : this.curDept.depType // 杨凌派出所 类型取杨凌支队的类型
       }
       // if (this.baseInfo.cityCode !== this.curDept.areaCode && this.curDept.depType === '3') {
       //   param.deptCode = this.curDept.depCode
       // }
+      if (this.curDept.depType === '1') { // 总队 传上级部门code
+        param.parentCode = this.parentCode
+      } else if (this.curDept.depType === '2') { // 支队  传本部门code
+        param.curDeptCode = this.curDept.depCode
+      } else if (this.curDept.depType === '4') { // 杨凌派出所，传父级部门code
+        param.curDeptCode = this.curDept.parentDepCode
+      }
+
       this.$query('casecluster/signList', param).then((res) => {
         this.listLoading = false
         this.listData = res.data.list
@@ -103,15 +117,31 @@ export default {
       })
     },
     contrlollistqsbtn(row) { // 控制列表行的签收按钮显隐
-      return (((this.curDept.depType === '2' && this.curDept.depCode === row.receiveDeptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === row.receiveDeptCode.substring(0, 4) === '6114')) && Number(this.baseInfo.status) >= 4 && row.signStatus + '' === '1')
+      if (Number(this.baseInfo.status) >= 4) { // 审核通过以后
+        const curDate = new Date(this.baseInfo.systemTime)
+        const startDate = new Date(this.baseInfo.startDate)
+        return (((this.curDept.depType === '2' && this.curDept.depCode === row.receiveDeptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === row.receiveDeptCode.substring(0, 4) === '6114')) && row.signStatus + '' === '1' && curDate > startDate)
+      } else {
+        return false
+      }
     },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的签收按钮
-      Bus.$emit('isShowqsbtn', false)
+      // Bus.$emit('isShowqsbtn', false)
+      const curDate = new Date(this.baseInfo.systemTime)
+      const startDate = new Date(this.baseInfo.startDate)
       if (data.length > 0) {
         data.forEach(item => {
-          if (this.curDept.depType === '2' && this.curDept.depCode === item.receiveDeptCode && this.baseInfo.status + '' === '4' && item.signStatus + '' === '1') { // 本单位显示签收，地市只能是支队  协查状态：审核通过  1：待签收
-            Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
-            Bus.$emit('qsRow', item) // 当前待签收行的数据
+          if (((this.curDept.depType === '2' && this.curDept.depCode === item.receiveDeptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === item.receiveDeptCode.substring(0, 4) === '6114')) && item.signStatus + '' === '1') { // 本单位显示签收，地市只能是支队  协查状态：审核通过以后  1：待签收
+            if (Number(this.baseInfo.status) >= 4) {
+              if (curDate > startDate) {
+                Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
+                Bus.$emit('qsRow', item) // 当前待签收行的数据
+              } else {
+                // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
+              }
+            } else {
+              // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
+            }
           }
         })
       }
@@ -133,7 +163,7 @@ export default {
     },
     gotoxslist(row) {
       this.$router.push({
-        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: row.receiveDeptCode } // 线索列表页面
+        path: '/jqcampaign/clueList', query: { id: row.assistId, type: '', deptCode: row.createDeptCode, cityCode: row.cityCode, curDeptCode: '', deptType: 2, createDate: row.createDate } // 线索列表页面
       })
     },
     handleSign(index, row) { // 签收
@@ -154,6 +184,15 @@ export default {
         })
       }).catch(() => {
       })
+    },
+    getDeptsshdw() { // 查询上级单位
+      this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.parentCode = response.data.departCode
+          this.query(true)
+        }
+      }).catch(() => {
+      })
     }
   },
   mounted() {
@@ -167,6 +206,15 @@ export default {
 </script>
 <style  rel="stylesheet/scss" lang="scss">
 .areaSign{
-
+  // 固定左侧列的样式问题
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(odd){
+    background-color: rgba(0, 89, 130, 1);
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body tr:nth-child(even){
+    background-color: #032c43;
+  }
+  .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
+    background-color: #2164a1;
+  }
 }
 </style>

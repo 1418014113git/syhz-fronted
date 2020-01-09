@@ -30,31 +30,23 @@ export default {
           default: 0
         }
       },
-      // template: `<el-submenu :index="item.id+''" v-if="item.leaf==1">
-      // <template slot="title"><span  slot="title">{{item.name}}</span></template>
-      //     <template v-for="(child, index) in item.children">
-      //     <sidebar-item :item="child"></sidebar-item>
-      //   </template>
-      // </el-submenu>
-      // <el-menu-item  v-else :key="item.path" :index="item.path" >
-      //   <span slot="title">{{item.name}}</span>
-      // </el-menu-item>`
-      template: `<el-submenu :index="item.id+''" v-if="item.leaf==1" :popper-append-to-body="true">
+      template: `<el-submenu :index="item.id+''" v-if="item.leaf==1">
         <template slot="title"><span  slot="title">{{item.name}}</span></template>
           <template v-for="(child, index) in item.children">
             <sidebar-item :item="child"></sidebar-item>
           </template>
         </el-submenu>
           <el-tooltip  v-else-if="menuLength>5 && item.name.length>6"  effect="dark" :content="item.name" placement="top" >
-            <el-menu-item :key="item.path" :index="item.path" class="ellips">
+            <el-menu-item :key="item.path" :index="item.path" class="ellips" :popper-append-to-body="true">
               <span slot="title">{{item.name}}</span>
             </el-menu-item>
           </el-tooltip>
-           <el-menu-item v-else :key="item.path" :index="item.path" >
+           <el-menu-item v-else :key="item.path" :index="item.path" :popper-append-to-body="true">
              <span slot="title">{{item.name}}</span>
            </el-menu-item>
         `
-    }},
+    }
+  },
   data() {
     return {
       activeIndex: '1',
@@ -114,6 +106,17 @@ export default {
         this.menuDataLength = menuDatas[0].children.length
         menuDatas[0].children.forEach(function(item) {
           menuData.push(item)
+        })
+      }
+      if (menuData.length > 0) { // 菜单排序
+        menuData.sort((a, b) => a.sort - b.sort) // 升序
+        menuData.forEach(function(it) {
+          if (it.children && it.children.length > 0) {
+            it.children.sort((c, d) => c.sort - d.sort) // 升序
+            if (it.children.children && it.children.children.length > 0) {
+              it.children.children.sort((c, d) => c.sort - d.sort) // 升序
+            }
+          }
         })
       }
       this.$store.dispatch('MenuData', menuData)

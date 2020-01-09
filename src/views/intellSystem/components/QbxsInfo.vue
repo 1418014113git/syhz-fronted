@@ -51,12 +51,12 @@
 </template>
 
 <script>
-  import Vue from 'vue'
+  // import Vue from 'vue'
   import BaseInfo from '@/views/intellSystem/components/BaseInfo'
   import EachCarInfo from '@/views/intellSystem/components/EachCarInfo'
   import EachServiceInfo from '@/views/intellSystem/components/EachServiceInfo'
   import EachRecord from '@/views/intellSystem/components/EachRecord'
-  import { personByCardId } from '@/api/personSearch/personSearch'
+  // import { personByCardId } from '@/api/personSearch/personSearch'
   export default {
     name: 'QbxsInfo',
     props: ['analysisData', 'qbxsId'],
@@ -76,30 +76,30 @@
     methods: {
       getPersonBase(gmsfhm, idx) {
         // 根据身份证号码查询人员详细信息
-        if (!gmsfhm) {
-          this.$message({ message: '请先添加身份证号码', type: 'warning' })
-          return false
-        }
-        const para = {
-          method: 'Query',
-          byUserCard: gmsfhm,
-          userCardId: this.curUser.cardNumber,
-          userCertId: this.curUser.cardNumber,
-          userDept: '010000',
-          userName: this.curUser.realName
-        }
-        this.personLoad = true
-        personByCardId(para).then((response) => {
-          this.personLoad = false
-          const obean = this.persons[idx]
-          const bean = response.data
-          for (const key in bean) {
-            Vue.set(obean, key, bean[key])
-          }
-          Vue.set(this.persons, idx, obean)
-        }).catch(() => {
-          this.personLoad = false
-        })
+        // if (!gmsfhm) {
+        //   this.$message({ message: '请先添加身份证号码', type: 'warning' })
+        //   return false
+        // }
+        // const para = {
+        //   method: 'Query',
+        //   byUserCard: gmsfhm,
+        //   userCardId: this.curUser.cardNumber,
+        //   userCertId: this.curUser.cardNumber,
+        //   userDept: '010000',
+        //   userName: this.curUser.realName
+        // }
+        // this.personLoad = true
+        // personByCardId(para).then((response) => {
+        //   this.personLoad = false
+        //   const obean = this.persons[idx]
+        //   const bean = response.data
+        //   for (const key in bean) {
+        //     Vue.set(obean, key, bean[key])
+        //   }
+        //   Vue.set(this.persons, idx, obean)
+        // }).catch(() => {
+        //   this.personLoad = false
+        // })
       },
       plusPerson() {
         const data = this.analysisData[0]

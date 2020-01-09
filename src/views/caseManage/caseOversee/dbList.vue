@@ -12,7 +12,8 @@
           change-on-select
           @change="handleAreaChange"
           :show-all-levels="false"
-          clearable placeholder="全部"
+          placeholder="全部"
+          :clearable="Number(deptInfo.depType)<2"
           :disabled="Number(deptInfo.depType)>2">
         </el-cascader>
       </el-form-item>
@@ -91,16 +92,16 @@
     </el-row>
     <el-table :data="dbData" v-loading="listLoading" style="width: 100%;" :max-height="tableHeight" class="table_th_center" :span-method="objectSpanMethod">
       <el-table-column label="序号" type="index" width="60" align="center"></el-table-column>
-      <el-table-column label="案件名称" min-width="10%" prop="caseName" show-overflow-tooltip></el-table-column>
-      <el-table-column label="案件编号" min-width="10%" show-overflow-tooltip>
+      <el-table-column label="案件名称" min-width="15%" prop="caseName" show-overflow-tooltip></el-table-column>
+      <el-table-column label="案件编号" min-width="15%" show-overflow-tooltip>
         <template slot-scope="scope">
           <a class="ajbh-color" @click="toAjDetail(scope.row.caseId)">{{scope.row.caseNumber}}</a>
         </template>
       </el-table-column>
       <el-table-column prop="title" label="督办批次" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column prop="applyDeptName" label="申请单位" min-width="15%" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="applyPersonName" label="申请人" min-width="15%" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="applyDate" label="申请日期" min-width="15%" align="center" show-overflow-tooltip>
+      <el-table-column prop="applyPersonName" label="申请人" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="applyDate" label="申请日期" width="120" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
           <span v-if="scope.row.status!==0">{{scope.row.applyDate}}</span>
         </template>
@@ -110,7 +111,7 @@
           {{$getDictName(scope.row.superviseLevel+'','dbjb')}}
         </template>
       </el-table-column>
-      <el-table-column prop="endDate" label="截止日期" width="150" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="endDate" label="截止日期" width="120" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column label="状态" width="100" align="center">
         <template slot-scope="scope">
           {{$getDictName(scope.row.status+'','dbajzt')}}
@@ -121,11 +122,13 @@
           <el-button  v-if="$isViewBtn('100805')" title="详情" size="mini" type="primary" @click="handleDetail(scope.$index, scope.row)" icon="el-icon-tickets" circle>
           </el-button>
           <!-- 草稿状态 或者 审核不通过 有 编辑按钮 -->
-          <el-button v-if="$isViewBtn('100806') && (scope.row.status === 0||scope.row.status === 4) &&
-                    ((deptInfo.depType!=='4'&&scope.row.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.applyDeptCode === deptInfo.parentDepCode))"
+          <el-button v-if="(scope.row.status === 0 && userInfo.id === scope.row.creationId) ||
+                   ($isViewBtn('100806') && (scope.row.status === 0||scope.row.status === 4) && ((deptInfo.depType!=='4'&&scope.row.applyDeptCode === deptInfo.depCode)||(deptInfo.depType==='4'&&scope.row.applyDeptCode === deptInfo.parentDepCode)))"
                     title="编辑" size="mini" type="primary" @click="editDBInfo(scope.$index, scope.row)" icon="el-icon-edit" circle></el-button>
           <el-button v-if="$isViewBtn('100807') && scope.row.status!==0 && (scope.row.superviseDeptCode === deptInfo.depCode) && scope.row.superviseLevel>1 && (scope.row.wdStatus===0||scope.row.wdStatus===4)"
                       title="向上申请" size="mini" type="primary" @click="handleUpToApply(scope.$index, scope.row)" icon="el-icon-arrow-up" circle></el-button>
+          <!-- <el-button v-if="$isViewBtn('100813') && deptInfo.depCode===scope.row.superviseDeptCode && scope.row.status===1"
+                      title="审核" type="primary" size="small" @click="handleAudit"></el-button> -->
           <!-- <el-button v-if="(scope.row.status === '0' || scope.row.status === '2') && $isViewBtn('100807') && scope.row.apply_dept_id === String(currentDeptId)" title="删除" size="mini" type="danger"
                      @click="handleDel(scope.$index, scope.row)" icon="el-icon-delete" circle></el-button>
           <el-button v-if="(scope.row.status === '7' || scope.row.status === '8') && $isViewBtn('100806') && scope.row.apply_dept_id === String(currentDeptId)" title="考核打分" size="mini" type="danger"
@@ -152,6 +155,11 @@
         </el-row>
       </el-form>
     </el-dialog>
+    <!-- 审核弹框-->
+    <!-- <el-dialog title="审核" :visible.sync="isShowshDialog"  class="stshForm" @close="closeshDialog" :close-on-click-modal="false">
+      <audit-com :isShowDialog="isShowshDialog" :dbId="currentDb.recordId" :dsh="dsh_Info" @closeDialog="closeshDialog"></audit-com>
+    </el-dialog> -->
+    <!-- 考核打分 -->
     <!-- <el-dialog title="考核打分" :visible.sync="assessScoresVisible" width="1340px" @close="closeDialog">
       <AssessScores ref="assessScores" @setAssessScores="setAssessScores" @closeDialog="closeDialog"></AssessScores>
     </el-dialog> -->
@@ -232,6 +240,7 @@ export default {
       queryBtn: false, // 查询按钮是否可点击
       carryParam: {}, // 页面传递的参数
       hasBackBtn: false, // 是否有返回按钮
+      isShowshDialog: false, // 是否显示审核弹框
       rules: {
         secretCode: [{
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
@@ -337,6 +346,7 @@ export default {
             currentArea = [this.deptInfo.areaCode]
           } else if (this.deptInfo.depType === '2') { // 支队
             currentArea = ['610000', this.deptInfo.areaCode]
+            _this.xzqhOptions[0].disabled = true
             for (let index = 0; index < this.xzqhOptions[0].children.length; index++) {
               const element = this.xzqhOptions[0].children[index]
               if (element.cityCode === this.deptInfo.areaCode) {
@@ -653,6 +663,16 @@ export default {
       //   })
       // }
     },
+    handleAudit(index, row) { // 审核
+      this.currentDb = row
+      this.isShowshDialog = true
+    },
+    closeshDialog(val) { // 关闭审核弹框 点击"通过/不通过"时，页面需要重新加载，更新审核状态。
+      if (this.$refs.auditForm) {
+        this.$refs.auditForm.resetForm('auditForm')
+      }
+      this.isShowshDialog = false // 下发催办弹框隐藏
+    },
     resetFormFilter() {
       this.filters = {
         status: ''
@@ -706,13 +726,16 @@ export default {
       this.carryParam = this.$route.query
       if (this.carryParam.origin === 'portal') { // 首页 跳转来的
         if (this.$route.query.status) {
-          this.filters.status = this.$route.query.status // 首页-审核待办
+          this.filters.status = this.$route.query.status // 首页-审核待办-督办审核
         }
         if (this.$route.query.jabgStatus) {
-          this.filters.jabgStatus = this.$route.query.jabgStatus // 首页-审核待办
+          this.filters.jabgStatus = this.$route.query.jabgStatus // 首页-审核待办-结案报告审核
         }
         if (this.$route.query.qsStatus) {
-          this.filters.qsStatus = this.$route.query.qsStatus // 首页-审核待办
+          this.filters.qsStatus = this.$route.query.qsStatus // 首页-催办待办-1是案件催办签收待办  2案件催办反馈待办
+        }
+        if (this.$route.query.businessType) {
+          this.filters.businessType = this.$route.query.businessType // 首页-签收待办 4是案件督办签收
         }
         this.initData()
       }
@@ -782,15 +805,6 @@ export default {
       margin-left: 5px;
     }
   }
-}
-.el-cascader.is-disabled .el-cascader__label {
-  cursor: not-allowed;
-}
-.el-cascader-menu__item.is-disabled,
-.el-cascader-menu__item.is-disabled:hover {
-  color: #c0c4cc;
-  background-color: rgba(0, 89, 130, 0.7);
-  cursor: not-allowed;
 }
 // 查阅密码的弹框
 .passwordForm {
