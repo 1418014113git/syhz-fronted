@@ -1,167 +1,169 @@
 <template>
   <div class="feature" v-loading="featureLoading">
     <!-- 特征信息分析 -->
-    <el-form :inline="true" :model="filters" ref="filters" label-width="80px" style="text-align: left;">
-      <el-form-item label="立案日期" prop="ltimeType">
-        <el-select  v-model="filters.ltimeType" size="small" placeholder="全部" @change="ltimeTypeChange">
-          <el-option :label="item.label" :value="item.value" v-for="item in dateOption" :key="item.value"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="" prop="lstartDate"  label-width="0px">
-        <el-date-picker
-          v-model="filters.lstartDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          :picker-options="startPickerOptions1"
-          @change="startDateChange1"
-          placeholder="请选择开始时间"
-          :disabled="filters.ltimeType!=='6'">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="至" prop="lendDate" label-width="36px">
-        <el-date-picker
-          v-model="filters.lendDate"
-          type="date"
-          size="small"
-          value-format="yyyy-MM-dd"
-          @change="endDateChange1"
-          :picker-options="endPickerOptions1"
-          placeholder="请选择结束时间"
-          :disabled="filters.ltimeType!=='6'">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="案件分类" prop="syhFllb">
-        <el-cascader v-model="filters.syhFllb" change-on-select :options="fllbList" @change="changeajlxSelect" placeholder="全部" filterable clearable  class="inputw"></el-cascader>
-      </el-form-item>
-      <el-form-item label="" prop="syhFllbType"  label-width="0px">
-        <!-- :disabled="!(filters.syhFllb&&filters.syhFllb.length>0)" -->
-        <el-checkbox v-model="filters.syhFllbType" >统计子级</el-checkbox>
-        <el-tooltip class="item" effect="dark" content="勾选统计子级时统计当前选中案件分类的子级（包括子级的下级）案件数量。" placement="top-start">
-          <!-- <i class="el-icon-question"></i> -->
-          <i><svg-icon icon-class="wenhao1"></svg-icon></i>
-        </el-tooltip>
-      </el-form-item>
-      <br/>
-      <el-form-item label="破案日期" prop="ptimeType">
-        <el-select v-model="filters.ptimeType" size="small" placeholder="全部" @change="ptimeTypeChange">
-          <el-option :label="item.label" :value="item.value" v-for="item in dateOption" :key="item.value"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="" prop="pstartDate"  label-width="0px">
-        <el-date-picker
-          v-model="filters.pstartDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          :picker-options="startPickerOptions2"
-          @change="startDateChange2"
-          placeholder="请选择开始时间"
-          :disabled="filters.ptimeType!=='6'">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="至" prop="pendDate" label-width="36px">
-        <el-date-picker
-          v-model="filters.pendDate"
-          type="date"
-          size="small"
-          value-format="yyyy-MM-dd"
-          @change="endDateChange2"
-          :picker-options="endPickerOptions2"
-          placeholder="请选择结束时间"
-          :disabled="filters.ptimeType!=='6'">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="案件状态" prop="ajzt">
-        <el-select  v-model="filters.ajzt" size="small">
-          <el-option :label="item.name" :value="item.value" v-for="item in ajZtOption" :key="item.value"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="queryFeatureData(true)">查询</el-button>
-        <el-button type="info" @click="reset">重置</el-button>
-      </el-form-item>
-    </el-form>
-    <!-- 案件类别分析 -->
-    <div v-loading="loading1">
-      <div style="margin: 10px 0;">
-        <span style="line-height:22px;">
-          案件类别分析&nbsp;&nbsp;
-          <el-tooltip class="item" effect="dark" content="根据查询条件分析全省案件数量排行前12的案件类别。" placement="top-start">
-            <i class="el-icon-question" style="font-size:20px;"></i>
+    <el-card>
+      <el-form :inline="true" :model="filters" ref="filters" label-width="80px" style="text-align: left;">
+        <el-form-item label="立案日期" prop="ltimeType">
+          <el-select  v-model="filters.ltimeType" size="small" placeholder="全部" @change="ltimeTypeChange">
+            <el-option :label="item.label" :value="item.value" v-for="item in dateOption" :key="item.value"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="" prop="lstartDate"  label-width="0px">
+          <el-date-picker
+            v-model="filters.lstartDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            :picker-options="startPickerOptions1"
+            @change="startDateChange1"
+            placeholder="请选择开始时间"
+            :disabled="filters.ltimeType!=='6'">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="至" prop="lendDate" label-width="36px">
+          <el-date-picker
+            v-model="filters.lendDate"
+            type="date"
+            size="small"
+            value-format="yyyy-MM-dd"
+            @change="endDateChange1"
+            :picker-options="endPickerOptions1"
+            placeholder="请选择结束时间"
+            :disabled="filters.ltimeType!=='6'">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="案件分类" prop="syhFllb">
+          <el-cascader v-model="filters.syhFllb" change-on-select :options="fllbList" @change="changeajlxSelect" placeholder="全部" filterable clearable  class="inputw"></el-cascader>
+        </el-form-item>
+        <el-form-item label="" prop="syhFllbType"  label-width="0px">
+          <!-- :disabled="!(filters.syhFllb&&filters.syhFllb.length>0)" -->
+          <el-checkbox v-model="filters.syhFllbType" >统计子级</el-checkbox>
+          <el-tooltip class="item" effect="dark" content="勾选统计子级时统计当前选中案件分类的子级（包括子级的下级）案件数量。" placement="top-start">
+            <!-- <i class="el-icon-question"></i> -->
+            <i><svg-icon icon-class="wenhao1"></svg-icon></i>
           </el-tooltip>
-        </span>
-        <span class="right canClick" @click="lookMore('1')">更多</span>
-        <!-- <img src="/static/image/download.png" alt="" srcset="" title="下载" style="float:right;width:24px;margin-top: -5px;cursor:pointer;"> -->
+        </el-form-item>
+        <br/>
+        <el-form-item label="破案日期" prop="ptimeType">
+          <el-select v-model="filters.ptimeType" size="small" placeholder="全部" @change="ptimeTypeChange">
+            <el-option :label="item.label" :value="item.value" v-for="item in dateOption" :key="item.value"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="" prop="pstartDate"  label-width="0px">
+          <el-date-picker
+            v-model="filters.pstartDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            :picker-options="startPickerOptions2"
+            @change="startDateChange2"
+            placeholder="请选择开始时间"
+            :disabled="filters.ptimeType!=='6'">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="至" prop="pendDate" label-width="36px">
+          <el-date-picker
+            v-model="filters.pendDate"
+            type="date"
+            size="small"
+            value-format="yyyy-MM-dd"
+            @change="endDateChange2"
+            :picker-options="endPickerOptions2"
+            placeholder="请选择结束时间"
+            :disabled="filters.ptimeType!=='6'">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="案件状态" prop="ajzt">
+          <el-select  v-model="filters.ajzt" size="small">
+            <el-option :label="item.name" :value="item.value" v-for="item in ajZtOption" :key="item.value"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="queryFeatureData(true)">查询</el-button>
+          <el-button type="info" @click="reset">重置</el-button>
+        </el-form-item>
+      </el-form>
+      <!-- 案件类别分析 -->
+      <div v-loading="loading1">
+        <div style="margin: 10px 0;">
+          <span style="line-height:22px;">
+            案件类别分析&nbsp;&nbsp;
+            <el-tooltip class="item" effect="dark" content="根据查询条件分析全省案件数量排行前12的案件类别。" placement="top-start">
+              <i class="el-icon-question" style="font-size:20px;"></i>
+            </el-tooltip>
+          </span>
+          <span class="right canClick" @click="lookMore('1')">更多</span>
+          <!-- <img src="/static/image/download.png" alt="" srcset="" title="下载" style="float:right;width:24px;margin-top: -5px;cursor:pointer;"> -->
+        </div>
+        <div id="echart1" style="height: 400px;margin:0 0 20px 0;"></div>
       </div>
-      <div id="echart1" style="height: 400px;margin:0 0 20px 0;"></div>
-    </div>
-    <!-- 案件罪名分析 -->
-    <div>
-      <div style="margin: 10px 0;">
-        <span style="line-height:22px;">
-          案件罪名分析&nbsp;&nbsp;
-          <el-tooltip class="item" effect="dark" content="根据查询条件分析全省案件数量排行前12的案件罪名。" placement="top-start">
-            <i class="el-icon-question" style="font-size:20px;"></i>
-          </el-tooltip>
-        </span>
-        <span class="right canClick" @click="lookMore('2')">更多</span>
-        <!-- <img src="/static/image/download.png" alt="" srcset="" title="下载" style="float:right;width:24px;margin-top: -5px;cursor:pointer;"> -->
+      <!-- 案件罪名分析 -->
+      <div>
+        <div style="margin: 10px 0;">
+          <span style="line-height:22px;">
+            案件罪名分析&nbsp;&nbsp;
+            <el-tooltip class="item" effect="dark" content="根据查询条件分析全省案件数量排行前12的案件罪名。" placement="top-start">
+              <i class="el-icon-question" style="font-size:20px;"></i>
+            </el-tooltip>
+          </span>
+          <span class="right canClick" @click="lookMore('2')">更多</span>
+          <!-- <img src="/static/image/download.png" alt="" srcset="" title="下载" style="float:right;width:24px;margin-top: -5px;cursor:pointer;"> -->
+        </div>
+        <div id="echart2" style="height: 400px;margin:0 0 20px 0;"></div>
       </div>
-      <div id="echart2" style="height: 400px;margin:0 0 20px 0;"></div>
-    </div>
-    <!-- 案件来源分析 -->
-    <div>
-      <div style="margin: 10px 0;">
-        <span style="line-height:22px;">
-          案件来源分析&nbsp;&nbsp;
-          <el-tooltip class="item" effect="dark" content="根据查询条件分析全省案件数量排行前12的案件来源。" placement="top-start">
-            <i class="el-icon-question" style="font-size:20px;"></i>
-          </el-tooltip>
-        </span>
-        <span class="right canClick" @click="lookMore('3')">更多</span>
-        <!-- <img src="/static/image/download.png" alt="" srcset="" title="下载" style="float:right;width:24px;margin-top: -5px;cursor:pointer;"> -->
+      <!-- 案件来源分析 -->
+      <div>
+        <div style="margin: 10px 0;">
+          <span style="line-height:22px;">
+            案件来源分析&nbsp;&nbsp;
+            <el-tooltip class="item" effect="dark" content="根据查询条件分析全省案件数量排行前12的案件来源。" placement="top-start">
+              <i class="el-icon-question" style="font-size:20px;"></i>
+            </el-tooltip>
+          </span>
+          <span class="right canClick" @click="lookMore('3')">更多</span>
+          <!-- <img src="/static/image/download.png" alt="" srcset="" title="下载" style="float:right;width:24px;margin-top: -5px;cursor:pointer;"> -->
+        </div>
+        <div id="echart3" style="height: 400px;margin:0 0 20px 0;"></div>
       </div>
-      <div id="echart3" style="height: 400px;margin:0 0 20px 0;"></div>
-    </div>
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="60%">
-      <el-row>
-        <img src="/static/image/download.png" alt="" srcset="" title="下载" @click="downloadTable" style="float:right;width:24px;margin-bottom:5px;cursor:pointer;">
-      </el-row>
-      <el-table :data="moreList" :style="expandTableStyle" v-loading="tableLoading" max-height="450" class="table_th_center">
-        <el-table-column type="index" label="序号" align="center" :width="60"></el-table-column>
-        <el-table-column prop="name" label="案件类别" show-overflow-tooltip v-if="curType==='1'"></el-table-column>
-        <el-table-column prop="name" label="案件罪名" show-overflow-tooltip v-if="curType==='2'"></el-table-column>
-        <el-table-column prop="name" label="案件来源" show-overflow-tooltip v-if="curType==='3'"></el-table-column>
-        <el-table-column prop="num" label="数量" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="hb" label="环比" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-      </el-table>
-      <!--工具条-->
-      <el-col :span="24" class="toolbar">
-        <el-pagination v-if="listTotal > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]"  @size-change="handleSizeChange"
-                      :page-size="pageSize" :total="listTotal" :current-page="page" style="float:right;"></el-pagination>
-      </el-col>
-      <el-row style="text-align:center;margin: 20px 0 0;">
-        <el-button type="primary" class="saveBtn" @click="closeDialog" >关 闭</el-button>
-      </el-row>
-    </el-dialog>
-    <!--导出弹出层-->
-    <el-dialog title="导出" :visible.sync="isShowdcdialog" class="dcForm">
-      <div class="dctitle">
-        <i class="el-icon-warning iconStyle"></i>
-        <span style="font-weight: bold;">导出{{dcTitle}}</span>
-      </div>
-      <div class="checkArea">
-        <el-radio-group v-model="dcType">
-          <el-radio :label="2">全部查询结果</el-radio>
-          <el-radio :label="1">当前页面</el-radio>
-        </el-radio-group>
-        <!-- <el-radio v-model="dcType" :label="1" style="margin-right:45px;">全部查询结果</el-radio> -->
-        <!-- <el-radio v-model="dcType" :label="2" :disabled="checkId.length===0">当前页面</el-radio> -->
-      </div>
-      <el-row class="tabC martop btnUpLine">
-        <el-button  @click="canceldc" class="cancelBtn">取 消</el-button>
-        <el-button  type="primary" @click="exporttableList"  class="saveBtn">导出</el-button>
-      </el-row>
-    </el-dialog>
+      <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="60%">
+        <el-row>
+          <img src="/static/image/download.png" alt="" srcset="" title="下载" @click="downloadTable" style="float:right;width:24px;margin-bottom:5px;cursor:pointer;">
+        </el-row>
+        <el-table :data="moreList" :style="expandTableStyle" v-loading="tableLoading" max-height="450" class="table_th_center">
+          <el-table-column type="index" label="序号" align="center" :width="60"></el-table-column>
+          <el-table-column prop="name" label="案件类别" show-overflow-tooltip v-if="curType==='1'"></el-table-column>
+          <el-table-column prop="name" label="案件罪名" show-overflow-tooltip v-if="curType==='2'"></el-table-column>
+          <el-table-column prop="name" label="案件来源" show-overflow-tooltip v-if="curType==='3'"></el-table-column>
+          <el-table-column prop="num" label="数量" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="hb" label="环比" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
+        </el-table>
+        <!--工具条-->
+        <el-col :span="24" class="toolbar">
+          <el-pagination v-if="listTotal > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]"  @size-change="handleSizeChange"
+                        :page-size="pageSize" :total="listTotal" :current-page="page" style="float:right;"></el-pagination>
+        </el-col>
+        <el-row style="text-align:center;margin: 20px 0 0;">
+          <el-button type="primary" class="saveBtn" @click="closeDialog" >关 闭</el-button>
+        </el-row>
+      </el-dialog>
+      <!--导出弹出层-->
+      <el-dialog title="导出" :visible.sync="isShowdcdialog" class="dcForm">
+        <div class="dctitle">
+          <i class="el-icon-warning iconStyle"></i>
+          <span style="font-weight: bold;">导出{{dcTitle}}</span>
+        </div>
+        <div class="checkArea">
+          <el-radio-group v-model="dcType">
+            <el-radio :label="2">全部查询结果</el-radio>
+            <el-radio :label="1">当前页面</el-radio>
+          </el-radio-group>
+          <!-- <el-radio v-model="dcType" :label="1" style="margin-right:45px;">全部查询结果</el-radio> -->
+          <!-- <el-radio v-model="dcType" :label="2" :disabled="checkId.length===0">当前页面</el-radio> -->
+        </div>
+        <el-row class="tabC martop btnUpLine">
+          <el-button  @click="canceldc" class="cancelBtn">取 消</el-button>
+          <el-button  type="primary" @click="exporttableList"  class="saveBtn">导出</el-button>
+        </el-row>
+      </el-dialog>
+    </el-card>
   </div>
 </template>
 <script>
@@ -201,7 +203,7 @@ export default {
       fllbList: getSYHFLLBList(), // 案件类型下拉框数据
       dialogVisible: false, // 更多 弹框是否显示
       filters: {
-        ltimeType: '1',
+        ltimeType: '1', // 特征分析默认查本年
         ptimeType: '1',
         pstartDate: '',
         pendDate: '',
@@ -670,7 +672,7 @@ export default {
           }
         })
       } else {
-        this.filters.laEndDate = '' // 结束时间清空
+        this.filters.lendDate = '' // 结束时间清空
         // this.endDateDisabled = true
         this.startPickerOptions1 = Object.assign({}, 'startPickerOptions1', {
           disabledDate: (time) => {
@@ -709,7 +711,7 @@ export default {
           }
         })
       } else {
-        this.filters.paEndDate = '' // 结束时间清空
+        this.filters.pendDate = '' // 结束时间清空
         // this.endDateDisabled = true
         this.startPickerOptions2 = Object.assign({}, 'startPickerOptions2', {
           disabledDate: (time) => {
@@ -753,6 +755,8 @@ export default {
 </script>
 <style rel="stylesheet/scss" lang="scss">
 .feature {
+  padding: 0 10px;
+  margin-bottom: 30px;
   .canClick {
     cursor: pointer;
   }

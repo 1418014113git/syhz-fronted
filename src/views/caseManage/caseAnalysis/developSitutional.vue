@@ -1,450 +1,452 @@
 <template>
   <div class="develop" v-loading="developLoading">
     <!-- 发展变化趋势分析 -->
-    <el-form :inline="true" :model="filters" ref="filters" label-width="80px" style="text-align: left;">
-      <el-form-item label="立案日期" prop="ltimeType">
-        <el-select  v-model="filters.ltimeType" size="small" placeholder="全部" clearable @change="ltimeTypeChange">
-          <el-option :label="item.label" :value="item.value" v-for="item in dateOption" :key="item.value"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="" prop="lstartDate"  label-width="0px">
-        <el-date-picker
-          v-model="filters.lstartDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          :picker-options="startPickerOptions1"
-          @change="startDateChange1"
-          placeholder="请选择开始时间"
-          :disabled="filters.ltimeType!=='6'">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="至" prop="lendDate" label-width="36px">
-        <el-date-picker
-          v-model="filters.lendDate"
-          type="date"
-          size="small"
-          value-format="yyyy-MM-dd"
-          @change="endDateChange1"
-          :picker-options="endPickerOptions1"
-          placeholder="请选择结束时间"
-          :disabled="filters.ltimeType!=='6'">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="案件分类" prop="syhFllb">
-        <el-cascader v-model="filters.syhFllb" change-on-select :options="fllbList" @change="changeajlxSelect" placeholder="全部" filterable clearable  class="inputw"></el-cascader>
-      </el-form-item>
-      <el-form-item label="" prop="syhFllbType"  label-width="0px">
-        <!-- :disabled="!(filters.syhFllb&&filters.syhFllb.length>0)" -->
-        <el-checkbox v-model="filters.syhFllbType" >统计子级</el-checkbox>
-        <el-tooltip class="item" effect="dark" content="勾选统计子级时统计当前选中案件分类的子级（包括子级的下级）案件数量。" placement="top-start">
-          <!-- <i class="el-icon-question"></i> -->
-          <i><svg-icon icon-class="wenhao1"></svg-icon></i>
-        </el-tooltip>
-      </el-form-item>
-      <br/>
-      <el-form-item label="破案日期" prop="ptimeType">
-        <el-select v-model="filters.ptimeType" size="small" placeholder="全部" clearable @change="ptimeTypeChange">
-          <el-option :label="item.label" :value="item.value" v-for="item in dateOption" :key="item.value"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="" prop="pstartDate"  label-width="0px">
-        <el-date-picker
-          v-model="filters.pstartDate"
-          type="date"
-          value-format="yyyy-MM-dd"
-          :picker-options="startPickerOptions2"
-          @change="startDateChange2"
-          placeholder="请选择开始时间"
-          :disabled="filters.ptimeType!=='6'">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item label="至" prop="pendDate" label-width="36px">
-        <el-date-picker
-          v-model="filters.pendDate"
-          type="date"
-          size="small"
-          value-format="yyyy-MM-dd"
-          @change="endDateChange2"
-          :picker-options="endPickerOptions2"
-          placeholder="请选择结束时间"
-          :disabled="filters.ptimeType!=='6'">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="queryDevelopChangeData(true)">查询</el-button>
-        <el-button type="info" @click="reset">重置</el-button>
-      </el-form-item>
-    </el-form>
-    <div style="margin: 10px 0;">
-      <span style="line-height:22px;">
-        案件数量统计&nbsp;&nbsp;
-        <el-tooltip class="item" effect="dark" content="根据查询条件分析立案、破案、销案、结案符合条件的案件数量。" placement="top-start">
-          <!-- <i class="el-icon-question" style="font-size:20px;margin-bottom:0px;"></i> -->
-          <i><svg-icon icon-class="wenhao1"></svg-icon></i>
-        </el-tooltip>
-      </span>
-      <img src="/static/image/download.png" alt="" srcset="" title="下载" @click="exportTable('1')" style="float:right;width:24px;margin-top: -5px;cursor:pointer;">
-    </div>
-    <el-table :data="teamData"  style="width: 100%;" :max-height="tableHeight" v-loading="loading1" class="table_th_center"
-      :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick"
-     ref="teamStatistical" :row-class-name="getRowClass">
-     <!-- show-summary :summary-method="getSummaries" -->
-      <el-table-column type="expand" width="40" v-if="firstCanJump===false" class-name="expand">
-        <template slot-scope="scope">
-          <el-table :data="scope.row.child||[]" :style="expandTableStyle" v-loading="loading12" max-height="400">
-            <el-table-column prop="" label="" width="40"></el-table-column>
-            <el-table-column type="index" label="序号" align="center" :width="smallItemWidth"></el-table-column>
-            <el-table-column prop="cityName" label="单位机构" align="center" :min-width="smallItemWidth+70" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span>{{scope.row.cityName}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="totalList" label="立案">
-              <el-table-column prop="z1l1" label="食品" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'立案','1')">{{scope.row.totalList.z1l1}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z1l2" label="药品" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'立案','2')">{{scope.row.totalList.z1l2}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z1l3" label="环境" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'立案','3')">{{scope.row.totalList.z1l3}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z1l4" label="总计" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'立案','',true)">{{scope.row.totalList.z1l4}}</span>
-                </template>
-              </el-table-column>
-            </el-table-column>
-            <el-table-column prop="" label="破案">
-              <el-table-column prop="z2l1" label="食品" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'破案','1')">{{scope.row.totalList.z2l1}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z2l2" label="药品" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'破案','2')">{{scope.row.totalList.z2l2}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z2l3" label="环境" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'破案','3')">{{scope.row.totalList.z2l3}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z2l4" label="总计" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'破案','',true)">{{scope.row.totalList.z2l4}}</span>
-                </template>
-              </el-table-column>
-            </el-table-column>
-            <el-table-column prop="" label="销案">
-              <el-table-column prop="z3l1" label="食品" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'销案','1')">{{scope.row.totalList.z3l1}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z3l2" label="药品" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'销案','2')">{{scope.row.totalList.z3l2}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z3l3" label="环境" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'销案','3')">{{scope.row.totalList.z3l3}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z3l4" label="总计" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'销案','',true)">{{scope.row.totalList.z3l4}}</span>
-                </template>
-              </el-table-column>
-            </el-table-column>
-            <el-table-column prop="" label="结案">
-              <el-table-column prop="z4l1" label="食品" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'结案','1')">{{scope.row.totalList.z4l1}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z4l2" label="药品" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'结案','2')">{{scope.row.totalList.z4l2}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z4l3" label="环境" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'结案','3')">{{scope.row.totalList.z4l3}}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="z4l4" label="总计" :min-width="smallItemWidth" align="center">
-                <template slot-scope="scope">
-                  <span class="canClick" @click="toCaseList(scope.row,'结案','',true)">{{scope.row.totalList.z4l4}}</span>
-                </template>
-              </el-table-column>
-            </el-table-column>
-            <el-table-column prop="z5" label="总计" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span class="canClick" @click="toCaseList(scope.row,'','',true)">{{scope.row.totalList.z5}}</span>
-                </template>
-            </el-table-column>
-          </el-table>
-        </template>
-      </el-table-column>
-      <el-table-column type="index" :width="smallItemWidth" label="序号" align="center" class-name="xuhao"></el-table-column>
-      <el-table-column prop="cityName" :label="firstCanJump===true?'单位':'地市'" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <!-- v-if="scope.row.canClickJump===true"  -->
-          <span>{{scope.row.cityName}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="totalList" label="立案">
-        <el-table-column prop="z1l1" label="食品" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'立案','1')">{{scope.row.totalList.z1l1}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z1l2" label="药品" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'立案','2')">{{scope.row.totalList.z1l2}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z1l3" label="环境" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'立案','3')">{{scope.row.totalList.z1l3}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z1l4" label="总计" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'立案','',true)">{{scope.row.totalList.z1l4}}</span>
-          </template>
-        </el-table-column>
-      </el-table-column>
-      <el-table-column prop="" label="破案">
-        <el-table-column prop="z2l1" label="食品" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'破案','1')">{{scope.row.totalList.z2l1}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z2l2" label="药品" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'破案','2')">{{scope.row.totalList.z2l2}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z2l3" label="环境" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'破案','3')">{{scope.row.totalList.z2l3}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z2l4" label="总计" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'破案','',true)">{{scope.row.totalList.z2l4}}</span>
-          </template>
-        </el-table-column>
-      </el-table-column>
-      <el-table-column prop="" label="销案">
-        <el-table-column prop="z3l1" label="食品" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'销案','1')">{{scope.row.totalList.z3l1}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z3l2" label="药品" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'销案','2')">{{scope.row.totalList.z3l2}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z3l3" label="环境" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'销案','3')">{{scope.row.totalList.z3l3}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z3l4" label="总计" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'销案','',true)">{{scope.row.totalList.z3l4}}</span>
-          </template>
-        </el-table-column>
-      </el-table-column>
-      <el-table-column prop="" label="结案">
-        <el-table-column prop="z4l1" label="食品" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'结案','1')">{{scope.row.totalList.z4l1}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z4l2" label="药品" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'结案','2')">{{scope.row.totalList.z4l2}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z4l3" label="环境" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'结案','3')">{{scope.row.totalList.z4l3}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="z4l4" label="总计" :min-width="smallItemWidth" align="center">
-          <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'结案','',true)">{{scope.row.totalList.z4l4}}</span>
-          </template>
-        </el-table-column>
-      </el-table-column>
-      <el-table-column prop="z5" label="总计" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-            <span class="canClick" @click="toCaseList(scope.row,'总计1','',true)">{{scope.row.totalList.z5}}</span>
-          </template>
-      </el-table-column>
-    </el-table>
-    <!-- echart统计图 -->
-    <div class="clearfix" style="margin:20px 0;">
-      <!-- 饼状图 -->
-      <div class="left" style="width:49%;">
-        <div>
-          <span>{{ajStatusLabel1}}案件类型统计&nbsp;&nbsp;</span>
-          <el-tooltip class="item" effect="dark" content="根据查询条件分析指定案件状态案件环境、食品、药品案件数量比例。" placement="top-start">
-            <!-- <i class="el-icon-question" style="font-size:20px;"></i> -->
-          <i><svg-icon icon-class="wenhao1"></svg-icon></i>
-          </el-tooltip>
-          <span style="margin:0px 10px 0px 30px;">案件状态</span>
-          <el-select  v-model="ajZt1" size="small" @change="ajStatusChange1">
-            <el-option :label="item.name" :value="item.value" v-for="item in ajZtOption" :key="item.value"></el-option>
+    <el-card>
+      <el-form :inline="true" :model="filters" ref="filters" label-width="80px" style="text-align: left;">
+        <el-form-item label="立案日期" prop="ltimeType">
+          <el-select  v-model="filters.ltimeType" size="small" placeholder="全部" clearable @change="ltimeTypeChange">
+            <el-option :label="item.label" :value="item.value" v-for="item in dateOption" :key="item.value"></el-option>
           </el-select>
-        </div>
-        <div id="echartLeft" style="height: 400px;margin:0 0 20px 0;"></div>
-      </div>
-      <!-- 柱状图 -->
-      <div class="right" style="width:49%;">
-        <div>
-          {{ajStatusLabel2}}案件类型统计&nbsp;&nbsp;
-          <el-tooltip class="item" effect="dark" content="根据查询条件分析指定案件状态案件环境、食品、药品案件数量比例。" placement="top-start">
-            <!-- <i class="el-icon-question" style="font-size:20px;"></i> -->
-          <i><svg-icon icon-class="wenhao1"></svg-icon></i>
+        </el-form-item>
+        <el-form-item label="" prop="lstartDate"  label-width="0px">
+          <el-date-picker
+            v-model="filters.lstartDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            :picker-options="startPickerOptions1"
+            @change="startDateChange1"
+            placeholder="请选择开始时间"
+            :disabled="filters.ltimeType!=='6'">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="至" prop="lendDate" label-width="36px">
+          <el-date-picker
+            v-model="filters.lendDate"
+            type="date"
+            size="small"
+            value-format="yyyy-MM-dd"
+            @change="endDateChange1"
+            :picker-options="endPickerOptions1"
+            placeholder="请选择结束时间"
+            :disabled="filters.ltimeType!=='6'">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="案件分类" prop="syhFllb">
+          <el-cascader v-model="filters.syhFllb" change-on-select :options="fllbList" @change="changeajlxSelect" placeholder="全部" filterable clearable  class="inputw"></el-cascader>
+        </el-form-item>
+        <el-form-item label="" prop="syhFllbType"  label-width="0px">
+          <!-- :disabled="!(filters.syhFllb&&filters.syhFllb.length>0)" -->
+          <el-checkbox v-model="filters.syhFllbType" >统计子级</el-checkbox>
+          <el-tooltip class="item" effect="dark" content="勾选统计子级时统计当前选中案件分类的子级（包括子级的下级）案件数量。" placement="top-start">
+            <!-- <i class="el-icon-question"></i> -->
+            <i><svg-icon icon-class="wenhao1"></svg-icon></i>
           </el-tooltip>
-          <span style="margin:0px 10px 0px 30px;">案件状态</span>
-          <el-select  v-model="ajZt2" size="small" @change="ajStatusChange2">
-            <el-option :label="item.name" :value="item.value" v-for="item in ajZtOption" :key="item.value"></el-option>
+        </el-form-item>
+        <br/>
+        <el-form-item label="破案日期" prop="ptimeType">
+          <el-select v-model="filters.ptimeType" size="small" placeholder="全部" clearable @change="ptimeTypeChange">
+            <el-option :label="item.label" :value="item.value" v-for="item in dateOption" :key="item.value"></el-option>
           </el-select>
-        </div>
-        <div id="echartRight" style="height: 400px;margin:0 0 20px 0;"></div>
+        </el-form-item>
+        <el-form-item label="" prop="pstartDate"  label-width="0px">
+          <el-date-picker
+            v-model="filters.pstartDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            :picker-options="startPickerOptions2"
+            @change="startDateChange2"
+            placeholder="请选择开始时间"
+            :disabled="filters.ptimeType!=='6'">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="至" prop="pendDate" label-width="36px">
+          <el-date-picker
+            v-model="filters.pendDate"
+            type="date"
+            size="small"
+            value-format="yyyy-MM-dd"
+            @change="endDateChange2"
+            :picker-options="endPickerOptions2"
+            placeholder="请选择结束时间"
+            :disabled="filters.ptimeType!=='6'">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="queryDevelopChangeData(true)">查询</el-button>
+          <el-button type="info" @click="reset">重置</el-button>
+        </el-form-item>
+      </el-form>
+      <div style="margin: 10px 0;">
+        <span style="line-height:22px;">
+          案件数量统计&nbsp;&nbsp;
+          <el-tooltip class="item" effect="dark" content="根据查询条件分析立案、破案、销案、结案符合条件的案件数量。" placement="top-start">
+            <!-- <i class="el-icon-question" style="font-size:20px;margin-bottom:0px;"></i> -->
+            <i><svg-icon icon-class="wenhao1"></svg-icon></i>
+          </el-tooltip>
+        </span>
+        <img src="/static/image/download.png" alt="" srcset="" title="下载" @click="exportTable('1')" style="float:right;width:24px;margin-top: -5px;cursor:pointer;">
       </div>
-    </div>
-    <!-- 案件状态统计 -->
-    <div style="margin: 10px 0;">
-      <span style="line-height:22px;">
-        案件状态统计&nbsp;&nbsp;
-        <el-tooltip class="item" effect="dark" content="根据查询条件分析案件状态分布情况。" placement="top-start">
-          <!-- <i class="el-icon-question" style="font-size:20px;"></i> -->
-          <i><svg-icon icon-class="wenhao1"></svg-icon></i>
-        </el-tooltip>
-      </span>
-      <img src="/static/image/download.png" alt="" srcset="" title="下载"  @click="exportTable('2')" style="float:right;width:24px;margin-top: -5px;cursor:pointer;">
-    </div>
-    <el-table :data="caseStatusTable"  style="width: 100%;" :max-height="tableHeight" v-loading="loading2" class="table_th_center"
-      :row-key="getRowKeys" :expand-row-keys="expands2" @expand-change="rowClickCaseStatus"
-     ref="teamStatistical" :row-class-name="getRowClass">
-     <!-- show-summary :summary-method="getSummaries" -->
-      <el-table-column type="expand" width="40" v-if="firstCanJump===false" class-name="expand">
-        <template slot-scope="scope">
-          <el-table :data="scope.row.child||[]" :style="expandTableStyle" v-loading="loading22" max-height="400">
-            <el-table-column prop="" label="" width="40"></el-table-column>
-            <el-table-column type="index" label="序号" align="center" :width="smallItemWidth"></el-table-column>
-            <el-table-column prop="deptName" label="单位机构" align="center" :min-width="smallItemWidth+70" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span>{{scope.row.cityName}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="z1" label="受理" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span class="canClick" @click="toCaseList(scope.row,'受理','')">{{scope.row.totalList.z1}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="z2" label="立案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span class="canClick" @click="toCaseList(scope.row,'立案','')">{{scope.row.totalList.z2}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="z3" label="破案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span class="canClick" @click="toCaseList(scope.row,'破案','')">{{scope.row.totalList.z3}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="z4" label="销案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span class="canClick" @click="toCaseList(scope.row,'销案','')">{{scope.row.totalList.z4}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="z5" label="转治安案件" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span class="canClick" @click="toCaseList(scope.row,'转治安案件','')">{{scope.row.totalList.z5}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="z6" label="结案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span class="canClick" @click="toCaseList(scope.row,'结案','')">{{scope.row.totalList.z6}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="z7" label="归档" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span class="canClick" @click="toCaseList(scope.row,'归档','')">{{scope.row.totalList.z7}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="z8" label="总计" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-              <template slot-scope="scope">
-                <span class="canClick" @click="toCaseList(scope.row,'总计','')">{{scope.row.totalList.z8}}</span>
-              </template>
-            </el-table-column>
-          </el-table>
-        </template>
-      </el-table-column>
-      <el-table-column type="index" :width="smallItemWidth" label="序号" align="center" class-name="xuhao"></el-table-column>
-      <el-table-column prop="cityName" :label="firstCanJump===true?'单位':'地市'" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <!-- v-if="scope.row.canClickJump===true" class="canClick" @click="goDeptStatistical(scope.row)" -->
-          <span>{{scope.row.cityName}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="z1" label="受理" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span class="canClick" @click="toCaseList(scope.row,'受理','')">{{scope.row.totalList.z1}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="z2" label="立案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span class="canClick" @click="toCaseList(scope.row,'立案','')">{{scope.row.totalList.z2}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="z3" label="破案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span class="canClick" @click="toCaseList(scope.row,'破案','')">{{scope.row.totalList.z3}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="z4" label="销案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span class="canClick" @click="toCaseList(scope.row,'销案','')">{{scope.row.totalList.z4}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="z5" label="转治安案件" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span class="canClick" @click="toCaseList(scope.row,'转治安案件','')">{{scope.row.totalList.z5}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="z6" label="结案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span class="canClick" @click="toCaseList(scope.row,'结案','')">{{scope.row.totalList.z6}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="z7" label="归档" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span class="canClick" @click="toCaseList(scope.row,'归档','')">{{scope.row.totalList.z7}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="z8" label="总计" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
-        <template slot-scope="scope">
-          <span class="canClick" @click="toCaseList(scope.row,'总计2','')">{{scope.row.totalList.z8}}</span>
-        </template>
-      </el-table-column>
-    </el-table>
+      <el-table :data="teamData"  style="width: 100%;" :max-height="tableHeight" v-loading="loading1" class="table_th_center"
+        :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick"
+        ref="teamStatistical" :row-class-name="getRowClass">
+        <!-- show-summary :summary-method="getSummaries" -->
+        <el-table-column type="expand" width="40" v-if="firstCanJump===false" class-name="expand">
+          <template slot-scope="scope">
+            <el-table :data="scope.row.child||[]" :style="expandTableStyle" v-loading="loading12" max-height="400">
+              <el-table-column prop="" label="" width="40"></el-table-column>
+              <el-table-column type="index" label="序号" align="center" :width="smallItemWidth"></el-table-column>
+              <el-table-column prop="cityName" label="单位机构" align="center" :min-width="smallItemWidth+70" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span>{{scope.row.cityName}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="totalList" label="立案">
+                <el-table-column prop="z1l1" label="食品" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'立案','1')">{{scope.row.totalList.z1l1}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z1l2" label="药品" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'立案','2')">{{scope.row.totalList.z1l2}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z1l3" label="环境" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'立案','3')">{{scope.row.totalList.z1l3}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z1l4" label="总计" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'立案','',true)">{{scope.row.totalList.z1l4}}</span>
+                  </template>
+                </el-table-column>
+              </el-table-column>
+              <el-table-column prop="" label="破案">
+                <el-table-column prop="z2l1" label="食品" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'破案','1')">{{scope.row.totalList.z2l1}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z2l2" label="药品" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'破案','2')">{{scope.row.totalList.z2l2}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z2l3" label="环境" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'破案','3')">{{scope.row.totalList.z2l3}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z2l4" label="总计" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'破案','',true)">{{scope.row.totalList.z2l4}}</span>
+                  </template>
+                </el-table-column>
+              </el-table-column>
+              <el-table-column prop="" label="销案">
+                <el-table-column prop="z3l1" label="食品" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'销案','1')">{{scope.row.totalList.z3l1}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z3l2" label="药品" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'销案','2')">{{scope.row.totalList.z3l2}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z3l3" label="环境" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'销案','3')">{{scope.row.totalList.z3l3}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z3l4" label="总计" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'销案','',true)">{{scope.row.totalList.z3l4}}</span>
+                  </template>
+                </el-table-column>
+              </el-table-column>
+              <el-table-column prop="" label="结案">
+                <el-table-column prop="z4l1" label="食品" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'结案','1')">{{scope.row.totalList.z4l1}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z4l2" label="药品" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'结案','2')">{{scope.row.totalList.z4l2}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z4l3" label="环境" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'结案','3')">{{scope.row.totalList.z4l3}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="z4l4" label="总计" :min-width="smallItemWidth" align="center">
+                  <template slot-scope="scope">
+                    <span class="canClick" @click="toCaseList(scope.row,'结案','',true)">{{scope.row.totalList.z4l4}}</span>
+                  </template>
+                </el-table-column>
+              </el-table-column>
+              <el-table-column prop="z5" label="总计" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span class="canClick" @click="toCaseList(scope.row,'','',true)">{{scope.row.totalList.z5}}</span>
+                  </template>
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-table-column>
+        <el-table-column type="index" :width="smallItemWidth" label="序号" align="center" class-name="xuhao"></el-table-column>
+        <el-table-column prop="cityName" :label="firstCanJump===true?'单位':'地市'" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <!-- v-if="scope.row.canClickJump===true"  -->
+            <span>{{scope.row.cityName}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="totalList" label="立案">
+          <el-table-column prop="z1l1" label="食品" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'立案','1')">{{scope.row.totalList.z1l1}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z1l2" label="药品" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'立案','2')">{{scope.row.totalList.z1l2}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z1l3" label="环境" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'立案','3')">{{scope.row.totalList.z1l3}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z1l4" label="总计" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'立案','',true)">{{scope.row.totalList.z1l4}}</span>
+            </template>
+          </el-table-column>
+        </el-table-column>
+        <el-table-column prop="" label="破案">
+          <el-table-column prop="z2l1" label="食品" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'破案','1')">{{scope.row.totalList.z2l1}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z2l2" label="药品" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'破案','2')">{{scope.row.totalList.z2l2}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z2l3" label="环境" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'破案','3')">{{scope.row.totalList.z2l3}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z2l4" label="总计" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'破案','',true)">{{scope.row.totalList.z2l4}}</span>
+            </template>
+          </el-table-column>
+        </el-table-column>
+        <el-table-column prop="" label="销案">
+          <el-table-column prop="z3l1" label="食品" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'销案','1')">{{scope.row.totalList.z3l1}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z3l2" label="药品" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'销案','2')">{{scope.row.totalList.z3l2}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z3l3" label="环境" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'销案','3')">{{scope.row.totalList.z3l3}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z3l4" label="总计" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'销案','',true)">{{scope.row.totalList.z3l4}}</span>
+            </template>
+          </el-table-column>
+        </el-table-column>
+        <el-table-column prop="" label="结案">
+          <el-table-column prop="z4l1" label="食品" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'结案','1')">{{scope.row.totalList.z4l1}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z4l2" label="药品" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'结案','2')">{{scope.row.totalList.z4l2}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z4l3" label="环境" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'结案','3')">{{scope.row.totalList.z4l3}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="z4l4" label="总计" :min-width="smallItemWidth" align="center">
+            <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'结案','',true)">{{scope.row.totalList.z4l4}}</span>
+            </template>
+          </el-table-column>
+        </el-table-column>
+        <el-table-column prop="z5" label="总计" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+              <span class="canClick" @click="toCaseList(scope.row,'总计1','',true)">{{scope.row.totalList.z5}}</span>
+            </template>
+        </el-table-column>
+      </el-table>
+      <!-- echart统计图 -->
+      <div class="clearfix" style="margin:20px 0;">
+        <!-- 饼状图 -->
+        <div class="left" style="width:49%;">
+          <div>
+            <span>{{ajStatusLabel1}}案件类型统计&nbsp;&nbsp;</span>
+            <el-tooltip class="item" effect="dark" content="根据查询条件分析指定案件状态案件环境、食品、药品案件数量比例。" placement="top-start">
+              <!-- <i class="el-icon-question" style="font-size:20px;"></i> -->
+            <i><svg-icon icon-class="wenhao1"></svg-icon></i>
+            </el-tooltip>
+            <span style="margin:0px 10px 0px 30px;">案件状态</span>
+            <el-select  v-model="ajZt1" size="small" @change="ajStatusChange1">
+              <el-option :label="item.name" :value="item.value" v-for="item in ajZtOption" :key="item.value"></el-option>
+            </el-select>
+          </div>
+          <div id="echartLeft" style="height: 400px;margin:0 0 20px 0;"></div>
+        </div>
+        <!-- 柱状图 -->
+        <div class="right" style="width:49%;">
+          <div>
+            {{ajStatusLabel2}}案件类型统计&nbsp;&nbsp;
+            <el-tooltip class="item" effect="dark" content="根据查询条件分析指定案件状态案件环境、食品、药品案件数量比例。" placement="top-start">
+              <!-- <i class="el-icon-question" style="font-size:20px;"></i> -->
+            <i><svg-icon icon-class="wenhao1"></svg-icon></i>
+            </el-tooltip>
+            <span style="margin:0px 10px 0px 30px;">案件状态</span>
+            <el-select  v-model="ajZt2" size="small" @change="ajStatusChange2">
+              <el-option :label="item.name" :value="item.value" v-for="item in ajZtOption" :key="item.value"></el-option>
+            </el-select>
+          </div>
+          <div id="echartRight" style="height: 400px;margin:0 0 20px 0;"></div>
+        </div>
+      </div>
+      <!-- 案件状态统计 -->
+      <div style="margin: 10px 0;">
+        <span style="line-height:22px;">
+          案件状态统计&nbsp;&nbsp;
+          <el-tooltip class="item" effect="dark" content="根据查询条件分析案件状态分布情况。" placement="top-start">
+            <!-- <i class="el-icon-question" style="font-size:20px;"></i> -->
+            <i><svg-icon icon-class="wenhao1"></svg-icon></i>
+          </el-tooltip>
+        </span>
+        <img src="/static/image/download.png" alt="" srcset="" title="下载"  @click="exportTable('2')" style="float:right;width:24px;margin-top: -5px;cursor:pointer;">
+      </div>
+      <el-table :data="caseStatusTable"  style="width: 100%;" :max-height="tableHeight" v-loading="loading2" class="table_th_center"
+        :row-key="getRowKeys" :expand-row-keys="expands2" @expand-change="rowClickCaseStatus"
+        ref="teamStatistical" :row-class-name="getRowClass">
+        <!-- show-summary :summary-method="getSummaries" -->
+        <el-table-column type="expand" width="40" v-if="firstCanJump===false" class-name="expand">
+          <template slot-scope="scope">
+            <el-table :data="scope.row.child||[]" :style="expandTableStyle" v-loading="loading22" max-height="400">
+              <el-table-column prop="" label="" width="40"></el-table-column>
+              <el-table-column type="index" label="序号" align="center" :width="smallItemWidth"></el-table-column>
+              <el-table-column prop="deptName" label="单位机构" align="center" :min-width="smallItemWidth+70" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span>{{scope.row.cityName}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="z1" label="受理" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span class="canClick" @click="toCaseList(scope.row,'受理','')">{{scope.row.totalList.z1}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="z2" label="立案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span class="canClick" @click="toCaseList(scope.row,'立案','')">{{scope.row.totalList.z2}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="z3" label="破案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span class="canClick" @click="toCaseList(scope.row,'破案','')">{{scope.row.totalList.z3}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="z4" label="销案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span class="canClick" @click="toCaseList(scope.row,'销案','')">{{scope.row.totalList.z4}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="z5" label="转治安案件" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span class="canClick" @click="toCaseList(scope.row,'转治安案件','')">{{scope.row.totalList.z5}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="z6" label="结案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span class="canClick" @click="toCaseList(scope.row,'结案','')">{{scope.row.totalList.z6}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="z7" label="归档" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span class="canClick" @click="toCaseList(scope.row,'归档','')">{{scope.row.totalList.z7}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="z8" label="总计" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">
+                  <span class="canClick" @click="toCaseList(scope.row,'总计','')">{{scope.row.totalList.z8}}</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-table-column>
+        <el-table-column type="index" :width="smallItemWidth" label="序号" align="center" class-name="xuhao"></el-table-column>
+        <el-table-column prop="cityName" :label="firstCanJump===true?'单位':'地市'" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <!-- v-if="scope.row.canClickJump===true" class="canClick" @click="goDeptStatistical(scope.row)" -->
+            <span>{{scope.row.cityName}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="z1" label="受理" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span class="canClick" @click="toCaseList(scope.row,'受理','')">{{scope.row.totalList.z1}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="z2" label="立案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span class="canClick" @click="toCaseList(scope.row,'立案','')">{{scope.row.totalList.z2}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="z3" label="破案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span class="canClick" @click="toCaseList(scope.row,'破案','')">{{scope.row.totalList.z3}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="z4" label="销案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span class="canClick" @click="toCaseList(scope.row,'销案','')">{{scope.row.totalList.z4}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="z5" label="转治安案件" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span class="canClick" @click="toCaseList(scope.row,'转治安案件','')">{{scope.row.totalList.z5}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="z6" label="结案" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span class="canClick" @click="toCaseList(scope.row,'结案','')">{{scope.row.totalList.z6}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="z7" label="归档" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span class="canClick" @click="toCaseList(scope.row,'归档','')">{{scope.row.totalList.z7}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="z8" label="总计" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span class="canClick" @click="toCaseList(scope.row,'总计2','')">{{scope.row.totalList.z8}}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
   </div>
 </template>
 <script>
@@ -1250,7 +1252,8 @@ export default {
 </script>
 <style rel="stylesheet/scss" lang="scss">
 .develop {
-  margin-bottom: 50px;
+  padding: 0 10px;
+  margin-bottom: 30px;
   .el-table__expanded-cell {
     display: inherit;
     padding: 0;
