@@ -161,7 +161,7 @@
           { label: '捣毁窝点（个）', value: '6', color: '#1890ff', barTxt: '捣毁窝点', offset: 80, min: 0, max: 50 },
           { label: '涉案金额（万元）', value: '7', color: '#b695ff', barTxt: '涉案金额', offset: 95, min: 0, max: 1500 }
         ],
-        xyColor: '#f1f1f1',
+        xyColor: '#bbbbbb',
         totalMonthTxt: '',
         totalMonthValue: {}
       }
@@ -614,7 +614,7 @@
         })
       },
       buildRunChart(times, data) {
-        const minMaxArr = this.getMinMax(data)
+        const minMaxArr = this.getMinMax(JSON.parse(JSON.stringify(data)))
         const dom = document.getElementById('container')
         let start = 0
         if (data.length > 12) {
@@ -646,11 +646,12 @@
           grid: {
             left: '2%',
             right: '3%',
+            top: '15%',
             containLabel: true
           },
           toolbox: {
             right: 50,
-            top: 0,
+            top: -5,
             feature: {
               saveAsImage: {
                 show: true,
@@ -880,7 +881,7 @@
               data: times,
               axisLine: {
                 lineStyle: {
-                  color: '#f1f1f1',
+                  color: this.xyColor,
                   width: 1
                 }
               }
@@ -892,8 +893,13 @@
               name: yText,
               axisLine: {
                 lineStyle: {
-                  color: '#f1f1f1',
+                  color: this.xyColor,
                   width: 1
+                }
+              },
+              splitLine: {
+                lineStyle: {
+                  color: this.xyColor
                 }
               }
             }
@@ -911,7 +917,7 @@
               handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
               handleSize: '80%',
               textStyle: {
-                color: '#f1f1f1'
+                color: this.xyColor
               },
               handleStyle: {
                 color: '#fff',
