@@ -140,7 +140,8 @@ export default {
       this.$store.dispatch('ClickAll', true)
     },
     clickHovList() {
-      this.$router.push({ path: '/micro/difficult' })
+      localStorage.setItem('curAppCode', 'F') // 教育训练
+      this.$router.push({ path: '/micro/difficult', query: { activeIndex: '5' }}) // 默认选中在线帮助
     }
   }
 }
