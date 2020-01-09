@@ -35,7 +35,7 @@
           </el-table-column>
           <el-table-column prop="whc" label="未核查" align="center" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span class="linkColor" @click="toClueList(scope.row, '')" v-if="scope.row.whc && enableTo(scope.row, scope.$index)">{{scope.row.whc}}</span>
+              <span class="linkColor" @click="toClueList(scope.row, '1')" v-if="scope.row.whc && enableTo(scope.row, scope.$index)">{{scope.row.whc}}</span>
               <span v-else>{{scope.row.whc || 0}}</span>
             </template>
           </el-table-column>
@@ -180,7 +180,7 @@ export default {
     enableDistributeClue(row) {
       const curDate = new Date(this.info.systemTime)
       const startDate = new Date(this.info.startDate)
-      if ((String(this.info.status) === '5' || String(this.info.status) === '8') && (curDate > startDate)) {
+      if ((String(this.info.status) === '5' || String(this.info.status) === '6' || String(this.info.status) === '7') && (curDate > startDate)) {
         if (row.cityCode !== '611400') {
           if (row.deptCode === this.curDept.depCode) {
             if (parseInt(row.parentType) <= 2) {
@@ -195,7 +195,7 @@ export default {
       const curDate = new Date(this.info.systemTime)
       const startDate = new Date(this.info.startDate)
       if (curDate > startDate) {
-        if ((String(this.info.status) === '5' || String(this.info.status) === '8')) {
+        if ((String(this.info.status) === '5' || String(this.info.status) === '6' || String(this.info.status) === '7')) {
           if (row.deptCode === this.curDept.depCode) {
             return true
           }

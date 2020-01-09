@@ -283,6 +283,7 @@ export default {
       isDisable: true, // 案件类别、案件罪名是否可选，默认不可选，当选择了案件类型时，案件类别、案件罪名可选。
       endDateDisabledLa: true, // 立案结束日期禁用
       endDateDisabledPa: true, // 破案结束日期禁用
+      endDateDisabled: true, // 认领结束时间选择框禁用
       curUser: {}, // 当前登录用户
       curDept: {}, // 当前登录的部门
       aztjSelectList: [], // 案件状态下拉框数据
@@ -639,7 +640,7 @@ export default {
       param.deptType = deptType // 部门类型
 
       if (!type) {
-        if (isSum === 'secondTotal' || isSum !== '合计') { // 二级列表的案件总数和一级非合计行的案件总数
+        if (isSum) { // 二级列表的案件总数和一级非合计行的案件总数
           param.statusStr = '3,5,10' // 已认领,待认领,其他
         }
       }
