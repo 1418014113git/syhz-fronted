@@ -896,6 +896,11 @@
                   color: this.xyColor,
                   width: 1
                 }
+              },
+              splitLine: {
+                lineStyle: {
+                  color: this.xyColor
+                }
               }
             }
           ],
