@@ -199,8 +199,8 @@ export const constantRouterMap = [
       // { path: '/lyricalInfo/alarmInfo', component: () => import('@/views/intellSystem/lyricalInfo/alarmInfo/alarmInfo_list'), name: '舆情信息' }, // 舆情警情信息
       { path: '/lyricalInfo/alarmInfo/detail', component: () => import('@/views/intellSystem/lyricalInfo/alarmInfo/alarmInfo_detail'), name: '舆情详情' }, // 舆情警情信息详情
       { path: '/lyricalInfo/lyricalAnalysisAll', component: () => import('@/views/intellSystem/lyricalinfo/analysisAll/analysisAll'), name: '舆情分析' }, // 舆情分析
-      { path: '/internalInfo/internalInfo', component: () => import('@/views/intellSystem/internalInfo/internalInfo_list'), name: '内部资源信息' }, // 内部资源信息
-      { path: '/internalInfo/internalInfoDetail', component: () => import('@/views/intellSystem/internalInfo/internalInfo_detail'), name: '内部资源信息详情' }, // 内部资源信息详情页面
+      // { path: '/internalInfo/internalInfo', component: () => import('@/views/intellSystem/internalInfo/internalInfo_list'), name: '内部资源信息' }, // 内部资源信息
+      // { path: '/internalInfo/internalInfoDetail', component: () => import('@/views/intellSystem/internalInfo/internalInfo_detail'), name: '内部资源信息详情' }, // 内部资源信息详情页面
       { path: '/educational/achievement', component: () => import('@/views/handlingGuide/exam_list'), name: '考试统计' }, // 考试统计
       { path: '/educational/achievement/:id', component: () => import('@/views/handlingGuide/achievement_list'), name: '成绩管理' }, // 成绩管理
       { path: '/intellSystem/bigPictrue', component: () => import('@/views/intellSystem/bigPictrue'), name: '环食药一张图' },
@@ -307,9 +307,10 @@ export const constantRouterMap = [
       { path: '/caseManage/caseMergeForm', component: () => import('@/views/caseManage/caseMergeForm'), name: '案件重复合并' },
       { path: '/caseAssist/total_jq', component: () => import('@/views/caseAssist/assist_total'), name: '集群战役统计分析' },
       { path: '/insideInfo/insideInfoList', component: () => import('@/views/information/insideInfo/insideInfoList'), name: '内部资源信息' },
-      { path: '/insideInfo/insideInfoDetail', component: () => import('@/views/information//insideInfo/insideInfoDetail'), name: '内部资源信息详情' },
-      { path: '/insideInfo/insideInfoToT', component: () => import('@/views/information//insideInfo/insideInfoToT'), name: '内部资源-培训资料添加' },
-      { path: '/insideInfo/insideInfoToK', component: () => import('@/views/information//insideInfo/insideInfoToK'), name: '内部资源-知识库资料添加' }
+      { path: '/insideInfo/insideInfoDetail', component: () => import('@/views/information/insideInfo/insideInfoDetail'), name: '内部资源信息详情' },
+      { path: '/insideInfo/insideInfoToT', component: () => import('@/views/information/insideInfo/insideInfoToT'), name: '内部资源-培训资料添加' },
+      { path: '/insideInfo/insideInfoToK', component: () => import('@/views/information/insideInfo/insideInfoToK'), name: '内部资源-知识库资料添加' },
+      { path: '/intellSystem/timeTrendAnalysis', component: () => import('@/views/intellSystem/analysisJudgment/timeTrendAnalysis'), name: '时间变化趋势分析' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
