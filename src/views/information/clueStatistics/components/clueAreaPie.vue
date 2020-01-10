@@ -63,7 +63,13 @@ export default {
       if (data.clueSource !== '0') {
         param.clueSource = data.clueSource
       }
-      param.collectionArea = data.collectionAreaCode
+      if (data.collectionAreaCode !== '0') {
+        if (data.collectionAreaCode === '-1') {
+          param.collectionArea = ''
+        } else {
+          param.collectionArea = data.collectionAreaCode
+        }
+      }
       this.chartDataReset()
       this.$query('clueStatistics/bySingleArea', param).then(response => {
         this.loadingNestPie = false
