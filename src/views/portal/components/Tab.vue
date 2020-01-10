@@ -66,7 +66,6 @@ export default {
               this.formLoading = true
               this.$query('casesupervisecode', { id: this.currentDb.id, secretCode: value }).then((response) => {
                 if (response.code === '000000') {
-                  debugger
                   this.formLoading = false
                   if (response.data.length > 0) {
                     callback()
