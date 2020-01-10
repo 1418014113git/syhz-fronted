@@ -125,7 +125,7 @@
           time: [],
           timeType: '1',
           syhFllb: [],
-          childFlag: false,
+          childFlag: true,
           ajzt: '',
           departCode: ''
         },
@@ -518,7 +518,7 @@
           time: [],
           timeType: '1',
           syhFllb: [],
-          childFlag: false,
+          childFlag: true,
           ajzt: '',
           departCode: ''
         }
