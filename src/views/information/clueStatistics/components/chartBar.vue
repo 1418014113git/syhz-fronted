@@ -58,7 +58,10 @@ export default {
       if (this.chart) {
         this.chart.setOption({
           title: {
-            text: this.chartTitle
+            text: this.chartTitle,
+            textStyle: {
+              color: '#ddd'
+            }
           },
           tooltip: {
             trigger: 'axis',
@@ -73,7 +76,10 @@ export default {
             }
           },
           legend: {
-            data: this.chartData.legendData
+            data: this.chartData.legendData,
+            textStyle: {
+              color: '#ddd'
+            }
           },
           grid: {
             left: '3%',
@@ -87,6 +93,11 @@ export default {
               data: this.chartData.xAxisData,
               axisTick: {
                 alignWithLabel: true
+              },
+              axisLine: {
+                lineStyle: {
+                  color: '#FFF'
+                }
               }
             }
           ],
@@ -95,6 +106,11 @@ export default {
               type: 'value',
               axisTick: {
                 show: false
+              },
+              axisLine: {
+                lineStyle: {
+                  color: '#FFF'
+                }
               }
             }
           ],

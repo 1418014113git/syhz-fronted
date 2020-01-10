@@ -148,6 +148,13 @@ export default {
         param.clueSource = this.data.clueSource
       }
       param.timeDimensionType = this.timeDimensionType
+      if (this.data.collectionAreaCode !== '0') {
+        if (this.data.collectionAreaCode === '-1') {
+          param.collectionArea = ''
+        } else {
+          param.collectionArea = this.data.collectionAreaCode
+        }
+      }
       this.lineChartDataReset()
       this.$query('clueStatistics/bySourceAndDate', param).then(response => {
         this.loadingLine = false
@@ -170,6 +177,13 @@ export default {
       }
       if (this.data.clueSource !== '0') {
         param.clueSource = this.data.clueSource
+      }
+      if (this.data.collectionAreaCode !== '0') {
+        if (this.data.collectionAreaCode === '-1') {
+          param.collectionArea = ''
+        } else {
+          param.collectionArea = this.data.collectionAreaCode
+        }
       }
       this.pieChartDataReset()
       this.$query('clueStatistics/bySource', param).then(response => {
@@ -258,6 +272,6 @@ export default {
 .statisticsArea {
   width: 100%;
   margin-top: 10px;
-  background: white;
+  // background: white;
 }
 </style>

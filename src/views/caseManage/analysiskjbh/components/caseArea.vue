@@ -1,5 +1,5 @@
 <template>
-  <section class="ajrlStatistical">
+  <section class="caseArea">
    <!--发案地域案件统计-->
     <p class="comTit">
       发案地域案件统计
@@ -13,17 +13,17 @@
         </div>
         <el-button  type="primary" size="mini" circle  slot="reference"><svg-icon icon-class="wenhao1"></svg-icon></el-button>
       </el-popover>
-      <img src="/static/image/download.png" alt=""  title="下载"  class="download"  v-show="caseData.length>0"   @click="download">
+      <img src="/static/image/download.png" alt=""  title="下载"  class="download"  @click="download">
     </p>
 
     <!--列表-->
-    <el-table :data="caseData" v-loading="listLoading"  ref="table" style="width: 100%;margin-top:15px;"  :row-key='getRowKeys'  :expand-row-keys="expandstab"  @expand-change="handleExpand"
+    <el-table :data="caseData" v-loading="listLoading"  ref="table" style="width: 100%;margin-top:15px;"   :row-key='getRowKeys'  :expand-row-keys="expandstab"  @expand-change="handleExpand"
     :row-class-name="getRowClass">
       <!-- 只有总队可以展开 -->
-      <el-table-column type="expand" v-if="curDept.depType === '1'">
+      <el-table-column type="expand" v-if="curDept.depType === '1'" width="40">
         <template slot-scope="scope">
-          <el-table :data="scope.row.subDeptCaseData" v-loading="subLoading" style="width: 100%;">
-            <el-table-column prop="" width="48"></el-table-column>
+          <el-table :data="scope.row.subDeptCaseData" :style="expandTableStyle" v-loading="subLoading" style="width: 100%;">
+            <el-table-column prop="" width="40"></el-table-column>
             <el-table-column type="index" label="序号" width="100" align="center"></el-table-column>
             <el-table-column prop="orgName" label="单位" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
             <el-table-column prop="chengqu" label="城区" min-width="6%" align="center">
@@ -139,6 +139,7 @@ export default {
       subDeptCaseData: [], // 展开项列表数据
       systemTime: '', // 当前系统时间
       tableHeight: null,
+      expandTableStyle: null, // 展开表格的宽度
       fileName: '发案地域案件统计表' // xlsx文件标题
     }
   },
@@ -153,7 +154,7 @@ export default {
   },
   methods: {
     getRowClass(row) {
-      if (row.row.total === 0 || !row.row.canExpand) {
+      if (!row.row.canExpand) {
         return 'row-expand-cover'
       }
     },
@@ -282,6 +283,20 @@ export default {
             param.areaCode = ['610000', this.curDept.areaCode.substring(0, 4) + '00', row.orgCode]
           }
         }
+      } else { // 合计行
+        if (this.curDept.depType === '1') { // 总队
+          param.areaCode = ['610000']
+        } else if (this.curDept.depType === '2') { // 支队
+          param.areaCode = ['610000', this.curDept.areaCode] // 当前点击的orgCode
+        } else if (this.curDept.depType === '3') { // 大队
+          param.areaCode = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode] // 当前点击的orgCode
+        } else if (this.curDept.depType === '4') { // 派出所
+          if (this.curDept.areaCode === '611400') { // 杨凌例外
+            param.areaCode = ['610000', '611400']
+          } else { // 正常的派出所
+            param.areaCode = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+          }
+        }
       }
 
       if (fadyName) { // 发案地域汉字名称
@@ -336,6 +351,8 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
+    this.screenWidth = this.$refs.table.$el.clientWidth + 'px'
+    this.expandTableStyle = 'width:' + this.screenWidth + ';border-left: none;border-right: none;overflow-x:auto;'
     this.expandstab = []
     this.curParam = this.queryParam
     if (this.queryData.length > 0) {
@@ -348,10 +365,12 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss">
-.ajrlStatistical {
+.caseArea {
   .el-table__expanded-cell {
+    display: inherit;
     padding: 0;
   }
+
   .el-table__body-wrapper tbody
     .el-table__row:last-child
     .el-table__expand-icon {
@@ -367,53 +386,37 @@ export default {
     background-color: transparent;
   }
 
+   //修改表格边框颜色
   table {
-    border: 1px solid #2f627a;
+    // border: 1px solid #2f627a;
     border-bottom: none;
   }
-  thead th {
-    border-right: 1px solid #2f627a;
+  .el-table {
+    border: 1px solid #2f627a;
   }
-  .el-table__body td {
-    border-right: 1px solid #2f627a;
+  .el-table--border th {
     border-bottom: 1px solid #2f627a;
+    border-right: 1px solid #2f627a;
   }
-  .el-table__body-wrapper tr:nth-child(even) {
-    background-color: transparent;
+  .el-table--border,
+  .el-table--group {
+    border: 1px solid #2f627a;
   }
-  .datezhi {
-    .el-form-item__label {
-      text-align: center;
-    }
+  .el-table--border td {
+    border-right: 1px solid #2f627a;
   }
-  .case-trend .card {
-    margin-bottom: 20px;
+  .el-table--border::after,
+  .el-table--group::after {
+    width: 0;
   }
-  .case-claim .el-table__expanded-cell {
-    width: 500px;
-    margin-left: 100px;
-    padding: 0;
+  .el-table--small td, .el-table--small th {
+    border-right: 1px solid #2f627a;
   }
   .canClick {
     cursor: pointer;
   }
   .canClick:hover {
     text-decoration: underline;
-  }
-  .inputw {
-    width: 220px;
-  }
-  .el-select .el-input--small .el-input__inner {
-    height: 25px !important;
-  }
-  .tooltipShow {
-    opacity: 1;
-  }
-  .tooltipHide {
-    opacity: 0;
-  }
-  .el-cascader--small {
-    font-size: 16px;
   }
   .row-expand-cover .el-table__expand-icon {
     visibility: hidden;

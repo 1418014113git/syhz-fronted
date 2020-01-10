@@ -28,12 +28,12 @@
           <el-input v-model="searchData.collectionArea.cityName" :readonly="true" v-else></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleClickSearch">查询</el-button>
+          <el-button type="primary" @click="handleClickSearch" :disabled="loadingResult">查询</el-button>
           <el-button type="primary" @click="handleClickReset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
-    <el-card class="cardInterval">
+    <el-card class="cardInterval" v-loading="loadingResult">
       <el-row>
         <el-col :span="24">
           <span>{{ tipTextMap.collectionDateStart + '至' + tipTextMap.collectionDateEnd + 
@@ -105,7 +105,8 @@ export default {
         collectionAreaCode: '', // 选中行政区划Code
         collectionArea: [], // 选中行政区划的子一级行政区划
         clueTotal: 0
-      }
+      },
+      loadingResult: false
     }
   },
   watch: {
@@ -207,7 +208,9 @@ export default {
     },
     getArea() {
       this.areaList = []
+      this.loadingResult = true
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
+        this.loadingResult = false
         if (response.code === '000000') {
           if (this.deptInfo && (this.deptInfo.depType === '1' || this.deptInfo.depType === '2')) {
             this.areaList.push({ cityCode: '0', cityName: '全部' })
@@ -449,6 +452,14 @@ export default {
       if (this.tipTextMap.clueSource !== '0') {
         param.clueSource = this.tipTextMap.clueSource
       }
+      if (this.tipTextMap.collectionAreaCode !== '0') {
+        if (this.tipTextMap.collectionAreaCode === '-1') {
+          param.collectionArea = ''
+        } else {
+          param.collectionArea = this.tipTextMap.collectionAreaCode
+        }
+      }
+      this.tipTextMap.clueTotal = '...'
       this.$query('clueStatistics/total', param).then(response => {
         if (response.code === '000000') {
           this.tipTextMap.clueTotal = response.data.total
