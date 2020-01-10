@@ -257,6 +257,12 @@ export default {
   .el-card__header {
     padding: 8px 5px 8px 30px;
   }
+  .el-card__body {
+    padding: 10px 20px 0;
+    height: 306px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
 }
 // .High {
 //   .el-card__header {
