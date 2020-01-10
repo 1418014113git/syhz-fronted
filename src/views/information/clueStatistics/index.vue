@@ -148,6 +148,7 @@ export default {
           message: '请选择采集日期',
           type: 'warning'
         })
+        return
       }
       this.updataTipTextContent()
       this.loadStatisticsData()
