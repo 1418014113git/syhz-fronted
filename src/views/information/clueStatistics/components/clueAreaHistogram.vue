@@ -115,6 +115,6 @@ export default {
 .statisticsArea {
   width: 100%;
   margin-top: 10px;
-  background: white;
+  // background: white;
 }
 </style>
