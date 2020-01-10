@@ -6,7 +6,7 @@
         <img src="@/assets/header/mainhead.png" alt="">
 			</el-col>
       <!--导航菜单区域-->
-      <el-col :span="15">
+      <el-col :span="15" style="overflow-x: auto;" class="navCont">
         <sidebar class="sidebar-container"></sidebar>
       </el-col>
       <!--右侧用户登录区域-->
@@ -110,11 +110,27 @@ export default {
       }
     }
   }
-  .sidebar-container {
-    li:hover,
-    li > div:hover {
-      // background: #005982 !important;
+  .navCont{
+    width: 61%;
+    .el-menu--horizontal>.el-menu-item {
+      float: none !important;
+      display: inline-block !important;
     }
+    .el-menu--horizontal>.el-submenu {
+      float: none !important;
+      display: inline-block !important;
+    }
+  }
+  .sidebar-container {
+    // li:hover,
+    // li > div:hover {
+    //   // background: #005982 !important;
+    // }
+    width: auto;
+    height: 60px;
+    overflow-y: hidden;
+    overflow-x: auto;
+    white-space: nowrap;
   }
 }
 @media only screen and (max-width: 1367px) {

@@ -72,7 +72,7 @@
               </div>
               <div class="file_mask"></div>
               <div class="hover_div">
-                <i class="el-icon-download" @click="downloadSingle(item.attachment)" title="下载" v-if="$isViewBtn('103403')"></i>
+                <i class="el-icon-download" @click="downloadSingle(item.attachment,item.title)" title="下载" v-if="$isViewBtn('103403')"></i>
                 <i class="el-icon-menu" @click="previewReport(item.attachment)" title="详情" v-if="$isViewBtn('103402')"></i>
               </div>
             </div>
@@ -211,19 +211,23 @@ export default {
         this.rightLoading = false
       })
     },
-    downloadSingle(item) { // 单个下载
+    downloadSingle(item, title) { // 单个下载
       if (typeof item === 'string') {
         item = JSON.parse(item)
       }
+      var fileName = item.name
+      var index = fileName.lastIndexOf('.')
+      var suffix = fileName.substr(index + 1)
+
       const arr = item.path.split('/file')
       const path = process.env.ATTACHMENT_MODULE + 'file' + arr[1]
-      this.$download_http_mg(path, { fileName: item.name })
+      this.$download_http_mg(path, { fileName: title + '.' + suffix })
     },
     batchDownloadReport() { // 批量下载
       console.log(this.checkedReport)
       for (let index = 0; index < this.checkedReport.length; index++) {
         const element = this.checkedReport[index]
-        this.downloadSingle(element.attachment)
+        this.downloadSingle(element.attachment, element.title)
       }
     },
     previewReport(item) {
