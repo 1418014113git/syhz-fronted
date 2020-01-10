@@ -151,6 +151,13 @@ export default {
       if (this.data.clueSource !== '0') {
         param.clueSource = this.data.clueSource
       }
+      if (this.data.collectionAreaCode !== '0') {
+        if (this.data.collectionAreaCode === '-1') {
+          param.collectionArea = ''
+        } else {
+          param.collectionArea = this.data.collectionAreaCode
+        }
+      }
       param.timeDimensionType = this.timeDimensionType
       this.lineChartDataReset()
       this.$query('clueStatistics/byClassifyAndDate', param).then(response => {
@@ -174,6 +181,13 @@ export default {
       }
       if (this.data.clueSource !== '0') {
         param.clueSource = this.data.clueSource
+      }
+      if (this.data.collectionAreaCode !== '0') {
+        if (this.data.collectionAreaCode === '-1') {
+          param.collectionArea = ''
+        } else {
+          param.collectionArea = this.data.collectionAreaCode
+        }
       }
       this.pieChartDataReset()
       this.$query('clueStatistics/byClassify', param).then(response => {
