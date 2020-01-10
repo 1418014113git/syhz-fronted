@@ -61,14 +61,20 @@ export default {
       if (this.chart) {
         this.chart.setOption({
           title: {
-            text: this.chartTitle
+            text: this.chartTitle,
+            textStyle: {
+              color: '#ddd'
+            }
           },
           tooltip: {
             trigger: 'item',
             formatter: '{a} <br/>{b} : {c} ({d}%)'
           },
           legend: {
-            data: this.chartData.legendData
+            data: this.chartData.legendData,
+            textStyle: {
+              color: '#ddd'
+            }
           },
           toolbox: {
             show: true,

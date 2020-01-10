@@ -57,13 +57,19 @@ export default {
       if (this.chart) {
         this.chart.setOption({
           title: {
-            text: this.chartTitle
+            text: this.chartTitle,
+            textStyle: {
+              color: '#ddd'
+            }
           },
           tooltip: {
             trigger: 'axis'
           },
           legend: {
-            data: this.chartData.legendData
+            data: this.chartData.legendData,
+            textStyle: {
+              color: '#ddd'
+            }
           },
           toolbox: {
             show: true,
@@ -74,7 +80,12 @@ export default {
           xAxis: {
             type: 'category',
             boundaryGap: false,
-            data: this.chartData.xAxisData
+            data: this.chartData.xAxisData,
+            axisLine: {
+              lineStyle: {
+                color: '#FFF'
+              }
+            }
           },
           dataZoom: {
             type: 'slider',
@@ -85,7 +96,12 @@ export default {
             end: Math.floor((12 / this.chartData.xAxisData.length) * 100) - 2
           },
           yAxis: {
-            type: 'value'
+            type: 'value',
+            axisLine: {
+              lineStyle: {
+                color: '#FFF'
+              }
+            }
           },
           series: this.chartData.seriesData
         }, true)
