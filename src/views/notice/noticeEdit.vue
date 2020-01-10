@@ -6,7 +6,7 @@
     <el-card class="noticeCard">
       <el-row type="flex" justify="center" style="margin-top:15px;">
         <el-col :span="18">
-          <el-form :model="noticeForm" ref="noticeForm" :rules="rules" v-loading="formLoading" label-width="120px">
+          <el-form :model="noticeForm" ref="noticeForm" :rules="rules" v-loading="formLoading" label-width="130px">
             <el-form-item label="标题" prop="title">
               <el-input v-model="noticeForm.title" auto-complete="off" clearable maxlength="50" :disabled="isDisabled" v-loading="titleLoading"></el-input>
             </el-form-item>
@@ -30,7 +30,22 @@
             </el-form-item>
             <el-form-item label="接收单位" prop="receiveDept" class="transfer">
               <el-button class="group" @click="addGroup">添加组</el-button>
-              <el-transfer v-model="noticeForm.receiveDept" :titles="['我的组', '接收单位']" :data="transferCYLXRData"></el-transfer>
+              <el-transfer v-model="noticeForm.receiveDept" :titles="['我的组', '接收单位']" :data="transferCYLXRData" @change="receiveDeptChange"></el-transfer>
+            </el-form-item>
+            <el-form-item label="通知消息接收人" prop="recipientUser" class="transferMessage">
+              <el-input v-model="searchKey" maxlength="50" size="small" placeholder="请输入关键字" @input="searchKeyChange"></el-input>
+              <el-transfer
+                ref="transfer"
+                v-loading="transferLoading"
+                v-model="noticeForm.recipientUser"
+                :titles="title"
+                :left-default-checked="leftCheck"
+                :right-default-checked="rightCheck"
+                :filterable="true"
+                :filter-method="filterMethod"
+                filter-placeholder="模糊匹配"
+                @change="transferChange"
+                :data="transferLXRData"></el-transfer>
             </el-form-item>
             <el-form-item>
               <el-button v-if="showSave" type="primary" class="saveBtn" @click="onSubmit(0)" :loading="noticeForm.messageStatus === 0 && loading" :disabled="noticeForm.messageStatus === 1 && loading">保 存</el-button>
@@ -59,6 +74,12 @@
     },
     data() {
       return {
+        title: ['人员名称', '人员名称'],
+        transferLoading: false,
+        transferLXRData: [],
+        lXRData: [],
+        leftCheck: [],
+        rightCheck: [],
         formLoading: false,
         groupDialogVisible: false,
         titleLoading: false,
@@ -80,7 +101,8 @@
           curDeptName: '',
           curDeptCode: '',
           recipient: '',
-          receiveDept: []
+          receiveDept: [],
+          recipientUser: []
         },
         deptList: [],
         rules: {
@@ -122,7 +144,9 @@
         curUser: {},
         titleCheckFlag: false,
         checkFlag: this.$isViewBtn('149005'),
-        id: ''
+        id: '',
+        searchKey: '',
+        deptIds: []
       }
     },
     methods: {
@@ -154,6 +178,66 @@
         }
         this.titleLoading = false
         return callback
+      },
+      transferChange(value, direction, movedKeys) {
+        this.$refs.noticeForm.validateField('recipientUser')
+      },
+      receiveDeptChange(value, direction, movedKeys) {
+        if (this.noticeForm.receiveDept.length > 0) {
+          const arr = []
+          for (let j = 0; j < this.CYLXRData.length; j++) {
+            const item = this.CYLXRData[j]
+            if (this.noticeForm.receiveDept.indexOf(item.groupId) > -1) {
+              arr.push(item.detail)
+            }
+          }
+          this.deptIds = arr
+          this.checkLXR()
+        } else {
+          this.deptIds = []
+          this.lXRData = []
+          this.transferLXRData = []
+          this.noticeForm.recipientUser = []
+        }
+      },
+      filterMethod(query, item) {
+        return item.label.indexOf(query) > -1
+      },
+      checkLXR() {
+        this.$update('mreplace/search', { deptIds: this.deptIds.join(',') }).then(response => {
+          this.lXRData = response.data
+          const tData = []
+          for (let i = 0; i < response.data.length; i++) {
+            const item = response.data[i]
+            tData.push({ label: '（' + item.userName + '）' + item.realName, key: item.id })
+          }
+          this.transferLXRData = tData
+          this.transferLoading = false
+        })
+      },
+      searchKeyChange(value) {
+        if (value === undefined || value === null || value === '') {
+          this.$refs.transfer.$children['0']._data.query = ''
+          return
+        }
+        this.$refs.transfer.$children['0']._data.query = value
+        this.$update('mreplace/search', { deptIds: this.deptIds.join(','), name: value }).then(response => {
+          for (let i = 0; i < response.data.length; i++) {
+            const item = response.data[i]
+            let flag = true
+            for (let j = 0; j < this.lXRData.length; j++) {
+              const itemJ = this.lXRData[j]
+              if (item.userName === itemJ.userName) {
+                flag = false
+                break
+              }
+            }
+            if (flag) {
+              this.lXRData.unshift(item)
+              this.transferLXRData.unshift({ label: '（' + item.userName + '）' + item.realName, key: item.id })
+            }
+          }
+        })
       },
       imgSuccess(res, file, fileList) {
         this.uploadImgs = fileList
@@ -191,6 +275,25 @@
         this.loading = true
         this.$refs.noticeForm.validate(valid => {
           if (valid) {
+            if (this.noticeForm.recipientUser.length > 50) {
+              this.$message({
+                message: '消息发送一次最多不能超过50人',
+                type: 'warning'
+              })
+              this.loading = false
+              return false
+            }
+            const userData = []
+            for (let i = 0; i < this.lXRData.length; i++) {
+              const item = this.lXRData[i]
+              for (let j = 0; j < this.noticeForm.recipientUser.length; j++) {
+                const userId = this.noticeForm.recipientUser[j]
+                if (item.id === userId) {
+                  userData.push({ id: item.id, name: item.realName })
+                }
+              }
+            }
+            this.noticeForm.recipientUser = JSON.stringify(userData)
             this.handleImg()
             this.noticeForm.messageStatus = status
             this.noticeForm.userId = this.curUser.id
@@ -295,6 +398,16 @@
               tData.push({ label: item.groupName, key: item.groupId })
             }
             this.transferCYLXRData = tData
+            if (sessionStorage.getItem(this.$route.path)) {
+              const param = JSON.parse(sessionStorage.getItem(this.$route.path))
+              if (param.parentId) {
+                this.isDisabled = true
+                this.noticeForm.parentId = param.parentId
+              } else {
+                this.id = param.id
+              }
+              this.detail()
+            }
           }
         })
       },
@@ -314,7 +427,8 @@
               title: response.data.title,
               content: response.data.content,
               messageStatus: response.data.messageStatus,
-              receiveDept: []
+              receiveDept: [],
+              recipientUser: []
             }
             if (response.data.recipient !== undefined && response.data.recipient !== null && response.data.recipient !== '[]') {
               const data = []
@@ -324,8 +438,20 @@
                 data.push(item.group)
               }
               this.noticeForm.receiveDept = data
+              this.receiveDeptChange()
             } else {
               this.noticeForm.receiveDept = []
+            }
+            if (response.data.recipientUser !== undefined && response.data.recipientUser !== null && response.data.recipientUser !== '[]') {
+              const data = []
+              const reJson = JSON.parse(response.data.recipientUser)
+              for (let i = 0; i < reJson.length; i++) {
+                const item = reJson[i]
+                data.push(item.id)
+              }
+              this.noticeForm.recipientUser = data
+            } else {
+              this.noticeForm.recipientUser = []
             }
             if (response.data.attachements !== undefined && response.data.attachements !== null && response.data.attachements !== '') {
               this.uploadImgs = JSON.parse(response.data.attachements)
@@ -351,16 +477,6 @@
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
       this.checkCYLXR()
-      if (sessionStorage.getItem(this.$route.path)) {
-        const param = JSON.parse(sessionStorage.getItem(this.$route.path))
-        if (param.parentId) {
-          this.isDisabled = true
-          this.noticeForm.parentId = param.parentId
-        } else {
-          this.id = param.id
-        }
-        this.detail()
-      }
     }
   }
 </script>
@@ -385,7 +501,7 @@
   .noticeEdit p:first-child{
     margin-top: 0;
   }
-  .noticeEdit .noticeCard .el-transfer-panel {
+  .noticeEdit .noticeCard .el-transfer-panel, .noticeEdit .transfer .el-input__inner {
     width: 44%;
   }
   .noticeEdit .noticeCard .ql-image{
@@ -429,11 +545,18 @@
   .noticeEdit .el-dialog{
     width: 57%;
   }
-  .noticeEdit .noticeGroupEdit .el-transfer-panel, .noticeEdit .noticeGroupEdit .transfer .el-input__inner {
+  .noticeEdit .noticeGroupEdit .el-transfer-panel, .noticeEdit .transferMessage .el-input__inner {
     width: 44%;
   }
+  .noticeEdit .el-transfer-panel__filter.el-input.el-input--small.el-input--prefix {
+    display: none;
+  }
+  .noticeEdit .el-transfer-panel__list.is-filterable{
+    height: 100%;
+    padding-top: 6px;
+  }
   @media screen and (min-width: 1700px) and (max-width: 1920px) {
-    .noticeEdit .noticeCard .el-transfer-panel {
+    .noticeEdit .noticeCard .el-transfer-panel, .noticeEdit .transferMessage .el-input__inner {
       width: 45%;
     }
     .noticeEdit .group{
