@@ -310,13 +310,16 @@ export const constantRouterMap = [
       { path: '/insideInfo/insideInfoDetail', component: () => import('@/views/information/insideInfo/insideInfoDetail'), name: '内部资源信息详情' },
       { path: '/insideInfo/insideInfoToT', component: () => import('@/views/information/insideInfo/insideInfoToT'), name: '内部资源-培训资料添加' },
       { path: '/insideInfo/insideInfoToK', component: () => import('@/views/information/insideInfo/insideInfoToK'), name: '内部资源-知识库资料添加' },
-      { path: '/intellSystem/timeTrendAnalysis', component: () => import('@/views/intellSystem/analysisJudgment/timeTrendAnalysis'), name: '时间变化趋势分析' }
+      { path: '/intellSystem/timeTrendAnalysis', component: () => import('@/views/intellSystem/analysisJudgment/timeTrendAnalysis'), name: '时间变化趋势分析' },
+      { path: '/intellSystem/developSitutional', component: () => import('@/views/intellSystem/analysisJudgment/developSitutional'), name: '发展变化态势报表' },
+      { path: '/intellSystem/featureAnalysis', component: () => import('@/views/intellSystem/analysisJudgment/featureAnalysis'), name: '特征信息分析' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
   { path: '/exportanjtb', component: () => import('@/views/caseManage/exportanjtb'), name: '案件侦办统计表导出页' },
   { path: '/exportTeam', component: () => import('@/views/basicService/basicStatistical/exportTeam'), name: '队伍基本情况统计导出页' },
   { path: '/exportEquip', component: () => import('@/views/basicService/basicStatistical/exportEquip'), name: '装备信息统计导出页' },
+  { path: '/exportDevelop', component: () => import('@/views//intellSystem/analysisJudgment/exportDevelop'), name: '发展变化态势报表导出页' },
   { path: '*', redirect: '/404', hidden: true } // 全不匹配的情况下，返回404，路由按顺序从上到下，依次匹配。最后一个*能匹配全部
 ]
 
