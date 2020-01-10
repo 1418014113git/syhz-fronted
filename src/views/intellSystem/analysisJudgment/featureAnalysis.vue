@@ -4,7 +4,7 @@
     <el-card>
       <el-form :inline="true" :model="filters" ref="filters" label-width="80px" style="text-align: left;">
         <el-form-item label="立案日期" prop="ltimeType">
-          <el-select  v-model="filters.ltimeType" size="small" placeholder="全部" @change="ltimeTypeChange">
+          <el-select  v-model="filters.ltimeType" size="small" placeholder="全部" clearable @change="ltimeTypeChange">
             <el-option :label="item.label" :value="item.value" v-for="item in dateOption" :key="item.value"></el-option>
           </el-select>
         </el-form-item>
@@ -44,7 +44,7 @@
         </el-form-item>
         <br/>
         <el-form-item label="破案日期" prop="ptimeType">
-          <el-select v-model="filters.ptimeType" size="small" placeholder="全部" @change="ptimeTypeChange">
+          <el-select v-model="filters.ptimeType" size="small" placeholder="全部" clearable @change="ptimeTypeChange">
             <el-option :label="item.label" :value="item.value" v-for="item in dateOption" :key="item.value"></el-option>
           </el-select>
         </el-form-item>
