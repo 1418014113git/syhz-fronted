@@ -62,7 +62,10 @@ export default {
         this.chart.setOption({
           title: {
             text: this.chartTitle,
-            left: 'left'
+            left: 'left',
+            textStyle: {
+              color: '#ddd'
+            }
           },
           tooltip: {
             trigger: 'item',
@@ -71,7 +74,10 @@ export default {
           legend: {
             orient: 'vertical',
             right: '40',
-            data: this.chartData.legendData
+            data: this.chartData.legendData,
+            textStyle: {
+              color: '#ddd'
+            }
           },
           toolbox: {
             show: true,
