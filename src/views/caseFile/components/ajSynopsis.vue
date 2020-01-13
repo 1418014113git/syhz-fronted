@@ -167,17 +167,17 @@ export default {
       paDate: '', // 破案日期
       showLaData: false,
       showPaData: false,
-      showYear: true,
+      showYear: false,
       disableLa: false,
       disablePa: false,
 
       curDeptInfo: JSON.parse(sessionStorage.getItem('depToken'))[0], // 当前用户的部门
       rlBtn: true,
       tingDeptData:
-        {
-          code: '610000530000',
-          name: '陕西省公安厅环食药总队'
-        },
+      {
+        code: '610000530000',
+        name: '陕西省公安厅环食药总队'
+      },
 
       laPickerOpt: {},
       paPickerOpt: {},
@@ -221,7 +221,7 @@ export default {
 
           // this.laDate = y + '-' + m + '-' + d
           this.laDate = this.ajInfo.LARQ
-
+          this.ajYear = this.ajInfo.LARQ.substr(0, 4)
           this.laPickerChange(this.laDate)
         }
         if (this.ajInfo.PARQ && this.ajInfo.PARQ.length === 8) {
@@ -233,11 +233,12 @@ export default {
           this.paDate = this.ajInfo.PARQ
           this.paPickerChange(this.paDate)
         }
-        if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2019) {
-          this.showYear = false
-        } else {
-          this.showYear = true
-        }
+        // if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8 && Number(this.ajInfo.LARQ.substr(0, 4)) < 2019) {
+        //   this.showYear = false
+        // } else {
+        //   this.showYear = true
+        // }
+
         this.getAjztCodes()
       }
     }
@@ -518,21 +519,24 @@ export default {
       return param
     },
     rlSave() {
-      if (!this.ajInfo.fllb || this.ajInfo.fllb.length === 0) {
+      if (!this.ajInfo.fllb || this.ajInfo.fllb.length < 2) {
         this.$message({
           type: 'error',
-          message: '请选择案件分类'
+          message: '请至少选择两级案件分类'
         })
         return false
+      }
+      if (this.ajInfo.LARQ && this.ajInfo.LARQ.length === 8) {
+        this.ajYear = this.ajInfo.LARQ.substr(0, 4)
       }
       // 案件年份大于2018年  立案后且未破案案件，必须完善立案日期。 已破案案件，必须完善立案日期、破案日期。
-      if ((this.ajInfo.LARQ && (Number(this.ajInfo.LARQ.substr(0, 4)) > 2018 && !this.ajYear))) {
-        this.$message({
-          type: 'error',
-          message: '请选择案件年份'
-        })
-        return false
-      }
+      // if ((this.ajInfo.LARQ && (Number(this.ajInfo.LARQ.substr(0, 4)) > 2018 && !this.ajYear))) {
+      //   this.$message({
+      //     type: 'error',
+      //     message: '请选择案件年份'
+      //   })
+      //   return false
+      // }
 
       if (this.checkCodes(this.ajztCodes['ajrlzt_pajyh'], Number(this.ajInfo.AJZT))) {
         if (this.ajYear && Number(this.ajYear) > 2018) {
