@@ -15,9 +15,6 @@
       </el-popover>
     </p>
     <div id="chartzbBar"  style="width: 100%; height: 400px; margin:0 auto 20px auto;"></div>
-    <!-- <div v-if="citys.length < 1 && cityNum.length < 1" style="line-height: 260px; text-align: center; color: #fff;font-size:15px;">
-      暂无数据
-    </div> -->
   </section>
 </template>
 
@@ -88,7 +85,12 @@ export default {
           text: '案件侦办地区分析',
           textStyle: { color: 'rgba(0,0,0,0)' } // 标题此处不显示，为了设置下载时的文件名称
         },
-        tooltip: {},
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { // 坐标轴指示器，坐标轴触发有效
+            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+          }
+        },
         toolbox: {
           itemSize: 17,
           x: '1750px',
@@ -144,7 +146,7 @@ export default {
           name: '',
           type: 'bar',
           data: this.cityNum,
-          barWidth: '50',
+          barMaxWidth: 50,
           itemStyle: {
             normal: {
               // 每个柱子的颜色即为colorList数组里的每一项，如果柱子数目多于colorList的长度，则柱子颜色循环使用该数组

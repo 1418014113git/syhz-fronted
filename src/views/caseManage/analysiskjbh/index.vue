@@ -1,6 +1,6 @@
 <template>
   <div class="analysiskjbh">
-   <!--案件分析研判--发展变化态势报表-->
+   <!--案件分析研判--空间变化态势-->
     <el-form :inline="true" :model="filters" ref="filters" label-width="100px" class="form">
       <el-col :span="24">
         <el-form-item label="筛选日期">
@@ -63,7 +63,7 @@
       <!--发案地域案件统计-->
       <case-area  :queryData="fadyTableData"  :queryParam="queryParam"  class="martop"></case-area>
       <!--发案地域统计-->
-      <case-areabar  :queryData="zhuAndTableData"  class="martop"></case-areabar>
+      <case-areabar  :queryData="fadyTableData"  class="martop"></case-areabar>
     </el-card>
   </div>
 </template>
@@ -332,39 +332,18 @@ export default {
     background-color: transparent;
   }
 
-  table {
-    border: 1px solid #2f627a;
-    border-bottom: none;
-  }
-  thead th {
-    border-right: 1px solid #2f627a;
-  }
-  .el-table__body td {
-    border-right: 1px solid #2f627a;
-    border-bottom: 1px solid #2f627a;
-  }
-  .el-table__body-wrapper tr:nth-child(even) {
-    background-color: transparent;
-  }
-  .datezhi {
-    .el-form-item__label {
-      text-align: center;
-    }
-  }
-  .case-trend .card {
-    margin-bottom: 20px;
-  }
-  .case-claim .el-table__expanded-cell {
-    width: 500px;
-    margin-left: 100px;
-    padding: 0;
-  }
-  .canClick {
-    cursor: pointer;
-  }
-  .canClick:hover {
-    text-decoration: underline;
-  }
+
+  // .case-claim .el-table__expanded-cell {
+  //   width: 500px;
+  //   margin-left: 100px;
+  //   padding: 0;
+  // }
+  // .canClick {
+  //   cursor: pointer;
+  // }
+  // .canClick:hover {
+  //   text-decoration: underline;
+  // }
   .el-select .el-input--small .el-input__inner {
     height: 25px !important;
   }
@@ -376,9 +355,6 @@ export default {
   }
   .el-cascader--small {
     font-size: 16px;
-  }
-  .row-expand-cover .el-table__expand-icon {
-    visibility: hidden;
   }
   .comTit{
     font-size: 17px;

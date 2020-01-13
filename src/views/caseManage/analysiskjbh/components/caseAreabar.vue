@@ -33,7 +33,7 @@ export default {
   },
   watch: {
     queryData(val) {
-      if (val) {
+      if (val.length > 0) {
         this.datas = val
         this.caseTotalList()
       }
@@ -42,14 +42,14 @@ export default {
   methods: {
     caseTotalList() {
       this.cityNum = []
-      this.datas.forEach(item => {
-        this.cityNum[0] = item.chengqu
-        this.cityNum[1] = item.jiaoqu
-        this.cityNum[2] = item.zheng
-        this.cityNum[3] = item.xiangcun
-        this.cityNum[4] = item.linqu
-        this.cityNum[5] = item.other
-      })
+      var datas = this.datas[this.datas.length - 1]
+      this.cityNum[0] = datas.chengqu
+      this.cityNum[1] = datas.jiaoqu
+      this.cityNum[2] = datas.zheng
+      this.cityNum[3] = datas.xiangcun
+      this.cityNum[4] = datas.linqu
+      this.cityNum[5] = datas.other
+
       this.drawColumnChart()
     },
     drawColumnChart() { // 柱状图
@@ -59,7 +59,12 @@ export default {
           text: '发案地域统计',
           textStyle: { color: 'rgba(0,0,0,0)' } // 标题此处不显示，为了设置下载时的文件名称
         },
-        tooltip: {},
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { // 坐标轴指示器，坐标轴触发有效
+            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+          }
+        },
         toolbox: {
           itemSize: 17,
           x: '1750px',
@@ -125,10 +130,6 @@ export default {
   mounted() {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-    }
-    if (this.queryData.length > 0) {
-      this.datas = this.queryData
-      this.caseTotalList()
     }
   }
 }
