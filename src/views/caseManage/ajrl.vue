@@ -318,7 +318,7 @@
   </section>
 </template>
 <script>
-import { getAJJBXXETLRLPage, getAJJBXXETLRLTJPAGE, addAJJBXXSYHZDGX, editAJJBXXSYH } from '@/api/caseManage'
+import { getAJJBXXETLRLPage, addAJJBXXSYHZDGX, editAJJBXXSYH } from '@/api/caseManage'
 import { getSessionDeptSelect } from '@/api/depts'
 // getDeptLevel, ajrlListDepts,
 import { getAjrlDept, getAjrlParentDept, getAjrlNSXJ } from '@/api/dept'
@@ -1073,18 +1073,19 @@ export default {
 
       // para.curDeptCode = this.filters.department[this.filters.department.length - 1] // 部门code
       if (this.filters.dType === '') {
-        if (this.filters.rlStartTime === '' && this.filters.rlEndTime) { // 开始时间为空,结束时间不为空
-          this.$message({
-            message: '开始时间不能为空', type: 'error'
-          })
+        // if (this.filters.rlStartTime === '' && this.filters.rlEndTime) { // 开始时间为空,结束时间不为空
+        //   this.$message({
+        //     message: '开始时间不能为空', type: 'error'
+        //   })
 
-          return false
-        } else if (this.filters.rlStartTime && this.filters.rlEndTime === '') { // 选择了开始时间,结束时间为空
-          this.$message({
-            message: '结束时间不能为空', type: 'error'
-          })
-          return false
-        } else if (this.filters.rlStartTime && this.filters.rlEndTime) { // 开始时间和结束时间均不为空
+        //   return false
+        // } else if (this.filters.rlStartTime && this.filters.rlEndTime === '') { // 选择了开始时间,结束时间为空
+        //   this.$message({
+        //     message: '结束时间不能为空', type: 'error'
+        //   })
+        //   return false
+        // } else
+        if (this.filters.rlStartTime && this.filters.rlEndTime) { // 开始时间和结束时间均不为空
           if (new Date(this.filters.rlStartTime).getTime() > new Date(this.filters.rlEndTime).getTime()) {
             this.$message({
               message: '结束时间不能小于开始时间', type: 'error'
@@ -1108,27 +1109,15 @@ export default {
         para.statusStr = this.carryParam.statusStr
       }
       this.listLoading = true
-      if (para.statistic !== '1') {
-        getAJJBXXETLRLPage(para).then((response) => {
-          const data = response.data
-          this.total = data.totalCount
-          this.pageSize = data.pageSize
-          this.cases = data.list
-          this.listLoading = false
-        }).catch(() => {
-          this.listLoading = false
-        })
-      } else {
-        getAJJBXXETLRLTJPAGE(para).then((response) => {
-          const data = response.data
-          this.total = data.totalCount
-          this.pageSize = data.pageSize
-          this.cases = data.list
-          this.listLoading = false
-        }).catch(() => {
-          this.listLoading = false
-        })
-      }
+      getAJJBXXETLRLPage(para).then((response) => {
+        const data = response.data
+        this.total = data.totalCount
+        this.pageSize = data.pageSize
+        this.cases = data.list
+        this.listLoading = false
+      }).catch(() => {
+        this.listLoading = false
+      })
     },
     reset() {
       this.filters = {

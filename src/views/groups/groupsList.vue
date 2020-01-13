@@ -13,6 +13,9 @@
       <el-row>
         <el-col style="text-align:right">
           <el-form-item>
+            <el-button class="addBtn" type="primary" @click="setReceive">设置通知消息接收人</el-button>
+          </el-form-item>
+          <el-form-item>
             <el-button class="addBtn" type="primary" icon="el-icon-plus" @click="toAdd">添加组</el-button>
           </el-form-item>
         </el-col>
@@ -52,6 +55,20 @@
     <el-dialog :title="(opType === 0 ? '添加常用组' : (opType === 1 ? '编辑常用组' : '常用组详情'))" :visible.sync="groupDialogVisible" :close-on-click-modal="false" class="group_dialog" @close="handleCloseDialog">
       <noticeGroupEdit ref="noticeGroupEdit" @closeDialog="closeDialog" :opType="opType" :groupId="groupId"></noticeGroupEdit>
     </el-dialog>
+    <el-dialog title="设置通知消息接收人" :visible.sync="setReceiveDialogVisible" :close-on-click-modal="false" class="receive_dialog">
+      <el-form :model="receiveForm" ref="receiveForm" :rules="rules" v-loading="setReceiveLoading" label-width="80px">
+        <el-form-item label="接收人" prop="receiveUser">
+          <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
+          <el-checkbox-group v-model="receiveForm.receiveUser" @change="handleCheckedCitiesChange">
+            <el-checkbox v-for="item in receiveUserList" :key="item.key" :label="item.id" :title="'(' + item.userName + ')' + item.realName">{{'(' + item.userName + ')' + item.realName}}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item class="btn" style="text-align: center">
+          <el-button @click="cancelEdit" class="cancelBtn">取 消</el-button>
+          <el-button type="primary" class="saveBtn" @click="onSubmit()" :loading="setReceiveBtnLoading">保 存</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </section>
 </template>
 <script>
@@ -72,7 +89,21 @@
         tableHeight: null,
         groupDialogVisible: false,
         opType: 0,
-        groupId: ''
+        groupId: '',
+        isIndeterminate: false,
+        checkAll: false,
+        receiveUserList: [],
+        setReceiveDialogVisible: false,
+        setReceiveLoading: false,
+        setReceiveBtnLoading: false,
+        receiveForm: {
+          receiveUser: []
+        },
+        rules: {
+          receiveUser: [{ required: true, trigger: 'blur', message: '请选择接收人' }]
+        },
+        curDept: JSON.parse(sessionStorage.getItem('depToken'))[0],
+        curUser: JSON.parse(sessionStorage.getItem('userInfo'))
       }
     },
     methods: {
@@ -178,6 +209,120 @@
           })
         }).catch(() => {
         })
+      },
+      setReceive() {
+        this.setReceiveDialogVisible = true
+        this.setReceiveLoading = true
+        const para = {
+          curDeptCode: this.curDept.depCode
+        }
+        this.$query('mreplace/query', para).then(response => {
+          const arr = []
+          if (response.data.replaceIds !== undefined && response.data.replaceIds !== null && response.data.replaceIds !== '') {
+            const replaceIds = JSON.parse(response.data.replaceIds)
+            for (let j = 0; j < replaceIds.length; j++) {
+              const item = replaceIds[j]
+              arr.push(item.id)
+            }
+            this.receiveForm.receiveUser = arr
+            if (this.receiveForm.receiveUser.length > 0) {
+              this.isIndeterminate = true
+            }
+          }
+          this.setReceiveLoading = false
+        }).catch(() => {
+          this.setReceiveLoading = false
+        })
+      },
+      cancelEdit() {
+        this.$confirm('是否要放弃当前设置的通知消息接收人信息？', '提示', {
+          type: 'warning',
+          cancelButtonText: '否',
+          confirmButtonText: '是'
+        }).then(() => {
+          this.callBack()
+        })
+      },
+      callBack() {
+        this.setReceiveDialogVisible = false
+        this.receiveForm = {
+          receiveUser: []
+        }
+      },
+      onSubmit() {
+        this.setReceiveLoading = true
+        this.setReceiveBtnLoading = true
+        this.$refs.receiveForm.validate(valid => {
+          if (valid) {
+            const arr = []
+            for (let j = 0; j < this.receiveUserList.length; j++) {
+              const item = this.receiveUserList[j]
+              if (this.receiveForm.receiveUser.indexOf(item.id) > -1) {
+                arr.push(item)
+              }
+            }
+            const para = {
+              curDeptId: this.curDept.id,
+              curDeptCode: this.curDept.depCode,
+              userId: this.curUser.id,
+              replaceIds: JSON.stringify(arr)
+            }
+            this.$update('mreplace/save', para).then(response => {
+              this.timeOutBack()
+              this.$message({
+                message: '通知消息接收人设置成功！',
+                type: 'success'
+              })
+            }).catch(() => {
+              this.setReceiveLoading = false
+              this.setReceiveBtnLoading = false
+            })
+          } else {
+            this.setReceiveLoading = false
+            this.setReceiveBtnLoading = false
+          }
+        })
+      },
+      timeOutBack() {
+        const _this = this
+        setTimeout(function() {
+          _this.setReceiveLoading = false
+          _this.setReceiveBtnLoading = false
+          _this.callBack()
+        }, 2000)
+      },
+      getReceiveUserList() {
+        const para = {
+          thisDepartCode: this.curDept.depCode
+        }
+        this.$query('departuserrole', para, true).then(response => {
+          if (response.data.length === 0) {
+            this.$alert('未查询到当前部门下的普通用户', '提示', {
+              callback: action => {
+                this.callBack()
+              }
+            })
+          } else {
+            this.receiveUserList = response.data
+          }
+        })
+      },
+      handleCheckAllChange(val) {
+        if (val) {
+          const arr = []
+          for (let i = 0; i < this.receiveUserList.length; i++) {
+            arr.push(this.receiveUserList[i].id)
+          }
+          this.receiveForm.receiveUser = arr
+        } else {
+          this.receiveForm.receiveUser = []
+        }
+        this.isIndeterminate = false
+      },
+      handleCheckedCitiesChange(value) {
+        const checkedCount = value.length
+        this.checkAll = checkedCount === this.receiveUserList.length
+        this.isIndeterminate = checkedCount > 0 && checkedCount < this.receiveUserList.length
       }
     },
     components: {
@@ -186,6 +331,7 @@
     mounted() {
       this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
       this.queryGroup(true)
+      this.getReceiveUserList()
     },
     activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
       this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 180
@@ -216,6 +362,25 @@
 }
 .groupList .noticeGroupEdit .el-transfer-panel, .groupList .noticeGroupEdit .transfer .el-input__inner {
   width: 44%;
+}
+.groupList .receive_dialog .el-checkbox{
+  margin-left: 30px;
+  min-width: 200px;
+}
+.groupList .receive_dialog .el-checkbox__label{
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 180px;
+  position: absolute;
+  top: 6px;
+}
+.groupList .receive_dialog .el-checkbox-group{
+  overflow: auto;
+  max-height: 450px;
+}
+.groupList .receive_dialog .el-dialog__body{
+  padding: 20px 25px 10px;
 }
 @media screen and (min-width: 1700px) and (max-width: 1920px) {
   .groupList .noticeCard .el-transfer-panel {

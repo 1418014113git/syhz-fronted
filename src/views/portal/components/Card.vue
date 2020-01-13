@@ -140,7 +140,8 @@ export default {
       this.$store.dispatch('ClickAll', true)
     },
     clickHovList() {
-      this.$router.push({ path: '/micro/difficult' })
+      localStorage.setItem('curAppCode', 'F') // 教育训练
+      this.$router.push({ path: '/micro/difficult', query: { activeIndex: '5' }}) // 默认选中在线帮助
     }
   }
 }
@@ -255,6 +256,12 @@ export default {
 .Tab {
   .el-card__header {
     padding: 8px 5px 8px 30px;
+  }
+  .el-card__body {
+    padding: 10px 20px 0;
+    height: 306px;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }
 // .High {

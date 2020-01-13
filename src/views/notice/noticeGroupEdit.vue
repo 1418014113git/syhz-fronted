@@ -297,7 +297,6 @@
               type: String(response.data.type)
             }
             if (String(response.data.type) === '1') {
-              // this.checkLXR()
               this.checkLXR(this.curDept.depCode)
             } else if (String(response.data.type) === '2') {
               this.queryDept()
@@ -307,25 +306,26 @@
               for (let i = 0; i < response.data.items.length; i++) {
                 const item = response.data.items[i]
                 arr.push(item.itemId)
-
-                this.$query('departuser', { type: 0, name: item.itemName }, true).then(response => {
-                  for (let k = 0; k < response.data.length; k++) {
-                    const item = response.data[k]
-                    let flag = true
-                    for (let j = 0; j < this.lXRData.length; j++) {
-                      const itemJ = this.lXRData[j]
-                      if (item.userName === itemJ.userName) {
-                        flag = false
-                        break
+                if (String(response.data.type) === '1') {
+                  this.$query('departuser', { type: 0, name: item.itemName }, true).then(response => {
+                    for (let k = 0; k < response.data.length; k++) {
+                      const item = response.data[k]
+                      let flag = true
+                      for (let j = 0; j < this.lXRData.length; j++) {
+                        const itemJ = this.lXRData[j]
+                        if (item.userName === itemJ.userName) {
+                          flag = false
+                          break
+                        }
+                      }
+                      if (flag) {
+                        this.lXRData.unshift(item)
+                        this.transferLXRData.unshift({ label: '（' + item.userName + '）' + item.realName, key: item.id })
+                        this.transferData = JSON.parse(JSON.stringify(this.transferLXRData))
                       }
                     }
-                    if (flag) {
-                      this.lXRData.unshift(item)
-                      this.transferLXRData.unshift({ label: '（' + item.userName + '）' + item.realName, key: item.id })
-                      this.transferData = JSON.parse(JSON.stringify(this.transferLXRData))
-                    }
-                  }
-                })
+                  })
+                }
               }
               this.noticeGroupForm.receiveDept = arr
             }
