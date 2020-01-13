@@ -816,6 +816,14 @@ export default {
             if (param.fadyName) { // 发案地域 传汉字名称 '城区' / '郊区' / '镇' / '乡村' / '林区' / '其它'
               this.fadyName = param.fadyName
             }
+          } else {
+            if (param.syhFllb) { // 案件分类 ['1', '1001', '100101']
+              this.filters.syhFllb = param.syhFllb
+              this.AJLXHandler(this.filters.syhFllb)
+            }
+            if (param.ajlb) { // 案件类别 '100001'
+              this.filters.ajlb = param.ajlb
+            }
           }
         }
         sessionStorage.setItem(this.$route.path, '')
