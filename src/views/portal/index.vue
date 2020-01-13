@@ -48,7 +48,7 @@ export default {
         { 'span': 8, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
         { 'span': 8, 'title': '网上培训', 'content': 'Train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
         // { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
-        { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
+        { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab', 'moreBtn': '更多', 'more': '/caseManage/dbList' },
         { 'span': 8, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' },
         { 'span': 8, 'title': '网上考试', 'content': 'Exam', 'moreBtn': '更多', 'more': '/handlingGuide/examineManage/statistical' } // 网上考试
         // { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' }
@@ -63,7 +63,7 @@ export default {
         { 'span': 8, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
         { 'span': 8, 'title': '网上培训', 'content': 'Train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
         // { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
-        { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
+        { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab', 'moreBtn': '更多', 'more': '/caseManage/dbList' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
         { 'span': 8, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' },
         { 'span': 8, 'title': '网上考试', 'content': 'Exam', 'moreBtn': '更多', 'more': '/handlingGuide/examineManage/statistical' } // 网上考试
         // { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' }
@@ -77,7 +77,7 @@ export default {
         { 'span': 8, 'title': '案件走势图', 'content': 'Echart', 'moreBtn': '更多', 'more': '/zhyp/caseTrend' },
         { 'span': 8, 'title': '网上培训', 'content': 'Train', 'moreBtn': '更多', 'more': '/micro/totalList' }, // 网上培训
         // { 'span': 7, 'title': '大要案推送', 'content': 'Carousel' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
-        { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
+        { 'span': 8, 'title': '督办案件最新进展', 'content': 'Tab', 'moreBtn': '更多', 'more': '/caseManage/dbList' }, // 更多按钮暂时隐藏掉，后续功能完善了在显示
         { 'span': 8, 'title': '高发案件类别', 'content': 'High', 'moreBtn': '更多', 'more': '/zhyp/hightCaseTrend' },
         { 'span': 8, 'title': '网上考试', 'content': 'Exam', 'moreBtn': '更多', 'more': '/handlingGuide/examineManage/statistical' } // 网上考试
         // { 'span': 7, 'title': '外部信息资源', 'content': 'CommunityDataEchart', 'moreBtn': '更多', 'more': '/synthesizeAnalysis/socialIntegrationResources' }
