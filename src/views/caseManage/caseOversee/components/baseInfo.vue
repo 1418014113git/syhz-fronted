@@ -37,8 +37,8 @@
             <el-form-item label="申请时间：" prop="applyDate">
               <span v-if="baseInfo.status!==0">{{baseInfo.applyDate}}</span>
             </el-form-item>
-            <el-form-item label="开始日期：" prop="sg">
-              <span class="whiteColor">{{baseInfo.sg}}</span>
+            <el-form-item label="开始日期：" prop="startDate">
+              <span class="whiteColor">{{baseInfo.startDate}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="16">
