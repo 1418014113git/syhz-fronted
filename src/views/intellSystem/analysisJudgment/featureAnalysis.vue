@@ -83,42 +83,42 @@
       </el-form>
       <!-- 案件类别分析 -->
       <div v-loading="loading1">
-        <div style="margin: 10px 0;">
+        <div style="margin: 20px 0 10px;">
           <span style="line-height:22px;">
             案件类别分析&nbsp;&nbsp;
             <el-tooltip class="item" effect="dark" content="根据查询条件分析全省案件数量排行前12的案件类别。" placement="top-start">
               <i class="el-icon-question" style="font-size:20px;"></i>
             </el-tooltip>
           </span>
-          <span class="right canClick" @click="lookMore('1')">更多</span>
+          <span class="right canClick" @click="lookMore('1')" style="margin-right:4%;">更多</span>
           <!-- <img src="/static/image/download.png" alt="" srcset="" title="下载" style="float:right;width:24px;margin-top: -5px;cursor:pointer;"> -->
         </div>
         <div id="echart1" style="height: 400px;margin:0 0 20px 0;"></div>
       </div>
       <!-- 案件罪名分析 -->
       <div>
-        <div style="margin: 10px 0;">
+        <div style="margin: 50px 0 10px;">
           <span style="line-height:22px;">
             案件罪名分析&nbsp;&nbsp;
             <el-tooltip class="item" effect="dark" content="根据查询条件分析全省案件数量排行前12的案件罪名。" placement="top-start">
               <i class="el-icon-question" style="font-size:20px;"></i>
             </el-tooltip>
           </span>
-          <span class="right canClick" @click="lookMore('2')">更多</span>
+          <span class="right canClick" @click="lookMore('2')" style="margin-right:4%;">更多</span>
           <!-- <img src="/static/image/download.png" alt="" srcset="" title="下载" style="float:right;width:24px;margin-top: -5px;cursor:pointer;"> -->
         </div>
         <div id="echart2" style="height: 400px;margin:0 0 20px 0;"></div>
       </div>
       <!-- 案件来源分析 -->
       <div>
-        <div style="margin: 10px 0;">
+        <div style="margin: 50px 0 10px;">
           <span style="line-height:22px;">
             案件来源分析&nbsp;&nbsp;
             <el-tooltip class="item" effect="dark" content="根据查询条件分析全省案件数量排行前12的案件来源。" placement="top-start">
               <i class="el-icon-question" style="font-size:20px;"></i>
             </el-tooltip>
           </span>
-          <span class="right canClick" @click="lookMore('3')">更多</span>
+          <span class="right canClick" @click="lookMore('3')" style="margin-right:4%;">更多</span>
           <!-- <img src="/static/image/download.png" alt="" srcset="" title="下载" style="float:right;width:24px;margin-top: -5px;cursor:pointer;"> -->
         </div>
         <div id="echart3" style="height: 400px;margin:0 0 20px 0;"></div>
@@ -133,7 +133,12 @@
           <el-table-column prop="name" label="案件罪名" show-overflow-tooltip v-if="curType==='2'"></el-table-column>
           <el-table-column prop="name" label="案件来源" show-overflow-tooltip v-if="curType==='3'"></el-table-column>
           <el-table-column prop="num" label="数量" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="hb" label="环比" :min-width="smallItemWidth" align="center" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="hb" label="环比" :min-width="smallItemWidth" align="center" show-overflow-tooltip>
+            <!-- <template slot-scope="scope">
+              <span v-if="scope.row.hb==='-'">{{scope.row.hb}}</span>
+              <span v-else>{{scope.row.hb}}%</span>
+            </template> -->
+          </el-table-column>
         </el-table>
         <!--工具条-->
         <el-col :span="24" class="toolbar">
@@ -299,14 +304,14 @@ export default {
       })
     },
     queryFeatureData(hand, city) { // 查询
-      if (this.filters.ltimeType === '6' && !this.filters.lstartDate && this.filters.lendDate) {
-        this.$message.error('立案开始时间不能为空！')
-        return false
-      }
-      if (this.filters.ptimeType === '6' && !this.filters.pstartDate && this.filters.pendDate) {
-        this.$message.error('破案开始时间不能为空！')
-        return false
-      }
+      // if (this.filters.ltimeType === '6' && !this.filters.lstartDate && this.filters.lendDate) {
+      //   this.$message.error('立案开始时间不能为空！')
+      //   return false
+      // }
+      // if (this.filters.ptimeType === '6' && !this.filters.pstartDate && this.filters.pendDate) {
+      //   this.$message.error('破案开始时间不能为空！')
+      //   return false
+      // }
       var param = JSON.parse(JSON.stringify(this.filters))
       if (hand) { // 手动点击时，添加埋点参数
         param.logFlag = 1
@@ -411,19 +416,19 @@ export default {
             emphasis: { color: '#fff' }
           }
         },
-        legend: {
-          data: ['案件数量'],
-          type: 'scroll',
-          top: 0,
-          itemGap: 15,
-          textStyle: {
-            color: '#bbbbbb',
-            fontSize: 14
-          }
-        },
+        // legend: {
+        //   data: ['案件数量'],
+        //   type: 'scroll',
+        //   top: 0,
+        //   itemGap: 15,
+        //   textStyle: {
+        //     color: '#bbbbbb',
+        //     fontSize: 14
+        //   }
+        // },
         grid: {
           left: '1%',
-          right: '4%',
+          right: '5%',
           bottom: '5%',
           containLabel: true
         },
@@ -441,7 +446,14 @@ export default {
             },
             axisLabel: {
               interval: 0,
-              rotate: -10
+              rotate: -15,
+              formatter: function(value, index) {
+                if (index === 11 && value.length > 10) { // 最后一列 多余的字显示省略号
+                  return value.substring(0, 10) + '...'
+                } else {
+                  return value
+                }
+              }
             }
           }
         ],
@@ -452,7 +464,8 @@ export default {
               lineStyle: {
                 color: '#bbbbbb'
               }
-            }
+            },
+            name: '案件（起）'
           }
         ],
         series: [

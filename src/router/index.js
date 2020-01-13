@@ -313,6 +313,7 @@ export const constantRouterMap = [
       { path: '/intellSystem/timeTrendAnalysis', component: () => import('@/views/intellSystem/analysisJudgment/timeTrendAnalysis'), name: '时间变化趋势分析' },
       { path: '/intellSystem/developSitutional', component: () => import('@/views/intellSystem/analysisJudgment/developSitutional'), name: '发展变化态势报表' },
       { path: '/intellSystem/featureAnalysis', component: () => import('@/views/intellSystem/analysisJudgment/featureAnalysis'), name: '特征信息分析' },
+      { path: '/intellSystem/collectClueStatistics', component: () => import('@/views/information/clueStatistics'), name: '采集信息统计分析' },
       { path: '/caseManage/analysiskjbh', component: () => import('@/views/caseManage/analysiskjbh/index'), name: '空间变化态势分析' } // 案件分析研判--空间变化态势分析
     ]
   },
