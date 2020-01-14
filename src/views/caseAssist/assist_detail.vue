@@ -8,13 +8,13 @@
       <el-row>
         <!-- 左侧导航区 -->
         <el-col class="leftCont" :span="3" :style="{height:countHeight}">
-          <left-nav class="bg" :assistId="assistId"></left-nav>
+          <left-nav class="bg" :assistId="assistId" ref="leftNav"></left-nav>
         </el-col>
         <!-- 右侧内容区 -->
         <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
             <base-info ref="baseInfo" class="marb bg baseInfo" :assistId="assistId" :info="baseInfo" :signBtnVisibleH="signBtnVisibleH" :evaluateBtnVisibleH="evaluateBtnVisibleH"></base-info>
-            <verify-info class="marb bg auditInfo" :assistId="assistId" :info="baseInfo"></verify-info>
+            <verify-info v-if="auditVisible" class="marb bg auditInfo" :assistId="assistId" :info="baseInfo"></verify-info>
             <SignCom class="marb bg signInfo" :assistId="assistId" :info="baseInfo" :showType="1" @setSignBtnVisibleH="setSignBtnVisibleH"></SignCom>
             <FeedBackCom class="marb bg feedbackInfo" :assistId="assistId" :info="baseInfo" :showType="1" @setEvaluateBtnVisibleH="setEvaluateBtnVisibleH"></FeedBackCom>
             <SignCom v-if="areaVisible" class="marb bg signInfo_area" :assistId="assistId" :info="baseInfo" :showType="2" @setSignBtnVisibleH="setSignBtnVisibleH"></SignCom>
@@ -46,7 +46,8 @@
         systemTime: null,
         areaVisible: false,
         signBtnVisibleH: true,
-        evaluateBtnVisibleH: true
+        evaluateBtnVisibleH: true,
+        auditVisible: true
       }
     },
     components: {
@@ -96,6 +97,11 @@
           }
           this.baseInfo.systemTime = this.systemTime
           this.$refs.baseInfo.setBaseInfo(this.baseInfo)
+          if (String(this.baseInfo.category) === '3') {
+            this.auditVisible = false
+          } else {
+            this.$refs.leftNav.showItem()
+          }
         }).catch(() => {
         })
       },

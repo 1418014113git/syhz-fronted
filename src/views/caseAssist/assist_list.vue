@@ -108,8 +108,8 @@
       <el-table-column label="操作" width="124">
         <template slot-scope="scope">
           <el-button title="详情" size="mini" icon="el-icon-document" type="primary" circle @click="handleDetail(scope.$index, scope.row)"></el-button>
-          <el-button v-if="$isViewBtn('100905') && (String(scope.row.status) === '0' || String(scope.row.status) === '1' || String(scope.row.status) === '3') && scope.row.applyDeptCode === curDept.depCode && $isViewBtn('100905')" title="编辑" @click="handleEdit(scope.$index, scope.row)" size="mini" type="primary" icon="el-icon-edit" circle></el-button>
-          <el-button v-if="$isViewBtn('100906') && (String(scope.row.status) === '0' || String(scope.row.status) === '1' || String(scope.row.status) === '3') && scope.row.applyDeptCode === curDept.depCode && $isViewBtn('100906')" title="删除" @click="handleDel(scope.$index, scope.row)" size="mini" type="danger" icon="el-icon-delete" circle></el-button>
+          <el-button v-if="$isViewBtn('100905') && enableEdit(scope.row)" title="编辑" @click="handleEdit(scope.$index, scope.row)" size="mini" type="primary" icon="el-icon-edit" circle></el-button>
+          <el-button v-if="$isViewBtn('100906') && enableEdit(scope.row)" title="删除" @click="handleDel(scope.$index, scope.row)" size="mini" type="danger" icon="el-icon-delete" circle></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -167,7 +167,7 @@ export default {
       deptOptions: [], // 部门数据
       selectCurDep: { name: '' }, // 当前选中的部门
       selectCurArea: { cityName: '' }, // 当前行政区划
-      curparam: '', // 存储查询列表的参数临时变量
+      curParam: {}, // 存储查询列表的参数临时变量
       areaProps: {
         value: 'cityCode',
         label: 'cityName'
@@ -213,6 +213,25 @@ export default {
     }
   },
   methods: {
+    enableEdit(row) {
+      // if (this.curDept.depType === '1' && this.$isViewBtn('100908')) { // 总队管理员
+      //   if (row.auditDeptCode === this.curDept.depCode) { // 总队审核
+      //     return true
+      //   }
+      //   if (row.applyDeptCode === this.curDept.depCode) { // 总队申请、下发
+      //     return true
+      //   }
+      //   const dept = this.findParentDept(row.applyDeptCode)
+      //   if (dept.depType === '3' && row.deptList.length > 1) { // 大队发起的，且需要总队最终审核
+      //     return true
+      //   }
+      // }
+      // 发起部门可操作  草稿、待审核、审核不通过
+      if ((String(row.status) === '0' || String(row.status) === '1' || String(row.status) === '3') && row.applyDeptCode === this.curDept.depCode) {
+        return true
+      }
+      return false
+    },
     enableTo(row) {
       if (this.curDept.depType === '1') { // 总队可查看所有
         return true
@@ -284,7 +303,7 @@ export default {
       para.provinceCode = this.filters.area[0] ? this.filters.area[0] : ''
       para.cityCode = this.filters.area[1] ? this.filters.area[1] : ''
       para.reginCode = this.filters.area[2] ? this.filters.area[2] : ''
-      this.curparam = para
+      this.curParam = para
       this.$query('caseAssist/list', para).then((response) => {
         this.listLoading = false
         this.listData = response.data.list
@@ -304,8 +323,10 @@ export default {
       this.query(false)
     },
     handleDel(index, row) {
-      this.$confirm('确认删除该记录吗?', '提示', {
-        type: 'warning'
+      this.$confirm('是否删除该记录，删除后无法恢复。', '提示', {
+        type: 'warning',
+        cancelButtonText: '否',
+        confirmButtonText: '是'
       }).then(() => {
         this.listLoading = true
         const para = {
@@ -429,21 +450,21 @@ export default {
       }
 
       if (this.exportRadio === '1') { // 全部
-        var parms = this.curparam
-        parms.category = 1
-        parms.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName
-        parms.realName = this.curUser.realName
-        parms.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
-        parms.fileName = '涉案线索协查参与地战果反馈表'
-        this.$download('caseAssist/export', parms)
+        const params = this.curParam
+        params.category = 1
+        params.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName
+        params.realName = this.curUser.realName
+        params.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
+        params.fileName = '案件协查-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+        this.$download('caseAssist/export', params)
       } else { // 导出选中的
-        var para = {
+        const para = {
           category: 2,
           assistIds: ids.join(','),
           curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
           realName: this.curUser.realName,
           curUserPhone: this.curUser.phone ? this.curUser.phone : '',
-          fileName: '涉案线索协查参与地战果反馈表'
+          fileName: '案件协查-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
         }
         this.$download('caseAssist/export', para)
       }

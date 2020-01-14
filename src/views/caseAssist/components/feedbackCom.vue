@@ -5,6 +5,7 @@
       <div slot="header" class="clearfix">
         <span class="letterSpc">{{title}}</span>
       </div>
+      <!--<i v-if="listData.length > 0" class="export_btn" title="导出全部线索" @click="handleDown"><svg-icon icon-class="export"></svg-icon></i>-->
     </div>
     <div style="overflow: auto;">
       <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
@@ -57,7 +58,7 @@
           <el-table-column prop="sajz" label="涉案金额（万元）" width="160" align="center" show-overflow-tooltip></el-table-column>
         </el-table-column>
         <el-table-column prop="score" label="评价打分" width="120" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="180" fixed="right">
+        <el-table-column label="操作" align="center" width="200" fixed="right">
           <template slot-scope="scope">
             <span v-if="scope.$index === listData.length - 1">
               -
@@ -111,15 +112,22 @@
     <el-dialog title="分发线索" :visible.sync="clueDistributeDialogVisible" class="clueDistribute" :close-on-click-modal="false" @close="closeClueDialog">
       <distributeClue ref="distributeClue" @closeDialog="closeClueDialog" :assistStatus="info.status" :assistId="curAssistId" source="detail"></distributeClue>
     </el-dialog>
+
+    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false">
+      <clueMoveList :assistId="curAssistId"></clueMoveList>
+    </el-dialog>
+
   </div>
 </template>
 <script>
 import distributeClue from './distributeClue.vue'
+import clueMoveList from '@/views/caseAssist/clue/clueMoveList.vue'
 export default {
   props: ['assistId', 'info', 'showType'],
   name: 'index',
   components: {
-    distributeClue
+    distributeClue,
+    clueMoveList
   },
   data() {
     return {
@@ -134,6 +142,10 @@ export default {
         score: 0,
         commentText: ''
       },
+      backClueForm: {
+        receiveDept: '',
+        content: ''
+      },
       curUser: {},
       curDept: {},
       listData: [], // 地市线索协查战果反馈表
@@ -142,6 +154,10 @@ export default {
       evaluateDetailDialogVisible: false, // 评价打分弹出框
       btnLoading: false, // 评价打分按钮loading
       clueDistributeDialogVisible: false, // 是否显示分发线索弹出框
+      clueMoveDialogVisible: false,
+      backClueDialogVisible: false,
+      exDeptData: [],
+      deptLoading: false,
       updateOp: false,
       pageSize: 5,
       page: 1,
@@ -159,6 +175,18 @@ export default {
             }
           }
         ]
+      },
+      backClueFormRules: {
+        receiveDept: [{ required: true, message: '请选择接受单位', trigger: 'change' }],
+        content: [{
+          required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            if (value === undefined || value === null || value === '') {
+              callback(new Error('请填写原因'))
+            } else {
+              callback()
+            }
+          }
+        }]
       }
     }
   },
@@ -204,6 +232,41 @@ export default {
               return true
             }
           }
+        }
+      }
+      return false
+    },
+    enableBackClue(row, flag) {
+      if (String(this.info.status) === '5') {
+        if (row.deptCode === this.curDept.depCode) {
+          if (flag) {
+            if (String(this.info.categroy) === '3' && this.info.applyDeptCode === row.deptCode) {
+              return false
+            }
+            return true
+          } else {
+            return true
+          }
+        }
+        if (this.curDept.depType === '4') {
+          if (row.deptCode === this.curDept.parentDepCode) {
+            return true
+          }
+        }
+      }
+      return false
+    },
+    enableExport(row) {
+      if (this.curDept.depType === '1') {
+        return true
+      }
+      if (this.curDept.depType === '4') {
+        if (row.deptCode === this.curDept.parentDepCode) {
+          return true
+        }
+      } else {
+        if (row.deptCode === this.curDept.depCode) {
+          return true
         }
       }
       return false
@@ -256,37 +319,30 @@ export default {
       const param = {
         type: 1,
         assistId: this.curAssistId,
-        parentCode: this.curDept.parentDepCode,
+        deptType: this.curDept.depType,
         pageSize: this.pageSize,
         pageNum: flag ? 1 : this.page
       }
       if (String(this.showType) === '2') {
         param.parentCode = this.curDept.depCode
+        param.deptType = '2'
         this.$emit('setEvaluateBtnVisibleH', false)
       } else {
-        // if (this.curDept.depType === '-1') { // 省
-        // } else if (this.curDept.depType === '1') { // 总队
-        //   param.parentCode = this.curDept.parentDepCode
-        // } else if (this.curDept.depType === '2') { // 支队
-        //   param.curDeptCode = this.curDept.depCode
-        //   param.parentCode = ''
-        // } else if (this.curDept.depType === '3') { // 大队
-        //   param.curDeptCode = this.curDept.depCode
-        //   param.parentCode = ''
-        // } else if (this.curDept.depType === '4') { // 派出所
-        //   if (this.curDept.areaCode === '611400') {
-        //     param.curDeptCode = this.curDept.parentDepCode
-        //     param.parentCode = ''
-        //   } else {
-        //     param.curDeptCode = this.curDept.parentDepCode
-        //     param.parentCode = ''
-        //   }
-        // }
-        if (this.curDept.depType === '4') {
-          param.curDeptType = this.findParentDept(this.curDept.parentDepCode).depType
-          param.parentCode = this.findParentDept(this.curDept.parentDepCode).parentCode
-        } else {
-          param.curDeptType = this.curDept.depType
+        if (this.curDept.depType === '-1') { // 省
+        } else if (this.curDept.depType === '1') { // 总队
+          param.parentCode = this.curDept.parentDepCode
+        } else if (this.curDept.depType === '2') { // 支队
+          param.curDeptCode = this.curDept.depCode
+        } else if (this.curDept.depType === '3') { // 大队
+          param.curDeptCode = this.curDept.depCode
+        } else if (this.curDept.depType === '4') { // 派出所
+          if (this.curDept.areaCode === '611400') {
+            param.curDeptCode = this.curDept.parentDepCode
+            param.deptType = this.findParentDept(this.curDept.parentDepCode).depType
+          } else {
+            param.curDeptCode = this.curDept.parentDepCode
+            param.deptType = this.findParentDept(this.curDept.parentDepCode).depType
+          }
         }
         if (this.curDept.depType === '1') {
           this.$emit('setEvaluateBtnVisibleH', false)
@@ -415,6 +471,60 @@ export default {
       this.evaluateDetailDialogVisible = true
       this.evaluateDetailForm = row
     },
+    handleClueMove(index, row) { // 线索流转记录
+      this.clueMoveDialogVisible = true
+    },
+    handleBackClue(index, row) {
+      this.backClueDialogVisible = true
+      let paramCode = ''
+      if (this.curDept.depType === '4') { // 派出所
+        paramCode = this.curDept.parentDepCode
+      } else {
+        paramCode = this.curDept.depCode
+      }
+      this.queryParentDept(paramCode)
+    },
+    handleDown() {
+      // 导出线索
+      const params = {}
+      if (String(this.showType) === '1') {
+        if (this.curDept.depType === '4') {
+          if (this.curDept.areaCode === '611400') {
+            params.category = 1
+          } else {
+            params.category = 2
+          }
+        } else {
+          params.category = this.curDept.depType === '1' || this.curDept.depType === '2' ? 1 : 2
+        }
+      } else {
+        params.category = 2
+      }
+      params.deptType = this.curDept.depType
+      params.deptCode = this.curDept.depCode
+      params.assistId = this.curAssistId
+      params.fileName = '案件协查-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+      this.$download('assist/clue/export', params)
+    },
+    queryParentDept(paramCode) {
+      this.deptLoading = true
+      this.$query('hsyzparentdepart/' + paramCode, {}, 'upms').then((response) => {
+        if (response.code === '000000') {
+          const exDeptData = {
+            departCode: response.data.departCode,
+            departName: response.data.departName,
+            acceptDeptId: response.data.id
+          }
+          this.backClueForm.receiveDept = response.data.departCode
+          this.exDeptData = [exDeptData]
+          this.deptLoading = false
+        } else {
+          this.deptLoading = false
+        }
+      }).catch(() => {
+        this.deptLoading = false
+      })
+    },
     closeClueDialog(val) { // 关闭分发线索弹框
       if (val) {
         this.updateOp = true
@@ -475,6 +585,33 @@ export default {
         score: 0,
         commentText: ''
       }
+    },
+    cancelBack() {
+      this.backClueDialogVisible = false
+      this.backClueForm = {
+        receiveDept: '',
+        content: ''
+      }
+      this.$refs.backClueForm.resetFields()
+    },
+    saveBack() {
+      this.$refs.backClueForm.validate(valid => {
+        if (valid) {
+          this.btnLoading = true
+          this.$update('/caseAssist/appraise', this.backClueForm).then((response) => {
+            this.$message({
+              message: '转回成功！',
+              type: 'success',
+              duration: 2000
+            })
+            this.btnLoading = false
+            this.backClueDialogVisible = false
+            this.query(true)
+          }).catch(() => {
+            this.btnLoading = false
+          })
+        }
+      })
     }
   },
   mounted() {
@@ -528,6 +665,10 @@ export default {
     width: 80%;
     overflow: auto;
   }
+  .caseAssist_areaBack .clueMove .el-dialog{
+    width: 70%;
+    overflow: auto;
+  }
   .caseAssist_areaBack .caseAssist_distributeClue .dis_table_div{
     width: 100%;
     overflow: auto;
@@ -541,10 +682,36 @@ export default {
     background: url(/static/image/personFile_images/titlePub.png) no-repeat center
     center;
     background-size: 100% 65%;
+    position: relative;
   }
   .caseAssist_areaBack .titlePub .letterSpc {
     letter-spacing: 3px;
   }
+  .caseAssist_areaBack .el-button [class*=el-icon-]+span{
+    margin-left: 0;
+  }
+  .caseAssist_areaBack .export_btn{
+    position: absolute;
+    /*top: 10px;*/
+    /*right: 20px;*/
+    top: 6px;
+    right: 16px;
+    padding: 3px 4px 0;
+    border-radius: 50%;
+    background-color: #016595;
+  }
+  .caseAssist_areaBack .export_btn:hover{
+    cursor: pointer;
+    background-color: #47a6d3;
+  }
+  .caseAssist_areaBack .export_btn .svg-icon {
+    width: 1.2em;
+    height: 1.2em;
+  }
+  .caseAssist_areaBack .export_btn:hover .svg-icon path{
+    fill: #1E98D2;
+  }
+
   @media only screen and (max-width: 1367px) {
     .caseAssist_areaBack .clueDistribute .el-dialog {
       width: 85%;
