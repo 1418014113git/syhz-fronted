@@ -1494,7 +1494,7 @@ export function getSYHFLLBList() {
         label: '非法捕捞水产品案'
       }, {
         value: '30202',
-        label: '非法占用弄用地案'
+        label: '非法占用农用地案'
       }, {
         value: '30203',
         label: '非法采矿案'
