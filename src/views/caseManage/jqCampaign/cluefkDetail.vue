@@ -12,15 +12,14 @@
             width="300"
             trigger="hover">
             <div>
-              <p>线索<span class="redC">查实</span>情况包括：电话、地址准确无误可联系到核查对象、
+              <span>线索<span class="redC">查实</span>情况包括：电话、地址准确无误可联系到核查对象、
                被核查对象主动配合、被核查对象否认否买**等；
-              </p>
-               <p>线索<span class="redC">查否</span>情况包括：电话、地址存在错误<span class="redC">无法联系</span>
+              </span> <br>
+               <span>线索<span class="redC">查否</span>情况包括：电话、地址存在错误<span class="redC">无法联系</span>
                到核查对象。
-              </p>
+              </span>
             </div>
             <el-button  type="primary" size="mini" circle slot="reference"><svg-icon icon-class="wenhao"></svg-icon></el-button>
-            <svg-icon icon-class="wenhao"></svg-icon>
           </el-popover>
           </el-radio-group>
         </el-form-item>
