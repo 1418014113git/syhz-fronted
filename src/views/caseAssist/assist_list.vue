@@ -320,7 +320,7 @@ export default {
     handleSizeChange(val) {
       this.pageSize = val
       this.page = 1
-      this.query(false)
+      this.query(true)
     },
     handleDel(index, row) {
       this.$confirm('是否删除该记录，删除后无法恢复。', '提示', {

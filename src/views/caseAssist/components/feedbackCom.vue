@@ -5,7 +5,7 @@
       <div slot="header" class="clearfix">
         <span class="letterSpc">{{title}}</span>
       </div>
-      <!--<i v-if="listData.length > 0" class="export_btn" title="导出全部线索" @click="handleDown"><svg-icon icon-class="export"></svg-icon></i>-->
+      <i v-if="listData.length > 0" class="export_btn" title="导出全部线索" @click="handleDown"><svg-icon icon-class="export"></svg-icon></i>
     </div>
     <div style="overflow: auto;">
       <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
@@ -14,7 +14,7 @@
             {{scope.$index === listData.length - 1 ? '合计' : scope.$index + 1}}
           </template>
         </el-table-column>
-        <el-table-column prop="deptName" label="单位" align="center" width="220" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="deptName" label="单位" align="center" width="280" show-overflow-tooltip></el-table-column>
         <el-table-column prop="xsNum" label="线索总数（条）" width="160" align="center">
           <template slot-scope="scope">
             <span class="linkColor"  @click="toClueList(scope.row)" v-if="scope.row.xsNum && enableTo(scope.row, scope.$index)">{{scope.row.xsNum}}</span>
@@ -68,6 +68,7 @@
               <el-button v-if="$isViewBtn('100910') && enableFeedBack(scope.row)" size="mini" title="反馈"  type="primary" circle  @click="handleFeedBack(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
               <el-button v-if="$isViewBtn('100911') && enableScore(scope.row)" size="mini" title="评价打分"  type="primary" circle  @click="handleScore(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
               <el-button v-if="scope.row.score !== undefined" size="mini" title="评价详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
+              <!--<el-button v-if="enableBackClue(scope.row, true)" size="mini" title="转回上级" type="primary" circle  @click="handleBackClue(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button>-->
             </span>
           </template>
         </el-table-column>
@@ -115,6 +116,24 @@
 
     <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false">
       <clueMoveList :assistId="curAssistId"></clueMoveList>
+    </el-dialog>
+
+    <el-dialog title="转回上级" :visible.sync="backClueDialogVisible" :close-on-click-modal="false" class="backClueForm" @close="cancelBack">
+      <p style="padding: 5px 20px; font-size: 16px;">将线索转回上级单位。</p>
+      <el-form ref="backClueForm" :rules="backClueFormRules" :model="backClueForm" size="small" label-width="90px">
+        <el-form-item label="接收单位" prop="receiveDept">
+          <el-select v-model="backClueForm.receiveDept" placeholder="请选择部门" v-loading="deptLoading" style="width: 100%;" disabled>
+            <el-option v-for="(item, index) in exDeptData" :key="index" :label="item.departName" :value="item.departCode"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="原因" prop="content">
+          <el-input v-model.trim="backClueForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-row class="tabC dialogBtnUpLine">
+        <el-button @click="cancelBack" class="cancelBtn">取 消</el-button>
+        <el-button type="primary" @click="saveBack" class="saveBtn" :loading="btnLoading">提 交</el-button>
+      </el-row>
     </el-dialog>
 
   </div>
@@ -324,6 +343,7 @@ export default {
         pageNum: flag ? 1 : this.page
       }
       if (String(this.showType) === '2') {
+        // param.curDeptCode = this.curDept.depCode
         param.parentCode = this.curDept.depCode
         param.deptType = '2'
         this.$emit('setEvaluateBtnVisibleH', false)
@@ -597,19 +617,21 @@ export default {
     saveBack() {
       this.$refs.backClueForm.validate(valid => {
         if (valid) {
-          this.btnLoading = true
-          this.$update('/caseAssist/appraise', this.backClueForm).then((response) => {
-            this.$message({
-              message: '转回成功！',
-              type: 'success',
-              duration: 2000
-            })
-            this.btnLoading = false
-            this.backClueDialogVisible = false
-            this.query(true)
-          }).catch(() => {
-            this.btnLoading = false
-          })
+          // this.btnLoading = true
+          // this.$update('/caseAssist/appraise', this.backClueForm).then((response) => {
+          //   this.$message({
+          //     message: '转回成功！',
+          //     type: 'success',
+          //     duration: 2000
+          //   })
+          //   this.btnLoading = false
+          //   this.backClueDialogVisible = false
+          //   this.query(true)
+          // }).catch(() => {
+          //   this.btnLoading = false
+          // })
+        } else {
+          this.btnLoading = false
         }
       })
     }
