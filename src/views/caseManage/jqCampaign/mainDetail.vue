@@ -99,6 +99,7 @@ export default {
         this.jqid = id
         this.baseInfo = response.data
         this.baseInfo.systemTime = this.systemTime
+        this.delwithmd()
       }).catch(() => {
       })
     },
@@ -117,6 +118,33 @@ export default {
         this.systemTime = response.data
         this.detail(id)
       })
+    },
+    delwithmd() {
+      if (sessionStorage.getItem('depToken')) {
+        this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
+        if (this.curDept.depType === '1' || this.curDept.areaCode.substring(0, 4) === '6114') { // 总队、杨凌支队、杨凌派出所(杨凌派出所和杨凌支队同权限)
+          if (this.baseInfo.category === 3) { // 如果是申请  显示审核信息模块
+            this.classList = this.classList1 // 显示地市签收、反馈右侧列表
+          } else { // 下发，部下发不显示审核信息模块
+            this.classList = ['jbxx', 'dsqs', 'dsfk'] // 地市
+          }
+          this.isShow1 = true
+        } else if (this.curDept.depType === '2' && this.curDept.areaCode.substring(0, 4) !== '6114') { // 非杨凌的支队
+          if (this.baseInfo.category === 3) { // 如果是申请  显示审核信息模块
+            this.classList = this.classList3 // 显示地市签收、反馈，区县签收、反馈右侧列表
+          } else { // 下发，部下发不显示审核信息模块
+            this.classList = ['jbxx', 'dsqs', 'dsfk', 'qxqs', 'qxfk'] // 地市、区县
+          }
+          this.isShow2 = true
+        } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 大队，非杨凌的派出所
+          if (this.baseInfo.category === 3) { // 如果是申请  显示审核信息模块
+            this.classList = this.classList2 // 显示区县签收、反馈右侧列表
+          } else { // 下发，部下发不显示审核信息模块
+            this.classList = ['jbxx', 'qxqs', 'qxfk'] // 区县
+          }
+          this.isShow3 = true
+        }
+      }
     },
     // 监听滚动条变化
     handleScroll() {
@@ -146,26 +174,13 @@ export default {
   },
   mounted() {
     const _this = this
-    if (sessionStorage.getItem('depToken')) {
-      this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      if (this.curDept.depType === '1' || this.curDept.areaCode.substring(0, 4) === '6114') { // 总队、杨凌支队、杨凌派出所(杨凌派出所和杨凌支队同权限)
-        this.classList = this.classList1 // 显示地市签收、反馈右侧列表
-        this.isShow1 = true
-      } else if (this.curDept.depType === '2' && this.curDept.areaCode.substring(0, 4) !== '6114') { // 非杨凌的支队
-        this.classList = this.classList3 // 显示地市签收、反馈，区县签收、反馈右侧列表
-        this.isShow2 = true
-      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 大队，非杨凌的派出所
-        this.classList = this.classList2 // 显示区县签收、反馈右侧列表
-        this.isShow3 = true
-      }
-    }
     document.querySelector('.rightCont').addEventListener('scroll', _this.handleScroll) // 监听滚动条变化
   },
   activated: function() { // 因为查询页被缓存，所以此页面需要此生命周期下才能刷新数据
-    if (this.$route.query.id) {
-      this.getSysTime(this.$route.query.id)
-    }
-    document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
+    // if (this.$route.query.id) {
+    //   this.getSysTime(this.$route.query.id)
+    // }
+    // document.querySelector('.rightCont').addEventListener('scroll', this.handleScroll) // 监听滚动条变化
   }
 }
 </script>
@@ -176,6 +191,29 @@ export default {
 }
 .rightCont {
   overflow: auto;
+  .zhsjp{
+    color: #bce8fc;
+    font-size: 16px;
+  }
+  .export{
+    float: right;
+  }
+  .export_btn{
+    float: right;
+    top: 6px;
+    right: 16px;
+    padding: 3px 4px 0;
+    border-radius: 50%;
+    background-color: #016595;
+  }
+  .export_btn:hover{
+    cursor: pointer;
+    background-color: #47a6d3;
+  }
+  .export_btn .svg-icon {
+    width: 1.2em;
+    height: 1.2em;
+  }
 }
 .marb {
   margin-bottom: 20px;

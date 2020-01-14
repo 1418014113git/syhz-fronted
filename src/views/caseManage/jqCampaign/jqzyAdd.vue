@@ -921,7 +921,7 @@ export default {
       this.getDeptsshdw() // 查审核单位
     } else if (this.$route.query.type === 'detail' || this.$route.query.type === 'edit') { // 详情页点击“重新申请”按钮进来的，或者主列表点击编辑按钮进来的
       this.isShowotherform = true // 初始化时，显示涉及线索和涉及单位以外的基础form信息
-      this.isShowxsform = true // 初始化时，显示涉及线索和涉及单位
+      this.isShowxsform = true // 显示涉及线索和涉及单位
       this.pageTitle = '申请集群战役'
       this.btnText = '申 请'
       this.id = this.$route.query.id // 存储集群战役id
@@ -940,11 +940,13 @@ export default {
       this.form.startDate = this.calculateDate(new Date(), 0, '') // 默认当前时间
       this.form.endDate = this.calculateDate(new Date(), 7, '') // 默认开始时间后7天，
     } else if (this.$route.query.type === 'editxf') { // 从主列表点击编辑按钮进来的
+      this.isShowxsform = true // 显示涉及线索和涉及单位
       this.id = this.$route.query.id // 存储集群战役id
       this.pageTitle = '下发集群战役'
       this.btnText = '下 发'
       this.editInit() // 编辑页面相关接口查询
     } else if (this.$route.query.type === 'editbxf') { // 从主列表点击编辑按钮进来的
+      this.isShowxsform = true // 显示涉及线索和涉及单位
       this.id = this.$route.query.id // 存储集群战役id
       this.pageTitle = '下发集群战役'
       this.btnText = '下 发'

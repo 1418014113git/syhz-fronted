@@ -113,7 +113,7 @@
         <el-table-column type="index" width="60" label="序号"></el-table-column>
         <el-table-column prop="title" label='标题'  min-width="200" show-overflow-tooltip>
           <template slot-scope="scope">
-            <span style="cursor: pointer;"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.title}}</span>
+            <span  class="titleStyle"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.title}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="applyDeptName"  label='发起单位'  min-width="200" show-overflow-tooltip></el-table-column>
@@ -357,7 +357,7 @@ export default {
       //     return true
       //   }
       // }
-      // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
+      // // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
       // if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))) {
       //   return true
       // }
@@ -371,7 +371,7 @@ export default {
       //     return true
       //   }
       // }
-      // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
+      // // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
       // if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))) {
       //   return true
       // }
@@ -865,7 +865,8 @@ export default {
       }
       if (this.carryParam.start && this.carryParam.end) {
         this.dateRand1 = [this.carryParam.start, this.carryParam.end] // 发起日期
-        // this.dateRand2 = [this.carryParam.start, this.carryParam.end] // 结束日期
+        this.filters.start1 = this.carryParam.start // 发起日期 开始时间
+        this.filters.start2 = this.carryParam.end // 发起日期 结束时间
       }
       if (this.carryParam.type !== undefined && String(this.carryParam.type) === '0') { // 要查申请的标识
         this.totalType = 'curCreate'
@@ -935,6 +936,12 @@ export default {
   .tableBox {
     width: 100%;
     overflow: auto;
+  }
+  .titleStyle{
+    cursor: pointer;
+  }
+  .titleStyle:hover{
+    color: #009bda;
   }
 }
 .el-table--scrollable-x .el-table__body-wrapper {

@@ -2,7 +2,9 @@
   <section>
     <!-- 地市反馈 -->
     <div class="areaBack pubStyle">
-      <title-pub :title="title"></title-pub>
+      <title-pub :title="title">
+        <!-- <i v-if="listData.length>0" title="导出全部线索" class="export_btn" @click="exportallxs"><svg-icon icon-class="export"></svg-icon></i> -->
+      </title-pub>
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
           <el-table-column type="index" label="序号" width="60" fixed>
             <template slot-scope="scope">
@@ -100,11 +102,12 @@
       <!-- 转回上级-->
       <el-dialog title="转回上级" :visible.sync="isShowzhsj"  class="recallForm" v-loading="zhsjLoading" :close-on-click-modal="false" @close="cancel('zhsjForm')">
         <el-form ref="zhsjForm" :rules="zhsjrules" :model="zhsjForm" size="small" label-width="100px">
-           <el-form-item label="接收单位" prop="reviceDept">
-            <el-input v-model.trim="zhsjForm.parentDepartName"  disabled  class="inputW"></el-input>
+           <p class="zhsjp">将线索转回上级单位。</p>
+           <el-form-item label="接收单位" prop="parentDepartName">
+            <el-input v-model.trim="zhsjForm.parentDepartName"  disabled></el-input>
           </el-form-item>
           <el-form-item label="原因" prop="content">
-            <el-input v-model.trim="zhsjForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="" class="inputW"></el-input>
+            <el-input v-model.trim="zhsjForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
           </el-form-item>
         </el-form>
         <el-row class="tabC dialogBtnUpLine">
@@ -169,6 +172,9 @@ export default {
         ]
       },
       zhsjrules: {
+        parentDepartName: [ // 接收单位（上级单位）
+          { required: true, message: '请填写接收单位', max: 6, trigger: 'blur' }
+        ],
         content: [ // 原因
           { required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (!value) {
@@ -203,7 +209,7 @@ export default {
         if (row.cityCode) { // 非合计行
           return (this.curDept.depType === '1' || this.curDept.depCode === row.deptCode || this.curDept.areaCode === row.cityCode || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === row.cityCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114') // 6114开头的是杨凌
         } else { // 合计行
-          return (this.curDept.depType === '1' || this.curDept.areaCode === this.baseInfo.cityCode || this.curDept.areaCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) === '6114') // 上级单位/审核单位、申请单位、审核单位可点。 6114开头的是杨凌
+          return (this.curDept.depType === '1' || this.curDept.areaCode === this.baseInfo.cityCode || (this.curDept.areaCode.substring(0, 4) === this.baseInfo.cityCode.substring(0, 4) && this.curDept.areaCode.substring(0, 4) === '6114' && this.baseInfo.cityCode.substring(0, 4) === '6114')) // 上级单位/审核单位、申请单位、审核单位可点。 6114开头的是杨凌
         }
       } else {
         return false
@@ -227,7 +233,7 @@ export default {
       if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '6' || this.baseInfo.status + '' === '7') { // 协查中 , 协查超时, 协查结束
         const curDate = new Date(this.baseInfo.systemTime)
         const startDate = new Date(this.baseInfo.startDate)
-        return (((this.curDept.depType === '2' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === row.deptCode.substring(0, 4) === '6114')) && curDate > startDate) // 611400390000 杨凌支队部门code
+        return (((this.curDept.depType === '2' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === row.deptCode.substring(0, 4) && this.curDept.depCode.substring(0, 4) === '6114' && row.deptCode.substring(0, 4) === '6114')) && curDate > startDate) // 611400390000 杨凌支队部门code
       } else {
         return false
       }
@@ -241,8 +247,8 @@ export default {
         return false
       }
     },
-    controlrecall(row) { // 转回上级按钮显隐控制  协查中
-      return this.baseInfo.status + '' === '5'
+    controlrecall(row) { // 转回上级按钮显隐控制  协查中本单位可以操作
+      return this.baseInfo.status + '' === '5' && ((this.curDept.depType === '2' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === row.deptCode.substring(0, 4) && this.curDept.depCode.substring(0, 4) === '6114' && row.deptCode.substring(0, 4) === '6114'))
     },
     query() { // 查询列表
       this.listLoading = true
@@ -277,9 +283,6 @@ export default {
       return this.curDept.depType === '1' || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode) // 当前登录的是派出所时，用他的父级单位的cdoe去判断
     },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的线索反馈、线索反馈按钮
-      // Bus.$emit('isShowffbtn', false) // 线索分发
-      // Bus.$emit('isShowfkbtn', false) // 线索反馈
-      // Bus.$emit('isShowdspjbtn', false) // 评价打分
       const curDate = new Date(this.baseInfo.systemTime)
       if (data.length > 0) {
         data.forEach(item => {
@@ -288,24 +291,16 @@ export default {
               const startDate = new Date(this.baseInfo.startDate)
               if (curDate > startDate) {
                 Bus.$emit('isShowffbtn', true) // 线索分发显示
-              } else {
-                // Bus.$emit('isShowffbtn', false) // 线索分发隐藏
               }
-            } else {
-              // Bus.$emit('isShowffbtn', false) // 线索分发隐藏
             }
           }
-          if (((this.curDept.depType === '2' && this.curDept.depCode === item.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode.substring(0, 4) === item.deptCode.substring(0, 4) === '6114'))) { // 集群战役处于协查中、协查结束状态时 本单位显示反馈  派出所和支队同权限的，可以反馈支队的信息
+          if (((this.curDept.depType === '2' && this.curDept.depCode === item.deptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === item.deptCode.substring(0, 4) && this.curDept.depCode.substring(0, 4) === '6114' && item.deptCode.substring(0, 4) === '6114'))) { // 集群战役处于协查中、协查结束状态时 本单位显示反馈  派出所和支队同权限的，可以反馈支队的信息
             if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '6' || this.baseInfo.status + '' === '7') { // 协查中 , 协查超时, 协查结束
               const startDate = new Date(this.baseInfo.startDate)
               if (curDate > startDate) {
                 Bus.$emit('isShowfkbtn', true) // 线索反馈显示
                 Bus.$emit('xsfkRow', item) // 线索反馈当前行数据
-              } else {
-                // Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
               }
-            } else {
-              // Bus.$emit('isShowfkbtn', false) // 线索反馈隐藏
             }
           }
           if (Number(this.baseInfo.status) >= 4) { // 审核通过之后
@@ -313,8 +308,6 @@ export default {
             if (this.curDept.depType === '1' && (String(item.hcl) === '100' || String(item.hcl) === '100.00' || curDate > endDate)) { // 核查率是100，或当前时间>结束时间，上级单位可以评价打分
               Bus.$emit('isShowpjbtn', true) // 显示评价打分按钮
             }
-          } else {
-            // Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
           }
         })
       }
@@ -551,22 +544,6 @@ export default {
     text-shadow: 0 0 2px #fff;
     font-size: 17px;
     margin-bottom: 10px;
-  }
-  .export_btn{
-    position: absolute;
-    top: 6px;
-    right: 16px;
-    padding: 3px 4px 0;
-    border-radius: 50%;
-    background-color: #016595;
-  }
-  .export_btn:hover{
-    cursor: pointer;
-    background-color: #47a6d3;
-  }
-  .export_btn .svg-icon {
-    width: 1.2em;
-    height: 1.2em;
   }
 }
 @media only screen and (max-width: 1367px) {
