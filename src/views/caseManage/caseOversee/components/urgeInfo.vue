@@ -13,12 +13,12 @@
       <el-table :data="cbDataList" style="width: 100%;" v-loading="loading" class="table_th_center">
         <el-table-column type="index" label="序号" width="55" align="center" fixed="left"></el-table-column>
         <el-table-column prop="urgentDeptName" label="催办部门"  min-width="240" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="urgentPersonName" label="催办人" min-width="120" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="urgentPersonName" label="催办人" min-width="120" align="center" show-overflow-tooltip></el-table-column>
         <el-table-column prop="urgedContent" label="催办内容"  min-width="240" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="startDate" label="催办时间"  width="170" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="signUserName" label="签收人" min-width="120" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="startDate" label="催办时间"  width="170" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="signUserName" label="签收人" min-width="120" align="center" show-overflow-tooltip></el-table-column>
         <el-table-column prop="signTime" label="签收时间" width="170" align="center"></el-table-column>
-        <el-table-column prop="feedbackContent" label="反馈内容" width="170" align="center" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="feedbackContent" label="反馈内容" width="170" show-overflow-tooltip></el-table-column>
         <el-table-column prop="feekbackTime" label="反馈时间" width="170" align="center"></el-table-column>
         <el-table-column prop="feedbackPersonName" label="反馈人" min-width="120" show-overflow-tooltip></el-table-column>
         <el-table-column prop="status" label="催办状态"  width="120" align="center" show-overflow-tooltip>

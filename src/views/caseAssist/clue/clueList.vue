@@ -73,6 +73,11 @@
             <span v-if='scope.row.qbxsResult'>{{$getDictName(scope.row.qbxsResult+'','qbxsfkzt')}}</span>
           </template>
         </el-table-column>
+        <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="ysxz"  label='移送行政部门处理（次）'  min-width="130" show-overflow-tooltip></el-table-column>
         <el-table-column prop=""  label='侦办刑事案件' align="center" >
           <el-table-column prop="larqCount"  label='立案（起）'  min-width="100" show-overflow-tooltip></el-table-column>
@@ -84,14 +89,10 @@
           <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="140" show-overflow-tooltip></el-table-column>
           <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="150" show-overflow-tooltip></el-table-column>
         </el-table-column>
-        <el-table-column  v-for="(item, index) in tableHead" :key="index" :label="item"   min-width="200" show-overflow-tooltip>
-          <template slot-scope="scope">
-            <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
-          </template>
-        </el-table-column>
         <el-table-column label="操作"  width="100" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" title="详情" type="primary" icon="el-icon-document" circle @click="handleDetail(scope.$index, scope.row)"></el-button>
+            <!--<el-button size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -105,7 +106,11 @@
 
     <!--线索详情弹出层-->
     <el-dialog title="详情" :visible.sync="clueDetailVisible" @close="closeDialog" :close-on-click-modal="false">
-      <clue-detail ref="clueDetail" :row="this.curRow" @closeDialog="closeDialog"></clue-detail>
+      <clue-detail ref="clueDetail" :row="curRow" @closeDialog="closeDialog"></clue-detail>
+    </el-dialog>
+
+    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false">
+      <clueMoveList :assistId="filters.assistId" :qbxsId="qbxsId"></clueMoveList>
     </el-dialog>
   </section>
 </template>
@@ -113,10 +118,12 @@
 <script>
 import { getTree } from '@/api/dept'
 import ClueDetail from './clueDetail' // 线索详情
+import clueMoveList from '@/views/caseAssist/clue/clueMoveList.vue'
 export default {
   name: 'list',
   components: {
-    ClueDetail
+    ClueDetail,
+    clueMoveList
   },
   data() {
     return {
@@ -164,7 +171,9 @@ export default {
       paramFilter: {
         cityCode: '',
         deptCode: ''
-      }
+      },
+      clueMoveDialogVisible: false,
+      qbxsId: ''
     }
   },
   methods: {
@@ -455,6 +464,10 @@ export default {
     closeDialog() {
       this.clueDetailVisible = false
       this.$refs.clueDetail.initData()
+    },
+    handleClueMove(index, row) { // 线索流转记录
+      this.clueMoveDialogVisible = true
+      this.qbxsId = row.qbxsId
     }
   },
   mounted() {
@@ -491,7 +504,21 @@ export default {
     width: 100%;
     overflow: auto;
   }
- .el-cascader-menu__item.is-disabled{
-  background-color: transparent;
-}
+  .clueList .el-button [class*=el-icon-]+span{
+    margin-left: 0;
+  }
+  .clueList .clueMove .el-dialog{
+    width: 70%;
+    overflow: auto;
+  }
+  .el-cascader-menu__item.is-disabled{
+    background-color: transparent;
+  }
+  .clueList .el-button [class*=el-icon-]+span{
+    margin-left: 0;
+  }
+  .clueList .clueMove .el-dialog{
+    width: 70%;
+    overflow: auto;
+  }
 </style>
