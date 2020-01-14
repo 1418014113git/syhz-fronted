@@ -82,7 +82,13 @@ export default {
           toolbox: {
             show: true,
             feature: {
-              saveAsImage: { show: true }
+              saveAsImage: {
+                show: true,
+                backgroundColor: '#013a58',
+                iconStyle: {
+                  borderColor: '#ddd'
+                }
+              }
             }
           },
           series: [
@@ -90,6 +96,7 @@ export default {
               name: this.chartSeriesName,
               type: 'pie',
               radius: '65%',
+              avoidLabelOverlap: true,
               label: {
                 formatter: '{title|{b}}{abg|}\n{num|数量}{num|占比}\n {hr|}\n {per|{c}}{per|{d}%}',
                 backgroundColor: '#eee',
