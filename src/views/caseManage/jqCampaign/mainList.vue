@@ -351,11 +351,27 @@ export default {
     constrolxsnum(zRow, row) { // 核查线索数量点击权限控制
       return this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.deptCode || (zRow.category === 3 && (this.curDept.depCode === zRow.auditDeptCode)) || this.curDept.depCode === row.applyDeptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode)
     },
-    controlxg(row) { // 控制列表修改按钮
-      return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))
+    controlxg(row) { // 控制列表修改按钮 ,总队管理员任何状态下都能修改自己创建的和审核的，
+      if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
+        if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
+          return true
+        }
+      }
+      // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
+      if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))) {
+        return true
+      }
     },
-    controlsc(row) { // 控制列表删除按钮
-      return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))
+    controlsc(row) { // 控制列表删除按钮 ,总队管理计任何状态下都能修改自己创建的审核的，其他的是草稿，待审核，审核不通过时可操作。
+      if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
+        if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
+          return true
+        }
+      }
+      // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
+      if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))) {
+        return true
+      }
     },
     handleAreaChange(val) { // 行政区划
       this.department = []
@@ -499,7 +515,7 @@ export default {
       this.pageSize = 15
     },
     handleDel(index, row) { // 删除
-      this.$confirm('确定要删除该条数据吗？', '提示', {
+      this.$confirm('是否删除该记录，删除后无法恢复。', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -754,7 +770,7 @@ export default {
       } else { //    3申请
         type = 'edit'
       }
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: type, id: row.clusterId }}) // 跳转到集群战役申请页
+      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: type, id: row.clusterId, status: row.status }}) // 跳转到集群战役申请页
     },
     handleClueList(row, type, param) { // 线索列表
       if (param) { // 外层列表
@@ -804,7 +820,7 @@ export default {
         parms.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 派出所取他的上级部门名称，非派出所取当前部门
         parms.realName = this.curUser.realName
         parms.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
-        parms.fileName = '涉案线索协查参与地战果反馈表'
+        parms.fileName = '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
         this.$download('cluster/export', parms)
       } else { // 导出选中的
         var para = {
@@ -813,7 +829,7 @@ export default {
           curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 派出所取他的上级部门名称，非派出所取当前部门
           realName: this.curUser.realName,
           curUserPhone: this.curUser.phone ? this.curUser.phone : '',
-          fileName: '涉案线索协查参与地战果反馈表'
+          fileName: '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
         }
         this.$download('cluster/export', para)
       }
