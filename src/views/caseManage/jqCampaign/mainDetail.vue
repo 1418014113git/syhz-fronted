@@ -14,7 +14,7 @@
         <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
             <base-info class="marb bg jbxx"  :info="baseInfo"></base-info>
-            <verify-info class="marb bg shxx"  :info="baseInfo"></verify-info>
+            <verify-info class="marb bg shxx"  :info="baseInfo" v-if="baseInfo.category === 3"></verify-info>
             <div v-if="isShow1">
               <area-sign class="marb bg dsqs"  :info="baseInfo"></area-sign>
               <area-back class="marb bg dsfk"  :info="baseInfo"></area-back>
@@ -61,8 +61,8 @@ export default {
       isShow3: false,
       jqid: '', // 集群id
       systemTime: '', // 系统时间
-      baseInfo: {}
-
+      baseInfo: {},
+      curCategory: '' // 集群类型 1.  部下发 ， 2 下发 ， 3  申请
     }
   },
   components: {

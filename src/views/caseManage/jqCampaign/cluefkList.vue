@@ -27,14 +27,13 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" size="small" @click="query(true,true)">查询</el-button>
-        </el-form-item>
-         <el-form-item>
           <el-button type="primary" size="small"  @click="resetForm">重置</el-button>
+          <el-button type="primary" size="small"  @click="allFeedback">批量反馈</el-button>
         </el-form-item>
       </el-col>
     </el-form>
-  <!-- <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}"> -->
-    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;" :max-height="tableHeight">
+    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;" :max-height="tableHeight" @select="handleselectRow" @select-all="handleselectAll">
+      <el-table-column type="selection" width="50"></el-table-column>
       <el-table-column type="index" width="60" label="序号" ></el-table-column>
       <el-table-column prop="serialNumber"  label='线索序号'  min-width="100"></el-table-column>
       <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
@@ -66,13 +65,13 @@
           <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作"  width="80" fixed="right">
+      <el-table-column label="操作"  width="100" fixed="right">
         <template slot-scope="scope">
-          <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle   v-if="controlBtn(scope.row)"  @click="handleDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle   v-if="controlfkBtn(scope.row)"  @click="handlefkDetail(scope.$index, scope.row)"></el-button>
+          <!-- <el-button size="mini" title="线索流转记录"  type="primary" circle    @click="handlelzDetail(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button> -->
         </template>
       </el-table-column>
     </el-table>
-  <!-- </div> -->
 
      <!--工具条-->
     <el-col :span="24" class="toolbar">
@@ -83,16 +82,23 @@
 
     <!--线索反馈详情弹出层-->
     <el-dialog title="反馈" :visible.sync="isShowfkDialog" @close="clearChildData">
-      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog"   @closeDialog="clearChildData"   @init="query(true)"  :row="curRow"></cluefk-detail>
+      <cluefk-detail ref="ffchild" :isShowdialog="isShowfkDialog"   @closeDialog="clearChildData"   @init="query(true)"  :row="curRow" :allRow="paramCheckiItem"></cluefk-detail>
+    </el-dialog>
+
+    <!--线索流转记录弹出层-->
+    <el-dialog title="线索流转记录" :visible.sync="isShowlzrecord" class="xslzdialog">
+      <cluelz-detail :isShowdialog="isShowlzrecord"  :row="curRow"></cluelz-detail>
     </el-dialog>
   </section>
 </template>
 <script>
 import CluefkDetail from './cluefkDetail' // 线索反馈详情
+import CluelzDetail from './cluelzDetail' // 线索流转记录
 export default {
   name: 'cluefkList',
   components: {
-    CluefkDetail
+    CluefkDetail,
+    CluelzDetail
   },
   data() {
     return {
@@ -107,6 +113,7 @@ export default {
       listData: [], // 线索列表
       isShowfkDialog: false, // 是否显示详情弹框
       listLoading: false, // 列表加载loading
+      isShowlzrecord: false, // 是否显示线索流转记录弹框
       total: 0,
       page: 1,
       pageSize: 15,
@@ -115,11 +122,14 @@ export default {
       curRow: {}, // 存储当前被点击行数据
       tableHeight: null, // 列表外层容器的高度
       paramDeptCode: '', // 详情页传递过来的参数
-      tableHead: [] // 表头
+      tableHead: [], // 表头
+      checkItem: [], // 复选框中选中的列表项
+      paramCheckiItem: {} // 传递给反馈详情页的复选框选中的列表项对象
     }
   },
   methods: {
     query(flag, hand) { // 列表数据查询
+      this.initData()
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
@@ -152,6 +162,9 @@ export default {
               this.tableHead.push(item) // 表头数据只取序号之后的
             }
           })
+          this.$nextTick(function() {
+            this.memoryChecked() // 记忆复选框被选中的列表
+          })
         } else {
           this.initData()
         }
@@ -166,6 +179,9 @@ export default {
       this.pageSize = 15
       this.listData = []
       this.tableHead = []
+      this.checkItem = []
+      this.curRow = {}
+      this.paramCheckiItem = {}
     },
     clearChildData() {
       this.isShowfkDialog = false
@@ -192,7 +208,7 @@ export default {
       this.pageSize = val
       this.query(true, true)
     },
-    handleDetail(index, row) { // 详情
+    handlefkDetail(index, row) { // 反馈详情
       if (!row.fbId) {
         this.$confirm('该线索还未签收，请先前往详情页进行签收。', '提示', {
           confirmButtonText: '确定',
@@ -212,6 +228,13 @@ export default {
         this.curRow = row
       }
     },
+    handlelzDetail(index, row) { // 显示线索流转记录弹框
+      this.isShowlzrecord = true
+      this.curRow = row
+    },
+    closeDialog() { // 关闭线索流转记录弹框
+      this.isShowlzrecord = false
+    },
     toback() { // 返回
       this.$router.back(-1)
     },
@@ -220,11 +243,130 @@ export default {
         confirmButtonText: '关闭'
       })
     },
-    controlBtn(row) { // 控制反馈按钮显示  只有本单位的才能显示反馈按钮
+    controlfkBtn(row) { // 控制反馈按钮显示  只有本单位的才能显示反馈按钮
       return ((this.curDept.depType !== '4' && row.receiveCode === this.curDept.depCode) || (this.curDept.depType === '4' && row.receiveCode === this.curDept.parentDepCode))
+    },
+    // 行选中函数  若有删除，若无添加
+    handleselectRow(selection, row) {
+      if (this.checkItem.length === 0 && selection.length > 0) {
+        this.checkItem.push(row)
+      } else {
+        var checkItem_ = this.checkItem
+        checkItem_.forEach((item) => {
+          if (row.fbId === item.fbId) {
+            this.removeByValue(this.checkItem, row.fbId)
+          } else {
+            if (!this.temp(row.fbId)) {
+              this.checkItem.push(row)
+            }
+          }
+        })
+      }
+    },
+    handleselectAll(selection) { // 全选
+      var allSelect = selection
+      if (selection.length > 0) {
+        var checkItem_1 = this.checkItem
+        allSelect.forEach((item, index) => {
+          checkItem_1.forEach((it, i) => {
+            if (it.fbId !== item.fbId) {
+              if (!this.temp(item.fbId)) {
+                this.checkItem.push(item)
+              }
+            }
+          })
+        })
+        if (this.checkItem.length === 0) {
+          allSelect.forEach((item, i) => {
+            this.checkItem.push(item)
+          })
+        }
+      } else {
+        this.listData.forEach((item) => {
+          this.checkItem.forEach((it) => {
+            if (item.fbId === it.fbId) {
+              this.removeByValue(this.checkItem, item.fbId)
+            }
+          })
+        })
+      }
+    },
+    removeByValue(arr, val) { // 去重
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].fbId === val) {
+          arr.splice(i, 1)
+        }
+      }
+    },
+    temp(id) {
+      var checkId = []
+      this.checkItem.forEach(item => {
+        checkId.push(item.fbId)
+      })
+
+      if (checkId.indexOf(id) !== -1) {
+        return true
+      } else {
+        return false
+      }
+    },
+    // 记忆函数
+    memoryChecked() {
+      var checkId = []
+      this.checkItem.forEach(item => {
+        checkId.push(item.fbId)
+      })
+      if (this.listData.length > 0) {
+        this.listData.forEach((item, index) => {
+          if (checkId.indexOf(item.fbId) !== -1) {
+            if (this.$refs.multipleTable) {
+              this.$refs.multipleTable.toggleRowSelection(item, true)
+            }
+          } else {
+            if (this.$refs.multipleTable) {
+              this.$refs.multipleTable.toggleRowSelection(item, false)
+            }
+          }
+        })
+      }
+    },
+    allFeedback() { // 批量反馈
+      var fkFlag = false
+      var qbxsId = [] // 线索id
+      var fkId = [] // 反馈id
+      if (this.checkItem.length === 0) { // 未勾选反馈列表
+        this.$message.error('请至少选择一条需要反馈的线索！')
+        return false
+      }
+      this.checkItem.forEach(item => {
+        fkId.push(item.fbId)
+        qbxsId.push(item.qbxsId)
+        if (item.qbxsResult !== 1) { // 存在已反馈过的线索
+          fkFlag = true
+        }
+      })
+      if (fkFlag) {
+        this.$confirm('勾选的线索中，存在已经反馈的线索，若要继续进行批量反馈，原反馈内容将被替换，是否继续批量反馈？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.isShowfkDialog = true // 显示反馈弹框
+          this.curRow = {}
+          this.paramCheckiItem = {
+            qbxsId: qbxsId.join(','), // 线索id
+            fbId: fkId.join(','), // 反馈id
+            clusterId: this.assistId // 集群id
+          }
+        }).catch(() => {
+          this.isShowfkDialog = false // 隐藏反馈弹框
+          this.paramCheckiItem = {}
+        })
+      }
     }
   },
   mounted() {
+    this.checkItem = []
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
     this.tableHeight = document.documentElement.clientHeight - document.querySelector('.el-form').offsetHeight - 320
     if (sessionStorage.getItem('depToken')) {
@@ -278,6 +420,16 @@ export default {
   .tableBox{
     width: 100%;
     overflow: auto;
+  }
+  .xslzdialog{
+     .el-dialog{
+      width: 80%;
+      max-height: 80vh;
+      overflow: auto;
+    }
+    .el-dialog__body {
+      padding: 0;
+    }
   }
 }
 </style>

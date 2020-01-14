@@ -133,7 +133,7 @@
 import { uploadImg } from '@/utils/editorUpload'
 import VueEditor from '@/components/Editor/VueEditor'
 export default {
-  props: ['row', 'isShowdialog'],
+  props: ['row', 'isShowdialog', 'allRow'],
   name: 'clueDetail',
   components: {
     VueEditor
@@ -169,6 +169,7 @@ export default {
       // detailInfo: {}, // 存储详情信息
       // ysajbh: '', // 存储下拉选项的移送案件编号
       btnLoading: false, // 反馈按钮loading
+      allfkdata: {}, // 批量反馈传递的参数
       uploadAction: this.UploadAttachment.uploadFileUrl,
       rules: {
         qbxsResult: [ //  协查情况
@@ -201,8 +202,15 @@ export default {
     isShowdialog: {
       handler: function(val, oldeval) {
         if (val) {
-          this.detail() // 查详情
+          if (this.xsfkRow.fbId) {
+            this.detail() // 查详情
+          }
         }
+      }
+    },
+    allRow: {
+      handler: function(val, oldeval) {
+        this.allfkdata = val
       }
     }
   },
@@ -383,10 +391,10 @@ export default {
             zbxssList.push(item.ajbh)
           })
           const param = {
-            qbxsId: this.xsfkRow.qbxsId, // 线索id
-            fbId: this.xsfkRow.fbId, // 反馈Id
+            qbxsId: this.xsfkRow.qbxsId ? this.xsfkRow.qbxsId : this.allfkdata.qbxsId, // 线索id
+            fbId: this.xsfkRow.fbId ? this.xsfkRow.fbId : this.allfkdata.fbId, // 反馈Id
             qbxsResult: this.xsfkForm.qbxsResult, // 核查结果
-            assistId: this.xsfkRow.clusterId, // 集群Id
+            assistId: this.xsfkRow.clusterId ? this.xsfkRow.clusterId : this.allfkdata.clusterId, // 集群Id
             handleResult: this.xsfkForm.handleResult, // 处理方式
             zbxss: this.xsfkForm.qbxsResult === 3 ? '' : (this.xsfkForm.handleResult === 1 ? zbxssList.join(',') : ''), // 案件编号逗号分隔
             backResult: this.xsfkForm.backResult, // 处理方式
@@ -422,8 +430,8 @@ export default {
           var param = {
             ajmc: this.zbajmc, // 案件名称
             type: 2, // 1移送案件，2侦办案件
-            fbId: this.xsfkRow.fbId, // 反馈Id
-            assistId: this.xsfkRow.clusterId, // 集群Id
+            fbId: this.xsfkRow.fbId ? this.xsfkRow.fbId : this.allfkdata.fbId, // 反馈Id
+            assistId: this.xsfkRow.clusterId ? this.xsfkRow.clusterId : this.allfkdata.clusterId, // 集群Id
             deptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
             assistType: 2 //  2 集群
           }
@@ -506,7 +514,10 @@ export default {
       }
     }
     this.xsfkRow = this.row
-    this.detail() // 查详情
+    this.allfkdata = this.allRow
+    if (this.xsfkRow.fbId) {
+      this.detail() // 查详情
+    }
   }
 }
 </script>
