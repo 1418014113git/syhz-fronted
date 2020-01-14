@@ -59,12 +59,12 @@
           width="300"
           trigger="hover">
             <div>
-              <p>线索分发步骤：</p>
-              <p>1、列表勾选需要分发线索。</p>
-              <p>2、选择线索接收单位。</p>
-              <p>3、点击【线索分发】，向接收单位分发线索。</p>
-              <p>线索删除步骤：</p>
-              <p>删除线索会删除对应线索反馈内容。</p>
+              <span>线索分发步骤：</span><br>
+              <span>1、列表勾选需要分发线索。</span><br>
+              <span>2、选择线索接收单位。</span><br>
+              <span>3、点击【线索分发】，向接收单位分发线索。</span><br>
+              <span>线索删除说明：</span><br>
+              <span>删除线索会删除对应线索反馈内容。</span><br>
             </div>
             <el-button  type="primary" size="mini" circle  slot="reference"><svg-icon icon-class="wenhao"></svg-icon></el-button>
           </el-popover>

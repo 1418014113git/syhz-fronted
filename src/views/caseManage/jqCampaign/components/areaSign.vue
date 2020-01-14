@@ -84,6 +84,7 @@ export default {
       }
     },
     query(flag) {
+      Bus.$emit('isShowqsbtn', false) // 签收按钮
       this.listLoading = true
       var param = {
         assistId: this.clusterId,
@@ -111,7 +112,6 @@ export default {
         this.$resetSetItem('t2', this.total) // 将总数存在session中
       }).catch(() => {
         this.$resetSetItem('t2', 0) // 将总数存在session中
-        Bus.$emit('isShowqsbtn', false)
         this.listLoading = false
         this.initData()
       })
@@ -126,7 +126,6 @@ export default {
       }
     },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的签收按钮
-      // Bus.$emit('isShowqsbtn', false)
       const curDate = new Date(this.baseInfo.systemTime)
       const startDate = new Date(this.baseInfo.startDate)
       if (data.length > 0) {
@@ -136,11 +135,7 @@ export default {
               if (curDate > startDate) {
                 Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
                 Bus.$emit('qsRow', item) // 当前待签收行的数据
-              } else {
-                // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
               }
-            } else {
-              // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
             }
           }
         })
