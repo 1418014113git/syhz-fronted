@@ -24,8 +24,8 @@
         <template slot-scope="scope">
           <el-table :data="scope.row.subDeptCaseData" :style="expandTableStyle" v-loading="subLoading" style="width: 100%;">
             <el-table-column prop="" width="40"></el-table-column>
-            <el-table-column type="index" label="序号" width="100" align="center"></el-table-column>
-            <el-table-column prop="orgName" label="单位" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
+            <el-table-column type="index" label="序号" width="60" align="center"></el-table-column>
+            <el-table-column prop="orgName" label="单位" min-width="8%" align="center" show-overflow-tooltip></el-table-column>
             <el-table-column prop="chengqu" label="城区" min-width="6%" align="center">
               <template slot-scope="sonScope">
                 <span v-if="sonScope.row.chengqu>0" :class="sonScope.row.canClickSon?'linkColor':''" @click="linkAjcx(sonScope.row.canClickSon,sonScope.row,'城区','second')">{{$thousSplit(sonScope.row.chengqu+'')}}</span>
@@ -71,13 +71,13 @@
           </el-table>
         </template>
       </el-table-column>
-      <el-table-column type="index" label="序号" width="100" align="center">
+      <el-table-column type="index" label="序号" width="60" align="center">
         <template slot-scope="scope">
           <span v-if="scope.$index+1<caseData.length">{{scope.$index+1}}</span>
           <span v-else></span>
         </template>
       </el-table-column>
-      <el-table-column prop="orgName" :label="curDept.depType === '1' ? '地市' : '单位'"  min-width="10%" align="center"></el-table-column>
+      <el-table-column prop="orgName" :label="curDept.depType === '1' ? '地市' : '单位'"  min-width="8%" align="center"></el-table-column>
       <el-table-column prop="chengqu" label="城区" min-width="6%" align="center">
         <template slot-scope="scope">
           <span v-if="scope.row.chengqu>0" :class="scope.row.canClick?'linkColor':''" @click="linkAjcx(scope.row.canClick,scope.row,'城区','first')">{{$thousSplit(scope.row.chengqu+'')}}</span>
@@ -387,30 +387,16 @@ export default {
   }
 
    //修改表格边框颜色
-  table {
-    // border: 1px solid #2f627a;
+   table {
+    border: 1px solid #2f627a;
     border-bottom: none;
   }
-  .el-table {
-    border: 1px solid #2f627a;
+  thead th {
+    border-right: 1px solid #2f627a;
   }
-  .el-table--border th {
+  .el-table__body td {
+    border-right: 1px solid #2f627a;
     border-bottom: 1px solid #2f627a;
-    border-right: 1px solid #2f627a;
-  }
-  .el-table--border,
-  .el-table--group {
-    border: 1px solid #2f627a;
-  }
-  .el-table--border td {
-    border-right: 1px solid #2f627a;
-  }
-  .el-table--border::after,
-  .el-table--group::after {
-    width: 0;
-  }
-  .el-table--small td, .el-table--small th {
-    border-right: 1px solid #2f627a;
   }
   .canClick {
     cursor: pointer;
