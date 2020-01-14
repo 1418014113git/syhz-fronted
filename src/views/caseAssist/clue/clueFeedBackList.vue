@@ -32,7 +32,7 @@
           <el-button type="primary" size="small"  @click="resetForm">重置</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button title="删除" size="small" type="primary" class="disabledBtn" @click="batchFeed" :disabled="multipleSelection.length === 0">批量反馈</el-button>
+          <el-button title="批量反馈" size="small" type="primary" class="disabledBtn" @click="batchFeed" :disabled="multipleSelection.length === 0">批量反馈</el-button>
         </el-form-item>
       </el-col>
     </el-form>
