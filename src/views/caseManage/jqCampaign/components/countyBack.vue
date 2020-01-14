@@ -2,7 +2,9 @@
   <section>
     <!-- 区县反馈 -->
     <div class="countyBack pubStyle">
-       <title-pub :title="title"></title-pub>
+       <title-pub :title="title">
+        <!-- <i v-if="listData.length>0" title="导出全部线索" class="export_btn" @click="exportallxs"><svg-icon icon-class="export"></svg-icon></i> -->
+      </title-pub>
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
           <el-table-column type="index" label="序号" width="60" fixed>
             <template slot-scope="scope">
@@ -94,11 +96,12 @@
       <!-- 转回上级-->
       <el-dialog title="转回上级" :visible.sync="isShowzhsj"  class="recallForm" :close-on-click-modal="false" v-loading="zhsjLoading" @close="cancel('zhsjForm')">
         <el-form ref="zhsjForm" :rules="zhsjrules" :model="zhsjForm" size="small" label-width="100px">
-           <el-form-item label="接收单位" prop="reviceDept">
-            <el-input v-model.trim="zhsjForm.parentDepartName"  disabled  class="inputW"></el-input>
+          <p class="zhsjp">将线索转回上级单位。</p>
+          <el-form-item label="接收单位" prop="parentDepartName">
+            <el-input v-model.trim="zhsjForm.parentDepartName"  disabled></el-input>
           </el-form-item>
           <el-form-item label="原因" prop="content">
-            <el-input v-model.trim="zhsjForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="" class="inputW"></el-input>
+            <el-input v-model.trim="zhsjForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
           </el-form-item>
         </el-form>
         <el-row class="tabC dialogBtnUpLine">
@@ -161,6 +164,9 @@ export default {
         ]
       },
       zhsjrules: {
+        parentDepartName: [ // 接收单位（上级单位）
+          { required: true, message: '请填写接收单位', max: 6, trigger: 'blur' }
+        ],
         content: [ // 原因
           { required: true, trigger: 'blur', validator: (rule, value, callback) => {
             if (!value) {
@@ -218,7 +224,6 @@ export default {
         } else {
           this.$resetSetItem('t5', 0) // 将总数存在session中
         }
-        this.$resetSetItem('t5', this.total) // 将总数存在session中
       }).catch(() => {
         this.listLoading = false
         this.$resetSetItem('t5', 0) // 将总数存在session中
@@ -257,12 +262,10 @@ export default {
     controlpjxq(row) { // 评价详情按钮显隐控制
       return (this.curDept.depType === '2' && this.curDept.areaCode === row.cityCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode) // 当前登录的是派出所时，用他的父级单位的cdoe去判断
     },
-    controlrecall() { // 转回上级按钮显隐控制
-      return true
+    controlrecall(row) { // 转回上级按钮显隐控制 协查中本单位可以操作
+      return this.baseInfo.status + '' === '5' && ((this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode))
     },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的线索反馈、线索分发按钮
-      // Bus.$emit('isShowfkbtn', false) // 线索反馈
-      // Bus.$emit('isShowqxpjbtn', false) // 评价打分
       const curDate = new Date(this.baseInfo.systemTime)
       if (data.length > 0) {
         data.forEach(item => {
@@ -271,11 +274,7 @@ export default {
               const startDate = new Date(this.baseInfo.startDate)
               if (curDate > startDate) {
                 Bus.$emit('isShowfkbtn', true) // 显示线索反馈按钮
-              } else {
-                // Bus.$emit('isShowfkbtn', false) // 隐藏线索反馈按钮
               }
-            } else {
-              // Bus.$emit('isShowfkbtn', false) // 隐藏线索反馈按钮
             }
           }
           if (Number(this.baseInfo.status) >= 4) { // 审核通过之后
@@ -283,8 +282,6 @@ export default {
             if ((this.curDept.depType === '2' && this.curDept.areaCode === item.cityCode) && (String(item.hcl) === '100' || String(item.hcl) === '100.00' || curDate > endDate)) {
               Bus.$emit('isShowpjbtn', true) // 显示评价打分按钮
             }
-          } else {
-            // Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
           }
         })
       }
