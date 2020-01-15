@@ -163,7 +163,7 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    // this.init()
+    this.init()
   }
 }
 </script>

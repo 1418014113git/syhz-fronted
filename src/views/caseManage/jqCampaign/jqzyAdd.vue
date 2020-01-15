@@ -5,8 +5,8 @@
     <img src="@/assets/icon/back.png"  class="goBack" @click="toList">   <!--返回-->
   </el-row>
   <el-card class="report" v-loading="pageLoading">
-    <p  class="tittle">{{pageTitle}}</p>
-    <el-form :model="form" size="small" ref="form"  :rules="rules"  label-width="120px" style="width:80%;margin:0 auto;">
+    <!-- <p  class="tittle">{{pageTitle}}</p> -->
+    <el-form :model="form" size="small" ref="form"  :rules="rules"  label-width="120px" style="width:80%;margin:20px auto 0 auto;">
       <el-row type="flex" justify="center" v-if="isShowotherform">
         <el-col :span="23">
           <el-form-item label="标题" prop="clusterTitle">
@@ -154,7 +154,7 @@
 
   <!-- 分发线索-->
   <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false"  @close="clearChildData">
-    <jqzy-disib   ref="ffchild" :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="id"   :fastatus="qbxsDistribute"  :jsdw="receiveName"  :source="pageType"  @result="getfaResult"></jqzy-disib>
+    <jqzy-disib   ref="ffchild" :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="id"   :fastatus="qbxsDistribute"  :jsdw="receiveName"  :source="pageType"  @result="getfaResult" :xcstatus="ajstatus"></jqzy-disib>
   </el-dialog>
 </div>
 </template>
@@ -922,7 +922,12 @@ export default {
     } else if (this.$route.query.type === 'detail' || this.$route.query.type === 'edit') { // 详情页点击“重新申请”按钮进来的，或者主列表点击编辑按钮进来的
       this.isShowotherform = true // 初始化时，显示涉及线索和涉及单位以外的基础form信息
       this.isShowxsform = true // 显示涉及线索和涉及单位
-      this.pageTitle = '申请集群战役'
+      if (this.$route.query.type === 'detail') {
+        this.pageTitle = '申请集群战役'
+      } else {
+        this.pageTitle = '编辑集群战役'
+      }
+      this.pageTitle = '编辑集群战役'
       this.btnText = '申 请'
       this.id = this.$route.query.id // 存储集群战役id
       this.editInit() // 编辑页面相关接口查询
@@ -934,7 +939,7 @@ export default {
       this.form.endDate = this.calculateDate(new Date(), 7, '') // 默认开始时间后7天，
       this.queryNumber() // 获取编号
     } else if (this.$route.query.type === 'bxf') { // 从列表点击“部下发”按钮进来的
-      this.pageTitle = '下发集群战役'
+      this.pageTitle = '部下发集群战役'
       this.btnText = '下 发'
       this.form.applyDeptName = '公安部'
       this.form.startDate = this.calculateDate(new Date(), 0, '') // 默认当前时间
@@ -942,13 +947,13 @@ export default {
     } else if (this.$route.query.type === 'editxf') { // 从主列表点击编辑按钮进来的
       this.isShowxsform = true // 显示涉及线索和涉及单位
       this.id = this.$route.query.id // 存储集群战役id
-      this.pageTitle = '下发集群战役'
+      this.pageTitle = '编辑集群战役'
       this.btnText = '下 发'
       this.editInit() // 编辑页面相关接口查询
     } else if (this.$route.query.type === 'editbxf') { // 从主列表点击编辑按钮进来的
       this.isShowxsform = true // 显示涉及线索和涉及单位
       this.id = this.$route.query.id // 存储集群战役id
-      this.pageTitle = '下发集群战役'
+      this.pageTitle = '编辑集群战役'
       this.btnText = '下 发'
       this.form.applyDeptName = '公安部'
       this.editInit() // 编辑页面相关接口查询

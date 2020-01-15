@@ -362,6 +362,14 @@ export default {
           this.isShowfkDialog = false // 隐藏反馈弹框
           this.paramCheckiItem = {}
         })
+      } else {
+        this.isShowfkDialog = true // 显示反馈弹框
+        this.curRow = {}
+        this.paramCheckiItem = {
+          qbxsId: qbxsId.join(','), // 线索id
+          fbId: fkId.join(','), // 反馈id
+          clusterId: this.assistId // 集群id
+        }
       }
     }
   },
