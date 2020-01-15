@@ -4,7 +4,7 @@
       <el-input placeholder="搜索案件、单位/场所、人员及物品信息" v-model="curKeyword" class="inputwrap" size="medium"  @keyup.enter.native="inputKeyUp">
         <el-select v-model="queryType" slot="prepend" placeholder="请选择" @change="changeOptions">
           <el-option label="案件" value="1"></el-option>
-          <el-option label="单位/场所" value="2"></el-option>
+          <el-option label="单位" value="2"></el-option>
           <el-option label="人员" value="3"></el-option>
           <el-option label="物品" value="4"></el-option>
         </el-select>
@@ -584,7 +584,7 @@ export default {
         padding: 0 5px;
       }
       .el-input-group__prepend {
-        width: 105px;
+        width: 75px;
         padding: 0;
         .el-select {
           margin: -10px 0;
