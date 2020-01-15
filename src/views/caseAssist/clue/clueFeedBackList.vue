@@ -91,8 +91,8 @@
       <clue-feed-back-detail ref="clueFeedBackDetail" :row="this.curRow" @closeDialog="closeDialog"></clue-feed-back-detail>
     </el-dialog>
 
-    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false">
-      <clueMoveList :assistId="assistId" :qbxsId="qbxsId"></clueMoveList>
+    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false" @close="closeClueMoveDialog">
+      <clueMoveList ref="clueMoveList" :assistId="assistId" :qbxsId="qbxsId"></clueMoveList>
     </el-dialog>
   </section>
 </template>
@@ -296,6 +296,9 @@
       handleClueMove(index, row) { // 线索流转记录
         this.clueMoveDialogVisible = true
         this.qbxsId = row.qbxsId
+      },
+      closeClueMoveDialog() {
+        this.$refs.clueMoveList.listData = []
       }
     },
     mounted() {
@@ -320,7 +323,7 @@
     padding: 0 10px;
   }
   .clueFeedBackList .el-dialog{
-    width: 60%;
+    width: 70%;
   }
   .clueFeedBackList .el-dialog__body {
     padding: 10px 20px 15px 20px;

@@ -191,7 +191,10 @@ export default {
           this.applyBtnVisible = true
         }
       }
-      if ((String(this.info.status) === '5' || String(this.info.status) === '6' || String(this.info.status) === '7') && curDate > startDate) {
+      if ((String(this.baseInfo.status) === '5' || String(this.baseInfo.status) === '6' || String(this.baseInfo.status) === '7') && curDate > startDate) {
+        // if (String(this.curDept.depType) === '1') {
+        //   this.clueDistributeBtnVisible = true
+        // }
         if (String(this.curDept.depType) === '2') {
           this.clueDistributeBtnVisible = true
           this.clueFeedbackBtnVisible = true
@@ -232,7 +235,11 @@ export default {
       this.$store.dispatch('Personeltotop', 'auditInfo')
     },
     clueDistribute() { // 线索分发
-      this.$store.dispatch('Personeltotop', 'feedbackInfo')
+      if (String(this.curDept.depType) === '1') {
+        this.clueDialogVisible = true
+      } else {
+        this.$store.dispatch('Personeltotop', 'feedbackInfo')
+      }
     },
     clueFeedback() { // 线索反馈
       this.$store.dispatch('Personeltotop', 'feedbackInfo')
