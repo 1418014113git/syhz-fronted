@@ -113,7 +113,7 @@
         <el-table-column type="index" width="60" label="序号"></el-table-column>
         <el-table-column prop="title" label='标题'  min-width="200" show-overflow-tooltip>
           <template slot-scope="scope">
-            <span style="cursor: pointer;"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.title}}</span>
+            <span  class="titleStyle"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.title}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="applyDeptName"  label='发起单位'  min-width="200" show-overflow-tooltip></el-table-column>
@@ -173,19 +173,15 @@
     </el-dialog>
 
     <!--导出弹出层-->
-    <el-dialog title="导出" :visible.sync="isShowdcdialog" class="dcForm">
-      <div class="dctitle">
-        <i class="el-icon-warning iconStyle"></i>
-        <span style="font-weight: bold;">导出协查战果反馈表</span>
-      </div>
+    <el-dialog title="导出协查战果反馈表" :visible.sync="isShowdcdialog" class="dcForm">
       <div class="checkArea">
-        <el-radio v-model="dcForm.type" :label="1" style="margin-right:45px;">全部查询结果</el-radio>
+        <el-radio v-model="dcForm.type" :label="1" style="margin-right:50px;">全部查询结果</el-radio>
         <el-radio v-model="dcForm.type" :label="2" :disabled="checkId.length===0">选中记录</el-radio>
       </div>
-      <el-row class="tabC martop btnUpLine">
+      <span slot="footer" class="dialog-footer">
         <el-button  @click="canceldc" class="cancelBtn">取 消</el-button>
         <el-button  type="primary" @click="exporttableList"  class="saveBtn">导出</el-button>
-      </el-row>
+      </span>
     </el-dialog>
   </section>
 </template>
@@ -229,8 +225,6 @@ export default {
       },
       pcsParentDept: {}, // 派出所的上上级部门
       pcsParentDeptype: '', // 派出所上级部门的部门类型
-      fqEndDateDisabled: false, // 发起日期 结束时间禁用
-      jSendDateDisabled: false, // 结束日期 结束时间禁用
       multipleSelection: [],
       expands: [],
       area: [],
@@ -357,7 +351,7 @@ export default {
       //     return true
       //   }
       // }
-      // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
+      // // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
       // if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))) {
       //   return true
       // }
@@ -371,7 +365,7 @@ export default {
       //     return true
       //   }
       // }
-      // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
+      // // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
       // if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))) {
       //   return true
       // }
@@ -703,50 +697,6 @@ export default {
         return 'row-expand-cover'
       }
     },
-    // fqStartDateChange(val) { // 发起日期 开始时间change事件
-    //   if (val) {
-    //     this.fqEndDateDisabled = false
-    //   } else {
-    //     this.fqEndDateDisabled = true
-    //   }
-    // },
-    // jSstartDateChange(val) { // 结束日期 开始时间change事件
-    //   if (val) {
-    //     this.jSendDateDisabled = false
-    //   } else {
-    //     this.jSendDateDisabled = true
-    //   }
-    // },
-    // fqEndDateDisabled(val) { // 发起日期  结束时间change事件
-    //   if (val) {
-    //     if (this.filters.start1 > val) {
-    //       this.$alert('结束日期不能小于开始日期', '提示', {
-    //         type: 'warning',
-    //         confirmButtonText: '确定',
-    //         callback: action => {
-    //           this.filters.end1 = ''
-    //         }
-    //       })
-    //       return
-    //     }
-    //     this.filters.end1 = val
-    //   }
-    // },
-    // jSendDateDisabled(val) { // 结束日期  结束时间change事件
-    //   if (val) {
-    //     if (this.filters.start2 > val) {
-    //       this.$alert('结束日期不能小于开始日期', '提示', {
-    //         type: 'warning',
-    //         confirmButtonText: '确定',
-    //         callback: action => {
-    //           this.filters.end2 = ''
-    //         }
-    //       })
-    //       return
-    //     }
-    //     this.filters.end2 = val
-    //   }
-    // },
     dateChange1(val) { // 发起日期 change事件
       this.filters.start1 = val[0]
       this.filters.start2 = val[1]
@@ -840,6 +790,7 @@ export default {
         this.$download('cluster/export', para)
       }
       setTimeout(() => {
+        this.dcForm.type = 1
         this.isShowdcdialog = false // 关闭弹框
         this.checkId = [] // 清空选中数组
         this.$refs.multipleTable.clearSelection() // 清空列表选中项
@@ -865,7 +816,8 @@ export default {
       }
       if (this.carryParam.start && this.carryParam.end) {
         this.dateRand1 = [this.carryParam.start, this.carryParam.end] // 发起日期
-        // this.dateRand2 = [this.carryParam.start, this.carryParam.end] // 结束日期
+        this.filters.start1 = this.carryParam.start // 发起日期 开始时间
+        this.filters.start2 = this.carryParam.end // 发起日期 结束时间
       }
       if (this.carryParam.type !== undefined && String(this.carryParam.type) === '0') { // 要查申请的标识
         this.totalType = 'curCreate'
@@ -935,6 +887,12 @@ export default {
   .tableBox {
     width: 100%;
     overflow: auto;
+  }
+  .titleStyle{
+    cursor: pointer;
+  }
+  .titleStyle:hover{
+    color: #009bda;
   }
 }
 .el-table--scrollable-x .el-table__body-wrapper {

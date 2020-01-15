@@ -13,7 +13,7 @@
               change-on-select
               @change="handleAreaChange"
               :show-all-levels="false"
-              :disabled="Number(curDept.depType)>2"
+              :disabled="xzqhDisabled()"
               :clearable="Number(curDept.depType)<2"
               placeholder="全部">
             </el-cascader>
@@ -192,7 +192,7 @@ export default {
           // this.xzqhOptions = response.data ? response.data[0].children : [] // 获取地市
           this.xzqhOptions = response.data ? response.data : []
           var currentArea = []
-          if (this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 登上来的是支队 或者杨凌派出所（杨凌派出所权限同杨凌支队）
+          if (this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) === '6114')) { // 登上来的是支队 或者杨凌派出所（杨凌派出所权限同杨凌支队）
             this.xzqhOptions[0].disabled = true
             if (this.applyDeptCode === this.curDept.depCode) { // 如果登上来的支队是申请，下发单位，查全部地市，
 
@@ -462,6 +462,15 @@ export default {
     handlelzDetail(index, row) { // 显示线索流转记录弹框
       this.isShowlzrecord = true
       this.curRow = row
+    },
+    xzqhDisabled() {
+      if (this.curDept.depType === '1') { // 总队 不禁用
+        return false
+      }
+      if (this.curDept.depType === '2' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) === '6114')) { // 支队， 杨凌派出所(它同支队权限) 不禁用
+        return false
+      }
+      return true
     }
   },
   mounted() {
