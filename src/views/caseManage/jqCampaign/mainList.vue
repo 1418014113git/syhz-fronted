@@ -143,7 +143,11 @@
         </el-table-column>
         <el-table-column prop=""  label='厅评价'  min-width="100" v-if="curDept.depType === '1' || curDept.depType === '2' || (curDept.depType === '4' && curDept.areaCode==='611400')"   show-overflow-tooltip>
           <template slot-scope="scope">
-            <span>{{scope.row.tCount}}/{{scope.row.tTotal}}</span>
+            <span v-if='scope.row.tCount'>{{scope.row.tCount}}</span>
+            <span>0</span>
+            /
+            <span v-if='scope.row.tTotal'>{{scope.row.tTotal}}</span>
+            <span>0</span>
           </template>
         </el-table-column>
         <el-table-column prop=""  label='市评价'  min-width="100" v-if="curDept.depType === '2' || curDept.depType === '3' || (curDept.depType === '4' && curDept.areaCode!=='611400')"  show-overflow-tooltip>
