@@ -29,6 +29,8 @@
                 :picker-options="pickerOptions"
                 placeholder=""
                 style="width:100%;"
+                :disabled="kssjdisableCtrol()"
+                @change="startChange"
                 >
               </el-date-picker>
             </el-form-item>
@@ -41,7 +43,7 @@
             </el-col>
             <el-col :span="11">
               <el-form-item label="编号" prop="clusterNumber">
-                <el-input v-model.trim="form.clusterNumber" maxlength="20"  placeholder="" clearable  :disabled="pageType!=='bxf' && pageType!=='editbxf'"></el-input>
+                <el-input v-model.trim="form.clusterNumber" maxlength="20"  placeholder="" clearable  :disabled="bhdisableCtrol()"></el-input>
               </el-form-item>
               <el-form-item label="结束日期" prop="endDate">
                 <el-date-picker
@@ -229,6 +231,7 @@ export default {
       exDeptData: [], // 审核单位下拉框
       pageTitle: '', // 页面标题
       btnText: '', // 按钮文字
+      ajstatus: '', // 列表页传递过来的案件状态
       rules: {
         clusterTitle: [{ // 标题
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
@@ -423,6 +426,14 @@ export default {
     },
     toList() {
       this.$router.back(-1)
+    },
+    delgetDate(strDate) {
+      var t = Date.parse(strDate)
+      if (!isNaN(t)) {
+        return new Date(Date.parse(strDate.replace(/-/g, '/')))
+      } else {
+        return new Date()
+      }
     },
     calculateDate(date, days, hours) {
       const d = new Date(date)
@@ -861,13 +872,32 @@ export default {
           this.form.clusterNumber = response.data
         }
       })
+    },
+    bhdisableCtrol() { // 编号输入框是否可编辑
+      if (this.pageType === 'bxf') { // 部下发 可用
+        return false
+      } else if (this.pageType === 'editbxf' && (this.ajstatus === '0' || this.ajstatus === '1' || this.ajstatus === '3')) { // 编辑部下发  草稿，待审核，审核不通过 可编辑
+        return false
+      } else {
+        return true
+      }
+    },
+    kssjdisableCtrol() { // 开始时间是否可编辑
+      if (this.ajstatus === '5' || this.ajstatus === '6' || this.ajstatus === '7') { // 协查中、协查超时和协查结束时，不可编辑
+        return true
+      } else {
+        return false
+      }
+    },
+    startChange(val) { // 开始时间change事件
+      var dates = this.delgetDate(val)
+      this.form.startDate = this.calculateDate(dates, 0, '') // 默认当前时间
+      this.form.endDate = this.calculateDate(dates, 7, '') // 默认开始时间后7天，
     }
   },
   mounted() {
     this.isShowotherform = true // 初始化时，显示涉及线索和涉及单位以外的基础form信息
     this.isShowxsform = false // 初始化时，隐藏涉及线索和涉及单位
-    // this.isShowxsform = true // 测试
-    // this.queryList(3029) // 查询涉及单位对应的列表  // 测试
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
       if (this.$route.query.type !== 'bxf' && this.$route.query.type !== 'editbxf') { // 不是'部下发' 或者列表当前点击数据是部下发进来的
@@ -882,13 +912,16 @@ export default {
     this.form.applyPersonName = this.curUser.realName // 当前登录人姓名
     this.form.applyPersonPhone = this.curUser.phone ? this.curUser.phone : '' // 当前登录人电话
     this.pageType = this.$route.query.type
+    if (this.$route.query.status) { // 列表页，点击修改跳转过来传递的案件状态
+      this.ajstatus = this.$route.query.status // 存储案件状态
+    }
     if (this.$route.query.type === 'add') { // 从列表页面点击“申请”按钮进来的。
       this.pageTitle = '申请集群战役'
       this.btnText = '申 请'
       this.getDeptsshdw() // 查审核单位
     } else if (this.$route.query.type === 'detail' || this.$route.query.type === 'edit') { // 详情页点击“重新申请”按钮进来的，或者主列表点击编辑按钮进来的
       this.isShowotherform = true // 初始化时，显示涉及线索和涉及单位以外的基础form信息
-      this.isShowxsform = true // 初始化时，显示涉及线索和涉及单位
+      this.isShowxsform = true // 显示涉及线索和涉及单位
       this.pageTitle = '申请集群战役'
       this.btnText = '申 请'
       this.id = this.$route.query.id // 存储集群战役id
@@ -907,11 +940,13 @@ export default {
       this.form.startDate = this.calculateDate(new Date(), 0, '') // 默认当前时间
       this.form.endDate = this.calculateDate(new Date(), 7, '') // 默认开始时间后7天，
     } else if (this.$route.query.type === 'editxf') { // 从主列表点击编辑按钮进来的
+      this.isShowxsform = true // 显示涉及线索和涉及单位
       this.id = this.$route.query.id // 存储集群战役id
       this.pageTitle = '下发集群战役'
       this.btnText = '下 发'
       this.editInit() // 编辑页面相关接口查询
     } else if (this.$route.query.type === 'editbxf') { // 从主列表点击编辑按钮进来的
+      this.isShowxsform = true // 显示涉及线索和涉及单位
       this.id = this.$route.query.id // 存储集群战役id
       this.pageTitle = '下发集群战役'
       this.btnText = '下 发'

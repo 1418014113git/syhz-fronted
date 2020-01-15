@@ -126,6 +126,7 @@ export default {
     return {
       childFlag: '',
       ajzts: '',
+      ajbhs: '',
       fadyName: '',
       filters: {
         area: [],
@@ -529,11 +530,12 @@ export default {
       para.pageNum = this.page
       para.pageSize = this.pageSize
       if (!hand) {
-        para.childFlag = this.childFlag === 'y' ? 'yes' : 'no'
-        para.fadyName = this.fadyName
+        para.childFlag = this.childFlag !== '' ? (this.childFlag === 'y' ? 'yes' : 'no') : ''
+        para.fadyName = this.fadyName !== '' ? this.fadyName : ''
         para.ajzt = this.ajzts !== '' ? this.ajzts : this.filters.ajzt
+        para.ajbhs = this.ajbhs !== '' ? this.ajbhs.split(',') : null
       }
-      this.$query('caseManage/caseList', para).then(response => {
+      this.$update('caseManage/caseList', para).then(response => {
         this.caseData = response.data.list
         this.total = response.data.totalCount
         this.pageSize = response.data.pageSize
@@ -823,6 +825,9 @@ export default {
             }
             if (param.ajlb) { // 案件类别 '100001'
               this.filters.ajlb = param.ajlb
+            }
+            if (param.ajbhs) { // 案件编号
+              this.ajbhs = param.ajbhs
             }
           }
         }

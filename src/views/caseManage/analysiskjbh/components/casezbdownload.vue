@@ -7,7 +7,7 @@
     </el-col>
     <!--列表-->
     <el-table :data="caseData"  id="table-content">
-      <el-table-column type="index" label="序号" width="100" align="center">
+      <el-table-column type="index" label="序号" width="60" align="center">
         <template slot-scope="scope">
           <span v-if="scope.$index+1<caseData.length">{{scope.$index+1}}</span>
           <span v-else></span>

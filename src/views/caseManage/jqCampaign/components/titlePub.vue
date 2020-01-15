@@ -3,6 +3,7 @@
   <div class="titlePub">
     <div slot="header" class="clearfix">
       <span class="letterSpc">{{title}}</span>
+      <slot></slot>
     </div>
   </div>
 </template>

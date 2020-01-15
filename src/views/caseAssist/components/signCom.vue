@@ -8,7 +8,7 @@
     </div>
     <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
       <el-table-column type="index" label="序号" width="60" align="center" fixed="left"></el-table-column>
-      <el-table-column prop="createDeptName" label="下发单位" width="220" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="createDeptName" label="下发单位" width="280" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column prop="createDate" label="下发日期" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
           {{$parseTime(scope.row.createDate, '{y}-{m}-{d}')}}
@@ -20,15 +20,15 @@
           <span v-else>{{scope.row.clueNum || 0}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="receiveDeptName" label="接收单位" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="signStatus" label="签收状态" align="center">
+      <el-table-column prop="receiveDeptName" label="接收单位" width="280" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="signStatus" label="签收状态" width="120" align="center">
         <template slot-scope="scope">
           <span v-if='scope.row.signStatus'>{{$getDictName(scope.row.signStatus+'','qszt')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="receiveUserName" label="签收人" align="center"></el-table-column>
-      <el-table-column prop="receiveDate" label="签收时间" align="center"></el-table-column>
-      <el-table-column label="操作" align="center" width="100">
+      <el-table-column prop="receiveUserName" label="签收人" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="receiveDate" label="签收时间" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column label="操作" align="center" width="80">
         <template slot-scope="scope">
           <el-button v-if="$isViewBtn('100907') && String(scope.row.signStatus) !== '2' && signEnable(scope.row)" size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline" @click="handleSign(scope.$index, scope.row)"></el-button>
           <span v-else>-</span>

@@ -2,8 +2,9 @@
   <section>
     <!-- 区县反馈 -->
     <div class="countyBack pubStyle">
-      <title-pub :title="title"></title-pub>
-      <!-- <div style="max-height:260px;overflow: auto;"> -->
+       <title-pub :title="title">
+        <!-- <i v-if="listData.length>0" title="导出全部线索" class="export_btn" @click="exportallxs"><svg-icon icon-class="export"></svg-icon></i> -->
+      </title-pub>
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
           <el-table-column type="index" label="序号" width="60" fixed>
             <template slot-scope="scope">
@@ -57,20 +58,13 @@
           <el-table-column prop="score" label="评价打分" min-width="100"></el-table-column>
           <el-table-column label="操作"  width="160" align="center" fixed="right">
             <template slot-scope="scope">
-            <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')"  @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
-            <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && controlpjdf(scope.row) && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
-            <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score && controlpjxq(scope.row)"   icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
+              <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')"  @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
+              <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && controlpjdf(scope.row) && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
+              <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score && controlpjxq(scope.row)"   icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
+              <!-- <el-button size="mini" title="转回上级"  type="primary" v-if="scope.$index+1<listData.length && controlrecall(scope.row)"  circle  @click="handleRecall(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button> -->
             </template>
           </el-table-column>
         </el-table>
-      <!-- </div> -->
-      <!-- <el-row>
-        <el-col :span="24" class="toolbar">
-          <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[5,10,15,20]" @size-change="handleSizeChange"
-              :page-size="pageSize" :total="total" :current-page="page" style="float:right;">
-          </el-pagination>
-        </el-col>
-      </el-row> -->
       <!-- 评价打分 -->
       <el-dialog title="评价打分" :visible.sync="isShowpjdf" size="small" class="pjdfForm"  @close="cancel('pjdfForm')">
         <el-form ref="pjdfForm" :rules="rules" :model="pjdfForm" size="small" label-width="90px">
@@ -94,10 +88,25 @@
             <el-rate v-model="curRow.score" disabled></el-rate>
           </el-form-item>
           <el-form-item label="评价" prop="commentText">
-            <!-- <el-input v-model.trim="curRow.commentText" type="textarea" :rows="4" disabled maxlength="500"></el-input> -->
             <span>{{curRow.commentText}}</span>
           </el-form-item>
         </el-form>
+      </el-dialog>
+
+      <!-- 转回上级-->
+      <el-dialog title="转回上级" :visible.sync="isShowzhsj"  class="recallForm" :close-on-click-modal="false" v-loading="zhsjLoading" @close="cancel('zhsjForm')">
+        <el-form ref="zhsjForm" :rules="zhsjrules" :model="zhsjForm" size="small" label-width="100px">
+          <p class="zhsjp">将线索转回上级单位。</p>
+          <el-form-item label="接收单位" prop="parentDepartName">
+            <el-input v-model.trim="zhsjForm.parentDepartName"  disabled></el-input>
+          </el-form-item>
+          <el-form-item label="原因" prop="content">
+            <el-input v-model.trim="zhsjForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
+          </el-form-item>
+        </el-form>
+        <el-row class="tabC dialogBtnUpLine">
+          <el-button  type="primary" @click="sumbit"  class="saveBtn" :loading="tjbtnLoading">提交</el-button>
+        </el-row>
       </el-dialog>
     </div>
   </section>
@@ -118,6 +127,10 @@ export default {
         score: 0,
         commentText: ''
       },
+      zhsjForm: { // 转回上级
+        content: '', // 原因
+        parentDepartName: '' // 上级单位名称
+      },
       baseInfo: {}, // 基础信息
       parentCode: '', // 当前部门的上级单位
       curUser: {}, // 用户信息
@@ -134,6 +147,9 @@ export default {
       clusterId: '', // 存储列表传递过来的id
       pcsParentDept: {}, // 派出所上级部门的数据信息
       qxqsbtn: false, // 区县签收也是否有签收按钮
+      isShowzhsj: false, // 是否显示转回上级弹框
+      tjbtnLoading: false, // 转回上级提交按钮loading
+      zhsjLoading: false, // 转回上级弹框页面loading
       rules: {
         score: [ // 评价打分
           {
@@ -145,6 +161,20 @@ export default {
               }
             }
           }
+        ]
+      },
+      zhsjrules: {
+        parentDepartName: [ // 接收单位（上级单位）
+          { required: true, message: '请填写接收单位', max: 6, trigger: 'blur' }
+        ],
+        content: [ // 原因
+          { required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            if (!value) {
+              callback(new Error('请填写原因'))
+            } else {
+              callback()
+            }
+          } }
         ]
       }
     }
@@ -173,24 +203,18 @@ export default {
       Bus.$emit('isShowfkbtn', false) // 线索反馈按钮
       this.listLoading = true
       var param = {
-        parentCode: this.curDept.depType === '2' ? this.curDept.depCode : this.parentCode, // 上级部门Code
+        // parentCode: this.curDept.depType === '2' ? this.curDept.depCode : this.parentCode, // 上级部门Code
         assistId: this.clusterId, // 集群Id
-        // curDeptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType,
+        deptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType,
         type: 2 // 集群
       }
-      // var param = {
-      //   // parentCode: this.curDept.depType === '2' ? this.curDept.depCode : this.parentCode, // 上级部门Code
-      //   assistId: this.clusterId, // 集群Id
-      //   curDeptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType,
-      //   type: 2 // 集群
-      // }
-      // if (this.curDept.depType === '2') { // 支队  传本部门code
-      //   param.parentCode = this.curDept.depCode
-      // } else if (this.curDept.depType === '3') { // 大队 传当前部门code
-      //   param.curDeptCode = this.curDept.depCode
-      // } else if (this.curDept.depType === '4') { // 派出所，传父级部门code
-      //   param.curDeptCode = this.curDept.parentDepCode
-      // }
+      if (this.curDept.depType === '2') { // 支队  传本部门code
+        param.parentCode = this.curDept.depCode
+      } else if (this.curDept.depType === '3') { // 大队 传当前部门code
+        param.curDeptCode = this.curDept.depCode
+      } else if (this.curDept.depType === '4') { // 派出所，传父级部门code
+        param.curDeptCode = this.curDept.parentDepCode
+      }
       this.$query('caseassistclue/detailCount', param).then((res) => {
         this.listLoading = false
         this.listData = res.data
@@ -200,7 +224,6 @@ export default {
         } else {
           this.$resetSetItem('t5', 0) // 将总数存在session中
         }
-        this.$resetSetItem('t5', this.total) // 将总数存在session中
       }).catch(() => {
         this.listLoading = false
         this.$resetSetItem('t5', 0) // 将总数存在session中
@@ -219,7 +242,7 @@ export default {
       }
     },
     controlxsfk(row) { // 线索反馈按钮显隐控制
-      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '7' || this.baseInfo.status + '' === '8') { // 协查中 , 协查超时, 协查结束
+      if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '6' || this.baseInfo.status + '' === '7') { // 协查中 , 协查超时, 协查结束
         const curDate = new Date(this.baseInfo.systemTime)
         const startDate = new Date(this.baseInfo.startDate)
         return (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode)) && curDate > startDate) // 当前登录的是派出所时，用他的父级单位的cdoe去判断   集群战役处于协查中、协查结束状态时
@@ -239,22 +262,19 @@ export default {
     controlpjxq(row) { // 评价详情按钮显隐控制
       return (this.curDept.depType === '2' && this.curDept.areaCode === row.cityCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode) // 当前登录的是派出所时，用他的父级单位的cdoe去判断
     },
+    controlrecall(row) { // 转回上级按钮显隐控制 协查中本单位可以操作
+      return this.baseInfo.status + '' === '5' && ((this.curDept.depType !== '4' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.deptCode))
+    },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的线索反馈、线索分发按钮
-      // Bus.$emit('isShowfkbtn', false) // 线索反馈
-      // Bus.$emit('isShowqxpjbtn', false) // 评价打分
       const curDate = new Date(this.baseInfo.systemTime)
       if (data.length > 0) {
         data.forEach(item => {
           if (((this.curDept.depType === '4' && this.curDept.parentDepCode === item.deptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === item.deptCode))) { // 当前登录的是派出所时，用他的父级单位的cdoe去判断   集群战役处于协查中、协查结束状态时
-            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '7' || this.baseInfo.status + '' === '8') { // 协查中 , 协查超时, 协查结束
+            if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '6' || this.baseInfo.status + '' === '7') { // 协查中 , 协查超时, 协查结束
               const startDate = new Date(this.baseInfo.startDate)
               if (curDate > startDate) {
                 Bus.$emit('isShowfkbtn', true) // 显示线索反馈按钮
-              } else {
-                // Bus.$emit('isShowfkbtn', false) // 隐藏线索反馈按钮
               }
-            } else {
-              // Bus.$emit('isShowfkbtn', false) // 隐藏线索反馈按钮
             }
           }
           if (Number(this.baseInfo.status) >= 4) { // 审核通过之后
@@ -262,8 +282,6 @@ export default {
             if ((this.curDept.depType === '2' && this.curDept.areaCode === item.cityCode) && (String(item.hcl) === '100' || String(item.hcl) === '100.00' || curDate > endDate)) {
               Bus.$emit('isShowpjbtn', true) // 显示评价打分按钮
             }
-          } else {
-            // Bus.$emit('isShowpjbtn', false) // 隐藏评价打分按钮
           }
         })
       }
@@ -315,19 +333,31 @@ export default {
       this.isShowpjdfdetail = true
       this.curRow = row
     },
-    getDeptsshdw() { // 查询上级单位
+    handleRecall(index, row) { // 转回上级
+      this.isShowzhsj = true
+      this.getDeptsshdw(row.deptCode)
+    },
+    getDeptsshdw(deptCode) { // 查询上级单位
       var paramCode = ''
-      if (this.curDept.depType === '4') { // 派出所
-        paramCode = this.curDept.parentDepCode
+      if (deptCode) {
+        this.zhsjLoading = true
+        paramCode = deptCode
       } else {
-        paramCode = this.curDept.depCode
+        if (this.curDept.depType === '4') { // 派出所
+          paramCode = this.curDept.parentDepCode
+        } else {
+          paramCode = this.curDept.depCode
+        }
       }
       this.$query('hsyzparentdepart/' + paramCode, {}, 'upms').then((response) => {
         if (response.code === '000000') {
+          this.zhsjLoading = false
           this.parentCode = response.data.departCode
+          this.zhsjForm.parentDepartName = response.data.departName
           this.query()
         }
       }).catch(() => {
+        this.zhsjLoading = false
       })
     },
     save() { // 保存
@@ -360,9 +390,39 @@ export default {
         this.$refs[formName].resetFields()
       }
     },
-    cancel() {
+    cancel(obj) {
       this.isShowpjdf = false
-      this.resetForm('pjdfForm')
+      this.isShowzhsj = false
+      this.resetForm(obj)
+    },
+    exportallxs() { // 导出全部线索
+
+    },
+    sumbit() { // 转回上级提交
+      this.$refs.zhsjForm.validate(valid => {
+        if (valid) {
+          this.tjbtnLoading = true
+          const param = {
+            clusterId: this.clusterId, //  集群战役Id
+            deptCode: this.curRow.deptCode, // 反馈列表当前行的部门code
+            content: this.zhsjForm.content, // 原因
+            parentCode: this.parentCode, // 上级部门Code
+            parentName: this.zhsjForm.parentDepartName // 上级部门名称
+          }
+          this.$update('', param).then((response) => {
+            this.$message({
+              message: '提交成功！',
+              type: 'success',
+              duration: 2000
+            })
+            this.tjbtnLoading = false
+            this.isShowzhsj = false
+            this.query()
+          }).catch(() => {
+            this.tjbtnLoading = false
+          })
+        }
+      })
     }
   },
   mounted() {
@@ -438,6 +498,26 @@ export default {
   }
   .el-table__fixed .el-table__fixed-body-wrapper .el-table__body .el-table__body tr:hover>td{
     background-color: #2164a1;
+  }
+  .el-button+.el-button {
+    margin-left: 5px;
+  }
+  .title {
+    width: 100%;
+    padding: 7px 0 7px 7px;
+    border-bottom: 2px solid #00a0e9;
+    overflow: hidden;
+    color: #bce8fc;
+    text-shadow: 0 0 2px #fff;
+    font-size: 17px;
+    margin-bottom: 10px;
+  }
+  .left {
+    float: left;
+    letter-spacing: 3px;
+  }
+  .right {
+    float: right;
   }
 }
 @media only screen and (max-width: 1367px) {
