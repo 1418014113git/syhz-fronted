@@ -33,8 +33,8 @@
         <div v-if="curChooseLabel===0">
           <p style="padding:20px 5px;" v-if="ajData.length===0">没有检索到相关信息！</p>
           <div class="rowText clearfix" v-else-if="ajData.length>1" v-for="(item,index) in ajData" :key="index">
-            <div class="halfdivLeft clickClass" @click="lookDetailPanel(item)">{{item.ajbh}}</div>
-            <div class="halfdivRight" :class="curChooseLabel===3?'noClick':'clickClass'"  @click="lookDetailPanel(item)">{{item.ajmc}}</div>
+            <div class="halfdivLeft clickClass" @click="lookDetailPanel(item)" :title="curDetail.ajbh">{{item.ajbh}}</div>
+            <div class="halfdivRight" :class="curChooseLabel===3?'noClick':'clickClass'" @click="lookDetailPanel(item)" :title="curDetail.ajmc">{{item.ajmc}}</div>
           </div>
         </div>
         <div v-if="curChooseLabel===1">
@@ -73,7 +73,7 @@
           <p class="rowContent"><span class="titleText">立案单位</span><span class="rightText">{{curDetail.ladw}}</span></p>
           <p class="rowContent" v-if="curDetail.ajztName==='破案'||curDetail.ajztName==='结案'"><span class="titleText" >破案时间</span><span class="rightText">{{curDetail.parq}}</span></p>
           <p class="rowContent" v-else><span class="titleText">立案时间</span><span class="rightText">{{curDetail.larq}}</span></p>
-          <p class="rowContent"><span class="titleText">简要案情</span><span class="rightText">{{curDetail.jyaq}}</span></p>
+          <p class="rowContent"><span class="titleText">简要案情</span><span class="rightText rowsText">{{curDetail.jyaq}}</span></p>
         </div>
         <!-- 单位 -->
         <div v-if="curChooseLabel===1" class="company">
@@ -681,13 +681,23 @@ export default {
           display: inline-block;
         }
         .titleText {
-          width: 90px;
           float: left;
+          width: 90px;
         }
         .rightText {
           float: left;
+          width: calc(100% - 90px);
           word-break: break-all;
+          // text-overflow: ellipsis;
+          // overflow: hidden;
+          // white-space: nowrap;
         }
+        // 简要案情的可以折行
+        // .rightText.rowsText {
+        //   text-overflow: initial;
+        //   overflow: auto;
+        //   white-space: normal;
+        // }
       }
       .rowContent:after {
         clear: both;
@@ -697,6 +707,9 @@ export default {
       .company .titleText {
         // 单位场所标题文字较多
         width: 130px;
+      }
+      .company .rightText {
+        width: calc(100% - 130px);
       }
     }
     .result1 {
