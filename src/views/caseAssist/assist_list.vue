@@ -84,7 +84,6 @@
           {{$parseTime(scope.row.endDate, '{y}-{m}-{d}')}}
         </template>
       </el-table-column>
-
       <el-table-column label="线索数量（已核查/总）" min-width="8%">
         <template slot-scope="scope">
           <span>
@@ -103,8 +102,16 @@
           <span v-if='scope.row.status'>{{$getDictName(String(scope.row.status), 'jqzyzt')}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="tCount" label="厅评价" min-width="5%"></el-table-column>
-      <el-table-column prop="sCount" label="市评价" min-width="5%"></el-table-column>
+      <el-table-column prop="tCount" label="厅评价" min-width="5%" v-if="tScore">
+        <template slot-scope="scope">
+          {{scope.row.tCount + '/' + scope.row.tTotal}}
+        </template>
+      </el-table-column>
+      <el-table-column prop="sCount" label="市评价" min-width="5%" v-if="sScore">
+        <template slot-scope="scope">
+          {{scope.row.sCount + '/' + scope.row.sTotal}}
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="124">
         <template slot-scope="scope">
           <el-button title="详情" size="mini" icon="el-icon-document" type="primary" circle @click="handleDetail(scope.$index, scope.row)"></el-button>
@@ -209,7 +216,9 @@ export default {
       oldMultipleSelection: [],
       exportBtnLoading: false,
       exportRadio: '1',
-      exportDialogVisible: false
+      exportDialogVisible: false,
+      tScore: false,
+      sScore: false
     }
   },
   methods: {
@@ -455,7 +464,7 @@ export default {
         params.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName
         params.realName = this.curUser.realName
         params.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
-        params.fileName = '案件协查-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+        params.fileName = '案件协查-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}') + '.xlsx'
         this.$download('caseAssist/export', params)
       } else { // 导出选中的
         const para = {
@@ -464,14 +473,14 @@ export default {
           curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
           realName: this.curUser.realName,
           curUserPhone: this.curUser.phone ? this.curUser.phone : '',
-          fileName: '案件协查-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+          fileName: '案件协查-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}') + '.xlsx'
         }
         this.$download('caseAssist/export', para)
       }
       const _this = this
       setTimeout(function() {
         _this.$message({
-          message: '导出协查战果反馈信息成功！',
+          message: '导出案件协查战果反馈信息成功！',
           type: 'success'
         })
         _this.exportBtnLoading = false
@@ -557,18 +566,28 @@ export default {
           } else {
             if (this.curDept.depType === '-1' || this.curDept.depType === '1') { // 省 总队
               currentArea = [this.curDept.areaCode]
+              this.tScore = true
+              this.sScore = false
             } else if (this.curDept.depType === '2') { // 支队
               currentArea = ['610000', this.curDept.areaCode]
+              this.tScore = true
+              this.sScore = true
             } else if (this.curDept.depType === '3') { // 大队 派出所
               currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
               this.deptDisabled = true
               this.areaDisabled = true
+              this.tScore = false
+              this.sScore = true
             } else if (this.curDept.depType === '4') {
               this.areaDisabled = true
               if (this.curDept.areaCode === '611400') { // 杨凌例外
                 currentArea = ['610000', '611400']
+                this.tScore = true
+                this.sScore = true
               } else { // 正常的派出所
                 currentArea = ['610000', this.curDept.areaCode.substring(0, 4) + '00', this.curDept.areaCode]
+                this.tScore = false
+                this.sScore = true
               }
             }
           }
