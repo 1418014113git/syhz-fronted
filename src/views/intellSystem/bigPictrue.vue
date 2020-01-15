@@ -559,8 +559,8 @@ export default {
 .big_pictrue {
   .box1 {
     position: absolute;
-    top: 20px;
-    left: 40px;
+    top: 10px;
+    left: 46px;
     // width: 30%;
     width: 460px;
     z-index: 1;
@@ -636,8 +636,8 @@ export default {
   // 结果集
   .resultwrap {
     position: absolute;
-    top: 100px;
-    left: 40px;
+    top: 90px;
+    left: 46px;
     z-index: 1;
     // width: 460px;
     .result1,
