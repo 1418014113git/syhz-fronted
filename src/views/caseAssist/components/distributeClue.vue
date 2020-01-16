@@ -184,9 +184,10 @@ export default {
     },
     enableDelete(row) {
       if (this.pageSource !== 'detail') {
-        if (this.assistStatus === '0' || this.assistStatus === undefined) {
-          return true
-        }
+        // if (this.assistStatus === '0' || this.assistStatus === undefined) {
+        //   return true
+        // }
+        return true
       }
       return false
     },
