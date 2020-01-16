@@ -53,6 +53,7 @@ export default {
       title: '',
       curUser: {},
       curDept: {},
+      deptName: '',
       paramDept: sessionStorage.getItem('depToken') ? JSON.parse(sessionStorage.getItem('depToken'))[0].areaCode : '',
       listData: [], // 地市签收表
       listLoading: false, // 页面loading
@@ -253,6 +254,7 @@ export default {
         userId: this.curUser.id,
         userName: this.curUser.realName,
         deptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode,
+        deptName: this.curDept.depType === '4' ? this.deptName : this.curDept.depName,
         assistId: row.assistId, // 协查id
         signId: row.assistSignId // 签收表id
       }
@@ -266,6 +268,14 @@ export default {
         })
       }).catch(() => {
 
+      })
+    },
+    getLaunchDept() { // 如果登上来的是派出所 发起单位显示成大队
+      this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.deptName = response.data.departName
+        }
+      }).catch(() => {
       })
     }
   },
@@ -287,6 +297,9 @@ export default {
     }
     this.title += '签收表'
     this.init()
+    if (this.curDept.depType === '4') { // 派出所
+      this.getLaunchDept() // 如果登上来的是派出所 发起单位显示成大队
+    }
   }
 }
 </script>

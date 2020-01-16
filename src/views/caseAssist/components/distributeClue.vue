@@ -58,6 +58,8 @@
               <p>1、列表勾选需要分发线索。</p>
               <p>2、选择线索接收单位。</p>
               <p>3、点击【线索分发】，向接收单位分发线索。</p>
+              <p>线索删除说明：</p>
+              <p>删除线索会删除对应线索反馈内容。</p>
             </div>
             <el-button  type="primary" size="small" slot="reference"><svg-icon icon-class="wenhao"></svg-icon> 分发步骤</el-button>
           </el-popover>
@@ -248,7 +250,12 @@ export default {
           qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
           assistId: this.assistId,
           receiveCode: row.receiveCode ? row.receiveCode : '',
-          assistType: 1
+          assistType: 1,
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
+          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
+          userId: this.curUser.id,
+          userName: this.curUser.realName,
+          opt: this.pageSource === 'detail' && Number(this.assistStatus) > 3 ? 'addRecord' : ''
         }
         this.$update('caseassistclue/delete', param).then((response) => {
           this.listLoading = false
@@ -281,7 +288,12 @@ export default {
           qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
           assistId: this.assistId,
           receiveCode: row.receiveCode ? row.receiveCode : '',
-          assistType: 1
+          assistType: 1,
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
+          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
+          userId: this.curUser.id,
+          userName: this.curUser.realName,
+          opt: this.pageSource === 'detail' && Number(this.assistStatus) > 3 ? 'addRecord' : ''
         }
         this.$update('caseassistclue/cancelDistribute', param).then((response) => {
           this.$emit('closeDialog', true)
@@ -579,8 +591,8 @@ export default {
       this.query(true)
     },
     handleClueMove(index, row) { // 线索流转记录
-      this.clueMoveDialogVisible = true
       this.qbxsId = row.qbxsId
+      this.$emit('handleClueMove', this.qbxsId)
     }
   },
   mounted() {
