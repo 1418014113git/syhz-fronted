@@ -70,14 +70,16 @@
                           <el-table-column align="center" label="侦办刑事案件">
                             <el-table-column prop="larqCount" align="center" width="90" label="　立案　（起）" show-overflow-tooltip>
                               <template slot-scope="scope">
-                                <a v-if="scope.row.larqCount > 0" class="linkColor" @click="toCaseList(0, scope.row, true)">{{scope.row.larqCount}}</a>
-                                <span v-else>{{scope.row.larqCount || 0}}</span>
+                                <!--<a v-if="scope.row.larqCount > 0" class="linkColor" @click="toCaseList(0, scope.row, true)">{{scope.row.larqCount}}</a>-->
+                                <!--<span v-else>{{scope.row.larqCount || 0}}</span>-->
+                                <span>{{scope.row.larqCount || 0}}</span>
                               </template>
                             </el-table-column>
                             <el-table-column prop="parqCount" align="center" width="90" label="　破案　（起）" show-overflow-tooltip>
                               <template slot-scope="scope">
-                                <a v-if="scope.row.parqCount > 0" class="linkColor" @click="toCaseList(1, scope.row, true)">{{scope.row.parqCount}}</a>
-                                <span v-else>{{scope.row.parqCount || 0}}</span>
+                                <!--<a v-if="scope.row.parqCount > 0" class="linkColor" @click="toCaseList(1, scope.row, true)">{{scope.row.parqCount}}</a>-->
+                                <!--<span v-else>{{scope.row.parqCount || 0}}</span>-->
+                                <span>{{scope.row.parqCount || 0}}</span>
                               </template>
                             </el-table-column>
                             <el-table-column prop="zhrys" align="center" width="90" label="　抓获　（人）" show-overflow-tooltip></el-table-column>
@@ -119,14 +121,16 @@
                     <el-table-column align="center" label="侦办刑事案件">
                       <el-table-column prop="larqCount" align="center" width="90" label="　立案　（起）" show-overflow-tooltip>
                         <template slot-scope="scope">
-                          <a v-if="scope.row.larqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(0, scope.row)">{{scope.row.larqCount}}</a>
-                          <span v-else>{{scope.row.larqCount || 0}}</span>
+                          <!--<a v-if="scope.row.larqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(0, scope.row)">{{scope.row.larqCount}}</a>-->
+                          <!--<span v-else>{{scope.row.larqCount || 0}}</span>-->
+                          <span>{{scope.row.larqCount || 0}}</span>
                         </template>
                       </el-table-column>
                       <el-table-column prop="parqCount" align="center" width="90" label="　破案　（起）" show-overflow-tooltip>
                         <template slot-scope="scope">
-                          <a v-if="scope.row.parqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(1, scope.row)">{{scope.row.parqCount}}</a>
-                          <span v-else>{{scope.row.parqCount || 0}}</span>
+                          <!--<a v-if="scope.row.parqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(1, scope.row)">{{scope.row.parqCount}}</a>-->
+                          <!--<span v-else>{{scope.row.parqCount || 0}}</span>-->
+                          <span>{{scope.row.parqCount || 0}}</span>
                         </template>
                       </el-table-column>
                       <el-table-column prop="zhrys" align="center" width="90" label="　抓获　（人）" show-overflow-tooltip></el-table-column>
@@ -199,14 +203,16 @@
                           <el-table-column align="center" label="侦办刑事案件">
                             <el-table-column prop="larqCount" align="center" width="90" label="　立案　（起）" show-overflow-tooltip>
                               <template slot-scope="scope">
-                                <a v-if="scope.row.larqCount > 0 && enableTo(scope.row, true)" class="linkColor" @click="toCaseList(0, scope.row, true)">{{scope.row.larqCount}}</a>
-                                <span v-else>{{scope.row.larqCount || 0}}</span>
+                                <!--<a v-if="scope.row.larqCount > 0 && enableTo(scope.row, true)" class="linkColor" @click="toCaseList(0, scope.row, true)">{{scope.row.larqCount}}</a>-->
+                                <!--<span v-else>{{scope.row.larqCount || 0}}</span>-->
+                                <span>{{scope.row.larqCount || 0}}</span>
                               </template>
                             </el-table-column>
                             <el-table-column prop="parqCount" align="center" width="90" label="　破案　（起）" show-overflow-tooltip>
                               <template slot-scope="scope">
-                                <a v-if="scope.row.parqCount > 0 && enableTo(scope.row, true)" class="linkColor" @click="toCaseList(1, scope.row, true)">{{scope.row.parqCount}}</a>
-                                <span v-else>{{scope.row.parqCount || 0}}</span>
+                                <!--<a v-if="scope.row.parqCount > 0 && enableTo(scope.row, true)" class="linkColor" @click="toCaseList(1, scope.row, true)">{{scope.row.parqCount}}</a>-->
+                                <!--<span v-else>{{scope.row.parqCount || 0}}</span>-->
+                                <span>{{scope.row.parqCount || 0}}</span>
                               </template>
                             </el-table-column>
                             <el-table-column prop="zhrys" align="center" width="90" label="　抓获　（人）" show-overflow-tooltip></el-table-column>
@@ -276,14 +282,16 @@
                     <el-table-column align="center" label="侦办刑事案件">
                       <el-table-column prop="larqCount" align="center" width="90" label="　立案　（起）" show-overflow-tooltip>
                         <template slot-scope="scope">
-                          <a v-if="scope.row.larqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(0, scope.row)">{{scope.row.larqCount}}</a>
-                          <span v-else>{{scope.row.larqCount || 0}}</span>
+                          <!--<a v-if="scope.row.larqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(0, scope.row)">{{scope.row.larqCount}}</a>-->
+                          <!--<span v-else>{{scope.row.larqCount || 0}}</span>-->
+                          <span>{{scope.row.larqCount || 0}}</span>
                         </template>
                       </el-table-column>
                       <el-table-column prop="parqCount" align="center" width="90" label="　破案　（起）" show-overflow-tooltip>
                         <template slot-scope="scope">
-                          <a v-if="scope.row.parqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(1, scope.row)">{{scope.row.parqCount}}</a>
-                          <span v-else>{{scope.row.parqCount || 0}}</span>
+                          <!--<a v-if="scope.row.parqCount > 0 && enableTo(scope.row)" class="linkColor" @click="toCaseList(1, scope.row)">{{scope.row.parqCount}}</a>-->
+                          <!--<span v-else>{{scope.row.parqCount || 0}}</span>-->
+                          <span>{{scope.row.parqCount || 0}}</span>
                         </template>
                       </el-table-column>
                       <el-table-column prop="zhrys" align="center" width="90" label="　抓获　（人）" show-overflow-tooltip></el-table-column>
@@ -577,6 +585,7 @@
             para.areaCode = ['610000', cityCode.substring(0, 4) + '00', cityCode]
           }
         }
+        para.ajbhs = row.ajbhs
         this.$gotoid('/caseManage/caseList', JSON.stringify(para))
       },
       toClueList(type, row, flag) {

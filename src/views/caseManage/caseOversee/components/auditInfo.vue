@@ -6,17 +6,17 @@
       <el-table :data="shDataList" style="width: 100%;" v-loading="loading" class="table_th_center">
         <el-table-column type="index" label="序号" width="55" align="center" fixed="left"></el-table-column>
         <el-table-column prop="applyDepartName" label="申请部门"  min-width="240" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="applyUserName" label="申请人" min-width="120" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="applyUserName" label="申请人" min-width="120" align="center" show-overflow-tooltip></el-table-column>
         <el-table-column prop="applyDate" label="申请时间" width="170" align="center"></el-table-column>
         <el-table-column prop="superviseLevel" label="督办级别" width="100" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             {{$getDictName(scope.row.superviseLevel+'','dbjb')}}
           </template>
         </el-table-column>
-        <el-table-column prop="auditDepartName" label="审核部门"  min-width="240" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="auditUserName" label="审核人" min-width="120" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="auditDepartName" label="审核部门" min-width="240" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="auditUserName" label="审核人" min-width="120" align="center" show-overflow-tooltip></el-table-column>
         <el-table-column prop="auditTime" label="审核时间" width="170" align="center"></el-table-column>
-        <el-table-column prop="flowStatus" label="审核状态"  width="120" align="center" show-overflow-tooltip>
+        <el-table-column prop="flowStatus" label="审核状态" width="120" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             {{$getDictName(scope.row.flowStatus+'','dbajzt')}}
           </template>

@@ -58,6 +58,8 @@
               <p>1、列表勾选需要分发线索。</p>
               <p>2、选择线索接收单位。</p>
               <p>3、点击【线索分发】，向接收单位分发线索。</p>
+              <p>线索删除说明：</p>
+              <p>删除线索会删除对应线索反馈内容。</p>
             </div>
             <el-button  type="primary" size="small" slot="reference"><svg-icon icon-class="wenhao"></svg-icon> 分发步骤</el-button>
           </el-popover>
@@ -88,6 +90,7 @@
           <template slot-scope="scope">
             <el-button size="mini" title="取消分发"  type="primary" circle v-if="enable(scope.row)" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
             <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='detail'"  @click="handleDel(scope.$index,scope.row)"></el-button>
+            <el-button v-if="pageSource==='detail'" size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -98,13 +101,19 @@
                      :total="total" :current-page="page" style=" text-align: right">
       </el-pagination>
     </el-col>
+
+    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false">
+      <clueMoveList :assistId="curAssistId" :qbxsId="qbxsId"></clueMoveList>
+    </el-dialog>
   </section>
 </template>
 <script>
+import clueMoveList from '@/views/caseAssist/clue/clueMoveList.vue'
 export default {
   props: ['assistId', 'source', 'fastatus', 'jsdw', 'assistStatus', 'category'],
   name: 'distributeClue',
   components: {
+    clueMoveList
   },
   data() {
     return {
@@ -136,7 +145,9 @@ export default {
       tableHead: [], // 表头
       pcsParentDept: {}, // 派出所的上级部门
       pageSource: '', // 进入页面的来源,
-      lycategory: '' // 是从主页的下发还是申请  2：申请，  3：下发
+      lycategory: '', // 是从主页的下发还是申请  2：申请，  3：下发
+      clueMoveDialogVisible: false,
+      qbxsId: ''
     }
   },
   watch: {
@@ -239,7 +250,12 @@ export default {
           qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
           assistId: this.assistId,
           receiveCode: row.receiveCode ? row.receiveCode : '',
-          assistType: 1
+          assistType: 1,
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
+          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
+          userId: this.curUser.id,
+          userName: this.curUser.realName,
+          opt: this.pageSource === 'detail' && Number(this.assistStatus) > 3 ? 'addRecord' : ''
         }
         this.$update('caseassistclue/delete', param).then((response) => {
           this.listLoading = false
@@ -272,7 +288,12 @@ export default {
           qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
           assistId: this.assistId,
           receiveCode: row.receiveCode ? row.receiveCode : '',
-          assistType: 1
+          assistType: 1,
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
+          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
+          userId: this.curUser.id,
+          userName: this.curUser.realName,
+          opt: this.pageSource === 'detail' && Number(this.assistStatus) > 3 ? 'addRecord' : ''
         }
         this.$update('caseassistclue/cancelDistribute', param).then((response) => {
           this.$emit('closeDialog', true)
@@ -568,6 +589,10 @@ export default {
         this.queryCubordinate()
       }
       this.query(true)
+    },
+    handleClueMove(index, row) { // 线索流转记录
+      this.qbxsId = row.qbxsId
+      this.$emit('handleClueMove', this.qbxsId)
     }
   },
   mounted() {
@@ -616,6 +641,13 @@ export default {
   }
   .caseAssist_distributeClue .dis_table_div {
     width: 100%;
+    overflow: auto;
+  }
+  .caseAssist_distributeClue .el-button [class*=el-icon-]+span{
+    margin-left: 0;
+  }
+  .caseAssist_distributeClue .clueMove .el-dialog{
+    width: 70%;
     overflow: auto;
   }
 </style>

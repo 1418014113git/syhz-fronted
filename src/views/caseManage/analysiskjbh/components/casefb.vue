@@ -238,7 +238,7 @@ export default {
                     Id: _that.coordinatesFa[i].Id,
                     ajmc: _that.coordinatesFa[i].ajmc,
                     ajbh: _that.coordinatesFa[i].ajbh,
-                    fadz: _that.coordinatesFa[i].fadz
+                    fadz: _that.coordinatesFa[i].fadz ? _that.coordinatesFa[i].fadz : ''
                   }
                 }
               }

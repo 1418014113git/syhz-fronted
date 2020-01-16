@@ -32,7 +32,7 @@
           </el-date-picker>
          </el-form-item>
         <el-form-item label="审核意见" prop="content">
-          <el-input v-model.trim="stshForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="" class="inputW"></el-input>
+          <el-input v-model.trim="stshForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符" class="inputW"></el-input>
         </el-form-item>
       </el-form>
       <el-row class="tabC dialogBtnUpLine">
@@ -45,7 +45,7 @@
      <div class="dsshForm" v-else-if='roleType===2'>
       <el-form ref="dsshForm" :rules="rules" :model="dsshForm" size="small" label-width="100px">
         <el-form-item label="审核意见" prop="content">
-          <el-input v-model.trim="dsshForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="" class="inputW"></el-input>
+          <el-input v-model.trim="dsshForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符" class="inputW"></el-input>
         </el-form-item>
       </el-form>
       <el-row class="tabC dialogBtnUpLine">
