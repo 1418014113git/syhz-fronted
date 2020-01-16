@@ -141,8 +141,20 @@
             <span v-if='scope.row.status'>{{$getDictName(scope.row.status+'','jqzyzt')}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="tCount"  label='厅评价'  min-width="100" v-if="curDept.depType === '1' || curDept.depType === '2'"    show-overflow-tooltip></el-table-column>
-        <el-table-column prop="sCount"  label='市评价'  min-width="100" v-if="curDept.depType === '2' || curDept.depType === '3' || curDept.depType === '4'"  show-overflow-tooltip></el-table-column>
+        <el-table-column prop=""  label='厅评价'  min-width="100" v-if="curDept.depType === '1' || curDept.depType === '2' || (curDept.depType === '4' && curDept.areaCode==='611400')"   show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span v-if='scope.row.tCount'>{{scope.row.tCount}}</span>
+            <span>0</span>
+            /
+            <span v-if='scope.row.tTotal'>{{scope.row.tTotal}}</span>
+            <span>0</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop=""  label='市评价'  min-width="100" v-if="curDept.depType === '2' || curDept.depType === '3' || (curDept.depType === '4' && curDept.areaCode!=='611400')"  show-overflow-tooltip>
+           <template slot-scope="scope">
+            <span>{{scope.row.sCount}}/{{scope.row.sTotal}}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="130">
           <template slot-scope="scope">
             <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
@@ -205,7 +217,7 @@ export default {
         end2: '' // 结束日期 结束时间
       },
       dcForm: {
-        type: 1
+        type: 0
       },
       isShowdcdialog: false, // 是否显示导出弹框
       xflb: '', // 下发类别   厅总队账号，多一个查询条件“下发类别”（部下发，厅下发）
@@ -712,10 +724,10 @@ export default {
       this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'add' }}) // 跳转到集群战役申请页
     },
     downSend() { // 下发
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'xf' }}) // 跳转到集群战役下发页
+      this.$router.push({ path: '/jqCampaign/jqzyxf', query: { type: 'xf' }}) // 跳转到集群战役下发页
     },
     budownSend() { // 部下发
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'bxf' }}) // 跳转到集群战役部下发页
+      this.$router.push({ path: '/jqCampaign/jqzybxf', query: { type: 'bxf' }}) // 跳转到集群战役部下发页
     },
     handleEdit(index, row) { // 修改
       var type = ''
@@ -726,7 +738,7 @@ export default {
       } else { //    3申请
         type = 'edit'
       }
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: type, id: row.clusterId, status: row.status }}) // 跳转到集群战役申请页
+      this.$router.push({ path: '/jqCampaign/jqzyEdit', query: { type: type, id: row.clusterId, status: row.status }}) // 跳转到集群战役申请页
     },
     handleClueList(row, type, param) { // 线索列表
       if (param) { // 外层列表
@@ -743,6 +755,11 @@ export default {
     },
     exportList() { // 导出
       this.isShowdcdialog = true
+      if (this.checkId.length > 0) {
+        this.dcForm.type = 2
+      } else {
+        this.dcForm.type = 1
+      }
     },
     canceldc() { // 取消导出
       this.isShowdcdialog = false
@@ -776,7 +793,7 @@ export default {
         parms.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 派出所取他的上级部门名称，非派出所取当前部门
         parms.realName = this.curUser.realName
         parms.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
-        parms.fileName = '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+        parms.fileName = '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}.xls')
         this.$download('cluster/export', parms)
       } else { // 导出选中的
         var para = {
@@ -785,7 +802,7 @@ export default {
           curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 派出所取他的上级部门名称，非派出所取当前部门
           realName: this.curUser.realName,
           curUserPhone: this.curUser.phone ? this.curUser.phone : '',
-          fileName: '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+          fileName: '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}.xls')
         }
         this.$download('cluster/export', para)
       }
