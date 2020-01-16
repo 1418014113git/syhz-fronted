@@ -100,7 +100,7 @@
       </el-table-column>
       <el-table-column label="操作"  width="130" fixed="right">
         <template slot-scope="scope">
-          <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle   v-if="controshowBtn(scope.row)" @click="handleDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle   @click="handleDetail(scope.$index, scope.row)"></el-button>
           <el-button size="mini" title="线索流转记录"  type="primary" circle   @click="handlelzDetail(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
           <!-- <el-button size="mini" title="转回上级"  type="primary" v-if="controlrecall(scope.row)"  circle  @click="handleRecall(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button> -->
         </template>
@@ -492,18 +492,6 @@ export default {
     },
     toback() { // 返回
       this.$router.back(-1)
-    },
-    controshowBtn(row) { //  详情按钮  本单位、上级单位显示
-      var parentCode = '' // 存储当前行单位的上级单位code
-      var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
-      for (let i = 0; i < deptArr.length; i++) {
-        const dept = deptArr[i]
-        if (dept.depCode === row.receiveCode) {
-          parentCode = dept.parentCode
-          break
-        }
-      }
-      return (this.curDept.depCode === parentCode || (this.curDept.depType !== '4' && row.receiveCode === this.curDept.depCode) || (this.curDept.depType === '4' && row.receiveCode === this.curDept.parentDepCode))
     },
     handlelzDetail(index, row) { // 显示线索流转记录弹框
       this.isShowlzrecord = true
