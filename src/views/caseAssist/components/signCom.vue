@@ -28,7 +28,7 @@
       </el-table-column>
       <el-table-column prop="receiveUserName" label="签收人" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column prop="receiveDate" label="签收时间" align="center" show-overflow-tooltip></el-table-column>
-      <el-table-column label="操作" align="center" width="80">
+      <el-table-column label="操作" align="center" width="80" fixed="right">
         <template slot-scope="scope">
           <el-button v-if="$isViewBtn('100907') && String(scope.row.signStatus) !== '2' && signEnable(scope.row)" size="mini" title="签收"  type="primary" circle icon="el-icon-edit-outline" @click="handleSign(scope.$index, scope.row)"></el-button>
           <span v-else>-</span>

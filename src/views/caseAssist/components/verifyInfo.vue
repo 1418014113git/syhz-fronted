@@ -21,7 +21,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="content" label="审核意见" align="center" min-width="150" show-overflow-tooltip></el-table-column>
-        <el-table-column label="操作" align="center" width="100">
+        <el-table-column label="操作" align="center" width="100" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" title="重新申请" type="primary" circle v-if="reApplyEnable(scope.$index, scope.row)" @click="handleApply(scope.$index, scope.row)"><svg-icon icon-class="shenqing"></svg-icon></el-button>
             <el-button size="mini" title="审核" type="primary" circle v-if="auditEnable(scope.row)" @click="handleVerify(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
