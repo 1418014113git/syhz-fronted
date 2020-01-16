@@ -101,14 +101,16 @@ export default {
       handler: function(val, oldeval) {
         if (val.fbId) { // 反馈id
           this.curRow = val
-          this.detail() // 查详情
         }
       }
     },
-    isShowDialog: {
+    isShowdialog: {
       handler: function(val, oldeval) {
         if (val) {
           this.initData()
+          if (this.row.fbId) {
+            this.detail() // 查详情
+          }
         }
       }
     }
