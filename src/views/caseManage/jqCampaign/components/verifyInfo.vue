@@ -147,7 +147,7 @@ export default {
     },
     handleApply(index, row) { // 重新申请
       this.curRow = row
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'detail', id: this.clusterId }}) // 跳转到集群战役申请页
+      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'detail', id: this.clusterId, isDel: true }}) // 跳转到集群战役申请页
     },
     handleVerify(index, row) { // 审核
       this.curRow = row

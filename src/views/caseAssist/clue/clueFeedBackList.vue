@@ -296,6 +296,9 @@
       handleClueMove(index, row) { // 线索流转记录
         this.clueMoveDialogVisible = true
         this.qbxsId = row.qbxsId
+        if (this.$refs.clueMoveList) {
+          this.$refs.clueMoveList.query(this.qbxsId)
+        }
       },
       closeClueMoveDialog() {
         this.$refs.clueMoveList.listData = []

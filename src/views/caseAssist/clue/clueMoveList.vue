@@ -35,20 +35,21 @@ export default {
   watch: {
     assistId: function(assistId) {
       this.curAssistId = assistId
-      this.query()
     },
     qbxsId: function(qbxsId) {
       this.curQbxsId = qbxsId
-      this.query()
     }
   },
   methods: {
-    query() {
+    query(qbxsId) {
       this.listLoading = true
       const para = {
         assistType: 1,
         assistId: this.curAssistId,
         qbxsId: this.curQbxsId
+      }
+      if (qbxsId) {
+        para.qbxsId = qbxsId
       }
       this.$query('caseassistclue/ajglQbxsRecord', para).then(response => {
         this.listLoading = false

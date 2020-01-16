@@ -89,7 +89,7 @@
         <el-table-column label="操作" align="center" width="100" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" title="取消分发"  type="primary" circle v-if="enable(scope.row)" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
-            <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='detail'"  @click="handleDel(scope.$index,scope.row)"></el-button>
+            <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="enableDelete(scope.row)"  @click="handleDel(scope.$index,scope.row)"></el-button>
             <el-button v-if="pageSource==='detail'" size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
           </template>
         </el-table-column>
@@ -179,6 +179,15 @@ export default {
         } else {
           return true
         }
+      }
+      return false
+    },
+    enableDelete(row) {
+      if (this.pageSource !== 'detail') {
+        // if (this.assistStatus === '0' || this.assistStatus === undefined) {
+        //   return true
+        // }
+        return true
       }
       return false
     },

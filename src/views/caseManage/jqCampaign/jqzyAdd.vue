@@ -154,7 +154,7 @@
 
   <!-- 分发线索-->
   <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false"  @close="clearChildData">
-    <jqzy-disib   ref="ffchild" :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="id"   :fastatus="qbxsDistribute"  :jsdw="receiveName"  :source="pageType"  @result="getfaResult" :xcstatus="ajstatus"></jqzy-disib>
+    <jqzy-disib   ref="ffchild" :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="id"   :fastatus="qbxsDistribute"  :jsdw="receiveName"  :source="pageType"  @result="getfaResult" :xcstatus="ajstatus" :isDel="isDel"></jqzy-disib>
   </el-dialog>
 </div>
 </template>
@@ -232,6 +232,7 @@ export default {
       pageTitle: '', // 页面标题
       btnText: '', // 按钮文字
       ajstatus: '', // 列表页传递过来的案件状态
+      isDel: false, // 详情页点击重新申请时，传递改参数，则线索分发页面的线索可删除。
       rules: {
         clusterTitle: [{ // 标题
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
@@ -915,6 +916,10 @@ export default {
     if (this.$route.query.status) { // 列表页，点击修改跳转过来传递的案件状态
       this.ajstatus = this.$route.query.status // 存储案件状态
     }
+    if (this.$route.query.isDel) { // 详情页点击重新申请时，传递该参数，则线索分发页面的线索可删除。
+      this.isDel = this.$route.query.isDel
+    }
+
     if (this.$route.query.type === 'add') { // 从列表页面点击“申请”按钮进来的。
       this.pageTitle = '申请集群战役'
       this.btnText = '申 请'

@@ -14,7 +14,7 @@
             {{scope.$index === listData.length - 1 ? '合计' : scope.$index + 1}}
           </template>
         </el-table-column>
-        <el-table-column prop="deptName" label="单位" align="center" width="280" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="deptName" label="单位" align="center" width="280" show-overflow-tooltip fixed="left"></el-table-column>
         <el-table-column prop="xsNum" label="线索总数（条）" width="160" align="center">
           <template slot-scope="scope">
             <span class="linkColor"  @click="toClueList(scope.row)" v-if="scope.row.xsNum && enableTo(scope.row, scope.$index)">{{scope.row.xsNum}}</span>
@@ -439,6 +439,9 @@ export default {
     handleClueMove(qbxsId) { // 线索流转记录
       this.clueMoveDialogVisible = true
       this.qbxsId = qbxsId
+      if (this.$refs.clueMoveList) {
+        this.$refs.clueMoveList.query(this.qbxsId)
+      }
     },
     queryArea() {
       this.$query('citytree', { cityCode: this.curDept.areaCode }, 'upms').then((response) => {
