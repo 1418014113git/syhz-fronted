@@ -8,7 +8,7 @@
     </div>
     <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
       <el-table-column type="index" label="序号" width="60" align="center" fixed="left"></el-table-column>
-      <el-table-column prop="createDeptName" label="下发单位" width="280" align="center" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="createDeptName" label="下发单位" width="280" align="center" show-overflow-tooltip fixed="left"></el-table-column>
       <el-table-column prop="createDate" label="下发日期" align="center" show-overflow-tooltip>
         <template slot-scope="scope">
           {{$parseTime(scope.row.createDate, '{y}-{m}-{d}')}}

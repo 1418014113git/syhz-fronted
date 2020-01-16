@@ -8,8 +8,8 @@
         </div>
       </div>
       <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="statisticCollect" max-height="156">
-        <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
-        <el-table-column prop="deptName" label="申请单位" align="center" width="280" show-overflow-tooltip></el-table-column>
+        <el-table-column type="index" label="序号" align="center" width="60" fixed="left"></el-table-column>
+        <el-table-column prop="deptName" label="申请单位" align="center" width="280" show-overflow-tooltip fixed="left"></el-table-column>
         <el-table-column prop="userName" label="申请人" align="center" show-overflow-tooltip></el-table-column>
         <el-table-column prop="acceptedTime" label="申请时间" align="center" width="170" show-overflow-tooltip></el-table-column>
         <el-table-column prop="acceptDeptName" label="审核单位" align="center" width="240" show-overflow-tooltip></el-table-column>
