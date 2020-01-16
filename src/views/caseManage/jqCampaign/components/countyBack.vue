@@ -3,7 +3,7 @@
     <!-- 区县反馈 -->
     <div class="countyBack pubStyle">
        <title-pub :title="title">
-        <!-- <i v-if="listData.length>0" title="导出全部线索" class="export_btn" @click="exportallxs"><svg-icon icon-class="export"></svg-icon></i> -->
+        <i v-if="listData.length>0" title="导出全部线索" class="export_btn" @click="exportallxs"><svg-icon icon-class="export"></svg-icon></i>
       </title-pub>
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
           <el-table-column type="index" label="序号" width="60" fixed>
@@ -61,7 +61,6 @@
               <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')"  @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
               <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && controlpjdf(scope.row) && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
               <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score && controlpjxq(scope.row)"   icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
-              <!-- <el-button size="mini" title="转回上级"  type="primary" v-if="scope.$index+1<listData.length && controlrecall(scope.row)"  circle  @click="handleRecall(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -92,22 +91,6 @@
           </el-form-item>
         </el-form>
       </el-dialog>
-
-      <!-- 转回上级-->
-      <el-dialog title="转回上级" :visible.sync="isShowzhsj"  class="recallForm" :close-on-click-modal="false" v-loading="zhsjLoading" @close="cancel('zhsjForm')">
-        <el-form ref="zhsjForm" :rules="zhsjrules" :model="zhsjForm" size="small" label-width="100px">
-          <p class="zhsjp">将线索转回上级单位。</p>
-          <el-form-item label="接收单位" prop="parentDepartName">
-            <el-input v-model.trim="zhsjForm.parentDepartName"  disabled></el-input>
-          </el-form-item>
-          <el-form-item label="原因" prop="content">
-            <el-input v-model.trim="zhsjForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
-          </el-form-item>
-        </el-form>
-        <el-row class="tabC dialogBtnUpLine">
-          <el-button  type="primary" @click="sumbit"  class="saveBtn" :loading="tjbtnLoading">提交</el-button>
-        </el-row>
-      </el-dialog>
     </div>
   </section>
 </template>
@@ -115,7 +98,7 @@
 import titlePub from './titlePub'
 import Bus from '@/utils/bus.js'
 export default {
-  props: ['info'],
+  props: ['info', 'cityList'],
   name: 'countyBack',
   components: {
     titlePub
@@ -147,9 +130,8 @@ export default {
       clusterId: '', // 存储列表传递过来的id
       pcsParentDept: {}, // 派出所上级部门的数据信息
       qxqsbtn: false, // 区县签收也是否有签收按钮
-      isShowzhsj: false, // 是否显示转回上级弹框
-      tjbtnLoading: false, // 转回上级提交按钮loading
-      zhsjLoading: false, // 转回上级弹框页面loading
+      ecportTitle: '', // 导出的excel名称
+      cityListData: [], // citylist
       rules: {
         score: [ // 评价打分
           {
@@ -161,20 +143,6 @@ export default {
               }
             }
           }
-        ]
-      },
-      zhsjrules: {
-        parentDepartName: [ // 接收单位（上级单位）
-          { required: true, message: '请填写接收单位', max: 6, trigger: 'blur' }
-        ],
-        content: [ // 原因
-          { required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (!value) {
-              callback(new Error('请填写原因'))
-            } else {
-              callback()
-            }
-          } }
         ]
       }
     }
@@ -193,6 +161,7 @@ export default {
       if (this.info.clusterId) {
         this.clusterId = this.info.clusterId
         this.baseInfo = this.info
+        this.getCity()
         this.getDeptsshdw() // 查上级单位
       }
       Bus.$on('qxqsbtn', (data) => { // 接收地市签收列表传递过来的参数
@@ -201,6 +170,7 @@ export default {
     },
     query() { // 查询列表
       Bus.$emit('isShowfkbtn', false) // 线索反馈按钮
+      Bus.$emit('isShowpjbtn', false) // 评价打分按钮
       this.listLoading = true
       var param = {
         // parentCode: this.curDept.depType === '2' ? this.curDept.depCode : this.parentCode, // 上级部门Code
@@ -333,21 +303,12 @@ export default {
       this.isShowpjdfdetail = true
       this.curRow = row
     },
-    handleRecall(index, row) { // 转回上级
-      this.isShowzhsj = true
-      this.getDeptsshdw(row.deptCode)
-    },
-    getDeptsshdw(deptCode) { // 查询上级单位
+    getDeptsshdw() { // 查询上级单位
       var paramCode = ''
-      if (deptCode) {
-        this.zhsjLoading = true
-        paramCode = deptCode
+      if (this.curDept.depType === '4') { // 派出所
+        paramCode = this.curDept.parentDepCode
       } else {
-        if (this.curDept.depType === '4') { // 派出所
-          paramCode = this.curDept.parentDepCode
-        } else {
-          paramCode = this.curDept.depCode
-        }
+        paramCode = this.curDept.depCode
       }
       this.$query('hsyzparentdepart/' + paramCode, {}, 'upms').then((response) => {
         if (response.code === '000000') {
@@ -392,35 +353,49 @@ export default {
     },
     cancel(obj) {
       this.isShowpjdf = false
-      this.isShowzhsj = false
       this.resetForm(obj)
     },
     exportallxs() { // 导出全部线索
-
+      var para = {
+        category: 2, // 1是 地市，2 是 区县
+        clusterId: this.clusterId, //  集群战役Id
+        deptType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType, // 派出所 类型他上级单位的类型
+        deptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode, // 派出所传父级code， 其他传当前code
+        fileName: this.ecportTitle + '.xlsx'
+      }
+      this.$download('cluster/export/clue', para)
     },
-    sumbit() { // 转回上级提交
-      this.$refs.zhsjForm.validate(valid => {
-        if (valid) {
-          this.tjbtnLoading = true
-          const param = {
-            clusterId: this.clusterId, //  集群战役Id
-            deptCode: this.curRow.deptCode, // 反馈列表当前行的部门code
-            content: this.zhsjForm.content, // 原因
-            parentCode: this.parentCode, // 上级部门Code
-            parentName: this.zhsjForm.parentDepartName // 上级部门名称
+    getexportName() { // 获取当前城市名称
+      this.ecportTitle = this.baseInfo.title + '(' + this.getcityName(this.curDept.depType, this.curDept.areaCode) + ')' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+    },
+    getcityName(type, areaCode) { // 获取城市名称
+      var cityData = this.cityListData
+      var name = ''
+      for (var i = 0; i < cityData.length; i++) {
+        if (type === '2') { // 支队
+          if (cityData[i].cityCode === areaCode) {
+            name = cityData[i].cityName + '区县'
+            break
           }
-          this.$update('', param).then((response) => {
-            this.$message({
-              message: '提交成功！',
-              type: 'success',
-              duration: 2000
-            })
-            this.tjbtnLoading = false
-            this.isShowzhsj = false
-            this.query()
-          }).catch(() => {
-            this.tjbtnLoading = false
-          })
+        } else { // 大队，派出所
+          if (cityData[i].cityCode.substring(0, 4) === areaCode.substring(0, 4)) {
+            var data = cityData[i].children
+            for (var j = 0; j < data.length; j++) {
+              if (data[j].cityCode === areaCode) {
+                name = data[j].cityName
+                break
+              }
+            }
+          }
+        }
+      }
+      return name
+    },
+    getCity() {
+      this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.cityListData = response.data ? response.data[0].children : []
+          this.getexportName() // 导出excel表的名称
         }
       })
     }
@@ -440,6 +415,7 @@ export default {
         })
       }
     }
+    this.getCity()
     this.init()
   }
 }
