@@ -72,7 +72,13 @@ export default {
           toolbox: {
             show: true,
             feature: {
-              saveAsImage: { show: true }
+              saveAsImage: {
+                show: true,
+                backgroundColor: '#013a58',
+                iconStyle: {
+                  borderColor: '#ddd'
+                }
+              }
             }
           },
           legend: {
@@ -96,7 +102,7 @@ export default {
               },
               axisLine: {
                 lineStyle: {
-                  color: '#FFF'
+                  color: '#ddd'
                 }
               }
             }
@@ -109,7 +115,7 @@ export default {
               },
               axisLine: {
                 lineStyle: {
-                  color: '#FFF'
+                  color: '#ddd'
                 }
               }
             }

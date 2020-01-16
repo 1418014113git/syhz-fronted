@@ -60,6 +60,7 @@ export default {
       page: 1,
       total: 0,
       baseInfo: {}, // 基础信息
+      pcsParentDept: {}, // 上级部门
       clusterId: '', // 存储列表传递过来的集群战役id
       parentCode: '' // 上级部门code
     }
@@ -70,7 +71,6 @@ export default {
         this.clusterId = val.clusterId
         this.baseInfo = this.info
         this.getDeptsshdw() // 查上级单位
-        // this.query(true)
       }
     }
   },
@@ -80,10 +80,10 @@ export default {
         this.clusterId = this.info.clusterId
         this.baseInfo = this.info
         this.getDeptsshdw() // 查上级单位
-        // this.query(true)
       }
     },
     query(flag) {
+      Bus.$emit('isShowqsbtn', false) // 签收按钮
       this.listLoading = true
       var param = {
         assistId: this.clusterId,
@@ -111,7 +111,6 @@ export default {
         this.$resetSetItem('t2', this.total) // 将总数存在session中
       }).catch(() => {
         this.$resetSetItem('t2', 0) // 将总数存在session中
-        Bus.$emit('isShowqsbtn', false)
         this.listLoading = false
         this.initData()
       })
@@ -120,27 +119,22 @@ export default {
       if (Number(this.baseInfo.status) >= 4) { // 审核通过以后
         const curDate = new Date(this.baseInfo.systemTime)
         const startDate = new Date(this.baseInfo.startDate)
-        return (((this.curDept.depType === '2' && this.curDept.depCode === row.receiveDeptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === row.receiveDeptCode.substring(0, 4) === '6114')) && row.signStatus + '' === '1' && curDate > startDate)
+        return (((this.curDept.depType === '2' && this.curDept.depCode === row.receiveDeptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === row.receiveDeptCode.substring(0, 4) && this.curDept.depCode.substring(0, 4) === '6114' && row.receiveDeptCode.substring(0, 4) === '6114')) && row.signStatus + '' === '1' && curDate > startDate)
       } else {
         return false
       }
     },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的签收按钮
-      // Bus.$emit('isShowqsbtn', false)
       const curDate = new Date(this.baseInfo.systemTime)
       const startDate = new Date(this.baseInfo.startDate)
       if (data.length > 0) {
         data.forEach(item => {
-          if (((this.curDept.depType === '2' && this.curDept.depCode === item.receiveDeptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === item.receiveDeptCode.substring(0, 4) === '6114')) && item.signStatus + '' === '1') { // 本单位显示签收，地市只能是支队  协查状态：审核通过以后  1：待签收
+          if (((this.curDept.depType === '2' && this.curDept.depCode === item.receiveDeptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === item.receiveDeptCode.substring(0, 4) && this.curDept.depCode.substring(0, 4) === '6114' && item.receiveDeptCode.substring(0, 4) === '6114')) && item.signStatus + '' === '1') { // 本单位显示签收，地市只能是支队  协查状态：审核通过以后  1：待签收
             if (Number(this.baseInfo.status) >= 4) {
               if (curDate > startDate) {
                 Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
                 Bus.$emit('qsRow', item) // 当前待签收行的数据
-              } else {
-                // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
               }
-            } else {
-              // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
             }
           }
         })
@@ -172,7 +166,8 @@ export default {
         userName: this.curUser.realName, // 当前用户真实姓名
         deptCode: row.receiveDeptCode, // 当前行的接收单位code
         assistId: row.assistId, // 集群id
-        signId: row.assistSignId // 签收表id
+        signId: row.assistSignId, // 签收表id,
+        deptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 当前部门名称
       }
       this.$update('casecluster/signup', param).then((response) => {
         this.$alert('请尽快反馈线索核查情况', '签收成功', {
@@ -188,6 +183,7 @@ export default {
     getDeptsshdw() { // 查询上级单位
       this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
         if (response.code === '000000') {
+          this.pcsParentDept = response.data
           this.parentCode = response.data.departCode
           this.query(true)
         }

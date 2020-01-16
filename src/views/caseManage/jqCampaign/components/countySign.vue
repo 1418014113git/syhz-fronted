@@ -60,8 +60,9 @@ export default {
       total: 0,
       baseInfo: {}, // 基础信息
       clusterId: '', // 存储列表传递过来的集群战役id
-      pcsParentDept: {}, // 派出所上级部门的数据信息
-      pcsParentDeptcode: '' // 派出所的上上级code
+      pcsParentDept: {}, // 派出所上上级部门的数据信息
+      pcsParentDeptcode: '', // 派出所的上上级code
+      pcsParentDeptInfo: {} // 派出所上级单位信息
     }
   },
   watch: {
@@ -84,17 +85,26 @@ export default {
     queryList() {
       if (this.curDept.depType === '4') { // 派出所
         this.querysjdw() // 查上上级单位
+        this.querypcssjdw() // 查上级单位
       } else {
         this.query(true)
       }
     },
-    querysjdw() {
-      // 查询派出所的上上级(把派出所当大队，查大队的上级单位 )
+    querysjdw() { // 查询派出所的上上级(把派出所当大队，查大队的上级单位 )
       this.$query('hsyzparentdepart/' + this.curDept.parentDepCode, {}, 'upms').then((response) => {
         if (response.code === '000000') {
           this.pcsParentDept = response.data
           this.pcsParentDeptcode = response.data.departCode
           this.query(true)
+        }
+      }).catch(() => {
+
+      })
+    },
+    querypcssjdw() { // 查询派出所的上级单位
+      this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.pcsParentDeptInfo = response.data
         }
       }).catch(() => {
 
@@ -110,6 +120,7 @@ export default {
       }
     },
     query(flag) {
+      Bus.$emit('isShowqsbtn', false) // 签收按钮
       this.listLoading = true
       var param = {
         assistId: this.clusterId,
@@ -141,13 +152,11 @@ export default {
         this.$resetSetItem('t4', this.total) // 将总数存在session中
       }).catch(() => {
         this.$resetSetItem('t4', 0) // 将总数存在session中
-        Bus.$emit('isShowqsbtn', false)
         this.listLoading = false
         this.initData()
       })
     },
     controlBtn(data) { // 遍历列表信息，控制详情页上方的签收按钮
-      // Bus.$emit('isShowqsbtn', false)
       const curDate = new Date(this.baseInfo.systemTime)
       const startDate = new Date(this.baseInfo.startDate)
       if (data.length > 0) {
@@ -156,11 +165,7 @@ export default {
             if (Number(this.baseInfo.status) >= 4) {
               if (curDate > startDate) {
                 Bus.$emit('isShowqsbtn', true) // 控制详情页上方的签收按钮显隐
-              } else {
-                // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
               }
-            } else {
-              // Bus.$emit('isShowqsbtn', false) // 控制详情页上方的签收按钮显隐
             }
           }
         })
@@ -191,10 +196,10 @@ export default {
       const param = {
         userId: this.curUser.id, // 当前用户Id
         userName: this.curUser.realName, // 当前用户真实姓名
-        // deptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode, // 当前部门Code 派出所取它的父级单位code
         deptCode: row.receiveDeptCode, // 当前行的接收单位code
         assistId: row.assistId, // 集群id
-        signId: row.assistSignId // 签收表id
+        signId: row.assistSignId, // 签收表id
+        deptName: this.curDept.depType === '4' ? this.pcsParentDeptInfo.departName : this.curDept.depName // 当前部门名称
       }
       this.$update('casecluster/signup', param).then((response) => {
         this.$alert('请尽快反馈线索核查情况', '签收成功', {
@@ -207,7 +212,7 @@ export default {
       }).catch(() => {
       })
     },
-    querypcssj() { // 如果是派出所，派出所当大队，则查的是派出所的上上级
+    querypcssj() { // 查上级单位
       this.$query('hsyzparentdepart/' + this.curDept.parentDepCode, {}, 'upms').then((response) => {
         if (response.code === '000000') {
           this.pcsParentDept = response.data

@@ -40,7 +40,7 @@
                 <el-button v-if="$isViewBtn('102904')" type="primary" @click="handlerRemove(item)">删除</el-button>
               </div>
             </div>
-            <div @click='detail(item.id)' class="content content_ellipsis" v-html="item.artContent.replace(/&nbsp;/g, '')"></div>
+            <div v-if="item.artContent" @click='detail(item.id)' class="content content_ellipsis" v-html="item.artContent.replace(/&nbsp;/g, '')"></div>
           </div>
         </div>
         <div v-else style="text-align: center; min-height: 150px; line-height: 150px;">

@@ -74,7 +74,13 @@ export default {
           toolbox: {
             show: true,
             feature: {
-              saveAsImage: { show: true }
+              saveAsImage: {
+                show: true,
+                backgroundColor: '#013a58',
+                iconStyle: {
+                  borderColor: '#ddd'
+                }
+              }
             }
           },
           xAxis: {
@@ -83,12 +89,15 @@ export default {
             data: this.chartData.xAxisData,
             axisLine: {
               lineStyle: {
-                color: '#FFF'
+                color: '#ddd'
               }
             }
           },
           dataZoom: {
             type: 'slider',
+            textStyle: {
+              color: '#ddd'
+            },
             show: this.chartData.xAxisData.length > 12,
             xAxisIndex: [0],
             bottom: -5,
@@ -99,7 +108,7 @@ export default {
             type: 'value',
             axisLine: {
               lineStyle: {
-                color: '#FFF'
+                color: '#ddd'
               }
             }
           },

@@ -10,7 +10,7 @@
                 <p class="ellipsis-word texts">
                   <span v-if="index < 3" class="num b_color_409EFF">{{ index + 1}}</span>
                   <span v-else class="num b_color_656565">{{ index + 1}}</span>
-                  <span class="listTit" @click="toAJList(data.ajlb_text)" >{{data.ajlb_text}}</span>
+                  <span class="listTit" @click="toAJList(data)" >{{data.ajlb_text}}</span>
                 </p>
                 <div class="compare flexParent">
                   <p>环比
@@ -77,14 +77,19 @@ export default {
         this.loading = false
       })
     },
-    toAJList(ajlb) {
+    toAJList(date) {
       localStorage.setItem('curAppCode', 'B')
-      this.$router.push({
-        path: '/caseManage',
-        query: {
-          ajlbName: ajlb
-        }
-      })
+      // this.$router.push({
+      //   path: '/caseManage',
+      //   query: {
+      //     ajlbName: ajlb
+      //   }
+      // })
+      var param = {
+        ajlb: date.AJLB, // 案件分类
+        syhFllb: date.syhFllb ? date.syhFllb.split(',') : '' // 案件类别
+      }
+      this.$gotoid('/caseManage/caseList', JSON.stringify(param))
     }
   },
   mounted() {
@@ -99,7 +104,10 @@ export default {
     width: 100%;
     list-style: none;
     display: inline-block;
-    margin-bottom: 25px;
+    margin-bottom: 16px;
+  }
+  .portal_high_ul .portal_high_li:last-child {
+    margin-bottom: 5px;
   }
   .portal_high_ul .portal_high_li span.num {
     color: #fff;
