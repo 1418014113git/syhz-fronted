@@ -439,6 +439,9 @@ export default {
     handleClueMove(qbxsId) { // 线索流转记录
       this.clueMoveDialogVisible = true
       this.qbxsId = qbxsId
+      if (this.$refs.clueMoveList) {
+        this.$refs.clueMoveList.query(this.qbxsId)
+      }
     },
     queryArea() {
       this.$query('citytree', { cityCode: this.curDept.areaCode }, 'upms').then((response) => {

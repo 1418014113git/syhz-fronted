@@ -520,7 +520,11 @@ export default {
                 param.status = this.caseAssistForm.status
               }
             } else {
-              param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+              if (this.caseAssistForm.applyDeptCode !== this.curDept.depCode) {
+                param.status = this.caseAssistForm.status
+              } else {
+                param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+              }
             }
             param.operator = state === 0 ? 'update' : 'submit'
             param.id = this.editId
