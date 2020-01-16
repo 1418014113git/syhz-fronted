@@ -98,10 +98,11 @@
         <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="140" show-overflow-tooltip></el-table-column>
         <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="150" show-overflow-tooltip></el-table-column>
       </el-table-column>
-      <el-table-column label="操作"  width="100" fixed="right">
+      <el-table-column label="操作"  width="130" fixed="right">
         <template slot-scope="scope">
-          <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle   v-if="controshowBtn(scope.row)" @click="handleDetail(scope.$index, scope.row)"></el-button>
-          <!-- <el-button size="mini" title="线索流转记录"  type="primary" circle   @click="handlelzDetail(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button> -->
+          <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle   @click="handleDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="线索流转记录"  type="primary" circle   @click="handlelzDetail(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
+          <!-- <el-button size="mini" title="转回上级"  type="primary" v-if="controlrecall(scope.row)"  circle  @click="handleRecall(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -120,6 +121,22 @@
     <!--线索流转记录弹出层-->
     <el-dialog title="线索流转记录" :visible.sync="isShowlzrecord" class="xslzdialog">
       <cluelz-detail :isShowdialog="isShowlzrecord"  :row="curRow"></cluelz-detail>
+    </el-dialog>
+
+    <!-- 转回上级-->
+    <el-dialog title="转回上级" :visible.sync="isShowzhsj"  class="recallForm" v-loading="zhsjLoading" :close-on-click-modal="false" @close="cancel('zhsjForm')">
+      <el-form ref="zhsjForm" :rules="zhsjrules" :model="zhsjForm" size="small" label-width="100px">
+          <p class="zhsjp">将线索转回上级单位。</p>
+          <el-form-item label="接收单位" prop="parentDepartName">
+          <el-input v-model.trim="zhsjForm.parentDepartName"  disabled></el-input>
+        </el-form-item>
+        <el-form-item label="原因" prop="content">
+          <el-input v-model.trim="zhsjForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
+        </el-form-item>
+      </el-form>
+      <el-row class="tabC dialogBtnUpLine">
+        <el-button  type="primary" @click="sumbit"  class="saveBtn" :loading="tjbtnLoading">提交</el-button>
+      </el-row>
     </el-dialog>
   </section>
 </template>
@@ -144,6 +161,10 @@ export default {
         qbxsCategory: '', // 分类
         time: [] // 下发日期
       },
+      zhsjForm: { // 转回上级
+        content: '', // 原因
+        parentDepartName: '' // 上级单位名称
+      },
       applyDeptCode: '', // 列表页传递过来的申请单位code
       passWordForm: {
         queryPwd: ''
@@ -161,6 +182,9 @@ export default {
       curUser: {}, // 当前登录用户
       curDept: {}, // 当前登录的部门
       curRow: {}, // 存储当前被点击行数据
+      isShowzhsj: false, // 是否显示转回上级弹框
+      tjbtnLoading: false, // 转回上级提交按钮loading
+      zhsjLoading: false, // 转回上级弹框页面loading
       props: {
         value: 'cityCode',
         label: 'cityName'
@@ -181,7 +205,29 @@ export default {
       tableHead: [], // 表头
       showTitle: '', // 显示 地市 还是区县
       showType: '', // 显示类型
-      curCityCode: ''
+      curCityCode: '',
+      parentCode: '', // 当前部门的上级单位
+      baseInfo: {}, // 详情信息
+      zhsjrules: {
+        parentDepartName: [ // 接收单位（上级单位）
+          { required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            if (!value) {
+              callback(new Error('请填写接收单位'))
+            } else {
+              callback()
+            }
+          } }
+        ],
+        content: [ // 原因
+          { required: true, trigger: 'blur', validator: (rule, value, callback) => {
+            if (!value) {
+              callback(new Error('请填写原因'))
+            } else {
+              callback()
+            }
+          } }
+        ]
+      }
     }
   },
   methods: {
@@ -447,18 +493,6 @@ export default {
     toback() { // 返回
       this.$router.back(-1)
     },
-    controshowBtn(row) { //  详情按钮  本单位、上级单位显示
-      var parentCode = '' // 存储当前行单位的上级单位code
-      var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
-      for (let i = 0; i < deptArr.length; i++) {
-        const dept = deptArr[i]
-        if (dept.depCode === row.receiveCode) {
-          parentCode = dept.parentCode
-          break
-        }
-      }
-      return (this.curDept.depCode === parentCode || (this.curDept.depType !== '4' && row.receiveCode === this.curDept.depCode) || (this.curDept.depType === '4' && row.receiveCode === this.curDept.parentDepCode))
-    },
     handlelzDetail(index, row) { // 显示线索流转记录弹框
       this.isShowlzrecord = true
       this.curRow = row
@@ -471,6 +505,62 @@ export default {
         return false
       }
       return true
+    },
+    controlrecall(row) { // 转回上级按钮显隐控制  协查中本单位可以操作
+      return this.baseInfo.status + '' === '5' && ((this.curDept.depType !== '4' && row.receiveCode === this.curDept.depCode) || (this.curDept.depType === '4' && row.receiveCode === this.curDept.parentDepCode)) // 派出所和上级大内同权限
+    },
+    detail(id) { // 查询详情
+      this.$query('casecluster/' + id, {}).then((response) => {
+        this.baseInfo = response.data
+      }).catch(() => {
+      })
+    },
+    getDeptsshdw(deptCode) { // 查询上级单位
+      this.zhsjLoading = true
+      this.$query('hsyzparentdepart/' + deptCode, {}, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.zhsjLoading = false
+          this.parentCode = response.data.departCode // 上级部门code
+          this.zhsjForm.parentDepartName = response.data.departName // 上级部门名称
+          this.query()
+        }
+      }).catch(() => {
+        this.zhsjLoading = false
+      })
+    },
+    handleRecall(index, row) { // 转回上级
+      this.isShowzhsj = true
+      this.getDeptsshdw(row.receiveCode)
+    },
+    cancel(formName) {
+      this.isShowzhsj = false
+      this.$refs[formName].resetFields()
+    },
+    sumbit() { // 转回上级提交
+      this.$refs.zhsjForm.validate(valid => {
+        if (valid) {
+          this.tjbtnLoading = true
+          const param = {
+            clusterId: this.clusterId, //  集群战役Id
+            deptCode: this.curRow.receiveCode, // 线索列表当前行的部门code
+            parentCode: this.parentCode, // 上级部门Code
+            content: this.zhsjForm.content, // 原因
+            parentName: this.zhsjForm.parentDepartName // 上级部门名称
+          }
+          this.$update('', param).then((response) => {
+            this.$message({
+              message: '提交成功！',
+              type: 'success',
+              duration: 2000
+            })
+            this.tjbtnLoading = false
+            this.isShowzhsj = false
+            this.query(true) // 查询列表
+          }).catch(() => {
+            this.tjbtnLoading = false
+          })
+        }
+      })
     }
   },
   mounted() {
@@ -508,6 +598,7 @@ export default {
       //   const date = new Date(this.$route.query.createDate)
       //   this.filters.time = [date, date]
       // }
+      this.detail(this.$route.query.id)
       this.init()
     }
   },
@@ -539,6 +630,14 @@ export default {
   //   // border-right: 1px solid #2f627a;
   //   border-right-color: #2f627a;
   // }
+  .recallForm{
+    .el-dialog{
+      width: 40%;
+    }
+    .el-form{
+      padding: 10px 20px;
+    }
+  }
   .el-table--border, .el-table--group {
     border: 0;
   }
@@ -565,11 +664,14 @@ export default {
       overflow: auto;
     }
     .el-dialog__body {
-      padding: 0;
+      padding: 10px 0 15px 0;
     }
   }
 }
- .el-cascader-menu__item.is-disabled{
+.el-cascader-menu__item.is-disabled{
   background-color: transparent;
+}
+.zhsjp{
+  font-size: 16px;
 }
 </style>

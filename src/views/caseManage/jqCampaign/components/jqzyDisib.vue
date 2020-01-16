@@ -94,8 +94,8 @@
         <el-table-column label="操作"  width="130" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" title="取消分发"  type="primary" circle  v-if="getDeptType(scope.row.qbxsDistribute,scope.row.receiveCode)" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
-            <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='detail'"  @click="handleDel(scope.$index,scope.row)"></el-button>
-            <!-- <el-button size="mini" title="线索流转记录"  type="primary" circle   v-if="pageSource==='detail'"  @click="handlelzDetail(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button> -->
+            <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='detail' ||  (pageSource=='detail' && isDelxs)"  @click="handleDel(scope.$index,scope.row)"></el-button>
+            <el-button size="mini" title="线索流转记录"  type="primary" circle   v-if="pageSource==='detail'"  @click="handlelzDetail(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -116,7 +116,7 @@
 <script>
 import CluelzDetail from '../cluelzDetail' // 线索流转记录
 export default {
-  props: ['id', 'isShowDialog', 'source', 'fastatus', 'jsdw', 'xcstatus', 'faxsflag'],
+  props: ['id', 'isShowDialog', 'source', 'fastatus', 'jsdw', 'xcstatus', 'faxsflag', 'isDel'],
   name: 'jqzyDisib',
   components: {
     CluelzDetail
@@ -150,10 +150,11 @@ export default {
       curRow: {}, // 存储当前被点击行数据
       tableHeight: null,
       tableHead: [], // 表头
-      pcsParentDept: {}, // 派出所的上级部门
+      pcsParentDept: {}, // 上级部门
       pageSource: '', // 进入页面的来源,
       xichastatus: '', // 如果是从详情页.列表页列表项过来的，会传递协查状态xcstatus
-      faxs: '' // 详情页反馈列表点击当前行的是否是总队
+      faxs: '', // 详情页反馈列表点击当前行的是否是总队
+      isDelxs: false // 是否可以删除线索
     }
   },
   watch: {
@@ -203,6 +204,11 @@ export default {
         if (val) {
           this.faxs = val
         }
+      }
+    },
+    isDel: { // 线索是否可删除
+      handler: function(val, oldeval) {
+        this.isDelxs = val
       }
     }
   },
@@ -293,7 +299,14 @@ export default {
           qbxsId: row.qbxsId,
           assistId: this.assistId,
           qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
-          receiveCode: row.receiveCode ? row.receiveCode : ''
+          receiveCode: row.receiveCode ? row.receiveCode : '',
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 当前部门名称
+          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode, // 当前部门code
+          userId: this.curUser.id, // 用户id
+          userName: this.curUser.realName // 用户名称
+        }
+        if (Number(this.xichastatus) > 3) {
+          param.opt = 'addRecord'
         }
         this.$update('caseassistclue/delete', param).then((response) => {
           this.listLoading = false
@@ -332,7 +345,14 @@ export default {
           qbxsId: row.qbxsId,
           assistId: this.assistId,
           qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
-          receiveCode: row.receiveCode ? row.receiveCode : ''
+          receiveCode: row.receiveCode ? row.receiveCode : '',
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 当前部门名称
+          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode, // 当前部门code
+          userId: this.curUser.id, // 用户id
+          userName: this.curUser.realName // 用户名称
+        }
+        if (Number(this.xichastatus) > 3) {
+          param.opt = 'addRecord'
         }
         this.$update('caseassistclue/cancelDistribute', param).then((response) => {
           this.listLoading = false
@@ -589,6 +609,9 @@ export default {
       if (this.faxsflag) {
         this.faxs = this.faxsflag
       }
+      if (this.isDel) {
+        this.isDelxs = this.isDel
+      }
     },
     selectInit(row, index) { // 控制当前的行的复选框是否可选
       if (row.distributeAble === 2) { // 已分发过的线索
@@ -602,6 +625,7 @@ export default {
     },
     handlelzDetail(index, row) { // 显示线索流转记录弹框
       this.isShowlzrecord = true
+      row.clusterId = row.assistId
       this.curRow = row
     }
   },
