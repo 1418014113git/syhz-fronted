@@ -354,30 +354,24 @@ export default {
       return this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.deptCode || (zRow.category === 3 && (this.curDept.depCode === zRow.auditDeptCode)) || this.curDept.depCode === row.applyDeptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode)
     },
     controlxg(row) { // 控制列表修改按钮 ,总队管理员任何状态下都能修改自己创建的和审核的，
-      // if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
-      //   if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
-      //     return true
-      //   }
-      // }
+      if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
+        if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
+          return true
+        }
+      }
       // // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
-      // if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))) {
-      //   return true
-      // }
-      if (row.status + '' === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))) {
+      if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))) {
         return true
       }
     },
     controlsc(row) { // 控制列表删除按钮 ,总队管理计任何状态下都能修改自己创建的审核的，其他的是草稿，待审核，审核不通过时可操作。
-      // if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
-      //   if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
-      //     return true
-      //   }
-      // }
+      if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
+        if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
+          return true
+        }
+      }
       // // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
-      // if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))) {
-      //   return true
-      // }
-      if (row.status + '' === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))) {
+      if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))) {
         return true
       }
     },
@@ -559,7 +553,7 @@ export default {
       if (row.havePwd > 0) { // 弹出查阅密码弹出框
         this.isShowdialog = true
       } else { // 集群战役详情页
-        this.$router.push({ path: '/jqCampaign/detail', query: { id: row.clusterId }})
+        this.$router.push({ path: '/jqCampaign/detail', query: { id: row.clusterId, category: row.category }})
       }
     },
     resetForm() { // 重置
@@ -600,7 +594,7 @@ export default {
         this.loadingFlag = false
         if (response.code === '000000') {
           this.isShowdialog = false
-          this.$router.push({ path: '/jqCampaign/detail', query: { id: this.curRow.clusterId }}) // 跳转到详情页
+          this.$router.push({ path: '/jqCampaign/detail', query: { id: this.curRow.clusterId, category: this.curRow.category }}) // 跳转到详情页
         }
       }).catch(() => {
         this.loadingFlag = false

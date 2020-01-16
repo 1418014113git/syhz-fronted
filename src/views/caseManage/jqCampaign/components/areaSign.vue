@@ -6,7 +6,7 @@
       <!-- <div style="max-height:260px;overflow: auto;"> -->
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
           <el-table-column type="index" label="序号" width="60"  fixed></el-table-column>
-          <el-table-column prop="createDeptName" label="下发单位"   min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="createDeptName" label="下发单位"   min-width="180" show-overflow-tooltip fixed></el-table-column>
           <el-table-column prop="createDate" label="下发日期"  min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="clueNum" label="线索数量" min-width="120">
             <template slot-scope="scope">

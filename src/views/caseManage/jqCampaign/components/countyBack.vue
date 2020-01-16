@@ -12,7 +12,7 @@
               <span v-else>总计</span>
             </template>
           </el-table-column>
-          <el-table-column prop="deptName" label="单位"   min-width="200" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="deptName" label="单位"   min-width="200" show-overflow-tooltip fixed></el-table-column>
           <el-table-column prop="xsNum" label="线索总数（条）" min-width="140">
             <template slot-scope="scope">
               <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.xsNum>0"  @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
