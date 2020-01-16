@@ -143,16 +143,12 @@
         </el-table-column>
         <el-table-column prop=""  label='厅评价'  min-width="100" v-if="curDept.depType === '1' || curDept.depType === '2' || (curDept.depType === '4' && curDept.areaCode==='611400')"   show-overflow-tooltip>
           <template slot-scope="scope">
-            <span v-if='scope.row.tCount'>{{scope.row.tCount}}</span>
-            <span>0</span>
-            /
-            <span v-if='scope.row.tTotal'>{{scope.row.tTotal}}</span>
-            <span>0</span>
+            <span>{{scope.row.tCount ? scope.row.tCount:0}}/{{scope.row.tTotal ? scope.row.tTotal:0}}</span>
           </template>
         </el-table-column>
         <el-table-column prop=""  label='市评价'  min-width="100" v-if="curDept.depType === '2' || curDept.depType === '3' || (curDept.depType === '4' && curDept.areaCode!=='611400')"  show-overflow-tooltip>
-           <template slot-scope="scope">
-            <span>{{scope.row.sCount}}/{{scope.row.sTotal}}</span>
+          <template slot-scope="scope">
+            <span>{{scope.row.sCount ? scope.row.sCount:0}}/{{scope.row.sTotal ? scope.row.sTotal:0}}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="130">
@@ -617,12 +613,6 @@ export default {
     },
     // 行选中函数  若有删除，若无添加
     handleselectRow(selection, row) {
-      // this.checkIdRow = []
-      // if (selection.length > 0) {
-      //   selection.forEach((item, index) => {
-      //     this.checkIdRow.push(item.clusterId)
-      //   })
-      // }
       if (this.checkId.length === 0 && selection.length > 0) {
         this.checkId.push(row.clusterId)
       } else {
@@ -793,7 +783,7 @@ export default {
         parms.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 派出所取他的上级部门名称，非派出所取当前部门
         parms.realName = this.curUser.realName
         parms.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
-        parms.fileName = '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}.xls')
+        parms.fileName = '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}') + '.xlsx'
         this.$download('cluster/export', parms)
       } else { // 导出选中的
         var para = {
@@ -802,11 +792,15 @@ export default {
           curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 派出所取他的上级部门名称，非派出所取当前部门
           realName: this.curUser.realName,
           curUserPhone: this.curUser.phone ? this.curUser.phone : '',
-          fileName: '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}.xls')
+          fileName: '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}') + '.xlsx'
         }
         this.$download('cluster/export', para)
       }
       setTimeout(() => {
+        this.$message({
+          message: '导出集群战役协查战果反馈表成功！',
+          type: 'success'
+        })
         this.dcForm.type = 1
         this.isShowdcdialog = false // 关闭弹框
         this.checkId = [] // 清空选中数组
