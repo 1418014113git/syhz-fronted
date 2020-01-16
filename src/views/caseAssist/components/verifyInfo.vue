@@ -23,7 +23,7 @@
         <el-table-column prop="content" label="审核意见" align="center" min-width="150" show-overflow-tooltip></el-table-column>
         <el-table-column label="操作" align="center" width="100">
           <template slot-scope="scope">
-            <el-button size="mini" title="重新申请" type="primary" circle v-if="reApplyEnable(scope.row)" @click="handleApply(scope.$index, scope.row)"><svg-icon icon-class="shenqing"></svg-icon></el-button>
+            <el-button size="mini" title="重新申请" type="primary" circle v-if="reApplyEnable(scope.$index, scope.row)" @click="handleApply(scope.$index, scope.row)"><svg-icon icon-class="shenqing"></svg-icon></el-button>
             <el-button size="mini" title="审核" type="primary" circle v-if="auditEnable(scope.row)" @click="handleVerify(scope.$index, scope.row)"><svg-icon icon-class="audit"></svg-icon></el-button>
           </template>
         </el-table-column>
@@ -67,7 +67,13 @@ export default {
     }
   },
   methods: {
-    reApplyEnable(row) {
+    reApplyEnable(index, row) {
+      if (this.info.status !== '3') { // 如果案件协查状态不为 审核不通过，则不显示 重新申请按钮
+        return false
+      }
+      if (index !== 0) { // 只给第一条审核不通过的记录，显示重新申请按钮
+        return false
+      }
       if (this.info.applyDeptCode === this.curDept.depCode && String(row.wflowStatus) === '4') {
         return true
       }

@@ -114,7 +114,7 @@
 
     <!-- 分发线索-->
     <el-dialog title="分发线索" :visible.sync="distributeClueVisible" class="distribute_clue" :close-on-click-modal="false" @close="closeDistributeClueDialog">
-      <distributeClue ref="distributeClue" @closeDialog="closeDistributeClueDialog" :assistId="editId" :fastatus="qbxsDistribute" :jsdw="receiveName" source="add" @result="getDistributeResult" :category="category"></distributeClue>
+      <distributeClue ref="distributeClue" @closeDialog="closeDistributeClueDialog" :assistId="editId" :fastatus="qbxsDistribute" :assistStatus="caseAssistForm.status" :jsdw="receiveName" source="add" @result="getDistributeResult" :category="category"></distributeClue>
     </el-dialog>
   </div>
 </template>
@@ -375,7 +375,11 @@ export default {
         depCode: this.curDept.depCode
       }
       if (this.curDept.depType === '1') {
-        para.depCode = ''
+        if (this.caseAssistForm.applyDeptCode !== this.curDept.depCode) {
+          para.depCode = this.caseAssistForm.applyDeptCode
+        } else {
+          para.depCode = ''
+        }
       }
       this.$query('searchsyhaj', para).then((response) => {
         this.caseLoading = false
@@ -543,7 +547,7 @@ export default {
             } else {
               this.save(param, false, false, '', false)
             }
-          } else if (this.pageOperationType === 'add') {
+          } else if (this.pageOperationType === 'add' || this.pageOperationType === 'reApply') {
             param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
@@ -600,7 +604,7 @@ export default {
           if (this.pageOperationType === 'add' || this.pageOperationType === 'edit') {
             this.$router.push({ path: '/caseAssist/list' })
           } else {
-            this.$gotoid('/caseAssist/detail', JSON.stringify({ id: this.caseAssistForm.id }))
+            this.$gotoid('/caseAssist/detail', this.editId)
           }
         }
       }).catch(() => {

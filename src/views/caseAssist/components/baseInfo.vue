@@ -102,7 +102,7 @@
 
     <!-- 分发线索-->
     <el-dialog title="分发线索" :visible.sync="clueDialogVisible"  class="ffxsForm" :close-on-click-modal="false">
-      <distributeClue :isShowDialog="clueDialogVisible" @closeDialog="closeClueDialog" :id="curAssistId" :xcstatus="baseInfo.status" source="detail"></distributeClue>
+      <distributeClue :isShowDialog="clueDialogVisible" @closeDialog="closeClueDialog" :assistId="curAssistId" :assistStatus="baseInfo.status" source="add"></distributeClue>
     </el-dialog>
   </div>
 </template>
@@ -133,7 +133,7 @@ export default {
       loading: false, // 页面加载进度条
       auditDialogVisible: false, // 是否显示审核弹框
       clueDialogVisible: false, // 是否显示分发线索弹出框
-      curAssistId: '' // 存储列表传递过来的id
+      curAssistId: this.assistId // 存储列表传递过来的id
     }
   },
   components: {
@@ -229,7 +229,7 @@ export default {
       }
     },
     reApply() { // 重新申请
-      this.$router.push({ path: '/caseAssist/edit', query: { type: 'reApply', category: '2', id: this.assistId }})
+      this.$gotoid('/caseAssist/edit', JSON.stringify({ type: 'reApply', category: '2', id: this.assistId }))
     },
     audit() { // 审核
       this.$store.dispatch('Personeltotop', 'auditInfo')
