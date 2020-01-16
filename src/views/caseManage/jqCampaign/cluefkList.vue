@@ -68,7 +68,7 @@
       <el-table-column label="操作"  width="100" fixed="right">
         <template slot-scope="scope">
           <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle   v-if="controlfkBtn(scope.row)"  @click="handlefkDetail(scope.$index, scope.row)"></el-button>
-          <!-- <el-button size="mini" title="线索流转记录"  type="primary" circle    @click="handlelzDetail(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button> -->
+          <el-button size="mini" title="线索流转记录"  type="primary" circle    @click="handlelzDetail(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
         </template>
       </el-table-column>
     </el-table>

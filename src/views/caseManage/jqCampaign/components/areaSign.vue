@@ -60,6 +60,7 @@ export default {
       page: 1,
       total: 0,
       baseInfo: {}, // 基础信息
+      pcsParentDept: {}, // 上级部门
       clusterId: '', // 存储列表传递过来的集群战役id
       parentCode: '' // 上级部门code
     }
@@ -70,7 +71,6 @@ export default {
         this.clusterId = val.clusterId
         this.baseInfo = this.info
         this.getDeptsshdw() // 查上级单位
-        // this.query(true)
       }
     }
   },
@@ -80,7 +80,6 @@ export default {
         this.clusterId = this.info.clusterId
         this.baseInfo = this.info
         this.getDeptsshdw() // 查上级单位
-        // this.query(true)
       }
     },
     query(flag) {
@@ -167,7 +166,8 @@ export default {
         userName: this.curUser.realName, // 当前用户真实姓名
         deptCode: row.receiveDeptCode, // 当前行的接收单位code
         assistId: row.assistId, // 集群id
-        signId: row.assistSignId // 签收表id
+        signId: row.assistSignId, // 签收表id,
+        deptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 当前部门名称
       }
       this.$update('casecluster/signup', param).then((response) => {
         this.$alert('请尽快反馈线索核查情况', '签收成功', {
@@ -183,6 +183,7 @@ export default {
     getDeptsshdw() { // 查询上级单位
       this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
         if (response.code === '000000') {
+          this.pcsParentDept = response.data
           this.parentCode = response.data.departCode
           this.query(true)
         }
