@@ -33,7 +33,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="11" v-if="firstSubmitVisible">
-              <el-form-item label="开始日期" prop="startDate">
+              <el-form-item label="开始时间" prop="startDate">
                 <el-date-picker v-model="caseAssistForm.startDate" type="datetime" placeholder="选择日期" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" :disabled="timeDisable" @change="startChange" clearable></el-date-picker>
               </el-form-item>
               <el-form-item label="发起人" prop="applyPersonName">
@@ -41,7 +41,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="11" class="mar_left" v-if="firstSubmitVisible">
-              <el-form-item label="截止日期" prop="endDate">
+              <el-form-item label="截止时间" prop="endDate">
                 <el-date-picker v-model="caseAssistForm.endDate" type="datetime" placeholder="选择日期" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" :disabled="timeEndDisable" @change="endChange" clearable></el-date-picker>
               </el-form-item>
               <el-form-item label="发起人电话" prop="applyPersonPhone">
@@ -273,9 +273,9 @@ export default {
             if (new Date(this.caseAssistForm.startDate) > new Date(value)) {
               return callback(new Error('截止时间不能小于开始时间'))
             }
-            // if (new Date(value) < new Date()) {
-            //   return callback(new Error('截止时间不能小于当前系统时间'))
-            // }
+            if (new Date(value) < new Date()) {
+              return callback(new Error('截止时间不能小于当前系统时间'))
+            }
             return callback()
           }
         }],
