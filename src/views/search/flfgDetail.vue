@@ -89,6 +89,9 @@
   import { addJF } from '@/api/trainRuleConfig'
   export default {
     name: 'caseEdit',
+    props: [
+      'knowData'
+    ],
     components: {
       VueEditor,
       videoPlayer,
@@ -127,6 +130,11 @@
         timeInterval: null,
         intervalSplit: 3000, // 毫秒
         learningTime: 10000 // 毫秒
+      }
+    },
+    watch: {
+      knowData() {
+        this.getDetail()
       }
     },
     methods: {
@@ -169,24 +177,19 @@
       },
       callback() {
         this.clearTimeInterval()
-        if (this.callBack === '') {
-          this.$router.push('/handlingGuide/flfgList')
-        } else {
-          const para = {
-            filters: this.filters,
-            active: this.active
-          }
-          this.$gotoid('/handlingGuide/knowLedgeBase', JSON.stringify(para))
-        }
+        this.$router.back(-1)
       },
       getDetail() {
         this.loading = true
-        this.$query('lawinfo/' + this.id, {}).then(response => {
-          this.loading = false
-          this.detailData = response.data
-          this.bindSetTimeOut()
-        }).catch(() => {
-          this.loading = false
+        this.$query('TRAINLAWINFOBYDOCUMENTID', { documentId: this.knowData.id }).then(response => {
+          this.id = response.data[0].id
+          this.$query('lawinfo/' + this.id, {}).then(response => {
+            this.loading = false
+            this.detailData = response.data
+            this.bindSetTimeOut()
+          }).catch(() => {
+            this.loading = false
+          })
         })
       },
       handleImageAdded(file, Editor, cursorLocation, resetUploader) {
@@ -331,19 +334,7 @@
       this.tableHeight = document.documentElement.clientHeight - 519 + 'px'
       this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-      if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
-        const para = JSON.parse(sessionStorage.getItem(this.$route.path))
-        if (para.documentId) {
-          this.loading = true
-          this.$query('TRAINLAWINFOBYDOCUMENTID', { documentId: para.documentId }).then(response => {
-            this.loading = false
-            this.id = response.data.list[0].id
-          }).catch(() => {
-            this.loading = false
-          })
-          this.getDetail()
-        }
-      }
+      this.getDetail()
     }
   }
 </script>

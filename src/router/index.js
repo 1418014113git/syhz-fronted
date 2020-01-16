@@ -317,7 +317,14 @@ export const constantRouterMap = [
       { path: '/intellSystem/developSitutional', component: () => import('@/views/intellSystem/analysisJudgment/developSitutional'), name: '发展变化态势报表' },
       { path: '/intellSystem/featureAnalysis', component: () => import('@/views/intellSystem/analysisJudgment/featureAnalysis'), name: '特征信息分析' },
       { path: '/intellSystem/collectClueStatistics', component: () => import('@/views/information/clueStatistics'), name: '采集信息统计分析' },
-      { path: '/caseManage/analysiskjbh', component: () => import('@/views/caseManage/analysiskjbh/index'), name: '空间变化态势分析' } // 案件分析研判--空间变化态势分析
+      { path: '/caseManage/analysiskjbh', component: () => import('@/views/caseManage/analysiskjbh/index'), name: '空间变化态势分析' }, // 案件分析研判--空间变化态势分析
+      { path: '/search/player', component: () => import('@/views/search/player'), name: '一键搜索--培训资料详情' },
+      { path: '/search/lyricalDetail', component: () => import('@/views/search/lyricalDetail'), name: '一键搜索--舆情详情' },
+      { path: '/search/caseDetail', component: () => import('@/views/search/caseDetail'), name: '一键搜索--案件详情' },
+      { path: '/search/clueDetail', component: () => import('@/views/search/clueDetail'), name: '一键搜索--情报信息线索详情' },
+      { path: '/search/insideInfoDetail', component: () => import('@/views/search/insideInfoDetail'), name: '一键搜索--内部资源信息详情' },
+      { path: '/search/knowManage', component: () => import('@/views/search/knowManage'), name: '一键搜索--知识库' },
+      { path: '/search/index', component: () => import('@/views/search/index'), name: '一键搜索' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },

@@ -68,7 +68,7 @@
       },
       // 格式化发布时间
       formatTime(str) {
-        return this.$parseTime(str, '{y}-{m}-{d} {h}:{i}')
+        return str.substring(0, 4) + '-' + str.substring(4, 6) + '-' + str.substring(6, 8) + ' ' + str.substring(8, 10) + ':' + str.substring(10, 12)
       },
       // 格式化媒体类型
       formatSourceType(str) {
@@ -119,7 +119,7 @@
     }
   }
 </script>
-<style rel="stylesheet/scss" lang="scss">
+<style scoped rel="stylesheet/scss" lang="scss">
   .body {
     padding: 10px 0;
     overflow: auto;
