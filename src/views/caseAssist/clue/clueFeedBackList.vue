@@ -73,7 +73,7 @@
       <el-table-column label="操作"  width="90" fixed="right">
         <template slot-scope="scope">
           <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle v-if="controlBtn(scope.row)"  @click="handleDetail(scope.$index, scope.row)"></el-button>
-          <!--<el-button size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>-->
+          <el-button size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
         </template>
       </el-table-column>
     </el-table>
