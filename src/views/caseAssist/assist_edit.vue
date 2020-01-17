@@ -527,6 +527,7 @@ export default {
               }
             }
             param.operator = state === 0 ? 'update' : 'submit'
+            param.operatorType = param.status === '5' && (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7') ? 'update' : 'save'
             param.id = this.editId
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
