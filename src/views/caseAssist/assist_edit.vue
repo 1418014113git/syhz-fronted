@@ -534,7 +534,7 @@ export default {
               }
             }
             param.operator = state === 0 ? 'update' : 'submit'
-            param.operatorType = param.status === '5' && (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7') ? 'update' : 'save'
+            param.operatorType = (param.status === '5' && (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7')) ? 'update' : 'save'
             param.id = this.editId
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
@@ -561,6 +561,7 @@ export default {
             }
           } else if (this.pageOperationType === 'add' || this.pageOperationType === 'reApply') {
             param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+            param.operatorType = (param.status === '5' && (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7')) ? 'update' : 'save'
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
                 this.$message({ message: '请导入线索', type: 'error' })
