@@ -27,7 +27,9 @@ export default {
   },
   methods: {
     searchs() {
-      this.$router.push({ path: '/oneclickQuery/list/' + this.filters.word })
+      this.$router.push({
+        path: '/search/index?', query: { word: this.filters.word }
+      })
     }
 
   },

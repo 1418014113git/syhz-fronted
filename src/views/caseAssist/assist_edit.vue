@@ -33,7 +33,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="11" v-if="firstSubmitVisible">
-              <el-form-item label="开始日期" prop="startDate">
+              <el-form-item label="开始时间" prop="startDate">
                 <el-date-picker v-model="caseAssistForm.startDate" type="datetime" placeholder="选择日期" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" :disabled="timeDisable" @change="startChange" clearable></el-date-picker>
               </el-form-item>
               <el-form-item label="发起人" prop="applyPersonName">
@@ -41,7 +41,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="11" class="mar_left" v-if="firstSubmitVisible">
-              <el-form-item label="截止日期" prop="endDate">
+              <el-form-item label="截止时间" prop="endDate">
                 <el-date-picker v-model="caseAssistForm.endDate" type="datetime" placeholder="选择日期" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" :disabled="timeEndDisable" @change="endChange" clearable></el-date-picker>
               </el-form-item>
               <el-form-item label="发起人电话" prop="applyPersonPhone">
@@ -109,12 +109,16 @@
     </el-card>
     <!-- 导入线索弹框-->
     <el-dialog title="导入线索" :visible.sync="importClueVisible" :close-on-click-modal="false">
-      <import-clue :isShowDialog="importClueVisible"  @closeDialog="closeImportClueDialog" :category="category" :id="editId" @result="getResult"></import-clue>
+      <import-clue :isShowDialog="importClueVisible"  @closeDialog="closeImportClueDialog" :category="category" :id="editId" @result="getResult" :oldStatus="caseAssistForm.status"></import-clue>
     </el-dialog>
 
     <!-- 分发线索-->
     <el-dialog title="分发线索" :visible.sync="distributeClueVisible" class="distribute_clue" :close-on-click-modal="false" @close="closeDistributeClueDialog">
-      <distributeClue ref="distributeClue" @closeDialog="closeDistributeClueDialog" :assistId="editId" :fastatus="qbxsDistribute" :assistStatus="caseAssistForm.status" :jsdw="receiveName" source="add" @result="getDistributeResult" :category="category"></distributeClue>
+      <distributeClue ref="distributeClue" @closeDialog="closeDistributeClueDialog" :assistId="editId" :fastatus="qbxsDistribute" :assistStatus="caseAssistForm.status" :jsdw="receiveName" source="add" @result="getDistributeResult" :category="category"  @handleClueMove="handleClueMove"></distributeClue>
+    </el-dialog>
+
+    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false" @close="closeClueMoveDialog">
+      <clueMoveList ref="clueMoveList" :assistId="editId" :qbxsId="qbxsId"></clueMoveList>
     </el-dialog>
   </div>
 </template>
@@ -127,16 +131,19 @@ import { getTJXJ, getParentDeptArray } from '@/api/dept'
 import { uploadImg } from '@/utils/editorUpload'
 import ImportClue from './components/importClue'
 import distributeClue from './components/distributeClue'
-
+import clueMoveList from '@/views/caseAssist/clue/clueMoveList.vue'
 export default {
   name: 'assistEdit',
   components: {
     VueEditor,
     ImportClue,
-    distributeClue
+    distributeClue,
+    clueMoveList
   },
   data() {
     return {
+      qbxsId: '',
+      clueMoveDialogVisible: false,
       timeDisable: true,
       timeEndDisable: true,
       uploadAction: this.UploadAttachment.uploadFileUrl,
@@ -273,9 +280,9 @@ export default {
             if (new Date(this.caseAssistForm.startDate) > new Date(value)) {
               return callback(new Error('截止时间不能小于开始时间'))
             }
-            // if (new Date(value) < new Date()) {
-            //   return callback(new Error('截止时间不能小于当前系统时间'))
-            // }
+            if (new Date(value) < new Date()) {
+              return callback(new Error('截止时间不能小于当前系统时间'))
+            }
             return callback()
           }
         }],
@@ -468,7 +475,7 @@ export default {
     },
     controlInput() {
       if (this.caseAssistForm.status === '2' || this.caseAssistForm.status === '4') {
-        this.bossFlag = this.caseAssistForm.applyDeptCode !== this.curDept.depCode
+        this.bossFlag = this.caseAssistForm.applyDeptCode !== this.curDept.depCode && this.caseAssistForm.assistNumber !== undefined && this.caseAssistForm.assistNumber !== ''
       }
       if (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7') {
         this.bossFlag = this.caseAssistForm.applyDeptCode !== this.curDept.depCode
@@ -520,9 +527,14 @@ export default {
                 param.status = this.caseAssistForm.status
               }
             } else {
-              param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+              if (this.caseAssistForm.applyDeptCode !== this.curDept.depCode) {
+                param.status = this.caseAssistForm.status
+              } else {
+                param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+              }
             }
             param.operator = state === 0 ? 'update' : 'submit'
+            param.operatorType = param.status === '5' && (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7') ? 'update' : 'save'
             param.id = this.editId
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
@@ -867,6 +879,16 @@ export default {
           this.caseAssistForm.assistNumber = response.data
         })
       }
+    },
+    handleClueMove(qbxsId) { // 线索流转记录
+      this.clueMoveDialogVisible = true
+      this.qbxsId = qbxsId
+      if (this.$refs.clueMoveList) {
+        this.$refs.clueMoveList.query(this.qbxsId)
+      }
+    },
+    closeClueMoveDialog() {
+      this.$refs.clueMoveList.listData = []
     }
   },
   mounted() {
@@ -961,6 +983,10 @@ export default {
   }
   .caseAssist_edit .distribute_clue .el-dialog{
     width: 80%;
+    overflow: auto;
+  }
+  .caseAssist_edit .clueMove .el-dialog{
+    width: 70%;
     overflow: auto;
   }
 </style>

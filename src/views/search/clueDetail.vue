@@ -448,13 +448,13 @@
         return Styles
       },
       backList() {
-        this.$gotoid('/information/clueList')
+        this.$router.back(-1)
       }
     },
     mounted() {
       // 线索数据查询
       this.initMap() // 初始化地图
-      if (this.$route.query.id) {
+      if (JSON.parse(sessionStorage.getItem(this.$route.path)).id) {
         this.detail()
         this.getShare()
       }
