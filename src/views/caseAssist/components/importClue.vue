@@ -41,7 +41,7 @@
 import { getSessionDeptSelect } from '@/api/depts'
 import axios from 'axios'
 export default {
-  props: ['isShowDialog', 'id', 'category'],
+  props: ['isShowDialog', 'id', 'category', 'oldStatus'],
   name: 'baseInfo',
   data() {
     return {
@@ -119,6 +119,11 @@ export default {
           }
           this.btnLoading = true
           const formData = new FormData()
+          if (this.oldStatus === '4' || this.oldStatus === '5' || this.oldStatus === '6' || this.oldStatus === '7') {
+            formData.append('opt', 'addRecord')
+          } else {
+            formData.append('opt', '')
+          }
           formData.append('file', this.fileCon) // 文件
           formData.append('category', this.drForm.category) // 食药环分类
           formData.append('userId', this.curUser.id) // 当前用户id

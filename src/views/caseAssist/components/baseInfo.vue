@@ -229,7 +229,8 @@ export default {
       }
     },
     reApply() { // 重新申请
-      this.$gotoid('/caseAssist/edit', JSON.stringify({ type: 'reApply', category: '2', id: this.assistId }))
+      this.$store.dispatch('Personeltotop', 'auditInfo')
+      // this.$gotoid('/caseAssist/edit', JSON.stringify({ type: 'reApply', category: '2', id: this.assistId }))
     },
     audit() { // 审核
       this.$store.dispatch('Personeltotop', 'auditInfo')
