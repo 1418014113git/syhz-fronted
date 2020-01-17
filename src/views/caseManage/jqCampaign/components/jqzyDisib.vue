@@ -233,7 +233,11 @@ export default {
         // this.checkId = []
       }
       if (this.pageSource === 'detail') { // 详情页进来的
-        para.queryType = 'execute'
+        if (this.faxs) {
+          para.queryType = 'create'
+        } else {
+          para.queryType = 'execute'
+        }
       } else { // 申请或下发集群时
         para.queryType = 'create'
       }
@@ -341,29 +345,35 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        const param = {
-          qbxsId: row.qbxsId,
-          assistId: this.assistId,
-          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
-          receiveCode: row.receiveCode ? row.receiveCode : '',
-          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 当前部门名称
-          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode, // 当前部门code
-          userId: this.curUser.id, // 用户id
-          userName: this.curUser.realName // 用户名称
-        }
-        if (Number(this.xichastatus) > 3) {
-          param.opt = 'addRecord'
-        }
-        this.$update('caseassistclue/cancelDistribute', param).then((response) => {
-          this.listLoading = false
-          this.$emit('result', response.data)
-          this.$message({
-            message: '取消成功',
-            type: 'success'
-          })
-          this.query(true)
-        }).catch(() => {
-          this.listLoading = false
+        this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+          if (response.code === '000000') {
+            const param = {
+              qbxsId: row.qbxsId,
+              qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
+              assistId: this.assistId,
+              receiveCode: row.receiveCode ? row.receiveCode : '',
+              assistType: 2,
+              receiveDept: response.data.departCode, // 转回的上级接收单位code
+              receiveDeptName: response.data.departName, // 转回的上级接收单位名称
+              receiveDeptType: response.data.departType, // 转回的上级接收单位type
+              curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 当前部门名称
+              curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode, // 当前部门code
+              userId: this.curUser.id, // 用户id
+              userName: this.curUser.realName, // 用户名称
+              opt: Number(this.xichastatus) > 3 ? 'addRecord' : ''
+            }
+            this.$update('caseassistclue/cancelDistribute', param).then((response) => {
+              this.listLoading = false
+              this.$emit('result', response.data)
+              this.$message({
+                message: '取消成功',
+                type: 'success'
+              })
+              this.query(true)
+            }).catch(() => {
+              this.listLoading = false
+            })
+          }
         })
       }).catch(() => {
         this.listLoading = false
@@ -385,6 +395,9 @@ export default {
           param.userId = this.curUser.id
           param.userName = this.curUser.realName
         }
+        if (Number(this.xichastatus) > 3) {
+          param.opt = 'addRecord'
+        }
         this.ffbtnLoading = true
         this.$update('caseassistclue/distribute', param).then((response) => {
           this.xsNum = 0 // 已选线索数值初始化
@@ -397,7 +410,7 @@ export default {
           }).then(() => { // 继续分发
             this.query(true, true)
           }).catch(() => { // 完成分发
-            this.$emit('closeDialog', false) // 关闭弹
+            this.$emit('closeDialog', false) // 关闭弹框
           })
         }).catch(() => {
           this.ffbtnLoading = false
@@ -524,7 +537,7 @@ export default {
     queryCubordinate() { // 查询接收单位
       var param = {}
       if (this.pageSource === 'detail') { // 如果是详情页按钮点击进来的 查当前地市下的大队
-        if (this.faxs || this.isDelxs) { // 详情页反馈列表当前行是总队
+        if (this.faxs || this.isDelxs) { // 详情页反馈列表当前行是总队，或者点击详情页的“重新申请”进来的
           param = {
             areaCode: '610000', // 传省厅的区域code， 查所有的地市支队
             curType: '1' // 传总队的类型
@@ -614,7 +627,7 @@ export default {
       }
     },
     selectInit(row, index) { // 控制当前的行的复选框是否可选
-      if (row.distributeAble === 2) { // 已分发过的线索
+      if (row.distributeAble === 2 || (this.pageSource !== 'detail' && row.qbxsDistribute === 2 && Number(this.xichastatus) > 3)) { // 已分发过的线索
         return false // 不可勾选
       } else {
         return true // 可勾选
