@@ -153,7 +153,7 @@ export default {
       pcsParentDept: {}, // 上级部门
       pageSource: '', // 进入页面的来源,
       xichastatus: '', // 如果是从详情页.列表页列表项过来的，会传递协查状态xcstatus
-      faxs: '', // 详情页反馈列表点击当前行的是否是总队
+      faxs: false, // 详情页反馈列表点击当前行的是否是总队
       isDelxs: false // 是否可以删除线索
     }
   },
@@ -524,7 +524,7 @@ export default {
     queryCubordinate() { // 查询接收单位
       var param = {}
       if (this.pageSource === 'detail') { // 如果是详情页按钮点击进来的 查当前地市下的大队
-        if (this.faxs) { // 详情页反馈列表当前行是总队
+        if (this.faxs || this.isDelxs) { // 详情页反馈列表当前行是总队
           param = {
             areaCode: '610000', // 传省厅的区域code， 查所有的地市支队
             curType: '1' // 传总队的类型
@@ -592,11 +592,6 @@ export default {
       if (this.source) {
         this.pageSource = this.source
       }
-      if (this.curDept.depType === '4') { // 派出所
-        this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
-      } else {
-        this.queryCubordinate() // 查接收单位
-      }
       if (this.fastatus) { // 分发状态
         this.filters.qbxsDistribute = this.fastatus
       }
@@ -611,6 +606,11 @@ export default {
       }
       if (this.isDel) {
         this.isDelxs = this.isDel
+      }
+      if (this.curDept.depType === '4') { // 派出所
+        this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
+      } else {
+        this.queryCubordinate() // 查接收单位
       }
     },
     selectInit(row, index) { // 控制当前的行的复选框是否可选

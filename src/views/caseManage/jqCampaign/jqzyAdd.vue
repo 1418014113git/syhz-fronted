@@ -364,6 +364,7 @@ export default {
     },
     detail() { // 查询详情
       this.pageLoading = true
+      var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
       this.$query('casecluster/' + this.id, {}).then((response) => {
         this.pageLoading = false
         var data = response.data
@@ -385,6 +386,18 @@ export default {
         this.form.passKey = data.passKey ? data.passKey : '' // 密码
         this.xsNum.total = data.clueTotal// 线索总数
         this.xsNum.distribute = data.clueDistribute // 已分发线索数
+        this.form.userId = data.applyPersonId // 发起人Id
+        this.form.userName = data.applyPersonName // 发起人姓名
+        this.form.curDeptCode = data.applyDeptCode // 发起部门code
+        this.form.curDeptName = data.applyDeptName // 发起部门名称
+        for (let i = 0; i < deptArr.length; i++) {
+          const dept = deptArr[i]
+          if (dept.depCode === data.applyDeptCode) {
+            this.form.curDeptId = dept.id // 发起部门id
+            break
+          }
+        }
+        this.getDeptsshdw() // 查审核单位
         this.queryList(data.clusterId) // 查询涉及单位对应的列表
       }).catch(() => {
         this.pageLoading = false
@@ -489,9 +502,9 @@ export default {
       this.form.curDeptType = this.curDept.depType // 部门类型
       var paramCode = ''
       if (this.curDept.depType === '4') { // 派出所
-        paramCode = this.curDept.parentDepCode
+        paramCode = this.form.curDeptCode ? this.form.curDeptCode : this.curDept.parentDepCode
       } else {
-        paramCode = this.curDept.depCode
+        paramCode = this.form.curDeptCode ? this.form.curDeptCode : this.curDept.depCode
       }
       // 查审核单位 自己的上级
       this.$query('hsyzparentdepart/' + paramCode, {}, 'upms').then((response) => {
@@ -604,20 +617,20 @@ export default {
     save() { // 保存
       this.$refs.form.validate(valid => {
         if (valid) {
-          if (this.curDept.depType === '4') { // 派出所 将它的父级单位当成自己单位
-            this.form.curDeptName = this.curDeptName // 当前部门名称
-            this.form.curDeptCode = this.curDeptCode // 当前部门code
-            this.form.curDeptId = this.curDepartId // 当前部门id
-          } else {
-            this.form.curDeptName = this.curDept.depName // 当前部门名称
-            this.form.curDeptCode = this.curDept.depCode // 当前部门code
-            this.form.curDeptId = this.curDept.id // 当前部门id
-          }
-          this.form.userId = this.curUser.id // 当前用户Id
-          this.form.userName = this.curUser.realName // 当前用户真实姓名
-          this.form.status = 0 // 协查状态   0 保存（草稿）， 1 申请 （待审核）， 5 下发 （协查中）
           this.handleImg() // 附件list数据改造，用于编辑时的附件展示使用
           if (this.pageType === 'add' || this.pageType === 'xf' || this.pageType === 'bxf') { // 申请，下发,部下发页面 （添加类）
+            this.form.userId = this.curUser.id // 当前用户Id
+            this.form.userName = this.curUser.realName // 当前用户真实姓名
+            this.form.status = 0 // 协查状态   0 保存（草稿）， 1 申请 （待审核）， 5 下发 （协查中）
+            if (this.curDept.depType === '4') { // 派出所 将它的父级单位当成自己单位
+              this.form.curDeptName = this.curDeptName // 当前部门名称
+              this.form.curDeptCode = this.curDeptCode // 当前部门code
+              this.form.curDeptId = this.curDepartId // 当前部门id
+            } else {
+              this.form.curDeptName = this.curDept.depName // 当前部门名称
+              this.form.curDeptCode = this.curDept.depCode // 当前部门code
+              this.form.curDeptId = this.curDept.id // 当前部门id
+            }
             this.add()
           } else { // 重新申请， （编辑类）
             this.edit()
@@ -716,6 +729,14 @@ export default {
         status: 0, // 协查状态
         operator: 'update'
       }
+      if (this.curDept.depType === '1' && this.form.curDeptCode === this.curDept.depCode && (this.ajstatus === '6' || this.ajstatus === '7') && new Date(this.form.endDate).getTime() > Date.now()) { // 总队编辑处于协查结束或协查超时状态，结束时间调整为当前日期之后时，状态调整为“协查中”。
+        param.status = 5 // 协查中
+      }
+      if (this.pageType === 'editxf' || this.pageType === 'editbxf') { // 编辑下发，编辑部下发
+        param.startDate = this.form.startDate // 开始时间
+        param.endDate = this.form.endDate // 结束时间
+        param.clusterNumber = this.form.clusterNumber // 集群战役编号
+      }
 
       if (this.pageType === 'detail' || this.pageType === 'edit') {
         param.category = 3
@@ -796,6 +817,9 @@ export default {
           this.btnLoading = false
         } else {
           param.status = 1
+          if (this.curDept.depType === '1' && this.form.curDeptCode === this.curDept.depCode && (this.ajstatus === '6' || this.ajstatus === '7') && new Date(this.form.endDate).getTime() > Date.now()) { // 总队编辑处于协查结束或协查超时状态，结束时间调整为当前日期之后时，状态调整为“协查中”。
+            param.status = 5 // 协查中
+          }
           this.$save('casecluster/save', param).then((response) => {
             this.btnLoading = false
             this.$message({
@@ -936,7 +960,7 @@ export default {
       this.btnText = '申 请'
       this.id = this.$route.query.id // 存储集群战役id
       this.editInit() // 编辑页面相关接口查询
-      this.getDeptsshdw() // 查审核单位
+      // this.getDeptsshdw() // 查审核单位
     } else if (this.$route.query.type === 'xf') { // 从列表点击“下发”按钮进来的
       this.pageTitle = '下发集群战役'
       this.btnText = '下 发'

@@ -6,7 +6,7 @@
       <div style="max-height:260px;overflow: auto;">
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="statisticCollect">
           <el-table-column type="index" label="序号" width="60" fixed></el-table-column>
-          <el-table-column prop="deptName" label="申请单位"  min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="deptName" label="申请单位"  min-width="180" show-overflow-tooltip fixed></el-table-column>
           <el-table-column prop="userName" label="申请人" min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="acceptedTime" label="申请时间" min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="acceptDeptName" label="审核单位" min-width="180" show-overflow-tooltip></el-table-column>
