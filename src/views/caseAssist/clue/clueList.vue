@@ -89,10 +89,11 @@
           <el-table-column prop="dhwd"  label='捣毁窝点（个）'  min-width="140" show-overflow-tooltip></el-table-column>
           <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="150" show-overflow-tooltip></el-table-column>
         </el-table-column>
-        <el-table-column label="操作"  width="100" fixed="right">
+        <el-table-column label="操作"  width="150" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" title="详情" type="primary" icon="el-icon-document" circle @click="handleDetail(scope.$index, scope.row)"></el-button>
-            <!--<el-button size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>-->
+            <el-button size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
+            <!--<el-button v-if="enableBackClue(scope.row, true)" size="mini" title="转回上级" type="primary" circle  @click="handleBackClue(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -109,8 +110,12 @@
       <clue-detail ref="clueDetail" :row="curRow" @closeDialog="closeDialog"></clue-detail>
     </el-dialog>
 
-    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false">
-      <clueMoveList :assistId="filters.assistId" :qbxsId="qbxsId"></clueMoveList>
+    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false" @close="closeClueMoveDialog">
+      <clueMoveList ref="clueMoveList" :assistId="filters.assistId" :qbxsId="qbxsId"></clueMoveList>
+    </el-dialog>
+
+    <el-dialog title="转回上级" :visible.sync="backClueDialogVisible" :close-on-click-modal="false" class="backClueForm" @close="cancelBack">
+      <clueBack ref="clueBack" :assistId="filters.assistId" :qbxsId="qbxsId" :qbxsDeptId="qbxsDeptId" :receiveCode="receiveCode" @closeDialog="cancelBack"></clueBack>
     </el-dialog>
   </section>
 </template>
@@ -119,11 +124,13 @@
 import { getTree } from '@/api/dept'
 import ClueDetail from './clueDetail' // 线索详情
 import clueMoveList from '@/views/caseAssist/clue/clueMoveList.vue'
+import clueBack from '@/views/caseAssist/clue/clueBack.vue'
 export default {
   name: 'list',
   components: {
     ClueDetail,
-    clueMoveList
+    clueMoveList,
+    clueBack
   },
   data() {
     return {
@@ -173,10 +180,34 @@ export default {
         deptCode: ''
       },
       clueMoveDialogVisible: false,
-      qbxsId: ''
+      qbxsId: '',
+      qbxsDeptId: '',
+      receiveCode: '',
+      backClueDialogVisible: false,
+      baseInfo: {}
     }
   },
   methods: {
+    enableBackClue(row, flag) {
+      if (String(this.baseInfo.status) === '5') {
+        if (row.receiveCode === this.curDept.depCode) {
+          if (flag) {
+            if (String(this.baseInfo.categroy) === '3' && this.baseInfo.applyDeptCode === row.receiveCode) {
+              return false
+            }
+            return true
+          } else {
+            return true
+          }
+        }
+        if (this.curDept.depType === '4') {
+          if (row.receiveCode === this.curDept.parentDepCode) {
+            return true
+          }
+        }
+      }
+      return false
+    },
     findParentDept(paramCode, type) { // type 1： 部门   2：区域
       const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
       for (let i = 0; i < deptArr.length; i++) {
@@ -226,6 +257,7 @@ export default {
         //   const date = new Date(this.$route.query.receiveDate)
         //   this.filters.time = [date, date]
         // }
+        this.detail()
       }
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
@@ -468,6 +500,36 @@ export default {
     handleClueMove(index, row) { // 线索流转记录
       this.clueMoveDialogVisible = true
       this.qbxsId = row.qbxsId
+      if (this.$refs.clueMoveList) {
+        this.$refs.clueMoveList.query(this.qbxsId)
+      }
+    },
+    closeClueMoveDialog() {
+      this.$refs.clueMoveList.listData = []
+    },
+    handleBackClue(index, row) {
+      this.backClueDialogVisible = true
+      this.qbxsId = row.qbxsId
+      this.qbxsDeptId = row.qbxsDeptId
+      this.receiveCode = row.receiveCode
+      if (this.$refs.clueBack) {
+        this.$refs.clueBack.initData()
+      }
+    },
+    cancelBack(flag, isReload) {
+      this.backClueDialogVisible = false
+      if (!flag) {
+        this.$refs.clueBack.cancelBack()
+      }
+      if (isReload) {
+        this.query(true)
+      }
+    },
+    detail() { // 查询详情
+      this.$query('caseAssist/' + this.filters.assistId, {}).then((response) => {
+        this.baseInfo = response.data
+      }).catch(() => {
+      })
     }
   },
   mounted() {
@@ -479,7 +541,7 @@ export default {
 
 <style>
   .clueList .el-dialog{
-    width: 60%;
+    width: 70%;
   }
   .clueList .el-dialog__body {
     padding: 10px 20px 15px 20px;
@@ -520,5 +582,8 @@ export default {
   .clueList .clueMove .el-dialog{
     width: 70%;
     overflow: auto;
+  }
+  .clueList .backClueForm .el-dialog {
+    width: 50%;
   }
 </style>

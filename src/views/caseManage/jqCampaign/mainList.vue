@@ -141,8 +141,16 @@
             <span v-if='scope.row.status'>{{$getDictName(scope.row.status+'','jqzyzt')}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="tCount"  label='厅评价'  min-width="100" v-if="curDept.depType === '1' || curDept.depType === '2'"    show-overflow-tooltip></el-table-column>
-        <el-table-column prop="sCount"  label='市评价'  min-width="100" v-if="curDept.depType === '2' || curDept.depType === '3' || curDept.depType === '4'"  show-overflow-tooltip></el-table-column>
+        <el-table-column prop=""  label='厅评价'  min-width="100" v-if="curDept.depType === '1' || curDept.depType === '2' || (curDept.depType === '4' && curDept.areaCode==='611400')"   show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span>{{scope.row.tCount ? scope.row.tCount:0}}/{{scope.row.tTotal ? scope.row.tTotal:0}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop=""  label='市评价'  min-width="100" v-if="curDept.depType === '2' || curDept.depType === '3' || (curDept.depType === '4' && curDept.areaCode!=='611400')"  show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span>{{scope.row.sCount ? scope.row.sCount:0}}/{{scope.row.sTotal ? scope.row.sTotal:0}}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="130">
           <template slot-scope="scope">
             <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
@@ -205,7 +213,7 @@ export default {
         end2: '' // 结束日期 结束时间
       },
       dcForm: {
-        type: 1
+        type: 0
       },
       isShowdcdialog: false, // 是否显示导出弹框
       xflb: '', // 下发类别   厅总队账号，多一个查询条件“下发类别”（部下发，厅下发）
@@ -346,30 +354,24 @@ export default {
       return this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.deptCode || (zRow.category === 3 && (this.curDept.depCode === zRow.auditDeptCode)) || this.curDept.depCode === row.applyDeptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode)
     },
     controlxg(row) { // 控制列表修改按钮 ,总队管理员任何状态下都能修改自己创建的和审核的，
-      // if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
-      //   if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
-      //     return true
-      //   }
-      // }
+      if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
+        if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
+          return true
+        }
+      }
       // // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
-      // if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))) {
-      //   return true
-      // }
-      if (row.status + '' === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))) {
+      if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))) {
         return true
       }
     },
     controlsc(row) { // 控制列表删除按钮 ,总队管理计任何状态下都能修改自己创建的审核的，其他的是草稿，待审核，审核不通过时可操作。
-      // if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
-      //   if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
-      //     return true
-      //   }
-      // }
+      if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
+        if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
+          return true
+        }
+      }
       // // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
-      // if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))) {
-      //   return true
-      // }
-      if (row.status + '' === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))) {
+      if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))) {
         return true
       }
     },
@@ -551,7 +553,7 @@ export default {
       if (row.havePwd > 0) { // 弹出查阅密码弹出框
         this.isShowdialog = true
       } else { // 集群战役详情页
-        this.$router.push({ path: '/jqCampaign/detail', query: { id: row.clusterId }})
+        this.$router.push({ path: '/jqCampaign/detail', query: { id: row.clusterId, category: row.category }})
       }
     },
     resetForm() { // 重置
@@ -592,7 +594,7 @@ export default {
         this.loadingFlag = false
         if (response.code === '000000') {
           this.isShowdialog = false
-          this.$router.push({ path: '/jqCampaign/detail', query: { id: this.curRow.clusterId }}) // 跳转到详情页
+          this.$router.push({ path: '/jqCampaign/detail', query: { id: this.curRow.clusterId, category: this.curRow.category }}) // 跳转到详情页
         }
       }).catch(() => {
         this.loadingFlag = false
@@ -605,12 +607,6 @@ export default {
     },
     // 行选中函数  若有删除，若无添加
     handleselectRow(selection, row) {
-      // this.checkIdRow = []
-      // if (selection.length > 0) {
-      //   selection.forEach((item, index) => {
-      //     this.checkIdRow.push(item.clusterId)
-      //   })
-      // }
       if (this.checkId.length === 0 && selection.length > 0) {
         this.checkId.push(row.clusterId)
       } else {
@@ -712,10 +708,10 @@ export default {
       this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'add' }}) // 跳转到集群战役申请页
     },
     downSend() { // 下发
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'xf' }}) // 跳转到集群战役下发页
+      this.$router.push({ path: '/jqCampaign/jqzyxf', query: { type: 'xf' }}) // 跳转到集群战役下发页
     },
     budownSend() { // 部下发
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'bxf' }}) // 跳转到集群战役部下发页
+      this.$router.push({ path: '/jqCampaign/jqzybxf', query: { type: 'bxf' }}) // 跳转到集群战役部下发页
     },
     handleEdit(index, row) { // 修改
       var type = ''
@@ -726,7 +722,7 @@ export default {
       } else { //    3申请
         type = 'edit'
       }
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: type, id: row.clusterId, status: row.status }}) // 跳转到集群战役申请页
+      this.$router.push({ path: '/jqCampaign/jqzyEdit', query: { type: type, id: row.clusterId, status: row.status }}) // 跳转到集群战役申请页
     },
     handleClueList(row, type, param) { // 线索列表
       if (param) { // 外层列表
@@ -743,6 +739,11 @@ export default {
     },
     exportList() { // 导出
       this.isShowdcdialog = true
+      if (this.checkId.length > 0) {
+        this.dcForm.type = 2
+      } else {
+        this.dcForm.type = 1
+      }
     },
     canceldc() { // 取消导出
       this.isShowdcdialog = false
@@ -776,7 +777,7 @@ export default {
         parms.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 派出所取他的上级部门名称，非派出所取当前部门
         parms.realName = this.curUser.realName
         parms.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
-        parms.fileName = '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+        parms.fileName = '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}') + '.xlsx'
         this.$download('cluster/export', parms)
       } else { // 导出选中的
         var para = {
@@ -785,11 +786,15 @@ export default {
           curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 派出所取他的上级部门名称，非派出所取当前部门
           realName: this.curUser.realName,
           curUserPhone: this.curUser.phone ? this.curUser.phone : '',
-          fileName: '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+          fileName: '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}') + '.xlsx'
         }
         this.$download('cluster/export', para)
       }
       setTimeout(() => {
+        this.$message({
+          message: '导出集群战役协查战果反馈表成功！',
+          type: 'success'
+        })
         this.dcForm.type = 1
         this.isShowdcdialog = false // 关闭弹框
         this.checkId = [] // 清空选中数组

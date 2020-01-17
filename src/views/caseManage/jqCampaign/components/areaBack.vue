@@ -3,7 +3,7 @@
     <!-- 地市反馈 -->
     <div class="areaBack pubStyle">
       <title-pub :title="title">
-        <!-- <i v-if="listData.length>0" title="导出全部线索" class="export_btn" @click="exportallxs"><svg-icon icon-class="export"></svg-icon></i> -->
+        <i v-if="listData.length>0" title="导出全部线索" class="export_btn" @click="exportallxs"><svg-icon icon-class="export"></svg-icon></i>
       </title-pub>
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
           <el-table-column type="index" label="序号" width="60" fixed>
@@ -12,7 +12,7 @@
               <span v-else>总计</span>
             </template>
           </el-table-column>
-          <el-table-column prop="deptName" label="单位"   min-width="200" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="deptName" label="单位"   min-width="200" show-overflow-tooltip  fixed></el-table-column>
           <el-table-column prop="xsNum" label="线索总数（条）" min-width="140">
             <template slot-scope="scope">
               <span class="linkColor"  v-if="controlClick(scope.row) && scope.row.xsNum>0"  @click="gotoxslist(scope.row, '')">{{scope.row.xsNum}}</span>
@@ -62,7 +62,6 @@
               <el-button size="mini" title="反馈"  type="primary" circle  v-if="scope.$index+1<listData.length && controlxsfk(scope.row) && $isViewBtn('101910')" @click="handlefankui(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
               <el-button size="mini" title="评价打分"  type="primary" circle  v-if="scope.$index+1<listData.length && controlpjdf(scope.row) && $isViewBtn('101911')"  @click="handledafen(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
               <el-button size="mini" title="评价详情"  type="primary" v-if="scope.$index+1<listData.length && scope.row.score && controlpjxq(scope.row)"  icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
-              <!-- <el-button size="mini" title="转回上级"  type="primary" v-if="scope.$index+1<listData.length && controlrecall(scope.row)"  circle  @click="handleRecall(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -98,22 +97,6 @@
       <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false">
         <jqzy-disib  :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="clusterId"  :xcstatus="baseInfo.status" source="detail" :faxsflag="faxsflag"></jqzy-disib>
       </el-dialog>
-
-      <!-- 转回上级-->
-      <el-dialog title="转回上级" :visible.sync="isShowzhsj"  class="recallForm" v-loading="zhsjLoading" :close-on-click-modal="false" @close="cancel('zhsjForm')">
-        <el-form ref="zhsjForm" :rules="zhsjrules" :model="zhsjForm" size="small" label-width="100px">
-           <p class="zhsjp">将线索转回上级单位。</p>
-           <el-form-item label="接收单位" prop="parentDepartName">
-            <el-input v-model.trim="zhsjForm.parentDepartName"  disabled></el-input>
-          </el-form-item>
-          <el-form-item label="原因" prop="content">
-            <el-input v-model.trim="zhsjForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
-          </el-form-item>
-        </el-form>
-        <el-row class="tabC dialogBtnUpLine">
-          <el-button  type="primary" @click="sumbit"  class="saveBtn" :loading="tjbtnLoading">提交</el-button>
-        </el-row>
-      </el-dialog>
     </div>
   </section>
 </template>
@@ -135,10 +118,6 @@ export default {
         score: 0, // 分值
         commentText: '' // 评价
       },
-      zhsjForm: { // 转回上级
-        content: '', // 原因
-        parentDepartName: '' // 上级单位名称
-      },
       parentCode: '', // 当前部门的上级单位
       curUser: {}, // 用户信息
       curDept: {}, // 当前登录的部门
@@ -150,14 +129,13 @@ export default {
       isShowpjdfdetail: false, // 评价打分弹出框
       btnLoading: false, // 评价打分按钮loading
       isShowdrffxsDialog: false, // 是否显示分发线索弹出框
-      isShowzhsj: false, // 是否显示转回上级弹框
-      tjbtnLoading: false, // 转回上级提交按钮loading
-      zhsjLoading: false, // 转回上级弹框页面loading
       faxsflag: false, // 传递给线索分发页面,默认是false，总队点击分发时，此值设为true，则分发线索页面分发到支队，false时，则分发线索页面分发到大队
       pageSize: 5,
       page: 1,
       total: 0,
       clusterId: '', // 集群id
+      ecportTitle: '', // 导出的excel名称
+      cityListData: [], // citylist
       rules: {
         score: [ // 评价打分
           {
@@ -169,20 +147,6 @@ export default {
               }
             }
           }
-        ]
-      },
-      zhsjrules: {
-        parentDepartName: [ // 接收单位（上级单位）
-          { required: true, message: '请填写接收单位', max: 6, trigger: 'blur' }
-        ],
-        content: [ // 原因
-          { required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (!value) {
-              callback(new Error('请填写原因'))
-            } else {
-              callback()
-            }
-          } }
         ]
       }
     }
@@ -201,6 +165,7 @@ export default {
       if (this.info.clusterId) {
         this.clusterId = this.info.clusterId
         this.baseInfo = this.info
+        this.getCity()
         this.getDeptsshdw() // 查上级单位
       }
     },
@@ -247,10 +212,18 @@ export default {
         return false
       }
     },
-    controlrecall(row) { // 转回上级按钮显隐控制  协查中本单位可以操作
-      return this.baseInfo.status + '' === '5' && ((this.curDept.depType === '2' && this.curDept.depCode === row.deptCode) || (this.curDept.depType === '4' && this.curDept.depCode.substring(0, 4) === row.deptCode.substring(0, 4) && this.curDept.depCode.substring(0, 4) === '6114' && row.deptCode.substring(0, 4) === '6114'))
+    getCity() {
+      this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.cityListData = response.data ? response.data[0].children : []
+          this.getexportName() // 导出excel表的名称
+        }
+      })
     },
     query() { // 查询列表
+      Bus.$emit('isShowffbtn', false) // 线索分发按钮
+      Bus.$emit('isShowfkbtn', false) // 线索反馈按钮
+      Bus.$emit('isShowpjbtn', false) // 评价打分按钮
       this.listLoading = true
       var param = {
         assistId: this.clusterId, // 集群Id,
@@ -378,27 +351,17 @@ export default {
       this.isShowdrffxsDialog = val
       location.reload()
     },
-    handleRecall(index, row) { // 转回上级
-      this.isShowzhsj = true
-      this.getDeptsshdw(row.deptCode)
-    },
-    getDeptsshdw(deptCode) { // 查询上级单位
+    getDeptsshdw() { // 查询上级单位
       var paramCode = ''
-      if (deptCode) {
-        this.zhsjLoading = true
-        paramCode = deptCode
+      if (this.curDept.depType === '4') { // 杨凌派出所
+        paramCode = this.curDept.parentDepCode
       } else {
-        if (this.curDept.depType === '4') { // 杨凌派出所
-          paramCode = this.curDept.parentDepCode
-        } else {
-          paramCode = this.curDept.depCode
-        }
+        paramCode = this.curDept.depCode
       }
       this.$query('hsyzparentdepart/' + paramCode, {}, 'upms').then((response) => {
         if (response.code === '000000') {
           this.zhsjLoading = false
           this.parentCode = response.data.departCode
-          this.zhsjForm.parentDepartName = response.data.departName
           this.query()
         }
       }).catch(() => {
@@ -432,37 +395,35 @@ export default {
     },
     cancel(obj) {
       this.isShowpjdf = false
-      this.isShowzhsj = false
       this.resetForm(obj)
     },
     exportallxs() { // 导出全部线索
-
+      var para = {
+        category: 1, // 1是 地市，2 是 区县
+        clusterId: this.clusterId, //  集群战役Id
+        deptType: this.curDept.depType === '4' ? '2' : this.curDept.depType, // 杨凌派出所 类型取杨凌支队的类型
+        deptCode: this.curDept.depType === '4' ? this.curDept.parentDepCode : this.curDept.depCode, // 杨凌派出所传父级code， 其他传当前code
+        fileName: this.ecportTitle + '.xlsx'
+      }
+      this.$download('cluster/export/clue', para)
     },
-    sumbit() { // 转回上级提交
-      this.$refs.zhsjForm.validate(valid => {
-        if (valid) {
-          this.tjbtnLoading = true
-          const param = {
-            clusterId: this.clusterId, //  集群战役Id
-            deptCode: this.curRow.deptCode, // 反馈列表当前行的部门code
-            content: this.zhsjForm.content, // 原因
-            parentCode: this.parentCode, // 上级部门Code
-            parentName: this.zhsjForm.parentDepartName // 上级部门名称
-          }
-          this.$update('', param).then((response) => {
-            this.$message({
-              message: '提交成功！',
-              type: 'success',
-              duration: 2000
-            })
-            this.tjbtnLoading = false
-            this.isShowzhsj = false
-            this.query()
-          }).catch(() => {
-            this.tjbtnLoading = false
-          })
+    getexportName() { // 获取当前城市名称
+      if (this.curDept.depType === '1') { // 总队
+        this.ecportTitle = this.baseInfo.title + '涉案线索' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+      } else {
+        this.ecportTitle = this.baseInfo.title + '(' + this.getcityName(this.curDept.areaCode) + ')' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+      }
+    },
+    getcityName(areaCode) { // 获取城市名称
+      var cityData = this.cityListData
+      var name = ''
+      for (var i = 0; i < cityData.length; i++) {
+        if (cityData[i].cityCode === areaCode) {
+          name = cityData[i].cityName
+          break
         }
-      })
+      }
+      return name
     }
   },
   mounted() {

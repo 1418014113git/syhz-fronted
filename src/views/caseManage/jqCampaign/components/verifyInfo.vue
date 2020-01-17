@@ -6,7 +6,7 @@
       <div style="max-height:260px;overflow: auto;">
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="statisticCollect">
           <el-table-column type="index" label="序号" width="60" fixed></el-table-column>
-          <el-table-column prop="deptName" label="申请单位"  min-width="180" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="deptName" label="申请单位"  min-width="180" show-overflow-tooltip fixed></el-table-column>
           <el-table-column prop="userName" label="申请人" min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="acceptedTime" label="申请时间" min-width="180" show-overflow-tooltip></el-table-column>
           <el-table-column prop="acceptDeptName" label="审核单位" min-width="180" show-overflow-tooltip></el-table-column>
@@ -147,7 +147,7 @@ export default {
     },
     handleApply(index, row) { // 重新申请
       this.curRow = row
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'detail', id: this.clusterId }}) // 跳转到集群战役申请页
+      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'detail', id: this.clusterId, isDel: true }}) // 跳转到集群战役申请页
     },
     handleVerify(index, row) { // 审核
       this.curRow = row
@@ -163,7 +163,7 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    // this.init()
+    this.init()
   }
 }
 </script>

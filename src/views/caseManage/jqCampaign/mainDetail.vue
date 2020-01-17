@@ -8,13 +8,13 @@
      <el-row>
        <!-- 左侧导航区 -->
         <el-col class="leftCont" :span="3" :style="{height:countHeight}">
-          <left-nav class="bg"  :info="baseInfo"></left-nav>
+          <left-nav class="bg"  :info="baseInfo" :status="curCategory"></left-nav>
         </el-col>
         <!-- 右侧内容区 -->
         <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
             <base-info class="marb bg jbxx"  :info="baseInfo"></base-info>
-            <verify-info class="marb bg shxx"  :info="baseInfo" v-if="baseInfo.category === 3"></verify-info>
+            <verify-info class="marb bg shxx"  :info="baseInfo" v-if="curCategory === 3"></verify-info>
             <div v-if="isShow1">
               <area-sign class="marb bg dsqs"  :info="baseInfo"></area-sign>
               <area-back class="marb bg dsfk"  :info="baseInfo"></area-back>
@@ -159,7 +159,7 @@ export default {
       for (var i = 0; i < this.classList.length - 1; i++) {
         if (document.querySelector('.rightCont').scrollTop === 0) {
           this.$store.dispatch('JqMouleClass', this.classList[0])
-        } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 20 && document.querySelector('.rightCont').scrollTop < difference) {
+        } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 20) {
           this.$store.dispatch('JqMouleClass', this.classList[i])
         } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
           this.$store.dispatch('JqMouleClass', this.classList[this.classList.length - 1])
@@ -169,6 +169,7 @@ export default {
   },
   created() {
     if (this.$route.query.id) {
+      this.curCategory = this.$route.query.category
       this.getSysTime(this.$route.query.id)
     }
   },

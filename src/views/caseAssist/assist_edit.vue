@@ -33,7 +33,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="11" v-if="firstSubmitVisible">
-              <el-form-item label="开始日期" prop="startDate">
+              <el-form-item label="开始时间" prop="startDate">
                 <el-date-picker v-model="caseAssistForm.startDate" type="datetime" placeholder="选择日期" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" :disabled="timeDisable" @change="startChange" clearable></el-date-picker>
               </el-form-item>
               <el-form-item label="发起人" prop="applyPersonName">
@@ -41,7 +41,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="11" class="mar_left" v-if="firstSubmitVisible">
-              <el-form-item label="截止日期" prop="endDate">
+              <el-form-item label="截止时间" prop="endDate">
                 <el-date-picker v-model="caseAssistForm.endDate" type="datetime" placeholder="选择日期" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" :disabled="timeEndDisable" @change="endChange" clearable></el-date-picker>
               </el-form-item>
               <el-form-item label="发起人电话" prop="applyPersonPhone">
@@ -114,7 +114,7 @@
 
     <!-- 分发线索-->
     <el-dialog title="分发线索" :visible.sync="distributeClueVisible" class="distribute_clue" :close-on-click-modal="false" @close="closeDistributeClueDialog">
-      <distributeClue ref="distributeClue" @closeDialog="closeDistributeClueDialog" :assistId="editId" :fastatus="qbxsDistribute" :jsdw="receiveName" source="add" @result="getDistributeResult" :category="category"></distributeClue>
+      <distributeClue ref="distributeClue" @closeDialog="closeDistributeClueDialog" :assistId="editId" :fastatus="qbxsDistribute" :assistStatus="caseAssistForm.status" :jsdw="receiveName" source="add" @result="getDistributeResult" :category="category"></distributeClue>
     </el-dialog>
   </div>
 </template>
@@ -273,9 +273,9 @@ export default {
             if (new Date(this.caseAssistForm.startDate) > new Date(value)) {
               return callback(new Error('截止时间不能小于开始时间'))
             }
-            // if (new Date(value) < new Date()) {
-            //   return callback(new Error('截止时间不能小于当前系统时间'))
-            // }
+            if (new Date(value) < new Date()) {
+              return callback(new Error('截止时间不能小于当前系统时间'))
+            }
             return callback()
           }
         }],
@@ -375,7 +375,11 @@ export default {
         depCode: this.curDept.depCode
       }
       if (this.curDept.depType === '1') {
-        para.depCode = ''
+        if (this.caseAssistForm.applyDeptCode !== this.curDept.depCode) {
+          para.depCode = this.caseAssistForm.applyDeptCode
+        } else {
+          para.depCode = ''
+        }
       }
       this.$query('searchsyhaj', para).then((response) => {
         this.caseLoading = false
@@ -516,7 +520,11 @@ export default {
                 param.status = this.caseAssistForm.status
               }
             } else {
-              param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+              if (this.caseAssistForm.applyDeptCode !== this.curDept.depCode) {
+                param.status = this.caseAssistForm.status
+              } else {
+                param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+              }
             }
             param.operator = state === 0 ? 'update' : 'submit'
             param.id = this.editId
@@ -543,7 +551,7 @@ export default {
             } else {
               this.save(param, false, false, '', false)
             }
-          } else if (this.pageOperationType === 'add') {
+          } else if (this.pageOperationType === 'add' || this.pageOperationType === 'reApply') {
             param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
@@ -600,7 +608,7 @@ export default {
           if (this.pageOperationType === 'add' || this.pageOperationType === 'edit') {
             this.$router.push({ path: '/caseAssist/list' })
           } else {
-            this.$gotoid('/caseAssist/detail', JSON.stringify({ id: this.caseAssistForm.id }))
+            this.$gotoid('/caseAssist/detail', this.editId)
           }
         }
       }).catch(() => {

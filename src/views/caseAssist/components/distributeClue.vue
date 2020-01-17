@@ -58,6 +58,8 @@
               <p>1、列表勾选需要分发线索。</p>
               <p>2、选择线索接收单位。</p>
               <p>3、点击【线索分发】，向接收单位分发线索。</p>
+              <p>线索删除说明：</p>
+              <p>删除线索会删除对应线索反馈内容。</p>
             </div>
             <el-button  type="primary" size="small" slot="reference"><svg-icon icon-class="wenhao"></svg-icon> 分发步骤</el-button>
           </el-popover>
@@ -87,8 +89,8 @@
         <el-table-column label="操作" align="center" width="100" fixed="right">
           <template slot-scope="scope">
             <el-button size="mini" title="取消分发"  type="primary" circle v-if="enable(scope.row)" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
-            <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='detail'"  @click="handleDel(scope.$index,scope.row)"></el-button>
-            <!--<el-button v-if="pageSource==='detail'" size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>-->
+            <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="enableDelete(scope.row)"  @click="handleDel(scope.$index,scope.row)"></el-button>
+            <el-button v-if="pageSource==='detail'" size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -180,6 +182,15 @@ export default {
       }
       return false
     },
+    enableDelete(row) {
+      if (this.pageSource !== 'detail') {
+        // if (this.assistStatus === '0' || this.assistStatus === undefined) {
+        //   return true
+        // }
+        return true
+      }
+      return false
+    },
     findParentDept(paramCode) {
       const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
       for (let i = 0; i < deptArr.length; i++) {
@@ -248,7 +259,12 @@ export default {
           qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
           assistId: this.assistId,
           receiveCode: row.receiveCode ? row.receiveCode : '',
-          assistType: 1
+          assistType: 1,
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
+          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
+          userId: this.curUser.id,
+          userName: this.curUser.realName,
+          opt: this.pageSource === 'detail' && Number(this.assistStatus) > 3 ? 'addRecord' : ''
         }
         this.$update('caseassistclue/delete', param).then((response) => {
           this.listLoading = false
@@ -281,7 +297,12 @@ export default {
           qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
           assistId: this.assistId,
           receiveCode: row.receiveCode ? row.receiveCode : '',
-          assistType: 1
+          assistType: 1,
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
+          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
+          userId: this.curUser.id,
+          userName: this.curUser.realName,
+          opt: this.pageSource === 'detail' && Number(this.assistStatus) > 3 ? 'addRecord' : ''
         }
         this.$update('caseassistclue/cancelDistribute', param).then((response) => {
           this.$emit('closeDialog', true)
@@ -579,8 +600,8 @@ export default {
       this.query(true)
     },
     handleClueMove(index, row) { // 线索流转记录
-      this.clueMoveDialogVisible = true
       this.qbxsId = row.qbxsId
+      this.$emit('handleClueMove', this.qbxsId)
     }
   },
   mounted() {

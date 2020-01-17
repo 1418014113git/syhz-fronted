@@ -14,7 +14,7 @@
             {{scope.$index === listData.length - 1 ? '合计' : scope.$index + 1}}
           </template>
         </el-table-column>
-        <el-table-column prop="deptName" label="单位" align="center" width="280" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="deptName" label="单位" align="center" width="280" show-overflow-tooltip fixed="left"></el-table-column>
         <el-table-column prop="xsNum" label="线索总数（条）" width="160" align="center">
           <template slot-scope="scope">
             <span class="linkColor"  @click="toClueList(scope.row)" v-if="scope.row.xsNum && enableTo(scope.row, scope.$index)">{{scope.row.xsNum}}</span>
@@ -40,7 +40,7 @@
               <span v-else>{{scope.row.whc || 0}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="hcl" label="核查率" align="center" show-overflow-tooltip>
+          <el-table-column prop="hcl" label="核查率" align="center" width="120" show-overflow-tooltip>
             <template slot-scope="scope">
               {{scope.row.hcl || 0}} %
             </template>
@@ -68,7 +68,6 @@
               <el-button v-if="$isViewBtn('100910') && enableFeedBack(scope.row)" size="mini" title="反馈"  type="primary" circle  @click="handleFeedBack(scope.$index, scope.row)"><svg-icon icon-class="fankui"></svg-icon></el-button>
               <el-button v-if="$isViewBtn('100911') && enableScore(scope.row)" size="mini" title="评价打分"  type="primary" circle  @click="handleScore(scope.$index, scope.row)"><svg-icon icon-class="dafen"></svg-icon></el-button>
               <el-button v-if="scope.row.score !== undefined" size="mini" title="评价详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
-              <!--<el-button v-if="enableBackClue(scope.row, true)" size="mini" title="转回上级" type="primary" circle  @click="handleBackClue(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button>-->
             </span>
           </template>
         </el-table-column>
@@ -111,29 +110,11 @@
 
     <!-- 分发线索-->
     <el-dialog title="分发线索" :visible.sync="clueDistributeDialogVisible" class="clueDistribute" :close-on-click-modal="false" @close="closeClueDialog">
-      <distributeClue ref="distributeClue" @closeDialog="closeClueDialog" :assistStatus="info.status" :assistId="curAssistId" source="detail"></distributeClue>
+      <distributeClue ref="distributeClue" @closeDialog="closeClueDialog" :assistStatus="info.status" :assistId="curAssistId" source="detail" @handleClueMove="handleClueMove"></distributeClue>
     </el-dialog>
 
-    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false">
-      <clueMoveList :assistId="curAssistId"></clueMoveList>
-    </el-dialog>
-
-    <el-dialog title="转回上级" :visible.sync="backClueDialogVisible" :close-on-click-modal="false" class="backClueForm" @close="cancelBack">
-      <p style="padding: 5px 20px; font-size: 16px;">将线索转回上级单位。</p>
-      <el-form ref="backClueForm" :rules="backClueFormRules" :model="backClueForm" size="small" label-width="90px">
-        <el-form-item label="接收单位" prop="receiveDept">
-          <el-select v-model="backClueForm.receiveDept" placeholder="请选择部门" v-loading="deptLoading" style="width: 100%;" disabled>
-            <el-option v-for="(item, index) in exDeptData" :key="index" :label="item.departName" :value="item.departCode"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="原因" prop="content">
-          <el-input v-model.trim="backClueForm.content" type="textarea" :rows="4" clearable  maxlength="500" placeholder="最多输入500个字符"></el-input>
-        </el-form-item>
-      </el-form>
-      <el-row class="tabC dialogBtnUpLine">
-        <el-button @click="cancelBack" class="cancelBtn">取 消</el-button>
-        <el-button type="primary" @click="saveBack" class="saveBtn" :loading="btnLoading">提 交</el-button>
-      </el-row>
+    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false" @close="closeClueMoveDialog">
+      <clueMoveList ref="clueMoveList" :assistId="curAssistId" :qbxsId="qbxsId"></clueMoveList>
     </el-dialog>
 
   </div>
@@ -161,10 +142,6 @@ export default {
         score: 0,
         commentText: ''
       },
-      backClueForm: {
-        receiveDept: '',
-        content: ''
-      },
       curUser: {},
       curDept: {},
       listData: [], // 地市线索协查战果反馈表
@@ -174,14 +151,12 @@ export default {
       btnLoading: false, // 评价打分按钮loading
       clueDistributeDialogVisible: false, // 是否显示分发线索弹出框
       clueMoveDialogVisible: false,
-      backClueDialogVisible: false,
-      exDeptData: [],
-      deptLoading: false,
       updateOp: false,
       pageSize: 5,
       page: 1,
       total: 0,
       curAssistId: '', // 存储列表传递过来的id
+      qbxsId: '',
       rules: {
         score: [ // 评价打分
           {
@@ -195,18 +170,8 @@ export default {
           }
         ]
       },
-      backClueFormRules: {
-        receiveDept: [{ required: true, message: '请选择接受单位', trigger: 'change' }],
-        content: [{
-          required: true, trigger: 'blur', validator: (rule, value, callback) => {
-            if (value === undefined || value === null || value === '') {
-              callback(new Error('请填写原因'))
-            } else {
-              callback()
-            }
-          }
-        }]
-      }
+      areaOptions: [],
+      areaName: ''
     }
   },
   watch: {
@@ -250,26 +215,6 @@ export default {
             if (row.deptCode === this.curDept.parentDepCode) {
               return true
             }
-          }
-        }
-      }
-      return false
-    },
-    enableBackClue(row, flag) {
-      if (String(this.info.status) === '5') {
-        if (row.deptCode === this.curDept.depCode) {
-          if (flag) {
-            if (String(this.info.categroy) === '3' && this.info.applyDeptCode === row.deptCode) {
-              return false
-            }
-            return true
-          } else {
-            return true
-          }
-        }
-        if (this.curDept.depType === '4') {
-          if (row.deptCode === this.curDept.parentDepCode) {
-            return true
           }
         }
       }
@@ -491,59 +436,66 @@ export default {
       this.evaluateDetailDialogVisible = true
       this.evaluateDetailForm = row
     },
-    handleClueMove(index, row) { // 线索流转记录
+    handleClueMove(qbxsId) { // 线索流转记录
       this.clueMoveDialogVisible = true
-    },
-    handleBackClue(index, row) {
-      this.backClueDialogVisible = true
-      let paramCode = ''
-      if (this.curDept.depType === '4') { // 派出所
-        paramCode = this.curDept.parentDepCode
-      } else {
-        paramCode = this.curDept.depCode
+      this.qbxsId = qbxsId
+      if (this.$refs.clueMoveList) {
+        this.$refs.clueMoveList.query(this.qbxsId)
       }
-      this.queryParentDept(paramCode)
+    },
+    queryArea() {
+      this.$query('citytree', { cityCode: this.curDept.areaCode }, 'upms').then((response) => {
+        this.areaOptions = response.data
+        this.areaName = response.data[0]
+      })
+    },
+    eachArea(child, value, arr) {
+      for (let i = 0; i < child.length; i++) {
+        const item = child[i]
+        if (item.cityCode === value) {
+          arr.push(item.cityName)
+          break
+        } else {
+          if (item.children) {
+            this.eachArea(item.children, value, arr)
+          }
+        }
+      }
     },
     handleDown() {
+      const arr = []
+      this.eachArea(this.areaOptions, this.curDept.areaCode, arr)
+      this.areaName = arr.join(',')
       // 导出线索
+      let area = ''
       const params = {}
       if (String(this.showType) === '1') {
         if (this.curDept.depType === '4') {
           if (this.curDept.areaCode === '611400') {
             params.category = 1
+            area = '（' + this.areaName + '）'
           } else {
             params.category = 2
+            area = '（' + this.areaName + '）'
           }
         } else {
-          params.category = this.curDept.depType === '1' || this.curDept.depType === '2' ? 1 : 2
+          if (this.curDept.depType === '1' || this.curDept.depType === '2') {
+            params.category = 1
+            area = this.curDept.depType === '1' ? '案件协查' : '（' + this.areaName + '）'
+          } else {
+            params.category = 2
+            area = '（' + this.areaName + '）'
+          }
         }
       } else {
         params.category = 2
+        area = '（区县）'
       }
       params.deptType = this.curDept.depType
       params.deptCode = this.curDept.depCode
       params.assistId = this.curAssistId
-      params.fileName = '案件协查-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}')
+      params.fileName = this.info.title + area + '涉案线索' + this.$parseTime(new Date(), '{y}-{m}-{d}') + '.xlsx'
       this.$download('assist/clue/export', params)
-    },
-    queryParentDept(paramCode) {
-      this.deptLoading = true
-      this.$query('hsyzparentdepart/' + paramCode, {}, 'upms').then((response) => {
-        if (response.code === '000000') {
-          const exDeptData = {
-            departCode: response.data.departCode,
-            departName: response.data.departName,
-            acceptDeptId: response.data.id
-          }
-          this.backClueForm.receiveDept = response.data.departCode
-          this.exDeptData = [exDeptData]
-          this.deptLoading = false
-        } else {
-          this.deptLoading = false
-        }
-      }).catch(() => {
-        this.deptLoading = false
-      })
     },
     closeClueDialog(val) { // 关闭分发线索弹框
       if (val) {
@@ -554,6 +506,9 @@ export default {
           location.reload()
         }
       }
+    },
+    closeClueMoveDialog() {
+      this.$refs.clueMoveList.listData = []
     },
     getSummaries(param) { // 总计
       const { columns, data } = param
@@ -605,35 +560,6 @@ export default {
         score: 0,
         commentText: ''
       }
-    },
-    cancelBack() {
-      this.backClueDialogVisible = false
-      this.backClueForm = {
-        receiveDept: '',
-        content: ''
-      }
-      this.$refs.backClueForm.resetFields()
-    },
-    saveBack() {
-      this.$refs.backClueForm.validate(valid => {
-        if (valid) {
-          // this.btnLoading = true
-          // this.$update('/caseAssist/appraise', this.backClueForm).then((response) => {
-          //   this.$message({
-          //     message: '转回成功！',
-          //     type: 'success',
-          //     duration: 2000
-          //   })
-          //   this.btnLoading = false
-          //   this.backClueDialogVisible = false
-          //   this.query(true)
-          // }).catch(() => {
-          //   this.btnLoading = false
-          // })
-        } else {
-          this.btnLoading = false
-        }
-      })
     }
   },
   mounted() {
@@ -654,6 +580,7 @@ export default {
     }
     this.title += '线索协查战果反馈表'
     this.init()
+    this.queryArea()
   }
 }
 </script>
