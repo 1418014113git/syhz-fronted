@@ -3,7 +3,7 @@
     <!--工具条-->
     <div style="text-align: center;padding-bottom: 50px">
       <el-row>
-        <el-col :span="10" :offset="7">
+        <el-col :span="11" :offset="6">
           <div>
             <el-input size="large" v-model="filters.search">
             </el-input>
@@ -16,10 +16,10 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="10" :offset="7">
+        <el-col :span="13" :offset="6">
           <el-menu default-active="0" text-color="#bce8fc" active-text-color="#00a0e9" mode="horizontal" @select="handleSelect">
             <el-menu-item v-for="item in resourceShowList" :key="item.code" :index="item.code">{{ item.label }}</el-menu-item>
-            <el-submenu index="" style="margin-left: 10px;">
+            <el-submenu index="" style="margin-left: 10px;" v-if="resourceBlankList.length > 0">
               <template slot="title"></template>
               <el-menu-item v-for="item in resourceBlankList" :key="item.code" :index="item.code">{{ item.label }}</el-menu-item>
             </el-submenu>
@@ -34,12 +34,12 @@
         </div>
         <div class="demo">
           <div style="margin: 0 10px 0 10px" v-for="(item, index) in dataList" :key="index + activeIndexLast" :value="item">
-            <div style="margin: 0 0 5px 0;height: 22px">
+            <div style="margin: 0 0 5px 0">
               <span class="title title-span" @click='detail(item)'>{{ delHtmlTag(item.title) }}
               </span>
               <span class="title-span" style="color: #bce8fc;cursor: default;" v-if="activeIndex === '0'">{{ formatType(item.type) }}</span>
             </div>
-            <div style="height: 22px">
+            <div>
               <span>{{formatDate(item.publishTime)}}</span>
               <span>-</span>
               <span class="content">{{delHtmlTag(item.content)}}</span>
@@ -48,11 +48,11 @@
           </div>
         </div>
       </el-card>
-      <el-col :span="24" class="toolbar">
+      <div class="box-card">
         <el-pagination v-if="total > 0" layout="total, sizes, prev, pager, next, jumper" @current-change="handleCurrentChange" :page-sizes="[15,30,50,100]" @size-change="handleSizeChange"
                        :page-size="pageSize" :total="total" :current-page="page" style="float:right;">
         </el-pagination>
-      </el-col>
+      </div>
     </el-col>
   </section>
 </template>
@@ -89,7 +89,7 @@
       },
       // 去掉字符串中的HTML标签
       delHtmlTag(str) {
-        return this.intercept(str.replace(/<[^>]+>/g, ''))
+        return this.intercept(str.replace(/<[^>]+>/g, '')).replace(/[ ]|[&nbsp;]/g, '')
       },
       // 内容截取一百字
       intercept(str) {
@@ -286,6 +286,8 @@
   }
   .searchList .box-card {
     height: auto;
+    width: 80%;
+    margin: 0 auto;
   }
   .searchList .tabsDiv {
     width: 50%;
