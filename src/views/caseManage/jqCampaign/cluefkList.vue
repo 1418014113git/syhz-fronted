@@ -123,7 +123,7 @@ export default {
       tableHeight: null, // 列表外层容器的高度
       paramDeptCode: '', // 详情页传递过来的参数
       tableHead: [], // 表头
-      checkItem: [], // 复选框中选中的列表项
+      checkItem: [], // 复选框中选中的列表项内容
       paramCheckiItem: {} // 传递给反馈详情页的复选框选中的列表项对象
     }
   },
