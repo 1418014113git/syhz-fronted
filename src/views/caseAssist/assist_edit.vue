@@ -280,6 +280,9 @@ export default {
             if (new Date(this.caseAssistForm.startDate) > new Date(value)) {
               return callback(new Error('截止时间不能小于开始时间'))
             }
+            if (this.oldEndDate !== '' && new Date(this.oldEndDate).getTime() === new Date(this.caseAssistForm.endDate).getTime()) {
+              return callback()
+            }
             if (new Date(value) < new Date()) {
               return callback(new Error('截止时间不能小于当前系统时间'))
             }
@@ -319,7 +322,8 @@ export default {
       listData: [],
       listLoading: false,
       updateOp: false,
-      bossFlag: false
+      bossFlag: false,
+      oldEndDate: ''
     }
   },
   methods: {
@@ -429,6 +433,7 @@ export default {
         this.timeDisable = false
         this.caseAssistForm.startDate = response.data.startDate
         this.caseAssistForm.endDate = response.data.endDate
+        this.oldEndDate = response.data.endDate
         this.caseAssistForm.applyDeptCode = response.data.applyDeptCode
         this.caseAssistForm.applyDeptName = response.data.applyDeptName
         this.caseAssistForm.applyPersonName = response.data.applyPersonName

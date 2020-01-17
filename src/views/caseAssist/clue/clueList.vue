@@ -93,7 +93,7 @@
           <template slot-scope="scope">
             <el-button size="mini" title="详情" type="primary" icon="el-icon-document" circle @click="handleDetail(scope.$index, scope.row)"></el-button>
             <el-button size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
-            <!--<el-button v-if="enableBackClue(scope.row, true)" size="mini" title="转回上级" type="primary" circle  @click="handleBackClue(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button>-->
+            <el-button v-if="enableBackClue(scope.row, true)" size="mini" title="转回上级" type="primary" circle  @click="handleBackClue(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button>
           </template>
         </el-table-column>
       </el-table>
