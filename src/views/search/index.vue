@@ -89,7 +89,7 @@
       },
       // 去掉字符串中的HTML标签
       delHtmlTag(str) {
-        return this.intercept(str.replace(/<[^>]+>/g, '')).replace(/[ ]|[&nbsp;]/g, '')
+        return this.intercept(str.replace(/<[^>]+>/g, '')).replace(/\&nbsp;/g, '')
       },
       // 内容截取一百字
       intercept(str) {
