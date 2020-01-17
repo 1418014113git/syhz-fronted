@@ -8,7 +8,10 @@
         <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
           <el-table-column type="index" label="序号" width="60" fixed>
             <template slot-scope="scope">
-              <span v-if="scope.$index+1<listData.length">{{scope.$index+1}}</span>
+              <span v-if="scope.$index+1<listData.length">
+                 <span v-if="ispx">{{scope.$index}}</span>
+                 <span v-else>{{scope.$index+1}}</span>
+              </span>
               <span v-else>总计</span>
             </template>
           </el-table-column>
@@ -40,7 +43,7 @@
             </el-table-column>
             <el-table-column prop="hcl" label="核查率"  min-width="100" show-overflow-tooltip>
               <template slot-scope="scope">
-                <span>{{scope.row.hcl ? scope.row.hcl : 0}}%</span>
+                <span>{{scope.row.hcl ? (isNaN(scope.row.hcl) ? scope.row.hcl : scope.row.hcl+'%') : '0%'}}</span>
               </template>
             </el-table-column>
           </el-table-column>
@@ -94,7 +97,7 @@
       </el-dialog>
 
       <!-- 分发线索-->
-      <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false">
+      <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false" @close="closeDia">
         <jqzy-disib  :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="clusterId"  :xcstatus="baseInfo.status" source="detail" :faxsflag="faxsflag"></jqzy-disib>
       </el-dialog>
     </div>
@@ -136,6 +139,7 @@ export default {
       clusterId: '', // 集群id
       ecportTitle: '', // 导出的excel名称
       cityListData: [], // citylist
+      ispx: false,
       rules: {
         score: [ // 评价打分
           {
@@ -237,9 +241,18 @@ export default {
       } else if (this.curDept.depType === '4') { // 杨凌派出所，传父级部门code
         param.curDeptCode = this.curDept.parentDepCode
       }
+
       this.$query('caseassistclue/detailCount', param).then((res) => {
         this.listLoading = false
         this.listData = res.data
+        if (this.listData.length > 0) {
+          this.listData.forEach((item, index) => {
+            if (index === 0 && item.deptCode === '610000530000') {
+              this.ispx = true
+            }
+          })
+        }
+
         this.controlBtn(res.data)
         if (this.listData.length > 0) {
           this.$resetSetItem('t3', this.listData.length - 1) // 将总数存在session中 减去合计行
@@ -259,7 +272,7 @@ export default {
       const curDate = new Date(this.baseInfo.systemTime)
       if (data.length > 0) {
         data.forEach(item => {
-          if (this.curDept.depType === '2' && this.curDept.depCode === item.deptCode && this.curDept.depCode !== '611400390000' && item.deptCode !== '611400390000') { // 集群战役处于协查中、协查结束状态时 本单位显示分发  杨凌不能分发，下面没有大队，派出所和支队同权限的
+          if ((this.curDept.depType === '1' && item.deptCode === '610000530000') || this.curDept.depType === '2' && this.curDept.depCode === item.deptCode && this.curDept.depCode !== '611400390000' && item.deptCode !== '611400390000') { // 集群战役处于协查中、协查结束状态时 本单位显示分发  杨凌不能分发，下面没有大队，派出所和支队同权限的
             if (this.baseInfo.status + '' === '5' || this.baseInfo.status + '' === '6' || this.baseInfo.status + '' === '7') { // 协查中 , 协查超时, 协查结束
               const startDate = new Date(this.baseInfo.startDate)
               if (curDate > startDate) {
@@ -303,17 +316,19 @@ export default {
       }
     },
     handlefenfa(index, row) { // 线索分发
-      if (String(row.signStatus) !== '2') { // 签收列表有签收按钮，表示有未签收的线索
-        this.$alert('该线索还未签收，请先进行签收。', '提示', {
-          type: 'warning',
-          confirmButtonText: '确定'
-        })
-        return false
-      }
       if (row.deptCode === '610000530000') { // 当前行是总队
         this.faxsflag = true
       } else {
         this.faxsflag = false
+      }
+      if (!this.faxsflag) {
+        if (String(row.signStatus) !== '2') { // 签收列表有签收按钮，表示有未签收的线索
+          this.$alert('该线索还未签收，请先进行签收。', '提示', {
+            type: 'warning',
+            confirmButtonText: '确定'
+          })
+          return false
+        }
       }
       this.curRow = row
       this.isShowdrffxsDialog = true
@@ -349,6 +364,10 @@ export default {
     },
     closeffxsDialog(val) { // 关闭分发线索弹框
       this.isShowdrffxsDialog = val
+      location.reload()
+    },
+    closeDia() {
+      this.isShowdrffxsDialog = false
       location.reload()
     },
     getDeptsshdw() { // 查询上级单位

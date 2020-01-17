@@ -102,7 +102,7 @@
         <template slot-scope="scope">
           <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle   @click="handleDetail(scope.$index, scope.row)"></el-button>
           <el-button size="mini" title="线索流转记录"  type="primary" circle   @click="handlelzDetail(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
-          <!-- <el-button size="mini" title="转回上级"  type="primary" v-if="controlrecall(scope.row)"  circle  @click="handleRecall(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button> -->
+          <el-button size="mini" title="转回上级"  type="primary" v-if="controlrecall(scope.row)"  circle  @click="handleRecall(scope.$index, scope.row)"><svg-icon icon-class="back"></svg-icon></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -163,7 +163,9 @@ export default {
       },
       zhsjForm: { // 转回上级
         content: '', // 原因
-        parentDepartName: '' // 上级单位名称
+        parentDepartName: '', // 上级单位名称
+        receiveDeptType: '', // 上级单位type
+        receiveDept: '' // 上级部门code
       },
       applyDeptCode: '', // 列表页传递过来的申请单位code
       passWordForm: {
@@ -206,8 +208,8 @@ export default {
       showTitle: '', // 显示 地市 还是区县
       showType: '', // 显示类型
       curCityCode: '',
-      parentCode: '', // 当前部门的上级单位
       baseInfo: {}, // 详情信息
+      pcsParentDept: {}, // 派出所的上级单位
       zhsjrules: {
         parentDepartName: [ // 接收单位（上级单位）
           { required: true, trigger: 'blur', validator: (rule, value, callback) => {
@@ -506,7 +508,7 @@ export default {
       }
       return true
     },
-    controlrecall(row) { // 转回上级按钮显隐控制  协查中本单位可以操作
+    controlrecall(row) { // 转回上级按钮显隐控制  协查中 本单位可以操作
       return this.baseInfo.status + '' === '5' && ((this.curDept.depType !== '4' && row.receiveCode === this.curDept.depCode) || (this.curDept.depType === '4' && row.receiveCode === this.curDept.parentDepCode)) // 派出所和上级大内同权限
     },
     detail(id) { // 查询详情
@@ -515,13 +517,18 @@ export default {
       }).catch(() => {
       })
     },
-    getDeptsshdw(deptCode) { // 查询上级单位
+    getDeptsshdw(deptCode, flag) { // 查询上级单位
       this.zhsjLoading = true
       this.$query('hsyzparentdepart/' + deptCode, {}, 'upms').then((response) => {
         if (response.code === '000000') {
           this.zhsjLoading = false
-          this.parentCode = response.data.departCode // 上级部门code
-          this.zhsjForm.parentDepartName = response.data.departName // 上级部门名称
+          if (flag) { // 查询派出所的上级单位
+            this.pcsParentDept = response.data
+          } else {
+            this.zhsjForm.receiveDeptType = response.data.departType // 上级部门type
+            this.zhsjForm.receiveDept = response.data.departCode // 上级部门code
+            this.zhsjForm.parentDepartName = response.data.departName // 上级部门名称
+          }
           this.query()
         }
       }).catch(() => {
@@ -531,25 +538,43 @@ export default {
     handleRecall(index, row) { // 转回上级
       this.isShowzhsj = true
       this.getDeptsshdw(row.receiveCode)
+      this.curRow = row
     },
     cancel(formName) {
       this.isShowzhsj = false
       this.$refs[formName].resetFields()
+    },
+    querypcssj() { // 查询派出所的上级单位
+      this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+        if (response.code === '000000') {
+          this.pcsParentDept = response.data
+        }
+      }).catch(() => {
+      })
     },
     sumbit() { // 转回上级提交
       this.$refs.zhsjForm.validate(valid => {
         if (valid) {
           this.tjbtnLoading = true
           const param = {
-            clusterId: this.clusterId, //  集群战役Id
-            deptCode: this.curRow.receiveCode, // 线索列表当前行的部门code
-            parentCode: this.parentCode, // 上级部门Code
-            content: this.zhsjForm.content, // 原因
-            parentName: this.zhsjForm.parentDepartName // 上级部门名称
+            assistId: this.curRow.clusterId, //  集群战役Id
+            qbxsId: this.curRow.qbxsId, // 线索id
+            qbxsDeptId: this.curRow.qbxsDeptId,
+            receiveCode: this.curRow.receiveCode,
+            receiveDept: this.zhsjForm.receiveDept, // 转回的上级接收单位code
+            receiveDeptName: this.zhsjForm.parentDepartName, // 转回的上级接收单位名称
+            receiveDeptType: this.zhsjForm.receiveDeptType, // 转回的上级接收单位type
+            remark: this.zhsjForm.content, // 原因
+            assistType: 2,
+            curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
+            curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
+            userId: this.curUser.id,
+            userName: this.curUser.realName,
+            opt: 'addRecord'
           }
-          this.$update('', param).then((response) => {
+          this.$update('caseassistclue/qbxsReturn', param).then((response) => {
             this.$message({
-              message: '提交成功！',
+              message: '转回成功！',
               type: 'success',
               duration: 2000
             })
@@ -586,6 +611,7 @@ export default {
         // this.showTitle = '区县'
         this.showType = '2'
       }
+      this.getDeptsshdw(this.curDept.depCode, true)
     }
     if (this.$route.query.id) {
       this.assistId = this.$route.query.id
