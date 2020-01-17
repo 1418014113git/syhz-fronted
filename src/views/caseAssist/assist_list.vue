@@ -224,14 +224,14 @@ export default {
   methods: {
     enableEdit(row) {
       if (this.curDept.depType === '1' && this.$isViewBtn('100908')) { // 总队管理员
-        if (row.auditDeptCode === this.curDept.depCode) { // 总队审核
+        if (row.auditDeptCode === this.curDept.depCode && Number(row.status) > 3) { // 总队审核
           return true
         }
         if (row.applyDeptCode === this.curDept.depCode) { // 总队申请、下发
           return true
         }
         const dept = this.findParentDept(row.applyDeptCode)
-        if (dept.depType === '3' && row.deptList.length > 1) { // 大队发起的，且需要总队最终审核
+        if (dept.depType === '3' && row.deptList.length > 1 && Number(row.status) > 3) { // 大队发起的，且需要总队最终审核
           return true
         }
       }
