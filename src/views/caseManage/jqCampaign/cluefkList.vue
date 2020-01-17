@@ -129,7 +129,6 @@ export default {
   },
   methods: {
     query(flag, hand) { // 列表数据查询
-      this.initData()
       this.listLoading = true
       this.page = flag ? 1 : this.page
       const para = {
