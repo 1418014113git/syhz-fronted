@@ -105,6 +105,9 @@
 
   export default {
     name: 'caseEdit',
+    props: [
+      'knowData'
+    ],
     components: {
       VueEditor,
       videoPlayer,
@@ -186,24 +189,19 @@
       },
       callback() {
         this.clearTimeInterval()
-        if (this.callBack === '') {
-          this.$router.push('/handlingGuide/alzyList')
-        } else {
-          const para = {
-            filters: this.filters,
-            active: this.active
-          }
-          this.$gotoid('/handlingGuide/knowLedgeBase', JSON.stringify(para))
-        }
+        this.$router.back(-1)
       },
       getDetail() {
         this.loading = true
-        this.$query('caseinfo/' + this.id, {}).then(response => {
-          this.loading = false
-          this.detailData = response.data
-          this.bindSetTimeOut()
-        }).catch(() => {
-          this.loading = false
+        this.$query('TRAINCASEINFOBYDOCUMENTID', { documentId: this.knowData.id }).then(response => {
+          this.id = response.data[0].id
+          this.$query('caseinfo/' + this.id, {}).then(response => {
+            this.loading = false
+            this.detailData = response.data
+            this.bindSetTimeOut()
+          }).catch(() => {
+            this.loading = false
+          })
         })
       },
       handleImageAdded(file, Editor, cursorLocation, resetUploader) {
@@ -348,19 +346,7 @@
       this.tableHeight = document.documentElement.clientHeight - 559 + 'px'
       this.currentDep = JSON.parse(sessionStorage.getItem('depToken'))[0]
       this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
-      if (sessionStorage.getItem(this.$route.path) && sessionStorage.getItem(this.$route.path) !== undefined) {
-        const para = JSON.parse(sessionStorage.getItem(this.$route.path))
-        if (para.documentId) {
-          this.loading = true
-          this.$query('TRAINCASEINFOBYDOCUMENTID', { documentId: para.documentId }).then(response => {
-            this.loading = false
-            this.id = response.data.list[0].id
-          }).catch(() => {
-            this.loading = false
-          })
-          this.getDetail()
-        }
-      }
+      this.getDetail()
     }
   }
 </script>

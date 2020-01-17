@@ -73,7 +73,7 @@
           <span @click="handleDetail(scope.$index, scope.row)" class="title_link">{{scope.row.title}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="applyDeptName" label="发起单位" min-width="12%"></el-table-column>
+      <el-table-column prop="applyDeptName" label="发起单位" min-width="12%" show-overflow-tooltip></el-table-column>
       <el-table-column prop="startDate" label="发起日期" min-width="5%">
         <template slot-scope="scope">
           {{$parseTime(scope.row.startDate, '{y}-{m}-{d}')}}
@@ -97,7 +97,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="状态" min-width="6%">
+      <el-table-column prop="status" label="状态" min-width="5%">
         <template slot-scope="scope">
           <span v-if='scope.row.status'>{{$getDictName(String(scope.row.status), 'jqzyzt')}}</span>
         </template>
@@ -223,18 +223,18 @@ export default {
   },
   methods: {
     enableEdit(row) {
-      // if (this.curDept.depType === '1' && this.$isViewBtn('100908')) { // 总队管理员
-      //   if (row.auditDeptCode === this.curDept.depCode) { // 总队审核
-      //     return true
-      //   }
-      //   if (row.applyDeptCode === this.curDept.depCode) { // 总队申请、下发
-      //     return true
-      //   }
-      //   const dept = this.findParentDept(row.applyDeptCode)
-      //   if (dept.depType === '3' && row.deptList.length > 1) { // 大队发起的，且需要总队最终审核
-      //     return true
-      //   }
-      // }
+      if (this.curDept.depType === '1' && this.$isViewBtn('100908')) { // 总队管理员
+        if (row.auditDeptCode === this.curDept.depCode && Number(row.status) > 3) { // 总队审核
+          return true
+        }
+        if (row.applyDeptCode === this.curDept.depCode) { // 总队申请、下发
+          return true
+        }
+        const dept = this.findParentDept(row.applyDeptCode)
+        if (dept.depType === '3' && row.deptList.length > 1 && Number(row.status) > 3) { // 大队发起的，且需要总队最终审核
+          return true
+        }
+      }
       // 发起部门可操作  草稿、待审核、审核不通过
       if ((String(row.status) === '0' || String(row.status) === '1' || String(row.status) === '3') && row.applyDeptCode === this.curDept.depCode) {
         return true
@@ -300,6 +300,7 @@ export default {
         pageSize: this.pageSize,
         curDeptCode: this.curDept.depCode,
         status: this.filters.status,
+        title: this.filters.title,
         start1: this.filters.createStartDate,
         start2: this.filters.createEndDate,
         end1: this.filters.endStartDate,
@@ -335,7 +336,8 @@ export default {
       this.$confirm('是否删除该记录，删除后无法恢复。', '提示', {
         type: 'warning',
         cancelButtonText: '否',
-        confirmButtonText: '是'
+        confirmButtonText: '是',
+        closeOnClickModal: false
       }).then(() => {
         this.listLoading = true
         const para = {
@@ -479,10 +481,10 @@ export default {
       }
       const _this = this
       setTimeout(function() {
-        _this.$message({
-          message: '导出案件协查战果反馈信息成功！',
-          type: 'success'
-        })
+        // _this.$message({
+        //   message: '导出案件协查战果反馈信息成功！',
+        //   type: 'success'
+        // })
         _this.exportBtnLoading = false
         _this.exportDialogVisible = false
         _this.$refs.listTable.clearSelection()
