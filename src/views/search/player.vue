@@ -6,9 +6,19 @@
         <img src="@/assets/icon/back.png" class="goBack" @click="callback">
       </el-col>
     </el-row>
-    <div class="file_data">
+    <div class="file_data" v-if="enType === '1'">
+      <div>
+        <video-player ref="videoPlayer" :playType="'5'" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></video-player>
+      </div>
+    </div>
+    <div class="file_data" v-if="enType === '2'">
       <div>
         <audio-player ref="audioPlayer" :playType="'5'" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></audio-player>
+      </div>
+    </div>
+    <div class="file_data" v-if="enType === '0'">
+      <div>
+        <document-player ref="documentPlayer" :playType="'5'" :playerDetail="playerDetail" @viewLog="viewLog" @uploadViewLog="uploadViewLog"></document-player>
       </div>
     </div>
   </section>
@@ -16,12 +26,16 @@
 
 <script>
   import filterCommon from '../microClass/components/filterCommon'
+  import videoPlayer from '../microClass/components/videoPlayer'
   import audioPlayer from '../microClass/components/audioPlayer'
+  import documentPlayer from '../microClass/components/documentPlayer'
   export default {
     name: 'player',
     components: {
       filterCommon,
-      audioPlayer
+      videoPlayer,
+      audioPlayer,
+      documentPlayer
     },
     data() {
       return {
@@ -76,22 +90,6 @@
         para.lastId = para.creationId
         para.lastName = para.creationName
         this.$update('traincourselog/' + this.viewId, para).then(response => {
-          console.info('更新停留时间')
-        })
-      },
-      detail() {
-        this.$query('traincourselist/' + this.rowId).then(response => {
-          this.playerDetail = response.data
-          this.playerDetail.flag = (this.source !== 'trainMaterial')
-          if (this.enType === '1') {
-            this.$refs.videoPlayer.setDetail(this.playerDetail)
-          }
-          if (this.enType === '2') {
-            this.$refs.audioPlayer.setDetail(this.playerDetail)
-          }
-          if (this.enType === '0') {
-            this.$refs.documentPlayer.setDetail(this.playerDetail)
-          }
         })
       }
     },
@@ -100,8 +98,20 @@
       if (param !== undefined && param !== null && param !== '') {
         const filters = JSON.parse(param)
         this.rowId = filters.id
-        this.postfix = '音频'
-        this.detail()
+        this.$query('traincourselist/' + this.rowId).then(response => {
+          this.playerDetail = response.data
+          this.enType = response.data.enType + ''
+          this.playerDetail.flag = (this.source !== 'trainMaterial')
+          if (this.enType === '1') {
+            this.postfix = '视频'
+          }
+          if (this.enType === '2') {
+            this.postfix = '音频'
+          }
+          if (this.enType === '0') {
+            this.postfix = '文档'
+          }
+        })
       }
       this.tableHeight = document.documentElement.clientHeight - 125 + 'px'
     }
