@@ -300,6 +300,7 @@ export default {
         pageSize: this.pageSize,
         curDeptCode: this.curDept.depCode,
         status: this.filters.status,
+        title: this.filters.title,
         start1: this.filters.createStartDate,
         start2: this.filters.createEndDate,
         end1: this.filters.endStartDate,
@@ -480,10 +481,10 @@ export default {
       }
       const _this = this
       setTimeout(function() {
-        _this.$message({
-          message: '导出案件协查战果反馈信息成功！',
-          type: 'success'
-        })
+        // _this.$message({
+        //   message: '导出案件协查战果反馈信息成功！',
+        //   type: 'success'
+        // })
         _this.exportBtnLoading = false
         _this.exportDialogVisible = false
         _this.$refs.listTable.clearSelection()
