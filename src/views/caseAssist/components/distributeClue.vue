@@ -301,29 +301,36 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        const param = {
-          qbxsId: row.qbxsId,
-          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
-          assistId: this.assistId,
-          receiveCode: row.receiveCode ? row.receiveCode : '',
-          assistType: 1,
-          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
-          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
-          userId: this.curUser.id,
-          userName: this.curUser.realName,
-          opt: Number(this.assistStatus) > 3 ? 'addRecord' : ''
-        }
-        this.$update('caseassistclue/cancelDistribute', param).then((response) => {
-          this.$emit('closeDialog', true)
-          this.listLoading = false
-          this.$emit('result', response.data)
-          this.$message({
-            message: '取消成功',
-            type: 'success'
-          })
-          this.query(true)
-        }).catch(() => {
-          this.listLoading = false
+        this.$query('hsyzparentdepart/' + row.receiveCode, {}, 'upms').then((response) => {
+          if (response.code === '000000') {
+            const param = {
+              qbxsId: row.qbxsId,
+              qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
+              assistId: this.assistId,
+              receiveCode: row.receiveCode ? row.receiveCode : '',
+              assistType: 1,
+              receiveDept: response.data.departCode,
+              receiveDeptName: response.data.departName,
+              receiveDeptType: response.data.departType,
+              curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
+              curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
+              userId: this.curUser.id,
+              userName: this.curUser.realName,
+              opt: Number(this.assistStatus) > 3 ? 'addRecord' : ''
+            }
+            this.$update('caseassistclue/cancelDistribute', param).then((response) => {
+              this.$emit('closeDialog', true)
+              this.listLoading = false
+              this.$emit('result', response.data)
+              this.$message({
+                message: '取消成功',
+                type: 'success'
+              })
+              this.query(true)
+            }).catch(() => {
+              this.listLoading = false
+            })
+          }
         })
       }).catch(() => {
         this.listLoading = false

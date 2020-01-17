@@ -303,6 +303,7 @@ export default {
         param.parentCode = this.curDept.depCode
         param.deptType = '2'
         this.$emit('setEvaluateBtnVisibleH', false)
+        this.$emit('setClueFeedbackBtnVisibleH', false)
       } else {
         if (this.curDept.depType === '-1') { // 省
         } else if (this.curDept.depType === '1') { // 总队
@@ -322,6 +323,7 @@ export default {
         }
         if (this.curDept.depType === '1') {
           this.$emit('setEvaluateBtnVisibleH', false)
+          this.$emit('setClueFeedbackBtnVisibleH', false)
         }
       }
       this.$query('caseassistclue/detailCount', param).then((response) => {
@@ -335,6 +337,9 @@ export default {
           item.parentType = parentItem.depType
           if (this.enableScore(item)) {
             this.$emit('setEvaluateBtnVisibleH', true)
+          }
+          if (this.enableFeedBack(item)) {
+            this.$emit('setClueFeedbackBtnVisibleH', true)
           }
         }
         this.listData = arr
