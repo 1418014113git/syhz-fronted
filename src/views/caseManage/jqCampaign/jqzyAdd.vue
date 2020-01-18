@@ -5,8 +5,8 @@
     <img src="@/assets/icon/back.png"  class="goBack" @click="toList">   <!--返回-->
   </el-row>
   <el-card class="report" v-loading="pageLoading">
-    <p  class="tittle">{{pageTitle}}</p>
-    <el-form :model="form" size="small" ref="form"  :rules="rules"  label-width="120px" style="width:80%;margin:0 auto;">
+    <!-- <p  class="tittle">{{pageTitle}}</p> -->
+    <el-form :model="form" size="small" ref="form"  :rules="rules"  label-width="120px" style="width:80%;margin:20px auto 0 auto;">
       <el-row type="flex" justify="center" v-if="isShowotherform">
         <el-col :span="23">
           <el-form-item label="标题" prop="clusterTitle">
@@ -29,6 +29,8 @@
                 :picker-options="pickerOptions"
                 placeholder=""
                 style="width:100%;"
+                :disabled="kssjdisableCtrol()"
+                @change="startChange"
                 >
               </el-date-picker>
             </el-form-item>
@@ -41,7 +43,7 @@
             </el-col>
             <el-col :span="11">
               <el-form-item label="编号" prop="clusterNumber">
-                <el-input v-model.trim="form.clusterNumber" maxlength="20"  placeholder="" clearable  :disabled="pageType!=='bxf' && pageType!=='editbxf'"></el-input>
+                <el-input v-model.trim="form.clusterNumber" maxlength="20"  placeholder="" clearable  :disabled="bhdisableCtrol()"></el-input>
               </el-form-item>
               <el-form-item label="结束日期" prop="endDate">
                 <el-date-picker
@@ -67,6 +69,20 @@
             <el-form-item label="发起单位" prop="applyDeptName">
               <el-input v-model.trim="form.applyDeptName" auto-complete="off"  placeholder="" maxlength="50" disabled></el-input>
             </el-form-item>
+             <el-form-item label="开始日期" prop="startDate" v-if="Number(ajstatus)> 3">
+              <el-date-picker
+                v-model="form.startDate"
+                type="datetime"
+                format="yyyy-MM-dd HH:mm"
+                value-format="yyyy-MM-dd HH:mm"
+                :picker-options="pickerOptions"
+                placeholder=""
+                style="width:100%;"
+                :disabled="kssjdisableCtrol()"
+                @change="startChange"
+                >
+              </el-date-picker>
+            </el-form-item>
             <el-form-item label="发起人" prop="applyPersonName">
               <el-input  v-model.trim="form.applyPersonName" auto-complete="off" clearable placeholder="" maxlength="20" disabled></el-input>
             </el-form-item>
@@ -75,6 +91,18 @@
             <el-form-item label="涉及省/市数" prop="clusterCitys">
               <el-input v-model.trim="form.clusterCitys" maxlength="2"  placeholder="" clearable  @keyup.native="number"></el-input>
             </el-form-item>
+              <el-form-item label="结束日期" prop="endDate" v-if="Number(ajstatus)> 3">
+              <el-date-picker
+                  v-model="form.endDate"
+                  type="datetime"
+                  format="yyyy-MM-dd HH:mm"
+                  value-format="yyyy-MM-dd HH:mm"
+                  :picker-options="pickerOptions"
+                  placeholder=""
+                  style="width:100%;"
+                  >
+              </el-date-picker>
+               </el-form-item>
             <el-form-item label="发起人电话" prop="applyPersonPhone">
               <el-input v-model.trim="form.applyPersonPhone" auto-complete="off" clearable maxlength="13"></el-input>
             </el-form-item>
@@ -107,7 +135,7 @@
             </el-table>
           </el-form-item>
           <el-form-item label="正文" prop="assistContent"  v-if="isShowotherform" placeholder="请输入正文">
-            <vue-editor v-model="form.assistContent" useCustomImageHandler @imageAdded="handleImageAdded"></vue-editor>
+            <vue-editor v-model="form.assistContent" useCustomImageHandler @imageAdded="handleImageAdded" @contentChange="contentChange"></vue-editor>
           </el-form-item>
           <el-form-item label="附件" style="margin-top: 15px;"  v-if="isShowotherform">
             <el-upload class="upload-demo" drag multiple  ref="fileUpload"
@@ -147,12 +175,12 @@
   </el-card>
   <!-- 导入线索弹框-->
   <el-dialog title="导入线索" :visible.sync="isShowdrxsDialog"  class="drxsForm" :close-on-click-modal="false">
-    <import-clue  :isShowDialog="isShowdrxsDialog"  @closeDialog="closedrxsDialog" :id="id" @result="getResult"></import-clue>
+    <import-clue  :isShowDialog="isShowdrxsDialog"  @closeDialog="closedrxsDialog" :id="id" @result="getResult"  :xcstatus="ajstatus"></import-clue>
   </el-dialog>
 
   <!-- 分发线索-->
   <el-dialog title="分发线索" :visible.sync="isShowdrffxsDialog"  class="ffxsForm" :close-on-click-modal="false"  @close="clearChildData">
-    <jqzy-disib   ref="ffchild" :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="id"   :fastatus="qbxsDistribute"  :jsdw="receiveName"  :source="pageType"  @result="getfaResult"></jqzy-disib>
+    <jqzy-disib   ref="ffchild" :isShowDialog="isShowdrffxsDialog"  @closeDialog="closeffxsDialog" :id="id"   :fastatus="qbxsDistribute"  :jsdw="receiveName"  :source="pageType"  @result="getfaResult" :xcstatus="ajstatus" :isDel="isDel"></jqzy-disib>
   </el-dialog>
 </div>
 </template>
@@ -229,6 +257,8 @@ export default {
       exDeptData: [], // 审核单位下拉框
       pageTitle: '', // 页面标题
       btnText: '', // 按钮文字
+      ajstatus: '', // 列表页传递过来的案件状态
+      isDel: false, // 详情页点击重新申请时，传递改参数，则线索分发页面的线索可删除。
       rules: {
         clusterTitle: [{ // 标题
           required: true, trigger: 'blur', validator: (rule, value, callback) => {
@@ -313,6 +343,28 @@ export default {
         startDate: [{ // 开始时间
           required: true, trigger: 'change', message: '请选择开始时间'
         }],
+        // startDate: [ // 开始时间
+        //   {
+        //     required: true, trigger: 'change', validator: (rule, value, callback) => {
+        //       if (value === '' || value === undefined || value === null) {
+        //         return callback(new Error('请选择开始时间'))
+        //       } else {
+        //         var curTime = this.$parseTime(new Date(), '{y}-{m}-{d} {h}:{i}')
+        //         var values = this.$parseTime(new Date(value), '{y}-{m}-{d} {h}:{i}')
+        //         if (new Date(values).getTime() < new Date(curTime).getTime()) {
+        //           // if (!this.ajstatus) { // 创建时间
+        //           //   return callback(new Error('开始时间不能小于当前时间'))
+        //           // } else {
+        //           //   callback()
+        //           // }
+        //           return callback(new Error('开始时间不能小于当前时间'))
+        //         } else {
+        //           callback()
+        //         }
+        //       }
+        //     }
+        //   }
+        // ],
         endDate: [ // 结束时间
           {
             required: true, trigger: 'change', validator: (rule, value, callback) => {
@@ -360,6 +412,7 @@ export default {
     },
     detail() { // 查询详情
       this.pageLoading = true
+      var deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
       this.$query('casecluster/' + this.id, {}).then((response) => {
         this.pageLoading = false
         var data = response.data
@@ -381,6 +434,18 @@ export default {
         this.form.passKey = data.passKey ? data.passKey : '' // 密码
         this.xsNum.total = data.clueTotal// 线索总数
         this.xsNum.distribute = data.clueDistribute // 已分发线索数
+        this.form.userId = data.applyPersonId // 发起人Id
+        this.form.userName = data.applyPersonName // 发起人姓名
+        this.form.curDeptCode = data.applyDeptCode // 发起部门code
+        this.form.curDeptName = data.applyDeptName // 发起部门名称
+        for (let i = 0; i < deptArr.length; i++) {
+          const dept = deptArr[i]
+          if (dept.depCode === data.applyDeptCode) {
+            this.form.curDeptId = dept.id // 发起部门id
+            break
+          }
+        }
+        this.getDeptsshdw() // 查审核单位
         this.queryList(data.clusterId) // 查询涉及单位对应的列表
       }).catch(() => {
         this.pageLoading = false
@@ -391,6 +456,7 @@ export default {
       this.isShowdrffxsDialog = false
       this.qbxsDistribute = ''
       this.$refs.ffchild.clearData()
+      this.queryList(this.id) // 查询涉及单位对应的列表
     },
     queryList(clusterId) { // 查询涉及单位对应的列表
       this.listLoading = true
@@ -423,6 +489,14 @@ export default {
     },
     toList() {
       this.$router.back(-1)
+    },
+    delgetDate(strDate) {
+      var t = Date.parse(strDate)
+      if (!isNaN(t)) {
+        return new Date(Date.parse(strDate.replace(/-/g, '/')))
+      } else {
+        return new Date()
+      }
     },
     calculateDate(date, days, hours) {
       const d = new Date(date)
@@ -477,9 +551,9 @@ export default {
       this.form.curDeptType = this.curDept.depType // 部门类型
       var paramCode = ''
       if (this.curDept.depType === '4') { // 派出所
-        paramCode = this.curDept.parentDepCode
+        paramCode = this.form.curDeptCode ? this.form.curDeptCode : this.curDept.parentDepCode
       } else {
-        paramCode = this.curDept.depCode
+        paramCode = this.form.curDeptCode ? this.form.curDeptCode : this.curDept.depCode
       }
       // 查审核单位 自己的上级
       this.$query('hsyzparentdepart/' + paramCode, {}, 'upms').then((response) => {
@@ -592,20 +666,20 @@ export default {
     save() { // 保存
       this.$refs.form.validate(valid => {
         if (valid) {
-          if (this.curDept.depType === '4') { // 派出所 将它的父级单位当成自己单位
-            this.form.curDeptName = this.curDeptName // 当前部门名称
-            this.form.curDeptCode = this.curDeptCode // 当前部门code
-            this.form.curDeptId = this.curDepartId // 当前部门id
-          } else {
-            this.form.curDeptName = this.curDept.depName // 当前部门名称
-            this.form.curDeptCode = this.curDept.depCode // 当前部门code
-            this.form.curDeptId = this.curDept.id // 当前部门id
-          }
-          this.form.userId = this.curUser.id // 当前用户Id
-          this.form.userName = this.curUser.realName // 当前用户真实姓名
-          this.form.status = 0 // 协查状态   0 保存（草稿）， 1 申请 （待审核）， 5 下发 （协查中）
           this.handleImg() // 附件list数据改造，用于编辑时的附件展示使用
           if (this.pageType === 'add' || this.pageType === 'xf' || this.pageType === 'bxf') { // 申请，下发,部下发页面 （添加类）
+            this.form.userId = this.curUser.id // 当前用户Id
+            this.form.userName = this.curUser.realName // 当前用户真实姓名
+            this.form.status = 0 // 协查状态   0 保存（草稿）， 1 申请 （待审核）， 5 下发 （协查中）
+            if (this.curDept.depType === '4') { // 派出所 将它的父级单位当成自己单位
+              this.form.curDeptName = this.curDeptName // 当前部门名称
+              this.form.curDeptCode = this.curDeptCode // 当前部门code
+              this.form.curDeptId = this.curDepartId // 当前部门id
+            } else {
+              this.form.curDeptName = this.curDept.depName // 当前部门名称
+              this.form.curDeptCode = this.curDept.depCode // 当前部门code
+              this.form.curDeptId = this.curDept.id // 当前部门id
+            }
             this.add()
           } else { // 重新申请， （编辑类）
             this.edit()
@@ -705,6 +779,30 @@ export default {
         operator: 'update'
       }
 
+      if (Number(this.ajstatus) > 3) { // 审核通过之后 总队进来的编辑别的单位申请的线索
+        param.status = this.ajstatus
+      }
+      var curTime = this.$parseTime(new Date(), '{y}-{m}-{d} {h}:{i}')
+      if (this.form.endDate) {
+        var endtime = this.$parseTime(new Date(this.form.endDate), '{y}-{m}-{d} {h}:{i}')
+      }
+      if ((this.ajstatus === '6' || this.ajstatus === '7') && (this.form.endDate && new Date(endtime).getTime() > new Date(curTime).getTime())) { // 总队编辑处于协查结束或协查超时状态，结束时间调整为当前日期之后时，状态调整为“协查中”。
+        param.status = 5 // 协查中
+      }
+      param.operatorType = param.status === 5 && (this.ajstatus === '5' || this.ajstatus === '6' || this.ajstatus === '7') ? 'update' : 'save'
+      if (this.form.startDate) {
+        param.startDate = this.form.startDate // 开始时间
+      }
+      if (this.form.endDate) {
+        param.endDate = this.form.endDate // 结束时间
+      }
+      param.clusterNumber = this.form.clusterNumber ? this.form.clusterNumber : '' // 集群战役编号
+      // if (this.pageType === 'editxf' || this.pageType === 'editbxf') { // 编辑下发，编辑部下发
+      //   // param.startDate = this.form.startDate // 开始时间
+      //   // param.endDate = this.form.endDate // 结束时间
+      //   param.clusterNumber = this.form.clusterNumber // 集群战役编号
+      // }
+
       if (this.pageType === 'detail' || this.pageType === 'edit') {
         param.category = 3
       } else if (this.pageType === 'editxf') {
@@ -775,6 +873,12 @@ export default {
         operator: 'submit'
       }
       if (this.btnText === '申 请') {
+        if (this.form.startDate) {
+          param.startDate = this.form.startDate // 开始时间
+        }
+        if (this.form.endDate) {
+          param.endDate = this.form.endDate // 结束时间
+        }
         param.category = 3
         if (!this.xsNum.total) {
           this.$message({ message: '请导入线索', type: 'error' })
@@ -784,6 +888,18 @@ export default {
           this.btnLoading = false
         } else {
           param.status = 1
+          var curTime = this.$parseTime(new Date(), '{y}-{m}-{d} {h}:{i}')
+          if (this.form.endDate) {
+            var endtime = this.$parseTime(new Date(this.form.endDate), '{y}-{m}-{d} {h}:{i}')
+          }
+          if ((this.ajstatus === '6' || this.ajstatus === '7') && (this.form.endDate && new Date(endtime).getTime() > new Date(curTime).getTime())) { // 总队编辑处于协查结束或协查超时状态，结束时间调整为当前日期之后时，状态调整为“协查中”。
+            param.status = 5 // 协查中
+          }
+          if (Number(this.ajstatus) > 3) { // 审核通过之后 总队进来的编辑别的单位申请的线索
+            param.status = this.ajstatus
+          }
+          param.clusterNumber = this.form.clusterNumber ? this.form.clusterNumber : '' // 集群战役编号
+          param.operatorType = param.status === 5 && (this.ajstatus === '5' || this.ajstatus === '6' || this.ajstatus === '7') ? 'update' : 'save'
           this.$save('casecluster/save', param).then((response) => {
             this.btnLoading = false
             this.$message({
@@ -791,11 +907,7 @@ export default {
               type: 'success',
               duration: 2000
             })
-            // if (this.pageType === 'add' || this.$route.query.type === 'edit') { // 列表页过来的
-            //   this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
-            // } else {
-            //   this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
-            // }
+
             if (this.pageType === 'detail') {
               this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
             } else {
@@ -822,6 +934,7 @@ export default {
           this.$message({ message: '请分发线索', type: 'error' })
         } else {
           param.status = 5
+          param.operatorType = param.status === 5 && (this.ajstatus === '5' || this.ajstatus === '6' || this.ajstatus === '7') ? 'update' : 'save'
           this.$save('casecluster/save', param).then((response) => {
             this.btnLoading = false
             this.$message({
@@ -861,13 +974,35 @@ export default {
           this.form.clusterNumber = response.data
         }
       })
+    },
+    bhdisableCtrol() { // 编号输入框是否可编辑
+      if (this.pageType === 'bxf') { // 部下发 可用
+        return false
+      } else if (this.pageType === 'editbxf' && (this.ajstatus === '0' || this.ajstatus === '1' || this.ajstatus === '3')) { // 编辑部下发  草稿，待审核，审核不通过 可编辑
+        return false
+      } else {
+        return true
+      }
+    },
+    kssjdisableCtrol() { // 开始时间是否可编辑
+      if (this.ajstatus === '5' || this.ajstatus === '6' || this.ajstatus === '7') { // 协查中、协查超时和协查结束时，不可编辑
+        return true
+      } else {
+        return false
+      }
+    },
+    startChange(val) { // 开始时间change事件
+      var dates = this.delgetDate(val)
+      this.form.startDate = this.calculateDate(dates, 0, '') // 默认当前时间
+      this.form.endDate = this.calculateDate(dates, 7, '') // 默认开始时间后7天，
+    },
+    contentChange(val) {
+      this.$refs.form.validateField('assistContent')
     }
   },
   mounted() {
     this.isShowotherform = true // 初始化时，显示涉及线索和涉及单位以外的基础form信息
     this.isShowxsform = false // 初始化时，隐藏涉及线索和涉及单位
-    // this.isShowxsform = true // 测试
-    // this.queryList(3029) // 查询涉及单位对应的列表  // 测试
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
       if (this.$route.query.type !== 'bxf' && this.$route.query.type !== 'editbxf') { // 不是'部下发' 或者列表当前点击数据是部下发进来的
@@ -882,18 +1017,30 @@ export default {
     this.form.applyPersonName = this.curUser.realName // 当前登录人姓名
     this.form.applyPersonPhone = this.curUser.phone ? this.curUser.phone : '' // 当前登录人电话
     this.pageType = this.$route.query.type
+    if (this.$route.query.status) { // 列表页，点击修改跳转过来传递的案件状态
+      this.ajstatus = this.$route.query.status // 存储案件状态
+    }
+    if (this.$route.query.isDel) { // 详情页点击重新申请时，传递该参数，则线索分发页面的线索可删除。
+      this.isDel = this.$route.query.isDel
+    }
+
     if (this.$route.query.type === 'add') { // 从列表页面点击“申请”按钮进来的。
       this.pageTitle = '申请集群战役'
       this.btnText = '申 请'
       this.getDeptsshdw() // 查审核单位
     } else if (this.$route.query.type === 'detail' || this.$route.query.type === 'edit') { // 详情页点击“重新申请”按钮进来的，或者主列表点击编辑按钮进来的
       this.isShowotherform = true // 初始化时，显示涉及线索和涉及单位以外的基础form信息
-      this.isShowxsform = true // 初始化时，显示涉及线索和涉及单位
-      this.pageTitle = '申请集群战役'
+      this.isShowxsform = true // 显示涉及线索和涉及单位
+      if (this.$route.query.type === 'detail') {
+        this.pageTitle = '申请集群战役'
+      } else {
+        this.pageTitle = '编辑集群战役'
+      }
+      this.pageTitle = '编辑集群战役'
       this.btnText = '申 请'
       this.id = this.$route.query.id // 存储集群战役id
       this.editInit() // 编辑页面相关接口查询
-      this.getDeptsshdw() // 查审核单位
+      // this.getDeptsshdw() // 查审核单位
     } else if (this.$route.query.type === 'xf') { // 从列表点击“下发”按钮进来的
       this.pageTitle = '下发集群战役'
       this.btnText = '下 发'
@@ -901,19 +1048,21 @@ export default {
       this.form.endDate = this.calculateDate(new Date(), 7, '') // 默认开始时间后7天，
       this.queryNumber() // 获取编号
     } else if (this.$route.query.type === 'bxf') { // 从列表点击“部下发”按钮进来的
-      this.pageTitle = '下发集群战役'
+      this.pageTitle = '部下发集群战役'
       this.btnText = '下 发'
       this.form.applyDeptName = '公安部'
       this.form.startDate = this.calculateDate(new Date(), 0, '') // 默认当前时间
       this.form.endDate = this.calculateDate(new Date(), 7, '') // 默认开始时间后7天，
     } else if (this.$route.query.type === 'editxf') { // 从主列表点击编辑按钮进来的
+      this.isShowxsform = true // 显示涉及线索和涉及单位
       this.id = this.$route.query.id // 存储集群战役id
-      this.pageTitle = '下发集群战役'
+      this.pageTitle = '编辑集群战役'
       this.btnText = '下 发'
       this.editInit() // 编辑页面相关接口查询
     } else if (this.$route.query.type === 'editbxf') { // 从主列表点击编辑按钮进来的
+      this.isShowxsform = true // 显示涉及线索和涉及单位
       this.id = this.$route.query.id // 存储集群战役id
-      this.pageTitle = '下发集群战役'
+      this.pageTitle = '编辑集群战役'
       this.btnText = '下 发'
       this.form.applyDeptName = '公安部'
       this.editInit() // 编辑页面相关接口查询

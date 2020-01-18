@@ -75,7 +75,7 @@
               </el-table-column>
               <el-table-column prop="ajlb" label="案件类别" min-width="10%" show-overflow-tooltip></el-table-column>
               <el-table-column prop="ajzt" label="案件状态" width="100" show-overflow-tooltip></el-table-column>
-              <el-table-column prop="sajz" label="涉案价值（万元）" min-width="10%" show-overflow-tooltip></el-table-column>
+              <el-table-column prop="sajz" label="涉案价值（万元）" min-width="10%" align="right" show-overflow-tooltip></el-table-column>
               <el-table-column prop="applyDepartName" label="申请单位" min-width="10%" show-overflow-tooltip></el-table-column>
             </el-table>
           </el-form-item>

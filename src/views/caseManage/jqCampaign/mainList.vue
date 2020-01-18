@@ -113,7 +113,7 @@
         <el-table-column type="index" width="60" label="序号"></el-table-column>
         <el-table-column prop="title" label='标题'  min-width="200" show-overflow-tooltip>
           <template slot-scope="scope">
-            <span style="cursor: pointer;"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.title}}</span>
+            <span  class="titleStyle"  @click="handleDetail(scope.$index, scope.row)">{{scope.row.title}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="applyDeptName"  label='发起单位'  min-width="200" show-overflow-tooltip></el-table-column>
@@ -141,8 +141,16 @@
             <span v-if='scope.row.status'>{{$getDictName(scope.row.status+'','jqzyzt')}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="tCount"  label='厅评价'  min-width="100" v-if="curDept.depType === '1' || curDept.depType === '2'"    show-overflow-tooltip></el-table-column>
-        <el-table-column prop="sCount"  label='市评价'  min-width="100" v-if="curDept.depType === '2' || curDept.depType === '3' || curDept.depType === '4'"  show-overflow-tooltip></el-table-column>
+        <el-table-column prop=""  label='厅评价'  min-width="100" v-if="curDept.depType === '1' || curDept.depType === '2' || (curDept.depType === '4' && curDept.areaCode==='611400')"   show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span>{{scope.row.tCount ? scope.row.tCount:0}}/{{scope.row.tTotal ? scope.row.tTotal:0}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop=""  label='市评价'  min-width="100" v-if="curDept.depType === '2' || curDept.depType === '3' || (curDept.depType === '4' && curDept.areaCode!=='611400')"  show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span>{{scope.row.sCount ? scope.row.sCount:0}}/{{scope.row.sTotal ? scope.row.sTotal:0}}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="130">
           <template slot-scope="scope">
             <el-button size="mini" title="详情"  type="primary" icon="el-icon-document" circle  @click="handleDetail(scope.$index, scope.row)"></el-button>
@@ -173,19 +181,15 @@
     </el-dialog>
 
     <!--导出弹出层-->
-    <el-dialog title="导出" :visible.sync="isShowdcdialog" class="dcForm">
-      <div class="dctitle">
-        <i class="el-icon-warning iconStyle"></i>
-        <span style="font-weight: bold;">导出协查战果反馈表</span>
-      </div>
+    <el-dialog title="导出协查战果反馈表" :visible.sync="isShowdcdialog" class="dcForm">
       <div class="checkArea">
-        <el-radio v-model="dcForm.type" :label="1" style="margin-right:45px;">全部查询结果</el-radio>
+        <el-radio v-model="dcForm.type" :label="1" style="margin-right:50px;">全部查询结果</el-radio>
         <el-radio v-model="dcForm.type" :label="2" :disabled="checkId.length===0">选中记录</el-radio>
       </div>
-      <el-row class="tabC martop btnUpLine">
+      <span slot="footer" class="dialog-footer">
         <el-button  @click="canceldc" class="cancelBtn">取 消</el-button>
         <el-button  type="primary" @click="exporttableList"  class="saveBtn">导出</el-button>
-      </el-row>
+      </span>
     </el-dialog>
   </section>
 </template>
@@ -209,7 +213,7 @@ export default {
         end2: '' // 结束日期 结束时间
       },
       dcForm: {
-        type: 1
+        type: 0
       },
       isShowdcdialog: false, // 是否显示导出弹框
       xflb: '', // 下发类别   厅总队账号，多一个查询条件“下发类别”（部下发，厅下发）
@@ -229,8 +233,6 @@ export default {
       },
       pcsParentDept: {}, // 派出所的上上级部门
       pcsParentDeptype: '', // 派出所上级部门的部门类型
-      fqEndDateDisabled: false, // 发起日期 结束时间禁用
-      jSendDateDisabled: false, // 结束日期 结束时间禁用
       multipleSelection: [],
       expands: [],
       area: [],
@@ -351,11 +353,27 @@ export default {
     constrolxsnum(zRow, row) { // 核查线索数量点击权限控制
       return this.curDept.depType === '1' || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.deptCode || (zRow.category === 3 && (this.curDept.depCode === zRow.auditDeptCode)) || this.curDept.depCode === row.applyDeptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode)
     },
-    controlxg(row) { // 控制列表修改按钮
-      return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))
+    controlxg(row) { // 控制列表修改按钮 ,总队管理员任何状态下都能修改自己创建的和审核的，
+      if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
+        if (row.applyDeptCode === this.curDept.depCode || row.category === 3 && Number(row.status) > 3) { //  总队下发 或  总队审核通过的（row.category === 3 表示当前行是申请记录，总队已经审核通过）
+          return true
+        }
+      }
+      // // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
+      if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101905')))) {
+        return true
+      }
     },
-    controlsc(row) { // 控制列表删除按钮
-      return row.status === '0' && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))
+    controlsc(row) { // 控制列表删除按钮 ,总队管理计任何状态下都能修改自己创建的审核的，其他的是草稿，待审核，审核不通过时可操作。
+      if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
+        if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
+          return true
+        }
+      }
+      // // 非总队管理员 草稿，待审核，审核不通过时可操作自己单位的。
+      if ((row.status + '' === '0' || row.status + '' === '1' || row.status + '' === '3') && (this.curUser.id === row.userId || (((this.curDept.depType === '4' && this.curDept.parentDepCode === row.applyDeptCode) || (this.curDept.depType !== '4' && this.curDept.depCode === row.applyDeptCode)) && this.$isViewBtn('101906')))) {
+        return true
+      }
     },
     handleAreaChange(val) { // 行政区划
       this.department = []
@@ -499,7 +517,7 @@ export default {
       this.pageSize = 15
     },
     handleDel(index, row) { // 删除
-      this.$confirm('确定要删除该条数据吗？', '提示', {
+      this.$confirm('是否删除该记录，删除后无法恢复。', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -535,7 +553,7 @@ export default {
       if (row.havePwd > 0) { // 弹出查阅密码弹出框
         this.isShowdialog = true
       } else { // 集群战役详情页
-        this.$router.push({ path: '/jqCampaign/detail', query: { id: row.clusterId }})
+        this.$router.push({ path: '/jqCampaign/detail', query: { id: row.clusterId, category: row.category }})
       }
     },
     resetForm() { // 重置
@@ -576,7 +594,7 @@ export default {
         this.loadingFlag = false
         if (response.code === '000000') {
           this.isShowdialog = false
-          this.$router.push({ path: '/jqCampaign/detail', query: { id: this.curRow.clusterId }}) // 跳转到详情页
+          this.$router.push({ path: '/jqCampaign/detail', query: { id: this.curRow.clusterId, category: this.curRow.category }}) // 跳转到详情页
         }
       }).catch(() => {
         this.loadingFlag = false
@@ -589,12 +607,6 @@ export default {
     },
     // 行选中函数  若有删除，若无添加
     handleselectRow(selection, row) {
-      // this.checkIdRow = []
-      // if (selection.length > 0) {
-      //   selection.forEach((item, index) => {
-      //     this.checkIdRow.push(item.clusterId)
-      //   })
-      // }
       if (this.checkId.length === 0 && selection.length > 0) {
         this.checkId.push(row.clusterId)
       } else {
@@ -681,50 +693,6 @@ export default {
         return 'row-expand-cover'
       }
     },
-    // fqStartDateChange(val) { // 发起日期 开始时间change事件
-    //   if (val) {
-    //     this.fqEndDateDisabled = false
-    //   } else {
-    //     this.fqEndDateDisabled = true
-    //   }
-    // },
-    // jSstartDateChange(val) { // 结束日期 开始时间change事件
-    //   if (val) {
-    //     this.jSendDateDisabled = false
-    //   } else {
-    //     this.jSendDateDisabled = true
-    //   }
-    // },
-    // fqEndDateDisabled(val) { // 发起日期  结束时间change事件
-    //   if (val) {
-    //     if (this.filters.start1 > val) {
-    //       this.$alert('结束日期不能小于开始日期', '提示', {
-    //         type: 'warning',
-    //         confirmButtonText: '确定',
-    //         callback: action => {
-    //           this.filters.end1 = ''
-    //         }
-    //       })
-    //       return
-    //     }
-    //     this.filters.end1 = val
-    //   }
-    // },
-    // jSendDateDisabled(val) { // 结束日期  结束时间change事件
-    //   if (val) {
-    //     if (this.filters.start2 > val) {
-    //       this.$alert('结束日期不能小于开始日期', '提示', {
-    //         type: 'warning',
-    //         confirmButtonText: '确定',
-    //         callback: action => {
-    //           this.filters.end2 = ''
-    //         }
-    //       })
-    //       return
-    //     }
-    //     this.filters.end2 = val
-    //   }
-    // },
     dateChange1(val) { // 发起日期 change事件
       this.filters.start1 = val[0]
       this.filters.start2 = val[1]
@@ -740,10 +708,10 @@ export default {
       this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'add' }}) // 跳转到集群战役申请页
     },
     downSend() { // 下发
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'xf' }}) // 跳转到集群战役下发页
+      this.$router.push({ path: '/jqCampaign/jqzyxf', query: { type: 'xf' }}) // 跳转到集群战役下发页
     },
     budownSend() { // 部下发
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: 'bxf' }}) // 跳转到集群战役部下发页
+      this.$router.push({ path: '/jqCampaign/jqzybxf', query: { type: 'bxf' }}) // 跳转到集群战役部下发页
     },
     handleEdit(index, row) { // 修改
       var type = ''
@@ -754,7 +722,7 @@ export default {
       } else { //    3申请
         type = 'edit'
       }
-      this.$router.push({ path: '/jqCampaign/jqzyAdd', query: { type: type, id: row.clusterId }}) // 跳转到集群战役申请页
+      this.$router.push({ path: '/jqCampaign/jqzyEdit', query: { type: type, id: row.clusterId, status: row.status }}) // 跳转到集群战役申请页
     },
     handleClueList(row, type, param) { // 线索列表
       if (param) { // 外层列表
@@ -771,6 +739,11 @@ export default {
     },
     exportList() { // 导出
       this.isShowdcdialog = true
+      if (this.checkId.length > 0) {
+        this.dcForm.type = 2
+      } else {
+        this.dcForm.type = 1
+      }
     },
     canceldc() { // 取消导出
       this.isShowdcdialog = false
@@ -804,7 +777,7 @@ export default {
         parms.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 派出所取他的上级部门名称，非派出所取当前部门
         parms.realName = this.curUser.realName
         parms.curUserPhone = this.curUser.phone ? this.curUser.phone : ''
-        parms.fileName = '涉案线索协查参与地战果反馈表'
+        parms.fileName = '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}') + '.xlsx'
         this.$download('cluster/export', parms)
       } else { // 导出选中的
         var para = {
@@ -813,11 +786,16 @@ export default {
           curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 派出所取他的上级部门名称，非派出所取当前部门
           realName: this.curUser.realName,
           curUserPhone: this.curUser.phone ? this.curUser.phone : '',
-          fileName: '涉案线索协查参与地战果反馈表'
+          fileName: '集群战役-协查战果反馈表' + this.$parseTime(new Date(), '{y}-{m}-{d}') + '.xlsx'
         }
         this.$download('cluster/export', para)
       }
       setTimeout(() => {
+        this.$message({
+          message: '导出集群战役协查战果反馈表成功！',
+          type: 'success'
+        })
+        this.dcForm.type = 1
         this.isShowdcdialog = false // 关闭弹框
         this.checkId = [] // 清空选中数组
         this.$refs.multipleTable.clearSelection() // 清空列表选中项
@@ -843,7 +821,8 @@ export default {
       }
       if (this.carryParam.start && this.carryParam.end) {
         this.dateRand1 = [this.carryParam.start, this.carryParam.end] // 发起日期
-        // this.dateRand2 = [this.carryParam.start, this.carryParam.end] // 结束日期
+        this.filters.start1 = this.carryParam.start // 发起日期 开始时间
+        this.filters.start2 = this.carryParam.end // 发起日期 结束时间
       }
       if (this.carryParam.type !== undefined && String(this.carryParam.type) === '0') { // 要查申请的标识
         this.totalType = 'curCreate'
@@ -913,6 +892,12 @@ export default {
   .tableBox {
     width: 100%;
     overflow: auto;
+  }
+  .titleStyle{
+    cursor: pointer;
+  }
+  .titleStyle:hover{
+    color: #009bda;
   }
 }
 .el-table--scrollable-x .el-table__body-wrapper {

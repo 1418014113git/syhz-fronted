@@ -79,7 +79,13 @@ export default {
           toolbox: {
             show: true,
             feature: {
-              saveAsImage: { show: true }
+              saveAsImage: {
+                show: true,
+                backgroundColor: '#013a58',
+                iconStyle: {
+                  borderColor: '#ddd'
+                }
+              }
             }
           },
           series: [
@@ -87,6 +93,7 @@ export default {
               name: this.chartSeriesName,
               type: 'pie',
               selectedMode: 'single',
+              avoidLabelOverlap: true,
               radius: [0, '30%'],
 
               label: {

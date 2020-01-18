@@ -69,7 +69,6 @@
             <el-table-column prop="sajz"  label='涉案金额（万元）'  min-width="150" show-overflow-tooltip></el-table-column>
             <el-table-column v-if="zbCaseListData.length > 0" prop="" label="操作" width="55" fixed="right">
               <template slot-scope="scope">
-                <!--<el-button size="mini" title="提交"  type="primary" icon="el-icon-check" circle  @click="handleSubmit(scope.row)"></el-button>-->
                 <el-button size="mini" title="移除案件"  type="primary" icon="el-icon-delete" circle  @click="handleDel(scope.row)"></el-button>
               </template>
             </el-table-column>
@@ -257,7 +256,7 @@
             ajmc: query,
             type: 2, // 1移送案件，2侦办案件
             fbId: this.curRow.fbId, // 反馈Id
-            assistId: this.curRow.assistId, // 集群Id
+            assistId: this.curRow.assistId, // 协查Id
             deptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
             assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
           }
@@ -282,22 +281,6 @@
           this.zbCaseSelectData = []
         }
       },
-      queryzbxsaj() { // 侦办刑事案件列表数据查询
-        this.zbCaseListLoading = true
-        const para = {
-          assistId: this.curRow.assistId, // 集群Id
-          type: 'zb', // 操作类型
-          fbId: this.curRow.fbId, // 反馈Id
-          assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
-        }
-        this.$query('caseassistclue/feedBack/detail', para).then((response) => {
-          this.zbCaseListLoading = false
-          this.zbCaseListData = response.data
-        }).catch(() => {
-          this.zbCaseListLoading = false
-          this.zbCaseListData = []
-        })
-      },
       getfqDepts() { // 如果登上来的是派出所 发起单位显示他的父级单位
         this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
           if (response.code === '000000') {
@@ -307,9 +290,6 @@
           }
         }).catch(() => {
         })
-      },
-      zbajChange(val) { // 侦办案件change事件
-
       },
       toAjDetail(id) { // 跳转案件档案
         this.$emit('closeDialog')
@@ -333,61 +313,6 @@
         this.clueFeedBackForm.caseNo = ''
         this.zbCaseSelectData = []
       },
-      number(props, row) { // 只能是数字
-        var num = row[props].replace(/[^\.\d]/g, '').replace('.', '')
-        setTimeout(() => {
-          if (num) {
-            this.$set(row, props, num)
-          } else {
-            this.$set(row, props, 0)
-          }
-        }, 50)
-      },
-      handleSubmit(row) { // 提交侦办案件当前行数据
-        if (row.dhwd === '' || row.dhwd === undefined || row.dhwd === null) {
-          this.$message.error('捣毁窝点数量不能为空。')
-        } else if (row.pzdb === '' || row.pzdb === undefined || row.pzdb === null) {
-          this.$message.error('批捕人数不能为空。')
-        } else if (row.sajz === '' || row.sajz === undefined || row.sajz === null) {
-          this.$message.error('涉案金额不能为空。')
-        } else if (row.zhrys === '' || row.zhrys === undefined || row.zhrys === null) {
-          this.$message.error('抓获人数不能为空。')
-        } else if (row.yjss === '' || row.yjss === undefined || row.yjss === null) {
-          this.$message.error('移诉人数不能为空。')
-        } else {
-          this.$confirm('确定要提交数据吗？', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            const param = {
-              type: 'saveZbxss',
-              assistId: this.curRow.assistId, // 集群Id
-              fbId: this.curRow.fbId, // 反馈Id
-              zbxss: row.ajbh + ',' + row.dhwd + ',' + row.sajz + ',' + row.pzdb + ',' + row.zhrys + ',' + row.yjss, // 案件编号，捣毁窝点、涉案金额、批准逮捕、抓获、移诉
-              userId: this.curUser.id, // 当前用户Id
-              userName: this.curUser.realName, // 当前用户真实姓名
-              curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-              curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
-              assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
-            }
-            this.$update('caseassistclue/feedBack', param).then((response) => {
-              this.listLoading = false
-              this.isShowTime = true
-              this.updateTime = response.data
-              this.$message({
-                message: '提交成功',
-                type: 'success'
-              })
-              this.queryzbxsaj() // 侦办刑事案件列表数据查询
-            }).catch(() => {
-              this.listLoading = false
-            })
-          }).catch(() => {
-            this.listLoading = false
-          })
-        }
-      },
       handleDel(row) { // 移除案件
         this.$confirm('确定要移除该案件吗？', '提示', {
           confirmButtonText: '确定',
@@ -400,28 +325,6 @@
             message: '移除成功',
             type: 'success'
           })
-          // const param = {
-          //   assistId: this.curRow.assistId, // 集群Id
-          //   fbId: this.curRow.fbId, // 反馈Id
-          //   userId: this.curUser.id, // 当前用户Id
-          //   userName: this.curUser.realName, // 当前用户真实姓名
-          //   curDeptName: this.curDept.depType === '4' ? this.curDeptName : this.curDept.depName, // 当前部门名称
-          //   curDeptCode: this.curDept.depType === '4' ? this.curDeptCode : this.curDept.depCode, // 当前部门code
-          //   assistType: this.$route.query.assistType ? 1 : 2 // 1 协查， 2 集群
-          // }
-          // param.type = 'deleteZbxss'
-          // param.zbxss = row.ajbh
-          // this.zbCaseListLoading = true // 侦办刑事案件列表加载loading
-          // this.$update('caseassistclue/feedBack', param).then((response) => {
-          //   this.zbCaseListLoading = false
-          //   this.$message({
-          //     message: '移除成功',
-          //     type: 'success'
-          //   })
-          //   this.queryzbxsaj() // 查询侦办刑事案件
-          // }).catch(() => {
-          //   this.zbCaseListLoading = false
-          // })
         }).catch(() => {
           this.zbCaseListLoading = false
         })
@@ -487,6 +390,7 @@
             }
             const para = {
               fbId: this.curRow.fbId,
+              qbxsId: this.curRow.qbxsId,
               zbxss: this.clueFeedBackForm.zbxss.length > 0 ? this.clueFeedBackForm.zbxss.join(',') : '',
               qbxsResult: this.clueFeedBackForm.qbxsResult,
               handleResult: this.clueFeedBackForm.handleResult,

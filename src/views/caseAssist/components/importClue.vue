@@ -27,6 +27,7 @@
          <p>2、第一行规定必须为标题行，且多次导入标题需保持一致。</p>
          <p>3、根据标题中的“<span class="redC">地址</span>”自动分发线索到地市对应的支队，注意标题必须为“<span class="redC">地址</span>”。</p>
          <p>4、标题必须包含“<span class="redC">序号</span>”，该序号为线索序号，用于根据序号快速定位线索。</p>
+         <p>5、相同“<span class="redC">序号</span>”的线索自动以最后上传的线索<span class="redC">更新</span>线索内容，不会新增线索。</p>
       </div>
       <el-button  type="primary" slot="reference"  class="saveBtn"><svg-icon icon-class="wenhao"></svg-icon> 导入说明</el-button>
     </el-popover>
@@ -40,7 +41,7 @@
 import { getSessionDeptSelect } from '@/api/depts'
 import axios from 'axios'
 export default {
-  props: ['isShowDialog', 'id', 'category'],
+  props: ['isShowDialog', 'id', 'category', 'oldStatus'],
   name: 'baseInfo',
   data() {
     return {
@@ -118,6 +119,11 @@ export default {
           }
           this.btnLoading = true
           const formData = new FormData()
+          if (this.oldStatus === '4' || this.oldStatus === '5' || this.oldStatus === '6' || this.oldStatus === '7') {
+            formData.append('opt', 'addRecord')
+          } else {
+            formData.append('opt', '')
+          }
           formData.append('file', this.fileCon) // 文件
           formData.append('category', this.drForm.category) // 食药环分类
           formData.append('userId', this.curUser.id) // 当前用户id

@@ -15,7 +15,7 @@
 </template>
 <script>
 export default {
-  props: ['info'],
+  props: ['info', 'status'],
   name: 'personnelFile',
   data() {
     return {
@@ -25,6 +25,7 @@ export default {
       curIndex: 0, // 菜单当前索引
       curClass: 'jbxx',
       loading: false, // 页面加载进度条
+      ajStatus: '', // 集群类型 1.  部下发 ， 2 下发 ， 3  申请
       navList: [],
       navList1: [ // 总队,杨凌支队，杨凌派出所
         { name: '基本信息', number: 0, type: 't0', class: 'jbxx' },
@@ -59,16 +60,16 @@ export default {
     },
     info(val) {
       if (val.clusterId) {
-        this.init()
+        this.baseInfo = val
       }
+    },
+    status(val) {
+      this.ajStatus = val
+      this.deLWithNav()
     }
   },
   methods: {
-    init() {
-      this.getItemTotal() // 获取菜单对应的内容条数
-    },
     clickNav(selector, index) {
-      // this.curIndex = index
       this.curClass = selector
       this.$store.dispatch('Personeltotop', selector)
     },
@@ -87,10 +88,45 @@ export default {
       this.navList.forEach((item, i) => {
         var className = item.class
         if (className === val) {
-          // this.curIndex = i
           this.curClass = val
         }
       })
+    },
+    deLWithNav() {
+      if (this.curDept.depType === '1' || this.curDept.areaCode.substring(0, 4) === '6114') { // 总队、杨凌支队、杨凌派出所(杨凌派出所和杨凌支队同权限)
+        if (this.ajStatus === 3) { // 如果是申请  显示审核信息模块
+          this.navList = this.navList1 // 显示地市签收、反馈左侧菜单
+        } else { // 下发，部下发不显示审核信息菜单
+          this.navList = [
+            { name: '基本信息', number: 0, type: 't0', class: 'jbxx' },
+            { name: '地市签收', number: 0, type: 't2', class: 'dsqs' },
+            { name: '地市反馈', number: 0, type: 't3', class: 'dsfk' }
+          ]
+        }
+      } else if (this.curDept.depType === '2' && this.curDept.areaCode.substring(0, 4) !== '6114') { // 非杨凌的支队
+        if (this.ajStatus === 3) { // 如果是申请  显示审核信息模块
+          this.navList = this.navList3 // 显示地市签收、反馈，区县签收、反馈左侧菜单
+        } else { // 下发，部下发不显示审核信息菜单
+          this.navList = [
+            { name: '基本信息', number: 0, type: 't0', class: 'jbxx' },
+            { name: '地市签收', number: 0, type: 't2', class: 'dsqs' },
+            { name: '地市反馈', number: 0, type: 't3', class: 'dsfk' },
+            { name: '区县签收', number: 0, type: 't4', class: 'qxqs' },
+            { name: '区县反馈', number: 0, type: 't5', class: 'qxfk' }
+          ]
+        }
+      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 大队，非杨凌的派出所
+        if (this.ajStatus === 3) { // 如果是申请  显示审核信息模块
+          this.navList = this.navList2 // 显示区县签收、反馈左侧菜单
+        } else { // 下发，部下发不显示审核信息菜单
+          this.navList = [
+            { name: '基本信息', number: 0, type: 't0', class: 'jbxx' },
+            { name: '区县签收', number: 0, type: 't4', class: 'qxqs' },
+            { name: '区县反馈', number: 0, type: 't5', class: 'qxfk' }
+          ]
+        }
+      }
+      this.getItemTotal() // 获取菜单对应的内容条数
     },
     clearSession() {
       sessionStorage.removeItem('t1')
@@ -102,18 +138,13 @@ export default {
   },
   mounted() {
     this.curUser = JSON.parse(sessionStorage.getItem('userInfo'))
+    this.ajStatus = this.status
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
-      if (this.curDept.depType === '1' || this.curDept.areaCode.substring(0, 4) === '6114') { // 总队、杨凌支队、杨凌派出所(杨凌派出所和杨凌支队同权限)
-        this.navList = this.navList1 // 显示地市签收、反馈左侧菜单
-      } else if (this.curDept.depType === '2' && this.curDept.areaCode.substring(0, 4) !== '6114') { // 非杨凌的支队
-        this.navList = this.navList3 // 显示地市签收、反馈，区县签收、反馈右侧列表
-      } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 大队，非杨凌的派出所
-        this.navList = this.navList2 // 显示区县签收、反馈右侧列表
+      this.deLWithNav()
+      if (this.info.clusterId) {
+        this.baseInfo = this.info
       }
-    }
-    if (this.info.clusterId) {
-      this.init()
     }
   }
 }
@@ -225,10 +256,10 @@ export default {
     width: 100%;
     li {
       width: 100%;
-      padding: 5px 0;
       cursor: pointer;
       div {
         text-align: center;
+        padding: 5px 0;
         .navName {
           letter-spacing: 2px;
           text-shadow: 0 0 2px #fff;

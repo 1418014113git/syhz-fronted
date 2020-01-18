@@ -31,10 +31,14 @@
          <el-form-item>
           <el-button type="primary" size="small"  @click="resetForm">重置</el-button>
         </el-form-item>
+        <el-form-item>
+          <el-button title="批量反馈" size="small" type="primary" class="disabledBtn" @click="batchFeed" :disabled="multipleSelection.length === 0">批量反馈</el-button>
+        </el-form-item>
       </el-col>
     </el-form>
   <!-- <div class="tableBox"  :style="{maxHeight:tableHeight+'px'}"> -->
-    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;" :max-height="tableHeight">
+    <el-table :data="listData" v-loading="listLoading" ref="multipleTable" style="width: 100%;" :max-height="tableHeight" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" :selectable="selectInit"></el-table-column>
       <el-table-column type="index" width="60" label="序号" ></el-table-column>
       <el-table-column prop="serialNumber"  label='线索序号'  min-width="100"></el-table-column>
       <el-table-column prop="receiveName"  label='接收单位'  min-width="250" show-overflow-tooltip >
@@ -66,9 +70,10 @@
           <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作"  width="80" fixed="right">
+      <el-table-column label="操作"  width="90" fixed="right">
         <template slot-scope="scope">
-          <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle   v-if="controlBtn(scope.row)"  @click="handleDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="反馈"  type="primary" icon="el-icon-edit-outline" circle v-if="controlBtn(scope.row)"  @click="handleDetail(scope.$index, scope.row)"></el-button>
+          <el-button size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -85,14 +90,20 @@
     <el-dialog title="反馈" :visible.sync="isShowfkDialog" @close="closeDialog" :close-on-click-modal="false">
       <clue-feed-back-detail ref="clueFeedBackDetail" :row="this.curRow" @closeDialog="closeDialog"></clue-feed-back-detail>
     </el-dialog>
+
+    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false" @close="closeClueMoveDialog">
+      <clueMoveList ref="clueMoveList" :assistId="assistId" :qbxsId="qbxsId"></clueMoveList>
+    </el-dialog>
   </section>
 </template>
 <script>
   import ClueFeedBackDetail from './clueFeedBackDetail' // 线索反馈详情
+  import clueMoveList from '@/views/caseAssist/clue/clueMoveList.vue'
   export default {
     name: 'clueFeedBackList',
     components: {
-      ClueFeedBackDetail
+      ClueFeedBackDetail,
+      clueMoveList
     },
     data() {
       return {
@@ -115,7 +126,10 @@
         curRow: {}, // 存储当前被点击行数据
         tableHeight: null, // 列表外层容器的高度
         paramDeptCode: '', // 详情页传递过来的参数
-        tableHead: [] // 表头
+        tableHead: [], // 表头
+        multipleSelection: [],
+        clueMoveDialogVisible: false,
+        qbxsId: ''
       }
     },
     methods: {
@@ -226,6 +240,68 @@
       },
       controlBtn(row) { // 控制反馈按钮显示  只有本单位的才能显示反馈按钮
         return ((this.curDept.depType !== '4' && row.receiveCode === this.curDept.depCode) || (this.curDept.depType === '4' && row.receiveCode === this.curDept.parentDepCode))
+      },
+      handleSelectionChange(val) {
+        // val 为整个{}
+        this.multipleSelection = val
+      },
+      selectInit(row, index) {
+        if (String(row.signStatus) !== '2' || !row.fbId) {
+          return false
+        }
+        return ((this.curDept.depType !== '4' && row.receiveCode === this.curDept.depCode) || (this.curDept.depType === '4' && row.receiveCode === this.curDept.parentDepCode))
+      },
+      batchFeed() {
+        const row = {}
+        row.assistId = this.assistId
+        const fbIds = []
+        const qbxsIds = []
+        let flag = false
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          const item = this.multipleSelection[i]
+          fbIds.push(item.fbId)
+          qbxsIds.push(item.qbxsId)
+          if (item.qbxsResult === 2) {
+            flag = true
+          }
+        }
+        if (flag) {
+          this.$confirm('勾选的线索中，存在已经反馈的线索，若要继续进行批量反馈，原反馈内容将被替换，是否继续批量反馈？', '', {
+            confirmButtonText: '是',
+            cancelButtonText: '否',
+            type: 'warning'
+          }).then(() => {
+            this.isShowfkDialog = true
+            row.fbId = fbIds.join(',')
+            row.batchFlag = true // 批量标识
+            row.qbxsResult = 1
+            row.qbxsId = qbxsIds.join(',')
+            this.curRow = row
+            if (this.$refs.clueFeedBackDetail) {
+              this.$refs.clueFeedBackDetail.setRow(row)
+            }
+          })
+        } else {
+          this.isShowfkDialog = true
+          row.fbId = fbIds.join(',')
+          row.batchFlag = true // 批量标识
+          row.qbxsResult = 1
+          row.qbxsId = qbxsIds.join(',')
+          this.curRow = row
+          if (this.$refs.clueFeedBackDetail) {
+            this.$refs.clueFeedBackDetail.setRow(row)
+          }
+        }
+      },
+      handleClueMove(index, row) { // 线索流转记录
+        this.clueMoveDialogVisible = true
+        this.qbxsId = row.qbxsId
+        if (this.$refs.clueMoveList) {
+          this.$refs.clueMoveList.query(this.qbxsId)
+        }
+      },
+      closeClueMoveDialog() {
+        this.$refs.clueMoveList.listData = []
       }
     },
     mounted() {
@@ -250,7 +326,7 @@
     padding: 0 10px;
   }
   .clueFeedBackList .el-dialog{
-    width: 60%;
+    width: 70%;
   }
   .clueFeedBackList .el-dialog__body {
     padding: 10px 20px 15px 20px;
@@ -281,6 +357,18 @@
   }
   .clueFeedBackList .tableBox{
     width: 100%;
+    overflow: auto;
+  }
+  .clueFeedBackList .disabledBtn.el-button--primary.is-disabled, .clueFeedBackList .disabledBtn.el-button--primary.is-disabled:hover{
+    background-color: rgb(3, 94, 151);
+    color: #bbb;
+    border-color: #ccc;
+  }
+  .clueFeedBackList .el-button [class*=el-icon-]+span{
+    margin-left: 0;
+  }
+  .clueFeedBackList .clueMove .el-dialog{
+    width: 70%;
     overflow: auto;
   }
 </style>

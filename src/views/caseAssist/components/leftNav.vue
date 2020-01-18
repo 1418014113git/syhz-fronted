@@ -1,7 +1,7 @@
 <template>
   <div class="caseAssist_leftNavPer" v-loading="loading">
     <ul class="navList">
-      <li v-for="(item,index) in navList" :key="index" :class="{'on':curClass === item.class}" @click="clickNav(item.class,index)" >
+      <li v-for="(item,index) in navList" :key="index" :class="{'on':curClass === item.class}" @click="clickNav(item.class,index)" :style="!auditVisible && item.class === 'auditInfo' ? 'display: none' : ''">
         <div>
           <span class="navName" :class="{'gray':item.number === 0 && index!==0}">{{item.name}}</span>
           <span class="number"  v-if="item.number>0 && item.number<99 && index!==0" >{{item.number}}</span>
@@ -18,7 +18,7 @@ export default {
   name: 'personnelFile',
   data() {
     return {
-      baseInfo: {}, // 基础信息
+      baseInfo: this.info, // 基础信息
       curUser: {}, // sessionStorage获取用户信息
       curDept: {}, // sessionStorage获取机构信息
       curIndex: 0, // 菜单当前索引
@@ -29,7 +29,8 @@ export default {
         { name: '审核信息', number: 0, type: 'assistT1', class: 'auditInfo' },
         { name: '地市签收', number: 0, type: 'assistT2', class: 'signInfo' },
         { name: '地市反馈', number: 0, type: 'assistT3', class: 'feedbackInfo' }
-      ]
+      ],
+      auditVisible: false
     }
   },
   computed: {
@@ -91,6 +92,9 @@ export default {
           return item
         }
       }
+    },
+    showItem() {
+      this.auditVisible = true
     }
   },
   mounted() {

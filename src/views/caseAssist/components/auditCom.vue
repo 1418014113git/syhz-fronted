@@ -38,6 +38,7 @@ export default {
   name: 'baseInfo',
   data() {
     return {
+      oldEndDate: '',
       curUser: {}, // sessionStorage获取用户信息
       baseInfo: {}, // 基础信息
       curRow: {},
@@ -92,6 +93,9 @@ export default {
             if (new Date(this.auditForm.startDate) > new Date(value)) {
               return callback(new Error('截止时间不能小于开始时间'))
             }
+            // if (this.oldEndDate !== '' && new Date(this.oldEndDate).getTime() === new Date(this.auditForm.endDate).getTime()) {
+            //   return callback()
+            // }
             if (new Date(value) < new Date()) {
               return callback(new Error('截止时间不能小于当前系统时间'))
             }
@@ -127,6 +131,7 @@ export default {
       this.auditForm.assistNumber = this.baseInfo.assistNumber
       this.auditForm.startDate = this.baseInfo.startDate
       this.auditForm.endDate = this.baseInfo.endDate
+      this.oldEndDate = this.baseInfo.endDate
       this.auditForm.content = ''
       this.auditFormLoading = false
       this.auditBtnLoading = false

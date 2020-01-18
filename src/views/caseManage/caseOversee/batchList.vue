@@ -112,8 +112,8 @@
         </template>
       </el-table-column>
       <el-table-column prop="ajNumber" label="督办案件数量" min-width="10%" align="center"></el-table-column>
-      <el-table-column prop="departName" label="发布单位" min-width="10%" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="publishPersonName" label="发布人" min-width="10%" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="departName" label="发布单位" min-width="14%" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="publishPersonName" label="发布人" min-width="10%" align="center" show-overflow-tooltip></el-table-column>
       <el-table-column prop="publishDate" label="发布日期" width="180" align="center">
         <template slot-scope="scope">
           {{$handlerDateTime(scope.row.publishDate)}}

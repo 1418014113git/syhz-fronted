@@ -20,12 +20,12 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="11" v-if="firstSubmitVisible && category === '3'">
+            <el-col :span="11" v-if="(firstSubmitVisible && category === '3') || bossFlag">
               <el-form-item label="编号" prop="assistNumber">
                 <el-input v-model="caseAssistForm.assistNumber" auto-complete="off" clearable maxlength="50" disabled></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="category === '3' ? 11 : 24" :class="category === '3' ? 'mar_left' : ''" v-if="firstSubmitVisible">
+            <el-col :span="category === '3'  || bossFlag ? 11 : 24" :class="category === '3'  || bossFlag ? 'mar_left' : ''" v-if="firstSubmitVisible">
               <el-form-item label="协查级别" prop="assistLevel">
                 <el-select v-model="caseAssistForm.assistLevel" placeholder="请选择" clearable :disabled="noauth" @change="levelChange">
                   <el-option v-for="item in assistLevel" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -33,7 +33,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="11" v-if="firstSubmitVisible">
-              <el-form-item label="开始日期" prop="startDate">
+              <el-form-item label="开始时间" prop="startDate">
                 <el-date-picker v-model="caseAssistForm.startDate" type="datetime" placeholder="选择日期" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" :disabled="timeDisable" @change="startChange" clearable></el-date-picker>
               </el-form-item>
               <el-form-item label="发起人" prop="applyPersonName">
@@ -41,7 +41,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="11" class="mar_left" v-if="firstSubmitVisible">
-              <el-form-item label="截止日期" prop="endDate">
+              <el-form-item label="截止时间" prop="endDate">
                 <el-date-picker v-model="caseAssistForm.endDate" type="datetime" placeholder="选择日期" format="yyyy-MM-dd HH:mm" value-format="yyyy-MM-dd HH:mm" :disabled="timeEndDisable" @change="endChange" clearable></el-date-picker>
               </el-form-item>
               <el-form-item label="发起人电话" prop="applyPersonPhone">
@@ -109,12 +109,16 @@
     </el-card>
     <!-- 导入线索弹框-->
     <el-dialog title="导入线索" :visible.sync="importClueVisible" :close-on-click-modal="false">
-      <import-clue :isShowDialog="importClueVisible"  @closeDialog="closeImportClueDialog" :category="category" :id="editId" @result="getResult"></import-clue>
+      <import-clue :isShowDialog="importClueVisible"  @closeDialog="closeImportClueDialog" :category="category" :id="editId" @result="getResult" :oldStatus="caseAssistForm.status"></import-clue>
     </el-dialog>
 
     <!-- 分发线索-->
     <el-dialog title="分发线索" :visible.sync="distributeClueVisible" class="distribute_clue" :close-on-click-modal="false" @close="closeDistributeClueDialog">
-      <distributeClue ref="distributeClue" @closeDialog="closeDistributeClueDialog" :assistId="editId" :fastatus="qbxsDistribute" :jsdw="receiveName" source="add" @result="getDistributeResult" :category="category"></distributeClue>
+      <distributeClue ref="distributeClue" @closeDialog="closeDistributeClueDialog" :assistId="editId" :fastatus="qbxsDistribute" :assistStatus="caseAssistForm.status" :jsdw="receiveName" source="add" @result="getDistributeResult" :category="category"  @handleClueMove="handleClueMove"></distributeClue>
+    </el-dialog>
+
+    <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false" @close="closeClueMoveDialog">
+      <clueMoveList ref="clueMoveList" :assistId="editId" :qbxsId="qbxsId"></clueMoveList>
     </el-dialog>
   </div>
 </template>
@@ -127,16 +131,19 @@ import { getTJXJ, getParentDeptArray } from '@/api/dept'
 import { uploadImg } from '@/utils/editorUpload'
 import ImportClue from './components/importClue'
 import distributeClue from './components/distributeClue'
-
+import clueMoveList from '@/views/caseAssist/clue/clueMoveList.vue'
 export default {
   name: 'assistEdit',
   components: {
     VueEditor,
     ImportClue,
-    distributeClue
+    distributeClue,
+    clueMoveList
   },
   data() {
     return {
+      qbxsId: '',
+      clueMoveDialogVisible: false,
       timeDisable: true,
       timeEndDisable: true,
       uploadAction: this.UploadAttachment.uploadFileUrl,
@@ -273,6 +280,9 @@ export default {
             if (new Date(this.caseAssistForm.startDate) > new Date(value)) {
               return callback(new Error('截止时间不能小于开始时间'))
             }
+            if (this.oldEndDate !== '' && new Date(this.oldEndDate).getTime() === new Date(this.caseAssistForm.endDate).getTime()) {
+              return callback()
+            }
             if (new Date(value) < new Date()) {
               return callback(new Error('截止时间不能小于当前系统时间'))
             }
@@ -311,21 +321,27 @@ export default {
       },
       listData: [],
       listLoading: false,
-      updateOp: false
+      updateOp: false,
+      bossFlag: false,
+      oldEndDate: ''
     }
   },
   methods: {
     levelChange(val) {
-      if (val) {
-        if (String(val) === '5') {
-          this.timeEndDisable = false
-        }
-        this.timeDisable = false
+      if (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7') {
         this.startChange(this.caseAssistForm.startDate)
       } else {
-        this.timeDisable = true
-        this.caseAssistForm.startDate = null
-        this.caseAssistForm.endDate = null
+        if (val) {
+          if (String(val) === '5') {
+            this.timeEndDisable = false
+          }
+          this.timeDisable = false
+          this.startChange(this.caseAssistForm.startDate)
+        } else {
+          this.timeDisable = true
+          this.caseAssistForm.startDate = null
+          this.caseAssistForm.endDate = null
+        }
       }
     },
     checkDeptChange(value, isChecked) {
@@ -370,7 +386,11 @@ export default {
         depCode: this.curDept.depCode
       }
       if (this.curDept.depType === '1') {
-        para.depCode = ''
+        if (this.caseAssistForm.applyDeptCode !== this.curDept.depCode) {
+          para.depCode = this.caseAssistForm.applyDeptCode
+        } else {
+          para.depCode = ''
+        }
       }
       this.$query('searchsyhaj', para).then((response) => {
         this.caseLoading = false
@@ -396,6 +416,15 @@ export default {
         }
       }
     },
+    findDept(paramCode) {
+      const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+      for (let i = 0; i < deptArr.length; i++) {
+        const item = deptArr[i]
+        if (item.depCode === paramCode) {
+          return item
+        }
+      }
+    },
     detail() {
       this.formLoading = true
       this.$query('caseAssist/' + this.editId).then(response => {
@@ -404,13 +433,21 @@ export default {
         this.timeDisable = false
         this.caseAssistForm.startDate = response.data.startDate
         this.caseAssistForm.endDate = response.data.endDate
+        this.oldEndDate = response.data.endDate
+        this.caseAssistForm.applyDeptCode = response.data.applyDeptCode
         this.caseAssistForm.applyDeptName = response.data.applyDeptName
         this.caseAssistForm.applyPersonName = response.data.applyPersonName
+        this.caseAssistForm.curDeptName = response.data.applyDeptName // 申请部门名称
+        this.caseAssistForm.curDeptCode = response.data.applyDeptCode // 申请部门code
+        const dept = this.findDept(response.data.applyDeptCode)
+        this.caseAssistForm.curDeptId = dept.id // 申请部门id
         this.caseAssistForm.citys = response.data.citys
         this.caseAssistForm.applyPersonPhone = response.data.applyPersonPhone
+        this.caseAssistForm.userId = response.data.applyPersonId // 用户Id
+        this.caseAssistForm.userName = response.data.applyPersonName // 用户真实姓名
         this.caseAssistForm.assistContent = response.data.assistContent
         this.caseAssistForm.acceptDept = response.data.auditDeptCode
-        this.deptChange(response.data.auditDeptCode)
+        this.getAuditDept()
         this.caseAssistForm.passKey = response.data.passKey
         this.caseAssistForm.ajbh = response.data.ajbh
         this.caseAssistForm.ajmc = response.data.ajmc
@@ -424,6 +461,7 @@ export default {
         if (String(response.data.status) !== '0') {
           this.saveBtnVisible = false
         }
+        this.controlInput()
         this.queryCase(response.data.ajmc)
         this.caseAssistForm.assistLevel = String(response.data.assistLevel)
         this.secondSubmitVisible = true
@@ -439,6 +477,16 @@ export default {
       }).catch(() => {
         this.formLoading = false
       })
+    },
+    controlInput() {
+      if (this.caseAssistForm.status === '2' || this.caseAssistForm.status === '4') {
+        this.bossFlag = this.caseAssistForm.applyDeptCode !== this.curDept.depCode && this.caseAssistForm.assistNumber !== undefined && this.caseAssistForm.assistNumber !== ''
+      }
+      if (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7') {
+        this.bossFlag = this.caseAssistForm.applyDeptCode !== this.curDept.depCode
+        this.timeDisable = true
+        this.timeEndDisable = false
+      }
     },
     onSubmit(state) {
       if (state === 1) {
@@ -477,8 +525,21 @@ export default {
             curDeptId: this.caseAssistForm.curDeptId // 当前部门Id
           }
           if (this.pageOperationType === 'edit') {
-            param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+            if ((this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7')) {
+              if (new Date(this.caseAssistForm.endDate) > new Date()) {
+                param.status = '5'
+              } else {
+                param.status = this.caseAssistForm.status
+              }
+            } else {
+              if (this.caseAssistForm.applyDeptCode !== this.curDept.depCode) {
+                param.status = this.caseAssistForm.status
+              } else {
+                param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+              }
+            }
             param.operator = state === 0 ? 'update' : 'submit'
+            param.operatorType = (param.status === '5' && (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7')) ? 'update' : 'save'
             param.id = this.editId
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
@@ -503,8 +564,9 @@ export default {
             } else {
               this.save(param, false, false, '', false)
             }
-          } else if (this.pageOperationType === 'add') {
+          } else if (this.pageOperationType === 'add' || this.pageOperationType === 'reApply') {
             param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+            param.operatorType = (param.status === '5' && (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7')) ? 'update' : 'save'
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
                 this.$message({ message: '请导入线索', type: 'error' })
@@ -560,7 +622,7 @@ export default {
           if (this.pageOperationType === 'add' || this.pageOperationType === 'edit') {
             this.$router.push({ path: '/caseAssist/list' })
           } else {
-            this.$gotoid('/caseAssist/detail', JSON.stringify({ id: this.caseAssistForm.id }))
+            this.$gotoid('/caseAssist/detail', this.editId)
           }
         }
       }).catch(() => {
@@ -688,9 +750,9 @@ export default {
     endChange(val) {
       if (val) {
         this.caseAssistForm.endDate = this.addDate(new Date(val + ':00'), '', '')
-        if (this.caseAssistForm.assistLevel !== '5') {
-          this.caseAssistForm.startDate = this.computeDate(-1, new Date(val + ':00'))
-        }
+        // if (this.caseAssistForm.assistLevel !== '5') {
+        //   this.caseAssistForm.startDate = this.computeDate(-1, new Date(val + ':00'))
+        // }
       }
     },
     addDate(date, days, hours) {
@@ -789,12 +851,15 @@ export default {
       }
     },
     getAuditDept() { // 查询审核单位
-      this.caseAssistForm.curDeptType = this.curDept.depType // 部门类型
       let paramCode = ''
-      if (this.curDept.depType === '4') { // 派出所
-        paramCode = this.curDept.parentDepCode
+      if (this.editId !== '') {
+        paramCode = this.caseAssistForm.applyDeptCode
       } else {
-        paramCode = this.curDept.depCode
+        if (this.curDept.depType === '4') { // 派出所
+          paramCode = this.curDept.parentDepCode
+        } else {
+          paramCode = this.curDept.depCode
+        }
       }
       // 查审核单位 自己的上级
       this.$query('hsyzparentdepart/' + paramCode, {}, 'upms').then((response) => {
@@ -807,7 +872,7 @@ export default {
           this.exDeptData = [exDeptData]
         }
         if (this.editId !== '') {
-          this.detail()
+          this.deptChange(this.caseAssistForm.acceptDept)
         }
       })
     },
@@ -820,6 +885,16 @@ export default {
           this.caseAssistForm.assistNumber = response.data
         })
       }
+    },
+    handleClueMove(qbxsId) { // 线索流转记录
+      this.clueMoveDialogVisible = true
+      this.qbxsId = qbxsId
+      if (this.$refs.clueMoveList) {
+        this.$refs.clueMoveList.query(this.qbxsId)
+      }
+    },
+    closeClueMoveDialog() {
+      this.$refs.clueMoveList.listData = []
     }
   },
   mounted() {
@@ -852,7 +927,7 @@ export default {
           this.caseAssistForm.id = param.id
         }
         this.editId = param.id
-        this.getAuditDept()
+        this.detail()
       } else {
         this.getAuditDept()
         this.initNumber()
@@ -914,6 +989,10 @@ export default {
   }
   .caseAssist_edit .distribute_clue .el-dialog{
     width: 80%;
+    overflow: auto;
+  }
+  .caseAssist_edit .clueMove .el-dialog{
+    width: 70%;
     overflow: auto;
   }
 </style>

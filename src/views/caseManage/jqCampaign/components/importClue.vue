@@ -27,6 +27,7 @@
          <p>2、第一行规定必须为标题行，且多次导入标题需保持一致。</p>
          <p>3、根据标题中的“<span class="redC">地址</span>”自动分发线索到地市对应的支队，注意标题必须为“<span class="redC">地址</span>”。</p>
          <p>4、标题必须包含“<span class="redC">序号</span>”，该序号为线索序号，用于根据序号快速定位线索。</p>
+         <p>5、相同“<span class="redC">序号</span>”的线索自动以最后上传的线索<span class="redC">更新</span>线索内容，不会新增线索。</p>
       </div>
       <el-button  type="primary" slot="reference"  class="saveBtn"><svg-icon icon-class="wenhao"></svg-icon> 导入说明</el-button>
     </el-popover>
@@ -41,7 +42,7 @@ import titlePub from './titlePub'
 import { getSessionDeptSelect } from '@/api/depts'
 import axios from 'axios'
 export default {
-  props: ['isShowDialog', 'id'],
+  props: ['isShowDialog', 'id', 'xcstatus'],
   name: 'baseInfo',
   data() {
     return {
@@ -57,6 +58,7 @@ export default {
       uploadAction: this.UploadAttachment.uploadFileUrl,
       fileCon: '', // 导入线索列表
       assistId: '', // 集群id
+      status: '', // 协查状态
       rules: {
         category: [ // 分类
           { required: true, message: '请选择分类', trigger: 'change' }
@@ -80,6 +82,11 @@ export default {
       handler: function(val, oldeval) {
         this.assistId = val
       }
+    },
+    xcstatus: {
+      handler: function(val, oldeval) {
+        this.status = val
+      }
     }
   },
   methods: {
@@ -87,6 +94,9 @@ export default {
       this.initData()
       if (this.id) {
         this.assistId = this.id
+      }
+      if (this.xcstatus) {
+        this.status = this.xcstatus
       }
     },
     initData() {
@@ -133,6 +143,11 @@ export default {
           formData.append('curDeptName', this.depName) // 当前部门名称
           formData.append('assistId', this.assistId) // 集群id
           formData.append('type', 2) // 集群战役
+          if (Number(this.status) > 3) { // 审核通过之后, 4:审核通过
+            formData.append('opt', 'addRecord')
+          } else {
+            formData.append('opt', '')
+          }
           const config = {
             headers: {
               'Content-Type': 'multipart/form-data',

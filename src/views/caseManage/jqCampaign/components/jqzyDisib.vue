@@ -59,10 +59,12 @@
           width="300"
           trigger="hover">
             <div>
-              <p>线索分发步骤：</p>
-              <p>1、列表勾选需要分发线索。</p>
-              <p>2、选择线索接收单位。</p>
-              <p>3、点击【线索分发】，向接收单位分发线索。</p>
+              <span>线索分发步骤：</span><br>
+              <span>1、列表勾选需要分发线索。</span><br>
+              <span>2、选择线索接收单位。</span><br>
+              <span>3、点击【线索分发】，向接收单位分发线索。</span><br>
+              <span>线索删除说明：</span><br>
+              <span>删除线索会删除对应线索反馈内容。</span><br>
             </div>
             <el-button  type="primary" size="mini" circle  slot="reference"><svg-icon icon-class="wenhao"></svg-icon></el-button>
           </el-popover>
@@ -89,10 +91,11 @@
             <span @click="rowClick(scope.row.data[index+1])">{{scope.row.data[index+1]}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作"  width="100" fixed="right">
+        <el-table-column label="操作"  width="130" fixed="right">
           <template slot-scope="scope">
-            <el-button size="mini" title="取消分发"  type="primary" circle  v-if="scope.row.qbxsDistribute === 2 && getDeptType(scope.row.receiveCode)" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
-            <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='edit' && pageSource!=='detail'"  @click="handleDel(scope.$index,scope.row)"></el-button>
+            <el-button size="mini" title="取消分发"  type="primary" circle  v-if="getDeptType(scope.row.qbxsDistribute,scope.row.receiveCode)" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
+            <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="pageSource!=='detail' ||  (pageSource=='detail' && isDelxs)"  @click="handleDel(scope.$index,scope.row)"></el-button>
+            <el-button size="mini" title="线索流转记录"  type="primary" circle   v-if="pageSource==='detail'"  @click="handlelzDetail(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -103,13 +106,20 @@
                      :total="total" :current-page="page" style="float:right;">
       </el-pagination>
     </el-col>
+
+    <!--线索流转记录弹出层-->
+    <el-dialog title="线索流转记录" :visible.sync="isShowlzrecord" class="xslzdialog" append-to-body>
+      <cluelz-detail :isShowdialog="isShowlzrecord" :row="curRow"></cluelz-detail>
+    </el-dialog>
   </section>
 </template>
 <script>
+import CluelzDetail from '../cluelzDetail' // 线索流转记录
 export default {
-  props: ['id', 'isShowDialog', 'source', 'fastatus', 'jsdw', 'xcstatus'],
+  props: ['id', 'isShowDialog', 'source', 'fastatus', 'jsdw', 'xcstatus', 'faxsflag', 'isDel'],
   name: 'jqzyDisib',
   components: {
+    CluelzDetail
   },
   data() {
     return {
@@ -130,6 +140,7 @@ export default {
       listData: [], // 线索列表
       ffbtnLoading: false, // 线索分发按钮加载loading
       listLoading: false, // 列表加载loading
+      isShowlzrecord: false, // 是否显示线索流转记录弹框
       total: 0,
       page: 1,
       pageSize: 15,
@@ -139,9 +150,11 @@ export default {
       curRow: {}, // 存储当前被点击行数据
       tableHeight: null,
       tableHead: [], // 表头
-      pcsParentDept: {}, // 派出所的上级部门
+      pcsParentDept: {}, // 上级部门
       pageSource: '', // 进入页面的来源,
-      xichastatus: '' // 如果是从详情页.列表页列表项过来的，会传递协查状态xcstatus
+      xichastatus: '', // 如果是从详情页.列表页列表项过来的，会传递协查状态xcstatus
+      faxs: false, // 详情页反馈列表点击当前行的是否是总队
+      isDelxs: false // 是否可以删除线索
     }
   },
   watch: {
@@ -185,6 +198,18 @@ export default {
           this.xichastatus = val + ''
         }
       }
+    },
+    faxsflag: { // 详情页反馈列表点击当前行的是否是总队
+      handler: function(val, oldeval) {
+        if (val) {
+          this.faxs = val
+        }
+      }
+    },
+    isDel: { // 线索是否可删除
+      handler: function(val, oldeval) {
+        this.isDelxs = val
+      }
     }
   },
   methods: {
@@ -208,7 +233,11 @@ export default {
         // this.checkId = []
       }
       if (this.pageSource === 'detail') { // 详情页进来的
-        para.queryType = 'execute'
+        if (this.faxs) {
+          para.queryType = 'create'
+        } else {
+          para.queryType = 'execute'
+        }
       } else { // 申请或下发集群时
         para.queryType = 'create'
       }
@@ -274,7 +303,14 @@ export default {
           qbxsId: row.qbxsId,
           assistId: this.assistId,
           qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
-          receiveCode: row.receiveCode ? row.receiveCode : ''
+          receiveCode: row.receiveCode ? row.receiveCode : '',
+          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 当前部门名称
+          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode, // 当前部门code
+          userId: this.curUser.id, // 用户id
+          userName: this.curUser.realName // 用户名称
+        }
+        if (Number(this.xichastatus) > 3) {
+          param.opt = 'addRecord'
         }
         this.$update('caseassistclue/delete', param).then((response) => {
           this.listLoading = false
@@ -292,28 +328,52 @@ export default {
       })
     },
     handleCancel(index, row) { // 取消分发
-      this.$confirm('确定要取消分发到该单位吗？', '提示', {
+      var tips = ''
+      if (this.pageSource === 'detail') { // 详情页面进来的
+        if (row.qbxsResult === 2) { // 已反馈的线索
+          tips = '本条线索已反馈，是否要继续取消分发，分发后会清空已反馈内容！'
+        } else { // 未反馈的线索
+          tips = '是否确定取消分发该线索？'
+        }
+      } else { // 列表页，申请、下发创建时
+        tips = '确定要取消分发到该单位吗？'
+      }
+
+      this.$confirm(tips, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        const param = {
-          qbxsId: row.qbxsId,
-          assistId: this.assistId,
-          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
-          receiveCode: row.receiveCode ? row.receiveCode : ''
-        }
-        this.$update('caseassistclue/cancelDistribute', param).then((response) => {
-          this.listLoading = false
-          this.$emit('result', response.data)
-          this.$message({
-            message: '取消成功',
-            type: 'success'
-          })
-          this.query(true)
-        }).catch(() => {
-          this.listLoading = false
+        this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+          if (response.code === '000000') {
+            const param = {
+              qbxsId: row.qbxsId,
+              qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
+              assistId: this.assistId,
+              receiveCode: row.receiveCode ? row.receiveCode : '',
+              assistType: 2,
+              receiveDept: response.data.departCode, // 转回的上级接收单位code
+              receiveDeptName: response.data.departName, // 转回的上级接收单位名称
+              receiveDeptType: response.data.departType, // 转回的上级接收单位type
+              curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 当前部门名称
+              curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode, // 当前部门code
+              userId: this.curUser.id, // 用户id
+              userName: this.curUser.realName, // 用户名称
+              opt: Number(this.xichastatus) > 3 ? 'addRecord' : ''
+            }
+            this.$update('caseassistclue/cancelDistribute', param).then((response) => {
+              this.listLoading = false
+              this.$emit('result', response.data)
+              this.$message({
+                message: '取消成功',
+                type: 'success'
+              })
+              this.query(true)
+            }).catch(() => {
+              this.listLoading = false
+            })
+          }
         })
       }).catch(() => {
         this.listLoading = false
@@ -335,6 +395,9 @@ export default {
           param.userId = this.curUser.id
           param.userName = this.curUser.realName
         }
+        if (Number(this.xichastatus) > 3) {
+          param.opt = 'addRecord'
+        }
         this.ffbtnLoading = true
         this.$update('caseassistclue/distribute', param).then((response) => {
           this.xsNum = 0 // 已选线索数值初始化
@@ -347,7 +410,7 @@ export default {
           }).then(() => { // 继续分发
             this.query(true, true)
           }).catch(() => { // 完成分发
-            this.$emit('closeDialog', false) // 关闭弹
+            this.$emit('closeDialog', false) // 关闭弹框
           })
         }).catch(() => {
           this.ffbtnLoading = false
@@ -374,13 +437,6 @@ export default {
     },
     // 行选中函数  若有删除，若无添加
     handleselectRow(selection, row) {
-      // this.checkIdRow = []
-      // if (selection.length > 0) {
-      //   selection.forEach((item, index) => {
-      //     this.checkIdRow.push(item.qbxsId)
-      //   })
-      // }
-
       if (this.checkId.length === 0 && selection.length > 0) {
         this.checkId.push(row.qbxsId)
       } else {
@@ -450,7 +506,6 @@ export default {
     },
     // 记忆函数
     memoryChecked() {
-      // console.log('jiyi', JSON.stringify(this.checkId))
       if (this.listData.length > 0) {
         this.listData.forEach((item, index) => {
           if (this.checkId.indexOf(item.qbxsId) !== -1) {
@@ -482,9 +537,16 @@ export default {
     queryCubordinate() { // 查询接收单位
       var param = {}
       if (this.pageSource === 'detail') { // 如果是详情页按钮点击进来的 查当前地市下的大队
-        param = {
-          areaCode: this.curDept.areaCode, // 当前区域code
-          curType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType // 当前部门类型
+        if (this.faxs || this.isDelxs) { // 详情页反馈列表当前行是总队，或者点击详情页的“重新申请”进来的
+          param = {
+            areaCode: '610000', // 传省厅的区域code， 查所有的地市支队
+            curType: '1' // 传总队的类型
+          }
+        } else {
+          param = {
+            areaCode: this.curDept.areaCode, // 当前区域code
+            curType: this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType // 当前部门类型
+          }
         }
       } else { // 申请，下发页面进来的
         param = {
@@ -515,21 +577,25 @@ export default {
         confirmButtonText: '关闭'
       })
     },
-    getDeptType(deptCode) { // 获取当前行的部门类型
-      if (this.pageSource === 'detail') { // 从详情页点'线索分发'进来的
-        const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
-        for (let i = 0; i < deptArr.length; i++) {
-          const item = deptArr[i]
-          if (item.depCode === deptCode) {
-            if (item.depType === '2') { // 支队
-              return false
-            } else {
-              return true
+    getDeptType(qbxsDistribute, deptCode) { // 获取当前行的部门类型
+      if (qbxsDistribute === 2) { // 已分发
+        if (this.pageSource === 'detail') { // 从详情页点'线索分发'进来的
+          const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
+          for (let i = 0; i < deptArr.length; i++) {
+            const item = deptArr[i]
+            if (item.depCode === deptCode) {
+              if (item.depType === '2') { // 支队
+                return false
+              } else {
+                return true
+              }
             }
           }
+        } else {
+          return true
         }
-      } else {
-        return true
+      } else { // 未分发
+        return false
       }
     },
     getParam() {
@@ -538,11 +604,6 @@ export default {
       }
       if (this.source) {
         this.pageSource = this.source
-      }
-      if (this.curDept.depType === '4') { // 派出所
-        this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
-      } else {
-        this.queryCubordinate() // 查接收单位
       }
       if (this.fastatus) { // 分发状态
         this.filters.qbxsDistribute = this.fastatus
@@ -553,13 +614,32 @@ export default {
       if (this.xcstatus) {
         this.xichastatus = this.xcstatus
       }
+      if (this.faxsflag) {
+        this.faxs = this.faxsflag
+      }
+      if (this.isDel) {
+        this.isDelxs = this.isDel
+      }
+      if (this.curDept.depType === '4') { // 派出所
+        this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
+      } else {
+        this.queryCubordinate() // 查接收单位
+      }
     },
     selectInit(row, index) { // 控制当前的行的复选框是否可选
-      if (row.distributeAble === 2) { // 以及分发过的线索
+      if (row.distributeAble === 2 || (this.pageSource !== 'detail' && row.qbxsDistribute === 2 && Number(this.xichastatus) > 3)) { // 已分发过的线索
         return false // 不可勾选
       } else {
         return true // 可勾选
       }
+    },
+    controllzBtn(row) { // 控制反馈线索流转记录按钮显示
+      return true
+    },
+    handlelzDetail(index, row) { // 显示线索流转记录弹框
+      this.isShowlzrecord = true
+      row.clusterId = row.assistId
+      this.curRow = row
     }
   },
   mounted() {
@@ -614,6 +694,16 @@ export default {
   .svg-icon[data-v-5d4549d3] {
     width: 1.3em;
     height: 1.3em;
+  }
+}
+.xslzdialog{
+  .el-dialog{
+    width: 80%;
+    max-height: 80vh;
+    overflow: auto;
+  }
+  .el-dialog__body {
+    padding: 0;
   }
 }
 .tooltipShow {
