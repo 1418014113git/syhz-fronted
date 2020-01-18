@@ -224,14 +224,14 @@ export default {
   methods: {
     enableEdit(row) {
       if (this.curDept.depType === '1' && this.$isViewBtn('100908')) { // 总队管理员
-        if (row.auditDeptCode === this.curDept.depCode) { // 总队审核
+        if (row.auditDeptCode === this.curDept.depCode && Number(row.status) > 3) { // 总队审核
           return true
         }
         if (row.applyDeptCode === this.curDept.depCode) { // 总队申请、下发
           return true
         }
         const dept = this.findParentDept(row.applyDeptCode)
-        if (dept.depType === '3' && row.deptList.length > 1) { // 大队发起的，且需要总队最终审核
+        if (dept.depType === '3' && row.deptList.length > 1 && Number(row.status) > 3) { // 大队发起的，且需要总队最终审核
           return true
         }
       }
@@ -300,6 +300,7 @@ export default {
         pageSize: this.pageSize,
         curDeptCode: this.curDept.depCode,
         status: this.filters.status,
+        title: this.filters.title,
         start1: this.filters.createStartDate,
         start2: this.filters.createEndDate,
         end1: this.filters.endStartDate,
@@ -480,10 +481,10 @@ export default {
       }
       const _this = this
       setTimeout(function() {
-        _this.$message({
-          message: '导出案件协查战果反馈信息成功！',
-          type: 'success'
-        })
+        // _this.$message({
+        //   message: '导出案件协查战果反馈信息成功！',
+        //   type: 'success'
+        // })
         _this.exportBtnLoading = false
         _this.exportDialogVisible = false
         _this.$refs.listTable.clearSelection()

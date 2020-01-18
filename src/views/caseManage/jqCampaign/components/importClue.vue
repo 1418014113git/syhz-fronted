@@ -42,7 +42,7 @@ import titlePub from './titlePub'
 import { getSessionDeptSelect } from '@/api/depts'
 import axios from 'axios'
 export default {
-  props: ['isShowDialog', 'id'],
+  props: ['isShowDialog', 'id', 'xcstatus'],
   name: 'baseInfo',
   data() {
     return {
@@ -58,6 +58,7 @@ export default {
       uploadAction: this.UploadAttachment.uploadFileUrl,
       fileCon: '', // 导入线索列表
       assistId: '', // 集群id
+      status: '', // 协查状态
       rules: {
         category: [ // 分类
           { required: true, message: '请选择分类', trigger: 'change' }
@@ -81,6 +82,11 @@ export default {
       handler: function(val, oldeval) {
         this.assistId = val
       }
+    },
+    xcstatus: {
+      handler: function(val, oldeval) {
+        this.status = val
+      }
     }
   },
   methods: {
@@ -88,6 +94,9 @@ export default {
       this.initData()
       if (this.id) {
         this.assistId = this.id
+      }
+      if (this.xcstatus) {
+        this.status = this.xcstatus
       }
     },
     initData() {
@@ -134,6 +143,11 @@ export default {
           formData.append('curDeptName', this.depName) // 当前部门名称
           formData.append('assistId', this.assistId) // 集群id
           formData.append('type', 2) // 集群战役
+          if (Number(this.status) > 3) { // 审核通过之后, 4:审核通过
+            formData.append('opt', 'addRecord')
+          } else {
+            formData.append('opt', '')
+          }
           const config = {
             headers: {
               'Content-Type': 'multipart/form-data',

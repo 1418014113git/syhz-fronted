@@ -125,7 +125,7 @@ export default {
       this.query(false)
     },
     handleApply(index, row) { // 重新申请
-      this.$gotoid('/caseAssist/edit')
+      this.$gotoid('/caseAssist/edit', JSON.stringify({ type: 'reApply', category: '2', id: this.assistId }))
     },
     handleVerify(index, row) { // 审核
       this.curRow = row
