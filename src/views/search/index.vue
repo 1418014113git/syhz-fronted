@@ -42,7 +42,7 @@
             <div>
               <span>{{formatDate(item.publishTime)}}</span>
               <span>-</span>
-              <span class="content">{{delHtmlTag(item.content)}}</span>
+              <span class="content">{{item.content !== '' && item.content ? delHtmlTag(item.content) : delHtmlTag(item.attachment)}}</span>
             </div>
             <hr v-if=isDisplay(index) style="margin: 10px 0 10px 0"/>
           </div>
@@ -89,7 +89,9 @@
       },
       // 去掉字符串中的HTML标签
       delHtmlTag(str) {
-        return this.intercept(str.replace(/<[^>]+>/g, '')).replace(/\&nbsp;/g, '')
+        if (str) {
+          return this.intercept(str.replace(/<[^>]+>/g, '')).replace(/\&nbsp;/g, '')
+        }
       },
       // 内容截取一百字
       intercept(str) {

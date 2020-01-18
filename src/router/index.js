@@ -100,7 +100,7 @@ export const constantRouterMap = [
       { path: '/tztg/edit/:id', component: () => import('@/views/notice/edit'), name: '编辑通知通报' },
       { path: '/tztg/detail/:id', component: () => import('@/views/notice/detail'), name: '通知通报信息详情' },
       { path: '/caseManage/index', component: () => import('@/views/caseManage/index'), name: '案件列表' },
-      { path: '/caseManage/statistics', component: () => import('@/views/caseManage/caseStatistics'), name: '考核评比' },
+      { path: '/caseManage/statistics', component: () => import('@/views/caseManage/caseStatistics'), name: '案件侦办统计' },
       // { path: '/caseManage/statisInvestigation', component: () => import('@/views/caseManage/statisInvestigation'), name: '集群战役' }, // 此集群战役针对案件侦办与打击处理情况统计表单独写的
       { path: '/caseManage/statisHandle', component: () => import('@/views/caseManage/statisHandle'), name: '打击处理人员信息' }, // 此打击处理人员情况针对案件统计表单独写的，查询的是人员信息
       { path: '/caseManage/statisDblist', component: () => import('@/views/caseManage/statisDblist'), name: '大案侦办' }, //  此大案侦办列表针对案件侦办与打击处理情况统计表单独写的
@@ -261,6 +261,9 @@ export const constantRouterMap = [
       { path: '/basicService/equipNorm/classify', component: () => import('@/views/basicService/equipNorm/equipClassify'), name: '装备分类管理' }, // 装备分类管理
       { path: '/basicService/equipStatistical', component: () => import('@/views/basicService/basicStatistical/equipStatistical'), name: '装备信息统计' }, // 装备信息统计
       { path: '/basicService/equipDeptStatistical', component: () => import('@/views/basicService/basicStatistical/equipDeptStatistical'), name: '单位机构装备信息统计' }, // 单位机构装备装备信息统计
+      { path: '/basicService/assessmentIndex', component: () => import('@/views/basicService/assessment/index'), name: '考核评比' },
+      { path: '/basicService/asses/standardSetting', component: () => import('@/views/basicService/assessment/standardSetting'), name: '设置考核标准' },
+      { path: '/basicService/asses/projectSetting', component: () => import('@/views/basicService/assessment/projectSetting'), name: '设置考核项目' },
       { path: '/notice/index', component: () => import('@/views/notice/noticeList'), name: '站内通知' },
       { path: '/notice/add', component: () => import('@/views/notice/noticeEdit'), name: '发布站内通知' },
       { path: '/notice/edit', component: () => import('@/views/notice/noticeEdit'), name: '编辑站内通知' },
@@ -324,7 +327,8 @@ export const constantRouterMap = [
       { path: '/search/clueDetail', component: () => import('@/views/search/clueDetail'), name: '一键搜索--情报信息线索详情' },
       { path: '/search/insideInfoDetail', component: () => import('@/views/search/insideInfoDetail'), name: '一键搜索--内部资源信息详情' },
       { path: '/search/knowManage', component: () => import('@/views/search/knowManage'), name: '一键搜索--知识库' },
-      { path: '/search/index', component: () => import('@/views/search/index'), name: '一键搜索' }
+      { path: '/search/index', component: () => import('@/views/search/index'), name: '一键搜索' },
+      { path: '/sysManage/ipControl', component: () => import('@/views/sysManage/ipControl'), name: '设备IP控制' }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
@@ -333,6 +337,7 @@ export const constantRouterMap = [
   { path: '/exportEquip', component: () => import('@/views/basicService/basicStatistical/exportEquip'), name: '装备信息统计导出页' },
   { path: '/exportDevelop', component: () => import('@/views//intellSystem/analysisJudgment/exportDevelop'), name: '发展变化态势报表导出页' },
   { path: '/caseManage/casezbdownload', component: () => import('@/views/caseManage/analysiskjbh/components/casezbdownload'), name: '发案地域案件统计报表导出页' }, // 案件分析研判 发案地域案件统计下载页
+  { path: '/exportAccess', component: () => import('@/views/basicService/assessment/exportAccess'), name: '考核评比导出页' }, // 考核评比 统计下载页
   { path: '*', redirect: '/404', hidden: true } // 全不匹配的情况下，返回404，路由按顺序从上到下，依次匹配。最后一个*能匹配全部
 ]
 

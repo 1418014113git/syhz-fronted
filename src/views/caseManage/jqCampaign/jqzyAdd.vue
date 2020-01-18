@@ -69,6 +69,20 @@
             <el-form-item label="发起单位" prop="applyDeptName">
               <el-input v-model.trim="form.applyDeptName" auto-complete="off"  placeholder="" maxlength="50" disabled></el-input>
             </el-form-item>
+             <el-form-item label="开始日期" prop="startDate" v-if="Number(ajstatus)> 3">
+              <el-date-picker
+                v-model="form.startDate"
+                type="datetime"
+                format="yyyy-MM-dd HH:mm"
+                value-format="yyyy-MM-dd HH:mm"
+                :picker-options="pickerOptions"
+                placeholder=""
+                style="width:100%;"
+                :disabled="kssjdisableCtrol()"
+                @change="startChange"
+                >
+              </el-date-picker>
+            </el-form-item>
             <el-form-item label="发起人" prop="applyPersonName">
               <el-input  v-model.trim="form.applyPersonName" auto-complete="off" clearable placeholder="" maxlength="20" disabled></el-input>
             </el-form-item>
@@ -77,6 +91,18 @@
             <el-form-item label="涉及省/市数" prop="clusterCitys">
               <el-input v-model.trim="form.clusterCitys" maxlength="2"  placeholder="" clearable  @keyup.native="number"></el-input>
             </el-form-item>
+              <el-form-item label="结束日期" prop="endDate" v-if="Number(ajstatus)> 3">
+              <el-date-picker
+                  v-model="form.endDate"
+                  type="datetime"
+                  format="yyyy-MM-dd HH:mm"
+                  value-format="yyyy-MM-dd HH:mm"
+                  :picker-options="pickerOptions"
+                  placeholder=""
+                  style="width:100%;"
+                  >
+              </el-date-picker>
+               </el-form-item>
             <el-form-item label="发起人电话" prop="applyPersonPhone">
               <el-input v-model.trim="form.applyPersonPhone" auto-complete="off" clearable maxlength="13"></el-input>
             </el-form-item>
@@ -109,7 +135,7 @@
             </el-table>
           </el-form-item>
           <el-form-item label="正文" prop="assistContent"  v-if="isShowotherform" placeholder="请输入正文">
-            <vue-editor v-model="form.assistContent" useCustomImageHandler @imageAdded="handleImageAdded"></vue-editor>
+            <vue-editor v-model="form.assistContent" useCustomImageHandler @imageAdded="handleImageAdded" @contentChange="contentChange"></vue-editor>
           </el-form-item>
           <el-form-item label="附件" style="margin-top: 15px;"  v-if="isShowotherform">
             <el-upload class="upload-demo" drag multiple  ref="fileUpload"
@@ -149,7 +175,7 @@
   </el-card>
   <!-- 导入线索弹框-->
   <el-dialog title="导入线索" :visible.sync="isShowdrxsDialog"  class="drxsForm" :close-on-click-modal="false">
-    <import-clue  :isShowDialog="isShowdrxsDialog"  @closeDialog="closedrxsDialog" :id="id" @result="getResult"></import-clue>
+    <import-clue  :isShowDialog="isShowdrxsDialog"  @closeDialog="closedrxsDialog" :id="id" @result="getResult"  :xcstatus="ajstatus"></import-clue>
   </el-dialog>
 
   <!-- 分发线索-->
@@ -408,6 +434,7 @@ export default {
       this.isShowdrffxsDialog = false
       this.qbxsDistribute = ''
       this.$refs.ffchild.clearData()
+      this.queryList(this.id) // 查询涉及单位对应的列表
     },
     queryList(clusterId) { // 查询涉及单位对应的列表
       this.listLoading = true
@@ -462,14 +489,18 @@ export default {
     },
     cancelEdit() {
       this.$confirm('确认要放弃操作吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.resetForm()
+        // this.resetForm()
         if (this.pageType === 'detail') {
           this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
         } else {
           this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
         }
+      }).catch(() => {
+        // 留在当前页面
       })
     },
     handleImg() {
@@ -487,7 +518,9 @@ export default {
       }
     },
     resetForm() {
-      this.$refs['form'].resetFields()
+      if (this.$refs['form']) {
+        this.$refs['form'].resetFields()
+      }
       this.form = {
         clusterTitle: '', // 标题
         applyDeptName: '', // 发起单位
@@ -589,7 +622,11 @@ export default {
     },
     distribute(type, data) { // 分发
       if (type === 'list') { // 点击涉及单位当前行
-        this.receiveName = data.deptName
+        if (data.deptName.indexOf('市') > -1) {
+          this.receiveName = data.deptName.split('市')[0] + '市'
+        } else {
+          this.receiveName = data.deptName
+        }
         this.qbxsDistribute = ''
       } else { // 点击线索数字时，获取当前数字的状态
         this.receiveName = ''
@@ -729,14 +766,30 @@ export default {
         status: 0, // 协查状态
         operator: 'update'
       }
-      if (this.curDept.depType === '1' && this.form.curDeptCode === this.curDept.depCode && (this.ajstatus === '6' || this.ajstatus === '7') && new Date(this.form.endDate).getTime() > Date.now()) { // 总队编辑处于协查结束或协查超时状态，结束时间调整为当前日期之后时，状态调整为“协查中”。
+
+      if (Number(this.ajstatus) > 3) { // 审核通过之后 总队进来的编辑别的单位申请的线索
+        param.status = this.ajstatus
+      }
+      var curTime = this.$parseTime(new Date(), '{y}-{m}-{d}')
+      if (this.form.endDate) {
+        var endtime = this.$parseTime(new Date(this.form.endDate), '{y}-{m}-{d}')
+      }
+      if ((this.ajstatus === '6' || this.ajstatus === '7') && (this.form.endDate && new Date(endtime).getTime() > new Date(curTime).getTime())) { // 总队编辑处于协查结束或协查超时状态，结束时间调整为当前日期之后时，状态调整为“协查中”。
         param.status = 5 // 协查中
       }
-      if (this.pageType === 'editxf' || this.pageType === 'editbxf') { // 编辑下发，编辑部下发
+      param.operatorType = param.status === 5 && (this.ajstatus === '5' || this.ajstatus === '6' || this.ajstatus === '7') ? 'update' : 'save'
+      if (this.form.startDate) {
         param.startDate = this.form.startDate // 开始时间
-        param.endDate = this.form.endDate // 结束时间
-        param.clusterNumber = this.form.clusterNumber // 集群战役编号
       }
+      if (this.form.endDate) {
+        param.endDate = this.form.endDate // 结束时间
+      }
+      param.clusterNumber = this.form.clusterNumber ? this.form.clusterNumber : '' // 集群战役编号
+      // if (this.pageType === 'editxf' || this.pageType === 'editbxf') { // 编辑下发，编辑部下发
+      //   // param.startDate = this.form.startDate // 开始时间
+      //   // param.endDate = this.form.endDate // 结束时间
+      //   param.clusterNumber = this.form.clusterNumber // 集群战役编号
+      // }
 
       if (this.pageType === 'detail' || this.pageType === 'edit') {
         param.category = 3
@@ -808,6 +861,12 @@ export default {
         operator: 'submit'
       }
       if (this.btnText === '申 请') {
+        if (this.form.startDate) {
+          param.startDate = this.form.startDate // 开始时间
+        }
+        if (this.form.endDate) {
+          param.endDate = this.form.endDate // 结束时间
+        }
         param.category = 3
         if (!this.xsNum.total) {
           this.$message({ message: '请导入线索', type: 'error' })
@@ -817,9 +876,18 @@ export default {
           this.btnLoading = false
         } else {
           param.status = 1
-          if (this.curDept.depType === '1' && this.form.curDeptCode === this.curDept.depCode && (this.ajstatus === '6' || this.ajstatus === '7') && new Date(this.form.endDate).getTime() > Date.now()) { // 总队编辑处于协查结束或协查超时状态，结束时间调整为当前日期之后时，状态调整为“协查中”。
+          var curTime = this.$parseTime(new Date(), '{y}-{m}-{d}')
+          if (this.form.endDate) {
+            var endtime = this.$parseTime(new Date(this.form.endDate), '{y}-{m}-{d}')
+          }
+          if ((this.ajstatus === '6' || this.ajstatus === '7') && (this.form.endDate && new Date(endtime).getTime() > new Date(curTime).getTime())) { // 总队编辑处于协查结束或协查超时状态，结束时间调整为当前日期之后时，状态调整为“协查中”。
             param.status = 5 // 协查中
           }
+          if (Number(this.ajstatus) > 3) { // 审核通过之后 总队进来的编辑别的单位申请的线索
+            param.status = this.ajstatus
+          }
+          param.clusterNumber = this.form.clusterNumber ? this.form.clusterNumber : '' // 集群战役编号
+          param.operatorType = param.status === 5 && (this.ajstatus === '5' || this.ajstatus === '6' || this.ajstatus === '7') ? 'update' : 'save'
           this.$save('casecluster/save', param).then((response) => {
             this.btnLoading = false
             this.$message({
@@ -827,11 +895,7 @@ export default {
               type: 'success',
               duration: 2000
             })
-            // if (this.pageType === 'add' || this.$route.query.type === 'edit') { // 列表页过来的
-            //   this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
-            // } else {
-            //   this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
-            // }
+
             if (this.pageType === 'detail') {
               this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
             } else {
@@ -858,6 +922,7 @@ export default {
           this.$message({ message: '请分发线索', type: 'error' })
         } else {
           param.status = 5
+          param.operatorType = param.status === 5 && (this.ajstatus === '5' || this.ajstatus === '6' || this.ajstatus === '7') ? 'update' : 'save'
           this.$save('casecluster/save', param).then((response) => {
             this.btnLoading = false
             this.$message({
@@ -918,6 +983,9 @@ export default {
       var dates = this.delgetDate(val)
       this.form.startDate = this.calculateDate(dates, 0, '') // 默认当前时间
       this.form.endDate = this.calculateDate(dates, 7, '') // 默认开始时间后7天，
+    },
+    contentChange(val) {
+      this.$refs.form.validateField('assistContent')
     }
   },
   mounted() {
