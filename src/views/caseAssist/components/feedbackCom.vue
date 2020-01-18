@@ -18,26 +18,26 @@
         <el-table-column prop="deptName" label="单位" align="center" width="280" show-overflow-tooltip fixed="left"></el-table-column>
         <el-table-column prop="xsNum" label="线索总数（条）" width="160" align="center">
           <template slot-scope="scope">
-            <span class="linkColor"  @click="toClueList(scope.row)" v-if="scope.row.xsNum && enableTo(scope.row, scope.$index)">{{scope.row.xsNum}}</span>
+            <span class="linkColor"  @click="toClueList(scope.$index, scope.row)" v-if="scope.row.xsNum && enableTo(scope.row, scope.$index)">{{scope.row.xsNum}}</span>
             <span v-else>{{scope.row.xsNum || 0}}</span>
           </template>
         </el-table-column>
         <el-table-column label="线索核查核实情况（条）" align="center" show-overflow-tooltip>
           <el-table-column prop="cs" label="查实" align="center" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span class="linkColor" @click="toClueList(scope.row, '2')" v-if="scope.row.cs && enableTo(scope.row, scope.$index)">{{scope.row.cs}}</span>
+              <span class="linkColor" @click="toClueList(scope.$index, scope.row, '2')" v-if="scope.row.cs && enableTo(scope.row, scope.$index)">{{scope.row.cs}}</span>
               <span v-else>{{scope.row.cs || 0}}</span>
             </template>
           </el-table-column>
           <el-table-column prop="cf" label="查否" align="center" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span class="linkColor" @click="toClueList(scope.row, '3')" v-if="scope.row.cf && enableTo(scope.row, scope.$index)">{{scope.row.cf}}</span>
+              <span class="linkColor" @click="toClueList(scope.$index, scope.row, '3')" v-if="scope.row.cf && enableTo(scope.row, scope.$index)">{{scope.row.cf}}</span>
               <span v-else>{{scope.row.cf || 0}}</span>
             </template>
           </el-table-column>
           <el-table-column prop="whc" label="未核查" align="center" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span class="linkColor" @click="toClueList(scope.row, '1')" v-if="scope.row.whc && enableTo(scope.row, scope.$index)">{{scope.row.whc}}</span>
+              <span class="linkColor" @click="toClueList(scope.$index, scope.row, '1')" v-if="scope.row.whc && enableTo(scope.row, scope.$index)">{{scope.row.whc}}</span>
               <span v-else>{{scope.row.whc || 0}}</span>
             </template>
           </el-table-column>
@@ -289,7 +289,7 @@ export default {
     },
     enableTo(row, index) {
       if (index === this.listData.length - 1) {
-        return false
+        return true
       }
       if (this.info.applyDeptCode === this.curDept.depCode) {
         return true
@@ -436,7 +436,7 @@ export default {
       this.pageSize = val
       this.query(true)
     },
-    toClueList(row, type) {
+    toClueList(index, row, type) {
       const para = {
         id: this.curAssistId,
         type: type,
@@ -449,6 +449,14 @@ export default {
       }
       if (row.deptCode === '610000530000') {
         para.deptCode = row.deptCode
+      }
+      if (index === this.listData.length - 1) {
+        if (this.curDept.depType === '1') {
+          para.deptCode = ''
+          para.cityCode = ''
+        } else {
+          para.cityCode = this.curDept.depCode.substring(0, 6)
+        }
       }
       this.$router.push({ path: '/caseAssist/clueList', query: para })
     },
