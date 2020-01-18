@@ -380,10 +380,8 @@ export default {
           return;
         }
         // column.property 相当于是prop
-        console.log(column.property)
         if (column.property === "aqwcxcaj1") {
           sums[index] = this.xzhj.aqwcxcajhj1;
-          console.log(this.xzhj.aqwcxcajhj1)
           return;
         }
         if (column.property === "aqwcxcaj2") {
