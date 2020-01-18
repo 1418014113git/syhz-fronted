@@ -42,7 +42,7 @@
             <div>
               <span>{{formatDate(item.publishTime)}}</span>
               <span>-</span>
-              <span class="content">{{item.content !== '' && item.content !== null ? delHtmlTag(item.content) : delHtmlTag(item.attachment)}}</span>
+              <span class="content">{{item.content !== '' && item.content ? delHtmlTag(item.content) : delHtmlTag(item.attachment)}}</span>
             </div>
             <hr v-if=isDisplay(index) style="margin: 10px 0 10px 0"/>
           </div>
@@ -89,7 +89,9 @@
       },
       // 去掉字符串中的HTML标签
       delHtmlTag(str) {
-        return this.intercept(str.replace(/<[^>]+>/g, '')).replace(/\&nbsp;/g, '')
+        if (str) {
+          return this.intercept(str.replace(/<[^>]+>/g, '')).replace(/\&nbsp;/g, '')
+        }
       },
       // 内容截取一百字
       intercept(str) {
@@ -256,7 +258,13 @@
     },
     mounted() {
       this.navigationBar()
-      this.init()
+      this.dataList = [
+        { title: '测试测试', content: '', type: '2', publishTime: 1579329664818, attachment: '测试文档2.docx' },
+        { title: '测试测试', type: '2', publishTime: 1579329664818 }
+        // { title: '测试测试', content: '213', type: '2', publishTime: 1579329664818, attachment: '测试文档.docx' },
+        // { title: '测试测试', content: '123', type: '2', publishTime: 1579329664818, attachment: '测试文档.docx' },
+        // { title: '测试测试', content: '', type: '2', publishTime: 1579329664818, attachment: '' }
+      ]
     },
     updated() {
       if (this.isFlush) {
