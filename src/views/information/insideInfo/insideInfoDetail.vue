@@ -81,7 +81,7 @@
         this.$query('reptileinfo/' + this.id, {}).then(response => {
           this.loading = false
           this.detailData = {
-            artContent: response.data.artContent.replace(/<font/g, '<span').replace(/style/g, '').replace(/st1:chsdate/g, 'span').replace(/\n/g, '').replace(/　/g, ''),
+            artContent: response.data.artContent.replace(/<font/g, '<span').replace(/style/g, '').replace(/st1:chsdate/g, 'span').replace(/\n/g, '').replace(/\\u3000/g, ''),
             artEnable: response.data.artEnable,
             artGroup: response.data.artGroup,
             artSource: response.data.artSource,
@@ -156,6 +156,9 @@
     color: #fff !important;
     font-size: 16pt !important;
     background: none !important;
+  }
+  .flfgContent img{
+    width: 100%;
   }
   .insideInfoDetail .title{
     color: rgb(32, 160, 255);
