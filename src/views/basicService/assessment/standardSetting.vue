@@ -127,7 +127,6 @@ export default {
   },
   methods: {
     changeTag(item, index) {
-      console.log(index)
       this.typeData.forEach(element => {
         element.active = 0
       })
@@ -290,9 +289,6 @@ export default {
     }
     .el-form-item--small .el-form-item__label {
       line-height: 25px;
-    }
-    .el-input {
-      // width: 100px;
     }
   }
 }

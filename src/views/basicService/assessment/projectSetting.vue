@@ -198,7 +198,6 @@ export default {
   },
   methods: {
     changeTag(item, index) {
-      console.log(index)
       this.typeData.forEach(element => {
         element.active = 0
       })
@@ -238,7 +237,6 @@ export default {
           }
           this.standardList = data
           this.initChecked()
-          console.log(this.standardList)
         }
       }).catch(() => {
         this.loading = false
@@ -470,9 +468,6 @@ export default {
     }
     .el-form-item--small .el-form-item__label {
       line-height: 25px;
-    }
-    .el-input {
-      // width: 100px;
     }
   }
 }
