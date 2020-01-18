@@ -398,7 +398,7 @@
         }
         moveInfo(para).then(response => {
           this.form.type = String(response.data.artGroup)
-          this.form.content = response.data.artContent
+          this.form.content = response.data.artContent.replace(/<font/g, '<span').replace(/style/g, '').replace(/st1:chsdate/g, 'span').replace(/\n/g, '').replace(/　/g, '')
           this.form.title = response.data.artTitle
         })
       }

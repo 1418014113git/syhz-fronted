@@ -115,7 +115,7 @@
 
     <!--线索详情弹出层-->
     <el-dialog title="详情" :visible.sync="isShowdialog">
-      <clue-detail :row="curRow" :isShowdialog="isShowdialog"></clue-detail>
+      <clue-detail :rows="curRow" :isShowdialog="isShowdialog"></clue-detail>
     </el-dialog>
 
     <!--线索流转记录弹出层-->
@@ -288,11 +288,12 @@ export default {
               }
             }
           }
-
           this.area = currentArea
           this.handleAreaChange(currentArea) // 查单位机构
           if (this.curDeptType === -1 || this.curDeptType === 1) { // 省厅、总队
-
+            if (this.$route.query.zdck && this.dqbmDeptCode) { // 总队点击详情的地市反馈表的含有总队的一行
+              this.department = ['610000000000', this.dqbmDeptCode]
+            }
           } else if (this.curDeptType === 2) { // 支队
             if (this.dqbmDeptCode && !this.$route.query.source) {
               this.department = [this.dqbmDeptCode]
@@ -476,8 +477,8 @@ export default {
         })
         return false
       }
-      this.isShowdialog = true
       this.curRow = row
+      this.isShowdialog = true
     },
     resetForm() { // 重置
       this.filters = {
@@ -509,6 +510,9 @@ export default {
       return true
     },
     controlrecall(row) { // 转回上级按钮显隐控制  协查中 本单位可以操作
+      if (row.receiveCode === '610000530000') { // 接收单位若含有总队，则不能显示转回上级按钮。
+        return false
+      }
       return this.baseInfo.status + '' === '5' && ((this.curDept.depType !== '4' && row.receiveCode === this.curDept.depCode) || (this.curDept.depType === '4' && row.receiveCode === this.curDept.parentDepCode)) // 派出所和上级大内同权限
     },
     detail(id) { // 查询详情
@@ -618,7 +622,7 @@ export default {
       this.filters.qbxsResult = this.$route.query.type ? this.$route.query.type.split(',') : [] // 核查情况
       this.applyDeptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 申请，下发单位code
       this.dqbmDeptCode = this.$route.query.curDeptCode ? this.$route.query.curDeptCode : '' // 存储集群列表当前点击行的部门code
-      this.curDeptType = this.$route.query.deptType ? this.$route.query.deptType : '' // 存储集群列表当前点击行的部门类型
+      this.curDeptType = this.$route.query.deptType ? Number(this.$route.query.deptType) : '' // 存储集群列表当前点击行的部门类型
       this.curCityCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 存储集群列表当前点击行的cityCode
       // if (this.$route.query.createDate) { // 下发日期--集群详情页的签收表点击数字传递过来的
       //   const date = new Date(this.$route.query.createDate)

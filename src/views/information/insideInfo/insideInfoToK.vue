@@ -603,7 +603,7 @@
         }
         moveInfo(para).then(response => {
           this.lawInfo.articleType = response.data.artGroup
-          this.lawInfo.content = response.data.artContent
+          this.lawInfo.content = response.data.artContent.replace(/<font/g, '<span').replace(/style/g, '').replace(/st1:chsdate/g, 'span').replace(/\n/g, '').replace(/　/g, '')
           this.lawInfo.title = response.data.artTitle
         })
       }

@@ -146,7 +146,7 @@ export default {
         backFiles: '' // 附件
       },
       zbajmc: '', // 存储检索框输入的案件名称
-      zbajList: [], // 侦办案件选择的下拉框item
+      zbajList: {}, // 侦办案件选择的下拉框item
       backFiles: [], // 导入的附件集合
       curDeptName: '', // 当前部门名称
       curDepartId: '', // 当前部门id
@@ -169,6 +169,8 @@ export default {
       // ysajbh: '', // 存储下拉选项的移送案件编号
       btnLoading: false, // 反馈按钮loading
       allfkdata: {}, // 批量反馈传递的参数
+      selectList: [], // 侦办刑事案件下拉数据
+      selectAjmc: '', // 存储被选择的下拉项
       uploadAction: this.UploadAttachment.uploadFileUrl,
       rules: {
         qbxsResult: [ //  协查情况
@@ -265,10 +267,16 @@ export default {
     checkaj() { // 选择案件
       // 侦办案件
       if (!this.zbajmc) {
-        this.$message.error('请选择案件')
+        this.$message.error('请输入案件名称搜索')
       } else {
-        this.zblistData.push(this.zbajList)
-        this.zblistData = this.unique(this.zblistData) // 去重
+        if (this.selectList.length > 0 && !this.zbajList.ajbh) {
+          this.$message.error('请选择案件')
+          return
+        }
+        if (this.zbajList.ajbh && this.selectAjmc === this.zbajmc) {
+          this.zblistData.push(this.zbajList)
+          this.zblistData = this.unique(this.zblistData) // 去重
+        }
       }
     },
     unique(arr) { // 数组列表去重
@@ -302,7 +310,15 @@ export default {
       }
     },
     handleDel(index, row) { // 移除案件
-      this.zblistData.splice(index, 1)
+      this.$confirm('确定要移除该案件吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.zblistData.splice(index, 1)
+      }).catch(() => {
+
+      })
     },
     handleImageAdded(file, Editor, cursorLocation, resetUploader) {
       const formData = new FormData()
@@ -425,6 +441,7 @@ export default {
     querySearchAsyncName(queryString, cb) { // 根据案件名称检索
       if (queryString) {
         this.isQueryName = true
+        this.zbajList = {}
         if (this.isQueryName) {
           var param = {
             ajmc: this.zbajmc, // 案件名称
@@ -436,6 +453,7 @@ export default {
           }
           this.$query('caseassistclue/ajSearch', param).then((response) => {
             var restaurants = response.data
+            this.selectList = response.data
             restaurants.forEach(element => {
               element.value = element.ajmc
             })
@@ -455,6 +473,7 @@ export default {
     },
     handleSelectName(item) {
       this.zbajmc = item.ajmc
+      this.selectAjmc = item.ajmc
       this.zbajList = item
       this.isQueryName = false
     },
