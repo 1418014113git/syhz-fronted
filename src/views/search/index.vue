@@ -258,13 +258,7 @@
     },
     mounted() {
       this.navigationBar()
-      this.dataList = [
-        { title: '测试测试', content: '', type: '2', publishTime: 1579329664818, attachment: '测试文档2.docx' },
-        { title: '测试测试', type: '2', publishTime: 1579329664818 }
-        // { title: '测试测试', content: '213', type: '2', publishTime: 1579329664818, attachment: '测试文档.docx' },
-        // { title: '测试测试', content: '123', type: '2', publishTime: 1579329664818, attachment: '测试文档.docx' },
-        // { title: '测试测试', content: '', type: '2', publishTime: 1579329664818, attachment: '' }
-      ]
+      this.init()
     },
     updated() {
       if (this.isFlush) {
