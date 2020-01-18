@@ -355,7 +355,7 @@ export default {
     },
     controlxg(row) { // 控制列表修改按钮 ,总队管理员任何状态下都能修改自己创建的和审核的，
       if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
-        if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
+        if (row.applyDeptCode === this.curDept.depCode || row.category === 3 && Number(row.status) > 3) { //  总队下发 或  总队审核通过的（row.category === 3 表示当前行是申请记录，总队已经审核通过）
           return true
         }
       }

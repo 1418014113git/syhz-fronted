@@ -13,10 +13,10 @@
         <!-- 右侧内容区 -->
         <el-col :span="21" class="rightCont"  :style="{height:countHeight}">
           <div class="rightContDoc" ref="rightContDoc">
-            <base-info ref="baseInfo" class="marb bg baseInfo" :assistId="assistId" :info="baseInfo" :signBtnVisibleH="signBtnVisibleH" :evaluateBtnVisibleH="evaluateBtnVisibleH"></base-info>
+            <base-info ref="baseInfo" class="marb bg baseInfo" :assistId="assistId" :info="baseInfo" :signBtnVisibleH="signBtnVisibleH" :evaluateBtnVisibleH="evaluateBtnVisibleH" :clueFeedbackBtnVisibleH="clueFeedbackBtnVisibleH"></base-info>
             <verify-info v-if="auditVisible" class="marb bg auditInfo" :assistId="assistId" :info="baseInfo"></verify-info>
             <SignCom class="marb bg signInfo" :assistId="assistId" :info="baseInfo" :showType="1" @setSignBtnVisibleH="setSignBtnVisibleH"></SignCom>
-            <FeedBackCom class="marb bg feedbackInfo" :assistId="assistId" :info="baseInfo" :showType="1" @setEvaluateBtnVisibleH="setEvaluateBtnVisibleH"></FeedBackCom>
+            <FeedBackCom class="marb bg feedbackInfo" :assistId="assistId" :info="baseInfo" :showType="1" @setEvaluateBtnVisibleH="setEvaluateBtnVisibleH" @setClueFeedbackBtnVisibleH="setClueFeedbackBtnVisibleH"></FeedBackCom>
             <SignCom v-if="areaVisible" class="marb bg signInfo_area" :assistId="assistId" :info="baseInfo" :showType="2" @setSignBtnVisibleH="setSignBtnVisibleH"></SignCom>
             <FeedBackCom v-if="areaVisible" class="marb bg feedbackInfo_area" :assistId="assistId" :info="baseInfo" :showType="2" @setEvaluateBtnVisibleH="setEvaluateBtnVisibleH"></FeedBackCom>
           </div>
@@ -47,6 +47,7 @@
         areaVisible: false,
         signBtnVisibleH: true,
         evaluateBtnVisibleH: true,
+        clueFeedbackBtnVisibleH: true,
         auditVisible: true
       }
     },
@@ -86,6 +87,10 @@
       setEvaluateBtnVisibleH(val) {
         this.evaluateBtnVisibleH = val
         this.$refs.baseInfo.setEvaluateBtnVisibleH(this.evaluateBtnVisibleH)
+      },
+      setClueFeedbackBtnVisibleH(val) {
+        this.clueFeedbackBtnVisibleH = val
+        this.$refs.baseInfo.setClueFeedbackBtnVisibleH(this.clueFeedbackBtnVisibleH)
       },
       detail() { // 查询详情
         this.$query('caseAssist/' + this.assistId, {}).then((response) => {
