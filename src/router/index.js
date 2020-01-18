@@ -324,7 +324,12 @@ export const constantRouterMap = [
       { path: '/search/clueDetail', component: () => import('@/views/search/clueDetail'), name: '一键搜索--情报信息线索详情' },
       { path: '/search/insideInfoDetail', component: () => import('@/views/search/insideInfoDetail'), name: '一键搜索--内部资源信息详情' },
       { path: '/search/knowManage', component: () => import('@/views/search/knowManage'), name: '一键搜索--知识库' },
-      { path: '/search/index', component: () => import('@/views/search/index'), name: '一键搜索' }
+      { path: '/search/index', component: () => import('@/views/search/index'), name: '一键搜索' },
+      {
+        path: '/sysManage/ipControl',
+        component: () => import('@/views/sysManage/ipControl'),
+        name: '设备IP控制'
+      }
     ]
   },
   { path: '/portal', component: () => import('@/views/portal/index'), name: '门户' },
