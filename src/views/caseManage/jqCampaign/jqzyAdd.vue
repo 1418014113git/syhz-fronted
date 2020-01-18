@@ -343,28 +343,6 @@ export default {
         startDate: [{ // 开始时间
           required: true, trigger: 'change', message: '请选择开始时间'
         }],
-        // startDate: [ // 开始时间
-        //   {
-        //     required: true, trigger: 'change', validator: (rule, value, callback) => {
-        //       if (value === '' || value === undefined || value === null) {
-        //         return callback(new Error('请选择开始时间'))
-        //       } else {
-        //         var curTime = this.$parseTime(new Date(), '{y}-{m}-{d} {h}:{i}')
-        //         var values = this.$parseTime(new Date(value), '{y}-{m}-{d} {h}:{i}')
-        //         if (new Date(values).getTime() < new Date(curTime).getTime()) {
-        //           // if (!this.ajstatus) { // 创建时间
-        //           //   return callback(new Error('开始时间不能小于当前时间'))
-        //           // } else {
-        //           //   callback()
-        //           // }
-        //           return callback(new Error('开始时间不能小于当前时间'))
-        //         } else {
-        //           callback()
-        //         }
-        //       }
-        //     }
-        //   }
-        // ],
         endDate: [ // 结束时间
           {
             required: true, trigger: 'change', validator: (rule, value, callback) => {
@@ -511,14 +489,18 @@ export default {
     },
     cancelEdit() {
       this.$confirm('确认要放弃操作吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.resetForm()
+        // this.resetForm()
         if (this.pageType === 'detail') {
           this.$router.push({ path: '/jqCampaign/detail', query: { id: this.id }}) // 跳转到详情页
         } else {
           this.$router.push({ path: '/jqcampaign' }) // 跳转到列表页
         }
+      }).catch(() => {
+        // 留在当前页面
       })
     },
     handleImg() {
@@ -536,7 +518,9 @@ export default {
       }
     },
     resetForm() {
-      this.$refs['form'].resetFields()
+      if (this.$refs['form']) {
+        this.$refs['form'].resetFields()
+      }
       this.form = {
         clusterTitle: '', // 标题
         applyDeptName: '', // 发起单位
@@ -638,7 +622,11 @@ export default {
     },
     distribute(type, data) { // 分发
       if (type === 'list') { // 点击涉及单位当前行
-        this.receiveName = data.deptName
+        if (data.deptName.indexOf('市') > -1) {
+          this.receiveName = data.deptName.split('市')[0] + '市'
+        } else {
+          this.receiveName = data.deptName
+        }
         this.qbxsDistribute = ''
       } else { // 点击线索数字时，获取当前数字的状态
         this.receiveName = ''
@@ -782,9 +770,9 @@ export default {
       if (Number(this.ajstatus) > 3) { // 审核通过之后 总队进来的编辑别的单位申请的线索
         param.status = this.ajstatus
       }
-      var curTime = this.$parseTime(new Date(), '{y}-{m}-{d} {h}:{i}')
+      var curTime = this.$parseTime(new Date(), '{y}-{m}-{d}')
       if (this.form.endDate) {
-        var endtime = this.$parseTime(new Date(this.form.endDate), '{y}-{m}-{d} {h}:{i}')
+        var endtime = this.$parseTime(new Date(this.form.endDate), '{y}-{m}-{d}')
       }
       if ((this.ajstatus === '6' || this.ajstatus === '7') && (this.form.endDate && new Date(endtime).getTime() > new Date(curTime).getTime())) { // 总队编辑处于协查结束或协查超时状态，结束时间调整为当前日期之后时，状态调整为“协查中”。
         param.status = 5 // 协查中
@@ -888,9 +876,9 @@ export default {
           this.btnLoading = false
         } else {
           param.status = 1
-          var curTime = this.$parseTime(new Date(), '{y}-{m}-{d} {h}:{i}')
+          var curTime = this.$parseTime(new Date(), '{y}-{m}-{d}')
           if (this.form.endDate) {
-            var endtime = this.$parseTime(new Date(this.form.endDate), '{y}-{m}-{d} {h}:{i}')
+            var endtime = this.$parseTime(new Date(this.form.endDate), '{y}-{m}-{d}')
           }
           if ((this.ajstatus === '6' || this.ajstatus === '7') && (this.form.endDate && new Date(endtime).getTime() > new Date(curTime).getTime())) { // 总队编辑处于协查结束或协查超时状态，结束时间调整为当前日期之后时，状态调整为“协查中”。
             param.status = 5 // 协查中
