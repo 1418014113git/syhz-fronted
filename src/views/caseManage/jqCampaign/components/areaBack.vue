@@ -305,10 +305,16 @@ export default {
       this.page = 1
     },
     gotoxslist(row, type) {
-      if (row.cityCode) { // 列表行
-        this.$router.push({
-          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: this.baseInfo.applyDeptCode, cityCode: row.cityCode, curDeptCode: '', deptType: row.deptType } // 线索列表页面
-        })
+      if (row.cityCode || row.deptCode === '610000530000') { // 列表行
+        if (row.deptCode === '610000530000') { // 当前行有总队
+          this.$router.push({
+            path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: this.baseInfo.applyDeptCode, cityCode: '', curDeptCode: row.deptCode, deptType: 1, zdck: true } // 线索列表页面
+          })
+        } else {
+          this.$router.push({
+            path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: this.baseInfo.applyDeptCode, cityCode: row.cityCode, curDeptCode: '', deptType: row.deptType } // 线索列表页面
+          })
+        }
       } else { // 合计行
         this.$router.push({
           path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: '', curDeptCode: '', deptType: '' } // 线索列表页面

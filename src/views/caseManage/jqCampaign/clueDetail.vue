@@ -3,7 +3,7 @@
    <!--线索列表详情-->
       <el-form label-width="120px" class="form" v-loading="listLoading">
         <el-form-item label="核查情况">
-          <span v-if="curRow.qbxsResult">{{ $getDictName(curRow.qbxsResult+'', 'qbxsfkzt') }}</span>
+          <span v-if="curRows.qbxsResult">{{ $getDictName(curRows.qbxsResult+'', 'qbxsfkzt') }}</span>
         </el-form-item>
         <el-form-item label="处理方式">
           <span v-if="handleResult">{{ getClfsName(handleResult) }}</span>
@@ -79,7 +79,7 @@
 </template>
 <script>
 export default {
-  props: ['row', 'isShowdialog'],
+  props: ['rows', 'isShowdialog'],
   name: 'clueDetail',
   data() {
     return {
@@ -90,25 +90,24 @@ export default {
       deptOptions: [], // 部门数据
       curUser: {}, // 当前登录用户
       curDept: {}, // 当前登录的部门
-      curRow: {}, // 存储当前被点击行数据
+      curRows: {}, // 存储当前被点击行数据
       handleResult: '', // 处理方式
       backResult: '', // 反馈内容
       backFiles: [] // 附件
     }
   },
   watch: { // 监听state状态变化
-    row: {
+    rows: {
       handler: function(val, oldeval) {
         if (val.fbId) { // 反馈id
-          this.curRow = val
+          this.curRows = val
         }
       }
     },
     isShowdialog: {
       handler: function(val, oldeval) {
         if (val) {
-          this.initData()
-          if (this.row.fbId) {
+          if (this.rows.fbId) {
             this.detail() // 查详情
           }
         }
@@ -119,9 +118,9 @@ export default {
     detail() { // 查详情
       this.listLoading = true
       const para = {
-        assistId: this.curRow.clusterId, // 集群Id
+        assistId: this.curRows.clusterId, // 集群Id
         type: 'detail', // 操作类型
-        fbId: this.curRow.fbId, // 反馈Id
+        fbId: this.curRows.fbId, // 反馈Id
         assistType: 2 // 2 集群
       }
       this.$query('caseassistclue/feedBack/detail', para).then((response) => {
@@ -151,7 +150,7 @@ export default {
       return name
     },
     initData() {
-      this.curRow.qbxsResult = '' // 核查情况
+      this.curRows.qbxsResult = '' // 核查情况
       this.zblistData = [] // 侦办刑事案件列表
     },
     toAjDetail(id) { // 跳转案件档案
@@ -160,50 +159,49 @@ export default {
       })
     },
     getSummaries(param) { // 合计
-      if (param.data.length > 0) {
-        const { columns, data } = param
-        const sums = []
-        columns.forEach((column, index) => {
-          if (index === 0) {
-            sums[index] = '合计'
-            return
-          }
-          if (index === 1 || index === 2 || index === 3) {
-            sums[index] = '-'
-            return
-          }
-          if (index === 4 || index === 5) { // 立案日期  破案日期
-            const values = data.map(item => Date.parse(item[column.property]))
-            if (!values.every(value => isNaN(value))) {
-              sums[index] = values.reduce((prev, curr) => {
-                const value = Number(curr)
-                if (!isNaN(value)) {
-                  return prev + 1
-                } else {
-                  return prev
-                }
-              }, 0)
-            } else {
-              sums[index] = 0
-            }
-            return
-          }
-          const values = data.map(item => Number(item[column.property]))
+      const { columns, data } = param
+      const sums = []
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = '总计'
+          return
+        }
+        if (index === 1 || index === 2 || index === 3) {
+          sums[index] = '-'
+          return
+        }
+        if (index === 4 || index === 5) { // 立案日期， 破案日期
+          const values = data.map(item => Date.parse(item[column.property]))
           if (!values.every(value => isNaN(value))) {
             sums[index] = values.reduce((prev, curr) => {
               const value = Number(curr)
               if (!isNaN(value)) {
-                return prev + curr
+                return prev + 1
               } else {
                 return prev
               }
             }, 0)
           } else {
-            sums[index] = ''
+            sums[index] = 0
           }
-        })
-        return sums
-      }
+          return
+        }
+        const values = data.map(item => Number(item[column.property]))
+        if (!values.every(value => isNaN(value))) {
+          sums[index] = values.reduce((prev, curr) => {
+            const value = Number(curr)
+            if (!isNaN(value)) {
+              return prev + curr
+            } else {
+              return prev
+            }
+          }, 0)
+          sums[index] = this.$thousSplit(sums[index] + '')
+        } else {
+          sums[index] = ''
+        }
+      })
+      return sums
     }
   },
   mounted() {
@@ -212,8 +210,8 @@ export default {
     if (sessionStorage.getItem('depToken')) {
       this.curDept = JSON.parse(sessionStorage.getItem('depToken'))[0]
     }
-    if (this.row.fbId) { // 反馈id
-      this.curRow = this.row
+    if (this.rows.fbId) { // 反馈id
+      this.curRows = this.rows
       this.detail() // 查详情
     }
   }
