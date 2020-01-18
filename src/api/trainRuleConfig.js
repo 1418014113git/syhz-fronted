@@ -13,9 +13,7 @@ export function getConfig(para) {
 
 export function checkFileName(url, params) {
   return new Promise((resolve, reject) => {
-    axios.get(ModuleName + url, {
-      params: params
-    }).then((res) => {
+    axios.post(ModuleName + url, params).then((res) => {
       if (res.data.data !== null && res.data.data.length > 0) {
         reject('您上传的资料在平台上已经存在，需要确认平台上已有的资料是否和您要上传的相同，如果不同，请修改资料名称后重新上传！')
       } else {

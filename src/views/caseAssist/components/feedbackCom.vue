@@ -11,7 +11,8 @@
       <el-table :data="listData" style="width: 100%;" v-loading="listLoading" class="">
         <el-table-column type="index" label="序号" width="60" align="center" fixed="left">
           <template slot-scope="scope">
-            {{scope.$index === listData.length - 1 ? '合计' : scope.$index + 1}}
+            <span v-if="curDept.depType === '1' && listData[0].deptCode === '610000530000'">{{scope.$index === listData.length - 1 ? '合计' : scope.$index}}</span>
+            <span v-else>{{scope.$index === listData.length - 1 ? '合计' : scope.$index + 1}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="deptName" label="单位" align="center" width="280" show-overflow-tooltip fixed="left"></el-table-column>
@@ -42,7 +43,8 @@
           </el-table-column>
           <el-table-column prop="hcl" label="核查率" align="center" width="120" show-overflow-tooltip>
             <template slot-scope="scope">
-              {{scope.row.hcl || 0}} %
+              <span v-if="scope.row.deptCode === '610000530000'">{{scope.row.hcl || 0}}</span>
+              <span v-else>{{scope.row.hcl || 0}} %</span>
             </template>
           </el-table-column>
         </el-table-column>
@@ -110,7 +112,7 @@
 
     <!-- 分发线索-->
     <el-dialog title="分发线索" :visible.sync="clueDistributeDialogVisible" class="clueDistribute" :close-on-click-modal="false" @close="closeClueDialog">
-      <distributeClue ref="distributeClue" @closeDialog="closeClueDialog" :assistStatus="info.status" :assistId="curAssistId" source="detail" @handleClueMove="handleClueMove"></distributeClue>
+      <distributeClue ref="distributeClue" @closeDialog="closeClueDialog" :assistStatus="info.status" :assistId="curAssistId" :source="source" :fastatus="qbxsDistribute" :sDisabled="sDisabled" @handleClueMove="handleClueMove"></distributeClue>
     </el-dialog>
 
     <el-dialog title="线索流转记录" :visible.sync="clueMoveDialogVisible" class="clueMove" :close-on-click-modal="false" @close="closeClueMoveDialog">
@@ -131,6 +133,9 @@ export default {
   },
   data() {
     return {
+      source: 'detail',
+      qbxsDistribute: '',
+      sDisabled: false,
       title: '',
       evaluateForm: { // 评价打分
         assistId: '',
@@ -204,6 +209,9 @@ export default {
       return false
     },
     enableFeedBack(row) {
+      if (row.deptCode === '610000530000') {
+        return false
+      }
       const curDate = new Date(this.info.systemTime)
       const startDate = new Date(this.info.startDate)
       if (curDate > startDate) {
@@ -236,6 +244,9 @@ export default {
       return false
     },
     enableTo(row, index) {
+      if (row.deptCode === '610000530000') {
+        return false
+      }
       if (index === this.listData.length - 1) {
         return false
       }
@@ -292,6 +303,7 @@ export default {
         param.parentCode = this.curDept.depCode
         param.deptType = '2'
         this.$emit('setEvaluateBtnVisibleH', false)
+        this.$emit('setClueFeedbackBtnVisibleH', false)
       } else {
         if (this.curDept.depType === '-1') { // 省
         } else if (this.curDept.depType === '1') { // 总队
@@ -311,6 +323,7 @@ export default {
         }
         if (this.curDept.depType === '1') {
           this.$emit('setEvaluateBtnVisibleH', false)
+          this.$emit('setClueFeedbackBtnVisibleH', false)
         }
       }
       this.$query('caseassistclue/detailCount', param).then((response) => {
@@ -324,6 +337,9 @@ export default {
           item.parentType = parentItem.depType
           if (this.enableScore(item)) {
             this.$emit('setEvaluateBtnVisibleH', true)
+          }
+          if (this.enableFeedBack(item)) {
+            this.$emit('setClueFeedbackBtnVisibleH', true)
           }
         }
         this.listData = arr
@@ -393,16 +409,25 @@ export default {
       this.$router.push({ path: '/caseAssist/clueList', query: para })
     },
     handleDistributeClue(index, row) { // 线索分发
-      if (String(row.signStatus) !== '2') {
+      if (String(row.signStatus) !== '2' && row.deptCode !== '610000530000') {
         this.$alert('该线索还未签收，请先进行签收。', '提示', {
           type: 'warning',
           confirmButtonText: '确定'
         })
         return false
       }
+      if (row.deptCode === '610000530000') {
+        this.source = 'add'
+        this.qbxsDistribute = '1'
+        this.sDisabled = true
+      } else {
+        this.source = 'detail'
+        this.qbxsDistribute = ''
+        this.sDisabled = false
+      }
       this.clueDistributeDialogVisible = true
       if (this.$refs.distributeClue) {
-        this.$refs.distributeClue.init()
+        this.$refs.distributeClue.init(this.qbxsDistribute, '', this.source, this.sDisabled)
       }
     },
     handleFeedBack(index, row) { // 线索反馈

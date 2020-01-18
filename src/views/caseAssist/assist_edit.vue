@@ -280,6 +280,9 @@ export default {
             if (new Date(this.caseAssistForm.startDate) > new Date(value)) {
               return callback(new Error('截止时间不能小于开始时间'))
             }
+            if (this.oldEndDate !== '' && new Date(this.oldEndDate).getTime() === new Date(this.caseAssistForm.endDate).getTime()) {
+              return callback()
+            }
             if (new Date(value) < new Date()) {
               return callback(new Error('截止时间不能小于当前系统时间'))
             }
@@ -319,7 +322,8 @@ export default {
       listData: [],
       listLoading: false,
       updateOp: false,
-      bossFlag: false
+      bossFlag: false,
+      oldEndDate: ''
     }
   },
   methods: {
@@ -429,6 +433,7 @@ export default {
         this.timeDisable = false
         this.caseAssistForm.startDate = response.data.startDate
         this.caseAssistForm.endDate = response.data.endDate
+        this.oldEndDate = response.data.endDate
         this.caseAssistForm.applyDeptCode = response.data.applyDeptCode
         this.caseAssistForm.applyDeptName = response.data.applyDeptName
         this.caseAssistForm.applyPersonName = response.data.applyPersonName
@@ -534,7 +539,7 @@ export default {
               }
             }
             param.operator = state === 0 ? 'update' : 'submit'
-            param.operatorType = param.status === '5' && (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7') ? 'update' : 'save'
+            param.operatorType = (param.status === '5' && (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7')) ? 'update' : 'save'
             param.id = this.editId
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
@@ -561,6 +566,7 @@ export default {
             }
           } else if (this.pageOperationType === 'add' || this.pageOperationType === 'reApply') {
             param.status = state === 0 ? state : (this.category === '3' ? '5' : state)
+            param.operatorType = (param.status === '5' && (this.caseAssistForm.status === '5' || this.caseAssistForm.status === '6' || this.caseAssistForm.status === '7')) ? 'update' : 'save'
             if (this.secondSubmitVisible) {
               if (!this.clueNum.total) {
                 this.$message({ message: '请导入线索', type: 'error' })

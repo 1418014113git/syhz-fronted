@@ -116,7 +116,7 @@ import {
 } from '@/utils/codetotext'
 
 export default {
-  props: ['assistId', 'info', 'signBtnVisibleH', 'evaluateBtnVisibleH'],
+  props: ['assistId', 'info', 'signBtnVisibleH', 'evaluateBtnVisibleH', 'clueFeedbackBtnVisibleH'],
   name: 'baseInfo',
   data() {
     return {
@@ -155,6 +155,9 @@ export default {
     },
     'evaluateBtnVisibleH': function(val) {
       this.evaluateBtnVisible = val
+    },
+    'clueFeedbackBtnVisibleH': function(val) {
+      this.clueFeedbackBtnVisible = val
     }
   },
   methods: {
@@ -163,6 +166,9 @@ export default {
     },
     setEvaluateBtnVisibleH(val) {
       this.evaluateBtnVisible = val
+    },
+    setClueFeedbackBtnVisibleH(val) {
+      this.clueFeedbackBtnVisible = val
     },
     getReplace(data) {
       if (data) {
@@ -200,7 +206,7 @@ export default {
           this.clueFeedbackBtnVisible = true
         }
         if (String(this.curDept.depType) === '3') {
-          this.clueFeedbackBtnVisible = true
+          this.clueFeedbackBtnVisible = this.clueFeedbackBtnVisibleH
         }
         // if (String(this.baseInfo.category) === '2') {
         //   if (this.baseInfo.auditDeptCode === this.curDept.depCode) {

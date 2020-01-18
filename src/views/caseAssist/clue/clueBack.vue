@@ -78,6 +78,7 @@
             }
             this.backClueForm.receiveDept = response.data.departCode
             this.backClueForm.receiveDeptName = response.data.departName
+            this.backClueForm.receiveDeptType = response.data.departType
             this.exDeptData = [exDeptData]
             this.deptLoading = false
           } else {
@@ -114,6 +115,7 @@
               receiveCode: this.curReceiveCode,
               receiveDept: this.backClueForm.receiveDept,
               receiveDeptName: this.backClueForm.receiveDeptName,
+              receiveDeptType: this.backClueForm.receiveDeptType,
               remark: this.backClueForm.content,
               assistType: 1,
               curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,

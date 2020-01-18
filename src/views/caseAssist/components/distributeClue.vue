@@ -25,7 +25,7 @@
           </el-select>
         </el-form-item>
          <el-form-item label="分发状态">
-          <el-select  v-model="filters.qbxsDistribute" size="small" placeholder="全部" clearable>
+          <el-select  v-model="filters.qbxsDistribute" size="small" placeholder="全部" clearable :disabled="disabled">
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('qbxsffzt')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
@@ -111,7 +111,7 @@
 <script>
 import clueMoveList from '@/views/caseAssist/clue/clueMoveList.vue'
 export default {
-  props: ['assistId', 'source', 'fastatus', 'jsdw', 'assistStatus', 'category'],
+  props: ['assistId', 'source', 'fastatus', 'jsdw', 'assistStatus', 'category', 'sDisabled'],
   name: 'distributeClue',
   components: {
     clueMoveList
@@ -148,7 +148,8 @@ export default {
       pageSource: '', // 进入页面的来源,
       lycategory: '', // 是从主页的下发还是申请  2：申请，  3：下发
       clueMoveDialogVisible: false,
-      qbxsId: ''
+      qbxsId: '',
+      disabled: false
     }
   },
   watch: {
@@ -165,6 +166,11 @@ export default {
     category: {
       handler: function(val, oldeval) {
         this.lycategory = val
+      }
+    },
+    sDisabled: {
+      handler: function(val, oldeval) {
+        this.disabled = val
       }
     }
   },
@@ -295,29 +301,36 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        const param = {
-          qbxsId: row.qbxsId,
-          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
-          assistId: this.assistId,
-          receiveCode: row.receiveCode ? row.receiveCode : '',
-          assistType: 1,
-          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
-          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
-          userId: this.curUser.id,
-          userName: this.curUser.realName,
-          opt: Number(this.assistStatus) > 3 ? 'addRecord' : ''
-        }
-        this.$update('caseassistclue/cancelDistribute', param).then((response) => {
-          this.$emit('closeDialog', true)
-          this.listLoading = false
-          this.$emit('result', response.data)
-          this.$message({
-            message: '取消成功',
-            type: 'success'
-          })
-          this.query(true)
-        }).catch(() => {
-          this.listLoading = false
+        this.$query('hsyzparentdepart/' + row.receiveCode, {}, 'upms').then((response) => {
+          if (response.code === '000000') {
+            const param = {
+              qbxsId: row.qbxsId,
+              qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
+              assistId: this.assistId,
+              receiveCode: row.receiveCode ? row.receiveCode : '',
+              assistType: 1,
+              receiveDept: response.data.departCode,
+              receiveDeptName: response.data.departName,
+              receiveDeptType: response.data.departType,
+              curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
+              curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
+              userId: this.curUser.id,
+              userName: this.curUser.realName,
+              opt: Number(this.assistStatus) > 3 ? 'addRecord' : ''
+            }
+            this.$update('caseassistclue/cancelDistribute', param).then((response) => {
+              this.$emit('closeDialog', true)
+              this.listLoading = false
+              this.$emit('result', response.data)
+              this.$message({
+                message: '取消成功',
+                type: 'success'
+              })
+              this.query(true)
+            }).catch(() => {
+              this.listLoading = false
+            })
+          }
         })
       }).catch(() => {
         this.listLoading = false
@@ -375,6 +388,7 @@ export default {
       }
       if (Number(this.assistStatus) > 3) {
         param.curDeptName = this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName // 当前部门名称  如果是派出所，传它的父部门名称
+        param.curDeptType = this.curDept.depType === '4' ? this.pcsParentDept.departType : this.curDept.depType // 当前部门类型  如果是派出所，传它的父部门类型
         param.userId = this.curUser.id
         param.userName = this.curUser.realName
       }
@@ -591,7 +605,7 @@ export default {
         return true // 可勾选
       }
     },
-    init(fastatus, jsdw) {
+    init(fastatus, jsdw, pageSource, disabled) {
       this.clearData()
       this.checkId = []
       this.xsNum = 0
@@ -600,6 +614,12 @@ export default {
       }
       if (jsdw) {
         this.filters.receiveName = jsdw
+      }
+      if (pageSource) {
+        this.pageSource = pageSource
+      }
+      if (disabled) {
+        this.disabled = disabled
       }
       if (this.curDept.depType === '4') { // 派出所
         this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
@@ -622,6 +642,9 @@ export default {
     }
     if (this.category) {
       this.lycategory = this.category
+    }
+    if (this.sDisabled) {
+      this.disabled = this.sDisabled
     }
     this.init(this.fastatus, this.jsdw)
   },
