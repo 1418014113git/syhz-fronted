@@ -15,7 +15,6 @@
             </div>
           </div>
           <div v-if="detailData.artContent && detailData.artContent !== ''" :style="detailData.artContent && detailData.artContent !== '' ? {maxHeight:tableHeight} : ''" class="flfgContent">
-            <img src="/static/image/131008183739352.jpg">
             <div v-html="detailData.artContent" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
           </div>
           <div class="dataDetail" v-if="detailData.fileList.length > 0">
