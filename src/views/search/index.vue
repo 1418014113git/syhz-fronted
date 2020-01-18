@@ -42,7 +42,7 @@
             <div>
               <span>{{formatDate(item.publishTime)}}</span>
               <span>-</span>
-              <span class="content">{{delHtmlTag(item.content)}}</span>
+              <span class="content">{{item.content !== '' && item.content !== null ? delHtmlTag(item.content) : delHtmlTag(item.attachment)}}</span>
             </div>
             <hr v-if=isDisplay(index) style="margin: 10px 0 10px 0"/>
           </div>
