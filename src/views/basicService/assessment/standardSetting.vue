@@ -127,7 +127,6 @@ export default {
   },
   methods: {
     changeTag(item, index) {
-      console.log(index)
       this.typeData.forEach(element => {
         element.active = 0
       })
