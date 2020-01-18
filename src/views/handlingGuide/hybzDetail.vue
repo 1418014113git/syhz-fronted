@@ -512,4 +512,7 @@
   .play_dialog .el-dialog .el-dialog__body .el-card__body {
     padding: 0;
   }
+  .hybzContent img{
+    width: 100%;
+  }
 </style>
