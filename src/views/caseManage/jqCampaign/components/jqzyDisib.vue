@@ -29,7 +29,7 @@
           </el-select>
         </el-form-item>
          <el-form-item label="分发状态">
-          <el-select  v-model="filters.qbxsDistribute" size="small" placeholder="全部" clearable>
+          <el-select  v-model="filters.qbxsDistribute" size="small" placeholder="全部" clearable :disabled="isdisabled">
             <el-option :label="item.dictName" :value="item.dictKey" v-for="item in $getDicts('qbxsffzt')" :key="item.dictKey"></el-option>
           </el-select>
         </el-form-item>
@@ -131,6 +131,7 @@ export default {
         qbxsCategory: '', // 分类
         qbxsDistribute: '' // 分发状态
       },
+      isdisabled: false,
       deptCode: '', // 接收单位code
       acceptDeptName: '', // 接收单位名称
       assistId: '', // 集群id
@@ -299,30 +300,59 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        const param = {
-          qbxsId: row.qbxsId,
-          assistId: this.assistId,
-          qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
-          receiveCode: row.receiveCode ? row.receiveCode : '',
-          curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 当前部门名称
-          curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode, // 当前部门code
-          userId: this.curUser.id, // 用户id
-          userName: this.curUser.realName // 用户名称
-        }
-        if (Number(this.xichastatus) > 3) {
-          param.opt = 'addRecord'
-        }
-        this.$update('caseassistclue/delete', param).then((response) => {
-          this.listLoading = false
-          this.$emit('result', response.data)
-          this.$message({
-            message: '删除成功',
-            type: 'success'
+        if (row.receiveCode) {
+          this.$query('hsyzparentdepart/' + row.receiveCode, {}, 'upms').then((response) => {
+            if (response.code === '000000') {
+              const param = {
+                qbxsId: row.qbxsId,
+                qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
+                assistId: this.assistId,
+                receiveCode: row.receiveCode ? (row.receiveCode + ',' + response.data.departCode) : '',
+                assistType: 2,
+                curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 当前部门名称
+                curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode, // 当前部门code
+                userId: this.curUser.id, // 用户id
+                userName: this.curUser.realName, // 用户名称
+                opt: this.pageSource === 'detail' && Number(this.xichastatus) > 3 ? 'addRecord' : ''
+              }
+              this.$update('caseassistclue/delete', param).then((response) => {
+                this.listLoading = false
+                this.$emit('result', response.data)
+                this.$message({
+                  message: '删除成功',
+                  type: 'success'
+                })
+                this.query(true)
+              }).catch(() => {
+                this.listLoading = false
+              })
+            }
           })
-          this.query(true)
-        }).catch(() => {
-          this.listLoading = false
-        })
+        } else {
+          const param = {
+            qbxsId: row.qbxsId,
+            qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
+            assistId: this.assistId,
+            receiveCode: row.receiveCode ? row.receiveCode : '',
+            assistType: 2,
+            curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 当前部门名称
+            curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode, // 当前部门code
+            userId: this.curUser.id, // 用户id
+            userName: this.curUser.realName, // 用户名称
+            opt: this.pageSource === 'detail' && Number(this.xichastatus) > 3 ? 'addRecord' : ''
+          }
+          this.$update('caseassistclue/delete', param).then((response) => {
+            this.listLoading = false
+            this.$emit('result', response.data)
+            this.$message({
+              message: '删除成功',
+              type: 'success'
+            })
+            this.query(true)
+          }).catch(() => {
+            this.listLoading = false
+          })
+        }
       }).catch(() => {
         this.listLoading = false
       })
@@ -345,7 +375,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        this.$query('hsyzparentdepart/' + this.curDept.depCode, {}, 'upms').then((response) => {
+        this.$query('hsyzparentdepart/' + row.receiveCode, {}, 'upms').then((response) => {
           if (response.code === '000000') {
             const param = {
               qbxsId: row.qbxsId,
@@ -353,14 +383,17 @@ export default {
               assistId: this.assistId,
               receiveCode: row.receiveCode ? row.receiveCode : '',
               assistType: 2,
-              receiveDept: response.data.departCode, // 转回的上级接收单位code
-              receiveDeptName: response.data.departName, // 转回的上级接收单位名称
-              receiveDeptType: response.data.departType, // 转回的上级接收单位type
+              receiveDept: response.data.departCode, // 当前行的上级单位code
+              receiveDeptName: response.data.departName, // 当前行的上级单位名称
+              receiveDeptType: response.data.departType, // 当前行的上级单位type
               curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName, // 当前部门名称
               curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode, // 当前部门code
               userId: this.curUser.id, // 用户id
               userName: this.curUser.realName, // 用户名称
               opt: Number(this.xichastatus) > 3 ? 'addRecord' : ''
+            }
+            if (this.pageSource !== 'detail') {
+              param.toBoss = '1'
             }
             this.$update('caseassistclue/cancelDistribute', param).then((response) => {
               this.listLoading = false
@@ -580,6 +613,9 @@ export default {
     getDeptType(qbxsDistribute, deptCode) { // 获取当前行的部门类型
       if (qbxsDistribute === 2) { // 已分发
         if (this.pageSource === 'detail') { // 从详情页点'线索分发'进来的
+          if (this.curDept.depType === '1') {
+            return false
+          }
           const deptArr = JSON.parse(sessionStorage.getItem('DeptSelect'))
           for (let i = 0; i < deptArr.length; i++) {
             const item = deptArr[i]
@@ -624,6 +660,10 @@ export default {
         this.querypcssj() // 查询派出所的上级 把上级单位当做自己单位
       } else {
         this.queryCubordinate() // 查接收单位
+      }
+      if (this.pageSource === 'detail' && this.curDept.depType === '1') { // 总队从详情页点击分发按钮进来时，分发状态不能选择，默认是查未分发
+        this.isdisabled = true
+        this.filters.qbxsDistribute = '1'
       }
     },
     selectInit(row, index) { // 控制当前的行的复选框是否可选
