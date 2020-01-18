@@ -80,8 +80,23 @@
         this.loading = true
         this.$query('reptileinfo/' + this.id, {}).then(response => {
           this.loading = false
-          this.detailData = response.data
-          this.detailData.fileList = []
+          this.detailData = {
+            artContent: response.data.artContent.replace(/<font/g, '<span').replace(/style/g, '').replace(/st1:chsdate/g, 'span').replace(/\n/g, '').replace(/　/g, ''),
+            artEnable: response.data.artEnable,
+            artGroup: response.data.artGroup,
+            artSource: response.data.artSource,
+            artSourceId: response.data.artSourceId,
+            artSourceUrl: response.data.artSourceUrl,
+            artTitle: response.data.artTitle,
+            artType: response.data.artType,
+            creationTime: response.data.creationTime,
+            extractColor: response.data.extractColor,
+            extractName: response.data.extractName,
+            id: response.data.id,
+            status: response.data.status,
+            fileList: []
+          }
+          // .replace(/style=\"((\s|\S|\w|\W|;:#)*)\"/g, '')
         }).catch(() => {
           this.loading = false
         })
@@ -135,6 +150,12 @@
     border-top: 1px solid #eeeeee;
     padding-top: 20px;
     overflow-y: auto;
+  }
+  .flfgContent p, .flfgContent span {
+    font-family: FangSong !important;
+    color: #fff !important;
+    font-size: 16pt !important;
+    background: none !important;
   }
   .insideInfoDetail .title{
     color: rgb(32, 160, 255);

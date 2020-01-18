@@ -552,7 +552,7 @@ export default {
                 let text = ''
                 if (state !== 0) {
                   if (String(this.category) === '2') {
-                    text = '申请'
+                    text = this.bossFlag ? '编辑' : '申请'
                   } else if (String(this.category) === '3') {
                     text = '下发'
                   }
@@ -781,7 +781,11 @@ export default {
     },
     distribute(type, data) { // 分发
       if (type === 'list') { // 点击涉及单位当前行
-        this.receiveName = data.deptName
+        if (data.deptName.indexOf('市') > -1) {
+          this.receiveName = data.deptName.split('市')[0] + '市'
+        } else {
+          this.receiveName = data.deptName
+        }
         this.qbxsDistribute = ''
       } else { // 点击线索数字时，获取当前数字的状态
         this.qbxsDistribute = data
