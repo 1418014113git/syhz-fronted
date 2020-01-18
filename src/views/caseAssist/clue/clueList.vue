@@ -189,6 +189,9 @@ export default {
   },
   methods: {
     enableBackClue(row, flag) {
+      if (row.receiveCode === '610000530000') {
+        return false
+      }
       if (String(this.baseInfo.status) === '5') {
         if (row.receiveCode === this.curDept.depCode) {
           if (flag) {
@@ -325,13 +328,13 @@ export default {
             if (curDept.depType === '-1') { // 省
               currentDepartment = [curDept.depCode]
             } else if (curDept.depType === '1') { // 总队
-              currentDepartment = [curDept.parentDepCode, curDept.depCode]
+              currentDepartment = [curDept.parentCode, curDept.depCode]
             } else if (curDept.depType === '2') { // 支队
               currentDepartment = [curDept.depCode]
             } else if (curDept.depType === '3') { // 大队
               currentDepartment = [curDept.depCode]
             } else if (curDept.depType === '4') { // 派出所
-              currentDepartment = [curDept.parentDepCode, curDept.depCode]
+              currentDepartment = [curDept.parentCode, curDept.depCode]
             }
           } else {
             // 此处不默认选中本单位
@@ -464,7 +467,11 @@ export default {
     },
     handleDetail(index, row) { // 详情
       if (row.qbxsResult === 1) {
-        this.$alert('该线索还未反馈，请于线索反馈列表反馈后，再行查看', '提示')
+        if (row.receiveCode === '610000530000') {
+          this.$alert('该线索还未反馈', '提示')
+        } else {
+          this.$alert('该线索还未反馈，请于线索反馈列表反馈后，再行查看', '提示')
+        }
       } else {
         this.clueDetailVisible = true
         this.curRow = row

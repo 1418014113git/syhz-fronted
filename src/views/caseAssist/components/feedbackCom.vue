@@ -43,21 +43,65 @@
           </el-table-column>
           <el-table-column prop="hcl" label="核查率" align="center" width="120" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span v-if="scope.row.deptCode === '610000530000'">{{scope.row.hcl || 0}}</span>
-              <span v-else>{{scope.row.hcl || 0}} %</span>
+              <span>{{scope.row.hcl || 0}} %</span>
             </template>
           </el-table-column>
         </el-table-column>
-        <el-table-column prop="ysxz" label="移送行政部门处理（次）" width="120" align="center"></el-table-column>
+        <el-table-column prop="ysxz" label="移送行政部门处理（次）" width="120" align="center">
+          <!--<template slot-scope="scope">-->
+            <!--<span v-if="scope.row.deptCode === '610000530000'">-</span>-->
+            <!--<span v-else>{{scope.row.ysxz}}</span>-->
+          <!--</template>-->
+        </el-table-column>
         <el-table-column label="侦办刑事案件" align="center" show-overflow-tooltip>
-          <el-table-column prop="larqCount" label="立案（起）" width="120" align="center" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="parqCount" label="破案（起）" width="120" align="center" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="zhrys" label="抓获（人）" width="120" align="center" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="xsjl" label="刑拘（人）" width="120" align="center" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="pzdb" label="批捕（人）" width="120" align="center"  show-overflow-tooltip></el-table-column>
-          <el-table-column prop="yjss" label="移诉（人）" width="120" align="center" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="dhwd" label="捣毁窝点（个）" width="160" align="center" show-overflow-tooltip></el-table-column>
-          <el-table-column prop="sajz" label="涉案金额（万元）" width="160" align="center" show-overflow-tooltip></el-table-column>
+          <el-table-column prop="larqCount" label="立案（起）" width="120" align="center" show-overflow-tooltip>
+            <!--<template slot-scope="scope">-->
+              <!--<span v-if="scope.row.deptCode === '610000530000'">-</span>-->
+              <!--<span v-else>{{scope.row.larqCount}}</span>-->
+            <!--</template>-->
+          </el-table-column>
+          <el-table-column prop="parqCount" label="破案（起）" width="120" align="center" show-overflow-tooltip>
+            <!--<template slot-scope="scope">-->
+              <!--<span v-if="scope.row.deptCode === '610000530000'">-</span>-->
+              <!--<span v-else>{{scope.row.parqCount}}</span>-->
+            <!--</template>-->
+          </el-table-column>
+          <el-table-column prop="zhrys" label="抓获（人）" width="120" align="center" show-overflow-tooltip>
+            <!--<template slot-scope="scope">-->
+              <!--<span v-if="scope.row.deptCode === '610000530000'">-</span>-->
+              <!--<span v-else>{{scope.row.zhrys}}</span>-->
+            <!--</template>-->
+          </el-table-column>
+          <el-table-column prop="xsjl" label="刑拘（人）" width="120" align="center" show-overflow-tooltip>
+            <!--<template slot-scope="scope">-->
+              <!--<span v-if="scope.row.deptCode === '610000530000'">-</span>-->
+              <!--<span v-else>{{scope.row.xsjl}}</span>-->
+            <!--</template>-->
+          </el-table-column>
+          <el-table-column prop="pzdb" label="批捕（人）" width="120" align="center"  show-overflow-tooltip>
+            <!--<template slot-scope="scope">-->
+              <!--<span v-if="scope.row.deptCode === '610000530000'">-</span>-->
+              <!--<span v-else>{{scope.row.pzdb}}</span>-->
+            <!--</template>-->
+          </el-table-column>
+          <el-table-column prop="yjss" label="移诉（人）" width="120" align="center" show-overflow-tooltip>
+            <!--<template slot-scope="scope">-->
+              <!--<span v-if="scope.row.deptCode === '610000530000'">-</span>-->
+              <!--<span v-else>{{scope.row.yjss}}</span>-->
+            <!--</template>-->
+          </el-table-column>
+          <el-table-column prop="dhwd" label="捣毁窝点（个）" width="160" align="center" show-overflow-tooltip>
+            <!--<template slot-scope="scope">-->
+              <!--<span v-if="scope.row.deptCode === '610000530000'">-</span>-->
+              <!--<span v-else>{{scope.row.dhwd}}</span>-->
+            <!--</template>-->
+          </el-table-column>
+          <el-table-column prop="sajz" label="涉案金额（万元）" width="160" align="center" show-overflow-tooltip>
+            <!--<template slot-scope="scope">-->
+              <!--<span v-if="scope.row.deptCode === '610000530000'">-</span>-->
+              <!--<span v-else>{{scope.row.sajz}}</span>-->
+            <!--</template>-->
+          </el-table-column>
         </el-table-column>
         <el-table-column prop="score" label="评价打分" width="120" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="200" fixed="right">
@@ -244,9 +288,6 @@ export default {
       return false
     },
     enableTo(row, index) {
-      if (row.deptCode === '610000530000') {
-        return false
-      }
       if (index === this.listData.length - 1) {
         return false
       }
@@ -404,6 +445,9 @@ export default {
         cityCode: row.deptCode.substring(0, 6)
       }
       if (this.curDept.depType === '3' || String(this.showType) !== '1') {
+        para.deptCode = row.deptCode
+      }
+      if (row.deptCode === '610000530000') {
         para.deptCode = row.deptCode
       }
       this.$router.push({ path: '/caseAssist/clueList', query: para })
