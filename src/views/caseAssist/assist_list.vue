@@ -413,6 +413,9 @@ export default {
         } else {
           para.cityCode = row.deptCode.substring(0, 6)
         }
+        if (row.deptCode === '610000530000') {
+          para.deptCode = row.deptCode
+        }
       } else {
         if (row.deptList.length > 1) {
           para.cityCode = '610000'

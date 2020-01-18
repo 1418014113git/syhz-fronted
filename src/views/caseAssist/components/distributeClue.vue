@@ -91,7 +91,7 @@
             <el-button size="mini" title="取消分发"  type="primary" circle v-if="enable(scope.row)" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
             <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="enableDelete(scope.row)"  @click="handleDel(scope.$index,scope.row)"></el-button>
             <el-button v-if="pageSource==='detail'" size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
-            <!--<el-button v-if="pageSource==='detail' || Number(assistStatus) > 3" size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>-->
+            <el-button v-if="pageSource==='detail' || Number(assistStatus) > 3" size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -194,6 +194,9 @@ export default {
         // if (this.assistStatus === '0' || this.assistStatus === undefined) {
         //   return true
         // }
+        if (this.curDept.depType === '1') {
+          return false
+        }
         return true
       }
       return false
@@ -262,11 +265,17 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
+        let departCode = ''
+        if (row.receiveCode) {
+          const dept = this.findParentDept(row.receiveCode)
+          console.info(dept)
+          departCode = ',' + dept.parentCode
+        }
         const param = {
           qbxsId: row.qbxsId,
           qbxsDeptId: row.qbxsDeptId ? row.qbxsDeptId : '',
           assistId: this.assistId,
-          receiveCode: row.receiveCode ? row.receiveCode : '',
+          receiveCode: row.receiveCode ? (row.receiveCode + departCode) : '',
           assistType: 1,
           curDeptName: this.curDept.depType === '4' ? this.pcsParentDept.departName : this.curDept.depName,
           curDeptCode: this.curDept.depType === '4' ? this.pcsParentDept.departCode : this.curDept.depCode,
@@ -317,6 +326,9 @@ export default {
               userId: this.curUser.id,
               userName: this.curUser.realName,
               opt: Number(this.assistStatus) > 3 ? 'addRecord' : ''
+            }
+            if (this.pageSource !== 'detail') {
+              param.toBoss = '1'
             }
             this.$update('caseassistclue/cancelDistribute', param).then((response) => {
               this.$emit('closeDialog', true)
