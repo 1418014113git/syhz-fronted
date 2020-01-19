@@ -167,7 +167,7 @@
       <el-row class="tabC btnUpLine" style="margin-top: 20px;">
         <el-col :span="20">
           <el-button  @click="cancelEdit" class="cancelBtn">取 消</el-button>
-          <el-button  type="primary" @click="save" :loading="btnLoading" class="saveBtn">保 存</el-button>
+          <el-button  type="primary" @click="save" :loading="btnLoading" class="saveBtn" v-if="isShowSaveBtn">保 存</el-button>
           <el-button  type="primary" @click="apply" :loading="btnLoading" class="saveBtn" v-if="isShowApplyBtn">{{btnText}}</el-button>
         </el-col>
       </el-row>
@@ -245,6 +245,7 @@ export default {
       pageLoading: false, // 页面加载loading
       listLoading: false, // 涉及单位loading
       btnLoading: false, // 底部按钮loading
+      isShowSaveBtn: false, // 保存按钮 默认不显示， 草稿状态下显示
       isShowApplyBtn: false, // 初始化时不显示申请/下发按钮，当点击保存成功后，显示申请/下发按钮。
       isShowxsform: false, // 是否显示涉及线索和涉及单位
       isShowotherform: true, // 是否显示涉及线索和涉及单位以外的基础form信息
@@ -386,6 +387,7 @@ export default {
   },
   methods: {
     editInit() {
+      this.isShowApplyBtn = true // 显示申请按钮
       this.detail()
     },
     detail() { // 查询详情
@@ -857,7 +859,7 @@ export default {
         curDeptName: this.form.curDeptName, // 当前部门名称
         curDeptId: this.form.curDeptId, // 当前部门Id
         attachment: this.form.attachment, // 附件
-        id: this.editId,
+        id: this.editId ? this.editId : this.id,
         operator: 'submit'
       }
       if (this.btnText === '申 请') {
@@ -1011,6 +1013,9 @@ export default {
     if (this.$route.query.isDel) { // 详情页点击重新申请时，传递该参数，则线索分发页面的线索可删除。
       this.isDel = this.$route.query.isDel
     }
+    if (!this.ajstatus || this.ajstatus === '0') { // 创建或草稿状态下显示保存按钮
+      this.isShowSaveBtn = true
+    }
 
     if (this.$route.query.type === 'add') { // 从列表页面点击“申请”按钮进来的。
       this.pageTitle = '申请集群战役'
@@ -1028,7 +1033,6 @@ export default {
       this.btnText = '申 请'
       this.id = this.$route.query.id // 存储集群战役id
       this.editInit() // 编辑页面相关接口查询
-      // this.getDeptsshdw() // 查审核单位
     } else if (this.$route.query.type === 'xf') { // 从列表点击“下发”按钮进来的
       this.pageTitle = '下发集群战役'
       this.btnText = '下 发'

@@ -469,4 +469,7 @@
   .play_dialog .el-dialog .el-dialog__body .caseEdit.el-row {
     width: 100%;
   }
+  .flfgContent img{
+    width: 100%;
+  }
 </style>
