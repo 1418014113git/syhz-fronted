@@ -366,7 +366,7 @@ export default {
     },
     controlsc(row) { // 控制列表删除按钮 ,总队管理计任何状态下都能修改自己创建的审核的，其他的是草稿，待审核，审核不通过时可操作。
       if (this.curDept.depType === '1' && this.$isViewBtn('101908')) { // 总队管理员
-        if (row.applyDeptCode === this.curDept.depCode || row.category === 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
+        if (row.applyDeptCode === this.curDept.depCode || row.category === 3 && Number(row.status) > 3) { //  总队下发 或  总队审核（row.category === 3 表示当前行是申请记录，总队是最终的审核单位）
           return true
         }
       }
@@ -734,7 +734,11 @@ export default {
         }
         this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: cityCode, curDeptCode: row.applyDeptCode, deptType: row.deptType, source: 'mainw' }}) // 跳转到线索列表页
       } else { // 展开行列表
-        this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode, deptType: row.deptType, source: 'mainn' }}) // 跳转到线索列表页
+        if (row.deptCode === '610000530000') { // 说明是转回给总队的线索
+          this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode, deptType: row.deptType, zdck: true, source: 'mainn' }}) // 跳转到线索列表页
+        } else {
+          this.$router.push({ path: '/jqcampaign/clueList', query: { id: row.clusterId, type: type, deptCode: row.applyDeptCode, cityCode: row.cityCode, curDeptCode: row.deptCode, deptType: row.deptType, source: 'mainn' }}) // 跳转到线索列表页
+        }
       }
     },
     exportList() { // 导出
