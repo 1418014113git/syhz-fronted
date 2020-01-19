@@ -41,7 +41,7 @@
         <el-table :data="assessData"  style="width: 100%;" v-loading="loading1" class="table_th_center"
           :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick"
           ref="teamStatistical" :row-class-name="getRowClass" show-summary :summary-method="getSummaries">
-          <el-table-column type="expand" :width="isSheng?40:1" class-name="expand">
+          <el-table-column type="expand" :width="isSheng?40:1" class-name="expand"  fixed="left">
             <template slot-scope="scope">
               <el-table :data="scope.row.child||[]" :style="expandTableStyle" v-loading="loading2">
                 <el-table-column prop="" label="" width="40" fixed="left"></el-table-column>
@@ -56,8 +56,8 @@
               </el-table>
             </template>
           </el-table-column>
-          <el-table-column type="index" width="55" label="序号" align="center"></el-table-column>
-          <el-table-column prop="name" :label="isSheng===true?'地市':'单位'" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip></el-table-column>
+          <el-table-column type="index" width="55" label="序号" align="center"  fixed="left"></el-table-column>
+          <el-table-column prop="name" :label="isSheng===true?'地市':'单位'" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip  fixed="left"></el-table-column>
           <!-- 其他的三级字段的prop 需要加上一级的category -->
           <el-table-column v-for="(item1,index1) in tableHead" :prop="item1.sign" :label="item1.categoryName" :key="index1" align="center" min-width="80">
             <el-table-column v-for="(item2,index2) in item1.children" :prop="item2.sign+item1.category" :label="item2.categoryName"  :key="index2"  align="center">
@@ -503,37 +503,19 @@ export default {
   // .el-year-table td .cell {
   //   color: #fff !important;
   // }
-  .tableTitle {
-    font-size: 16px;
-    text-align: center;
-    padding-bottom: 10px;
-  }
 
-  // 统计表样式设置
-  // .el-table__footer-wrapper .has-gutter tr td:first-child {
-  //   border: 0;
-  //   border-top: 1px solid #fff;
+  // 将滚定条设置到合计行下方，会影响列的fixed
+  // .el-table {
+  //   overflow: auto;
   // }
-  // .el-table__footer-wrapper .has-gutter tr td:nth-child(2) {
-  //   text-align: left;
+  // .el-table__body-wrapper,
+  // .el-table__header-wrapper,
+  // .el-table__footer-wrapper {
+  //   overflow: visible !important;
   // }
-  // .el-table__footer-wrapper tbody td,
-  // .el-table__header-wrapper tbody td {
-  //   border-top: 1px solid #fff;
+  // .el-table::after {
+  //   position: relative !important;
   // }
-
-  // 将滚定条设置到合计行下方
-  .el-table {
-    overflow: auto;
-  }
-  .el-table__body-wrapper,
-  .el-table__header-wrapper,
-  .el-table__footer-wrapper {
-    overflow: visible !important;
-  }
-  .el-table::after {
-    position: relative !important;
-  }
   // 固定左侧列的样式问题
   .el-table__fixed
     .el-table__fixed-body-wrapper
@@ -558,6 +540,12 @@ export default {
   .el-table__fixed::before,
   .el-table__fixed::before {
     opacity: 0;
+  }
+  // 总计列 样式
+  .el-table__fixed-footer-wrapper tbody td {
+    background-color: rgb(0, 89, 130);
+    color: #ffffff;
+    border-top: none;
   }
 }
 </style>
