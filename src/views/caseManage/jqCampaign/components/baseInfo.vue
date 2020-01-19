@@ -180,7 +180,6 @@ export default {
         this.$store.dispatch('Personeltotop', 'dsfk') // 定位到地市反馈
         this.$store.dispatch('JqMouleClass', 'dsfk')
       } else if (this.curDept.depType === '3' || (this.curDept.depType === '4' && this.curDept.areaCode.substring(0, 4) !== '6114')) { // 区县
-        console.log(333333333333)
         this.$store.dispatch('Personeltotop', 'qxfk') // 定位到区县反馈
         this.$store.dispatch('JqMouleClass', 'qxfk')
       }
