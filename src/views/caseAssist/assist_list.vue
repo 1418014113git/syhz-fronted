@@ -411,7 +411,12 @@ export default {
             para.cityCode = row.deptCode.substring(0, 6)
           }
         } else {
-          para.cityCode = row.deptCode.substring(0, 6)
+          const dept = this.findParentDept(row.deptCode)
+          if (dept.depType === '3') {
+            para.cityCode = row.deptCode.substring(0, 4) + '00'
+          } else {
+            para.cityCode = row.deptCode.substring(0, 6)
+          }
         }
         if (row.deptCode === '610000530000') {
           para.deptCode = row.deptCode
