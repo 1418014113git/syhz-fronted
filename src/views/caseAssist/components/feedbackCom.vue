@@ -513,12 +513,8 @@ export default {
         this.evaluateForm.score = row.score
         this.evaluateForm.commentText = row.commentText
       } else {
-        this.evaluateForm = { // 评价打分
-          assistId: '',
-          deptCode: '',
-          score: 0,
-          commentText: ''
-        }
+        this.evaluateForm.score = 0
+        this.evaluateForm.commentText = ''
       }
       this.evaluateDialogVisible = true
     },
