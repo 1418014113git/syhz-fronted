@@ -202,10 +202,11 @@ export default {
     },
     controlClick(row) { // 数字点击权限控制
       if (this.listData.length > 0) {
+        var childCityCode = this.listData[0].cityCode
         if (row.cityCode) { // 非合计行
           return ((this.curDept.depType === '2' && this.curDept.areaCode === this.baseInfo.cityCode) || this.curDept.areaCode === row.cityCode || this.curDept.depCode === row.deptCode || (this.curDept.depType === '4' && (this.curDept.parentDepCode === row.deptCode || this.curDept.parentDepCode === this.baseInfo.applyDeptCode))) // 上级单位/审核单位，申请单位，本单位可点。
         } else { // 合计行
-          return ((this.curDept.depType === '2' && this.curDept.areaCode === this.baseInfo.cityCode) || this.curDept.depCode === this.baseInfo.applyDeptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === this.baseInfo.applyDeptCode)) // 上级单位/审核单位，申请单位可点。
+          return ((this.curDept.depType === '2' && this.curDept.areaCode === this.baseInfo.cityCode) || this.curDept.depCode === this.baseInfo.applyDeptCode || (this.curDept.depType === '4' && this.curDept.parentDepCode === this.baseInfo.applyDeptCode) || this.curDept.areaCode === childCityCode) // 上级单位/审核单位，申请单位可点。
         }
       } else {
         return false
@@ -270,7 +271,7 @@ export default {
         })
       } else { // 合计行
         this.$router.push({
-          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: '', curDeptCode: '', deptType: '' } // 线索列表页面
+          path: '/jqcampaign/clueList', query: { id: this.clusterId, type: type, deptCode: '', cityCode: this.curDept.areaCode, curDeptCode: '', deptType: this.curDept.depType, queryType: 3 } // 线索列表页面
         })
       }
     },

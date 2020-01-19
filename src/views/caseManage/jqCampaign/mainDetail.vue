@@ -157,12 +157,14 @@ export default {
       }
 
       for (var i = 0; i < this.classList.length - 1; i++) {
-        if (document.querySelector('.rightCont').scrollTop === 0) {
-          this.$store.dispatch('JqMouleClass', this.classList[0])
-        } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 20 && document.querySelector('.rightCont').scrollTop < difference) {
-          this.$store.dispatch('JqMouleClass', this.classList[i])
-        } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
-          this.$store.dispatch('JqMouleClass', this.classList[this.classList.length - 1])
+        if (document.querySelector('.' + this.classList[i])) {
+          if (document.querySelector('.rightCont').scrollTop === 0) {
+            this.$store.dispatch('JqMouleClass', this.classList[0])
+          } else if (document.querySelector('.rightCont').scrollTop >= document.querySelector('.' + this.classList[i]).offsetTop - 20 && document.querySelector('.rightCont').scrollTop < difference) {
+            this.$store.dispatch('JqMouleClass', this.classList[i])
+          } else if (document.querySelector('.rightCont').scrollTop === difference + 20) {
+            this.$store.dispatch('JqMouleClass', this.classList[this.classList.length - 1])
+          }
         }
       }
     }
