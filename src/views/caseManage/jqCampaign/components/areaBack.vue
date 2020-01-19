@@ -225,9 +225,9 @@ export default {
       })
     },
     query() { // 查询列表
-      Bus.$emit('isShowffbtn', false) // 线索分发按钮
-      Bus.$emit('isShowfkbtn', false) // 线索反馈按钮
-      Bus.$emit('isShowpjbtn', false) // 评价打分按钮
+      // Bus.$emit('isShowffbtn', false) // 线索分发按钮
+      // Bus.$emit('isShowfkbtn', false) // 线索反馈按钮
+      // Bus.$emit('isShowpjbtn', false) // 评价打分按钮
       this.listLoading = true
       var param = {
         assistId: this.clusterId, // 集群Id,
@@ -348,11 +348,11 @@ export default {
         return false
       }
       this.curRow = row
-      var deptCode = ''
-      if (row.deptCode !== this.baseInfo.applyDeptCode && this.curDept.depType !== '1') {
-        deptCode = row.deptCode
-      }
-      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId, deptCode: deptCode }}) // 跳转到线索反馈页
+      // var deptCode = ''
+      // if (row.deptCode !== this.baseInfo.applyDeptCode && this.curDept.depType !== '1') {
+      //   deptCode = row.deptCode
+      // }
+      this.$router.push({ path: '/jqcampaign/clueFeedback', query: { id: this.clusterId, deptCode: row.deptCode }}) // 跳转到线索反馈页
     },
     handledafen(index, row) { // 评价打分
       this.isShowpjdf = true
