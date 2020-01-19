@@ -548,6 +548,9 @@ export default {
               } else if (this.listData.length === 0) {
                 this.$message({ message: '请分发线索', type: 'error' })
                 this.closeLoading()
+              } else if (this.clueNum.total - this.clueNum.distribute !== 0) {
+                this.$message({ message: '请将线索全部分发', type: 'error' })
+                this.closeLoading()
               } else {
                 let text = ''
                 if (state !== 0) {
@@ -573,6 +576,9 @@ export default {
                 this.closeLoading()
               } else if (this.listData.length === 0) {
                 this.$message({ message: '请分发线索', type: 'error' })
+                this.closeLoading()
+              } else if (this.clueNum.total - this.clueNum.distribute !== 0) {
+                this.$message({ message: '请将线索全部分发', type: 'error' })
                 this.closeLoading()
               } else {
                 param.operator = 'update'
