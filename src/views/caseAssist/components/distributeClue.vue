@@ -90,7 +90,7 @@
           <template slot-scope="scope">
             <el-button size="mini" title="取消分发"  type="primary" circle v-if="enable(scope.row)" @click="handleCancel(scope.$index, scope.row)"><svg-icon icon-class="quxiao"></svg-icon></el-button>
             <el-button size="mini" title="删除线索" type="primary" icon="el-icon-delete" circle  v-if="enableDelete(scope.row)"  @click="handleDel(scope.$index,scope.row)"></el-button>
-            <el-button v-if="pageSource==='detail'" size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
+            <!--<el-button v-if="pageSource==='detail'" size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>-->
             <el-button v-if="pageSource==='detail' || Number(assistStatus) > 3" size="mini" title="线索流转记录" type="primary" icon="el-icon-s-unfold" circle  @click="handleClueMove(scope.$index, scope.row)"><svg-icon icon-class="move"></svg-icon></el-button>
           </template>
         </el-table-column>
