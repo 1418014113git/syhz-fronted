@@ -824,6 +824,7 @@ export default {
           this.btnLoading = false
           this.$message({ message: '请分发线索', type: 'error' })
         } else if (this.xsNum.total - this.xsNum.distribute !== 0) {
+          this.btnLoading = false
           this.$message({ message: '请将线索全部分发', type: 'error' })
         } else {
           this.$save('casecluster/save', param).then((response) => {
@@ -881,6 +882,7 @@ export default {
           this.$message({ message: '请分发线索', type: 'error' })
           this.btnLoading = false
         } else if (this.xsNum.total - this.xsNum.distribute !== 0) {
+          this.btnLoading = false
           this.$message({ message: '请将线索全部分发', type: 'error' })
         } else {
           param.status = 1
@@ -929,6 +931,7 @@ export default {
           this.btnLoading = false
           this.$message({ message: '请分发线索', type: 'error' })
         } else if (this.xsNum.total - this.xsNum.distribute !== 0) {
+          this.btnLoading = false
           this.$message({ message: '请将线索全部分发', type: 'error' })
         } else {
           param.status = 5
