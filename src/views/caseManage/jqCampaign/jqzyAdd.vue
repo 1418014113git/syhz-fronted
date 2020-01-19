@@ -731,6 +731,8 @@ export default {
           this.$message({ message: '请导入线索', type: 'error' })
         } else if (this.listData.length === 0) {
           this.$message({ message: '请分发线索', type: 'error' })
+        } else if (this.xsNum.total - this.xsNum.distribute !== 0) {
+          this.$message({ message: '请将线索全部分发', type: 'error' })
         } else {
           this.$message({
             message: '保存成功！',
@@ -821,6 +823,8 @@ export default {
         } else if (!this.xsNum.distribute) {
           this.btnLoading = false
           this.$message({ message: '请分发线索', type: 'error' })
+        } else if (this.xsNum.total - this.xsNum.distribute !== 0) {
+          this.$message({ message: '请将线索全部分发', type: 'error' })
         } else {
           this.$save('casecluster/save', param).then((response) => {
             this.$message({
@@ -876,6 +880,8 @@ export default {
         } else if (this.listData.length === 0) {
           this.$message({ message: '请分发线索', type: 'error' })
           this.btnLoading = false
+        } else if (this.xsNum.total - this.xsNum.distribute !== 0) {
+          this.$message({ message: '请将线索全部分发', type: 'error' })
         } else {
           param.status = 1
           var curTime = this.$parseTime(new Date(), '{y}-{m}-{d}')
@@ -922,6 +928,8 @@ export default {
         } else if (this.listData.length === 0) {
           this.btnLoading = false
           this.$message({ message: '请分发线索', type: 'error' })
+        } else if (this.xsNum.total - this.xsNum.distribute !== 0) {
+          this.$message({ message: '请将线索全部分发', type: 'error' })
         } else {
           param.status = 5
           param.operatorType = param.status === 5 && (this.ajstatus === '5' || this.ajstatus === '6' || this.ajstatus === '7') ? 'update' : 'save'

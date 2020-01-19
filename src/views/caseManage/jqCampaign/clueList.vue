@@ -233,7 +233,7 @@ export default {
     }
   },
   methods: {
-    init() {
+    init(flag) {
       this.listLoading = true
       this.$query('citytree', { cityCode: '610000' }, 'upms').then((response) => {
         if (response.code === '000000') {
@@ -304,7 +304,7 @@ export default {
             }
           }
           this.handleDeptChange(this.department)
-          this.query(true) // 查询列表
+          this.query(true, flag) // 查询列表
         }
       }).catch(() => {
         this.listLoading = false
@@ -406,9 +406,13 @@ export default {
           para.deptCode = ''
         }
       }
+      if (this.$route.query.queryType) {
+        para.queryType = this.$route.query.queryType // 有该参数，则值查询当前部门下的区县线索数据
+      }
 
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
+        para.queryType = ''
       }
       // if (this.filters.time !== undefined && this.filters.time !== null && this.filters.time.length > 1) {
       //   para.startTime = this.filters.time[0] ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : ''
@@ -491,7 +495,7 @@ export default {
       this.area = []
       this.department = []
       this.initData()
-      this.init()
+      this.init(true)
     },
     toback() { // 返回
       this.$router.back(-1)
