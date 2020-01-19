@@ -194,7 +194,7 @@ export default {
         // if (this.assistStatus === '0' || this.assistStatus === undefined) {
         //   return true
         // }
-        if (this.curDept.depType === '1') {
+        if (this.curDept.depType === '1' && this.sDisabled) {
           return false
         }
         return true
