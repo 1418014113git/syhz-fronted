@@ -177,7 +177,8 @@ export default {
       tableHead: [], // 表头
       paramFilter: {
         cityCode: '',
-        deptCode: ''
+        deptCode: '',
+        queryType: ''
       },
       clueMoveDialogVisible: false,
       qbxsId: '',
@@ -256,6 +257,7 @@ export default {
         this.filters.qbxsResult = this.$route.query.type && this.$route.query.type !== '' ? this.$route.query.type.split(',') : [] // 核查情况
         this.paramFilter.cityCode = this.$route.query.cityCode ? this.$route.query.cityCode : '' // 地市
         this.paramFilter.deptCode = this.$route.query.deptCode ? this.$route.query.deptCode : '' // 接收部门
+        this.paramFilter.queryType = this.$route.query.queryType ? this.$route.query.queryType : '' // 只查支队下级部门
         // if (this.$route.query.receiveDate) {
         //   const date = new Date(this.$route.query.receiveDate)
         //   this.filters.time = [date, date]
@@ -420,7 +422,8 @@ export default {
         pageSize: this.pageSize, // 条数
         assistId: this.filters.assistId,
         assistType: this.$route.query.assistType,
-        showType: this.showType
+        showType: this.showType,
+        queryType: this.paramFilter.queryType
       }
       // if (this.filters.time !== undefined && this.filters.time !== null && this.filters.time.length > 1) {
       //   para.startTime = this.filters.time[0] ? this.$parseTime(this.filters.time[0], '{y}-{m}-{d}') + ' 00:00:00' : ''
@@ -432,6 +435,7 @@ export default {
       para.reginCode = this.filters.area[2] ? this.filters.area[2] : ''
       if (hand) { // 手动点击时，添加埋点参数
         para.logFlag = 1
+        para.queryType = ''
       }
       this.$query('caseassistclue/feedBackClues', para).then((response) => {
         this.listLoading = false
@@ -495,7 +499,7 @@ export default {
       }
       this.handleAreaChange(this.initArea)
       this.filters.department = this.initDepartment
-      this.query(true)
+      this.query(true, true)
     },
     toback() { // 返回
       this.$router.back(-1)

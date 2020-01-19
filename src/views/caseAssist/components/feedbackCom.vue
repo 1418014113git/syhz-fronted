@@ -455,7 +455,13 @@ export default {
           para.deptCode = ''
           para.cityCode = ''
         } else {
-          para.cityCode = this.curDept.depCode.substring(0, 6)
+          if (String(this.showType) !== '1') {
+            para.queryType = '3'
+            para.deptCode = ''
+            para.cityCode = this.curDept.depCode.substring(0, 6)
+          } else {
+            para.cityCode = this.curDept.depCode.substring(0, 6)
+          }
         }
       }
       this.$router.push({ path: '/caseAssist/clueList', query: para })
@@ -506,6 +512,13 @@ export default {
       if (row.score !== undefined) {
         this.evaluateForm.score = row.score
         this.evaluateForm.commentText = row.commentText
+      } else {
+        this.evaluateForm = { // 评价打分
+          assistId: '',
+          deptCode: '',
+          score: 0,
+          commentText: ''
+        }
       }
       this.evaluateDialogVisible = true
     },
