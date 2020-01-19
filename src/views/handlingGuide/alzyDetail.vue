@@ -50,7 +50,9 @@
           </div>
           <p></p>
           <p></p>
-          <div v-if="detailData.content && detailData.content !== ''" :style="detailData.content && detailData.content !== '' ? {maxHeight:tableHeight} : ''" v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
+          <div v-if="detailData.content && detailData.content !== ''" :style="detailData.content && detailData.content !== '' ? {maxHeight:tableHeight} : ''" class="alzyContent">
+            <div v-html="detailData.content" class="e-p-line ql-editor" style="padding: 10px 50px;"></div>
+          </div>
         </div>
         <div v-if="detailData.enclosure && detailData.enclosure.length > 0" class="enclosure_con">
           <div v-for="item in detailData.enclosure" :key="item.key" class="file_data_list" @click="handlerClick(item)">
@@ -493,6 +495,9 @@
     min-width: 100%;
   }
   .play_dialog .el-dialog .el-dialog__body .caseEdit.el-row {
+    width: 100%;
+  }
+  .alzyContent img{
     width: 100%;
   }
 </style>
