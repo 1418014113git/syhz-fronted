@@ -513,6 +513,6 @@
     padding: 0;
   }
   .hybzContent img{
-    width: 100%;
+    max-width: 100%;
   }
 </style>

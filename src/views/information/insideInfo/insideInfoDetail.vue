@@ -158,7 +158,7 @@
     background: none !important;
   }
   .flfgContent img{
-    width: 100%;
+    max-width: 100%;
   }
   .insideInfoDetail .title{
     color: rgb(32, 160, 255);

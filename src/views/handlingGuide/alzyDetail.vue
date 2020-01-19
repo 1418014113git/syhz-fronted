@@ -498,6 +498,6 @@
     width: 100%;
   }
   .alzyContent img{
-    width: 100%;
+    max-width: 100%;
   }
 </style>

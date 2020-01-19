@@ -102,7 +102,7 @@
           </el-table>
         </el-form-item>
         <el-form-item label="反馈内容" prop="backResult"  placeholder="请输入反馈内容">
-          <vue-editor v-model="xsfkForm.backResult" useCustomImageHandler  @imageAdded="handleImageAdded"></vue-editor>
+          <vue-editor v-model="xsfkForm.backResult" useCustomImageHandler  @imageAdded="handleImageAdded" @contentChange="contentChange"></vue-editor>
         </el-form-item>
         <el-form-item label="附件" style="margin-top: 15px;">
           <el-upload class="upload-demo" drag multiple  ref="fileUpload"
@@ -521,6 +521,9 @@ export default {
         }
       })
       return sums
+    },
+    contentChange(val) {
+      this.$refs.xsfkForm.validateField('backResult')
     }
   },
   mounted() {

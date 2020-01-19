@@ -685,10 +685,14 @@ export default {
             this.$router.back(-1)
           }
         } else {
-          this.$router.back(-1)
+          if (this.pageOperationType === 'reApply') {
+            this.$gotoid('/caseAssist/detail', this.editId)
+          } else {
+            this.$gotoid('/caseAssist/list')
+          }
         }
       } else {
-        this.$router.back(-1)
+        this.$gotoid('/caseAssist/list')
       }
     },
     cancelEdit() {
