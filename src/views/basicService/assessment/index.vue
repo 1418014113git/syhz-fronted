@@ -41,7 +41,7 @@
         <el-table :data="assessData"  style="width: 100%;" v-loading="loading1" class="table_th_center"
           :row-key="getRowKeys" :expand-row-keys="expands" @expand-change="rowClick"
           ref="teamStatistical" :row-class-name="getRowClass" show-summary :summary-method="getSummaries">
-          <el-table-column type="expand" :width="isSheng?40:1" class-name="expand"  fixed="left">
+          <!-- <el-table-column type="expand" :width="isSheng?40:1" class-name="expand"  fixed="left">
             <template slot-scope="scope">
               <el-table :data="scope.row.child||[]" :style="expandTableStyle" v-loading="loading2">
                 <el-table-column prop="" label="" width="40" fixed="left"></el-table-column>
@@ -55,7 +55,7 @@
                 </el-table-column>
               </el-table>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column type="index" width="55" label="序号" align="center"  fixed="left"></el-table-column>
           <el-table-column prop="name" :label="isSheng===true?'地市':'单位'" :min-width="smallItemWidth+70" align="center" show-overflow-tooltip  fixed="left"></el-table-column>
           <!-- 其他的三级字段的prop 需要加上一级的category -->
@@ -356,7 +356,7 @@ export default {
           sums[index] = '';
           return;
         }
-        if (index === 2) {
+        if (index === 1) {
           sums[index] = '总计';
           return;
         }
@@ -444,6 +444,13 @@ export default {
     },
   },
   mounted() {
+    this.getSysTime() // 获取系统时间
+    this.$nextTick(() => { // 页面渲染完成后的回调
+      this.screenWidth = this.$refs.teamStatistical.$el.clientWidth + 'px'
+      this.expandTableStyle = 'width:' + this.screenWidth + ';border-left: none;border-right: none;overflow-x:auto;'
+    })
+  },
+  activated() {
     this.getSysTime() // 获取系统时间
     this.$nextTick(() => { // 页面渲染完成后的回调
       this.screenWidth = this.$refs.teamStatistical.$el.clientWidth + 'px'
@@ -545,7 +552,7 @@ export default {
   .el-table__fixed-footer-wrapper tbody td {
     background-color: rgb(0, 89, 130);
     color: #ffffff;
-    border-top: none;
+    border-top: 1px solid rgba(0, 160, 233, 0.6);
   }
 }
 </style>
