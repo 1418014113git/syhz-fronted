@@ -23,7 +23,7 @@
     "html2canvas": "^1.0.0-rc.5",
     "js-cookie": "2.2.0",
     "jspdf": "^1.5.3",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "ol": "^5.3.3",
